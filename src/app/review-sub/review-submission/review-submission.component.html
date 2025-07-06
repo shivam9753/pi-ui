@@ -1,0 +1,80 @@
+<div class="w-full max-w-5xl mx-auto p-4 sm:p-6 bg-white">
+  <!-- Submission Header -->
+  <div class="border-b border-gray-200 pb-4 sm:pb-6 mb-6">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-2">
+      <h1 class="text-lg sm:text-2xl md:text-3xl font-semibold text-gray-900 break-words">
+        {{ submission.title }}
+      </h1>
+      <div class="flex flex-wrap gap-2">
+        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs sm:text-sm font-medium"
+              [ngClass]="{
+                'bg-yellow-100 text-yellow-800': submission.status === 'pending_review',
+                'bg-green-100 text-green-800': submission.status === 'approved',
+                'bg-red-100 text-red-800': submission.status === 'rejected'
+              }">
+          {{ submission.status | titlecase }}
+        </span>
+        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs sm:text-sm font-medium bg-blue-100 text-blue-800">
+          {{ submission.submissionType | titlecase }}
+        </span>
+      </div>
+    </div>
+
+    <p class="text-gray-600 text-sm sm:text-base mb-4">
+      {{ submission.description }}
+    </p>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 text-sm text-gray-500">
+      <div><span class="font-medium">Submitted:</span> {{ submission.createdAt | date }}</div>
+      <div *ngIf="submission.submissionType === 'poem'"><span class="font-medium"></span> {{ submission.contents.length }} Poem(s)</div>
+    </div>
+  </div>
+
+  <!-- Content Items -->
+  <div class="space-y-6 sm:space-y-8">
+    <div *ngFor="let content of submission.contents; let i = index" class="bg-gray-50 rounded-lg p-4 sm:p-6 border border-gray-200">
+      <!-- Content Header -->
+      <div class="mb-3 sm:mb-4">
+        <h2 class="text-base sm:text-xl font-semibold text-gray-900 mb-1">
+          {{ i + 1 }}. {{ content.title }}
+        </h2>
+        <div class="flex flex-wrap gap-3 text-xs sm:text-sm text-gray-500">
+          <span><i class="fas fa-calendar mr-1"></i> {{ content.createdAt | date:'shortDate' }}</span>
+          <span><i class="fas fa-file-alt mr-1"></i> {{ content.wordCount }} words</span>
+        </div>
+      </div>
+
+      <!-- Poem Body -->
+      <div class="mb-4">
+        <div class="bg-white rounded-md p-3 border-l-4 border-blue-500">
+          <pre class="whitespace-pre-line text-sm sm:text-base text-gray-800 font-serif leading-relaxed">{{ content.body }}</pre>
+        </div>
+      </div>
+
+      <!-- Tags -->
+      <div class="flex flex-wrap items-center gap-2 mb-3">
+        <span class="text-xs font-medium text-gray-600">Tags:</span>
+        <span *ngFor="let tag of content.tags"
+              class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800">
+          #{{ tag }}
+        </span>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Review Actions -->
+  <div class="mt-8 pt-6 border-t border-gray-200">
+    <div class="flex flex-col sm:flex-row sm:justify-end gap-3">
+      <button class="px-5 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 transition">
+        Save Draft
+      </button>
+      <button class="px-5 py-2 text-sm font-medium text-red-700 bg-red-100 rounded-md hover:bg-red-200 transition">
+        Reject Submission
+      </button>
+      <button class="px-5 py-2 text-sm font-medium text-green-700 bg-green-100 rounded-md hover:bg-green-200 transition" (click)="approveSubmission($event)">
+        Approve Submission
+      </button>
+    </div>
+  </div>
+</div>

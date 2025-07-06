@@ -1,0 +1,25 @@
+@switch (status) {
+    @case ('rejected') {
+      <span class="inline-flex items-center gap-x-1.5 py-1.5 px-3 rounded-full text-xs font-medium border border-red-500 text-red-500">
+        {{status | titlecase}}
+      </span>
+    }
+    @case ('accepted') {
+      <span class="inline-flex items-center gap-x-1.5 py-1.5 px-3 rounded-full text-xs font-medium border border-teal-500 text-teal-500">
+        {{status | titlecase}}
+      </span>
+    }
+    @case ('pending_review') {
+        <span class="inline-flex items-center gap-x-1.5 py-1.5 px-3 rounded-full text-xs font-medium border border-blue-600 text-blue-600 dark:text-blue-500">
+          {{status | titlecase}}
+        </span>
+      }
+    @default {
+      <span class="inline-flex items-center gap-x-1.5 py-1.5 px-3 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+        {{status | titlecase}}
+      </span>
+    }
+    
+  }
+
+

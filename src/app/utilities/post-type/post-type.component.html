@@ -1,0 +1,25 @@
+@switch (postType) {
+    @case ('poem') {
+      <span class="inline-flex items-center gap-x-1.5 py-1.5 px-3 rounded-full text-xs font-medium bg-teal-600 text-white">
+        {{postType | titlecase}}
+      </span>
+    }
+    @case ('article') {
+      <span class="inline-flex items-center gap-x-1.5 py-1.5 px-3 rounded-full text-xs font-medium bg-yellow-600 text-white">
+        {{postType | titlecase}}
+      </span>
+    }
+    @case ('cinema_essay') {
+      <span class="inline-flex items-center gap-x-1.5 py-1.5 px-3 rounded-full text-xs font-medium bg-purple-600 text-white">
+        Cinema Essay
+      </span>
+    }
+    @default {
+      <span class="inline-flex items-center gap-x-1.5 py-1.5 px-3 rounded-full text-xs font-medium bg-blue-600 text-white">
+        {{postType | titlecase}}
+      </span>
+    }
+  }
+
+
+
