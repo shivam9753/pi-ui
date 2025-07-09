@@ -1,0 +1,286 @@
+<div class="min-h-screen bg-black">
+      <!-- Hero Section -->
+      <div class="bg-gradient-to-b from-neutral-900 to-black border-b border-neutral-800">
+        <div class="w-full px-4 sm:px-6 lg:px-8 xl:px-12 py-16">
+          <div class="text-center mb-12">
+            <h1 class="text-4xl md:text-5xl font-bold text-white mb-4">
+              Literary 
+              <span class="text-orange-500">pi</span>
+            </h1>
+            <p class="text-xl text-neutral-300 max-w-2xl mx-auto">
+              Discover compelling stories, thought-provoking essays, and beautiful poetry from our community of writers
+            </p>
+          </div>
+
+          <!-- Quick Stats -->
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-4xl mx-auto">
+            <div class="text-center">
+              <div class="text-2xl font-bold text-orange-500">{{ totalPublished() }}</div>
+              <div class="text-sm text-neutral-400">Published Works</div>
+            </div>
+            <div class="text-center">
+              <div class="text-2xl font-bold text-orange-500">{{ totalAuthors() }}</div>
+              <div class="text-sm text-neutral-400">Writers</div>
+            </div>
+            <div class="text-center">
+              <div class="text-2xl font-bold text-orange-500">{{ totalReads() }}</div>
+              <div class="text-sm text-neutral-400">Total Reads</div>
+            </div>
+            <div class="text-center">
+              <div class="text-2xl font-bold text-orange-500">4</div>
+              <div class="text-sm text-neutral-400">Genres</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Search and Filters -->
+      <div class="bg-neutral-900/50 border-b border-neutral-800 sticky top-16 z-30">
+        <div class="w-full px-4 sm:px-6 lg:px-8 xl:px-12 py-6">
+          <div class="flex flex-col lg:flex-row lg:items-center gap-6">
+            <!-- Search Bar -->
+            <div class="flex-1 max-w-2xl">
+              <div class="relative">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <svg class="h-5 w-5 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                  </svg>
+                </div>
+                <input
+                  type="text"
+                  [(ngModel)]="searchTerm"
+                  (input)="onSearch()"
+                  placeholder="Search stories, poems, essays..."
+                  class="w-full pl-10 pr-4 py-3 border border-neutral-700 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-neutral-800 text-neutral-200 placeholder-neutral-400"
+                />
+              </div>
+            </div>
+
+            <!-- Filters -->
+            <div class="flex flex-wrap gap-3">
+              <select
+                [(ngModel)]="selectedGenre"
+                (change)="applyFilters()"
+                class="px-4 py-3 border border-neutral-700 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-neutral-800 text-neutral-200"
+              >
+                <option value="">All Genres</option>
+                <option value="poem">Poetry</option>
+                <option value="prose">Prose</option>
+                <option value="article">Articles</option>
+                <option value="cinema_essay">Cinema Essays</option>
+              </select>
+              
+              <select
+                [(ngModel)]="sortBy"
+                (change)="applyFilters()"
+                class="px-4 py-3 border border-neutral-700 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-neutral-800 text-neutral-200"
+              >
+                <option value="newest">Latest</option>
+                <option value="popular">Most Popular</option>
+                <option value="trending">Trending</option>
+                <option value="featured">Featured</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="w-full px-4 sm:px-6 lg:px-8 xl:px-12 py-8">
+        <!-- Featured Content -->
+        <div *ngIf="featuredContent().length > 0" class="mb-12">
+          <div class="flex items-center justify-between mb-6">
+            <h2 class="text-2xl font-bold text-white">Featured Stories</h2>
+            <a routerLink="/featured" class="text-orange-500 hover:text-orange-400 text-sm font-medium">
+              View All →
+            </a>
+          </div>
+          
+          <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+            <div *ngFor="let content of featuredContent().slice(0, 3)" 
+                 class="group bg-gradient-to-br from-neutral-800 to-neutral-900 rounded-xl overflow-hidden border border-neutral-700 hover:border-orange-500/50 transition-all duration-300 hover:scale-[1.02]">
+              
+              <!-- Featured Badge -->
+              <div class="absolute top-4 left-4 z-10">
+                <span class="bg-orange-600 text-white text-xs font-bold px-2 py-1 rounded-full">
+                  FEATURED
+                </span>
+              </div>
+
+              <!-- Image -->
+              <div class="relative h-48 bg-neutral-800 overflow-hidden">
+                <img *ngIf="content.imageUrl" 
+                     [src]="content.imageUrl" 
+                     [alt]="content.title"
+                     class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                <div *ngIf="!content.imageUrl" 
+                     class="w-full h-full flex items-center justify-center bg-gradient-to-br from-orange-600/20 to-orange-800/20">
+                  <svg class="w-12 h-12 text-orange-500/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                  </svg>
+                </div>
+              </div>
+
+              <!-- Content -->
+              <div class="p-6">
+                <div class="flex items-center gap-2 mb-3">
+                  <span class="text-xs font-medium text-orange-400 uppercase tracking-wide">
+                    {{ content.submissionType | titlecase }}
+                  </span>
+                  <span class="text-neutral-500">•</span>
+                  <span class="text-xs text-neutral-500">{{ content.readingTime }}min read</span>
+                </div>
+
+                <h3 class="text-xl font-bold text-white mb-2 group-hover:text-orange-400 transition-colors duration-300">
+                  <a [routerLink]="['/read', content._id]" class="hover:underline">
+                    {{ content.title }}
+                  </a>
+                </h3>
+
+                <p class="text-neutral-300 text-sm mb-4 line-clamp-2">
+                  {{ content.excerpt }}
+                </p>
+
+                <!-- Author and Stats -->
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center gap-2">
+                    <div class="w-8 h-8 bg-orange-600 rounded-full flex items-center justify-center">
+                      <span class="text-white text-sm font-medium">
+                        {{ content.authorName?.[0]?.toUpperCase() }}
+                      </span>
+                    </div>
+                    <a [routerLink]="['/profile', content.authorId]" 
+                       class="text-sm text-neutral-300 hover:text-orange-400">
+                      {{ content.authorName }}
+                    </a>
+                  </div>
+                  
+                  <div class="flex items-center gap-3 text-xs text-neutral-500">
+                    <span class="flex items-center gap-1">
+                      <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M10 12a2 2 0 100-4 2 2 0 000 4z"/>
+                        <path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd"/>
+                      </svg>
+                      {{ content.viewCount }}
+                    </span>
+                    <span class="flex items-center gap-1">
+                      <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd"/>
+                      </svg>
+                      {{ content.likeCount }}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Recent Content -->
+        <div>
+          <div class="flex items-center justify-between mb-6">
+            <h2 class="text-2xl font-bold text-white">
+              {{ getContentSectionTitle() }}
+            </h2>
+            <p class="text-sm text-neutral-400">
+              {{ filteredContent().length }} works found
+            </p>
+          </div>
+
+          <!-- Content Grid -->
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6">
+            <div *ngFor="let content of paginatedContent(); trackBy: trackByContentId" 
+                 class="group bg-neutral-900/50 backdrop-blur-sm rounded-lg border border-neutral-800/50 hover:border-orange-500/30 transition-all duration-300 overflow-hidden">
+              
+              <!-- Image -->
+              <div class="h-32 bg-neutral-800/60 overflow-hidden">
+                <img *ngIf="content.imageUrl" 
+                     [src]="content.imageUrl" 
+                     [alt]="content.title"
+                     class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                <div *ngIf="!content.imageUrl" 
+                     class="w-full h-full flex items-center justify-center">
+                  <svg class="w-6 h-6 text-neutral-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                </div>
+              </div>
+
+              <!-- Content -->
+              <div class="p-4">
+                <div class="flex items-center justify-between mb-3">
+                  <span class="px-2 py-1 text-xs font-medium rounded-md bg-neutral-800/60 text-neutral-400 border border-neutral-700/50">
+                    {{ content.submissionType | titlecase }}
+                  </span>
+                  <time class="text-xs text-neutral-500 font-mono">
+                    {{ content.publishedAt | date:'MMM d' }}
+                  </time>
+                </div>
+
+                <h3 class="text-sm font-semibold text-neutral-200 leading-snug line-clamp-2 mb-3">
+                  <a [routerLink]="['/read', content._id]" 
+                     class="hover:text-orange-400 transition-colors duration-300">
+                    {{ content.title }}
+                  </a>
+                </h3>
+
+                <p class="text-neutral-400 text-xs mb-3 line-clamp-2 leading-relaxed">
+                  {{ content.excerpt }}
+                </p>
+
+                <!-- Footer -->
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center space-x-2">
+                    <div class="w-5 h-5 rounded-full bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center">
+                      <span class="text-white text-xs font-medium">
+                        {{ content.authorName?.[0]?.toUpperCase() }}
+                      </span>
+                    </div>
+                    <a [routerLink]="['/profile', content.authorId]" 
+                       class="text-xs text-neutral-400 font-medium truncate hover:text-orange-400">
+                      {{ content.authorName }}
+                    </a>
+                  </div>
+                  
+                  <div class="flex items-center gap-2 text-xs text-neutral-500">
+                    <span>{{ content.readingTime }}min</span>
+                    <span>•</span>
+                    <span>{{ content.viewCount }} views</span>
+                  </div>
+                </div>
+
+                <!-- Tags -->
+                <div *ngIf="content.tags && content.tags.length > 0" class="flex flex-wrap gap-1 mt-3">
+                  <span *ngFor="let tag of content.tags.slice(0, 2)" 
+                        class="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium bg-neutral-800/40 text-neutral-500 border border-neutral-700/30">
+                    {{ tag }}
+                  </span>
+                  <span *ngIf="content.tags.length > 2" class="text-xs text-neutral-500">
+                    +{{ content.tags.length - 2 }}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Load More -->
+          <div *ngIf="hasMoreContent()" class="text-center mt-12">
+            <button 
+              (click)="loadMore()"
+              class="bg-neutral-800 hover:bg-neutral-700 text-neutral-200 px-8 py-3 rounded-lg font-medium transition-colors duration-300">
+              Load More Stories
+            </button>
+          </div>
+
+          <!-- Empty State -->
+          <div *ngIf="filteredContent().length === 0" class="text-center py-12">
+            <div class="w-16 h-16 mx-auto bg-neutral-900 rounded-full flex items-center justify-center mb-4">
+              <svg class="w-8 h-8 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+            </div>
+            <h3 class="text-lg font-medium text-neutral-100 mb-2">No content found</h3>
+            <p class="text-neutral-400">Try adjusting your search or filter criteria.</p>
+          </div>
+        </div>
+      </div>
+    </div>

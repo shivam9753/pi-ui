@@ -67,37 +67,11 @@ export class SubmissionFormComponent implements OnInit {
     }
   }
 
-  selectType(type: string) {
-    this.selectedType = type;
-    this.form.patchValue({ submissionType: type });
-    
-    // For non-poem types, reset to 1 content
-    const contents = this.form.controls['contents'] as FormArray;
-    if (type !== 'poem') {
-      while (contents.length > 1) contents.removeAt(1);
-    }
-  }
-
-  nextStep() {
-    if (this.currentStep === 1) {
-      if (!this.validateStep1()) return;
-    } else if (this.currentStep === 2) {
-      if (!this.validateStep2()) return;
-    }
-    
-    this.currentStep++;
-  }
-
   prevStep() {
     this.currentStep--;
   }
 
   validateStep1(): boolean {
-    const title = this.form.get('title')?.value?.trim();
-    if (!title) {
-      alert('Please enter a title for your submission');
-      return false;
-    }
     if (!this.selectedType) {
       alert('Please select a submission type');
       return false;
@@ -107,6 +81,7 @@ export class SubmissionFormComponent implements OnInit {
 
   validateStep2(): boolean {
     const contents = this.form.get('contents') as FormArray;
+    this.form.controls["title"].setValue(contents.value[0].title);
     for (let i = 0; i < contents.length; i++) {
       const content = contents.at(i);
       if (!content.get('title')?.value?.trim() || !content.get('body')?.value?.trim()) {
@@ -116,6 +91,76 @@ export class SubmissionFormComponent implements OnInit {
     }
     return true;
   }
+
+  // Add these methods to your component class:
+
+// Method to get display name for content type (plural)
+getContentTypeDisplayName(): string {
+  const typeMap: { [key: string]: string } = {
+    'poem': 'Poems',
+    'prose': 'Prose',
+    'article': 'Article',
+    'cinema_essay': 'Cinema Essay'
+  };
+  return typeMap[this.selectedType] || 'Content';
+}
+
+// Method to get display name for single content type
+getSingleContentTypeDisplayName(): string {
+  const typeMap: { [key: string]: string } = {
+    'poem': 'Poem',
+    'prose': 'Prose',
+    'article': 'Article',
+    'cinema_essay': 'Cinema Essay'
+  };
+  return typeMap[this.selectedType] || 'Content';
+}
+
+// Method to get display name for individual content items
+getContentItemDisplayName(index: number): string {
+  if (this.selectedType === 'poem') {
+    return `Poem ${index}`;
+  }
+  return this.getSingleContentTypeDisplayName();
+}
+
+// Method to validate content before proceeding to step 3
+isContentValid(): boolean {
+  const contents = this.getContentControls();
+  return contents.every(content => 
+    content.get('title')?.valid && content.get('body')?.valid
+  );
+}
+
+// Updated selectType method to clear content when type changes
+selectType(type: string): void {
+  if (this.selectedType !== type) {
+    // Clear existing content when switching types
+    const contentsArray = this.form.get('contents') as FormArray;
+    contentsArray.clear();
+    
+    // Add default content based on type
+    this.addContent();
+  }
+  
+  this.selectedType = type;
+  this.form.patchValue({ submissionType: type });
+}
+
+// Updated nextStep method to handle title auto-population
+nextStep(): void {
+  if (this.currentStep === 2) {
+    // Auto-populate submission title from first content title
+    const firstContentTitle = this.getContentControls()[0]?.get('title')?.value;
+    if (firstContentTitle) {
+      this.form.patchValue({ title: firstContentTitle });
+    }
+  }
+  
+  if (this.currentStep < 3) {
+    this.currentStep++;
+  }
+}
 
   countWords(text: string): number {
     return text.trim().split(/\s+/).filter(Boolean).length;

@@ -1,9 +1,4 @@
-/* submission-form.component.css */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap');
 
-.font-serif {
-  font-family: 'Playfair Display', serif;
-}
 
 .bg-primary {
   background-color: #6366f1;
@@ -154,7 +149,6 @@ button:hover::before {
 .word-counter {
   font-size: 0.75rem;
   color: #6b7280;
-  font-family: 'Inter', sans-serif;
 }
 
 /* Responsive design */

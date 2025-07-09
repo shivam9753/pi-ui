@@ -1,73 +1,70 @@
-import { Component, inject, HostListener } from '@angular/core';
+import { Component, inject, HostListener, signal, computed  } from '@angular/core';
 import {RouterOutlet, Router, RouterLink } from '@angular/router';
 import { AuthService, GoogleUser } from '../auth.service';
 import { CommonModule } from '@angular/common';
 
+
+interface NavigationItem {
+  label: string;
+  route: string;
+  icon?: string;
+  visible: boolean;
+  requiresAuth?: boolean;
+  roles?: string[];
+}
+
 @Component({
   selector: 'app-homepage',
-  imports: [ RouterOutlet, RouterLink, CommonModule],
+  imports: [  RouterLink, CommonModule, RouterOutlet],
   templateUrl: './homepage.component.html',
   styleUrl: './homepage.component.css'
 })
 export class HomepageComponent {
-  showDropdown = false;
-  private router = inject(Router);
-  loggedInUser: GoogleUser | null = null;
-  isMobileMenuOpen = false;
+  loggedInUser = signal<GoogleUser | null>(null);
+  showDropdown = signal(false);
+  isMobileMenuOpen = signal(false);
+  userId:any;
 
+  constructor(private authService: AuthService) {}
 
-  constructor(private authService: AuthService) {
-    this.router.navigate(['/review']);
-  }
   ngOnInit() {
-    this.authService.isLoggedIn$.subscribe(isLoggedIn => {
-      if(isLoggedIn) {
-        this.loggedInUser = this.authService.getCurrentUser();
-      }
-    })
+    // Subscribe to user changes
+    this.authService.user$.subscribe(user => {
+      this.loggedInUser.set(user);
+      this.userId = user?.id;
+    });
   }
 
   toggleDropdown() {
-    this.showDropdown = !this.showDropdown;
+    this.showDropdown.update(show => !show);
+  }
+
+  closeDropdown() {
+    this.showDropdown.set(false);
   }
 
   toggleMobileMenu() {
-    this.isMobileMenuOpen = !this.isMobileMenuOpen;
+    this.isMobileMenuOpen.update(open => !open);
   }
 
   closeMobileMenu() {
-    this.isMobileMenuOpen = false;
+    this.isMobileMenuOpen.set(false);
   }
 
   getUserInitials(name: string): string {
-    return name
-      .split(' ')
-      .map(word => word.charAt(0))
-      .join('')
-      .toUpperCase()
-      .slice(0, 2);
+    return name?.split(' ').map(n => n[0]).join('').toUpperCase() || 'U';
   }
 
-  // Close dropdowns when clicking outside
-  @HostListener('document:click', ['$event'])
-  onDocumentClick(event: Event) {
-    const target = event.target as HTMLElement;
-    if (!target.closest('.relative')) {
-      this.showDropdown = false;
-    }
+  isAdmin(): boolean {
+    return this.authService.isAdmin();
   }
 
-  // Close mobile menu on escape key
-  @HostListener('document:keydown.escape', ['$event'])
-  onEscapeKey(event: KeyboardEvent) {
-    if (this.isMobileMenuOpen) {
-      this.closeMobileMenu();
-    }
+  canReview() {
+    return this.authService.canReview();
   }
 
   logout() {
     this.authService.signOut();
-    this.loggedInUser = null;
-    this.showDropdown = false;
+    this.closeDropdown();
   }
 }

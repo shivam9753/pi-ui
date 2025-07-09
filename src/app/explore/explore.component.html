@@ -1,147 +1,120 @@
-<div class="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
-    <!-- Header -->
-    <div class="bg-white/80 backdrop-blur-sm border-b border-gray-200 sticky top-0 z-40">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
-          <div>
-            <h1 class="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-              Explore
-            </h1>
-            <p class="text-gray-600 mt-1">
-              Discover amazing works from our community
-            </p>
-          </div>
-          
-          <!-- Search and Filters -->
-          <div class="flex flex-col sm:flex-row gap-4 lg:flex-1 lg:max-w-2xl">
-            <div class="relative flex-1">
-              <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                </svg>
-              </div>
-              <input
-                type="text"
-                [(ngModel)]="searchTerm"
-                placeholder="Search reads..."
-                class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white text-gray-900 placeholder-gray-500"
-              />
-            </div>
-            
-            <select
-              [(ngModel)]="selectedType"
-              class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white text-gray-900"
-            >
-              <option value="">All Types</option>
-              <option value="poem">Poems</option>
-              <option value="prose">Prose</option>
-              <option value="article">Articles</option>
-              <option value="cinema_essay">Cinema Essays</option>
-            </select>
-            
-            <select
-              [(ngModel)]="sortBy"
-              class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white text-gray-900"
-            >
-              <option value="newest">Newest First</option>
-              <option value="oldest">Oldest First</option>
-              <option value="title">Title A-Z</option>
-            </select>
-          </div>
-        </div>
+<!-- explore.component.html -->
+<div class="min-h-screen bg-black">
+  <div class="w-full px-4 sm:px-6 lg:px-8 xl:px-12 py-6">
+    <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6 mb-8">
+      <div>
+        <p class="text-neutral-400 mt-1">
+          Discover compelling write ups from our community ({{ submissions.length || 0 }})
+        </p>
       </div>
-    </div>
-
-    <!-- Results Count -->
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-      <p class="text-sm text-gray-600">
-        Showing {{ filteredSubmissions().length }} of {{ submissions().length }} reads
-      </p>
-    </div>
-
-    <!-- Submissions Grid -->
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-12">
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        @for (submission of filteredSubmissions(); track submission._id) {
-          <div class="group bg-white rounded-xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-200 hover:border-blue-300">
-            <!-- Type Badge -->
-            <div class="p-4 pb-0">
-              <div class="flex items-center justify-between">
-                <span [ngClass]="getTypeBadgeClass(submission.submissionType)" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium">
-                  {{ getTypeLabel(submission.submissionType) }}
-                </span>
-                <span class="text-xs text-gray-500">
-                  {{ formatDate(submission.createdAt) }}
-                </span>
-              </div>
-            </div>
-
-            <!-- Content -->
-            <div class="p-4">
-              <h3 class="text-lg font-semibold text-gray-900 mb-2 group-hover:text-blue-600 transition-colors">
-                {{ submission.title }}
-              </h3>
               
-              <p class="text-gray-600 text-sm mb-3 line-clamp-3">
-                {{ submission.description }}
-              </p>
+      <!-- Filters -->
+      <div class="flex flex-wrap gap-2">
+        <button
+          *ngFor="let option of filterOptions"
+          (click)="onFilterChange(option.value)"
+          [ngClass]="{
+            'bg-orange-600 text-white': selectedType === option.value,
+            'bg-neutral-800 text-neutral-300 hover:bg-neutral-700 border border-neutral-700': selectedType !== option.value
+          }"
+          class="px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 focus:ring-offset-black"
+        >
+          {{ option.label }}
+        </button>
+      </div>
+    </div>
+            
+    <!-- Submissions Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6">
+      <div *ngFor="let submission of submissions; track submission?._id" 
+           class="group bg-neutral-900/50 backdrop-blur-sm rounded-lg border border-neutral-800/50 hover:border-orange-500/30 transition-all duration-300 overflow-hidden">
+        
+        <!-- Image Section -->
+        <div class="w-full h-32 bg-neutral-800/60 flex items-center justify-center overflow-hidden">
+          <img
+            *ngIf="submission.imageUrl; else placeholder"
+            [src]="submission.imageUrl"
+            [alt]="submission.title"
+            class="w-full h-full object-cover"
+          />
+          <ng-template #placeholder>
+            <div class="w-full h-full bg-neutral-800/60 flex items-center justify-center">
+              <svg class="w-6 h-6 text-neutral-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
+            </div>
+          </ng-template>
+        </div>
 
-              <!-- Author Info -->
-              <div class="flex items-center gap-2 mb-3">
-                <div class="w-6 h-6 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
-                  <span class="text-white text-xs font-medium">
-                    {{ submission.user?.username?.charAt(0)?.toUpperCase() || 'U' }}
-                  </span>
-                </div>
-                <span class="text-sm text-gray-700">
-                  {{ submission.user?.username || 'Unknown Author' }}
+        <!-- Card Content -->
+        <div class="p-4">
+          <!-- Header: Type & Date -->
+          <div class="flex items-center justify-between mb-3">
+            <span class="px-2 py-1 text-xs font-medium rounded-md bg-neutral-800/60 text-neutral-400 border border-neutral-700/50">
+              <a [routerLink]="['/browse', submission.submissionType]" 
+                 class="tag">
+                {{ submission.submissionType | titlecase }}
+              </a>
+            </span>
+            <time class="text-xs text-neutral-500 font-mono">
+              {{ submission.createdAt | date:'MMM dd, yyyy' }}
+            </time>
+          </div>
+
+          <!-- Title -->
+          <button 
+            (click)="openSubmission(submission)"
+            class="text-left w-full mb-3 cursor-pointer group-hover:text-orange-400 transition-colors duration-300">
+            <h3 class="text-sm font-semibold text-neutral-200 leading-snug line-clamp-2">
+              {{ submission.title }}
+            </h3>
+          </button>
+
+          <!-- Description -->
+          <p class="text-neutral-400 text-xs mb-3 line-clamp-2 leading-relaxed">
+            {{ submission.excerpt || submission.description }}
+          </p>
+
+          <!-- Footer: Author & Stats -->
+          <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-2">
+              <div class="w-5 h-5 rounded-full bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center">
+                <span class="text-white text-xs font-medium">
+                  {{ submission.username?.charAt(0)?.toUpperCase() || 'U' }}
                 </span>
               </div>
-
-              <!-- Tags -->
-              @if (submission.contents && submission.contents.length > 0) {
-                <div class="flex flex-wrap gap-1 mb-3">
-                  @for (tag of getFirstContentTags(submission); track tag) {
-                    <span class="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-gray-100 text-gray-700">
-                      {{ tag }}
-                    </span>
-                  }
-                </div>
-              }
-
-              <!-- Word Count -->
-              @if (submission.contents && submission.contents.length > 0) {
-                <div class="text-xs text-gray-500 mb-3">
-                  {{ getTotalWordCount(submission) }} words
-                  @if (submission.contents.length > 1) {
-                    • {{ submission.contents.length }} pieces
-                  }
-                </div>
-              }
-
-              <!-- Action Button -->
-              <button
-                (click)="openSubmission(submission)"
-                class="w-full bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white py-2 px-4 rounded-lg text-sm font-medium transition-all duration-200 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-              >
-                Read More
-              </button>
+              <span class="text-xs text-neutral-400 font-medium truncate">
+                {{ submission.username || 'Unknown' }}
+              </span>
+            </div>
+            
+            <div class="flex items-center gap-2 text-xs text-neutral-500">
+              <span *ngIf="submission.readingTime">{{ submission.readingTime }}min</span>
+              <span *ngIf="submission.viewCount">{{ submission.viewCount }} views</span>
             </div>
           </div>
-        }
-      </div>
 
-      <!-- Empty State -->
-      @if (filteredSubmissions().length === 0) {
-        <div class="text-center py-12">
-          <div class="w-16 h-16 mx-auto bg-gray-100 rounded-full flex items-center justify-center mb-4">
-            <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-            </svg>
+          <!-- Tags -->
+          <div *ngIf="submission.tags && submission.tags.length > 0" class="flex flex-wrap gap-1 mt-3">
+            <span *ngFor="let tag of submission.tags.slice(0, 2); track tag" 
+                  class="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium bg-neutral-800/40 text-neutral-500 border border-neutral-700/30">
+              {{ tag }}
+            </span>
+            <span *ngIf="submission.tags.length > 2" class="text-xs text-neutral-500">+{{ submission.tags.length - 2 }}</span>
           </div>
-          <h3 class="text-lg font-medium text-gray-900 mb-2">No reads found</h3>
-          <p class="text-gray-600">Try adjusting your search or filter criteria.</p>
         </div>
-      }
+      </div>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="!submissions || submissions.length === 0" class="text-center py-12">
+      <div class="w-16 h-16 mx-auto bg-neutral-900 rounded-full flex items-center justify-center mb-4">
+        <svg class="w-8 h-8 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+        </svg>
+      </div>
+      <h3 class="text-lg font-medium text-neutral-100 mb-2">No published works found</h3>
+      <p class="text-neutral-400">No works match your current filter.</p>
     </div>
   </div>
+</div>

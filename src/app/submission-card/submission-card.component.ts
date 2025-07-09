@@ -1,12 +1,10 @@
 import { CommonModule, DatePipe } from '@angular/common';
 import { Component, Input, inject } from '@angular/core';
-import { PostTypeComponent } from '../utilities/post-type/post-type.component';
-import { ReviewStatusComponent } from '../utilities/review-status/review-status.component';
 import { Router, RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-submission-card',
-  imports: [DatePipe, PostTypeComponent, ReviewStatusComponent,DatePipe, CommonModule, RouterLink],
+  imports: [DatePipe, DatePipe, CommonModule, RouterLink],
   templateUrl: './submission-card.component.html',
   styleUrl: './submission-card.component.css'
 })

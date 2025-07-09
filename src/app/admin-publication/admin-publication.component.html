@@ -1,0 +1,267 @@
+<div class="w-full px-4 sm:px-6 lg:px-8 xl:px-12 py-8 bg-black min-h-screen">
+  <!-- Header -->
+  <div class="border-b border-neutral-800 pb-6 mb-8">
+    <h1 class="text-2xl md:text-3xl font-bold text-neutral-100 mb-2">
+      Content Management
+    </h1>
+    <p class="text-neutral-400">
+      Review accepted submissions and publish them.
+    </p>
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="loading" class="text-center py-12">
+    <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto"></div>
+    <p class="text-neutral-400 mt-4">Loading accepted submissions...</p>
+  </div>
+
+  <!-- Submissions List -->
+  <div class="space-y-6" *ngIf="!loading">
+    <div 
+      *ngFor="let submission of acceptedSubmissions" 
+      class="bg-neutral-900/50 backdrop-blur-sm rounded-lg p-6 border border-neutral-800/50 hover:border-neutral-700/50 transition-colors">
+      
+      <!-- Submission Info -->
+      <div class="flex flex-col lg:flex-row lg:justify-between lg:items-start mb-4">
+        <div class="flex-1">
+          <div class="flex items-center gap-3 mb-2">
+            <h3 class="text-xl font-semibold text-neutral-100">
+              {{ submission.title }}
+            </h3>
+            <span class="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-neutral-800/60 text-neutral-400 border border-neutral-700/50">
+              {{ submission.submissionType | titlecase }}
+            </span>
+          </div>
+          <p class="text-neutral-400 text-sm mb-2" *ngIf="submission.description">
+            {{ submission.description }}
+          </p>
+          <div class="flex flex-wrap gap-4 text-xs text-neutral-500">
+            <span>By {{ submission.username }}</span>
+            <span>Approved {{ submission.reviewedAt | date:'shortDate' }}</span>
+            <span *ngIf="submission.readingTime">{{ submission.readingTime }} min read</span>
+          </div>
+        </div>
+        
+        <!-- Action Buttons -->
+        <div class="flex gap-2 mt-4 lg:mt-0">
+          <button 
+            (click)="editSubmission(submission)"
+            class="px-4 py-2 text-sm font-medium text-blue-300 bg-blue-900/20 rounded-lg hover:bg-blue-900/40 transition-colors duration-200 border border-blue-700/50">
+            <svg class="w-4 h-4 inline mr-1" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"/>
+            </svg>
+            Edit
+          </button>
+          <button 
+            (click)="publishSubmission(submission._id)"
+            [disabled]="submission.isPublishing"
+            class="px-4 py-2 text-sm font-medium text-green-300 bg-green-900/20 rounded-lg hover:bg-green-900/40 transition-colors duration-200 border border-green-700/50 disabled:opacity-50 disabled:cursor-not-allowed">
+            <span *ngIf="!submission.isPublishing">
+              <svg class="w-4 h-4 inline mr-1" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-8.293l-3-3a1 1 0 00-1.414 0l-3 3a1 1 0 001.414 1.414L9 9.414V13a1 1 0 102 0V9.414l1.293 1.293a1 1 0 001.414-1.414z" clip-rule="evenodd"/>
+              </svg>
+              Publish
+            </span>
+            <span *ngIf="submission.isPublishing" class="flex items-center">
+              <svg class="w-4 h-4 animate-spin mr-1" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              Publishing...
+            </span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Preview -->
+      <div class="bg-neutral-800/40 rounded-lg p-4 border-l-4 border-orange-500/60">
+        <p class="text-neutral-200 text-sm">{{ submission.excerpt }}</p>
+      </div>
+
+      <!-- Current Image (if exists) -->
+      <div *ngIf="submission.imageUrl" class="mt-4">
+        <p class="text-sm font-medium text-neutral-400 mb-2">Current Image:</p>
+        <img 
+          [src]="submission.imageUrl" 
+          [alt]="submission.title"
+          class="w-full max-w-sm h-32 object-cover rounded-lg border border-neutral-700">
+      </div>
+
+      <!-- Tags -->
+      <div class="flex flex-wrap items-center gap-2 mt-4" *ngIf="submission.tags && submission.tags.length > 0">
+        <span class="text-sm font-medium text-neutral-400">Tags:</span>
+        <span *ngFor="let tag of submission.tags"
+              class="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-neutral-800/60 text-neutral-400 border border-neutral-700/50">
+          #{{ tag }}
+        </span>
+      </div>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="acceptedSubmissions.length === 0" class="text-center py-12">
+      <svg class="w-16 h-16 text-neutral-600 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+      </svg>
+      <h3 class="text-lg font-medium text-neutral-300 mb-2">No accepted submissions</h3>
+      <p class="text-neutral-500">There are no accepted submissions ready for publishing.</p>
+    </div>
+  </div>
+</div>
+
+<!-- Edit Submission Modal -->
+<div *ngIf="editingSubmission" class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+  <div class="bg-neutral-900 rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] overflow-hidden">
+    <!-- Modal Header -->
+    <div class="flex items-center justify-between p-6 border-b border-neutral-800">
+      <h2 class="text-xl font-semibold text-neutral-100">
+        Edit Submission: {{ editingSubmission.title }}
+      </h2>
+      <button 
+        (click)="cancelEdit()"
+        class="text-neutral-400 hover:text-neutral-200 transition-colors">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Modal Content -->
+    <div class="p-6 overflow-y-auto max-h-[calc(90vh-140px)]">
+      <!-- Basic Info -->
+      <div class="space-y-4 mb-6">
+        <div>
+          <label class="block text-sm font-medium text-neutral-300 mb-2">Title</label>
+          <input 
+            [(ngModel)]="editingSubmission.title"
+            class="w-full px-3 py-2 bg-neutral-800/50 border border-neutral-700 rounded-lg text-neutral-100 focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-neutral-300 mb-2">Description</label>
+          <textarea 
+            [(ngModel)]="editingSubmission.description"
+            rows="3"
+            class="w-full px-3 py-2 bg-neutral-800/50 border border-neutral-700 rounded-lg text-neutral-100 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-vertical">
+          </textarea>
+        </div>
+
+        <!-- Image Upload Section -->
+        <div>
+          <label class="block text-sm font-medium text-neutral-300 mb-2">Add Image</label>
+          
+          <!-- File Upload -->
+          <div class="mb-3">
+            <input 
+              type="file" 
+              accept="image/*"
+              (change)="onImageSelect($event)"
+              class="block w-full text-sm text-neutral-300 bg-neutral-800/50 border border-neutral-700 rounded-lg cursor-pointer focus:outline-none file:mr-4 file:py-2 file:px-4 file:rounded-l-lg file:border-0 file:text-sm file:font-medium file:bg-blue-600 file:text-white hover:file:bg-blue-700">
+            <p class="text-xs text-neutral-500 mt-1">Upload an image (max 5MB) - JPG, PNG, GIF</p>
+          </div>
+
+          <!-- Upload Button -->
+          <button 
+            *ngIf="selectedImageFile"
+            (click)="uploadImage()"
+            [disabled]="isUploadingImage"
+            class="mb-4 px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed">
+            <span *ngIf="!isUploadingImage">
+              <svg class="w-4 h-4 inline mr-1" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM6.293 6.707a1 1 0 010-1.414l3-3a1 1 0 011.414 0l3 3a1 1 0 01-1.414 1.414L11 5.414V13a1 1 0 11-2 0V5.414L7.707 6.707a1 1 0 01-1.414 0z" clip-rule="evenodd"/>
+              </svg>
+              Upload Image
+            </span>
+            <span *ngIf="isUploadingImage" class="flex items-center">
+              <svg class="w-4 h-4 animate-spin mr-1" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              Uploading...
+            </span>
+          </button>
+
+          <!-- Current Image Preview -->
+          <div *ngIf="editingSubmission.imageUrl" class="mt-4">
+            <p class="text-sm font-medium text-neutral-300 mb-2">Current Image:</p>
+            <div class="relative inline-block">
+              <img 
+                [src]="editingSubmission.imageUrl" 
+                [alt]="editingSubmission.title"
+                class="w-full max-w-md h-48 object-cover rounded-lg border border-neutral-700"
+                (error)="onImageError($event)">
+              <button 
+                (click)="removeImage()"
+                class="absolute top-2 right-2 p-1 bg-red-600 text-white rounded-full hover:bg-red-700 transition-colors">
+                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Content Items -->
+      <div class="space-y-6">
+        <h3 class="text-lg font-semibold text-neutral-100">Content</h3>
+        <div *ngFor="let content of editingSubmission.contents; let i = index" 
+             class="bg-neutral-800/40 rounded-lg p-4 border border-neutral-700/50">
+          
+          <div class="mb-4">
+            <label class="block text-sm font-medium text-neutral-300 mb-2">
+              {{ i + 1 }}. Content Title
+            </label>
+            <input 
+              [(ngModel)]="content.title"
+              class="w-full px-3 py-2 bg-neutral-700/50 border border-neutral-600 rounded-lg text-neutral-100 focus:outline-none focus:ring-2 focus:ring-blue-500">
+          </div>
+
+          <div class="mb-4">
+            <label class="block text-sm font-medium text-neutral-300 mb-2">Content Body</label>
+            <textarea 
+              [(ngModel)]="content.body"
+              rows="8"
+              class="w-full px-3 py-2 bg-neutral-700/50 border border-neutral-600 rounded-lg text-neutral-100 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-vertical font-mono text-sm">
+            </textarea>
+            <p class="text-xs text-neutral-500 mt-1">
+              Word count: {{ calculateWordCount(content.body) }} words
+            </p>
+          </div>
+
+          <!-- Tags for this content -->
+          <div *ngIf="content.tags && content.tags.length > 0">
+            <label class="block text-sm font-medium text-neutral-300 mb-2">Tags</label>
+            <div class="flex flex-wrap gap-2">
+              <span *ngFor="let tag of content.tags"
+                    class="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-neutral-600/60 text-neutral-300 border border-neutral-600">
+                #{{ tag }}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal Footer -->
+    <div class="flex justify-end gap-3 p-6 border-t border-neutral-800">
+      <button 
+        (click)="cancelEdit()"
+        class="px-4 py-2 text-sm font-medium text-neutral-400 bg-neutral-800 rounded-lg hover:bg-neutral-700 transition-colors duration-200 border border-neutral-700">
+        Cancel
+      </button>
+      <button 
+        (click)="saveChanges()"
+        [disabled]="isSaving"
+        class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed">
+        <span *ngIf="!isSaving">Save Changes</span>
+        <span *ngIf="isSaving" class="flex items-center">
+          <svg class="w-4 h-4 animate-spin mr-1" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+          Saving...
+        </span>
+      </button>
+    </div>
+  </div>
+</div>

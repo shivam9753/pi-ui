@@ -14,6 +14,8 @@ export class UserLoginComponent implements OnInit, OnDestroy, AfterViewInit{
   isLoggedIn = false;
   currentUser: GoogleUser | null = null;
   private subscriptions: Subscription[] = [];
+  showGoogleSignIn = false;
+
 
   constructor(
     private authService: AuthService,
@@ -21,7 +23,6 @@ export class UserLoginComponent implements OnInit, OnDestroy, AfterViewInit{
   ) {}
 
   ngOnInit(): void {
-    // Subscribe to auth state changes
     this.subscriptions.push(
       this.authService.isLoggedIn$.subscribe(isLoggedIn => {
         this.isLoggedIn = isLoggedIn;
@@ -36,6 +37,13 @@ export class UserLoginComponent implements OnInit, OnDestroy, AfterViewInit{
         this.currentUser = user;
       })
     );
+  }
+
+ 
+
+
+   showSignIn() {
+    this.showGoogleSignIn = true;
   }
 
   ngAfterViewInit(): void {
@@ -58,6 +66,10 @@ export class UserLoginComponent implements OnInit, OnDestroy, AfterViewInit{
   }
 
   goToDashboard(): void {
-    this.router.navigate(['/dashboard']);
+    this.router.navigate(['/explore']);
+  }
+
+  skipToExplore() {
+    this.router.navigate(['/explore']);
   }
 }

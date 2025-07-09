@@ -1,57 +1,41 @@
-<div class="group bg-white/90 backdrop-blur-sm rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-200/50 hover:border-blue-300/50 p-6">
+<div class="group bg-neutral-900/50 backdrop-blur-sm rounded-lg border border-neutral-800/50 hover:border-orange-500/30 transition-all duration-300 p-5">
   
-  <!-- Title + Type Badge -->
-  <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mb-4">
-    <div class="flex-1">
-      <h3 class="text-xl font-semibold text-gray-900 mb-2 group-hover:text-blue-600 transition-colors">
-        {{ submission.title }}
-      </h3>
-      
-      <!-- Type Badge -->
-      <span
-        class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold"
-        [ngClass]="getBadgeClass(submission.submissionType)"
-      >
-        <svg class="w-3.5 h-3.5 mr-1" fill="currentColor" viewBox="0 0 20 20">
-          <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.975a1 1 0 00.95.69h4.188c.969 0 1.371 1.24.588 1.81l-3.396 2.465a1 1 0 00-.364 1.118l1.287 3.974c.3.921-.755 1.688-1.538 1.118l-3.396-2.464a1 1 0 00-1.176 0l-3.396 2.464c-.783.57-1.838-.197-1.538-1.118l1.287-3.974a1 1 0 00-.364-1.118L2.048 9.402c-.783-.57-.38-1.81.588-1.81h4.188a1 1 0 00.95-.69l1.286-3.975z" />
-        </svg>
+  <!-- Header: Type Badge -->
+  <div class="flex justify-between items-center mb-4">
+    <span class="px-2 py-1 text-xs font-medium rounded-md bg-neutral-800/60 text-neutral-400 border border-neutral-700/50">
+      <a [routerLink]="['/browse', submission.submissionType]" 
+         class="tag">
         {{ submission.submissionType | titlecase }}
+      </a>
+    </span>
+  </div>
+
+  <!-- Title - Clickable -->
+  <a 
+    [routerLink]="['/review-submission', submission._id]"
+    class="block mb-4 group-hover:text-orange-400 transition-colors duration-300"
+  >
+    <h3 class="text-base font-semibold text-neutral-200 leading-snug truncate cursor-pointer">
+      {{ submission.title }}
+    </h3>
+  </a>
+
+  <!-- Author & Date -->
+  <div class="flex items-center justify-between">
+    <div class="flex items-center space-x-2">
+      <div class="w-6 h-6 rounded-full bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center">
+        <span class="text-white text-xs font-medium">
+          {{ submission.username?.[0]?.toUpperCase() || '?' }}
+        </span>
+      </div>
+      <span class="text-sm text-neutral-400 font-medium">
+        {{ submission.username || 'Unknown' }}
       </span>
     </div>
-  </div>
-
-  <!-- Author Info -->
-  <div class="flex items-center gap-3 mb-4">
-    <div class="w-10 h-10 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center text-white font-bold text-sm uppercase shadow-md">
-      {{ submission.username?.[0] || '?' }}
-    </div>
-    <div>
-      <p class="text-sm font-medium text-gray-900">
-        {{ submission.username || 'Unknown' }}
-      </p>
-      <p class="text-xs text-gray-500">
-        {{ submission.createdAt | date:'medium' }}
-      </p>
-    </div>
-  </div>
-
-  <!-- Action Button -->
-  <div class="flex justify-end">
-    <a
-      [routerLink]="['/review-submission', submission._id]"
-      class="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-blue-500 to-purple-500 rounded-lg hover:from-blue-600 hover:to-purple-600 transition-all duration-200 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 shadow-md"
-    >
-      Review
-      <svg
-        class="w-4 h-4 ml-2"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2"
-        viewBox="0 0 24 24"
-      >
-        <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
-      </svg>
-    </a>
+    
+    <time class="text-xs text-neutral-500 font-mono">
+      {{ submission.createdAt | date:'MMM d' }}
+    </time>
   </div>
   
 </div>

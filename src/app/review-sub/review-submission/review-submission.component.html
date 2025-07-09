@@ -1,80 +1,208 @@
-<div class="w-full max-w-5xl mx-auto p-4 sm:p-6 bg-white">
+<div class="w-full px-4 sm:px-6 lg:px-8 xl:px-12 py-8 bg-black min-h-screen">
   <!-- Submission Header -->
-  <div class="border-b border-gray-200 pb-4 sm:pb-6 mb-6">
-    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-2">
-      <h1 class="text-lg sm:text-2xl md:text-3xl font-semibold text-gray-900 break-words">
-        {{ submission.title }}
+  <div class="border-b border-neutral-800 pb-6 mb-8">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-4">
+      <h1 class="text-2xl md:text-3xl font-bold text-neutral-100 break-words">
+        {{ submission?.title }}
       </h1>
       <div class="flex flex-wrap gap-2">
-        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs sm:text-sm font-medium"
+        <span class="inline-flex items-center px-3 py-1 rounded-md text-sm font-medium"
               [ngClass]="{
-                'bg-yellow-100 text-yellow-800': submission.status === 'pending_review',
-                'bg-green-100 text-green-800': submission.status === 'approved',
-                'bg-red-100 text-red-800': submission.status === 'rejected'
+                'bg-yellow-900/50 text-yellow-300 border border-yellow-700/50': submission.status === 'pending_review',
+                'bg-green-900/50 text-green-300 border border-green-700/50': submission.status === 'accepted' || submission.status === 'approved',
+                'bg-red-900/50 text-red-300 border border-red-700/50': submission.status === 'rejected'
               }">
           {{ submission.status | titlecase }}
         </span>
-        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs sm:text-sm font-medium bg-blue-100 text-blue-800">
+        <span class="inline-flex items-center px-3 py-1 rounded-md text-sm font-medium bg-neutral-800/60 text-neutral-300 border border-neutral-700/50">
           {{ submission.submissionType | titlecase }}
         </span>
       </div>
     </div>
 
-    <p class="text-gray-600 text-sm sm:text-base mb-4">
+    <p class="text-neutral-400 text-base mb-4" *ngIf="submission.description">
       {{ submission.description }}
     </p>
 
-    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 text-sm text-gray-500">
-      <div><span class="font-medium">Submitted:</span> {{ submission.createdAt | date }}</div>
-      <div *ngIf="submission.submissionType === 'poem'"><span class="font-medium"></span> {{ submission.contents.length }} Poem(s)</div>
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 text-sm text-neutral-500">
+      <div><span class="font-medium text-neutral-400">Submitted:</span> {{ submission.createdAt | date }}</div>
+      <div *ngIf="submission.submissionType === 'poem'">
+        <span class="font-medium text-neutral-400">Count:</span> {{ submission.contents.length }} Poem(s)
+      </div>
+      <div *ngIf="submission.reviewedAt">
+        <span class="font-medium text-neutral-400">Reviewed:</span> {{ submission.reviewedAt | date }}
+      </div>
+    </div>
+  </div>
+
+  <!-- Existing Review (if any) -->
+  <div *ngIf="existingReview" class="mb-8 bg-neutral-900/50 backdrop-blur-sm rounded-lg p-6 border border-neutral-800/50">
+    <h3 class="text-lg font-semibold text-neutral-100 mb-4 flex items-center gap-2">
+      <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+        <path fill-rule="evenodd" d="M18 13V5a2 2 0 00-2-2H4a2 2 0 00-2 2v8a2 2 0 002 2h3l3 3 3-3h3a2 2 0 002-2zM5 7a1 1 0 011-1h8a1 1 0 110 2H6a1 1 0 01-1-1zm1 3a1 1 0 100 2h3a1 1 0 100-2H6z" clip-rule="evenodd"/>
+      </svg>
+      Review by {{ existingReview.reviewerName }}
+    </h3>
+    <div class="space-y-3">
+      <div class="flex items-center gap-4 text-sm">
+        <span class="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium"
+              [ngClass]="{
+                'bg-green-900/50 text-green-300 border border-green-700/50': existingReview.status === 'accepted',
+                'bg-red-900/50 text-red-300 border border-red-700/50': existingReview.status === 'rejected'
+              }">
+          {{ existingReview.status | titlecase }}
+        </span>
+        <span class="text-neutral-400">{{ existingReview.reviewedAt | date:'medium' }}</span>
+      </div>
+      <div class="bg-neutral-800/40 rounded-lg p-4 border-l-4 border-blue-500/60">
+        <p class="text-neutral-200 whitespace-pre-line">{{ existingReview.reviewNotes }}</p>
+      </div>
     </div>
   </div>
 
   <!-- Content Items -->
-  <div class="space-y-6 sm:space-y-8">
-    <div *ngFor="let content of submission.contents; let i = index" class="bg-gray-50 rounded-lg p-4 sm:p-6 border border-gray-200">
+  <div class="space-y-6">
+    <div *ngFor="let content of submission.contents; let i = index" 
+         class="bg-neutral-900/50 backdrop-blur-sm rounded-lg p-6 border border-neutral-800/50">
+      
       <!-- Content Header -->
-      <div class="mb-3 sm:mb-4">
-        <h2 class="text-base sm:text-xl font-semibold text-gray-900 mb-1">
+      <div class="mb-4">
+        <h2 class="text-xl font-semibold text-neutral-100 mb-2">
           {{ i + 1 }}. {{ content.title }}
         </h2>
-        <div class="flex flex-wrap gap-3 text-xs sm:text-sm text-gray-500">
-          <span><i class="fas fa-calendar mr-1"></i> {{ content.createdAt | date:'shortDate' }}</span>
-          <span><i class="fas fa-file-alt mr-1"></i> {{ content.wordCount }} words</span>
+        <div class="flex flex-wrap gap-4 text-sm text-neutral-500">
+          <span class="flex items-center gap-1">
+            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd" />
+            </svg>
+            {{ content.createdAt | date:'shortDate' }}
+          </span>
+          <span class="flex items-center gap-1">
+            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clip-rule="evenodd" />
+            </svg>
+            {{ content.wordCount }} words
+          </span>
         </div>
       </div>
 
-      <!-- Poem Body -->
+      <!-- Content Body -->
       <div class="mb-4">
-        <div class="bg-white rounded-md p-3 border-l-4 border-blue-500">
-          <pre class="whitespace-pre-line text-sm sm:text-base text-gray-800 font-serif leading-relaxed">{{ content.body }}</pre>
+        <div class="bg-neutral-800/40 rounded-lg p-4 border-l-4 border-orange-500/60">
+          <pre class="whitespace-pre-line text-base text-neutral-200 leading-relaxed font-sans">{{ content.body }}</pre>
         </div>
       </div>
 
       <!-- Tags -->
-      <div class="flex flex-wrap items-center gap-2 mb-3">
-        <span class="text-xs font-medium text-gray-600">Tags:</span>
+      <div class="flex flex-wrap items-center gap-2" *ngIf="content.tags && content.tags.length > 0">
+        <span class="text-sm font-medium text-neutral-400">Tags:</span>
         <span *ngFor="let tag of content.tags"
-              class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800">
+              class="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-neutral-800/60 text-neutral-400 border border-neutral-700/50">
           #{{ tag }}
         </span>
       </div>
-
     </div>
   </div>
 
-  <!-- Review Actions -->
-  <div class="mt-8 pt-6 border-t border-gray-200">
-    <div class="flex flex-col sm:flex-row sm:justify-end gap-3">
-      <button class="px-5 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 transition">
-        Save Draft
+  <!-- Review Section -->
+  <div class="mt-8 pt-6 border-t border-neutral-800" *ngIf="submission.status === 'pending_review' || showReviewForm">
+    <!-- Review Comments Section -->
+    <div class="mb-6">
+      <label for="reviewNotes" class="block text-sm font-medium text-neutral-300 mb-2">
+        Review Comments <span class="text-red-400" *ngIf="reviewAction === 'reject'">*</span>
+      </label>
+      <textarea
+        id="reviewNotes"
+        [(ngModel)]="reviewNotes"
+        rows="4"
+        class="w-full px-3 py-2 bg-neutral-800/50 border border-neutral-700 rounded-lg text-neutral-100 placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-vertical"
+        [placeholder]="reviewAction === 'approve' ? 'Add positive feedback (optional)...' : 'Explain what needs improvement (required)...'"
+        [class.border-red-500]="reviewAction === 'reject' && !reviewNotes.trim()"
+      ></textarea>
+      <p class="text-xs text-neutral-500 mt-1" *ngIf="reviewAction === 'reject'">
+        Review comments are required when rejecting a submission.
+      </p>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="flex flex-col sm:flex-row sm:justify-end gap-3" *ngIf="submission.status === 'pending_review'">
+      <!-- Cancel Button (if review form is showing) -->
+      <button 
+        *ngIf="showReviewForm"
+        (click)="cancelReview()"
+        class="px-6 py-2 text-sm font-medium text-neutral-400 bg-neutral-800 rounded-lg hover:bg-neutral-700 transition-colors duration-200 border border-neutral-700">
+        Cancel
       </button>
-      <button class="px-5 py-2 text-sm font-medium text-red-700 bg-red-100 rounded-md hover:bg-red-200 transition">
-        Reject Submission
+      
+      <!-- Reject Button -->
+      <button 
+        (click)="setReviewAction('reject')"
+        [disabled]="isSubmitting"
+        class="px-6 py-2 text-sm font-medium text-red-300 bg-red-900/20 rounded-lg hover:bg-red-900/40 transition-colors duration-200 border border-red-700/50 disabled:opacity-50 disabled:cursor-not-allowed">
+        <span *ngIf="!isSubmitting || reviewAction !== 'reject'">Reject Submission</span>
+        <span *ngIf="isSubmitting && reviewAction === 'reject'" class="flex items-center gap-2">
+          <svg class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+          Rejecting...
+        </span>
       </button>
-      <button class="px-5 py-2 text-sm font-medium text-green-700 bg-green-100 rounded-md hover:bg-green-200 transition" (click)="approveSubmission($event)">
-        Approve Submission
+
+      <!-- Approve Button -->
+      <button 
+        (click)="setReviewAction('approve')"
+        [disabled]="isSubmitting"
+        class="px-6 py-2 text-sm font-medium text-green-300 bg-green-900/20 rounded-lg hover:bg-green-900/40 transition-colors duration-200 border border-green-700/50 disabled:opacity-50 disabled:cursor-not-allowed">
+        <span *ngIf="!isSubmitting || reviewAction !== 'approve'">Approve Submission</span>
+        <span *ngIf="isSubmitting && reviewAction === 'approve'" class="flex items-center gap-2">
+          <svg class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+          Approving...
+        </span>
       </button>
+    </div>
+
+    <!-- Confirm Review Button (when action is selected) -->
+    <div class="flex justify-end" *ngIf="reviewAction && showReviewForm">
+      <button 
+        (click)="confirmReview()"
+        [disabled]="isSubmitting || (reviewAction === 'reject' && !reviewNotes.trim())"
+        class="px-6 py-2 text-sm font-medium text-white rounded-lg transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+        [ngClass]="{
+          'bg-green-600 hover:bg-green-700': reviewAction === 'approve',
+          'bg-red-600 hover:bg-red-700': reviewAction === 'reject'
+        }">
+        <span *ngIf="!isSubmitting">
+          Confirm {{ reviewAction === 'approve' ? 'Approval' : 'Rejection' }}
+        </span>
+        <span *ngIf="isSubmitting" class="flex items-center gap-2">
+          <svg class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+          Processing...
+        </span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Already Reviewed Message -->
+  <div class="mt-8 pt-6 border-t border-neutral-800" *ngIf="submission.status !== 'pending_review' && !existingReview">
+    <div class="text-center py-8">
+      <div class="inline-flex items-center px-4 py-2 rounded-lg"
+           [ngClass]="{
+             'bg-green-900/20 text-green-300 border border-green-700/50': submission.status === 'accepted',
+             'bg-red-900/20 text-red-300 border border-red-700/50': submission.status === 'rejected'
+           }">
+        <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+          <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" *ngIf="submission.status === 'accepted'"/>
+          <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" *ngIf="submission.status === 'rejected'"/>
+        </svg>
+        This submission has been {{ submission.status }}
+      </div>
     </div>
   </div>
 </div>

@@ -1,0 +1,83 @@
+<div class="w-full px-4 sm:px-6 lg:px-8 xl:px-12 py-8 bg-black min-h-screen" *ngIf="submission">
+
+  <!-- Article Container -->
+  <article class="max-w-4xl mx-auto space-y-8">
+
+    <!-- Title -->
+    <header class="text-center space-y-4">
+      <h1 class="text-3xl md:text-4xl font-bold text-neutral-100 leading-tight">
+        {{ submission.title }}
+      </h1>
+
+      <!-- Author Meta -->
+      <div class="flex items-center justify-center gap-3 text-sm text-neutral-400">
+        <div class="w-8 h-8 bg-gradient-to-br from-orange-500 to-orange-600 rounded-full flex items-center justify-center text-white font-medium">
+          {{ getAuthorInitials() }}
+        </div>
+        <span class="font-medium text-neutral-300">{{ submission.username || 'Unknown Author' }}</span>
+        <span class="text-neutral-600">•</span>
+        <time class="font-mono">{{ formatDate(submission.reviewedAt) }}</time>
+        <span class="text-neutral-600">•</span>
+        <span class="font-mono">{{ getReadTime() }} min read</span>
+      </div>
+    </header>
+
+    <!-- Header Image -->
+    <div class="w-full h-64 md:h-80 rounded-lg overflow-hidden bg-neutral-900/50 flex items-center justify-center border border-neutral-800/50">
+      <img 
+        *ngIf="submission.headerImage; else placeholderImage" 
+        [src]="submission.headerImage" 
+        [alt]="submission.title" 
+        class="w-full h-full object-cover"
+      />
+      <ng-template #placeholderImage>
+        <div class="w-full h-full bg-gradient-to-br from-neutral-800 to-neutral-900 flex items-center justify-center">
+          <svg class="w-12 h-12 text-neutral-600" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6.827 6.175A2.31 2.31 0 015.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 00-1.134-.175 2.31 2.31 0 01-1.64-1.055l-.822-1.316a2.192 2.192 0 00-1.736-1.039 48.774 48.774 0 00-5.232 0 2.192 2.192 0 00-1.736 1.039l-.821 1.316z" />
+            <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 12.75a4.5 4.5 0 11-9 0 4.5 4.5 0 019 0zM18.75 10.5h.008v.008h-.008V10.5z" />
+          </svg>
+        </div>
+      </ng-template>
+    </div>
+
+    <!-- Description -->
+    <div class="text-center" *ngIf="submission.description">
+      <p class="text-lg text-neutral-300 leading-relaxed max-w-2xl mx-auto">
+        {{ submission.description }}
+      </p>
+    </div>
+
+    <!-- Content -->
+    <div class="space-y-12">
+      <ng-container *ngFor="let content of submission.contents; trackBy: trackContent">
+        <section class="space-y-6">
+          
+          <!-- Content Title (if multiple pieces) -->
+          <h2 *ngIf="shouldShowContentTitle(content)" 
+              class="text-2xl font-semibold text-neutral-200 text-center">
+            {{ content.title }}
+          </h2>
+          
+          <!-- Content Body -->
+          <div class="bg-neutral-900/30 backdrop-blur-sm rounded-lg p-6 md:p-8 border border-neutral-800/50">
+            <div class="prose prose-lg max-w-none text-neutral-200 leading-relaxed" 
+                 [innerHTML]="formatContentBody(content.body)">
+            </div>
+          </div>
+
+          <!-- Tags -->
+          <div class="flex flex-wrap justify-center gap-2" *ngIf="content.tags && content.tags.length > 0">
+            <span *ngFor="let tag of content.tags"
+                  class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-neutral-800/60 text-neutral-400 border border-neutral-700/50">
+              #{{ tag }}
+            </span>
+          </div>
+        </section>
+      </ng-container>
+    </div>
+
+    <!-- Footer Spacer -->
+    <div class="h-16"></div>
+
+  </article>
+</div>

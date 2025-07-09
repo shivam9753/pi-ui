@@ -3,6 +3,7 @@ import { isPlatformBrowser } from '@angular/common';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
+import { environment } from '../environments/environment';
 
 declare var google: any;
 
@@ -88,6 +89,8 @@ export class AuthService {
             id: res.user?._id || baseUser.id,
             role: res.user?.role || 'user'
           };
+          localStorage.setItem('user', JSON.stringify(fullUser));
+
   
           // Save complete user object
           localStorage.setItem('google_user', JSON.stringify(fullUser));
@@ -109,7 +112,7 @@ export class AuthService {
   
 
   private registerGoogleUserIfFirstTime(user: GoogleUser): Observable<any> {
-    return this.http.post('http://localhost:3000/api/auth/google-user', {
+    return this.http.post(`${environment.apiBaseUrl}/users/auth/google-user`, {
       email: user.email,
       name: user.name
     });
@@ -188,7 +191,7 @@ export class AuthService {
 
   private navigateAfterLogin(): void {
     // Navigate to homepage or dashboard after successful login
-    this.router.navigate(['/dashboard']);
+    this.router.navigate(['/explore']);
   }
 
   public getCurrentUser(): GoogleUser | null {
@@ -202,4 +205,28 @@ export class AuthService {
   public isAuthenticated(): boolean {
     return this.isLoggedInSubject.value;
   }
+
+  hasRole(roles: string[]) {
+    const user = this.getCurrentUser(); // Your existing method
+    return user && user.role && roles.includes(user.role);
+  }
+
+  isAdmin(): boolean {
+    const user = this.getCurrentUser();
+    return user?.role === 'admin';
+  }
+
+  isReviewer(): boolean {
+    const user = this.getCurrentUser();
+    return user?.role === 'reviewer' || user?.role === 'admin';
+  }
+
+  canReview() {
+    return this.hasRole(['reviewer', 'admin']);
+  }
+
+  canAdmin() {
+    return this.hasRole(['admin']);
+  }
+
 }
