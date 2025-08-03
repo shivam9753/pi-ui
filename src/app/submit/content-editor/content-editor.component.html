@@ -1,0 +1,108 @@
+<div class="space-y-6">
+    
+    <!-- Content Items -->
+    <div *ngFor="let content of contents; let i = index" class="space-y-4">
+        
+        <!-- Content Header -->
+        <div class="flex items-center justify-between">
+          <h3 class="text-base font-medium text-themed">
+            {{ getContentItemDisplayName(i + 1) }}
+          </h3>
+          <div class="flex items-center space-x-3">
+            <span class="text-sm text-themed-secondary">
+              {{ getWordCount(i) }} words
+            </span>
+            <button 
+              *ngIf="selectedType === 'poem' && contents.length > 1"
+              type="button" 
+              (click)="removeContent(i)"
+              class="text-red-500 hover:text-red-600 transition-colors duration-200 p-1 rounded-lg hover:bg-red-50"
+              title="Remove this poem"
+            >
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+              </svg>
+            </button>
+          </div>
+        </div>
+        
+        <!-- Title Input -->
+        <div>
+          <label class="block text-sm font-medium text-themed mb-2">
+            {{ getSingleContentTypeDisplayName() }} Title
+          </label>
+          <input 
+            type="text" 
+            [formControl]="content.get('title')"
+            class="w-full px-4 py-3 border border-themed rounded-xl bg-themed text-themed focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors duration-200"
+            [class.border-red-400]="content.get('title')?.invalid && content.get('title')?.touched"
+            [placeholder]="'Enter ' + getSingleContentTypeDisplayName().toLowerCase() + ' title...'"
+          />
+          <div *ngIf="content.get('title')?.invalid && content.get('title')?.touched" 
+               class="text-red-500 text-sm mt-2 flex items-center">
+            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            Title is required
+          </div>
+        </div>
+        
+        <!-- Content Body with Rich Text Editor -->
+        <div>
+          <label class="block text-sm font-medium text-themed mb-2">
+            {{ getSingleContentTypeDisplayName() }} Content
+          </label>
+          <app-rich-text-editor
+            [formControl]="content.get('body')"
+            [placeholder]="getContentPlaceholder()"
+            [allowImages]="shouldAllowImages()"
+            (imageUpload)="onImageUpload($event, i)"
+          ></app-rich-text-editor>
+          
+          <div *ngIf="content.get('body')?.invalid && content.get('body')?.touched" 
+               class="text-red-500 text-sm mt-2 flex items-center">
+            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            Content is required
+          </div>
+        </div>
+        
+        <!-- Tags -->
+        <div>
+          <label class="block text-sm font-medium text-themed mb-2">
+            Tags (Optional)
+          </label>
+          <input 
+            type="text" 
+            [formControl]="content.get('tags')"
+            class="w-full px-4 py-3 border border-themed rounded-xl bg-themed text-themed placeholder-themed-tertiary focus:outline-none focus:ring-2 focus:ring-themed-accent focus:border-themed-accent transition-colors duration-200"
+            placeholder="Add tags separated by commas..."
+          />
+          <p class="text-xs text-themed-secondary mt-2">
+            Example: nature, love, friendship, urban life
+          </p>
+        </div>
+
+        <!-- Divider (except for last item) -->
+        <hr *ngIf="i < contents.length - 1" class="border-themed my-8">
+      </div>
+
+    <!-- Add Content Button (only for poems) -->
+    <div *ngIf="selectedType === 'poem' && contents.length < 5" class="mt-6">
+      <button 
+        type="button" 
+        (click)="addContent()"
+        class="w-full py-4 border-2 border-dashed border-themed rounded-xl text-themed-secondary hover:border-themed-accent hover:text-themed-accent transition-colors duration-200 flex items-center justify-center space-x-2 bg-themed-secondary hover:bg-themed-accent-light"
+      >
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+        </svg>
+        <span class="font-medium">Add Another {{ getSingleContentTypeDisplayName() }}</span>
+      </button>
+      <p class="text-xs text-themed-secondary text-center mt-3">
+        You can submit up to 5 poems at once
+      </p>
+    </div>
+
+  </div>

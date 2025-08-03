@@ -1,0 +1,74 @@
+/* Admin Dashboard Styles */
+
+.tab-content {
+  min-height: 500px;
+}
+
+/* Tab transition animations */
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Tab button hover effects */
+.tab-button {
+  position: relative;
+  transition: all 0.2s ease;
+}
+
+.tab-button:hover {
+  transform: translateY(-1px);
+}
+
+/* Loading spinner */
+.loading-spinner {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Mobile tab navigation */
+.tab-nav-container {
+  /* Smooth scrolling for mobile tab navigation */
+  scroll-behavior: smooth;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE/Edge */
+}
+
+.tab-nav-container::-webkit-scrollbar {
+  display: none; /* Chrome/Safari */
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+  .tab-nav-container {
+    /* Ensure tabs don't wrap and stay scrollable */
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+  
+  .tab-nav-container nav {
+    /* Minimum width to prevent cramping */
+    min-width: fit-content;
+  }
+  
+  /* Compact tab buttons on mobile */
+  .tab-button-mobile {
+    min-width: auto;
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+  }
+}

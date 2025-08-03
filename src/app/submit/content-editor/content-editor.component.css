@@ -1,0 +1,27 @@
+/* Content Editor Component Styles */
+
+.animate-fade-in {
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+  .space-x-3 > * + * {
+    margin-left: 0.5rem;
+  }
+  
+  .space-x-2 > * + * {
+    margin-left: 0.25rem;
+  }
+}

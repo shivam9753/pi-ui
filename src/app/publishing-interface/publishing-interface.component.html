@@ -1,0 +1,632 @@
+<div class="w-full px-4 sm:px-6 lg:px-8 xl:px-12 py-8 bg-themed min-h-screen">
+  <!-- Header -->
+  <div class="border-b border-themed pb-6 mb-8">
+    <div class="flex items-center gap-4 mb-4">
+      <button 
+        (click)="goBack()"
+        class="text-themed-secondary hover:text-themed transition-colors">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+        </svg>
+      </button>
+      <h1 class="text-2xl md:text-3xl font-bold text-themed">
+        Publishing Interface
+      </h1>
+    </div>
+    <p class="text-themed-secondary">
+      Configure SEO settings and publish your submission.
+    </p>
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="loading" class="text-center py-12">
+    <div class="spinner mx-auto"></div>
+    <p class="text-themed-secondary mt-4">Loading submission...</p>
+  </div>
+
+  <!-- Two-Column Publishing Layout -->
+  <div *ngIf="!loading && submission" class="max-w-7xl mx-auto">
+    <div class="publishing-grid">
+    
+      <!-- Left Column: Basic Information & SEO Configuration -->
+      <div class="space-y-6">
+      <!-- Basic Information Card -->
+      <div class="card p-6">
+        <h2 class="text-xl font-semibold text-themed mb-4">Basic Information</h2>
+        <div class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium text-themed mb-2">Title</label>
+            <input 
+              [(ngModel)]="submission.title"
+              class="form-input"
+              placeholder="Enter submission title">
+          </div>
+          
+          <div>
+            <label class="block text-sm font-medium text-themed mb-2">Description</label>
+            <textarea 
+              [(ngModel)]="submission.description"
+              rows="3"
+              class="form-input resize-vertical"
+              placeholder="Enter submission description">
+            </textarea>
+          </div>
+          
+          <div class="flex flex-wrap gap-4 text-xs text-themed-tertiary p-3 bg-themed-tertiary rounded-lg border border-themed">
+            <span>By {{ submission.username }}</span>
+            <app-badge-label [type]="submission.submissionType"></app-badge-label>
+            <span *ngIf="submission.readingTime">{{ submission.readingTime }} min read</span>
+            <span *ngIf="submission.contents">{{ submission.contents.length }} content item(s)</span>
+          </div>
+        </div>
+      </div>
+
+
+      <!-- Profile Approval (if pending) -->
+      <div *ngIf="showProfileApproval" class="card p-6">
+      <h2 class="text-xl font-semibold text-themed mb-6">
+        <span class="flex items-center">
+          <svg class="w-6 h-6 text-orange-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+          </svg>
+          User Profile Approval Required
+        </span>
+      </h2>
+      
+      <div class="bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800 rounded-lg p-6 mb-6">
+        <p class="text-orange-800 dark:text-orange-200 mb-2">
+          <strong>{{ userProfile?.username || 'This user' }}</strong> has submitted profile information that requires your approval.
+        </p>
+        <p class="text-sm text-orange-700 dark:text-orange-300">
+          Review and approve the bio and profile picture below to make them live on the user's profile.
+        </p>
+      </div>
+
+      <div class="space-y-6">
+        <!-- Bio Approval -->
+        <div *ngIf="profileApprovalData.tempBio" class="bg-themed-tertiary rounded-lg p-6 border border-themed">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="text-lg font-medium text-themed">Author Bio</h3>
+            <div class="flex gap-2">
+              <button 
+                (click)="editBio()" 
+                class="btn-secondary text-sm">
+                <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                </svg>
+                Edit
+              </button>
+              <button 
+                (click)="approveBio()" 
+                class="btn-primary text-sm">
+                <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+                Approve Bio
+              </button>
+            </div>
+          </div>
+          
+          <div class="bg-themed-card border border-themed rounded-lg p-4">
+            <p class="text-themed whitespace-pre-wrap">{{ profileApprovalData.tempBio }}</p>
+          </div>
+          
+          <div class="mt-3 text-xs text-themed-secondary">
+            <strong>Current bio:</strong> {{ profileApprovalData.approvedBio || 'No bio set' }}
+          </div>
+        </div>
+
+        <!-- Profile Image Approval -->
+        <div *ngIf="profileApprovalData.tempProfileImage" class="bg-themed-tertiary rounded-lg p-6 border border-themed">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="text-lg font-medium text-themed">Profile Picture</h3>
+            <button 
+              (click)="approveProfileImage()" 
+              class="btn-primary text-sm">
+              <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+              </svg>
+              Approve Image
+            </button>
+          </div>
+          
+          <div class="flex items-start space-x-6">
+            <!-- New Image -->
+            <div class="flex-1">
+              <p class="text-sm font-medium text-themed mb-2">Submitted Image:</p>
+              <div class="w-32 h-32 rounded-lg overflow-hidden border-2 border-themed bg-themed-tertiary">
+                <img 
+                  [src]="getProfileImageUrl(profileApprovalData.tempProfileImage)" 
+                  [alt]="userProfile?.username + ' profile picture'"
+                  class="w-full h-full object-cover">
+              </div>
+            </div>
+            
+            <!-- Current Image (if any) -->
+            <div class="flex-1" *ngIf="profileApprovalData.approvedImage">
+              <p class="text-sm font-medium text-themed mb-2">Current Image:</p>
+              <div class="w-32 h-32 rounded-lg overflow-hidden border-2 border-themed bg-themed-tertiary">
+                <img 
+                  [src]="getProfileImageUrl(userProfile?.profileImage)" 
+                  [alt]="userProfile?.username + ' current profile picture'"
+                  class="w-full h-full object-cover">
+              </div>
+            </div>
+            
+            <div class="flex-1" *ngIf="!profileApprovalData.approvedImage">
+              <p class="text-sm font-medium text-themed mb-2">Current Image:</p>
+              <div class="w-32 h-32 rounded-lg border-2 border-dashed border-themed bg-themed-tertiary flex items-center justify-center">
+                <p class="text-themed-secondary text-xs text-center">No image set</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+      <!-- SEO Configuration -->
+      <div class="card p-6">
+        <h2 class="text-xl font-semibold text-themed mb-6">SEO Configuration</h2>
+      
+      <div class="space-y-6">
+        <!-- SEO Slug -->
+        <div>
+          <label class="block text-sm font-medium text-themed mb-2">
+            SEO Slug <span class="text-red-600">*</span>
+          </label>
+          <div class="flex items-center gap-2 mb-2">
+            <span class="text-themed-secondary text-sm">{{ baseUrl }}</span>
+            <input 
+              [(ngModel)]="seoConfig.slug"
+              (input)="validateSlug()"
+              placeholder="three-poems-by-vinita-agrawal"
+              class="form-input flex-1"
+              [class.border-red-600]="slugError">
+          </div>
+          <p class="text-xs text-themed-tertiary mb-2">
+            This will be the URL path for your published content. Use lowercase letters, numbers, and hyphens only.
+          </p>
+          <div *ngIf="slugError" class="text-red-600 text-sm">{{ slugError }}</div>
+          <div *ngIf="!slugError && seoConfig.slug" class="text-green-600 text-sm">
+            ✓ URL will be: {{ baseUrl }}{{ seoConfig.slug }}
+          </div>
+        </div>
+
+        <!-- Meta Title -->
+        <div>
+          <label class="block text-sm font-medium text-themed mb-2">
+            Meta Title <span class="text-red-600">*</span>
+          </label>
+          <input 
+            [(ngModel)]="seoConfig.metaTitle"
+            [placeholder]="submission.title"
+            maxlength="60"
+            class="form-input">
+          <div class="flex justify-between text-xs text-themed-tertiary mt-1">
+            <span>Recommended: 50-60 characters for optimal SEO</span>
+            <span>{{ seoConfig.metaTitle.length }}/60</span>
+          </div>
+        </div>
+
+        <!-- Meta Description -->
+        <div>
+          <label class="block text-sm font-medium text-themed mb-2">
+            Meta Description <span class="text-red-600">*</span>
+          </label>
+          <textarea 
+            [(ngModel)]="seoConfig.metaDescription"
+            [placeholder]="submission.description || 'A compelling description of your content...'"
+            maxlength="160"
+            rows="3"
+            class="form-input resize-vertical">
+          </textarea>
+          <div class="flex justify-between text-xs text-themed-tertiary mt-1">
+            <span>Recommended: 150-160 characters for optimal SEO</span>
+            <span>{{ seoConfig.metaDescription.length }}/160</span>
+          </div>
+        </div>
+
+        <!-- Keywords -->
+        <div>
+          <label class="block text-sm font-medium text-themed mb-2">
+            SEO Keywords
+          </label>
+          <input 
+            [(ngModel)]="keywordsInput"
+            (input)="updateKeywords()"
+            placeholder="poetry, literature, creative writing"
+            class="form-input">
+          <p class="text-xs text-themed-tertiary mt-1">
+            Separate keywords with commas. These help with search engine optimization.
+          </p>
+          <div *ngIf="seoConfig.keywords.length > 0" class="flex flex-wrap gap-2 mt-2">
+            <span *ngFor="let keyword of seoConfig.keywords"
+                  class="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-themed-tertiary text-themed-secondary border border-themed">
+              {{ keyword }}
+            </span>
+          </div>
+        </div>
+
+        <!-- Open Graph Image -->
+        <div>
+          <label class="block text-sm font-medium text-themed mb-2">
+            Social Media Image (Open Graph)
+          </label>
+          
+          <!-- File Upload -->
+          <div class="mb-3" *ngIf="!submission.imageUrl">
+            <input 
+              type="file" 
+              accept="image/*"
+              (change)="onImageSelect($event)"
+              class="block w-full text-sm text-themed bg-themed-secondary border border-themed rounded-lg cursor-pointer focus:outline-none file:mr-4 file:py-2 file:px-4 file:rounded-l-lg file:border-0 file:text-sm file:font-medium file:bg-themed-accent file:text-white hover:file:bg-themed-accent">
+            <p class="text-xs text-themed-tertiary mt-1">Upload an image (max 5MB) - Recommended size: 1200x630px</p>
+          </div>
+
+          <!-- Upload Button -->
+          <button 
+            *ngIf="selectedImageFile && !submission.imageUrl"
+            (click)="uploadImage()"
+            [disabled]="isUploadingImage"
+            class="btn-primary mb-4 disabled:opacity-50 disabled:cursor-not-allowed">
+            <span *ngIf="!isUploadingImage">
+              <svg class="w-4 h-4 inline mr-1" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM6.293 6.707a1 1 0 010-1.414l3-3a1 1 0 011.414 0l3 3a1 1 0 01-1.414 1.414L11 5.414V13a1 1 0 11-2 0V5.414L7.707 6.707a1 1 0 01-1.414 0z" clip-rule="evenodd"/>
+              </svg>
+              Upload Image
+            </span>
+            <span *ngIf="isUploadingImage" class="flex items-center">
+              <div class="spinner mr-2"></div>
+              Uploading...
+            </span>
+          </button>
+
+          <!-- Current Image Preview -->
+          <div *ngIf="submission.imageUrl" class="mt-4">
+            <p class="text-sm font-medium text-themed mb-2">Current Image:</p>
+            <div class="relative inline-block">
+              <img 
+                [src]="submission.imageUrl" 
+                [alt]="submission.title"
+                class="w-full max-w-md h-48 object-cover rounded-lg border border-themed">
+              <button 
+                (click)="removeImage()"
+                class="absolute top-2 right-2 p-1 bg-red-600 text-white rounded-full hover:bg-red-700 transition-colors">
+                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Publication Settings -->
+        <div>
+          <label class="block text-sm font-medium text-themed mb-2">
+            Publication Settings
+          </label>
+          <div class="space-y-3">
+            <label class="flex items-center">
+              <input 
+                type="checkbox" 
+                [(ngModel)]="seoConfig.allowComments"
+                class="mr-2">
+              <span class="text-themed text-sm">Allow comments on this post</span>
+            </label>
+            <label class="flex items-center">
+              <input 
+                type="checkbox" 
+                [(ngModel)]="seoConfig.featuredPost"
+                class="mr-2">
+              <span class="text-themed text-sm">Mark as featured post</span>
+            </label>
+            <label class="flex items-center">
+              <input 
+                type="checkbox" 
+                [(ngModel)]="seoConfig.enableSocialSharing"
+                class="mr-2">
+              <span class="text-themed text-sm">Enable social media sharing buttons</span>
+            </label>
+          </div>
+        </div>
+      </div>
+      
+      <!-- SEO Preview Section -->
+      <div class="card p-6">
+        <h2 class="text-xl font-semibold text-themed mb-4">SEO Preview</h2>
+        
+        <!-- Google Search Preview -->
+        <div class="bg-white p-4 rounded-lg border border-gray-200 mb-4">
+          <div class="text-blue-600 text-lg hover:underline cursor-pointer">
+            {{ seoConfig.metaTitle || submission.title }}
+          </div>
+          <div class="text-green-600 text-sm">
+            {{ baseUrl }}{{ seoConfig.slug || 'your-seo-slug' }}
+          </div>
+          <div class="text-gray-600 text-sm mt-1">
+            {{ seoConfig.metaDescription || submission.description || 'Meta description will appear here...' }}
+          </div>
+        </div>
+
+        <!-- Social Media Preview -->
+        <div class="bg-gray-100 p-4 rounded-lg border border-gray-200">
+          <div class="text-sm text-gray-600 mb-2">Social Media Preview:</div>
+          <div class="bg-white border border-gray-200 rounded-lg overflow-hidden max-w-md">
+            <div *ngIf="submission.imageUrl" class="h-32 bg-gray-200">
+              <img [src]="submission.imageUrl" [alt]="submission.title" class="w-full h-full object-cover">
+            </div>
+            <div class="p-3">
+              <div class="font-medium text-sm">{{ seoConfig.metaTitle || submission.title }}</div>
+              <div class="text-gray-600 text-xs mt-1">
+                {{ (seoConfig.metaDescription || submission.description || 'Description...') | slice:0:100 }}{{ (seoConfig.metaDescription || submission.description || '').length > 100 ? '...' : '' }}
+              </div>
+              <div class="text-gray-500 text-xs mt-1">{{ baseUrl }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Action Buttons -->
+      <div class="card p-6">
+        <div class="flex flex-col gap-3">
+          <button 
+            (click)="saveChanges()"
+            class="btn-secondary w-full">
+            <svg class="w-4 h-4 inline mr-1" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M7.707 10.293a1 1 0 10-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L11 12.586V5a1 1 0 10-2 0v7.586l-1.293-1.293z"/>
+            </svg>
+            Save Changes
+          </button>
+          <button 
+            (click)="saveAndPublish()"
+            [disabled]="!isFormValid() || isPublishing"
+            class="btn-primary disabled:opacity-50 disabled:cursor-not-allowed w-full">
+            <span *ngIf="!isPublishing">
+              <svg class="w-4 h-4 inline mr-1" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-8.293l-3-3a1 1 0 00-1.414 0l-3 3a1 1 0 001.414 1.414L9 9.414V13a1 1 0 102 0V9.414l1.293 1.293a1 1 0 001.414-1.414z" clip-rule="evenodd"/>
+              </svg>
+              Save & Publish
+            </span>
+            <span *ngIf="isPublishing" class="flex items-center justify-center">
+              <div class="spinner mr-2"></div>
+              Publishing...
+            </span>
+          </button>
+          <button 
+            (click)="goBack()"
+            class="btn-ghost w-full">
+            Cancel
+          </button>
+        </div>
+      </div>
+    </div>
+
+      
+    </div>
+    <!-- Right Column: Content Management -->
+      <div class="space-y-6">
+      <!-- Tab Navigation -->
+      <div class="card p-6">
+        <div class="border-b border-themed mb-6">
+          <nav class="flex space-x-8" aria-label="Content Tabs">
+            <button
+              (click)="activeContentTab = 'edit'"
+              [class.border-themed-accent]="activeContentTab === 'edit'"
+              [class.text-themed-accent]="activeContentTab === 'edit'"
+              [class.border-transparent]="activeContentTab !== 'edit'"
+              [class.text-themed-secondary]="activeContentTab !== 'edit'"
+              [class.hover:text-themed]="activeContentTab !== 'edit'"
+              [class.hover:border-themed-secondary]="activeContentTab !== 'edit'"
+              class="whitespace-nowrap py-3 px-4 border-b-2 font-medium transition-colors duration-200 flex items-center gap-2">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path>
+              </svg>
+              Content Editing
+            </button>
+            <button
+              (click)="activeContentTab = 'preview'"
+              [class.border-themed-accent]="activeContentTab === 'preview'"
+              [class.text-themed-accent]="activeContentTab === 'preview'"
+              [class.border-transparent]="activeContentTab !== 'preview'"
+              [class.text-themed-secondary]="activeContentTab !== 'preview'"
+              [class.hover:text-themed]="activeContentTab !== 'preview'"
+              [class.hover:border-themed-secondary]="activeContentTab !== 'preview'"
+              class="whitespace-nowrap py-3 px-4 border-b-2 font-medium transition-colors duration-200 flex items-center gap-2">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+              </svg>
+              Preview Mode
+            </button>
+          </nav>
+        </div>
+        
+        <!-- Content Editing Tab -->
+        <div *ngIf="activeContentTab === 'edit'" class="animate-fade-in">
+          <div class="flex items-center justify-between mb-6">
+            <h2 class="text-xl font-semibold text-themed">Content Management</h2>
+            <button 
+              (click)="toggleAllContent()"
+              class="btn-secondary text-sm">
+              {{ allContentExpanded ? 'Collapse All' : 'Expand All' }}
+            </button>
+          </div>
+          
+          <div class="space-y-4" *ngIf="submission.contents && submission.contents.length > 0">
+            <div *ngFor="let content of submission.contents; let i = index" 
+                 class="bg-themed-tertiary rounded-lg border border-themed overflow-hidden">
+              
+              <!-- Content Header -->
+              <div class="flex items-center justify-between p-4 cursor-pointer"
+                   (click)="toggleContentExpanded(i)">
+                <div class="flex-1">
+                  <h3 class="font-medium text-themed">
+                    {{ i + 1 }}. {{ content.title || 'Untitled Content' }}
+                  </h3>
+                  <p class="text-sm text-themed-secondary mt-1">
+                    {{ calculateWordCount(content.body) }} words
+                    <span *ngIf="content.tags && content.tags.length > 0">
+                      • {{ content.tags.length }} tag(s)
+                    </span>
+                  </p>
+                </div>
+                <div class="ml-4">
+                  <svg class="w-5 h-5 text-themed-secondary transition-transform duration-200"
+                       [class.rotate-180]="contentExpanded[i]"
+                       fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                  </svg>
+                </div>
+              </div>
+
+              <!-- Expanded Content -->
+              <div *ngIf="contentExpanded[i]" class="px-4 pb-4 border-t border-themed">
+                <div class="space-y-4 mt-4">
+                  <!-- Content Title -->
+                  <div>
+                    <label class="block text-sm font-medium text-themed mb-2">Content Title</label>
+                    <input 
+                      [(ngModel)]="content.title"
+                      class="form-input"
+                      placeholder="Enter content title">
+                  </div>
+
+                  <!-- Content Body -->
+                  <div>
+                    <label class="block text-sm font-medium text-themed mb-2">Content Body</label>
+                    <app-rich-text-editor
+                      [(ngModel)]="content.body"
+                      [placeholder]="'Enter your content here...'"
+                      [allowImages]="false"
+                      class="min-h-64">
+                    </app-rich-text-editor>
+                    <div class="flex justify-between text-xs text-themed-tertiary mt-2">
+                      <span>Use formatting tools above for better presentation</span>
+                      <span>{{ calculateWordCount(content.body) }} words</span>
+                    </div>
+                  </div>
+
+                  <!-- Content Tags -->
+                  <div *ngIf="content.tags && content.tags.length > 0">
+                    <label class="block text-sm font-medium text-themed mb-2">Tags</label>
+                    <div class="flex flex-wrap gap-2">
+                      <span *ngFor="let tag of content.tags"
+                            class="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-themed-secondary text-themed border border-themed">
+                        #{{ tag }}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Preview Mode Tab -->
+        <div *ngIf="activeContentTab === 'preview'" class="animate-fade-in">
+          <h2 class="text-xl font-semibold text-themed mb-6">Live Preview</h2>
+          
+          <!-- Publication Preview -->
+          <div class="bg-themed-card border border-themed rounded-lg overflow-hidden">
+            <!-- Article Header -->
+            <div class="p-6 border-b border-themed">
+              <h1 class="text-3xl font-bold text-themed mb-4">{{ submission.title }}</h1>
+              <div class="flex items-center gap-4 text-sm text-themed-secondary mb-4">
+                <span>By {{ submission.username }}</span>
+                <app-badge-label [type]="submission.submissionType"></app-badge-label>
+                <span *ngIf="submission.readingTime">{{ submission.readingTime }} min read</span>
+              </div>
+              <p *ngIf="submission.description" class="text-themed-secondary italic">{{ submission.description }}</p>
+            </div>
+            
+            <!-- Article Content -->
+            <div class="p-6 space-y-8">
+              <div *ngFor="let content of submission.contents; let i = index" class="content-section">
+                <h2 *ngIf="content.title" class="text-2xl font-semibold text-themed mb-4">{{ content.title }}</h2>
+                <div class="content-body prose prose-lg max-w-none" [innerHTML]="cleanContent(content.body)"></div>
+                
+                <!-- Tags -->
+                <div *ngIf="content.tags && content.tags.length > 0" class="flex flex-wrap gap-2 mt-4 pt-4 border-t border-themed">
+                  <span *ngFor="let tag of content.tags"
+                        class="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-themed-accent-light text-themed-accent border border-themed-accent">
+                    #{{ tag }}
+                  </span>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Article Footer -->
+            <div class="p-6 border-t border-themed bg-themed-tertiary">
+              <div class="flex items-center justify-between">
+                <div class="text-sm text-themed-secondary">
+                  Published by {{ submission.username }}
+                </div>
+                <div class="flex gap-2">
+                  <span *ngIf="seoConfig.allowComments" class="text-xs px-2 py-1 bg-green-100 text-green-800 rounded-full">Comments Enabled</span>
+                  <span *ngIf="seoConfig.featuredPost" class="text-xs px-2 py-1 bg-yellow-100 text-yellow-800 rounded-full">Featured Post</span>
+                  <span *ngIf="seoConfig.enableSocialSharing" class="text-xs px-2 py-1 bg-blue-100 text-blue-800 rounded-full">Social Sharing</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      </div>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="!loading && !submission" class="text-center py-12">
+    <svg class="w-16 h-16 text-themed-tertiary mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 18.5c-.77.833.192 2.5 1.732 2.5z"/>
+    </svg>
+    <h3 class="text-lg font-medium text-themed mb-2">Submission not found</h3>
+    <p class="text-themed-secondary">The submission you're trying to publish could not be found.</p>
+  </div>
+
+  <!-- Toast Notification -->
+  <div *ngIf="showToastFlag" 
+       class="fixed top-4 right-4 z-50 max-w-sm w-full transition-all duration-300 ease-in-out transform animate-slideInDown">
+    <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg p-4"
+         [ngClass]="{
+           'border-green-200 bg-green-50 dark:bg-green-900/20 dark:border-green-800': toastType === 'success',
+           'border-red-200 bg-red-50 dark:bg-red-900/20 dark:border-red-800': toastType === 'error',
+           'border-blue-200 bg-blue-50 dark:bg-blue-900/20 dark:border-blue-800': toastType === 'info'
+         }">
+      <div class="flex items-start">
+        <div class="flex-shrink-0">
+          <!-- Success Icon -->
+          <svg *ngIf="toastType === 'success'" class="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          </svg>
+          <!-- Error Icon -->
+          <svg *ngIf="toastType === 'error'" class="w-5 h-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          </svg>
+          <!-- Info Icon -->
+          <svg *ngIf="toastType === 'info'" class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          </svg>
+        </div>
+        <div class="ml-3 flex-1">
+          <p class="text-sm font-medium"
+             [ngClass]="{
+               'text-green-800 dark:text-green-200': toastType === 'success',
+               'text-red-800 dark:text-red-200': toastType === 'error',
+               'text-blue-800 dark:text-blue-200': toastType === 'info'
+             }">
+            {{ toastMessage }}
+          </p>
+        </div>
+        <div class="ml-4 flex-shrink-0">
+          <button 
+            (click)="hideToast()"
+            class="inline-flex text-gray-400 hover:text-gray-600 focus:outline-none focus:text-gray-600 transition ease-in-out duration-150">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

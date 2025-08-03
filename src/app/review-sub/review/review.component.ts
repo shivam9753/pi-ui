@@ -1,8 +1,9 @@
 
 import { Component,  OnInit } from '@angular/core';
-import { SubmissionCardComponent } from '../../submission-card/submission-card.component';
-import { BackendService } from '../../backend.service';
+import { SubmissionCardComponent, CardAction } from '../../submission-card/submission-card.component';
+import { BackendService } from '../../services/backend.service';
 import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-review',
@@ -10,9 +11,15 @@ import { CommonModule } from '@angular/common';
   templateUrl: './review.component.html',
   styleUrl: './review.component.css'
 })
-export class ReviewCpomponent implements OnInit {
+export class ReviewComponent implements OnInit {
   submissions: any[] = [];
   selectedType: string = '';
+  currentPage: number = 1;
+  pageSize: number = 12;
+  totalSubmissions: number = 0;
+  totalPages: number = 0;
+  hasMore: boolean = false;
+  loading: boolean = false;
 
   filterOptions: any = [
     { label: 'All', value: '' },
@@ -22,7 +29,10 @@ export class ReviewCpomponent implements OnInit {
     { label: 'Article', value: 'article' }
   ];
 
-  constructor(private backendService: BackendService) {
+  constructor(
+    private backendService: BackendService,
+    private router: Router
+  ) {
     
   }
 
@@ -30,15 +40,71 @@ export class ReviewCpomponent implements OnInit {
       this.getSubmissions();
   }
 
-  getSubmissions(type: string = '') {
+  getSubmissions(type: string = '', page: number = 1) {
     this.selectedType = type;
-    this.backendService.getPendingSubmissions(type).subscribe(
-      (data) => (this.submissions = data.submissions),
-      (error) => console.error("Error fetching submissions", error)
+    this.currentPage = page;
+    this.loading = true;
+    
+    const params = {
+      type: type || undefined,
+      limit: this.pageSize,
+      skip: (page - 1) * this.pageSize
+    };
+
+    this.backendService.getPendingSubmissions(params).subscribe(
+      (data) => {
+        this.submissions = data.pendingSubmissions || [];
+        this.totalSubmissions = data.total || 0;
+        this.hasMore = data.pagination?.hasMore || false;
+        this.totalPages = Math.ceil(this.totalSubmissions / this.pageSize);
+        this.loading = false;
+      },
+      (error) => {
+        console.error("Error fetching submissions", error);
+        this.loading = false;
+      }
     );
   }
 
   onFilterChange(type: string) {
-    this.getSubmissions(type);
+    this.getSubmissions(type, 1); // Reset to first page when filtering
   }
+
+  onPageChange(page: number) {
+    if (page >= 1 && page <= this.totalPages) {
+      this.getSubmissions(this.selectedType, page);
+    }
+  }
+
+  get pages(): number[] {
+    const pages = [];
+    const start = Math.max(1, this.currentPage - 2);
+    const end = Math.min(this.totalPages, this.currentPage + 2);
+    
+    for (let i = start; i <= end; i++) {
+      pages.push(i);
+    }
+    return pages;
+  }
+
+  trackSubmission(index: number, submission: any): any {
+    return submission._id || index;
+  }
+
+
+  // Get card action configuration
+  getCardAction(): CardAction {
+    return {
+      label: 'Review',
+      variant: 'primary'
+    };
+  }
+
+  // Handle card action clicks - navigate to review submission
+  onCardAction(submissionId: string) {
+    this.router.navigate(['/review-submission', submissionId]);
+  }
+
+  // Make Math available in template
+  Math = Math;
 }

@@ -1,0 +1,206 @@
+<!-- Rich Text Editor Component -->
+<div class="rich-text-editor bg-themed-card border border-themed rounded-xl transition-all duration-200 focus-within:ring-2 focus-within:ring-themed-accent focus-within:border-themed-accent">
+  
+  <!-- Toolbar -->
+  <div class="flex flex-wrap items-center gap-1 p-3 border-b border-themed bg-themed-secondary rounded-t-xl">
+    
+    <!-- Formatting Group -->
+    <div class="flex items-center gap-1 pr-2 border-r border-themed">
+      <!-- Bold -->
+      <button
+        type="button"
+        (click)="toggleFormat('bold')"
+        [class.active]="isFormatActive('bold')"
+        class="toolbar-btn"
+        title="Bold (Ctrl+B)"
+      >
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 4h8a4 4 0 0 1 4 4 4 4 0 0 1-4 4H6z"></path>
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 12h9a4 4 0 0 1 4 4 4 4 0 0 1-4 4H6z"></path>
+        </svg>
+      </button>
+      
+      <!-- Italic -->
+      <button
+        type="button"
+        (click)="toggleFormat('italic')"
+        [class.active]="isFormatActive('italic')"
+        class="toolbar-btn"
+        title="Italic (Ctrl+I)"
+      >
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 4h-9m4 16H5m4-8h6m-6 0c0 2.5 2.5 4 2.5 4s2.5-1.5 2.5-4"></path>
+        </svg>
+      </button>
+      
+      <!-- Underline -->
+      <button
+        type="button"
+        (click)="toggleFormat('underline')"
+        [class.active]="isFormatActive('underline')"
+        class="toolbar-btn"
+        title="Underline (Ctrl+U)"
+      >
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 4v6a6 6 0 0 0 12 0V4"></path>
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 20h16"></path>
+        </svg>
+      </button>
+    </div>
+    
+    <!-- Alignment Group -->
+    <div class="flex items-center gap-1 px-2 border-r border-themed">
+      <!-- Left Align -->
+      <button
+        type="button"
+        (click)="setAlignment('left')"
+        [class.active]="currentAlignment === 'left'"
+        class="toolbar-btn"
+        title="Align Left"
+      >
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 6h18M3 12h12M3 18h18"></path>
+        </svg>
+      </button>
+      
+      <!-- Center Align -->
+      <button
+        type="button"
+        (click)="setAlignment('center')"
+        [class.active]="currentAlignment === 'center'"
+        class="toolbar-btn"
+        title="Align Center"
+      >
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 6h18M7 12h10M3 18h18"></path>
+        </svg>
+      </button>
+      
+      <!-- Right Align -->
+      <button
+        type="button"
+        (click)="setAlignment('right')"
+        [class.active]="currentAlignment === 'right'"
+        class="toolbar-btn"
+        title="Align Right"
+      >
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 6h18M9 12h12M3 18h18"></path>
+        </svg>
+      </button>
+      
+      <!-- Justify -->
+      <button
+        type="button"
+        (click)="setAlignment('justify')"
+        [class.active]="currentAlignment === 'justify'"
+        class="toolbar-btn"
+        title="Justify"
+      >
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 6h18M3 12h18M3 18h18"></path>
+        </svg>
+      </button>
+    </div>
+    
+    <!-- Text Style Group -->
+    <div class="flex items-center gap-1 px-2 border-r border-themed">
+      <!-- Quote -->
+      <button
+        type="button"
+        (click)="toggleFormat('blockquote')"
+        [class.active]="isFormatActive('blockquote')"
+        class="toolbar-btn"
+        title="Quote"
+      >
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
+        </svg>
+      </button>
+      
+      <!-- Image Upload (only if allowed) -->
+      <button
+        *ngIf="allowImages"
+        type="button"
+        (click)="triggerImageUpload()"
+        [disabled]="isImageUploading"
+        class="toolbar-btn"
+        title="Insert Image"
+      >
+        <svg *ngIf="!isImageUploading" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+        </svg>
+        <svg *ngIf="isImageUploading" class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor" d="m4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        </svg>
+      </button>
+    </div>
+    
+    <!-- Utility Group -->
+    <div class="flex items-center gap-1 pl-2">
+      <!-- Clear Formatting -->
+      <button
+        type="button"
+        (click)="clearFormatting()"
+        class="toolbar-btn"
+        title="Clear Formatting"
+      >
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+        </svg>
+      </button>
+    </div>
+    
+    <!-- Word Count -->
+    <div class="ml-auto text-xs text-themed-secondary font-medium">
+      {{ wordCount }} words
+    </div>
+  </div>
+  
+  <!-- Editor Area -->
+  <div class="relative">
+    <div
+      #editor
+      contenteditable="true"
+      (input)="onContentChange($event)"
+      (keydown)="onKeyDown($event)"
+      (paste)="onPaste($event)"
+      (dragover)="onDragOver($event)"
+      (dragleave)="onDragLeave($event)"
+      (drop)="onDrop($event)"
+      class="editor-content min-h-[300px] p-4 text-themed bg-themed focus:outline-none transition-colors"
+      [class]="'text-' + currentAlignment"
+      [class.border-2]="allowImages"
+      [class.border-dashed]="allowImages"
+      [class.border-themed-accent]="allowImages"
+      role="textbox"
+      [attr.aria-label]="'Rich text editor for ' + placeholder"
+    ></div>
+    
+    <!-- Placeholder overlay (when empty) -->
+    <div
+      *ngIf="!content || content.trim() === ''"
+      class="absolute top-4 left-4 text-themed-tertiary pointer-events-none"
+    >
+      {{ placeholder }}
+      <span *ngIf="allowImages" class="block text-xs mt-1 opacity-75">
+        You can also drag and drop images here
+      </span>
+    </div>
+    
+    <!-- Upload progress indicator -->
+    <div 
+      *ngIf="isImageUploading" 
+      class="absolute inset-0 bg-themed-card bg-opacity-75 flex items-center justify-center rounded-b-lg"
+    >
+      <div class="text-center">
+        <svg class="w-8 h-8 animate-spin mx-auto mb-2 text-themed-accent" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor" d="m4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        </svg>
+        <p class="text-sm text-themed-secondary">Compressing image...</p>
+      </div>
+    </div>
+  </div>
+</div>

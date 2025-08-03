@@ -1,0 +1,33 @@
+/* Poetry and content formatting */
+.content-body {
+  line-height: 1.7;
+}
+
+.content-body br {
+  line-height: 1.4;
+}
+
+/* Ensure proper spacing for poetry lines */
+.content-body p {
+  margin-bottom: 0.5rem;
+}
+
+.content-body p:last-child {
+  margin-bottom: 0;
+}
+
+/* Toast animation keyframes */
+@keyframes slideInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-slideInDown {
+  animation: slideInDown 0.3s ease-out;
+}

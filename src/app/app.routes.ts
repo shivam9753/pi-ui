@@ -3,32 +3,31 @@ import { ExploreComponent } from './explore/explore.component';
 import { AdminGuard } from './guards/admin.guard';
 import { AuthGuard } from './guards/authguard';
 import { ReviewerGuard } from './guards/reviewer.guard';
-import { HomepageComponent } from './homepage/homepage.component';
-import { ReviewSubmissionComponent } from './review-sub/review-submission/review-submission.component';
-import { ReviewCpomponent } from './review-sub/review/review.component';
-import { SubmissionFormComponent } from './submission-form/submission-form.component';
+import { AdminReviewSubmissionComponent } from './review-sub/admin-review-submission/admin-review-submission.component';
+import { SubmissionFormComponent } from './submit/submission-form/submission-form.component';
 import { UserLoginComponent } from './user-login/user-login.component';
-import { PostScreenComponent } from './post-screen/post-screen.component';
 import { UserProfileComponent } from './user-profile/user-profile.component';
 import { ReadingInterfaceComponent } from './reading-interface/reading-interface.component';
-import { ExploreByTypeComponent } from './explore-by-type/explore-by-type.component';
+import { PromptsComponent } from './prompts/prompts.component';
+import { AdminComponent } from './admin/admin.component';
+import { PublishingInterfaceComponent } from './publishing-interface/publishing-interface.component';
 
 export const routes: Routes = [
   // Public routes - Use explore as homepage for now
   { 
     path: '', 
     component: ExploreComponent, // This will show published content
-    title: 'Mosaic - Literary Community'
+    title: 'pi'
   },
   { 
     path: 'login', 
     component: UserLoginComponent,
-    title: 'Login - Mosaic'
+    title: 'Login'
   },
   { 
     path: 'explore', 
     component: ExploreComponent,
-    title: 'Explore - Mosaic'
+    title: 'Explore - pi'
   },
   { 
     path: 'user-profile/:id', 
@@ -36,38 +35,56 @@ export const routes: Routes = [
     canActivate: [AuthGuard]
   },
   { path: 'read/:id', component: ReadingInterfaceComponent },
+  { path: 'post/:slug', component: ReadingInterfaceComponent },
   { 
     path: 'submit', 
     component: SubmissionFormComponent, 
     canActivate: [AuthGuard],
-    title: 'Submit Work - Mosaic'
-  },
-  { 
-    path: 'read-post/:id', 
-    component: PostScreenComponent,
-    title: 'Read - Mosaic'
+    title: 'Submit Work - pi'
   },
 
-  // Reviewer routes
+  // Admin and Reviewer routes
+  { 
+    path: 'admin', 
+    component: AdminComponent, 
+    canActivate: [ReviewerGuard],
+    title: 'Admin Dashboard'
+  },
+  
+  // Legacy routes for backwards compatibility (redirect to admin with hash)
   { 
     path: 'review', 
-    component: ReviewCpomponent, 
-    canActivate: [ReviewerGuard],
-    title: 'Review Submissions - Mosaic'
+    redirectTo: '/admin#review',
+    pathMatch: 'full'
+  },
+  { 
+    path: 'publish', 
+    redirectTo: '/admin#publish',
+    pathMatch: 'full'
+  },
+  { 
+    path: 'users', 
+    redirectTo: '/admin#users',
+    pathMatch: 'full'
+  },
+  { 
+    path: 'prompts', 
+    component: PromptsComponent, 
+    title: 'Writing Prompts'
   },
   { 
     path: 'review-submission/:id', 
-    component: ReviewSubmissionComponent, 
+    component: AdminReviewSubmissionComponent, 
     canActivate: [ReviewerGuard],
-    title: 'Review Submission - Mosaic'
+    title: 'Review Submission - pi'
+  },
+  { 
+    path: 'publish-configure/:id', 
+    component: PublishingInterfaceComponent, 
+    canActivate: [AdminGuard],
+    title: 'Configure Publishing - pi'
   },
 
-  
-  { 
-    path: 'browse/:type', 
-    component: ExploreByTypeComponent,
-    data: { title: 'Browse' }
-  },
 
   // Fallback
   { path: '**', redirectTo: '' }

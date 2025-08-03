@@ -1,0 +1,396 @@
+<!-- Manage Prompts Tab Content -->
+<div class="w-full px-4 sm:px-6 lg:px-8 xl:px-12 py-8 bg-themed min-h-screen">
+  
+  <!-- Header with Create Button -->
+  <!-- <div class="flex justify-between items-center">
+    <div>
+      <h2 class="text-2xl font-bold text-themed">Manage Prompts</h2>
+      <p class="text-themed-secondary">Create, edit, and manage writing prompts</p>
+    </div>
+    <button 
+      (click)="createPrompt()"
+      class="btn-primary">
+      <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+      </svg>
+      Create Prompt
+    </button>
+  </div> -->
+
+  <div class="border-b border-themed pb-6 mb-8">
+      <h1 class="text-2xl md:text-3xl font-bold text-themed mb-2">
+        Manage Prompts
+      </h1>
+      <p class="text-themed-secondary">
+        Create, edit, and manage writing prompts
+      </p>
+    </div>
+
+  <!-- Filters -->
+  <div class="bg-themed-card rounded-lg p-4">
+    <h3 class="text-lg font-semibold text-themed mb-4">Filters</h3>
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+      
+      <!-- Search -->
+      <div>
+        <label class="block text-sm font-medium text-themed-secondary mb-2">Search</label>
+        <input
+          type="text"
+          [(ngModel)]="manageSearch"
+          (ngModelChange)="onFilterChange()"
+          placeholder="Search title or description..."
+          class="form-input"
+        />
+      </div>
+
+      <!-- Type Filter -->
+      <div>
+        <label class="block text-sm font-medium text-themed-secondary mb-2">Type</label>
+        <select
+          [(ngModel)]="manageType"
+          (ngModelChange)="onFilterChange()"
+          class="form-input"
+        >
+          <option value="">All Types</option>
+          <option value="poem">Poem</option>
+          <option value="prose">Prose</option>
+          <option value="article">Article</option>
+          <option value="cinema_essay">Cinema Essay</option>
+        </select>
+      </div>
+
+      <!-- Status Filter -->
+      <div>
+        <label class="block text-sm font-medium text-themed-secondary mb-2">Status</label>
+        <select
+          [(ngModel)]="manageStatus"
+          (ngModelChange)="onFilterChange()"
+          class="form-input"
+        >
+          <option value="all">All</option>
+          <option value="active">Active</option>
+          <option value="inactive">Inactive</option>
+        </select>
+      </div>
+
+      <!-- Results Count -->
+      <div class="flex items-end">
+        <div class="text-sm text-themed-secondary">
+          Showing {{ paginatedPrompts.length }} of {{ totalItems }} prompts
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Create/Edit Form -->
+  <div *ngIf="showCreateForm" class="bg-themed-card rounded-lg p-6">
+    <div class="flex justify-between items-center mb-4">
+      <h3 class="text-lg font-semibold text-themed">
+        {{ editingPrompt ? 'Edit Prompt' : 'Create New Prompt' }}
+      </h3>
+      <button 
+        (click)="cancelEdit()"
+        class="text-themed-secondary hover:text-themed transition-colors duration-200">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+    </div>
+
+    <form [formGroup]="promptForm" (ngSubmit)="savePrompt()">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+        
+        <!-- Title -->
+        <div class="md:col-span-2">
+          <label class="block text-sm font-medium text-themed-secondary mb-2">Title *</label>
+          <input
+            type="text"
+            formControlName="title"
+            placeholder="Enter prompt title..."
+            class="form-input"
+            [class.border-red-500]="promptForm.get('title')?.invalid && promptForm.get('title')?.touched"
+          />
+          <div *ngIf="promptForm.get('title')?.invalid && promptForm.get('title')?.touched" 
+               class="text-red-500 text-sm mt-1">
+            Title is required (max 200 characters)
+          </div>
+        </div>
+
+        <!-- Type -->
+        <div>
+          <label class="block text-sm font-medium text-themed-secondary mb-2">Type *</label>
+          <select
+            formControlName="type"
+            class="form-input"
+            [class.border-red-500]="promptForm.get('type')?.invalid && promptForm.get('type')?.touched"
+          >
+            <option value="">Select type...</option>
+            <option value="poem">Poem</option>
+            <option value="prose">Prose</option>
+            <option value="article">Article</option>
+            <option value="cinema_essay">Cinema Essay</option>
+          </select>
+        </div>
+
+        <!-- Difficulty -->
+        <div>
+          <label class="block text-sm font-medium text-themed-secondary mb-2">Difficulty *</label>
+          <select formControlName="difficulty" class="form-input">
+            <option value="beginner">Beginner</option>
+            <option value="intermediate">Intermediate</option>
+            <option value="advanced">Advanced</option>
+          </select>
+        </div>
+
+        <!-- Tags -->
+        <div>
+          <label class="block text-sm font-medium text-themed-secondary mb-2">Tags</label>
+          <input
+            type="text"
+            formControlName="tags"
+            placeholder="Enter tags separated by commas..."
+            class="form-input"
+          />
+          <div class="text-xs text-themed-tertiary mt-1">Separate multiple tags with commas</div>
+        </div>
+
+        <!-- Picture URL -->
+        <div>
+          <label class="block text-sm font-medium text-themed-secondary mb-2">Picture URL</label>
+          <input
+            type="url"
+            formControlName="picture"
+            placeholder="https://example.com/image.jpg"
+            class="form-input"
+          />
+        </div>
+
+        <!-- Status Toggles -->
+        <div class="md:col-span-2 flex gap-6">
+          <label class="flex items-center">
+            <input
+              type="checkbox"
+              formControlName="isActive"
+              class="mr-2 rounded border-themed focus:ring-orange-500"
+            />
+            <span class="text-themed-secondary">Active</span>
+          </label>
+          
+          <label class="flex items-center">
+            <input
+              type="checkbox"
+              formControlName="featured"
+              class="mr-2 rounded border-themed focus:ring-orange-500"
+            />
+            <span class="text-themed-secondary">Featured</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Description -->
+      <div class="mb-6">
+        <label class="block text-sm font-medium text-themed-secondary mb-2">Description *</label>
+        <textarea
+          formControlName="description"
+          rows="4"
+          placeholder="Enter the writing prompt description..."
+          class="form-input resize-none"
+          [class.border-red-500]="promptForm.get('description')?.invalid && promptForm.get('description')?.touched"
+        ></textarea>
+        <div *ngIf="promptForm.get('description')?.invalid && promptForm.get('description')?.touched" 
+             class="text-red-500 text-sm mt-1">
+          Description is required (max 1000 characters)
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="flex justify-end gap-3">
+        <button
+          type="button"
+          (click)="cancelEdit()"
+          class="btn-secondary">
+          Cancel
+        </button>
+        <button
+          type="submit"
+          [disabled]="promptForm.invalid || isSaving"
+          class="btn-primary">
+          <div *ngIf="isSaving" class="w-4 h-4 mr-2 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+          {{ editingPrompt ? 'Update' : 'Create' }} Prompt
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="flex justify-center items-center py-20">
+    <div class="w-8 h-8 border-4 border-orange-500/20 border-t-orange-500 rounded-full animate-spin"></div>
+    <span class="ml-3 text-themed-secondary">Loading prompts...</span>
+  </div>
+
+  <!-- Prompts Table -->
+  <div *ngIf="!isLoading" class="bg-themed-card rounded-lg overflow-hidden">
+    <div class="overflow-x-auto">
+      <table class="w-full">
+        <thead class="bg-themed-secondary">
+          <tr>
+            <th class="px-4 py-3 text-left text-sm font-medium text-themed">Title</th>
+            <th class="px-4 py-3 text-left text-sm font-medium text-themed">Type</th>
+            <th class="px-4 py-3 text-left text-sm font-medium text-themed">Difficulty</th>
+            <th class="px-4 py-3 text-left text-sm font-medium text-themed">Status</th>
+            <th class="px-4 py-3 text-left text-sm font-medium text-themed">Usage</th>
+            <th class="px-4 py-3 text-left text-sm font-medium text-themed">Created</th>
+            <th class="px-4 py-3 text-right text-sm font-medium text-themed">Actions</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-themed">
+          <tr *ngFor="let prompt of paginatedPrompts" class="hover:bg-themed-secondary/50 transition-colors duration-200">
+            
+            <!-- Title -->
+            <td class="px-4 py-3">
+              <div class="max-w-xs">
+                <div class="font-medium text-themed truncate">{{ prompt.title }}</div>
+                <div class="text-sm text-themed-tertiary truncate">{{ prompt.description }}</div>
+              </div>
+            </td>
+
+            <!-- Type -->
+            <td class="px-4 py-3">
+              <span class="px-2 py-1 text-xs font-medium rounded-md bg-themed-secondary text-themed-secondary border border-themed">
+                {{ getTypeLabel(prompt.type) }}
+              </span>
+            </td>
+
+            <!-- Difficulty -->
+            <td class="px-4 py-3">
+              <span class="px-2 py-1 text-xs font-medium rounded-md"
+                    [class.bg-green-100]="prompt.difficulty === 'beginner'"
+                    [class.text-green-800]="prompt.difficulty === 'beginner'"
+                    [class.bg-yellow-100]="prompt.difficulty === 'intermediate'"
+                    [class.text-yellow-800]="prompt.difficulty === 'intermediate'"
+                    [class.bg-red-100]="prompt.difficulty === 'advanced'"
+                    [class.text-red-800]="prompt.difficulty === 'advanced'">
+                {{ getDifficultyLabel(prompt.difficulty) }}
+              </span>
+            </td>
+
+            <!-- Status -->
+            <td class="px-4 py-3">
+              <div class="flex items-center gap-2">
+                <span class="w-2 h-2 rounded-full"
+                      [class.bg-green-500]="prompt.isActive"
+                      [class.bg-gray-400]="!prompt.isActive"></span>
+                <span class="text-sm text-themed-secondary">
+                  {{ prompt.isActive ? 'Active' : 'Inactive' }}
+                </span>
+                <span *ngIf="prompt.featured" class="px-1.5 py-0.5 text-xs font-medium bg-orange-100 text-orange-800 rounded">
+                  Featured
+                </span>
+              </div>
+            </td>
+
+            <!-- Usage Count -->
+            <td class="px-4 py-3">
+              <span class="text-sm text-themed-secondary">{{ prompt.usageCount || 0 }}</span>
+            </td>
+
+            <!-- Created Date -->
+            <td class="px-4 py-3">
+              <span class="text-sm text-themed-secondary">{{ prompt.formattedCreatedAt }}</span>
+            </td>
+
+            <!-- Actions -->
+            <td class="px-4 py-3 text-right">
+              <div class="flex items-center justify-end gap-2">
+                
+                <!-- Toggle Active Status -->
+                <button
+                  (click)="togglePromptStatus(prompt)"
+                  [title]="prompt.isActive ? 'Deactivate' : 'Activate'"
+                  class="p-1 text-themed-secondary hover:text-themed transition-colors duration-200">
+                  <svg *ngIf="prompt.isActive" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L8.464 8.464l1.414-1.414M9.878 9.878l4.242 4.242m0 0L16.536 16.536l1.414-1.414M14.12 14.12l4.242 4.242" />
+                  </svg>
+                  <svg *ngIf="!prompt.isActive" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                  </svg>
+                </button>
+
+                <!-- Toggle Featured -->
+                <button
+                  (click)="toggleFeatured(prompt)"
+                  [title]="prompt.featured ? 'Remove from featured' : 'Mark as featured'"
+                  class="p-1 transition-colors duration-200"
+                  [class.text-orange-500]="prompt.featured"
+                  [class.text-themed-secondary]="!prompt.featured"
+                  [class.hover:text-orange-600]="prompt.featured"
+                  [class.hover:text-themed]="!prompt.featured">
+                  <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                  </svg>
+                </button>
+
+                <!-- Edit -->
+                <button
+                  (click)="editPrompt(prompt)"
+                  title="Edit prompt"
+                  class="p-1 text-themed-secondary hover:text-themed transition-colors duration-200">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                  </svg>
+                </button>
+
+                <!-- Delete -->
+                <button
+                  (click)="deletePrompt(prompt)"
+                  title="Delete prompt"
+                  class="p-1 text-themed-secondary hover:text-red-500 transition-colors duration-200">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                  </svg>
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- Empty State -->
+      <div *ngIf="filteredPrompts.length === 0" class="text-center py-12">
+        <svg class="w-12 h-12 mx-auto text-themed-tertiary mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+        </svg>
+        <h3 class="text-lg font-medium text-themed mb-2">No prompts found</h3>
+        <p class="text-themed-secondary mb-4">Try adjusting your filters or create a new prompt.</p>
+      </div>
+    </div>
+
+    <!-- Pagination -->
+    <div *ngIf="totalPages > 1" class="px-4 py-3 bg-themed-secondary border-t border-themed flex items-center justify-between">
+      <div class="text-sm text-themed-secondary">
+        Showing {{ (currentPage - 1) * itemsPerPage + 1 }} to {{ Math.min(currentPage * itemsPerPage, totalItems) }} of {{ totalItems }} results
+      </div>
+      
+      <div class="flex items-center gap-2">
+        <button
+          (click)="goToPage(currentPage - 1)"
+          [disabled]="currentPage === 1"
+          class="px-3 py-1 text-sm border border-themed rounded hover:bg-themed-secondary disabled:opacity-50 disabled:cursor-not-allowed">
+          Previous
+        </button>
+        
+        <span class="px-3 py-1 text-sm text-themed-secondary">
+          Page {{ currentPage }} of {{ totalPages }}
+        </span>
+        
+        <button
+          (click)="goToPage(currentPage + 1)"
+          [disabled]="currentPage === totalPages"
+          class="px-3 py-1 text-sm border border-themed rounded hover:bg-themed-secondary disabled:opacity-50 disabled:cursor-not-allowed">
+          Next
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

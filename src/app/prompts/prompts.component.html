@@ -1,0 +1,165 @@
+<!-- prompts.component.html -->
+<div class="bg-themed min-h-screen">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    
+    <!-- Header -->
+    <div class="text-center mb-8">
+      <h1 class="text-4xl font-bold text-themed mb-4">Writing Prompts</h1>
+      <p class="text-xl text-themed-secondary max-w-3xl mx-auto">
+        Discover inspiration for your next creative piece. Get prompts to spark your imagination and overcome writer's block.
+      </p>
+    </div>
+
+    <!-- No admin tabs needed - only browse functionality -->
+
+    <!-- Loading State -->
+    <div *ngIf="isLoading" class="flex justify-center items-center py-20">
+      <div class="spinner"></div>
+      <span class="ml-3 text-themed-secondary">Loading prompts...</span>
+    </div>
+
+    <!-- Browse Content -->
+    <div *ngIf="!isLoading">
+      
+      <!-- Current Prompt Display -->
+      <div class="card p-8 mb-8 text-center prompt-card">
+        <div *ngIf="currentPrompt" class="max-w-4xl mx-auto">
+          <!-- Type and Difficulty Badges -->
+          <div class="flex justify-center gap-3 mb-4">
+            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
+              {{ getTypeLabel(currentPrompt.type) }}
+            </span>
+            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium" 
+                  [class]="getDifficultyColor(currentPrompt.difficulty)">
+              {{ currentPrompt.difficulty | titlecase }}
+            </span>
+            <span *ngIf="currentPrompt.featured" class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-yellow-100 text-yellow-800">
+              ⭐ Featured
+            </span>
+          </div>
+
+          <!-- Title -->
+          <h2 class="text-3xl font-bold text-themed mb-4">{{ currentPrompt.title }}</h2>
+          
+          <!-- Description -->
+          <p class="text-lg text-themed-secondary mb-6 leading-relaxed">{{ currentPrompt.description }}</p>
+          
+          <!-- Tags -->
+          <div *ngIf="currentPrompt.tags && currentPrompt.tags.length > 0" class="flex flex-wrap justify-center gap-2 mb-6">
+            <span *ngFor="let tag of currentPrompt.tags" 
+                  class="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-themed-secondary text-themed-secondary tag">
+              #{{ tag }}
+            </span>
+          </div>
+
+          <!-- Picture -->
+          <div *ngIf="currentPrompt.picture" class="mb-6">
+            <img [src]="currentPrompt.picture" [alt]="currentPrompt.title" 
+                 class="mx-auto rounded-lg max-h-64 object-cover">
+          </div>
+
+          <!-- Usage Count -->
+          <p class="text-sm text-themed-tertiary mb-6">
+            Used {{ currentPrompt.usageCount }} times by writers
+          </p>
+
+          <!-- Action Buttons -->
+          <div class="flex flex-col sm:flex-row justify-center gap-4 action-buttons">
+            <button
+              (click)="usePrompt(currentPrompt)"
+              class="btn-primary px-8 py-3 text-lg font-semibold"
+            >
+              Use This Prompt
+            </button>
+            <button
+              (click)="refreshPrompt()"
+              [disabled]="isRefreshing"
+              class="btn-secondary px-8 py-3 text-lg font-semibold flex items-center justify-center gap-2"
+            >
+              <div *ngIf="isRefreshing" class="spinner w-4 h-4"></div>
+              <svg *ngIf="!isRefreshing" class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M17.65,6.35C16.2,4.9 14.21,4 12,4A8,8 0 0,0 4,12A8,8 0 0,0 12,20C15.73,20 18.84,17.45 19.73,14H17.65C16.83,16.33 14.61,18 12,18A6,6 0 0,1 6,12A6,6 0 0,1 12,6C13.66,6 15.14,6.69 16.22,7.78L13,11H20V4L17.65,6.35Z"/>
+              </svg>
+              {{ isRefreshing ? 'Getting new prompt...' : 'Get New Prompt' }}
+            </button>
+          </div>
+        </div>
+
+        <!-- No Prompt State -->
+        <div *ngIf="!currentPrompt" class="text-center py-12">
+          <svg class="mx-auto h-12 w-12 text-themed-tertiary mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
+          </svg>
+          <h3 class="text-lg font-medium text-themed mb-2">No prompts found</h3>
+          <p class="text-themed-secondary">Try adjusting your filters to see more prompts.</p>
+        </div>
+      </div>
+
+      <!-- Filters -->
+      <div class="card p-6 mb-8 filter-section">
+        <h3 class="text-lg font-semibold text-themed mb-4">Filter Prompts</h3>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 filter-grid">
+          <!-- Type Filter -->
+          <div>
+            <label class="block text-sm font-medium text-themed-secondary mb-2">Type</label>
+            <select
+              [(ngModel)]="browseType"
+              (ngModelChange)="onBrowseFilterChange()"
+              class="form-input w-full"
+            >
+              <option value="">All Types</option>
+              <option value="poem">Poem</option>
+              <option value="prose">Prose</option>
+              <option value="article">Article</option>
+              <option value="cinema_essay">Cinema Essay</option>
+            </select>
+          </div>
+
+          <!-- Difficulty Filter -->
+          <div>
+            <label class="block text-sm font-medium text-themed-secondary mb-2">Difficulty</label>
+            <select
+              [(ngModel)]="browseDifficulty"
+              (ngModelChange)="onBrowseFilterChange()"
+              class="form-input w-full"
+            >
+              <option value="">All Levels</option>
+              <option value="beginner">Beginner</option>
+              <option value="intermediate">Intermediate</option>
+              <option value="advanced">Advanced</option>
+            </select>
+          </div>
+
+          <!-- Text Filter -->
+          <div>
+            <label class="block text-sm font-medium text-themed-secondary mb-2">Search Text</label>
+            <input
+              type="text"
+              [(ngModel)]="browseTextFilter"
+              (ngModelChange)="onBrowseFilterChange()"
+              placeholder="Search in title, description, tags..."
+              class="form-input w-full"
+            />
+          </div>
+        </div>
+
+        <!-- Filter Results Info -->
+        <div class="mt-4 text-sm text-themed-secondary">
+          {{ filteredPrompts.length }} prompts match your filters
+        </div>
+
+        <!-- Clear Filters Button -->
+        <div *ngIf="browseType || browseDifficulty || browseTextFilter" class="mt-4">
+          <button
+            (click)="clearFilters()"
+            class="btn-ghost text-sm"
+          >
+            Clear all filters
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Admin management removed - only browsing functionality available -->
+  </div>
+</div>

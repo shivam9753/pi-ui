@@ -1,0 +1,197 @@
+<div class="animate-fade-in">
+    <div class="flex items-center justify-between mb-8">
+      <div class="text-sm text-themed-secondary">
+        {{ totalWordCount }} words total
+      </div>
+    </div>
+
+    <!-- Edit Notice -->
+    <div class="bg-themed-secondary border-l-4 border-orange-400 p-4 mb-8 rounded-lg">
+      <div class="flex">
+        <div class="flex-shrink-0">
+          <svg class="h-5 w-5 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          </svg>
+        </div>
+        <div class="ml-3">
+          <p class="text-sm text-themed">
+            Take a moment to review your submission. You can still 
+            <button 
+              type="button"
+              (click)="editContent.emit()"
+              class="underline font-medium text-orange-600 hover:text-orange-700"
+            >
+              go back and edit your content
+            </button>
+            if needed.
+          </p>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Submission Overview -->
+    <div class="bg-themed-secondary border border-themed rounded-lg p-6 mb-8">
+      <h3 class="text-lg font-semibold text-themed mb-4">Submission Details</h3>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+        <div>
+          <span class="font-medium text-themed-secondary">Title:</span>
+          <p class="text-themed mt-1">{{ form.get('title')?.value || 'Untitled' }}</p>
+        </div>
+        <div>
+          <span class="font-medium text-themed-secondary">Type:</span>
+          <p class="text-themed mt-1">{{ getTypeDisplayName() }}</p>
+        </div>
+        <div>
+          <span class="font-medium text-themed-secondary">Content Count:</span>
+          <p class="text-themed mt-1">
+            {{ contents.length }} {{ contents.length === 1 ? getTypeDisplayName() : getTypeDisplayName() + 's' }}
+          </p>
+        </div>
+      </div>
+      
+      <div *ngIf="form.get('description')?.value" class="mt-4">
+        <span class="font-medium text-themed-secondary">Description:</span>
+        <p class="text-themed mt-1">{{ form.get('description')?.value }}</p>
+      </div>
+    </div>
+
+    <!-- Content Preview -->
+    <div class="space-y-6 mb-8">
+      <div *ngFor="let content of contents; let i = index" 
+           class="bg-themed-card border border-themed rounded-lg overflow-hidden">
+        
+        <!-- Content Header -->
+        <div class="bg-themed-secondary px-6 py-4 border-b border-themed">
+          <div class="flex items-center justify-between">
+            <h4 class="text-lg font-semibold text-themed">
+              {{ getContentItemDisplayName(i + 1) }}: {{ content.get('title')?.value }}
+            </h4>
+            <div class="flex items-center space-x-4 text-sm text-themed-secondary">
+              <span>{{ getWordCount(i) }} words</span>
+              <button
+                type="button"
+                (click)="editContent.emit()"
+                class="text-orange-600 hover:text-orange-700 font-medium"
+              >
+                Edit
+              </button>
+            </div>
+          </div>
+          
+          <!-- Tags -->
+          <div *ngIf="content.get('tags')?.value" class="mt-2">
+            <div class="flex flex-wrap gap-2">
+              <span *ngFor="let tag of parseTags(content.get('tags')?.value)" 
+                    class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
+                {{ tag }}
+              </span>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Content Body Preview -->
+        <div class="p-6">
+          <div class="bg-themed-secondary border border-themed rounded-lg p-4">
+            <div class="prose prose-sm max-w-none">
+              <div class="whitespace-pre-wrap font-mono text-sm leading-relaxed text-themed">
+                {{ getContentPreview(content.get('body')?.value) }}
+                <span *ngIf="isContentTruncated(content.get('body')?.value)" 
+                      class="text-themed-tertiary italic">
+                  ... (content truncated for preview)
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Final Checklist -->
+    <div class="bg-themed-secondary border border-themed rounded-lg p-6 mb-8">
+      <h3 class="text-lg font-semibold text-themed mb-4">Before You Submit</h3>
+      
+      <!-- Checklist Items -->
+      <div class="space-y-3 mb-6">
+        <div class="flex items-start">
+          <div class="w-5 h-5 rounded-full bg-orange-500 text-white flex items-center justify-center flex-shrink-0 mt-0.5">
+            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path>
+            </svg>
+          </div>
+          <span class="ml-3 text-sm text-themed">Review your content for spelling and grammar</span>
+        </div>
+        <div class="flex items-start">
+          <div class="w-5 h-5 rounded-full bg-orange-500 text-white flex items-center justify-center flex-shrink-0 mt-0.5">
+            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path>
+            </svg>
+          </div>
+          <span class="ml-3 text-sm text-themed">Read and follow the submission guidelines</span>
+        </div>
+        <div class="flex items-start">
+          <div class="w-5 h-5 rounded-full bg-orange-500 text-white flex items-center justify-center flex-shrink-0 mt-0.5">
+            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path>
+            </svg>
+          </div>
+          <span class="ml-3 text-sm text-themed">Ensure this is your original work and you own the rights</span>
+        </div>
+        <div class="flex items-start">
+          <div class="w-5 h-5 rounded-full bg-orange-500 text-white flex items-center justify-center flex-shrink-0 mt-0.5">
+            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path>
+            </svg>
+          </div>
+          <span class="ml-3 text-sm text-themed">Confirm this work has not been published elsewhere</span>
+        </div>
+      </div>
+
+      <!-- Single Confirmation Checkbox -->
+      <label class="flex items-start p-4 bg-themed-card border border-themed rounded-lg">
+        <input type="checkbox" [(ngModel)]="checklist.allConfirmed" 
+               class="rounded border-themed text-orange-600 focus:ring-orange-500 mt-1">
+        <span class="ml-3 text-sm text-themed">
+          <strong>I confirm that I have completed all the above requirements</strong> and my submission is ready for review.
+        </span>
+      </label>
+    </div>
+
+    <!-- Submission Actions -->
+    <div class="flex justify-between items-center pt-6 border-t border-themed">
+      <button 
+        type="button" 
+        (click)="goBack()"
+        class="btn-secondary"
+      >
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+        </svg>
+        <span>Previous</span>
+      </button>
+      
+      <div class="flex space-x-4">
+        <button 
+          type="button"
+          (click)="saveAsDraft()"
+          class="btn-secondary"
+        >
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3-3m0 0l-3 3m3-3v12"></path>
+          </svg>
+          <span>Save as Draft</span>
+        </button>
+        
+        <button 
+          type="button" 
+          (click)="submitWork()"
+          [disabled]="!isReadyToSubmit()"
+          class="btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
+          </svg>
+          <span>Submit Your Work</span>
+        </button>
+      </div>
+    </div>
+  </div>

@@ -1,6 +1,6 @@
 import { Component, inject, HostListener, signal, computed  } from '@angular/core';
 import {RouterOutlet, Router, RouterLink } from '@angular/router';
-import { AuthService, GoogleUser } from '../auth.service';
+import { AuthService, GoogleUser } from '../services/auth.service';
 import { CommonModule } from '@angular/common';
 
 

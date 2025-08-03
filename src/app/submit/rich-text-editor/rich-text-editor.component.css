@@ -1,0 +1,274 @@
+/* Rich Text Editor Styles */
+
+.rich-text-editor {
+  font-family: 'Lato', sans-serif;
+}
+
+.toolbar-btn {
+  width: 2rem;
+  height: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.375rem;
+  border: 1px solid transparent;
+  color: var(--text-secondary);
+  transition: all 0.2s ease;
+}
+
+.toolbar-btn:hover {
+  color: var(--text-primary);
+  background-color: var(--bg-hover);
+}
+
+.toolbar-btn:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--border-focus);
+}
+
+.toolbar-btn.active {
+  background-color: var(--bg-accent-light);
+  color: var(--text-accent);
+  border-color: var(--border-accent);
+}
+
+.toolbar-btn:hover {
+  transform: scale(1.05);
+}
+
+.editor-content {
+  font-family: 'Lato', sans-serif;
+  line-height: 1.7;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+.editor-content:focus {
+  outline: none;
+}
+
+/* Content styling */
+.editor-content p {
+  margin-bottom: 1rem;
+}
+
+.editor-content p:last-child {
+  margin-bottom: 0;
+}
+
+.editor-content strong,
+.editor-content b {
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.editor-content em,
+.editor-content i {
+  font-style: italic;
+  color: var(--text-secondary);
+}
+
+.editor-content u {
+  text-decoration: underline;
+}
+
+.editor-content blockquote {
+  border-left: 4px solid var(--border-accent);
+  padding-left: 1rem;
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+  background-color: var(--bg-accent-light);
+  color: var(--text-secondary);
+  font-style: italic;
+  border-radius: 0 var(--radius-md) var(--radius-md) 0;
+}
+
+.editor-content blockquote p {
+  margin: 0;
+}
+
+/* Alignment classes */
+.editor-content.text-left {
+  text-align: left;
+}
+
+.editor-content.text-center {
+  text-align: center;
+}
+
+.editor-content.text-right {
+  text-align: right;
+}
+
+.editor-content.text-justify {
+  text-align: justify;
+}
+
+/* Selection styling */
+.editor-content ::selection {
+  background-color: var(--bg-accent-light);
+  color: var(--text-accent);
+}
+
+/* Focus styles */
+.rich-text-editor:focus-within {
+  box-shadow: 0 0 0 2px var(--ring-color);
+  border-color: var(--border-focus);
+}
+
+/* Empty state placeholder */
+.editor-content:empty::before {
+  content: attr(placeholder);
+  color: var(--text-tertiary);
+  pointer-events: none;
+}
+
+/* Responsive design */
+@media (max-width: 640px) {
+  .toolbar-btn {
+    width: 1.75rem;
+    height: 1.75rem;
+  }
+  
+  .toolbar-btn svg {
+    width: 0.875rem;
+    height: 0.875rem;
+  }
+  
+  .editor-content {
+    font-size: 0.875rem;
+  }
+}
+
+/* Scrollbar styling for content area */
+.editor-content::-webkit-scrollbar {
+  width: 4px;
+}
+
+.editor-content::-webkit-scrollbar-track {
+  background: var(--bg-secondary);
+}
+
+.editor-content::-webkit-scrollbar-thumb {
+  background: var(--border-secondary);
+  border-radius: 2px;
+}
+
+.editor-content::-webkit-scrollbar-thumb:hover {
+  background: var(--text-tertiary);
+}
+
+/* Animation for toolbar buttons */
+@keyframes buttonPress {
+  0% { transform: scale(1); }
+  50% { transform: scale(0.95); }
+  100% { transform: scale(1); }
+}
+
+.toolbar-btn:active {
+  animation: buttonPress 0.1s ease-in-out;
+}
+
+.toolbar-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* Image upload and drag-drop styles */
+.editor-content.drag-over {
+  border-color: var(--border-accent) !important;
+  background-color: var(--bg-accent-light);
+}
+
+.image-container {
+  position: relative;
+  margin: 1rem 0;
+  text-align: center;
+}
+
+.image-container img {
+  display: block;
+  margin: 0 auto;
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.image-info {
+  font-size: 0.75rem;
+  color: var(--text-tertiary);
+  margin-top: 0.5rem;
+  text-align: center;
+}
+
+/* Loading spinner for image upload */
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+/* Word count styling */
+.word-count {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--text-tertiary);
+}
+
+/* Special formatting for poetry/prose */
+.editor-content.poetry-mode {
+  font-family: 'Cardo', serif;
+  line-height: 1.8;
+}
+
+.editor-content.prose-mode {
+  line-height: 1.6;
+  text-align: justify;
+}
+
+/* Print styles */
+@media print {
+  .rich-text-editor {
+    box-shadow: none;
+    border: 1px solid #d1d5db;
+  }
+  
+  .toolbar-btn,
+  .word-count {
+    display: none !important;
+  }
+  
+  .editor-content {
+    color: black;
+    background-color: white;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .toolbar-btn {
+    border-color: #9ca3af;
+  }
+  
+  .toolbar-btn.active {
+    background-color: #fed7aa;
+    color: #7c2d12;
+    border-color: #fb923c;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .toolbar-btn,
+  .rich-text-editor {
+    transition: none !important;
+  }
+  
+  .toolbar-btn:active {
+    animation: none !important;
+  }
+}

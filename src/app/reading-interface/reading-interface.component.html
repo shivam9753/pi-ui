@@ -1,325 +1,270 @@
-<div class="min-h-screen bg-black">
-  <div *ngIf="content()" class="max-w-4xl mx-auto">
-    
-    <!-- Simplified Header -->
-    <div class="px-4 sm:px-6 lg:px-8 py-8">
-      <div class="flex items-center gap-4 mb-8">
-        <button 
-          (click)="goBack()"
-          class="p-2 text-neutral-400 hover:text-white hover:bg-neutral-800 rounded-lg transition-all duration-200">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-          </svg>
-        </button>
-        
-        <div class="flex-1">
-          <h1 class="text-3xl md:text-4xl font-bold text-white leading-tight mb-4">
-            {{ content()!.title }}
-          </h1>
-          
-          <!-- Author as simple link -->
-          <div class="mb-4">
-            <a [routerLink]="['/profile', content()!.authorId]" 
-               class="text-lg text-neutral-300 hover:text-orange-400 transition-colors duration-200">
-              {{ content()!.authorName }}
-            </a>
-          </div>
-        </div>
-        
-        <!-- Post type badge on extreme right -->
-        <span class="px-3 py-1 bg-orange-600 text-white text-sm font-medium rounded-md">
-          {{ content()!.submissionType | titlecase }}
-        </span>
-      </div>
-    </div>
-
-    <!-- Featured Image -->
-    <div *ngIf="content()!.imageUrl" class="px-4 sm:px-6 lg:px-8 pb-6">
-      <img [src]="content()!.imageUrl" 
-           [alt]="content()!.title"
-           class="w-full h-64 md:h-80 object-cover rounded-lg border border-neutral-800">
-    </div>
-
-    <!-- Content Body -->
-    <div class="px-4 sm:px-6 lg:px-8 py-8">
-      <div class="max-w-3xl mx-auto">
-        
-        <!-- Description -->
-        <div *ngIf="content()!.description" class="mb-8">
-          <p class="text-lg text-neutral-300 leading-relaxed italic border-l-4 border-orange-500 pl-6">
-            {{ content()!.description }}
-          </p>
-        </div>
-
-        <!-- Content Items -->
-        <div class="space-y-12">
-          <article *ngFor="let item of content()!.contents; let i = index" 
-                   class="prose prose-invert prose-lg max-w-none">
-            
-            <!-- Content Title (if multiple items) -->
-            <h2 *ngIf="content()!.contents.length > 1" 
-                class="text-2xl font-bold text-white mb-6 pb-3 border-b border-neutral-800">
-              {{ i + 1 }}. {{ item.title }}
-            </h2>
-
-            <!-- Content Body -->
-            <div class="content-body">
-              <pre class="whitespace-pre-line font-sans text-neutral-200 leading-relaxed text-base">{{ item.body }}</pre>
-            </div>
-
-            <!-- Content Tags -->
-            <div *ngIf="item.tags && item.tags.length > 0" class="flex flex-wrap gap-2 mt-6 pt-4 border-t border-neutral-800">
-              <span class="text-sm text-neutral-400 mr-2">Tags:</span>
-              <span *ngFor="let tag of item.tags" 
-                    class="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-neutral-800/60 text-neutral-400 border border-neutral-700/50">
-                #{{ tag }}
-              </span>
-            </div>
-          </article>
-        </div>
-
-        <!-- Overall Tags -->
-        <div *ngIf="content()!.tags && content()!.tags.length > 0" class="mt-12 pt-8 border-t border-neutral-800">
-          <div class="flex flex-wrap items-center gap-3">
-            <span class="text-sm font-medium text-neutral-400">Related Topics:</span>
-            <span *ngFor="let tag of content()!.tags" 
-                  class="inline-flex items-center px-3 py-1 rounded-lg text-sm font-medium bg-orange-500/10 text-orange-400 border border-orange-500/30 hover:bg-orange-500/20 transition-colors duration-200 cursor-pointer">
-              {{ tag }}
-            </span>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Post Footer: Actions + Date -->
-    <div class="px-4 sm:px-6 lg:px-8 py-8 border-t border-neutral-800">
-      <div class="max-w-3xl mx-auto">
-        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          
-          <!-- Action Buttons -->
-          <div class="flex items-center gap-3">
-            <button 
-              (click)="toggleLike()"
-              [ngClass]="{
-                'text-red-500 bg-red-500/10 border-red-500/30': content()!.isLiked,
-                'text-neutral-400 bg-neutral-800 border-neutral-700 hover:text-red-400 hover:border-red-500/30': !content()!.isLiked
-              }"
-              class="flex items-center gap-2 px-4 py-2 border rounded-lg transition-all duration-200">
-              <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd"/>
-              </svg>
-              <span class="font-medium">{{ content()!.likeCount }}</span>
-            </button>
-
-            <button 
-              (click)="toggleBookmark()"
-              [ngClass]="{
-                'text-orange-500 bg-orange-500/10 border-orange-500/30': content()!.isBookmarked,
-                'text-neutral-400 bg-neutral-800 border-neutral-700 hover:text-orange-400 hover:border-orange-500/30': !content()!.isBookmarked
-              }"
-              class="flex items-center gap-2 px-4 py-2 border rounded-lg transition-all duration-200">
-              <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                <path d="M5 4a2 2 0 012-2h6a2 2 0 012 2v14l-5-2.5L5 18V4z"/>
-              </svg>
-            </button>
-
-            <button 
-              (click)="shareContent()"
-              class="flex items-center gap-2 px-4 py-2 text-neutral-400 bg-neutral-800 border border-neutral-700 rounded-lg hover:text-blue-400 hover:border-blue-500/30 transition-all duration-200">
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z" />
-              </svg>
-            </button>
-          </div>
-
-          <!-- Date and Views -->
-          <div class="text-sm text-neutral-500 flex items-center gap-4">
-            <span>{{ content()!.viewCount }} views</span>
-            <span>•</span>
-            <span>{{ content()!.publishedAt | date:'MMM d, y' }}</span>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Comments Section -->
-    <div class="px-4 sm:px-6 lg:px-8 py-8 border-t border-neutral-800">
-      <div class="max-w-3xl mx-auto">
-        
-        <!-- Comments Header -->
-        <div class="flex items-center justify-between mb-8">
-          <h3 class="text-2xl font-bold text-white">
-            Comments ({{ comments().length }})
-          </h3>
+<div class="min-h-screen bg-themed">
+  <!-- Reading Progress Bar -->
+  <div class="reading-progress" [style.width.%]="readingProgress()"></div>
+  
+  <!-- Header Bar -->
+  <div class="border-b border-themed bg-themed/95 backdrop-blur-sm sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-6 py-3">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-6">
           <button 
-            (click)="toggleCommentsSort()"
-            class="text-sm text-neutral-400 hover:text-white transition-colors duration-200">
-            Sort by {{ commentsSort() === 'newest' ? 'Oldest' : 'Newest' }}
+            (click)="goBack()"
+            class="flex items-center gap-2 text-sm text-themed-secondary hover:text-themed transition-colors duration-200 group">
+            <svg class="w-4 h-4 group-hover:translate-x-[-2px] transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+            </svg>
+            <span>Back to Explore</span>
           </button>
+          <div class="h-4 w-px bg-themed-secondary"></div>
+          <app-badge-label [type]="content()!.submissionType"></app-badge-label>
         </div>
-
-        <!-- Add Comment -->
-        <div class="mb-8 p-6 bg-neutral-900/50 rounded-lg border border-neutral-800">
-          <h4 class="text-lg font-semibold text-white mb-4">Add a comment</h4>
-          <textarea 
-            [(ngModel)]="newComment"
-            rows="4"
-            placeholder="Share your thoughts..."
-            class="w-full px-4 py-3 border border-neutral-700 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-neutral-800 text-neutral-200 placeholder-neutral-500 resize-none">
-          </textarea>
-          <div class="flex justify-end mt-4">
+        
+        <!-- Reading Controls -->
+        <div class="flex items-center gap-3">
+          <!-- Font Size Controls -->
+          <div class="flex items-center gap-1 bg-themed-card rounded-lg p-1">
             <button 
-              (click)="submitComment()"
-              [disabled]="!newComment.toString().trim()"
-              class="px-6 py-2 bg-orange-600 hover:bg-orange-700 disabled:bg-neutral-700 disabled:cursor-not-allowed text-white rounded-lg font-medium transition-colors duration-200">
-              Post Comment
+              (click)="decreaseFontSize()"
+              class="p-1 text-themed-secondary hover:text-themed transition-colors duration-200"
+              title="Decrease font size">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4" />
+              </svg>
+            </button>
+            <span class="text-xs text-themed-tertiary px-2">{{ fontSize() }}px</span>
+            <button 
+              (click)="increaseFontSize()"
+              class="p-1 text-themed-secondary hover:text-themed transition-colors duration-200"
+              title="Increase font size">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+              </svg>
             </button>
           </div>
-        </div>
-
-        <!-- Comments List -->
-        <div class="space-y-6">
-          <div *ngFor="let comment of sortedComments()" 
-               class="p-6 bg-neutral-900/30 rounded-lg border border-neutral-800/50">
-            
-            <!-- Comment Header -->
-            <div class="flex items-start justify-between mb-4">
-              <div class="flex items-center gap-3">
-                <div class="w-10 h-10 bg-gradient-to-br from-orange-500 to-orange-600 rounded-full flex items-center justify-center">
-                  <img *ngIf="comment.userAvatar" 
-                       [src]="comment.userAvatar" 
-                       [alt]="comment.userName"
-                       class="w-full h-full object-cover rounded-full" />
-                  <span *ngIf="!comment.userAvatar" 
-                        class="text-white font-medium">
-                    {{ comment.userName?.[0]?.toUpperCase() }}
-                  </span>
-                </div>
-                <div>
-                  <h5 class="font-semibold text-white">{{ comment.userName }}</h5>
-                  <time class="text-xs text-neutral-500">
-                    {{ comment.createdAt | date:'MMM d, y \'at\' h:mm a' }}
-                  </time>
-                </div>
-              </div>
-            </div>
-
-            <!-- Comment Content -->
-            <p class="text-neutral-300 mb-4 leading-relaxed">
-              {{ comment.content }}
-            </p>
-
-            <!-- Comment Actions -->
-            <div class="flex items-center gap-4">
-              <button 
-                (click)="toggleCommentLike(comment)"
-                [ngClass]="{
-                  'text-red-500': comment.isLiked,
-                  'text-neutral-500 hover:text-red-400': !comment.isLiked
-                }"
-                class="flex items-center gap-1 text-sm transition-colors duration-200">
-                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                  <path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd"/>
-                </svg>
-                {{ comment.likesCount }}
-              </button>
-              
-              <button 
-                (click)="replyToComment(comment)"
-                class="text-sm text-neutral-500 hover:text-white transition-colors duration-200">
-                Reply
-              </button>
-            </div>
-
-            <!-- Replies -->
-            <div *ngIf="comment.replies && comment.replies.length > 0" 
-                 class="mt-6 pl-6 border-l-2 border-neutral-700 space-y-4">
-              <div *ngFor="let reply of comment.replies" 
-                   class="p-4 bg-neutral-800/30 rounded-lg">
-                <div class="flex items-center gap-3 mb-3">
-                  <div class="w-8 h-8 bg-gradient-to-br from-orange-500 to-orange-600 rounded-full flex items-center justify-center">
-                    <span class="text-white text-sm font-medium">
-                      {{ reply.userName?.[0]?.toUpperCase() }}
-                    </span>
-                  </div>
-                  <div>
-                    <h6 class="text-sm font-semibold text-white">{{ reply.userName }}</h6>
-                    <time class="text-xs text-neutral-500">
-                      {{ reply.createdAt | date:'MMM d, y' }}
-                    </time>
-                  </div>
-                </div>
-                <p class="text-sm text-neutral-300">{{ reply.content }}</p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Load More Comments -->
-        <div *ngIf="hasMoreComments()" class="text-center mt-8">
-          <button 
-            (click)="loadMoreComments()"
-            class="px-6 py-3 bg-neutral-800 hover:bg-neutral-700 text-neutral-200 rounded-lg font-medium transition-colors duration-200">
-            Load More Comments
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Related Content -->
-    <div class="px-4 sm:px-6 lg:px-8 py-8 border-t border-neutral-800">
-      <div class="max-w-6xl mx-auto">
-        <h3 class="text-2xl font-bold text-white mb-8">You might also like</h3>
-        
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <div *ngFor="let related of relatedContent()" 
-               class="group bg-neutral-900/50 backdrop-blur-sm rounded-lg border border-neutral-800/50 hover:border-orange-500/30 transition-all duration-300 overflow-hidden">
-            
-            <div class="h-32 bg-neutral-800/60 overflow-hidden">
-              <img *ngIf="related.imageUrl" 
-                   [src]="related.imageUrl" 
-                   [alt]="related.title"
-                   class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
-              <div *ngIf="!related.imageUrl" 
-                   class="w-full h-full flex items-center justify-center">
-                <svg class="w-6 h-6 text-neutral-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-                </svg>
-              </div>
-            </div>
-
-            <div class="p-4">
-              <span class="px-2 py-1 text-xs font-medium rounded-md bg-neutral-800/60 text-neutral-400 border border-neutral-700/50 mb-3 inline-block">
-                {{ related.submissionType | titlecase }}
-              </span>
-              
-              <h4 class="text-sm font-semibold text-neutral-200 leading-snug line-clamp-2 mb-2">
-                <a [routerLink]="['/read', related._id]" 
-                   class="hover:text-orange-400 transition-colors duration-300">
-                  {{ related.title }}
-                </a>
-              </h4>
-              
-              <p class="text-neutral-400 text-xs line-clamp-2 mb-3">
-                {{ related.excerpt }}
-              </p>
-              
-              <div class="flex items-center justify-between text-xs text-neutral-500">
-                <span>{{ related.authorName }}</span>
-                <span>{{ related.publishedAt | date:'MMM d' }}</span>
-              </div>
-            </div>
-          </div>
+          
         </div>
       </div>
     </div>
   </div>
 
+  <div *ngIf="content()" class="magazine-layout">
+    <!-- Main Content Grid -->
+    <div class="max-w-7xl mx-auto px-6 py-12">
+      <div class="grid grid-cols-12 gap-8 lg:gap-12">
+        
+        <!-- Main Content Column -->
+        <main class="col-span-12 lg:col-span-8 xl:col-span-7">
+          <!-- Article Header -->
+          <header class="mb-8">
+            <h1 class="text-4xl lg:text-5xl xl:text-6xl font-serif font-bold text-themed leading-tight mb-6">
+              {{ content()!.title }}
+            </h1>
+            
+            <!-- Author and Metadata -->
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8 pb-8 border-b border-themed">
+              <div class="mb-4 sm:mb-0">
+                <a [routerLink]="['/profile', content()!.authorId]" 
+                   class="text-lg font-medium text-themed hover:text-themed-accent transition-colors duration-200">
+                  {{ content()!.authorName }}
+                </a>
+                <div class="text-sm text-themed-tertiary mt-1">
+                  {{ content()!.publishedAt | date:'MMMM d, y' }}
+                </div>
+              </div>
+              <div class="text-sm text-themed-tertiary">
+                {{ content()!.readingTime }}min read • {{ content()!.viewCount }} views
+              </div>
+            </div>
+
+            <!-- Description -->
+            <div *ngIf="content()!.description" class="mb-8">
+              <p class="text-xl text-themed-secondary leading-relaxed font-light italic border-l-4 border-orange-500 pl-6">
+                {{ content()!.description }}
+              </p>
+            </div>
+          </header>
+
+          <!-- Featured Image - Original Width, Left Aligned -->
+          <div *ngIf="content()!.imageUrl" class="mb-12">
+            <img [src]="content()!.imageUrl" 
+                 [alt]="content()!.title"
+                 class="max-w-full h-auto rounded-lg shadow-lg">
+          </div>
+
+          <!-- Content Items -->
+          <div class="prose-custom">
+            <div *ngIf="content()!.contents && content()!.contents.length > 0; else noContentMessage">
+              <article *ngFor="let item of content()!.contents; let i = index" 
+                       class="content-section mb-16">
+                
+                <!-- Content Title (if multiple items) -->
+                <h2 *ngIf="content()!.contents.length > 1" 
+                    class="text-2xl lg:text-3xl font-serif font-bold text-themed mb-8 pb-4 border-b border-themed">
+                  {{ i + 1 }}. {{ item.title }}
+                </h2>
+
+                <!-- Content Body -->
+                <div class="content-body" 
+                     [style.font-size.px]="fontSize()" 
+                     [style.line-height]="lineHeight()"
+                     [innerHTML]="cleanContent(item.body)">
+                </div>
+
+                <!-- Content Tags -->
+                <div *ngIf="item.tags && item.tags.length > 0" class="flex flex-wrap gap-2 mt-8 pt-6 border-t border-themed">
+                  <span class="text-sm text-themed-tertiary mr-2">Tags:</span>
+                  <span *ngFor="let tag of item.tags" 
+                        class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-themed-secondary text-themed-tertiary border border-themed hover:bg-themed-accent hover:text-white transition-colors cursor-pointer">
+                    #{{ tag }}
+                  </span>
+                </div>
+              </article>
+            </div>
+            
+            <!-- No Content Message -->
+            <ng-template #noContentMessage>
+              <div class="bg-themed-card rounded-lg p-12 text-center">
+                <div class="w-16 h-16 mx-auto mb-4 bg-themed-secondary rounded-full flex items-center justify-center">
+                  <svg class="w-8 h-8 text-themed-tertiary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                </div>
+                <h3 class="text-lg font-semibold text-themed mb-2">Content Not Available</h3>
+                <p class="text-themed-secondary mb-4">
+                  The main content for this submission is currently not available.
+                </p>
+                <button 
+                  (click)="loadContent(content()!._id)"
+                  class="btn-primary">
+                  <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                  </svg>
+                  Retry Loading
+                </button>
+              </div>
+            </ng-template>
+          </div>
+
+          <!-- Overall Tags -->
+          <div *ngIf="content()!.tags && content()!.tags.length > 0" class="mt-16 pt-8 border-t border-themed">
+            <div class="flex flex-wrap items-center gap-3">
+              <span class="text-sm font-medium text-themed-tertiary">Related Topics:</span>
+              <span *ngFor="let tag of content()!.tags" 
+                    class="inline-flex items-center px-4 py-2 rounded-full text-sm font-medium bg-orange-500/10 text-orange-400 border border-orange-500/30 hover:bg-orange-500/20 transition-colors duration-200 cursor-pointer">
+                {{ tag }}
+              </span>
+            </div>
+          </div>
+
+          <!-- Post Footer: Actions -->
+          <div class="mt-16 pt-8 border-t border-themed">
+            <div class="flex items-center gap-4">
+              <button 
+                (click)="toggleLike()"
+                [ngClass]="{
+                  'text-red-500 bg-red-500/10 border-red-500/30': content()!.isLiked,
+                  'text-themed-secondary bg-themed-secondary border-themed hover:text-red-400 hover:border-red-500/30': !content()!.isLiked
+                }"
+                class="flex items-center gap-2 px-4 py-2 border rounded-lg transition-all duration-200">
+                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd"/>
+                </svg>
+                <span class="font-medium">{{ content()!.likeCount }}</span>
+              </button>
+
+              <button 
+                (click)="toggleBookmark()"
+                [ngClass]="{
+                  'text-orange-500 bg-orange-500/10 border-orange-500/30': content()!.isBookmarked,
+                  'text-themed-secondary bg-themed-secondary border-themed hover:text-orange-400 hover:border-orange-500/30': !content()!.isBookmarked
+                }"
+                class="flex items-center gap-2 px-4 py-2 border rounded-lg transition-all duration-200">
+                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M5 4a2 2 0 012-2h6a2 2 0 012 2v14l-5-2.5L5 18V4z"/>
+                </svg>
+              </button>
+
+              <button 
+                (click)="shareContent()"
+                class="flex items-center gap-2 px-4 py-2 text-themed-secondary bg-themed-secondary border border-themed rounded-lg hover:text-blue-400 hover:border-blue-500/30 transition-all duration-200">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z" />
+                </svg>
+              </button>
+            </div>
+          </div>
+        </main>
+
+        <!-- Sidebar -->
+        <aside class="col-span-12 lg:col-span-4 xl:col-span-4 xl:col-start-9">
+          <div class="sticky top-24">
+            
+            <!-- Related Content - Smaller Cards -->
+            <div class="space-y-4">
+              <h3 class="text-lg font-medium text-themed mb-6">Related Articles</h3>
+              <div *ngFor="let related of relatedContent().slice(0, 5)" 
+                   class="group cursor-pointer border-b border-themed pb-4 last:border-b-0 last:pb-0" 
+                   (click)="router.navigate(['/read', related._id])">
+                
+                <div class="flex gap-3">
+                  <div class="w-12 h-12 bg-themed-secondary rounded overflow-hidden flex-shrink-0">
+                    <img *ngIf="related.imageUrl" 
+                         [src]="related.imageUrl" 
+                         [alt]="related.title"
+                         class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                    <div *ngIf="!related.imageUrl" 
+                         class="w-full h-full flex items-center justify-center">
+                      <svg class="w-4 h-4 text-themed-tertiary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                      </svg>
+                    </div>
+                  </div>
+
+                  <div class="flex-1 min-w-0">
+                    <h4 class="text-sm font-medium text-themed leading-tight line-clamp-2 mb-1 group-hover:text-orange-400 transition-colors duration-300">
+                      {{ related.title }}
+                    </h4>
+                    <p class="text-xs text-themed-tertiary">
+                      {{ related.authorName }}
+                    </p>
+                    <p class="text-xs text-themed-tertiary">
+                      {{ related.publishedAt | date:'MMM d' }}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </div>
+
   <!-- Loading State -->
-  <div *ngIf="!content()" class="flex items-center justify-center min-h-screen">
+  <div *ngIf="!content() && !error()" class="flex items-center justify-center min-h-screen">
     <div class="text-center">
       <div class="w-12 h-12 mx-auto mb-4 border-4 border-orange-500/20 border-t-orange-500 rounded-full animate-spin"></div>
-      <p class="text-neutral-400">Loading content...</p>
+      <p class="text-themed-secondary">Loading content...</p>
+    </div>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error()" class="flex items-center justify-center min-h-screen">
+    <div class="text-center max-w-md mx-auto p-8">
+      <div class="w-16 h-16 mx-auto mb-4 bg-red-100 dark:bg-red-900/20 rounded-full flex items-center justify-center">
+        <svg class="w-8 h-8 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+      </div>
+      <h2 class="text-xl font-semibold text-themed mb-2">Failed to Load Content</h2>
+      <p class="text-themed-secondary mb-4">{{ error() }}</p>
+      <button 
+        (click)="retry()"
+        class="btn-primary">
+        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+        </svg>
+        Try Again
+      </button>
     </div>
   </div>
 </div>
