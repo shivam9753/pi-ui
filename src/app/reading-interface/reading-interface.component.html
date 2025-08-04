@@ -61,7 +61,7 @@
             </h1>
             
             <!-- Author and Metadata -->
-            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8 pb-8 border-b border-themed">
+            <div class="flex sm:flex-row sm:items-center sm:justify-between mb-8 pb-8 border-b border-themed">
               <div class="mb-4 sm:mb-0">
                 <a [routerLink]="['/profile', content()!.authorId]" 
                    class="text-lg font-medium text-themed hover:text-themed-accent transition-colors duration-200">
@@ -198,45 +198,30 @@
         <!-- Sidebar -->
         <aside class="col-span-12 lg:col-span-4 xl:col-span-4 xl:col-start-9">
           <div class="sticky top-24">
-            
-            <!-- Related Content - Smaller Cards -->
-            <div class="space-y-4">
-              <h3 class="text-lg font-medium text-themed mb-6">Related Articles</h3>
-              <div *ngFor="let related of relatedContent().slice(0, 5)" 
-                   class="group cursor-pointer border-b border-themed pb-4 last:border-b-0 last:pb-0" 
-                   (click)="router.navigate(['/read', related._id])">
-                
-                <div class="flex gap-3">
-                  <div class="w-12 h-12 bg-themed-secondary rounded overflow-hidden flex-shrink-0">
-                    <img *ngIf="related.imageUrl" 
-                         [src]="related.imageUrl" 
-                         [alt]="related.title"
-                         class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
-                    <div *ngIf="!related.imageUrl" 
-                         class="w-full h-full flex items-center justify-center">
-                      <svg class="w-4 h-4 text-themed-tertiary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-                      </svg>
-                    </div>
-                  </div>
-
-                  <div class="flex-1 min-w-0">
-                    <h4 class="text-sm font-medium text-themed leading-tight line-clamp-2 mb-1 group-hover:text-orange-400 transition-colors duration-300">
-                      {{ related.title }}
-                    </h4>
-                    <p class="text-xs text-themed-tertiary">
-                      {{ related.authorName }}
-                    </p>
-                    <p class="text-xs text-themed-tertiary">
-                      {{ related.publishedAt | date:'MMM d' }}
-                    </p>
-                  </div>
-                </div>
-              </div>
+            <!-- Related Content in Sidebar (Desktop Only) -->
+            <div class="hidden lg:block">
+              <app-related-content 
+                *ngIf="content()"
+                [currentPostId]="content()!._id"
+                [contentType]="content()!.submissionType"
+                [currentTags]="content()!.tags"
+                [layout]="'sidebar'">
+              </app-related-content>
             </div>
           </div>
         </aside>
       </div>
+    </div>
+
+    <!-- Related Content Section (Mobile Only - Below Main Content) -->
+    <div class="block lg:hidden">
+      <app-related-content 
+        *ngIf="content()"
+        [currentPostId]="content()!._id"
+        [contentType]="content()!.submissionType"
+        [currentTags]="content()!.tags"
+        [layout]="'bottom'">
+      </app-related-content>
     </div>
 
   <!-- Loading State -->

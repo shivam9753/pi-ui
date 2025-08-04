@@ -1,4 +1,7 @@
 <!-- explore.component.html - Refined version with proper focus -->
+<!-- <div class="hidden md:block bg-orange-50 p-4 rounded">Visible on Desktop (md and up)</div>
+<div class="block md:hidden bg-blue-50 p-4 rounded">Visible on Mobile only</div> -->
+
 <div class="min-h-screen bg-themed">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
     
@@ -235,7 +238,7 @@
       <div class="lg:col-span-1 space-y-6">
         
         <!-- Write Prompt CTA -->
-        <div class="card p-5 text-center">
+        <!-- <div class="card p-5 text-center">
           <div class="w-12 h-12 mx-auto bg-themed-accent bg-opacity-10 rounded-full flex items-center justify-center mb-3">
             <svg class="w-6 h-6 text-themed-accent" fill="currentColor" viewBox="0 0 24 24">
               <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/>
@@ -246,10 +249,10 @@
           <button (click)="generatePrompt()" class="btn-primary text-sm w-full">
             Get Prompt
           </button>
-        </div>
+        </div> -->
 
         <!-- Quick Stats -->
-        <div class="card p-5">
+        <!-- <div class="card p-5">
           <h3 class="font-semibold text-themed mb-4">Community</h3>
           <div class="space-y-3">
             <div class="flex justify-between text-sm">
@@ -265,10 +268,10 @@
               <span class="font-medium text-themed-accent">+23</span>
             </div>
           </div>
-        </div>
+        </div> -->
 
         <!-- Trending Tags -->
-        <div class="card p-5">
+        <!-- <div class="card p-5">
           <h3 class="font-semibold text-themed mb-4">Popular topics</h3>
           <div class="flex flex-wrap gap-2">
             <span *ngFor="let tag of trendingTags.slice(0, 6)" 
@@ -277,7 +280,7 @@
               #{{ tag }}
             </span>
           </div>
-        </div>
+        </div> -->
       </div>
     </div>
   </div>

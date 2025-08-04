@@ -1,0 +1,4 @@
+.card:active, .card:focus-within {
+  box-shadow: 0 4px 24px 0 rgba(249,115,22,0.12);
+  border-color: #fb923c;
+}

@@ -382,38 +382,43 @@ export class PublishSubmissionComponent implements OnInit {
     // First save any content changes
     this.saveChanges();
 
-    // Then publish the submission using existing endpoint
-    this.backendService.updateSubmissionStatus(this.submission._id, 'published').subscribe({
+    // Prepare SEO configuration data
+    const seoData = {
+      slug: this.seoConfig.slug.trim(),
+      metaTitle: this.seoConfig.metaTitle,
+      metaDescription: this.seoConfig.metaDescription,
+      keywords: this.seoConfig.keywords,
+      allowComments: this.seoConfig.allowComments,
+      featuredOnHomepage: this.seoConfig.featuredPost,
+      enableSocialSharing: this.seoConfig.enableSocialSharing
+    };
+
+    // Use the new SEO-enabled publishing endpoint
+    this.backendService.publishSubmissionWithSEO(this.submission._id, seoData).subscribe({
       next: (response) => {
-        console.log('Submission published successfully:', response);
+        console.log('Submission published with SEO configuration:', response);
         
-        // Store SEO configuration in localStorage for future use
-        // (This will be properly saved to backend when the endpoint is implemented)
-        const seoData = {
-          submissionId: this.submission._id,
-          slug: this.seoConfig.slug.trim(),
-          metaTitle: this.seoConfig.metaTitle,
-          metaDescription: this.seoConfig.metaDescription,
-          keywords: this.seoConfig.keywords,
-          allowComments: this.seoConfig.allowComments,
-          featuredPost: this.seoConfig.featuredPost,
-          enableSocialSharing: this.seoConfig.enableSocialSharing
-        };
-        
-        console.log('SEO Configuration (will be saved when backend endpoint is ready):', seoData);
-        
-        this.showSuccess(`"${this.submission.title}" has been published successfully! SEO settings will be applied when backend endpoint is implemented.`);
+        const publishedUrl = response.url || `/post/${seoData.slug}`;
+        this.showSuccess(`"${this.submission.title}" has been published successfully! Available at: ${publishedUrl}`);
         
         // Redirect back to admin publication page
         setTimeout(() => {
           this.router.navigate(['/admin'], { fragment: 'publish' });
-        }, 1500);
+        }, 2000);
         
         this.isPublishing = false;
       },
       error: (err) => {
-        console.error('Error publishing submission:', err);
-        this.showError('Failed to publish submission. Please try again.');
+        console.error('Error publishing submission with SEO:', err);
+        
+        // Check if the error is slug-related
+        if (err.message?.includes('Slug already exists')) {
+          this.slugError = 'This slug is already taken. Please choose a different one.';
+          this.showError('Slug already exists. Please choose a different slug.');
+        } else {
+          this.showError('Failed to publish submission. Please try again.');
+        }
+        
         this.isPublishing = false;
       }
     });

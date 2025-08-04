@@ -3,12 +3,12 @@ import { CommonModule, DatePipe, TitleCasePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { BackendService } from '../../../services/backend.service';
-import { BadgeLabelComponent } from '../../../utilities/badge-label/badge-label.component';
+import { HtmlSanitizerService } from '../../../services/html-sanitizer.service';
 import { PublishedContentCardComponent, PublishedContent } from '../../../utilities/published-content-card/published-content-card.component';
 
 @Component({
   selector: 'app-published-posts',
-  imports: [CommonModule, DatePipe, TitleCasePipe, FormsModule, BadgeLabelComponent, PublishedContentCardComponent],
+  imports: [CommonModule, DatePipe, TitleCasePipe, FormsModule, PublishedContentCardComponent],
   templateUrl: './published-posts.component.html',
   styleUrl: './published-posts.component.css'
 })
@@ -25,7 +25,8 @@ export class PublishedPostsComponent implements OnInit {
 
   constructor(
     private backendService: BackendService,
-    private router: Router
+    private router: Router,
+    private htmlSanitizer: HtmlSanitizerService
   ) {}
 
   ngOnInit() {
@@ -35,10 +36,16 @@ export class PublishedPostsComponent implements OnInit {
   loadPublishedSubmissions() {
     this.loading = true;
     
-    this.backendService.getSubmissions("", "published").subscribe({
+    // Use optimized endpoint with pagination and sorting
+    this.backendService.getSubmissions("", "published", {
+      limit: 100,
+      skip: 0,
+      sortBy: 'reviewedAt',
+      order: 'desc'
+    }).subscribe({
       next: (data) => {
         this.publishedSubmissions = data.submissions || [];
-        console.log('Published submissions loaded:', this.publishedSubmissions);
+        console.log('Published submissions loaded:', this.publishedSubmissions.length);
         this.loading = false;
       },
       error: (err) => {
@@ -155,5 +162,30 @@ export class PublishedPostsComponent implements OnInit {
     }
     const years = Math.floor(diffDays / 365);
     return years === 1 ? '1 year ago' : `${years} years ago`;
+  }
+
+  // Clean HTML from description
+  getCleanDescription(submission: any): string {
+    return this.htmlSanitizer.getCleanDescription(
+      submission.excerpt, 
+      submission.description, 
+      'No description available'
+    );
+  }
+
+  // Get author name with fallback
+  getAuthorName(submission: any): string {
+    return submission.username || 
+           submission.authorName || 
+           submission.author?.username || 
+           submission.author?.name || 
+           submission.submitterName || 
+           'Unknown Author';
+  }
+
+  // Truncate description for display
+  getTruncatedDescription(submission: any, maxLength: number = 100): string {
+    const cleanDesc = this.getCleanDescription(submission);
+    return this.htmlSanitizer.truncateText(cleanDesc, maxLength);
   }
 }

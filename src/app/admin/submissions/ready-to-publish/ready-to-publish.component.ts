@@ -41,12 +41,18 @@ export class ReadyToPublishComponent {
     
 
     
-    this.backendService.getSubmissions("", "accepted").subscribe({
+    // Use the new consolidated endpoint with pagination
+    this.backendService.getSubmissions("", "accepted", {
+      limit: 50,
+      skip: 0,
+      sortBy: 'reviewedAt',
+      order: 'desc'
+    }).subscribe({
       next: (data) => {
         console.log('API Response:', data);
-        // Handle different response structures
-        this.acceptedSubmissions = data.submissions || data.data || data || [];
-        console.log('Accepted submissions loaded:', this.acceptedSubmissions);
+        // Handle optimized response structure
+        this.acceptedSubmissions = data.submissions || [];
+        console.log('Accepted submissions loaded:', this.acceptedSubmissions.length);
         this.loading = false;
       },
       error: (err) => {

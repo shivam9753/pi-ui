@@ -122,7 +122,7 @@
     <!-- Desktop Table View -->
     <div class="hidden md:block overflow-x-auto">
       <table class="min-w-full">
-        <thead class="bg-themed-secondary border-b border-themed">
+        <thead class="bg-themed-secondary border-b border-gray-200">
           <tr>
             <th class="px-8 py-5 text-left text-xs font-semibold text-themed uppercase tracking-wider">Image</th>
             <th class="px-8 py-5 text-left text-xs font-semibold text-themed uppercase tracking-wider">Title & Author</th>
@@ -132,13 +132,13 @@
             <th class="px-8 py-5 text-left text-xs font-semibold text-themed uppercase tracking-wider">Actions</th>
           </tr>
         </thead>
-        <tbody class="bg-themed divide-y divide-themed">
+        <tbody class="bg-themed divide-y divide-gray-200">
           <tr *ngFor="let submission of filteredSubmissions" 
               class="hover:bg-themed-secondary/50 transition-all duration-200 group">
             
             <!-- Featured Image Column -->
             <td class="px-8 py-6">
-              <div class="w-16 h-16 rounded-lg overflow-hidden bg-themed-tertiary border border-themed flex items-center justify-center">
+              <div class="w-16 h-16 rounded-lg overflow-hidden bg-themed-tertiary border border-gray-200 flex items-center justify-center">
                 <img *ngIf="submission.imageUrl" 
                      [src]="submission.imageUrl" 
                      [alt]="submission.title"
@@ -156,13 +156,10 @@
                   {{ submission.title }}
                 </div>
                 <div class="text-sm text-themed-secondary mb-2">
-                  By {{ submission.username }}
+                  By {{ getAuthorName(submission) }}
                 </div>
-                <div *ngIf="submission.description" class="text-sm text-themed-secondary leading-relaxed line-clamp-2">
-                  {{ submission.description }}
-                </div>
-                <div *ngIf="submission.excerpt && !submission.description" class="text-sm text-themed-secondary leading-relaxed line-clamp-2">
-                  {{ submission.excerpt }}
+                <div class="text-sm text-themed-secondary leading-relaxed line-clamp-2">
+                  {{ getTruncatedDescription(submission, 120) }}
                 </div>
               </div>
             </td>
@@ -170,7 +167,7 @@
             <!-- Type Column -->
             <td class="px-8 py-6">
               <div class="flex flex-col gap-2">
-                <span class="inline-flex items-center px-3 py-2 rounded-lg text-sm font-medium bg-themed-tertiary text-themed border border-themed">
+                <span class="inline-flex items-center px-3 py-2 rounded-lg text-sm font-medium bg-themed-tertiary text-themed border border-gray-200">
                   {{ submission.submissionType | titlecase }}
                 </span>
                 <span *ngIf="submission.isFeatured" 
@@ -217,22 +214,13 @@
 
             <!-- Actions Column -->
             <td class="px-8 py-6">
-              <div class="flex items-center gap-3">
+              <div class="flex items-center">
                 <button (click)="editPublishedPost(submission._id)"
                         class="inline-flex items-center px-4 py-2 text-sm font-medium text-themed-accent hover:text-white hover:bg-themed-accent rounded-lg transition-all duration-200 border border-themed-accent">
                   <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
                   </svg>
                   Edit
-                </button>
-                <button *ngIf="submission.slug" 
-                        (click)="viewPost(submission.slug)"
-                        class="inline-flex items-center px-4 py-2 text-sm font-medium text-blue-600 hover:text-white hover:bg-blue-600 rounded-lg transition-all duration-200 border border-blue-600">
-                  <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-                  </svg>
-                  View
                 </button>
               </div>
             </td>

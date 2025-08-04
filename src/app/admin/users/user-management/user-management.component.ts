@@ -5,7 +5,6 @@ import { HttpClient } from '@angular/common/http';
 import { CommonModule, DatePipe, TitleCasePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { environment } from '../../../../environments/environment';
-import { BadgeLabelComponent } from '../../../utilities/badge-label/badge-label.component';
 
 
 interface User {
@@ -38,7 +37,7 @@ interface Message {
 
 @Component({
   selector: 'app-user-management',
-  imports: [DatePipe, TitleCasePipe, CommonModule, FormsModule, BadgeLabelComponent],
+  imports: [DatePipe, TitleCasePipe, CommonModule, FormsModule],
   templateUrl: './user-management.component.html',
   styleUrls: ['./user-management.component.css']
 })
@@ -74,6 +73,10 @@ export class UserManagementComponent implements OnInit {
     this.loadUsers();
     this.loadUserStats();
   }
+
+  min(a: number, b: number): number {
+  return Math.min(a, b);
+}
 
   async loadUsers() {
     this.loading = true;

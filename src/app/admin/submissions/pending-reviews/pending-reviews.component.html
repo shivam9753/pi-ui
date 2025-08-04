@@ -18,7 +18,7 @@
     </div>
     
     <!-- Submissions Grid -->
-    <div *ngIf="!loading && submissions && submissions.length > 0">
+    <div *ngIf="!loading && submissions && submissions.length > 0" class="py-3">
       <div class="submissions-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mb-8">
         <app-submission-card 
           *ngFor="let submission of submissions; trackBy: trackSubmission"
@@ -99,3 +99,4 @@
       </button>
     </div>
 </div>
+

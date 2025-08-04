@@ -51,9 +51,15 @@ export class PendingReviewsComponent implements OnInit {
       skip: (page - 1) * this.pageSize
     };
 
-    this.backendService.getPendingSubmissions(params).subscribe(
+    // Use the new consolidated endpoint for pending reviews
+    this.backendService.getSubmissions(type || "", "pending_review", {
+      limit: this.pageSize,
+      skip: (page - 1) * this.pageSize,
+      sortBy: 'createdAt',
+      order: 'desc'
+    }).subscribe(
       (data) => {
-        this.submissions = data.pendingSubmissions || [];
+        this.submissions = data.submissions || [];
         this.totalSubmissions = data.total || 0;
         this.hasMore = data.pagination?.hasMore || false;
         this.totalPages = Math.ceil(this.totalSubmissions / this.pageSize);

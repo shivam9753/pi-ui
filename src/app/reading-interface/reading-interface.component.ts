@@ -5,7 +5,9 @@ import { ActivatedRoute, Router, RouterLink, RouterModule } from '@angular/route
 import { Title, Meta } from '@angular/platform-browser';
 import { BackendService } from '../services/backend.service';
 import { ThemeService } from '../services/theming.service';
+import { HtmlSanitizerService } from '../services/html-sanitizer.service';
 import { BadgeLabelComponent } from '../utilities/badge-label/badge-label.component';
+import { RelatedContentComponent } from '../utilities/related-content/related-content.component';
 
 interface PublishedContent {
   _id: string;
@@ -47,7 +49,7 @@ interface Comment {
 }
 @Component({
   selector: 'app-reading-interface',
-  imports: [CommonModule, FormsModule, RouterLink, BadgeLabelComponent],
+  imports: [CommonModule, FormsModule, RouterLink, BadgeLabelComponent, RelatedContentComponent],
   templateUrl: './reading-interface.component.html',
   styleUrl: './reading-interface.component.css'
 })
@@ -90,7 +92,8 @@ content = signal<PublishedContent | null>(null);
     private route: ActivatedRoute,
     private backendService: BackendService,
     private titleService: Title,
-    private metaService: Meta
+    private metaService: Meta,
+    private htmlSanitizer: HtmlSanitizerService
   ) {}
 
   ngOnInit() {
@@ -468,19 +471,9 @@ content = signal<PublishedContent | null>(null);
     return text.trim().split(/\s+/).filter(word => word.length > 0).length;
   }
 
-  // Clean content for display (convert div tags to line breaks)
+  // Clean content for display using global service
   cleanContent(content: string): string {
-    if (!content) return '';
-    return content
-      .replace(/<div>/g, '')           // Remove opening div tags
-      .replace(/<\/div>/g, '<br>')     // Convert closing div tags to line breaks
-      .replace(/<br\s*\/?>/g, '<br>')  // Normalize br tags
-      .replace(/&nbsp;/g, ' ')         // Convert non-breaking spaces
-      .replace(/&amp;/g, '&')          // Convert HTML entities
-      .replace(/&lt;/g, '<')
-      .replace(/&gt;/g, '>')
-      .replace(/&quot;/g, '"')
-      .trim();                         // Remove leading/trailing whitespace
+    return this.htmlSanitizer.cleanContentPreservingBreaks(content);
   }
 
   private updatePageMeta(content: PublishedContent) {

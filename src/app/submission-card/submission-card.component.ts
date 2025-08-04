@@ -3,6 +3,7 @@ import { CommonModule, DatePipe } from '@angular/common';
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { PrettyLabelPipe } from '../pipes/pretty-label.pipe';
+import { HtmlSanitizerService } from '../services/html-sanitizer.service';
 
 export interface CardData {
   _id?: string;
@@ -42,11 +43,13 @@ export class SubmissionCardComponent {
   @Input() action!: CardAction;
   @Input() showDescription: boolean = true;
   @Input() showReviewer: boolean = false;
-  @Input() descriptionLines: number = 3;
+  @Input() descriptionLines: number = 5;
   @Input() customBadgeColor?: string;
   @Output() actionClicked = new EventEmitter<string>();
   @Output() titleClicked = new EventEmitter<string>();
   @Output() badgeClicked = new EventEmitter<string>();
+
+  constructor(private htmlSanitizer: HtmlSanitizerService) {}
 
   onActionClick() {
     const id = this.data._id || this.data.id || '';
@@ -125,5 +128,14 @@ export class SubmissionCardComponent {
     return this.data.createdAt ? 
       new Date(this.data.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : 
       '';
+  }
+
+  // Clean HTML tags from description using global service
+  getCleanDescription(): string {
+    return this.htmlSanitizer.getCleanDescription(
+      this.data.excerpt,
+      this.data.description,
+      'No preview available'
+    );
   }
 }

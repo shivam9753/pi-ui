@@ -189,19 +189,37 @@ export class BackendService {
   }
 
 
-  // Get submissions - route to appropriate endpoint based on status
-  getSubmissions(type?: string, status?: string): Observable<any> {
-    // Route to the correct endpoint based on status
-    if (status === 'published') {
-      return this.getPublishedContent(type);
-    } else if (status === 'pending_review') {
-      return this.getPendingSubmissions(type ? { type } : {});
-    } else if (status === 'accepted') {
-      return this.getApprovedSubmissions();
-    } else {
-      // Default to published submissions if no status specified
-      return this.getPublishedContent(type);
+  // Get submissions - use new consolidated endpoint
+  getSubmissions(type?: string, status?: string, options: {
+    limit?: number;
+    skip?: number;
+    sortBy?: string;
+    order?: string;
+  } = {}): Observable<any> {
+    let params = new HttpParams();
+    
+    // Add status filter
+    if (status) params = params.set('status', status);
+    
+    // Add type filter
+    if (type) params = params.set('type', type);
+    
+    // Add pagination and sorting options
+    if (options.limit) params = params.set('limit', options.limit.toString());
+    if (options.skip) params = params.set('skip', options.skip.toString());
+    if (options.sortBy) params = params.set('sortBy', options.sortBy);
+    if (options.order) params = params.set('order', options.order);
+    
+    // Use authenticated headers for admin-only status filters
+    let headers;
+    if (status === 'pending_review' || status === 'accepted') {
+      headers = this.getAuthHeaders();
     }
+    
+    const url = `${this.API_URL}/submissions`;
+    return this.http.get(url, { headers, params }).pipe(
+      this.handleApiCall(url, 'GET')
+    );
   }
 
   getPendingSubmissions(params?: any): Observable<any> {
@@ -425,22 +443,41 @@ export class BackendService {
   }
 
   // Publish submission with SEO configuration
-  publishSubmissionWithSEO(publishData: any): Observable<any> {
-    const jwtToken = localStorage.getItem('jwt_token');
-    const headers = new HttpHeaders({
-      'Authorization': `Bearer ${jwtToken}`,
-      'Content-Type': 'application/json'
-    });
+  publishSubmissionWithSEO(submissionId: string, seoData: {
+    slug?: string;
+    metaTitle?: string;
+    metaDescription?: string;
+    keywords?: string[];
+    ogImage?: string;
+    canonical?: string;
+    allowComments?: boolean;
+    enableSocialSharing?: boolean;
+    featuredOnHomepage?: boolean;
+  }): Observable<any> {
+    const headers = this.getAuthHeaders();
     
-    console.log('🔄 Publishing with SEO config:', publishData);
-    console.log('📤 URL:', `${this.API_URL}/submissions/publish-with-seo`);
+    console.log('🔄 Publishing with SEO config:', seoData);
+    console.log('📤 URL:', `${this.API_URL}/submissions/${submissionId}/publish-with-seo`);
     
     return this.http.post(
-      `${this.API_URL}/submissions/publish-with-seo`, 
-      publishData, 
+      `${this.API_URL}/submissions/${submissionId}/publish-with-seo`, 
+      seoData, 
       { headers }
     ).pipe(
       tap(response => console.log('✅ Published successfully:', response)),
+      catchError(this.handleError)
+    );
+  }
+
+  // Update SEO configuration for existing submission
+  updateSEOConfiguration(submissionId: string, seoData: any): Observable<any> {
+    const headers = this.getAuthHeaders();
+    
+    return this.http.patch(
+      `${this.API_URL}/submissions/${submissionId}/seo`,
+      seoData,
+      { headers }
+    ).pipe(
       catchError(this.handleError)
     );
   }
