@@ -31,22 +31,22 @@
   <div *ngIf="!isLoading() && !error() && userProfile()">
     
     <!-- Profile Header -->
-    <div class="bg-themed-secondary border-b border-themed">
-      <div class="w-full px-4 sm:px-6 lg:px-8 xl:px-12 py-12">
+    <div class="bg-white border-b border-gray-200">
+      <div class="w-full px-4 sm:px-6 lg:px-8 xl:px-12 py-8">
         <div class="max-w-4xl mx-auto">
           
           <!-- Profile Info -->
-          <div class="flex flex-col md:flex-row md:items-start gap-6 md:gap-8 mb-8">
+          <div class="flex flex-col md:flex-row md:items-start gap-6">
             <!-- Profile Image -->
             <div class="flex-shrink-0 self-center md:self-start">
               <div class="relative">
-                <div class="w-32 h-32 rounded-full bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center overflow-hidden border-4 border-themed">
+                <div class="w-24 h-24 rounded-full bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center overflow-hidden">
                   <img *ngIf="userProfile()?.profileImage" 
                        [src]="userProfile()!.profileImage" 
                        [alt]="userProfile()!.username"
                        class="w-full h-full object-cover" />
                   <span *ngIf="!userProfile()?.profileImage" 
-                        class="text-white text-4xl font-bold">
+                        class="text-white text-2xl font-bold">
                     {{ userProfile()?.username?.[0]?.toUpperCase() }}
                   </span>
                 </div>
@@ -54,8 +54,8 @@
                 <!-- Edit button for own profile -->
                 <button *ngIf="isOwnProfile()" 
                         (click)="toggleEditMode()"
-                        class="absolute bottom-0 right-0 w-10 h-10 bg-themed-accent hover:bg-themed-accent-hover rounded-full flex items-center justify-center text-white transition-colors duration-200 border-2 border-themed">
-                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        class="absolute -bottom-1 -right-1 w-8 h-8 bg-gray-700 hover:bg-gray-800 rounded-full flex items-center justify-center text-white transition-colors duration-200">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
                   </svg>
                 </button>
@@ -64,201 +64,66 @@
 
             <!-- Profile Details -->
             <div class="flex-1 text-center md:text-left">
-              <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-4 mb-6">
-                <div class="flex-1">
-                  <h1 class="text-3xl font-bold text-themed mb-2">
-                    {{ userProfile()?.username }}
-                  </h1>
-                  <div class="flex flex-col sm:flex-row sm:items-center justify-center md:justify-start gap-2 sm:gap-4 text-sm text-themed-secondary mb-4">
-                    <span class="flex items-center justify-center md:justify-start gap-1">
-                      <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd" />
-                      </svg>
-                      Joined {{ userProfile()?.createdAt | date:'MMM y' }}
-                    </span>
-                    <span class="px-2 py-1 text-xs font-medium rounded-md bg-themed-tertiary text-themed-secondary border border-themed">
-                      {{ userProfile()?.role | titlecase }}
-                    </span>
-                  </div>
-                </div>
-
-                <!-- Action Buttons -->
-                <div class="flex flex-col sm:flex-row gap-3 justify-center md:justify-end">
+              <div class="mb-4">
+                <h1 class="text-2xl font-bold text-gray-900 mb-2">
+                  {{ userProfile()?.username }}
+                </h1>
+                
+                <!-- Role Badge (only for admin/reviewer) -->
+                <div *ngIf="userProfile()?.role === 'admin' || userProfile()?.role === 'reviewer'" class="mb-3">
+                  <span class="inline-flex items-center px-3 py-1 text-sm font-medium rounded-full"
+                        [class]="userProfile()?.role === 'admin' ? 'bg-red-100 text-red-800' : 'bg-blue-100 text-blue-800'">
+                    {{ userProfile()?.role | titlecase }}
+                  </span>
                 </div>
               </div>
 
               <!-- Bio -->
-              <div *ngIf="!isEditMode() && userProfile()?.bio" class="mb-6">
-                <p class="text-themed-secondary leading-relaxed">
+              <div *ngIf="!isEditMode() && userProfile()?.bio">
+                <p class="text-gray-600 leading-relaxed">
                   {{ userProfile()!.bio }}
                 </p>
               </div>
 
               <!-- Edit Form -->
-              <div *ngIf="isEditMode()" class="mb-6 space-y-4 text-left">
+              <div *ngIf="isEditMode()" class="space-y-4 text-left">
                 <div>
-                  <label class="block text-sm font-medium text-themed mb-2">
+                  <label class="block text-sm font-medium text-gray-700 mb-2">
                     Profile Image URL
                   </label>
                   <input 
                     type="url" 
                     [(ngModel)]="editForm.profileImage"
                     placeholder="https://example.com/image.jpg"
-                    class="form-input">
+                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent">
                 </div>
                 
                 <div>
-                  <label class="block text-sm font-medium text-themed mb-2">
+                  <label class="block text-sm font-medium text-gray-700 mb-2">
                     Bio
                   </label>
                   <textarea 
                     [(ngModel)]="editForm.bio"
-                    rows="4"
+                    rows="3"
                     maxlength="500"
                     placeholder="Tell us about yourself..."
-                    class="form-input resize-none">
+                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent resize-none">
                   </textarea>
-                  <p class="text-xs text-themed-tertiary mt-1">{{ editForm.bio?.length || 0 }}/500 characters</p>
-                </div>
-
-                <!-- Social Links -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label class="block text-sm font-medium text-themed mb-2">
-                      Website
-                    </label>
-                    <input 
-                      type="url" 
-                      [(ngModel)]="editForm.socialLinks.website"
-                      placeholder="https://yourwebsite.com"
-                      class="form-input">
-                  </div>
-                  <div>
-                    <label class="block text-sm font-medium text-themed mb-2">
-                      Twitter
-                    </label>
-                    <input 
-                      type="text" 
-                      [(ngModel)]="editForm.socialLinks.twitter"
-                      placeholder="@username or username"
-                      class="form-input">
-                  </div>
-                  <div>
-                    <label class="block text-sm font-medium text-themed mb-2">
-                      Instagram
-                    </label>
-                    <input 
-                      type="text" 
-                      [(ngModel)]="editForm.socialLinks.instagram"
-                      placeholder="@username or username"
-                      class="form-input">
-                  </div>
-                  <div>
-                    <label class="block text-sm font-medium text-themed mb-2">
-                      LinkedIn
-                    </label>
-                    <input 
-                      type="text" 
-                      [(ngModel)]="editForm.socialLinks.linkedin"
-                      placeholder="username or full URL"
-                      class="form-input">
-                  </div>
-                </div>
-
-                <!-- Privacy Settings -->
-                <div class="space-y-3">
-                  <h4 class="text-sm font-medium text-themed">Privacy Settings</h4>
-                  <div class="space-y-2">
-                    <label class="flex items-center cursor-pointer">
-                      <input 
-                        type="checkbox" 
-                        [(ngModel)]="editForm.preferences.showEmail"
-                        class="w-4 h-4 text-themed-accent bg-themed-secondary border-themed rounded focus:ring-themed-accent focus:ring-2">
-                      <span class="ml-2 text-sm text-themed">Show email address publicly</span>
-                    </label>
-                    <label class="flex items-center cursor-pointer">
-                      <input 
-                        type="checkbox" 
-                        [(ngModel)]="editForm.preferences.showStats"
-                        class="w-4 h-4 text-themed-accent bg-themed-secondary border-themed rounded focus:ring-themed-accent focus:ring-2">
-                      <span class="ml-2 text-sm text-themed">Show profile statistics</span>
-                    </label>
-                  </div>
+                  <p class="text-xs text-gray-500 mt-1">{{ editForm.bio?.length || 0 }}/500 characters</p>
                 </div>
 
                 <!-- Edit Actions -->
-                <div class="flex flex-col sm:flex-row gap-3">
+                <div class="flex gap-3">
                   <button 
                     (click)="saveProfile()"
-                    class="btn-primary">
+                    class="px-4 py-2 bg-orange-600 text-white rounded-md hover:bg-orange-700 transition-colors duration-200">
                     Save Changes
                   </button>
                   <button 
                     (click)="cancelEdit()"
-                    class="btn-secondary">
+                    class="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300 transition-colors duration-200">
                     Cancel
                   </button>
-                </div>
-              </div>
-
-              <!-- Social Links Display -->
-              <div *ngIf="!isEditMode() && hasSocialLinks()" class="mb-6">
-                <div class="flex justify-center md:justify-start gap-4">
-                  <a *ngIf="userProfile()?.socialLinks?.website" 
-                     [href]="getSocialUrl('website', userProfile()!.socialLinks!.website!)" 
-                     target="_blank"
-                     class="text-themed-secondary hover:text-themed-accent transition-colors duration-200"
-                     title="Website">
-                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                      <path fill-rule="evenodd" d="M4.083 9h1.946c.089-1.546.383-2.97.837-4.118A6.004 6.004 0 004.083 9zM10 2a8 8 0 100 16 8 8 0 000-16zm0 2c-.076 0-.232.032-.465.262-.238.234-.497.623-.737 1.182-.389.907-.673 2.142-.766 3.556h3.936c-.093-1.414-.377-2.649-.766-3.556-.24-.559-.499-.948-.737-1.182C10.232 4.032 10.076 4 10 4zm3.971 5c-.089-1.546-.383-2.97-.837-4.118A6.004 6.004 0 0115.917 9h-1.946zm-2.003 2H8.032c.093 1.414.377 2.649.766 3.556.24.559.499.948.737 1.182.233.23.389.262.465.262.076 0 .232-.032.465-.262.238-.234.497-.623.737-1.182.389-.907.673-2.142.766-3.556zm1.166 4.118c.454-1.148.748-2.572.837-4.118h1.946a6.004 6.004 0 01-2.783 4.118zm-6.268 0C6.412 13.97 6.118 12.546 6.03 11H4.083a6.004 6.004 0 002.783 4.118z" clip-rule="evenodd"/>
-                    </svg>
-                  </a>
-                  <a *ngIf="userProfile()?.socialLinks?.twitter" 
-                     [href]="getSocialUrl('twitter', userProfile()!.socialLinks!.twitter!)" 
-                     target="_blank"
-                     class="text-themed-secondary hover:text-themed-accent transition-colors duration-200"
-                     title="Twitter">
-                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                      <path d="M6.29 18.251c7.547 0 11.675-6.253 11.675-11.675 0-.178 0-.355-.012-.53A8.348 8.348 0 0020 3.92a8.19 8.19 0 01-2.357.646 4.118 4.118 0 001.804-2.27 8.224 8.224 0 01-2.605.996 4.107 4.107 0 00-6.993 3.743 11.65 11.65 0 01-8.457-4.287 4.106 4.106 0 001.27 5.477A4.073 4.073 0 01.8 7.713v.052a4.105 4.105 0 003.292 4.022 4.095 4.095 0 01-1.853.07 4.108 4.108 0 003.834 2.85A8.233 8.233 0 010 16.407a11.616 11.616 0 006.29 1.84"/>
-                    </svg>
-                  </a>
-                  <a *ngIf="userProfile()?.socialLinks?.instagram" 
-                     [href]="getSocialUrl('instagram', userProfile()!.socialLinks!.instagram!)" 
-                     target="_blank"
-                     class="text-themed-secondary hover:text-themed-accent transition-colors duration-200"
-                     title="Instagram">
-                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                      <path fill-rule="evenodd" d="M4.5 2A2.5 2.5 0 002 4.5v11A2.5 2.5 0 004.5 18h11a2.5 2.5 0 002.5-2.5v-11A2.5 2.5 0 0015.5 2h-11zM10 7a3 3 0 100 6 3 3 0 000-6zm0 1.5a1.5 1.5 0 110 3 1.5 1.5 0 010-3zM15.25 6.75a.75.75 0 11-1.5 0 .75.75 0 011.5 0z" clip-rule="evenodd"/>
-                    </svg>
-                  </a>
-                  <a *ngIf="userProfile()?.socialLinks?.linkedin" 
-                     [href]="getSocialUrl('linkedin', userProfile()!.socialLinks!.linkedin!)" 
-                     target="_blank"
-                     class="text-themed-secondary hover:text-themed-accent transition-colors duration-200"
-                     title="LinkedIn">
-                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                      <path fill-rule="evenodd" d="M16.338 16.338H13.67V12.16c0-.995-.017-2.277-1.387-2.277-1.39 0-1.601 1.086-1.601 2.207v4.248H8.014v-8.59h2.559v1.174h.037c.356-.675 1.227-1.387 2.526-1.387 2.703 0 3.203 1.778 3.203 4.092v4.711zM5.005 6.575a1.548 1.548 0 11-.003-3.096 1.548 1.548 0 01.003 3.096zm-1.337 9.763H6.34v-8.59H3.667v8.59zM17.668 1H2.328C1.595 1 1 1.581 1 2.298v15.403C1 18.418 1.595 19 2.328 19h15.34c.734 0 1.332-.582 1.332-1.299V2.298C19 1.581 18.402 1 17.668 1z" clip-rule="evenodd"/>
-                    </svg>
-                  </a>
-                </div>
-              </div>
-
-              <!-- Email Display -->
-              <div *ngIf="!isEditMode() && userProfile()?.preferences?.showEmail && userProfile()?.email" class="mb-6 text-center md:text-left">
-                <p class="text-sm text-themed-secondary">
-                  <svg class="w-4 h-4 inline mr-1" fill="currentColor" viewBox="0 0 20 20">
-                    <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"/>
-                    <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"/>
-                  </svg>
-                  {{ userProfile()!.email }}
-                </p>
-              </div>
-
-              <!-- Stats -->
-              <div *ngIf="userProfile()?.preferences?.showStats" class="grid grid-cols-1 gap-4">
-                <div class="text-center">
-                  <div class="text-2xl font-bold text-themed-accent">{{ userProfile()?.stats?.totalPublished || 0 }}</div>
-                  <div class="text-sm text-themed-secondary">Published</div>
                 </div>
               </div>
             </div>
@@ -310,9 +175,10 @@
         <!-- Tab Content -->
         <!-- Published Works Tab -->
         <div *ngIf="activeTab() === 'published'">
-          <!-- Filter/Sort for Published Works -->
-          <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
-            <div class="text-center md:text-left">
+          <!-- Header and Filters Section -->
+          <div class="mb-8">
+            <!-- Title Section -->
+            <div class="text-center md:text-left mb-6">
               <h2 class="text-2xl font-bold text-themed mb-2">
                 Published Works
               </h2>
@@ -321,7 +187,8 @@
               </p>
             </div>
 
-            <div class="flex flex-col sm:flex-row gap-3 justify-center md:justify-end">
+            <!-- Filter Controls -->
+            <div class="flex flex-col sm:flex-row gap-3 justify-center md:justify-start">
               <select 
                 [(ngModel)]="worksFilter" 
                 (change)="applyWorksFilter()"
@@ -353,44 +220,25 @@
 
           <!-- Published Works Cards -->
           <div *ngIf="!worksLoading()" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <div *ngFor="let work of filteredWorks(); trackBy: trackByWorkId" 
-                 class="card card-hover transform transition-all duration-300 p-6 relative overflow-hidden">
-              
-              <!-- Card Header -->
-              <div class="flex items-start justify-between mb-4">
-                <div class="flex-1">
-                  <h3 class="text-lg font-semibold text-themed mb-2 line-clamp-2">{{ work.title }}</h3>
-                  <app-badge-label [type]="work.submissionType"></app-badge-label>
-                </div>
-                <div class="ml-4 text-right">
-                  <div class="text-xs text-themed-tertiary uppercase tracking-wider mb-1">Reading Time</div>
-                  <div class="text-sm font-mono text-themed-secondary">{{ work.readingTime }}min</div>
-                </div>
-              </div>
-
-              <!-- Excerpt -->
-              <p class="text-themed-secondary text-sm line-height-relaxed mb-4 line-clamp-3">
-                {{ work.excerpt }}
-              </p>
-
-              <!-- Card Footer -->
-              <div class="flex items-center justify-between pt-4 border-t border-themed">
-                <div class="text-xs text-themed-tertiary">
-                  <svg class="w-4 h-4 inline mr-1" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd" />
-                  </svg>
-                  {{ work.publishedAt | date:'MMM d, y' }}
-                </div>
-                <a [routerLink]="['/read', work._id]" 
-                   class="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-themed-accent hover:bg-themed-accent/90 rounded-lg transition-all duration-200 transform hover:scale-105 focus:ring-2 focus:ring-themed-accent/20">
-                  <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-                  </svg>
-                  Read
-                </a>
-              </div>
-            </div>
+            <app-published-content-card 
+              *ngFor="let work of filteredWorks(); trackBy: trackByWorkId"
+              [content]="{
+                _id: work._id,
+                title: work.title,
+                excerpt: work.excerpt,
+                description: work.content,
+                imageUrl: work.imageUrl,
+                submissionType: work.submissionType,
+                username: userProfile()?.username,
+                createdAt: work.publishedAt,
+                readingTime: work.readingTime,
+                viewCount: work.viewCount,
+                likeCount: work.likeCount
+              }"
+              [showStats]="true"
+              size="medium"
+              (cardClick)="onPublishedWorkCardClick($event)">
+            </app-published-content-card>
           </div>
 
           <!-- Empty State for Published Works -->

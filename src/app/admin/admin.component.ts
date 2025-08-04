@@ -4,23 +4,23 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { AuthService } from '../services/auth.service';
 
 // Import individual admin tab components
-import { ReviewComponent } from '../review-sub/review/review.component';
-import { ManagePromptsComponent } from './manage-prompts/manage-prompts.component';
-import { AdminPublicationComponent } from './admin-publication/admin-publication.component';
-import { AdminPublishedPostsComponent } from './admin-published-posts/admin-published-posts.component';
-import { AdminUserManagementComponent } from './admin-user-management/admin-user-management.component';
+import { ReadyToPublishComponent } from "./submissions/ready-to-publish/ready-to-publish.component";
+import { PendingReviewsComponent } from "./submissions/pending-reviews/pending-reviews.component";
+import { PublishedPostsComponent } from "./content/published-posts/published-posts.component";
+import { UserManagementComponent } from './users/user-management/user-management.component';
+import { PromptManagementComponent } from './prompts/prompt-management/prompt-management.component';
 
 @Component({
   selector: 'app-admin',
   standalone: true,
   imports: [
     CommonModule,
-    AdminPublicationComponent,
-    AdminPublishedPostsComponent,
-    AdminUserManagementComponent,
-    ReviewComponent,
-    ManagePromptsComponent
-  ],
+    PromptManagementComponent,
+    ReadyToPublishComponent,
+    PendingReviewsComponent,
+    PublishedPostsComponent,
+    UserManagementComponent
+],
   templateUrl: './admin.component.html',
   styleUrl: './admin.component.css'
 })

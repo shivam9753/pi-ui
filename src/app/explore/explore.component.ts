@@ -2,19 +2,26 @@
 
 import { Component, OnInit } from '@angular/core';
 import { CommonModule, DatePipe, TitleCasePipe } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { BackendService } from '../services/backend.service';
 import { Router, RouterLink } from '@angular/router';
 import { BadgeLabelComponent } from '../utilities/badge-label/badge-label.component';
+import { PublishedContentCardComponent, PublishedContent } from '../utilities/published-content-card/published-content-card.component';
+// Removed rxjs imports for debouncing as we're not using real-time search
 
 @Component({
   selector: 'app-explore',
-  imports: [DatePipe, TitleCasePipe, CommonModule, BadgeLabelComponent],
+  imports: [DatePipe, TitleCasePipe, CommonModule, BadgeLabelComponent, FormsModule, PublishedContentCardComponent],
   templateUrl: './explore.component.html',
   styleUrl: './explore.component.css'
 })
 export class ExploreComponent implements OnInit {
   submissions: any[] = [];
   selectedType: string = '';
+  searchQuery: string = '';
+  searchResults: any[] = [];
+  isSearching: boolean = false;
+  showSearchResults: boolean = false;
   
   // Updated filter options with better labels
   filterOptions: any = [
@@ -98,6 +105,38 @@ export class ExploreComponent implements OnInit {
     );
   }
 
+  // Removed onSearchInput as we're not doing real-time search
+
+  performSearch(query: string) {
+    this.isSearching = true;
+    this.backendService.searchSubmissions(query, { limit: 20 }).subscribe(
+      (data) => {
+        this.searchResults = data.submissions || [];
+        this.showSearchResults = true;
+        this.isSearching = false;
+      },
+      (error) => {
+        console.error('Error searching submissions:', error);
+        this.isSearching = false;
+        this.showSearchResults = false;
+      }
+    );
+  }
+
+  clearSearch() {
+    this.searchQuery = '';
+    this.searchResults = [];
+    this.showSearchResults = false;
+    this.isSearching = false;
+  }
+
+  onSearchSubmit(event: any) {
+    event.preventDefault();
+    if (this.searchQuery.trim()) {
+      this.performSearch(this.searchQuery.trim());
+    }
+  }
+
   onFilterChange(type: string) {
     this.getPublishedSubmissions(type);
   }
@@ -105,6 +144,11 @@ export class ExploreComponent implements OnInit {
   openSubmission(submission: any) {
     // Navigate to the reading interface with submission ID
     this.router.navigate(['/read', submission._id]);
+  }
+
+  onContentCardClick(content: PublishedContent) {
+    // Handle card click - same as openSubmission
+    this.openSubmission(content);
   }
 
   // Helper method to get the selected type label

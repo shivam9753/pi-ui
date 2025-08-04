@@ -3,7 +3,6 @@ import { HttpClient, HttpHeaders, HttpParams, HttpErrorResponse } from '@angular
 import { Observable, throwError } from 'rxjs';
 import { tap, catchError, timeout, retry } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
-import { MobileDebugService } from './mobile-debug.service';
 
 export interface UpdateStatusPayload {
   status: 'accepted' | 'rejected';
@@ -69,35 +68,15 @@ export class BackendService {
   private readonly REQUEST_TIMEOUT = 10000; // 10 seconds
 
   constructor(
-    private http: HttpClient,
-    private mobileDebug: MobileDebugService
-  ) {
-    // Test API connectivity on service initialization
-    this.testApiConnectivity();
-  }
-
-  private testApiConnectivity() {
-    this.mobileDebug.checkConnectivity().then(isConnected => {
-      if (!isConnected) {
-        this.mobileDebug.log('API Server may be down or unreachable', 'warning');
-      }
-    });
-  }
+    private http: HttpClient
+  ) {}
 
   private handleApiCall<T>(url: string, method: string = 'GET'): (source: Observable<T>) => Observable<T> {
     return (source: Observable<T>) => {
-      this.mobileDebug.logApiCall(url, method);
-      
       return source.pipe(
         timeout(this.REQUEST_TIMEOUT),
         retry(1), // Retry once on failure
-        tap((response: any) => {
-          const dataLength = Array.isArray(response) ? response.length : 
-                            response?.data?.length || response?.results?.length;
-          this.mobileDebug.logApiSuccess(url, dataLength);
-        }),
         catchError((error: HttpErrorResponse) => {
-          this.mobileDebug.logApiError(url, error);
           return this.handleError(error);
         })
       );
@@ -130,7 +109,6 @@ export class BackendService {
       }
     }
     
-    this.mobileDebug.log(errorMessage, 'error');
     return throwError(() => new Error(errorMessage));
   }
   // Draft management using localStorage (can be replaced with backend endpoints later)
@@ -282,6 +260,24 @@ export class BackendService {
     }
     return this.http.get<any>(url).pipe(
       this.handleApiCall(url, 'GET')
+    );
+  }
+
+  // Search submissions
+  searchSubmissions(query: string, options: {
+    limit?: number;
+    skip?: number;
+    sortBy?: string;
+    order?: string;
+  } = {}): Observable<any> {
+    const params: { [key: string]: string } = {};
+    if (options.limit) params['limit'] = options.limit.toString();
+    if (options.skip) params['skip'] = options.skip.toString();
+    if (options.sortBy) params['sortBy'] = options.sortBy;
+    if (options.order) params['order'] = options.order;
+
+    return this.http.get<any>(`${this.API_URL}/submissions/search/${encodeURIComponent(query)}`, { params }).pipe(
+      this.handleApiCall(`/submissions/search/${query}`, 'GET')
     );
   }
 

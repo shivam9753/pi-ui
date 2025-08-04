@@ -8,8 +8,20 @@
       <!-- PRIMARY CONTENT (Featured + Main Grid) -->
       <div class="lg:col-span-3 space-y-8">
         
-        <!-- FEATURED CARD - Hero Section -->
-        <div *ngIf="submissions.length > 0" class="w-full">
+        <!-- Search Results Header -->
+        <div *ngIf="showSearchResults" class="mb-6">
+          <div class="flex items-center justify-between">
+            <h2 class="text-xl font-semibold text-themed">
+              Search Results for "{{ searchQuery }}"
+            </h2>
+            <div class="text-themed-secondary text-sm">
+              {{ searchResults.length }} result{{ searchResults.length !== 1 ? 's' : '' }} found
+            </div>
+          </div>
+        </div>
+
+        <!-- FEATURED CARD - Hero Section (only show when not searching) -->
+        <div *ngIf="!showSearchResults && submissions.length > 0" class="w-full">
           <div class="relative card-elevated rounded-xl overflow-hidden group">
             
             <!-- Mobile Layout: Stacked -->
@@ -137,13 +149,28 @@
         <div class="space-y-6">
           <!-- Search box -->
           <div class="relative max-w-md">
-            <input 
-              type="text" 
-              placeholder="Search stories, poems, articles..."
-              class="w-full px-4 py-3 pr-12 text-sm bg-themed-secondary border border-themed rounded-lg focus:outline-none focus:ring-2 focus:ring-themed-accent focus:border-themed-accent transition-colors">
-            <svg class="absolute right-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-themed-tertiary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-            </svg>
+            <form (ngSubmit)="onSearchSubmit($event)">
+              <input 
+                type="text" 
+                [(ngModel)]="searchQuery"
+                placeholder="Search stories, poems, articles..."
+                class="w-full px-4 py-3 pr-12 text-sm bg-themed-secondary border border-themed rounded-lg focus:outline-none focus:ring-2 focus:ring-themed-accent focus:border-themed-accent transition-colors">
+              <button type="submit" class="absolute right-4 top-1/2 transform -translate-y-1/2">
+                <svg *ngIf="!isSearching" class="w-5 h-5 text-themed-tertiary hover:text-themed-accent transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                </svg>
+                <div *ngIf="isSearching" class="w-5 h-5 border-2 border-themed-accent border-t-transparent rounded-full animate-spin"></div>
+              </button>
+            </form>
+            
+            <!-- Clear search button -->
+            <button *ngIf="searchQuery" 
+                    (click)="clearSearch()"
+                    class="absolute right-12 top-1/2 transform -translate-y-1/2 text-themed-tertiary hover:text-themed-accent transition-colors">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+              </svg>
+            </button>
           </div>
           
           <!-- Tab Navigation -->
@@ -167,79 +194,39 @@
         </div>
 
         <!-- Submissions Grid -->
-        <div *ngIf="submissions && submissions.length > 0" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-          <div *ngFor="let submission of submissions; track submission?._id" 
-               class="card group overflow-hidden hover:shadow-lg transition-all duration-300 cursor-pointer"
-               (click)="openSubmission(submission)">
-            
-            <div class="relative h-48 bg-themed-tertiary overflow-hidden">
-              <img
-                *ngIf="submission.imageUrl; else placeholder"
-                [src]="submission.imageUrl"
-                [alt]="submission.title"
-                class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-              />
-              <ng-template #placeholder>
-                <div class="w-full h-full bg-themed-tertiary flex items-center justify-center">
-                  <svg class="w-8 h-8 text-themed-tertiary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
-                  </svg>
-                </div>
-              </ng-template>
-              
-              <div class="absolute top-3 left-3">
-                <app-badge-label [type]="submissions[0].submissionType"></app-badge-label>
-              </div>
-            </div>
-
-            <div class="p-5">
-              <h3 class="text-lg font-semibold text-themed leading-tight mb-3 group-hover:text-themed-accent transition-colors duration-300">
-                {{ submission.title }}
-              </h3>
-
-              <p class="text-themed-secondary text-sm leading-relaxed mb-4" 
-                 style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;"
-                 [innerHTML]="cleanContent(submission.excerpt || submission.description || 'No preview available')">
-              </p>
-
-              <div class="flex items-center justify-between">
-                <div class="flex items-center space-x-3">
-                  <div class="w-8 h-8 rounded-full bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center flex-shrink-0">
-                    <span class="text-white text-sm font-medium">
-                      {{ submission.username?.charAt(0)?.toUpperCase() || 'U' }}
-                    </span>
-                  </div>
-                  <div>
-                    <p class="text-sm font-medium text-themed">
-                      {{ submission.author.username || 'Anonymous' }}
-                    </p>
-                    <p class="text-xs text-themed-tertiary">
-                      {{ submission.createdAt | date:'MMM d' }}
-                    </p>
-                  </div>
-                </div>
-                <div class="text-xs text-themed-tertiary">
-                  {{ submission.readingTime || 3 }}min
-                </div>
-              </div>
-            </div>
-          </div>
+        <div *ngIf="(showSearchResults && searchResults.length > 0) || (!showSearchResults && submissions && submissions.length > 0)" 
+             class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+          <app-published-content-card 
+            *ngFor="let submission of (showSearchResults ? searchResults : submissions); track submission?._id"
+            [content]="submission"
+            [showStats]="false"
+            size="medium"
+            (cardClick)="onContentCardClick($event)">
+          </app-published-content-card>
         </div>
 
         <!-- Empty State -->
-        <div *ngIf="!submissions || submissions.length === 0" class="text-center py-20">
+        <div *ngIf="(showSearchResults && searchResults.length === 0) || (!showSearchResults && (!submissions || submissions.length === 0))" 
+             class="text-center py-20">
           <div class="w-16 h-16 mx-auto bg-themed-secondary rounded-full flex items-center justify-center mb-4">
-            <svg class="w-8 h-8 text-themed-tertiary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg *ngIf="!showSearchResults" class="w-8 h-8 text-themed-tertiary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+            <svg *ngIf="showSearchResults" class="w-8 h-8 text-themed-tertiary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
             </svg>
           </div>
           <h3 class="text-lg font-medium text-themed mb-2">
-            No {{ selectedType ? getSelectedTypeLabel().toLowerCase() : 'works' }} found
+            <span *ngIf="!showSearchResults">No {{ selectedType ? getSelectedTypeLabel().toLowerCase() : 'works' }} found</span>
+            <span *ngIf="showSearchResults">No results found for "{{ searchQuery }}"</span>
           </h3>
           <p class="text-themed-secondary">
-            {{ selectedType 
-              ? 'No ' + getSelectedTypeLabel().toLowerCase() + ' have been published yet.' 
-              : 'No published works are available yet.' }}
+            <span *ngIf="!showSearchResults">
+              {{ selectedType 
+                ? 'No ' + getSelectedTypeLabel().toLowerCase() + ' have been published yet.' 
+                : 'No published works are available yet.' }}
+            </span>
+            <span *ngIf="showSearchResults">Try different keywords or check your spelling.</span>
           </p>
         </div>
       </div>

@@ -4,24 +4,15 @@
   <!-- Mobile Experience -->
   <div class="lg:hidden">
     <!-- Clean Header -->
-    <div class="bg-themed-card backdrop-blur-lg px-6 py-6">
+    <div class="bg-themed-card px-6 py-6">
       <div class="text-center">
         <h1 class="text-2xl text-themed">Submit Your Work</h1>
         <p class="text-themed-secondary text-sm mt-1">Share your literary voice with our community</p>
       </div>
     </div>
 
-    <div class="border-b border-themed pb-6 mb-8">
-      <h1 class="text-2xl md:text-3xl font-bold text-themed mb-2">
-        Pending Review
-      </h1>
-      <p class="text-themed-secondary">
-        Review new submissions
-      </p>
-    </div>
-
     <!-- Progress Steps -->
-    <div *ngIf="activeTab === 'submit'" class="px-6 py-4 bg-themed-tertiary backdrop-blur-sm">
+    <div *ngIf="activeTab === 'submit'" class="px-6 py-4 bg-themed-tertiary">
       <div class="flex items-center justify-center space-x-2">
         <div class="flex items-center space-x-2">
           <div [class]="getCurrentStep() >= 1 ? 'w-2 h-2 rounded-full' : 'w-2 h-2 rounded-full'" [style.background-color]="getCurrentStep() >= 1 ? 'var(--bg-accent)' : 'var(--border-primary)'"></div>
@@ -39,7 +30,7 @@
       <form [formGroup]="form" (ngSubmit)="submitForm()" class="space-y-8">
         
         <!-- Step 1: Type Selection -->
-        <div class="space-y-4" [class.opacity-50]="getCurrentStep() > 1">
+        <div class="space-y-4">
           <h2 class="text-lg text-themed">What would you like to share?</h2>
           <div class="space-y-3">
             <ng-container *ngFor="let type of submissionTypes">
@@ -79,9 +70,9 @@
         </div>
 
         <!-- Step 2: Writing -->
-        <div *ngIf="selectedType" class="space-y-4" [class.opacity-50]="getCurrentStep() > 2">
+        <div *ngIf="selectedType" class="space-y-4">
           <h2 class="text-lg text-themed">Your {{ selectedType.replace('_', ' ') }}</h2>
-          <div class="bg-themed-card backdrop-blur-sm rounded-2xl p-6">
+          <div class="bg-themed-card rounded-2xl p-6">
             <app-content-editor
               [selectedType]="selectedType"
               [contents]="getContentControls()"
@@ -94,11 +85,11 @@
         <!-- Step 3: Final Details -->
         <div *ngIf="selectedType && hasContent()" class="space-y-4">
           <h2 class="text-lg text-themed">Add context (optional)</h2>
-          <div class="bg-themed-card backdrop-blur-sm rounded-2xl p-6">
+          <div class="bg-themed-card  rounded-2xl p-6">
             <textarea 
               formControlName="description"
               rows="3"
-              class="w-full px-0 py-0 border-0 bg-transparent text-themed focus:outline-none focus:ring-0 resize-none leading-relaxed"
+              class="w-full px-0 py-0 border-0 bg-themed text-themed focus:outline-none focus:ring-0 resize-none leading-relaxed"
               [style.color]="'var(--text-primary)'"
               placeholder="What inspired this piece? Share the story behind your creation..."></textarea>
           </div>
@@ -138,7 +129,7 @@
     </div>
 
     <!-- Bottom Navigation -->
-    <div class="fixed bottom-0 left-0 right-0 bg-themed-card backdrop-blur-lg px-6 py-4">
+    <div class="fixed bottom-0 left-0 right-0 bg-themed-card px-6 py-4">
       <div class="flex justify-center space-x-12">
         <button (click)="activeTab = 'submit'"
                 class="flex flex-col items-center space-y-1 transition-colors duration-200"
@@ -261,7 +252,7 @@
           <!-- Content Creation -->
           <div *ngIf="selectedType" class="space-y-6">
             <h2 class="text-2xl text-themed text-center">Your {{ selectedType.replace('_', ' ') }}</h2>
-            <div class="bg-themed-card backdrop-blur-lg rounded-3xl p-8 shadow-xl">
+            <div class="bg-themed-card rounded-3xl p-8 shadow-xl">
               <app-content-editor
                 [selectedType]="selectedType"
                 [contents]="getContentControls()"
@@ -276,11 +267,11 @@
             <!-- Optional Context -->
             <div class="space-y-4">
               <h3 class="text-xl text-themed text-center">Context (optional)</h3>
-              <div class="bg-themed-card backdrop-blur-lg rounded-3xl p-8">
+              <div class="bg-themed-card rounded-3xl p-8">
                 <textarea 
                   formControlName="description"
                   rows="4"
-                  class="w-full px-0 py-0 border-0 bg-transparent text-themed focus:outline-none focus:ring-0 resize-none text-lg leading-relaxed"
+                  class="w-full px-0 py-0 border-0 bg-themed text-themed focus:outline-none focus:ring-0 resize-none text-lg leading-relaxed"
                   placeholder="What inspired this piece? Share the story behind your creation..."></textarea>
               </div>
             </div>
@@ -334,15 +325,17 @@
   </div>
   
   <div *ngIf="activeTab === 'guidelines'" class="px-6 py-8 lg:px-8">
-    <app-guidelines-overlay
-      [isInline]="true"
-    ></app-guidelines-overlay>
+    <div class="max-w-4xl mx-auto">
+      <app-guidelines-overlay
+        [isInline]="true"
+      ></app-guidelines-overlay>
+    </div>
   </div>
 
   <!-- Toast Notifications -->
   <div *ngIf="showToastFlag" 
        class="fixed top-6 right-6 z-50 max-w-sm w-full transition-all duration-500 ease-out transform">
-    <div class="bg-themed-card backdrop-blur-lg rounded-2xl p-6"
+    <div class="bg-themed-card rounded-2xl p-6"
          [style.box-shadow]="'var(--shadow-xl)'"
          [style.border-color]="toastType === 'success' ? 'var(--bg-success)' : toastType === 'error' ? 'var(--bg-error)' : 'var(--border-accent)'"
          [style.background-color]="toastType === 'success' ? 'rgba(5, 118, 66, 0.1)' : toastType === 'error' ? 'rgba(204, 16, 22, 0.1)' : 'rgba(10, 102, 194, 0.1)'">

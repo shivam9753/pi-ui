@@ -1,17 +1,17 @@
 
 import { Component,  OnInit } from '@angular/core';
-import { SubmissionCardComponent, CardAction } from '../../submission-card/submission-card.component';
-import { BackendService } from '../../services/backend.service';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
+import { CardAction, SubmissionCardComponent } from '../../../submission-card/submission-card.component';
+import { BackendService } from '../../../services/backend.service';
 
 @Component({
-  selector: 'app-review',
+  selector: 'app-pending-reviews',
   imports: [SubmissionCardComponent, CommonModule],
-  templateUrl: './review.component.html',
-  styleUrl: './review.component.css'
+  templateUrl: './pending-reviews.component.html',
+  styleUrl: './pending-reviews.component.css'
 })
-export class ReviewComponent implements OnInit {
+export class PendingReviewsComponent implements OnInit {
   submissions: any[] = [];
   selectedType: string = '';
   currentPage: number = 1;

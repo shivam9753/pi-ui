@@ -2,9 +2,9 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule, TitleCasePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { BackendService } from '../services/backend.service';
-import { RichTextEditorComponent } from '../submit/rich-text-editor/rich-text-editor.component';
-import { BadgeLabelComponent } from '../utilities/badge-label/badge-label.component';
+import { RichTextEditorComponent } from '../../../submit/rich-text-editor/rich-text-editor.component';
+import { BadgeLabelComponent } from '../../../utilities/badge-label/badge-label.component';
+import { BackendService } from '../../../services/backend.service';
 
 interface SEOConfig {
   slug: string;
@@ -17,12 +17,12 @@ interface SEOConfig {
 }
 
 @Component({
-  selector: 'app-publishing-interface',
+  selector: 'app-publish-submission',
   imports: [CommonModule, FormsModule, TitleCasePipe, RichTextEditorComponent, BadgeLabelComponent],
-  templateUrl: './publishing-interface.component.html',
-  styleUrl: './publishing-interface.component.css'
+  templateUrl: './publish-submission.component.html',
+  styleUrl: './publish-submission.component.css'
 })
-export class PublishingInterfaceComponent implements OnInit {
+export class PublishSubmissionComponent implements OnInit {
   submission: any = null;
   loading = true;
   isPublishing = false;

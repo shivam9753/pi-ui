@@ -1,3 +1,9 @@
-:host {
-    display: block;
+/* Ensure mobile menu and hamburger button are hidden on desktop screens */
+@media (min-width: 1024px) {
+  .mobile-overlay,
+  .mobile-menu,
+  .mobile-hamburger-container,
+  .mobile-hamburger-button {
+    display: none !important;
   }
+}

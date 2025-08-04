@@ -2,17 +2,17 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule, DatePipe, TitleCasePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { BackendService } from '../../services/backend.service';
-import { BadgeLabelComponent } from '../../utilities/badge-label/badge-label.component';
-import { SubmissionCardComponent, CardAction } from '../../submission-card/submission-card.component';
+import { BadgeLabelComponent } from '../../../utilities/badge-label/badge-label.component';
+import { CardAction, SubmissionCardComponent } from '../../../submission-card/submission-card.component';
+import { BackendService } from '../../../services/backend.service';
 
 @Component({
-  selector: 'app-admin-publication',
+  selector: 'app-ready-to-publish',
   imports: [CommonModule, DatePipe, BadgeLabelComponent, FormsModule, SubmissionCardComponent],
-  templateUrl: './admin-publication.component.html',
-  styleUrl: './admin-publication.component.css'
+  templateUrl: './ready-to-publish.component.html',
+  styleUrl: './ready-to-publish.component.css'
 })
-export class AdminPublicationComponent {
+export class ReadyToPublishComponent {
   acceptedSubmissions: any[] = [];
   loading = true;
 

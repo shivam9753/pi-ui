@@ -2,15 +2,17 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule, DatePipe, TitleCasePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { BackendService } from '../../services/backend.service';
+import { BackendService } from '../../../services/backend.service';
+import { BadgeLabelComponent } from '../../../utilities/badge-label/badge-label.component';
+import { PublishedContentCardComponent, PublishedContent } from '../../../utilities/published-content-card/published-content-card.component';
 
 @Component({
-  selector: 'app-admin-published-posts',
-  imports: [CommonModule, DatePipe, TitleCasePipe, FormsModule],
-  templateUrl: './admin-published-posts.component.html',
-  styleUrl: './admin-published-posts.component.css'
+  selector: 'app-published-posts',
+  imports: [CommonModule, DatePipe, TitleCasePipe, FormsModule, BadgeLabelComponent, PublishedContentCardComponent],
+  templateUrl: './published-posts.component.html',
+  styleUrl: './published-posts.component.css'
 })
-export class AdminPublishedPostsComponent implements OnInit {
+export class PublishedPostsComponent implements OnInit {
   publishedSubmissions: any[] = [];
   loading = true;
   searchTerm = '';
@@ -50,6 +52,20 @@ export class AdminPublishedPostsComponent implements OnInit {
   // Navigate to publishing interface for editing
   editPublishedPost(submissionId: string) {
     this.router.navigate(['/publish-configure', submissionId]);
+  }
+
+  // Navigate to publishing interface for editing (alias)
+  editSubmission(submission: any) {
+    this.editPublishedPost(submission._id);
+  }
+
+  // Navigate to view the published post (alias)
+  viewSubmission(submission: any) {
+    if (submission.slug) {
+      this.viewPost(submission.slug);
+    } else {
+      this.router.navigate(['/read', submission._id]);
+    }
   }
 
   // Navigate to view the published post
@@ -116,6 +132,12 @@ export class AdminPublishedPostsComponent implements OnInit {
   // Refresh the submissions list
   refreshList() {
     this.loadPublishedSubmissions();
+  }
+
+  // Handle card click for published content
+  onContentCardClick(content: PublishedContent) {
+    // For admin interface, navigate to edit the post
+    this.editPublishedPost(content._id || '');
   }
 
   // Helper method to get time ago

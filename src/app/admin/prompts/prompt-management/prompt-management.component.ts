@@ -2,8 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { FormsModule } from '@angular/forms';
-import { BackendService } from '../../services/backend.service';
-import { AuthService } from '../../services/auth.service';
+import { BackendService } from '../../../services/backend.service';
+import { AuthService } from '../../../services/auth.service';
 
 interface Prompt {
   _id: string;
@@ -22,13 +22,13 @@ interface Prompt {
 }
 
 @Component({
-  selector: 'app-manage-prompts',
+  selector: 'app-prompt-management',
   standalone: true,
   imports: [CommonModule, FormsModule, ReactiveFormsModule],
-  templateUrl: './manage-prompts.component.html',
-  styleUrl: './manage-prompts.component.css'
+  templateUrl: './prompt-management.component.html',
+  styleUrl: './prompt-management.component.css'
 })
-export class ManagePromptsComponent implements OnInit {
+export class PromptManagementComponent implements OnInit {
   // All prompts data
   allPrompts: Prompt[] = [];
   filteredPrompts: Prompt[] = [];

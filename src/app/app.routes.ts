@@ -3,14 +3,14 @@ import { ExploreComponent } from './explore/explore.component';
 import { AdminGuard } from './guards/admin.guard';
 import { AuthGuard } from './guards/authguard';
 import { ReviewerGuard } from './guards/reviewer.guard';
-import { AdminReviewSubmissionComponent } from './review-sub/admin-review-submission/admin-review-submission.component';
 import { SubmissionFormComponent } from './submit/submission-form/submission-form.component';
 import { UserLoginComponent } from './user-login/user-login.component';
 import { UserProfileComponent } from './user-profile/user-profile.component';
 import { ReadingInterfaceComponent } from './reading-interface/reading-interface.component';
 import { PromptsComponent } from './prompts/prompts.component';
 import { AdminComponent } from './admin/admin.component';
-import { PublishingInterfaceComponent } from './publishing-interface/publishing-interface.component';
+import { PublishSubmissionComponent } from './admin/submissions/publish-submission/publish-submission.component';
+import { ReviewSubmissionComponent } from './admin/submissions/review-submission/review-submission.component';
 
 export const routes: Routes = [
   // Public routes - Use explore as homepage for now
@@ -74,13 +74,13 @@ export const routes: Routes = [
   },
   { 
     path: 'review-submission/:id', 
-    component: AdminReviewSubmissionComponent, 
+    component: ReviewSubmissionComponent, 
     canActivate: [ReviewerGuard],
     title: 'Review Submission - pi'
   },
   { 
     path: 'publish-configure/:id', 
-    component: PublishingInterfaceComponent, 
+    component: PublishSubmissionComponent, 
     canActivate: [AdminGuard],
     title: 'Configure Publishing - pi'
   },

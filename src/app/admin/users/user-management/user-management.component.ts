@@ -4,7 +4,9 @@ import { Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { CommonModule, DatePipe, TitleCasePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { environment } from '../../../environments/environment';
+import { environment } from '../../../../environments/environment';
+import { BadgeLabelComponent } from '../../../utilities/badge-label/badge-label.component';
+
 
 interface User {
   _id: string;
@@ -35,12 +37,12 @@ interface Message {
 }
 
 @Component({
-  selector: 'app-admin-user-management',
-  imports: [DatePipe, TitleCasePipe, CommonModule, FormsModule],
-  templateUrl: './admin-user-management.component.html',
-  styleUrls: ['./admin-user-management.component.css']
+  selector: 'app-user-management',
+  imports: [DatePipe, TitleCasePipe, CommonModule, FormsModule, BadgeLabelComponent],
+  templateUrl: './user-management.component.html',
+  styleUrls: ['./user-management.component.css']
 })
-export class AdminUserManagementComponent implements OnInit {
+export class UserManagementComponent implements OnInit {
   users: User[] = [];
   totalUsers = 0;
   userStats: UserStats = { users: 0, reviewers: 0, admins: 0 };
@@ -125,7 +127,31 @@ export class AdminUserManagementComponent implements OnInit {
       const jwtToken = localStorage.getItem('jwt_token');
       const headers: { [key: string]: string } = jwtToken ? { Authorization: `Bearer ${jwtToken}` } : {};
 
-      // Load stats for all roles
+      // Use single API call for user stats instead of multiple calls
+      const statsResponse = await this.http.get<any>(`${environment.apiBaseUrl}/users/stats`, { headers }).toPromise() as any;
+      
+      if (statsResponse) {
+        this.userStats = {
+          users: statsResponse.users || 0,
+          reviewers: statsResponse.reviewers || 0,
+          admins: statsResponse.admins || 0
+        };
+        this.totalUsers = statsResponse.total || 0;
+      }
+
+    } catch (error) {
+      console.error('Error loading user stats:', error);
+      // Fallback to old method if stats endpoint doesn't exist
+      this.loadUserStatsLegacy();
+    }
+  }
+
+  // Fallback method using multiple API calls (legacy)
+  private async loadUserStatsLegacy() {
+    try {
+      const jwtToken = localStorage.getItem('jwt_token');
+      const headers: { [key: string]: string } = jwtToken ? { Authorization: `Bearer ${jwtToken}` } : {};
+
       const [usersResponse, reviewersResponse, adminsResponse] = await Promise.all([
         this.http.get<any>(`${environment.apiBaseUrl}/users?role=user&limit=0`, { headers }).toPromise() as Promise<any>,
         this.http.get<any>(`${environment.apiBaseUrl}/users?role=reviewer&limit=0`, { headers }).toPromise() as Promise<any>,
@@ -139,7 +165,7 @@ export class AdminUserManagementComponent implements OnInit {
       };
 
     } catch (error) {
-      console.error('Error loading user stats:', error);
+      console.error('Error loading user stats (legacy):', error);
     }
   }
 

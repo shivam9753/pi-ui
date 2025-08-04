@@ -1,5 +1,5 @@
 <!-- Manage Prompts Tab Content -->
-<div class="w-full px-4 sm:px-6 lg:px-8 xl:px-12 py-8 bg-themed min-h-screen">
+<div class="w-full">
   
   <!-- Header with Create Button -->
   <!-- <div class="flex justify-between items-center">
@@ -363,6 +363,14 @@
         </svg>
         <h3 class="text-lg font-medium text-themed mb-2">No prompts found</h3>
         <p class="text-themed-secondary mb-4">Try adjusting your filters or create a new prompt.</p>
+        <button 
+      (click)="createPrompt()"
+      class="btn-primary">
+      <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+      </svg>
+      Create Prompt
+    </button>
       </div>
     </div>
 

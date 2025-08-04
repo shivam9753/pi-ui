@@ -1,0 +1,23 @@
+/* Published Content Card Styles */
+.card {
+  @apply bg-themed-card border border-themed rounded-xl shadow-sm;
+}
+
+.card:hover {
+  @apply shadow-lg border-themed-accent;
+}
+
+/* Text clamping for multi-line truncation */
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Smooth transitions for all interactive elements */
+.card * {
+  transition-property: color, background-color, border-color, transform, box-shadow;
+  transition-duration: 300ms;
+  transition-timing-function: ease-in-out;
+}

@@ -47,6 +47,9 @@ export class HeaderComponent implements OnInit, OnDestroy {
     this.subscriptions.push(userSubscription, routeSubscription);
   }
 
+  isDesktop() {
+  return window.innerWidth >= 1024;
+}
   ngOnDestroy() {
     // Clean up subscriptions
     this.subscriptions.forEach(sub => sub.unsubscribe());

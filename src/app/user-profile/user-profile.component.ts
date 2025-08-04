@@ -5,6 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { RouterModule, ActivatedRoute, RouterLink, Router } from '@angular/router';
 import { BackendService, UserProfile, PublishedWork } from '../services/backend.service';
 import { BadgeLabelComponent } from '../utilities/badge-label/badge-label.component';
+import { PublishedContentCardComponent, PublishedContent } from '../utilities/published-content-card/published-content-card.component';
 
 // Add interfaces for new data types
 interface Submission {
@@ -36,7 +37,7 @@ interface Draft {
 
 @Component({
   selector: 'app-user-profile',
-  imports: [CommonModule, FormsModule, RouterLink, BadgeLabelComponent],
+  imports: [CommonModule, FormsModule, RouterLink, BadgeLabelComponent, PublishedContentCardComponent],
   templateUrl: './user-profile.component.html',
   styleUrl: './user-profile.component.css'
 })
@@ -697,6 +698,13 @@ export class UserProfileComponent implements OnInit {
 
   trackByDraftId(index: number, draft: Draft): string {
     return draft.id;
+  }
+
+  onPublishedWorkCardClick(content: PublishedContent) {
+    // Navigate to read the published work or edit based on context
+    if (content._id) {
+      this.router.navigate(['/read', content._id]);
+    }
   }
 
   getSocialUrl(platform: string, value: string): string {

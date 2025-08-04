@@ -3,17 +3,17 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { CommonModule, DatePipe, TitleCasePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { BackendService } from '../../services/backend.service';
-import { AuthService } from '../../services/auth.service';
-import { BadgeLabelComponent } from '../../utilities/badge-label/badge-label.component';
+import { BackendService } from '../../../services/backend.service';
+import { AuthService } from '../../../services/auth.service';
+import { BadgeLabelComponent } from '../../../utilities/badge-label/badge-label.component';
 
 @Component({
-  selector: 'app-admin-review-submission',
+  selector: 'app-review-submission',
   imports: [DatePipe, TitleCasePipe, CommonModule, FormsModule, BadgeLabelComponent],
-  templateUrl: './admin-review-submission.component.html',
-  styleUrl: './admin-review-submission.component.css'
+  templateUrl: './review-submission.component.html',
+  styleUrl: './review-submission.component.css'
 })
-export class AdminReviewSubmissionComponent {
+export class ReviewSubmissionComponent {
   id: string = "";
   private activatedRoute = inject(ActivatedRoute);
   submission: any;
@@ -209,7 +209,7 @@ export class AdminReviewSubmissionComponent {
 
   // Navigate back to pending reviews
   goBackToPendingReviews() {
-    this.router.navigate(['/reviews/pending']);
+    this.router.navigate(['/admin/submissions/pending-reviews']);
   }
 
   // Clean HTML content for better display

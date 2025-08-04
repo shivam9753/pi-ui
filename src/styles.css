@@ -665,6 +665,32 @@ a:hover {
   padding: 0 16px;
 }
 
+/* Admin page container - consistent padding across all admin screens */
+.admin-container {
+  width: 100%;
+  padding: 2rem 1.5rem;
+  background: var(--bg-primary);
+  min-height: 100vh;
+}
+
+@media (min-width: 640px) {
+  .admin-container {
+    padding: 2rem 2rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .admin-container {
+    padding: 2rem 2.5rem;
+  }
+}
+
+@media (min-width: 1280px) {
+  .admin-container {
+    padding: 2rem 4rem;
+  }
+}
+
 .section-spacing {
   padding: 32px 0;
 }

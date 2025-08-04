@@ -47,16 +47,7 @@
   font-family: 'Playfair Display', Georgia, serif;
 }
 
-/* Backdrop blur enhancements */
-.backdrop-blur-lg {
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-}
 
-.backdrop-blur-sm {
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
-}
 
 /* Custom gradient backgrounds */
 .bg-literary-gradient {
@@ -84,6 +75,17 @@
   border-color: var(--border-primary);
 }
 
+/* Fix auto-fill transparency issues */
+.literary-input:-webkit-autofill,
+.literary-input:-webkit-autofill:hover,
+.literary-input:-webkit-autofill:focus,
+.literary-input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 1000px var(--bg-primary) inset !important;
+  -webkit-text-fill-color: var(--text-primary) !important;
+  background-color: var(--bg-primary) !important;
+  transition: background-color 5000s ease-in-out 0s !important;
+}
+
 .literary-input:focus {
   transform: translateY(-1px);
   box-shadow: var(--shadow-md);
@@ -99,6 +101,17 @@
   background-color: var(--bg-primary);
   color: var(--text-primary);
   border-color: var(--border-primary);
+}
+
+/* Fix auto-fill transparency issues for textareas */
+.literary-textarea:-webkit-autofill,
+.literary-textarea:-webkit-autofill:hover,
+.literary-textarea:-webkit-autofill:focus,
+.literary-textarea:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 1000px var(--bg-primary) inset !important;
+  -webkit-text-fill-color: var(--text-primary) !important;
+  background-color: var(--bg-primary) !important;
+  transition: background-color 5000s ease-in-out 0s !important;
 }
 
 /* Card hover effects */
@@ -236,12 +249,7 @@
   transform: translateY(-1px);
 }
 
-/* Toast notification styling */
-.toast-literary {
-  animation: slideInDown 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-}
+
 
 /* Content area styling */
 .content-area {
