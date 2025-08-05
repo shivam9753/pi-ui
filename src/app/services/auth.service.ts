@@ -152,8 +152,44 @@ export class AuthService {
   }
 
   private processUserLogin(baseUser: GoogleUser): void {
-    // Call backend to register/get user with role
-    this.registerGoogleUserIfFirstTime(baseUser).subscribe({
+    // Check if we already have this user in localStorage with a valid session
+    if (isPlatformBrowser(this.platformId)) {
+      const storedUser = localStorage.getItem('google_user');
+      const storedJwt = localStorage.getItem('jwt_token');
+      
+      if (storedUser && storedJwt) {
+        try {
+          const existingUser: GoogleUser = JSON.parse(storedUser);
+          
+          // If it's the same user email, check if JWT is still valid
+          if (existingUser.email === baseUser.email) {
+            const tokenPayload = this.decodeJWT(storedJwt);
+            const currentTime = Math.floor(Date.now() / 1000);
+            
+            // If JWT is still valid (not expired), use existing session
+            if (tokenPayload && tokenPayload.exp && tokenPayload.exp > currentTime) {
+              console.log('✅ Using existing valid session for:', existingUser.email);
+              this.userSubject.next(existingUser);
+              this.isLoggedInSubject.next(true);
+              this.navigateAfterLogin();
+              
+              // Optionally refresh role in background (less frequently)
+              if (Math.random() < 0.1) { // Only 10% of the time to reduce API calls
+                console.log('🔄 Background role refresh...');
+                this.refreshUserRole(existingUser);
+              }
+              return;
+            }
+          }
+        } catch (error) {
+          console.warn('Error parsing stored user session:', error);
+        }
+      }
+    }
+
+    // If no valid existing session, authenticate with backend
+    console.log('🔑 Authenticating with backend for:', baseUser.email);
+    this.authenticateGoogleUser(baseUser).subscribe({
       next: (res) => {
         console.log('Backend response:', res);
         
@@ -179,7 +215,7 @@ export class AuthService {
         this.navigateAfterLogin();
       },
       error: (err) => {
-        console.error('Error registering Google user:', err);
+        console.error('Error authenticating Google user:', err);
         
         // Fallback: use base user even if backend fails
         if (isPlatformBrowser(this.platformId)) {
@@ -194,8 +230,8 @@ export class AuthService {
     });
   }
 
-  private registerGoogleUserIfFirstTime(user: GoogleUser): Observable<any> {
-    return this.http.post(`${environment.apiBaseUrl}/auth/google-user`, {
+  private authenticateGoogleUser(user: GoogleUser): Observable<any> {
+    return this.http.post(`${environment.apiBaseUrl}/auth/google-login`, {
       email: user.email,
       name: user.name,
       picture: user.picture,
@@ -360,6 +396,9 @@ export class AuthService {
             this.userSubject.next(user);
             this.isLoggedInSubject.next(true);
             console.log('✅ Session restored from JWT:', user.email);
+            
+            // Refresh user role from backend to ensure it's up to date
+            this.refreshUserRole(user);
             return;
           } else {
             console.log('⚠️ JWT token expired');
@@ -375,6 +414,9 @@ export class AuthService {
             this.userSubject.next(user);
             this.isLoggedInSubject.next(true);
             console.log('✅ Session restored from Google token:', user.email);
+            
+            // Refresh user role from backend to ensure it's up to date
+            this.refreshUserRole(user);
             return;
           } else {
             console.log('⚠️ Google token expired');
@@ -387,6 +429,9 @@ export class AuthService {
           console.log('🚧 DEV MODE: Restoring session without token validation');
           this.userSubject.next(user);
           this.isLoggedInSubject.next(true);
+          
+          // Refresh user role from backend to ensure it's up to date
+          this.refreshUserRole(user);
           return;
         }
         
@@ -473,9 +518,40 @@ export class AuthService {
   public refreshUser(): Observable<any> {
     const currentUser = this.getCurrentUser();
     if (currentUser) {
-      return this.registerGoogleUserIfFirstTime(currentUser);
+      return this.authenticateGoogleUser(currentUser);
     }
     throw new Error('No user to refresh');
+  }
+
+  // Method to refresh user role in background without disrupting user session
+  private refreshUserRole(user: GoogleUser): void {
+    this.authenticateGoogleUser(user).subscribe({
+      next: (res) => {
+        if (res.user?.role && res.user.role !== user.role) {
+          console.log(`🔄 User role updated: ${user.role} → ${res.user.role}`);
+          
+          // Update the user object with new role
+          const updatedUser: GoogleUser = {
+            ...user,
+            role: res.user.role
+          };
+          
+          // Update localStorage and subjects
+          if (isPlatformBrowser(this.platformId)) {
+            localStorage.setItem('google_user', JSON.stringify(updatedUser));
+            if (res.token) {
+              localStorage.setItem('jwt_token', res.token);
+            }
+          }
+          
+          this.userSubject.next(updatedUser);
+        }
+      },
+      error: (err) => {
+        console.log('ℹ️ Could not refresh user role:', err.message);
+        // Don't disrupt the user session if role refresh fails
+      }
+    });
   }
 
   // Method to manually trigger Google sign-in (for login component)

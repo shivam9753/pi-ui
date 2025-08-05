@@ -1,34 +1,9 @@
 // admin-user-management.component.ts
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { HttpClient } from '@angular/common/http';
 import { CommonModule, DatePipe, TitleCasePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { environment } from '../../../../environments/environment';
-
-
-interface User {
-  _id: string;
-  username: string;
-  email: string;
-  role: 'user' | 'reviewer' | 'admin';
-  profileImage?: string;
-  bio?: string;
-  createdAt: string;
-  stats?: {
-    totalPublished: number;
-    totalViews: number;
-    totalLikes: number;
-    followers: number;
-    following: number;
-  };
-}
-
-interface UserStats {
-  users: number;
-  reviewers: number;
-  admins: number;
-}
+import { UserService, User, UserStats } from '../../../services/user.service';
 
 interface Message {
   type: 'success' | 'error';
@@ -44,7 +19,7 @@ interface Message {
 export class UserManagementComponent implements OnInit {
   users: User[] = [];
   totalUsers = 0;
-  userStats: UserStats = { users: 0, reviewers: 0, admins: 0 };
+  userStats: UserStats = { users: 0, reviewers: 0, admins: 0, total: 0 };
   
   // Filters and search
   selectedRole = '';
@@ -65,114 +40,82 @@ export class UserManagementComponent implements OnInit {
   private searchTimeout: any;
 
   constructor(
-    private http: HttpClient,
+    private userService: UserService,
     private router: Router
   ) {}
 
   ngOnInit() {
     this.loadUsers();
-    this.loadUserStats();
   }
 
   min(a: number, b: number): number {
   return Math.min(a, b);
 }
 
-  async loadUsers() {
+  loadUsers() {
     this.loading = true;
     
-    try {
-      const params = new URLSearchParams({
-        limit: this.pageSize.toString(),
-        skip: ((this.currentPage - 1) * this.pageSize).toString()
+    if (this.searchQuery.trim()) {
+      // Use search endpoint
+      this.userService.searchUsers({
+        q: this.searchQuery.trim(),
+        limit: this.pageSize,
+        skip: (this.currentPage - 1) * this.pageSize,
+        sortBy: this.sortBy,
+        order: 'desc'
+      }).subscribe({
+        next: (response) => {
+          this.users = response.users || [];
+          this.totalUsers = this.users.length; // Search doesn't return total count
+          this.totalPages = 1;
+          // Don't update stats during search
+          this.loading = false;
+        },
+        error: (error) => {
+          console.error('Error searching users:', error);
+          this.showMessage('error', error.message || 'Failed to search users. Please try again.');
+          this.users = [];
+          this.loading = false;
+        }
       });
-
-      if (this.selectedRole) {
-        params.append('role', this.selectedRole);
-      }
-
-      let url = `${environment.apiBaseUrl}/users`;
-      
-      // Use search endpoint if there's a search query
-      if (this.searchQuery.trim()) {
-        url = `${environment.apiBaseUrl}/users/search`;
-        params.append('q', this.searchQuery.trim());
-      }
-
-      // Get JWT token from localStorage
-      const jwtToken = localStorage.getItem('jwt_token');
-      const headers: { [key: string]: string } = jwtToken ? { Authorization: `Bearer ${jwtToken}` } : {};
-
-      const response = await this.http.get<any>(`${url}?${params.toString()}`, { headers }).toPromise() as any;
-      
-      if (this.searchQuery.trim()) {
-        this.users = response.users || [];
-        this.totalUsers = this.users.length; // Search doesn't return total count
-        this.totalPages = 1;
-      } else {
-        this.users = response.users || [];
-        this.totalUsers = response.pagination?.total || 0;
-        this.totalPages = Math.ceil(this.totalUsers / this.pageSize);
-      }
-
-    } catch (error) {
-      console.error('Error loading users:', error);
-      this.showMessage('error', 'Failed to load users. Please try again.');
-      this.users = [];
-    } finally {
-      this.loading = false;
+    } else {
+      // Use main users endpoint with stats
+      this.userService.getAllUsers({
+        limit: this.pageSize,
+        skip: (this.currentPage - 1) * this.pageSize,
+        role: this.selectedRole || undefined,
+        sortBy: this.sortBy,
+        order: 'desc',
+        includeStats: true
+      }).subscribe({
+        next: (response) => {
+          this.users = response.users || [];
+          this.totalUsers = response.pagination?.total || 0;
+          this.totalPages = Math.ceil(this.totalUsers / this.pageSize);
+          
+          // Update stats if included in response
+          if (response.stats) {
+            this.userStats = {
+              users: response.stats.users || 0,
+              reviewers: response.stats.reviewers || 0,
+              admins: response.stats.admins || 0,
+              total: response.stats.total || 0
+            };
+          }
+          this.loading = false;
+        },
+        error: (error) => {
+          console.error('Error loading users:', error);
+          this.showMessage('error', error.message || 'Failed to load users. Please try again.');
+          this.users = [];
+          this.loading = false;
+        }
+      });
     }
   }
 
-  async loadUserStats() {
-    try {
-      // Get JWT token from localStorage
-      const jwtToken = localStorage.getItem('jwt_token');
-      const headers: { [key: string]: string } = jwtToken ? { Authorization: `Bearer ${jwtToken}` } : {};
 
-      // Use single API call for user stats instead of multiple calls
-      const statsResponse = await this.http.get<any>(`${environment.apiBaseUrl}/users/stats`, { headers }).toPromise() as any;
-      
-      if (statsResponse) {
-        this.userStats = {
-          users: statsResponse.users || 0,
-          reviewers: statsResponse.reviewers || 0,
-          admins: statsResponse.admins || 0
-        };
-        this.totalUsers = statsResponse.total || 0;
-      }
-
-    } catch (error) {
-      console.error('Error loading user stats:', error);
-      // Fallback to old method if stats endpoint doesn't exist
-      this.loadUserStatsLegacy();
-    }
-  }
-
-  // Fallback method using multiple API calls (legacy)
-  private async loadUserStatsLegacy() {
-    try {
-      const jwtToken = localStorage.getItem('jwt_token');
-      const headers: { [key: string]: string } = jwtToken ? { Authorization: `Bearer ${jwtToken}` } : {};
-
-      const [usersResponse, reviewersResponse, adminsResponse] = await Promise.all([
-        this.http.get<any>(`${environment.apiBaseUrl}/users?role=user&limit=0`, { headers }).toPromise() as Promise<any>,
-        this.http.get<any>(`${environment.apiBaseUrl}/users?role=reviewer&limit=0`, { headers }).toPromise() as Promise<any>,
-        this.http.get<any>(`${environment.apiBaseUrl}/users?role=admin&limit=0`, { headers }).toPromise() as Promise<any>
-      ]);
-
-      this.userStats = {
-        users: usersResponse.pagination?.total || 0,
-        reviewers: reviewersResponse.pagination?.total || 0,
-        admins: adminsResponse.pagination?.total || 0
-      };
-
-    } catch (error) {
-      console.error('Error loading user stats (legacy):', error);
-    }
-  }
-
-  async changeUserRole(user: User, event: any) {
+  changeUserRole(user: User, event: any) {
     const newRole = event.target.value as 'user' | 'reviewer' | 'admin';
     
     if (newRole === user.role) {
@@ -193,31 +136,26 @@ export class UserManagementComponent implements OnInit {
 
     this.changingRoles.add(user._id);
 
-    try {
-      // Get JWT token from localStorage
-      const jwtToken = localStorage.getItem('jwt_token');
-      const headers: { [key: string]: string } = jwtToken ? { Authorization: `Bearer ${jwtToken}` } : {};
-
-      await this.http.patch(`${environment.apiBaseUrl}/users/${user._id}/role`, { role: newRole }, { headers }).toPromise() as Promise<any>;
-      
-      // Update the user locally
-      user.role = newRole;
-      
-      this.showMessage('success', `User role updated to ${newRole} successfully.`);
-      
-      // Reload stats
-      this.loadUserStats();
-
-    } catch (error) {
-      console.error('Error changing user role:', error);
-      this.showMessage('error', 'Failed to update user role. Please try again.');
-      
-      // Reset the select to original value
-      event.target.value = user.role;
-      
-    } finally {
-      this.changingRoles.delete(user._id);
-    }
+    this.userService.updateUserRole(user._id, newRole).subscribe({
+      next: (response) => {
+        // Update the user locally
+        user.role = newRole;
+        
+        this.showMessage('success', `User role updated to ${newRole} successfully.`);
+        
+        // Reload users and stats
+        this.loadUsers();
+        this.changingRoles.delete(user._id);
+      },
+      error: (error) => {
+        console.error('Error changing user role:', error);
+        this.showMessage('error', error.message || 'Failed to update user role. Please try again.');
+        
+        // Reset the select to original value
+        event.target.value = user.role;
+        this.changingRoles.delete(user._id);
+      }
+    });
   }
 
   onRoleFilterChange() {

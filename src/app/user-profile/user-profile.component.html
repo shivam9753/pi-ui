@@ -66,8 +66,11 @@
             <div class="flex-1 text-center md:text-left">
               <div class="mb-4">
                 <h1 class="text-2xl font-bold text-gray-900 mb-2">
-                  {{ userProfile()?.username }}
+                  {{ userProfile()?.name || userProfile()?.username }}
                 </h1>
+                <p *ngIf="userProfile()?.name && userProfile()?.username !== userProfile()?.name" class="text-sm text-gray-500">
+                  {{ '@' + userProfile()?.username }}
+                </p>
                 
                 <!-- Role Badge (only for admin/reviewer) -->
                 <div *ngIf="userProfile()?.role === 'admin' || userProfile()?.role === 'reviewer'" class="mb-3">
@@ -87,6 +90,18 @@
 
               <!-- Edit Form -->
               <div *ngIf="isEditMode()" class="space-y-4 text-left">
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">
+                    Display Name
+                  </label>
+                  <input 
+                    type="text" 
+                    [(ngModel)]="editForm.name"
+                    placeholder="Your display name"
+                    maxlength="100"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent">
+                </div>
+
                 <div>
                   <label class="block text-sm font-medium text-gray-700 mb-2">
                     Profile Image URL
@@ -220,25 +235,16 @@
 
           <!-- Published Works Cards -->
           <div *ngIf="!worksLoading()" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <app-published-content-card 
-              *ngFor="let work of filteredWorks(); trackBy: trackByWorkId"
-              [content]="{
-                _id: work._id,
-                title: work.title,
-                excerpt: work.excerpt,
-                description: work.content,
-                imageUrl: work.imageUrl,
-                submissionType: work.submissionType,
-                username: userProfile()?.username,
-                createdAt: work.publishedAt,
-                readingTime: work.readingTime,
-                viewCount: work.viewCount,
-                likeCount: work.likeCount
-              }"
-              [showStats]="true"
-              size="medium"
-              (cardClick)="onPublishedWorkCardClick($event)">
-            </app-published-content-card>
+            <div *ngFor="let work of filteredWorks(); trackBy: trackByWorkId" 
+                 class="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow cursor-pointer"
+                 (click)="onPublishedWorkCardClick(work)">
+              <h3 class="text-lg font-semibold text-gray-900 mb-2">{{ work.title }}</h3>
+              <p *ngIf="work.excerpt" class="text-gray-600 text-sm mb-4">{{ work.excerpt }}</p>
+              <div class="flex items-center justify-between text-xs text-gray-500">
+                <span class="px-2 py-1 bg-orange-100 text-orange-800 rounded">{{ work.submissionType }}</span>
+                <span>{{ work.publishedAt | date:'MMM d, y' }}</span>
+              </div>
+            </div>
           </div>
 
           <!-- Empty State for Published Works -->
@@ -324,7 +330,7 @@
                       </div>
                     </td>
                     <td class="px-8 py-6">
-                      <app-badge-label [type]="submission.submissionType"></app-badge-label>
+                      <span class="px-2 py-1 bg-orange-100 text-orange-800 rounded text-xs font-medium">{{ submission.submissionType }}</span>
                     </td>
                     <td class="px-8 py-6">
                       <span [class]="getStatusClass(submission.status)" 

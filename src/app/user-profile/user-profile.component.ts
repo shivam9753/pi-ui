@@ -2,10 +2,8 @@
 import { Component, OnInit, Input, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { RouterModule, ActivatedRoute, RouterLink, Router } from '@angular/router';
+import { RouterModule, ActivatedRoute, Router } from '@angular/router';
 import { BackendService, UserProfile, PublishedWork } from '../services/backend.service';
-import { BadgeLabelComponent } from '../utilities/badge-label/badge-label.component';
-import { PublishedContentCardComponent, PublishedContent } from '../utilities/published-content-card/published-content-card.component';
 
 // Add interfaces for new data types
 interface Submission {
@@ -37,7 +35,7 @@ interface Draft {
 
 @Component({
   selector: 'app-user-profile',
-  imports: [CommonModule, FormsModule, RouterLink, BadgeLabelComponent, PublishedContentCardComponent],
+  imports: [CommonModule, FormsModule, RouterModule],
   templateUrl: './user-profile.component.html',
   styleUrl: './user-profile.component.css'
 })
@@ -74,6 +72,7 @@ export class UserProfileComponent implements OnInit {
   openDraftMenu = signal<string>('');
   
   editForm: any = {
+    name: '',
     bio: '',
     profileImage: '',
     socialLinks: {
@@ -590,6 +589,7 @@ export class UserProfileComponent implements OnInit {
     const profile = this.userProfile();
     if (profile) {
       this.editForm = {
+        name: profile.name || '',
         bio: profile.bio || '',
         profileImage: profile.profileImage || '',
         socialLinks: {
@@ -613,6 +613,7 @@ export class UserProfileComponent implements OnInit {
 
     try {
       const updateData = {
+        name: this.editForm.name,
         bio: this.editForm.bio,
         profileImage: this.editForm.profileImage,
         socialLinks: this.editForm.socialLinks,
@@ -700,10 +701,10 @@ export class UserProfileComponent implements OnInit {
     return draft.id;
   }
 
-  onPublishedWorkCardClick(content: PublishedContent) {
+  onPublishedWorkCardClick(work: PublishedWork) {
     // Navigate to read the published work or edit based on context
-    if (content._id) {
-      this.router.navigate(['/read', content._id]);
+    if (work._id) {
+      this.router.navigate(['/read', work._id]);
     }
   }
 
