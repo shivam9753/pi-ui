@@ -3,7 +3,7 @@
 (click)="closeOverlay($event)">
 
 <!-- Modal Container -->
-<div class="bg-themed-card rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden"
+<div class="bg-white border border-gray-200 rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden"
   (click)="$event.stopPropagation()">
 
 <!-- Header -->
@@ -31,11 +31,11 @@
  
  <!-- Empty State -->
  <div *ngIf="drafts.length === 0" class="text-center py-12">
-   <svg class="w-20 h-20 mx-auto text-themed-tertiary mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+   <svg class="w-20 h-20 mx-auto text-gray-900-tertiary mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
    </svg>
-   <h3 class="text-xl font-semibold text-themed mb-2">No drafts yet</h3>
-   <p class="text-themed-secondary">
+   <h3 class="text-xl font-semibold text-gray-900 mb-2">No drafts yet</h3>
+   <p class="text-gray-900-secondary">
      Start working on a submission and it will be automatically saved as a draft.
    </p>
  </div>
@@ -44,7 +44,7 @@
  <div *ngIf="drafts.length > 0" class="p-6">
    <div class="space-y-4">
      <div *ngFor="let draft of drafts; trackBy: trackByDraftId" 
-          class="group bg-themed-card border border-themed rounded-lg p-6 hover:shadow-md transition-all duration-200 hover:border-orange-300">
+          class="group bg-white border border-gray-200 border border-gray-200 rounded-lg p-6 hover:shadow-md transition-all duration-200 hover:border-orange-300">
        
        <div class="flex items-start justify-between">
          <!-- Draft Info -->
@@ -64,25 +64,25 @@
              </span>
              
              <!-- Content Count -->
-             <span class="text-sm text-themed-secondary">
+             <span class="text-sm text-gray-900-secondary">
                {{ draft.contents.length }} {{ draft.contents.length === 1 ? 'item' : 'items' }}
              </span>
              
              <!-- Word Count -->
-             <span class="text-sm text-themed-secondary">
+             <span class="text-sm text-gray-900-secondary">
                {{ draft.wordCount }} words
              </span>
            </div>
            
-           <h3 class="text-lg font-semibold text-themed mb-1 truncate">
+           <h3 class="text-lg font-semibold text-gray-900 mb-1 truncate">
              {{ draft.title || 'Untitled Draft' }}
            </h3>
            
-           <p *ngIf="draft.description" class="text-sm text-themed-secondary mb-2 line-clamp-2">
+           <p *ngIf="draft.description" class="text-sm text-gray-900-secondary mb-2 line-clamp-2">
              {{ draft.description }}
            </p>
            
-           <div class="text-xs text-themed-tertiary">
+           <div class="text-xs text-gray-900-tertiary">
              Last modified {{ formatDate(draft.lastModified) }}
            </div>
          </div>
@@ -108,12 +108,12 @@
        </div>
 
        <!-- Preview of first content -->
-       <div *ngIf="draft.contents.length > 0" class="mt-4 pt-4 border-t border-themed">
-         <div class="bg-themed-secondary rounded-lg p-3 border border-themed">
-           <div class="text-sm font-medium text-themed mb-1">
+       <div *ngIf="draft.contents.length > 0" class="mt-4 pt-4 border-t border-gray-200">
+         <div class="bg-white-secondary rounded-lg p-3 border border-gray-200">
+           <div class="text-sm font-medium text-gray-900 mb-1">
              {{ draft.contents[0].title || 'Untitled' }}
            </div>
-           <div class="text-xs text-themed-secondary line-clamp-2 font-mono">
+           <div class="text-xs text-gray-900-secondary line-clamp-2 font-mono">
              {{ getContentPreview(draft.contents[0].body) }}
            </div>
          </div>
@@ -124,9 +124,9 @@
 </div>
 
 <!-- Footer -->
-<div class="bg-themed-secondary px-6 py-4 border-t border-themed">
+<div class="bg-white-secondary px-6 py-4 border-t border-gray-200">
  <div class="flex justify-between items-center">
-   <p class="text-sm text-themed-secondary">
+   <p class="text-sm text-gray-900-secondary">
      Drafts are automatically saved every 30 seconds while you work
    </p>
    <button 
@@ -144,11 +144,11 @@
 <div *ngIf="isInline" class="w-full">
  <!-- Empty State -->
  <div *ngIf="drafts.length === 0" class="text-center py-12">
-   <svg class="w-20 h-20 mx-auto text-themed-tertiary mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+   <svg class="w-20 h-20 mx-auto text-gray-900-tertiary mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
    </svg>
-   <h3 class="text-xl font-semibold text-themed mb-2">No drafts yet</h3>
-   <p class="text-themed-secondary">
+   <h3 class="text-xl font-semibold text-gray-900 mb-2">No drafts yet</h3>
+   <p class="text-gray-900-secondary">
      Start working on a submission and it will be automatically saved as a draft.
    </p>
  </div>
@@ -156,7 +156,7 @@
  <!-- Drafts List -->
  <div *ngIf="drafts.length > 0" class="space-y-4">
    <div *ngFor="let draft of drafts; trackBy: trackByDraftId" 
-        class="group bg-themed-secondary border border-themed rounded-lg p-6 hover:shadow-md transition-all duration-200 hover:border-orange-300">
+        class="group bg-white-secondary border border-gray-200 rounded-lg p-6 hover:shadow-md transition-all duration-200 hover:border-orange-300">
      
      <div class="flex items-start justify-between">
        <!-- Draft Info -->
@@ -176,25 +176,25 @@
            </span>
            
            <!-- Content Count -->
-           <span class="text-sm text-themed-secondary">
+           <span class="text-sm text-gray-900-secondary">
              {{ draft.contents.length }} {{ draft.contents.length === 1 ? 'item' : 'items' }}
            </span>
            
            <!-- Word Count -->
-           <span class="text-sm text-themed-secondary">
+           <span class="text-sm text-gray-900-secondary">
              {{ draft.wordCount }} words
            </span>
          </div>
          
-         <h3 class="text-lg font-semibold text-themed mb-1 truncate">
+         <h3 class="text-lg font-semibold text-gray-900 mb-1 truncate">
            {{ draft.title || 'Untitled Draft' }}
          </h3>
          
-         <p *ngIf="draft.description" class="text-sm text-themed-secondary mb-2 line-clamp-2">
+         <p *ngIf="draft.description" class="text-sm text-gray-900-secondary mb-2 line-clamp-2">
            {{ draft.description }}
          </p>
          
-         <div class="text-xs text-themed-tertiary">
+         <div class="text-xs text-gray-900-tertiary">
            Last modified {{ formatDate(draft.lastModified) }}
          </div>
        </div>
@@ -220,12 +220,12 @@
      </div>
 
      <!-- Preview of first content -->
-     <div *ngIf="draft.contents.length > 0" class="mt-4 pt-4 border-t border-themed">
-       <div class="bg-themed rounded-lg p-3 border border-themed">
-         <div class="text-sm font-medium text-themed mb-1">
+     <div *ngIf="draft.contents.length > 0" class="mt-4 pt-4 border-t border-gray-200">
+       <div class="bg-white rounded-lg p-3 border border-gray-200">
+         <div class="text-sm font-medium text-gray-900 mb-1">
            {{ draft.contents[0].title || 'Untitled' }}
          </div>
-         <div class="text-xs text-themed-secondary line-clamp-2 font-mono">
+         <div class="text-xs text-gray-900-secondary line-clamp-2 font-mono">
            {{ getContentPreview(draft.contents[0].body) }}
          </div>
        </div>
@@ -238,7 +238,7 @@
 <div *ngIf="draftToDelete" 
 class="fixed inset-0 bg-black bg-opacity-75 z-60 flex items-center justify-center p-4"
 (click)="cancelDelete()">
-<div class="bg-themed-card rounded-lg shadow-xl max-w-md w-full p-6"
+<div class="bg-white border border-gray-200 rounded-lg shadow-xl max-w-md w-full p-6"
   (click)="$event.stopPropagation()">
 <div class="flex items-center mb-4">
  <div class="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center mr-3">
@@ -246,10 +246,10 @@ class="fixed inset-0 bg-black bg-opacity-75 z-60 flex items-center justify-cente
      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
    </svg>
  </div>
- <h3 class="text-lg font-semibold text-themed">Delete Draft</h3>
+ <h3 class="text-lg font-semibold text-gray-900">Delete Draft</h3>
 </div>
 
-<p class="text-themed-secondary mb-6">
+<p class="text-gray-900-secondary mb-6">
  Are you sure you want to delete "<strong>{{ draftToDelete.title || 'Untitled' }}</strong>"? 
  This action cannot be undone.
 </p>

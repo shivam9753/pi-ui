@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
 
 import { GuidelinesOverlayComponent } from './guidelines-overlay.component';
 
@@ -8,8 +9,8 @@ describe('GuidelinesOverlayComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [GuidelinesOverlayComponent]
-    })
+      imports: [HttpClientTestingModule, GuidelinesOverlayComponent]
+    }))
     .compileComponents();
 
     fixture = TestBed.createComponent(GuidelinesOverlayComponent);

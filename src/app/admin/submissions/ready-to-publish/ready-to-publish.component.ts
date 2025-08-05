@@ -8,7 +8,7 @@ import { BackendService } from '../../../services/backend.service';
 
 @Component({
   selector: 'app-ready-to-publish',
-  imports: [CommonModule, DatePipe, BadgeLabelComponent, FormsModule, SubmissionCardComponent],
+  imports: [CommonModule, FormsModule, SubmissionCardComponent],
   templateUrl: './ready-to-publish.component.html',
   styleUrl: './ready-to-publish.component.css'
 })

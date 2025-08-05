@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
 
 import { SubmissionFormComponent } from './submission-form.component';
 
@@ -8,8 +9,8 @@ describe('SubmissionFormComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [SubmissionFormComponent]
-    })
+      imports: [HttpClientTestingModule, SubmissionFormComponent]
+    }))
     .compileComponents();
 
     fixture = TestBed.createComponent(SubmissionFormComponent);

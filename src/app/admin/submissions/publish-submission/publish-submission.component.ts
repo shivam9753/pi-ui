@@ -18,7 +18,7 @@ interface SEOConfig {
 
 @Component({
   selector: 'app-publish-submission',
-  imports: [CommonModule, FormsModule, TitleCasePipe, RichTextEditorComponent, BadgeLabelComponent],
+  imports: [CommonModule, FormsModule, RichTextEditorComponent, BadgeLabelComponent],
   templateUrl: './publish-submission.component.html',
   styleUrl: './publish-submission.component.css'
 })

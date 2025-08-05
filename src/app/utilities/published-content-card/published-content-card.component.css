@@ -1,10 +1,10 @@
 /* Published Content Card Styles */
 .card {
-  @apply bg-themed-card border border-themed rounded-xl shadow-sm;
+  @apply bg-white border border-gray-200 border border-gray-200 rounded-xl shadow-sm;
 }
 
 .card:hover {
-  @apply shadow-lg border-themed-accent;
+  @apply shadow-lg border-gray-200-accent;
 }
 
 /* Text clamping for multi-line truncation */

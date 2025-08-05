@@ -11,7 +11,7 @@ import { PublishedContentCardComponent, PublishedContent } from '../utilities/pu
 
 @Component({
   selector: 'app-explore',
-  imports: [DatePipe, TitleCasePipe, CommonModule, BadgeLabelComponent, FormsModule, PublishedContentCardComponent],
+  imports: [DatePipe, CommonModule, BadgeLabelComponent, FormsModule, PublishedContentCardComponent],
   templateUrl: './explore.component.html',
   styleUrl: './explore.component.css'
 })

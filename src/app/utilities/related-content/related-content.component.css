@@ -21,7 +21,7 @@
   transform: scale(1.05);
 }
 
-.related-post-card:hover .group-hover\:text-themed-accent {
+.related-post-card:hover .group-hover\:text-gray-900-accent {
   color: var(--text-accent);
 }
 

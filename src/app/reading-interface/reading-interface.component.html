@@ -1,40 +1,40 @@
-<div class="min-h-screen bg-themed">
+<div class="min-h-screen bg-white">
   <!-- Reading Progress Bar -->
   <div class="reading-progress" [style.width.%]="readingProgress()"></div>
   
   <!-- Header Bar -->
-  <div class="border-b border-themed bg-themed/95 backdrop-blur-sm sticky top-0 z-50">
+  <div class="border-b border-gray-200 bg-white/95 backdrop-blur-sm sticky top-0 z-50">
     <div class="max-w-7xl mx-auto px-6 py-3">
       <div class="flex items-center justify-between">
         <div class="flex items-center gap-6">
           <button 
             (click)="goBack()"
-            class="flex items-center gap-2 text-sm text-themed-secondary hover:text-themed transition-colors duration-200 group">
+            class="flex items-center gap-2 text-sm text-gray-900-secondary hover:text-gray-900 transition-colors duration-200 group">
             <svg class="w-4 h-4 group-hover:translate-x-[-2px] transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
             </svg>
             <span>Back to Explore</span>
           </button>
-          <div class="h-4 w-px bg-themed-secondary"></div>
+          <div class="h-4 w-px bg-white-secondary"></div>
           <app-badge-label [type]="content()!.submissionType"></app-badge-label>
         </div>
         
         <!-- Reading Controls -->
         <div class="flex items-center gap-3">
           <!-- Font Size Controls -->
-          <div class="flex items-center gap-1 bg-themed-card rounded-lg p-1">
+          <div class="flex items-center gap-1 bg-white border border-gray-200 rounded-lg p-1">
             <button 
               (click)="decreaseFontSize()"
-              class="p-1 text-themed-secondary hover:text-themed transition-colors duration-200"
+              class="p-1 text-gray-900-secondary hover:text-gray-900 transition-colors duration-200"
               title="Decrease font size">
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4" />
               </svg>
             </button>
-            <span class="text-xs text-themed-tertiary px-2">{{ fontSize() }}px</span>
+            <span class="text-xs text-gray-900-tertiary px-2">{{ fontSize() }}px</span>
             <button 
               (click)="increaseFontSize()"
-              class="p-1 text-themed-secondary hover:text-themed transition-colors duration-200"
+              class="p-1 text-gray-900-secondary hover:text-gray-900 transition-colors duration-200"
               title="Increase font size">
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
@@ -56,29 +56,29 @@
         <main class="col-span-12 lg:col-span-8 xl:col-span-7">
           <!-- Article Header -->
           <header class="mb-8">
-            <h1 class="text-4xl lg:text-5xl xl:text-6xl font-serif font-bold text-themed leading-tight mb-6">
+            <h1 class="text-4xl lg:text-5xl xl:text-6xl font-serif font-bold text-gray-900 leading-tight mb-6">
               {{ content()!.title }}
             </h1>
             
             <!-- Author and Metadata -->
-            <div class="flex sm:flex-row sm:items-center sm:justify-between mb-8 pb-8 border-b border-themed">
+            <div class="flex sm:flex-row sm:items-center sm:justify-between mb-8 pb-8 border-b border-gray-200">
               <div class="mb-4 sm:mb-0">
                 <a [routerLink]="['/profile', content()!.authorId]" 
-                   class="text-lg font-medium text-themed hover:text-themed-accent transition-colors duration-200">
+                   class="text-lg font-medium text-gray-900 hover:text-gray-900-accent transition-colors duration-200">
                   {{ content()!.authorName }}
                 </a>
-                <div class="text-sm text-themed-tertiary mt-1">
+                <div class="text-sm text-gray-900-tertiary mt-1">
                   {{ content()!.publishedAt | date:'MMMM d, y' }}
                 </div>
               </div>
-              <div class="text-sm text-themed-tertiary">
+              <div class="text-sm text-gray-900-tertiary">
                 {{ content()!.readingTime }}min read • {{ content()!.viewCount }} views
               </div>
             </div>
 
             <!-- Description -->
             <div *ngIf="content()!.description" class="mb-8">
-              <p class="text-xl text-themed-secondary leading-relaxed font-light italic border-l-4 border-orange-500 pl-6">
+              <p class="text-xl text-gray-900-secondary leading-relaxed font-light italic border-l-4 border-orange-500 pl-6">
                 {{ content()!.description }}
               </p>
             </div>
@@ -99,7 +99,7 @@
                 
                 <!-- Content Title (if multiple items) -->
                 <h2 *ngIf="content()!.contents.length > 1" 
-                    class="text-2xl lg:text-3xl font-serif font-bold text-themed mb-8 pb-4 border-b border-themed">
+                    class="text-2xl lg:text-3xl font-serif font-bold text-gray-900 mb-8 pb-4 border-b border-gray-200">
                   {{ i + 1 }}. {{ item.title }}
                 </h2>
 
@@ -111,10 +111,10 @@
                 </div>
 
                 <!-- Content Tags -->
-                <div *ngIf="item.tags && item.tags.length > 0" class="flex flex-wrap gap-2 mt-8 pt-6 border-t border-themed">
-                  <span class="text-sm text-themed-tertiary mr-2">Tags:</span>
+                <div *ngIf="item.tags && item.tags.length > 0" class="flex flex-wrap gap-2 mt-8 pt-6 border-t border-gray-200">
+                  <span class="text-sm text-gray-900-tertiary mr-2">Tags:</span>
                   <span *ngFor="let tag of item.tags" 
-                        class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-themed-secondary text-themed-tertiary border border-themed hover:bg-themed-accent hover:text-white transition-colors cursor-pointer">
+                        class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-white-secondary text-gray-900-tertiary border border-gray-200 hover:bg-white-accent hover:text-white transition-colors cursor-pointer">
                     #{{ tag }}
                   </span>
                 </div>
@@ -123,14 +123,14 @@
             
             <!-- No Content Message -->
             <ng-template #noContentMessage>
-              <div class="bg-themed-card rounded-lg p-12 text-center">
-                <div class="w-16 h-16 mx-auto mb-4 bg-themed-secondary rounded-full flex items-center justify-center">
-                  <svg class="w-8 h-8 text-themed-tertiary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div class="bg-white border border-gray-200 rounded-lg p-12 text-center">
+                <div class="w-16 h-16 mx-auto mb-4 bg-white-secondary rounded-full flex items-center justify-center">
+                  <svg class="w-8 h-8 text-gray-900-tertiary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                   </svg>
                 </div>
-                <h3 class="text-lg font-semibold text-themed mb-2">Content Not Available</h3>
-                <p class="text-themed-secondary mb-4">
+                <h3 class="text-lg font-semibold text-gray-900 mb-2">Content Not Available</h3>
+                <p class="text-gray-900-secondary mb-4">
                   The main content for this submission is currently not available.
                 </p>
                 <button 
@@ -146,9 +146,9 @@
           </div>
 
           <!-- Overall Tags -->
-          <div *ngIf="content()!.tags && content()!.tags.length > 0" class="mt-16 pt-8 border-t border-themed">
+          <div *ngIf="content()!.tags && content()!.tags.length > 0" class="mt-16 pt-8 border-t border-gray-200">
             <div class="flex flex-wrap items-center gap-3">
-              <span class="text-sm font-medium text-themed-tertiary">Related Topics:</span>
+              <span class="text-sm font-medium text-gray-900-tertiary">Related Topics:</span>
               <span *ngFor="let tag of content()!.tags" 
                     class="inline-flex items-center px-4 py-2 rounded-full text-sm font-medium bg-orange-500/10 text-orange-400 border border-orange-500/30 hover:bg-orange-500/20 transition-colors duration-200 cursor-pointer">
                 {{ tag }}
@@ -157,13 +157,13 @@
           </div>
 
           <!-- Post Footer: Actions -->
-          <div class="mt-16 pt-8 border-t border-themed">
+          <div class="mt-16 pt-8 border-t border-gray-200">
             <div class="flex items-center gap-4">
               <button 
                 (click)="toggleLike()"
                 [ngClass]="{
                   'text-red-500 bg-red-500/10 border-red-500/30': content()!.isLiked,
-                  'text-themed-secondary bg-themed-secondary border-themed hover:text-red-400 hover:border-red-500/30': !content()!.isLiked
+                  'text-gray-900-secondary bg-white-secondary border-gray-200 hover:text-red-400 hover:border-red-500/30': !content()!.isLiked
                 }"
                 class="flex items-center gap-2 px-4 py-2 border rounded-lg transition-all duration-200">
                 <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
@@ -176,7 +176,7 @@
                 (click)="toggleBookmark()"
                 [ngClass]="{
                   'text-orange-500 bg-orange-500/10 border-orange-500/30': content()!.isBookmarked,
-                  'text-themed-secondary bg-themed-secondary border-themed hover:text-orange-400 hover:border-orange-500/30': !content()!.isBookmarked
+                  'text-gray-900-secondary bg-white-secondary border-gray-200 hover:text-orange-400 hover:border-orange-500/30': !content()!.isBookmarked
                 }"
                 class="flex items-center gap-2 px-4 py-2 border rounded-lg transition-all duration-200">
                 <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
@@ -186,7 +186,7 @@
 
               <button 
                 (click)="shareContent()"
-                class="flex items-center gap-2 px-4 py-2 text-themed-secondary bg-themed-secondary border border-themed rounded-lg hover:text-blue-400 hover:border-blue-500/30 transition-all duration-200">
+                class="flex items-center gap-2 px-4 py-2 text-gray-900-secondary bg-white-secondary border border-gray-200 rounded-lg hover:text-blue-400 hover:border-blue-500/30 transition-all duration-200">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z" />
                 </svg>
@@ -228,7 +228,7 @@
   <div *ngIf="!content() && !error()" class="flex items-center justify-center min-h-screen">
     <div class="text-center">
       <div class="w-12 h-12 mx-auto mb-4 border-4 border-orange-500/20 border-t-orange-500 rounded-full animate-spin"></div>
-      <p class="text-themed-secondary">Loading content...</p>
+      <p class="text-gray-900-secondary">Loading content...</p>
     </div>
   </div>
 
@@ -240,8 +240,8 @@
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
         </svg>
       </div>
-      <h2 class="text-xl font-semibold text-themed mb-2">Failed to Load Content</h2>
-      <p class="text-themed-secondary mb-4">{{ error() }}</p>
+      <h2 class="text-xl font-semibold text-gray-900 mb-2">Failed to Load Content</h2>
+      <p class="text-gray-900-secondary mb-4">{{ error() }}</p>
       <button 
         (click)="retry()"
         class="btn-primary">

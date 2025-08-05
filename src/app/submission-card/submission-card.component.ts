@@ -88,7 +88,7 @@ export class SubmissionCardComponent {
       'feature': 'bg-red-500'
     };
     
-    const colorClass = typeColors[this.data.submissionType.toLowerCase()] || 'bg-themed-accent';
+    const colorClass = typeColors[this.data.submissionType.toLowerCase()] || 'bg-white-accent';
     return `px-3 py-1 text-xs font-medium rounded-full text-white ${colorClass}`;
   }
 
@@ -97,12 +97,12 @@ export class SubmissionCardComponent {
     
     switch (this.action.variant) {
       case 'primary':
-        return `${baseClasses} bg-themed-accent text-white hover:bg-themed-accent/90`;
+        return `${baseClasses} bg-white-accent text-white hover:bg-white-accent/90`;
       case 'secondary':
-        return `${baseClasses} bg-themed-secondary text-themed hover:bg-themed-secondary/80`;
+        return `${baseClasses} bg-white-secondary text-gray-900 hover:bg-white-secondary/80`;
       case 'outline':
       default:
-        return `${baseClasses} border border-themed-accent text-themed-accent hover:bg-themed-accent hover:text-white`;
+        return `${baseClasses} border border-gray-200-accent text-gray-900-accent hover:bg-white-accent hover:text-white`;
     }
   }
 

@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
 
 import { AuthorReviewSubmissionComponent } from './author-review-submission.component';
 
@@ -8,8 +9,8 @@ describe('AuthorReviewSubmissionComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [AuthorReviewSubmissionComponent]
-    })
+      imports: [HttpClientTestingModule, AuthorReviewSubmissionComponent]
+    }))
     .compileComponents();
 
     fixture = TestBed.createComponent(AuthorReviewSubmissionComponent);

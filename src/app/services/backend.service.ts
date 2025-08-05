@@ -713,8 +713,7 @@ checkUserSubmissionHistory(userId: string): Observable<any> {
   return this.http.get<any>(`${this.API_URL}/users/${userId}/submission-history`);
 }
 
-// TODO: Implement profile image upload submission later
-// submitNewSubmissionWithProfile method removed to avoid confusion
+// Profile image upload is handled separately in user profile management
 
 // Approve user bio (admin only)
 approveUserBio(userId: string, approvedBio: string): Observable<any> {

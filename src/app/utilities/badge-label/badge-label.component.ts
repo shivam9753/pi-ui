@@ -8,7 +8,7 @@ import { PrettyLabelPipe } from '../../pipes/pretty-label.pipe';
   imports: [CommonModule, PrettyLabelPipe],
   template: `
     <span
-      class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-themed-accent text-white"
+      class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-white-accent text-white"
     >
       {{ type | prettyLabel }}
     </span>

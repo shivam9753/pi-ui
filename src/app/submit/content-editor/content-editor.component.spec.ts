@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
 
 import { ContentEditorComponent } from './content-editor.component';
 
@@ -8,8 +9,8 @@ describe('ContentEditorComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ContentEditorComponent]
-    })
+      imports: [HttpClientTestingModule, ContentEditorComponent]
+    }))
     .compileComponents();
 
     fixture = TestBed.createComponent(ContentEditorComponent);

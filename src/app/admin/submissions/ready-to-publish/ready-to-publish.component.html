@@ -1,10 +1,10 @@
 <div class="w-full">
   <!-- Header -->
-  <div class="border-b border-themed pb-6 mb-8">
-    <h1 class="text-2xl md:text-3xl font-bold text-themed mb-2">
+  <div class="border-b border-gray-200 pb-6 mb-8">
+    <h1 class="text-2xl md:text-3xl font-bold text-gray-900 mb-2">
       Accepted Submissions
     </h1>
-    <p class="text-themed-secondary">
+    <p class="text-gray-900-secondary">
       Review accepted submissions and publish them.
     </p>
   </div>
@@ -12,7 +12,7 @@
   <!-- Loading -->
   <div *ngIf="loading" class="text-center py-12">
     <div class="spinner mx-auto"></div>
-    <p class="text-themed-secondary mt-4">Loading accepted submissions...</p>
+    <p class="text-gray-900-secondary mt-4">Loading accepted submissions...</p>
   </div>
 
   <!-- Submissions Cards Grid -->
@@ -31,19 +31,19 @@
 
   <!-- Empty State -->
   <div *ngIf="acceptedSubmissions.length === 0" class="text-center py-12">
-    <svg class="w-16 h-16 text-themed-tertiary mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <svg class="w-16 h-16 text-gray-900-tertiary mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
         d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
     </svg>
-    <h3 class="text-lg font-medium text-themed mb-2">No accepted submissions</h3>
-    <p class="text-themed-secondary">There are no accepted submissions ready for publishing.</p>
+    <h3 class="text-lg font-medium text-gray-900 mb-2">No accepted submissions</h3>
+    <p class="text-gray-900-secondary">There are no accepted submissions ready for publishing.</p>
   </div>
 </div>
 
 <!-- Toast Notification -->
 <div *ngIf="showToastFlag"
   class="fixed top-4 right-4 z-50 max-w-sm w-full transition-all duration-300 ease-in-out transform animate-slideInDown">
-  <div class="bg-themed-card border border-themed rounded-lg shadow-lg p-4" [ngClass]="{
+  <div class="bg-white border border-gray-200 border border-gray-200 rounded-lg shadow-lg p-4" [ngClass]="{
            'border-green-300 bg-green-50': toastType === 'success',
            'border-red-300 bg-red-50': toastType === 'error',
            'border-blue-300 bg-blue-50': toastType === 'info'
@@ -80,7 +80,7 @@
       </div>
       <div class="ml-4 flex-shrink-0">
         <button (click)="hideToast()"
-          class="inline-flex text-themed-tertiary hover:text-themed-secondary focus:outline-none focus:text-themed-secondary transition ease-in-out duration-150">
+          class="inline-flex text-gray-900-tertiary hover:text-gray-900-secondary focus:outline-none focus:text-gray-900-secondary transition ease-in-out duration-150">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
           </svg>

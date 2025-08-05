@@ -3,6 +3,61 @@
 /* Import Google Fonts - Modern, professional typography */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@400;600;700&family=Source+Sans+Pro:wght@400;500;600&display=swap');
 
+@utility bg-themed {
+  background-color: var(--bg-primary);
+}
+
+@utility bg-themed-secondary {
+  background-color: var(--bg-secondary);
+}
+
+@utility bg-themed-tertiary {
+  background-color: var(--bg-tertiary);
+}
+
+@utility bg-themed-card {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-primary);
+}
+
+@utility bg-themed-hover {
+  background-color: var(--bg-hover);
+}
+
+@utility bg-themed-accent {
+  background-color: var(--bg-accent);
+}
+
+@utility text-themed {
+  color: var(--text-primary);
+}
+
+@utility text-themed-secondary {
+  color: var(--text-secondary);
+}
+
+@utility text-themed-tertiary {
+  color: var(--text-tertiary);
+}
+
+@utility text-themed-accent {
+  color: var(--text-accent);
+}
+
+@utility border-themed {
+  border-color: var(--border-primary);
+}
+
+@utility border-themed-accent {
+  border-color: var(--border-accent);
+}
+
+@utility placeholder-themed-tertiary {
+  &::placeholder {
+    color: var(--text-tertiary);
+  }
+}
+
 /* CSS Variables for theming */
 :root {
   /* Modern LinkedIn-inspired light theme */
@@ -108,57 +163,6 @@ body {
   }
 }
 
-/* Theme-aware utility classes */
-.bg-themed {
-  background-color: var(--bg-primary);
-}
-
-.bg-themed-secondary {
-  background-color: var(--bg-secondary);
-}
-
-.bg-themed-tertiary {
-  background-color: var(--bg-tertiary);
-}
-
-.bg-themed-card {
-  background-color: var(--bg-card);
-  border: 1px solid var(--border-primary);
-  box-shadow: var(--shadow-sm);
-}
-
-.bg-themed-elevated {
-  background-color: var(--bg-elevated);
-  box-shadow: var(--shadow-md);
-}
-
-.text-themed {
-  color: var(--text-primary);
-}
-
-.text-themed-secondary {
-  color: var(--text-secondary);
-}
-
-.text-themed-tertiary {
-  color: var(--text-tertiary);
-}
-
-.text-themed-accent {
-  color: var(--text-accent);
-}
-
-.border-themed {
-  border-color: var(--border-primary);
-}
-
-.border-themed-secondary {
-  border-color: var(--border-secondary);
-}
-
-.border-themed-accent {
-  border-color: var(--border-accent);
-}
 
 .btn-primary {
   background-color: var(--bg-accent);
@@ -911,56 +915,4 @@ a:hover {
 .overflow-hidden { overflow: hidden; }
 .overflow-auto { overflow: auto; }
 
-/* Interactive states */
-.hover\\:bg-hover:hover {
-  background-color: var(--bg-hover);
-}
-
-.hover\\:text-accent:hover {
-  color: var(--text-accent);
-}
-
-.disabled\\:opacity-50:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-/* Enhanced Theming Utilities */
-.bg-themed { background-color: var(--bg-primary); }
-.bg-themed-secondary { background-color: var(--bg-secondary); }
-.bg-themed-tertiary { background-color: var(--bg-tertiary); }
-.bg-themed-card { background-color: var(--bg-card); }
-.bg-themed-hover { background-color: var(--bg-hover); }
-.bg-themed-accent { background-color: var(--bg-accent); }
-.bg-themed-accent-hover { background-color: var(--bg-accent-hover); }
-.bg-themed-accent-light { background-color: var(--bg-accent-light); }
-
-.text-themed { color: var(--text-primary); }
-.text-themed-secondary { color: var(--text-secondary); }
-.text-themed-tertiary { color: var(--text-tertiary); }
-.text-themed-inverse { color: var(--text-inverse); }
-.text-themed-accent { color: var(--text-accent); }
-.text-themed-accent-hover { color: var(--text-accent-hover); }
-
-.border-themed { border-color: var(--border-primary); }
-.border-themed-secondary { border-color: var(--border-secondary); }
-.border-themed-accent { border-color: var(--border-accent); }
-.border-themed-focus { border-color: var(--border-focus); }
-
-.placeholder-themed-tertiary::placeholder { color: var(--text-tertiary); }
-
-.focus\\:ring-themed-accent:focus {
-  box-shadow: 0 0 0 3px var(--ring-color);
-}
-
-.focus\\:border-themed-accent:focus {
-  border-color: var(--border-focus);
-}
-
-.hover\\:bg-themed-hover:hover {
-  background-color: var(--bg-hover);
-}
-
-.hover\\:bg-themed-accent-hover:hover {
-  background-color: var(--bg-accent-hover);
-}
+/* Custom utilities are now handled by Tailwind config */

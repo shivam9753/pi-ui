@@ -1,12 +1,12 @@
 <div class="w-full">
   <!-- Header -->
-  <div class="border-b border-themed pb-6 mb-8">
+  <div class="border-b border-gray-200 pb-6 mb-8">
     <div class="flex items-center justify-between mb-4">
       <div>
-        <h1 class="text-2xl md:text-3xl font-bold text-themed mb-2">
+        <h1 class="text-2xl md:text-3xl font-bold text-gray-900 mb-2">
           Published Posts Management
         </h1>
-        <p class="text-themed-secondary">
+        <p class="text-gray-900-secondary">
           View and edit all published content.
         </p>
       </div>
@@ -24,25 +24,25 @@
   <div class="flex flex-wrap items-center gap-3 sm:gap-6 mb-6 px-1">
     <div class="flex items-center gap-2 text-sm">
       <div class="w-2 h-2 bg-green-500 rounded-full"></div>
-      <span class="text-themed-secondary">Published:</span>
-      <span class="font-semibold text-themed">{{ publishedSubmissions.length }}</span>
+      <span class="text-gray-900-secondary">Published:</span>
+      <span class="font-semibold text-gray-900">{{ publishedSubmissions.length }}</span>
     </div>
     <div class="flex items-center gap-2 text-sm">
       <div class="w-2 h-2 bg-blue-500 rounded-full"></div>
-      <span class="text-themed-secondary">Types:</span>
-      <span class="font-semibold text-themed">{{ submissionTypes.length }}</span>
+      <span class="text-gray-900-secondary">Types:</span>
+      <span class="font-semibold text-gray-900">{{ submissionTypes.length }}</span>
     </div>
     <div class="flex items-center gap-2 text-sm">
       <div class="w-2 h-2 bg-orange-500 rounded-full"></div>
-      <span class="text-themed-secondary">Results:</span>
-      <span class="font-semibold text-themed">{{ filteredSubmissions.length }}</span>
+      <span class="text-gray-900-secondary">Results:</span>
+      <span class="font-semibold text-gray-900">{{ filteredSubmissions.length }}</span>
     </div>
   </div>
 
   <!-- Enhanced Search and Filter Controls -->
-  <div class="bg-themed-card rounded-xl border border-themed shadow-sm overflow-hidden mb-6">
+  <div class="bg-white border border-gray-200 rounded-xl border border-gray-200 shadow-sm overflow-hidden mb-6">
     <!-- Search Section -->
-    <div class="p-4 sm:p-6 border-b border-themed bg-gradient-to-r from-themed-card to-gray-50/50">
+    <div class="p-4 sm:p-6 border-b border-gray-200 bg-gradient-to-r from-themed-card to-gray-50/50">
       <div class="flex flex-col sm:flex-row gap-4">
         <!-- Enhanced Search -->
         <div class="flex-1">
@@ -51,9 +51,9 @@
               type="text" 
               [(ngModel)]="searchTerm"
               placeholder="Search by title, author, or description..."
-              class="w-full bg-white/80 backdrop-blur-sm border border-themed rounded-xl px-4 py-3 pl-12 pr-4 text-sm text-themed placeholder-themed-tertiary focus:ring-2 focus:ring-themed-accent/20 focus:border-themed-accent transition-all duration-200 shadow-sm">
+              class="w-full bg-white/80 backdrop-blur-sm border border-gray-200 rounded-xl px-4 py-3 pl-12 pr-4 text-sm text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-orange-200/20 focus:border-gray-200-accent transition-all duration-200 shadow-sm">
             <div class="absolute left-4 top-1/2 transform -translate-y-1/2">
-              <svg class="w-4 h-4 text-themed-tertiary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg class="w-4 h-4 text-gray-900-tertiary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
               </svg>
             </div>
@@ -65,14 +65,14 @@
           <div class="relative">
             <select 
               [(ngModel)]="selectedType"
-              class="w-full bg-white/80 backdrop-blur-sm border border-themed rounded-xl px-4 py-3 pr-10 text-sm text-themed focus:ring-2 focus:ring-themed-accent/20 focus:border-themed-accent transition-all duration-200 appearance-none cursor-pointer shadow-sm">
+              class="w-full bg-white/80 backdrop-blur-sm border border-gray-200 rounded-xl px-4 py-3 pr-10 text-sm text-gray-900 focus:ring-2 focus:ring-orange-200/20 focus:border-gray-200-accent transition-all duration-200 appearance-none cursor-pointer shadow-sm">
               <option value="">All Types</option>
               <option *ngFor="let type of submissionTypes" [value]="type">
                 {{ type | titlecase }}
               </option>
             </select>
             <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-              <svg class="w-4 h-4 text-themed-tertiary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg class="w-4 h-4 text-gray-900-tertiary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
               </svg>
             </div>
@@ -93,7 +93,7 @@
         <button class="px-3 py-1.5 text-xs font-medium bg-purple-100 text-purple-700 rounded-full hover:bg-purple-200 transition-colors duration-200">
           Poetry
         </button>
-        <button class="px-3 py-1.5 text-xs font-medium bg-gray-100 text-themed-secondary rounded-full hover:bg-gray-200 transition-colors duration-200">
+        <button class="px-3 py-1.5 text-xs font-medium bg-gray-100 text-gray-900-secondary rounded-full hover:bg-gray-200 transition-colors duration-200">
           Clear Filters
         </button>
       </div>
@@ -103,7 +103,7 @@
   <!-- Loading -->
   <div *ngIf="loading" class="text-center py-12">
     <div class="spinner mx-auto"></div>
-    <p class="text-themed-secondary mt-4">Loading published posts...</p>
+    <p class="text-gray-900-secondary mt-4">Loading published posts...</p>
   </div>
 
   <!-- Published Posts Table -->
@@ -122,28 +122,28 @@
     <!-- Desktop Table View -->
     <div class="hidden md:block overflow-x-auto">
       <table class="min-w-full">
-        <thead class="bg-themed-secondary border-b border-gray-200">
+        <thead class="bg-white-secondary border-b border-gray-200">
           <tr>
-            <th class="px-8 py-5 text-left text-xs font-semibold text-themed uppercase tracking-wider">Image</th>
-            <th class="px-8 py-5 text-left text-xs font-semibold text-themed uppercase tracking-wider">Title & Author</th>
-            <th class="px-8 py-5 text-left text-xs font-semibold text-themed uppercase tracking-wider">Type</th>
-            <th class="px-8 py-5 text-left text-xs font-semibold text-themed uppercase tracking-wider">Stats</th>
-            <th class="px-8 py-5 text-left text-xs font-semibold text-themed uppercase tracking-wider">Published</th>
-            <th class="px-8 py-5 text-left text-xs font-semibold text-themed uppercase tracking-wider">Actions</th>
+            <th class="px-8 py-5 text-left text-xs font-semibold text-gray-900 uppercase tracking-wider">Image</th>
+            <th class="px-8 py-5 text-left text-xs font-semibold text-gray-900 uppercase tracking-wider">Title & Author</th>
+            <th class="px-8 py-5 text-left text-xs font-semibold text-gray-900 uppercase tracking-wider">Type</th>
+            <th class="px-8 py-5 text-left text-xs font-semibold text-gray-900 uppercase tracking-wider">Stats</th>
+            <th class="px-8 py-5 text-left text-xs font-semibold text-gray-900 uppercase tracking-wider">Published</th>
+            <th class="px-8 py-5 text-left text-xs font-semibold text-gray-900 uppercase tracking-wider">Actions</th>
           </tr>
         </thead>
-        <tbody class="bg-themed divide-y divide-gray-200">
+        <tbody class="bg-white divide-y divide-gray-200">
           <tr *ngFor="let submission of filteredSubmissions" 
-              class="hover:bg-themed-secondary/50 transition-all duration-200 group">
+              class="hover:bg-white-secondary/50 transition-all duration-200 group">
             
             <!-- Featured Image Column -->
             <td class="px-8 py-6">
-              <div class="w-16 h-16 rounded-lg overflow-hidden bg-themed-tertiary border border-gray-200 flex items-center justify-center">
+              <div class="w-16 h-16 rounded-lg overflow-hidden bg-white-tertiary border border-gray-200 flex items-center justify-center">
                 <img *ngIf="submission.imageUrl" 
                      [src]="submission.imageUrl" 
                      [alt]="submission.title"
                      class="w-full h-full object-cover">
-                <svg *ngIf="!submission.imageUrl" class="w-6 h-6 text-themed-tertiary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg *ngIf="!submission.imageUrl" class="w-6 h-6 text-gray-900-tertiary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
                 </svg>
               </div>
@@ -152,13 +152,13 @@
             <!-- Title & Author Column -->
             <td class="px-8 py-6">
               <div class="max-w-sm">
-                <div class="text-base font-semibold text-themed mb-2 group-hover:text-themed-accent transition-colors duration-200">
+                <div class="text-base font-semibold text-gray-900 mb-2 group-hover:text-gray-900-accent transition-colors duration-200">
                   {{ submission.title }}
                 </div>
-                <div class="text-sm text-themed-secondary mb-2">
+                <div class="text-sm text-gray-900-secondary mb-2">
                   By {{ getAuthorName(submission) }}
                 </div>
-                <div class="text-sm text-themed-secondary leading-relaxed line-clamp-2">
+                <div class="text-sm text-gray-900-secondary leading-relaxed line-clamp-2">
                   {{ getTruncatedDescription(submission, 120) }}
                 </div>
               </div>
@@ -167,7 +167,7 @@
             <!-- Type Column -->
             <td class="px-8 py-6">
               <div class="flex flex-col gap-2">
-                <span class="inline-flex items-center px-3 py-2 rounded-lg text-sm font-medium bg-themed-tertiary text-themed border border-gray-200">
+                <span class="inline-flex items-center px-3 py-2 rounded-lg text-sm font-medium bg-white-tertiary text-gray-900 border border-gray-200">
                   {{ submission.submissionType | titlecase }}
                 </span>
                 <span *ngIf="submission.isFeatured" 
@@ -179,7 +179,7 @@
 
             <!-- Stats Column -->
             <td class="px-8 py-6">
-              <div class="text-sm text-themed-secondary space-y-1">
+              <div class="text-sm text-gray-900-secondary space-y-1">
                 <div *ngIf="submission.viewCount" class="flex items-center gap-1">
                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
@@ -204,10 +204,10 @@
 
             <!-- Published Date Column -->
             <td class="px-8 py-6">
-              <div class="text-sm text-themed-secondary font-mono">
+              <div class="text-sm text-gray-900-secondary font-mono">
                 {{ submission.reviewedAt | date:'MMM d, y' }}
               </div>
-              <div class="text-xs text-themed-tertiary font-mono mt-1">
+              <div class="text-xs text-gray-900-tertiary font-mono mt-1">
                 {{ submission.reviewedAt | date:'h:mm a' }}
               </div>
             </td>
@@ -216,7 +216,7 @@
             <td class="px-8 py-6">
               <div class="flex items-center">
                 <button (click)="editPublishedPost(submission._id)"
-                        class="inline-flex items-center px-4 py-2 text-sm font-medium text-themed-accent hover:text-white hover:bg-themed-accent rounded-lg transition-all duration-200 border border-themed-accent">
+                        class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-900-accent hover:text-white hover:bg-white-accent rounded-lg transition-all duration-200 border border-gray-200-accent">
                   <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
                   </svg>
@@ -231,13 +231,13 @@
 
     <!-- Empty State -->
     <div *ngIf="filteredSubmissions.length === 0" class="text-center py-12">
-      <div class="w-16 h-16 mx-auto bg-themed-secondary rounded-full flex items-center justify-center mb-4">
-        <svg class="w-8 h-8 text-themed-tertiary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <div class="w-16 h-16 mx-auto bg-white-secondary rounded-full flex items-center justify-center mb-4">
+        <svg class="w-8 h-8 text-gray-900-tertiary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
         </svg>
       </div>
-      <h3 class="text-lg font-medium text-themed mb-2">No published posts found</h3>
-      <p class="text-themed-secondary mb-4">
+      <h3 class="text-lg font-medium text-gray-900 mb-2">No published posts found</h3>
+      <p class="text-gray-900-secondary mb-4">
         {{ searchTerm || selectedType ? 'Try adjusting your filters.' : 'No posts have been published yet.' }}
       </p>
     </div>

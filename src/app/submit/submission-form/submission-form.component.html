@@ -1,18 +1,18 @@
 <!-- Literary Submission Portal -->
-<div class="min-h-screen bg-themed-secondary transition-all duration-500">
+<div class="min-h-screen bg-white-secondary transition-all duration-500">
 
   <!-- Mobile Experience -->
   <div class="lg:hidden">
     <!-- Clean Header -->
-    <div class="bg-themed-card px-6 py-6">
+    <div class="bg-white border border-gray-200 px-6 py-6">
       <div class="text-center">
-        <h1 class="text-2xl text-themed">Submit Your Work</h1>
-        <p class="text-themed-secondary text-sm mt-1">Share your literary voice with our community</p>
+        <h1 class="text-2xl text-gray-900">Submit Your Work</h1>
+        <p class="text-gray-900-secondary text-sm mt-1">Share your literary voice with our community</p>
       </div>
     </div>
 
     <!-- Progress Steps -->
-    <div *ngIf="activeTab === 'submit'" class="px-6 py-4 bg-themed-tertiary">
+    <div *ngIf="activeTab === 'submit'" class="px-6 py-4 bg-white-tertiary">
       <div class="flex items-center justify-center space-x-2">
         <div class="flex items-center space-x-2">
           <div [class]="getCurrentStep() >= 1 ? 'w-2 h-2 rounded-full' : 'w-2 h-2 rounded-full'" [style.background-color]="getCurrentStep() >= 1 ? 'var(--bg-accent)' : 'var(--border-primary)'"></div>
@@ -22,7 +22,7 @@
           <div [class]="getCurrentStep() >= 3 ? 'w-2 h-2 rounded-full' : 'w-2 h-2 rounded-full'" [style.background-color]="getCurrentStep() >= 3 ? 'var(--bg-accent)' : 'var(--border-primary)'"></div>
         </div>
       </div>
-      <p class="text-xs text-center text-themed-tertiary mt-2">{{ getCurrentStepText() }}</p>
+      <p class="text-xs text-center text-gray-900-tertiary mt-2">{{ getCurrentStepText() }}</p>
     </div>
 
     <!-- Form Content -->
@@ -31,7 +31,7 @@
         
         <!-- Step 1: Type Selection -->
         <div class="space-y-4">
-          <h2 class="text-lg text-themed">What would you like to share?</h2>
+          <h2 class="text-lg text-gray-900">What would you like to share?</h2>
           <div class="space-y-3">
             <ng-container *ngFor="let type of submissionTypes">
               <label class="block">
@@ -41,7 +41,7 @@
                        [checked]="selectedType === type.value"
                        (change)="onTypeSelected(type.value)"
                        class="sr-only" />
-                <div class="p-4 rounded-2xl border transition-all duration-300 cursor-pointer bg-themed-card"
+                <div class="p-4 rounded-2xl border transition-all duration-300 cursor-pointer bg-white border border-gray-200"
                      [class]="selectedType === type.value ? 
                              'border-blue-400 shadow-md' : 
                              'hover:shadow-sm'"
@@ -54,10 +54,10 @@
                          [innerHTML]="type.icon">
                     </div>
                     <div class="flex-1">
-                      <div class="font-medium text-themed">{{ type.label }}</div>
-                      <div class="text-sm text-themed-secondary">{{ type.description }}</div>
+                      <div class="font-medium text-gray-900">{{ type.label }}</div>
+                      <div class="text-sm text-gray-900-secondary">{{ type.description }}</div>
                     </div>
-                    <div *ngIf="selectedType === type.value" class="w-5 h-5 text-themed-accent">
+                    <div *ngIf="selectedType === type.value" class="w-5 h-5 text-gray-900-accent">
                       <svg fill="currentColor" viewBox="0 0 20 20">
                         <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
                       </svg>
@@ -71,8 +71,8 @@
 
         <!-- Step 2: Writing -->
         <div *ngIf="selectedType" class="space-y-4">
-          <h2 class="text-lg text-themed">Your {{ selectedType.replace('_', ' ') }}</h2>
-          <div class="bg-themed-card rounded-2xl p-6">
+          <h2 class="text-lg text-gray-900">Your {{ selectedType.replace('_', ' ') }}</h2>
+          <div class="bg-white border border-gray-200 rounded-2xl p-6">
             <app-content-editor
               [selectedType]="selectedType"
               [contents]="getContentControls()"
@@ -84,20 +84,20 @@
 
         <!-- Step 3: Final Details -->
         <div *ngIf="selectedType && hasContent()" class="space-y-4">
-          <h2 class="text-lg text-themed">Add context (optional)</h2>
-          <div class="bg-themed-card  rounded-2xl p-6">
+          <h2 class="text-lg text-gray-900">Add context (optional)</h2>
+          <div class="bg-white border border-gray-200  rounded-2xl p-6">
             <textarea 
               formControlName="description"
               rows="3"
-              class="w-full px-0 py-0 border-0 bg-themed text-themed focus:outline-none focus:ring-0 resize-none leading-relaxed"
+              class="w-full px-0 py-0 border-0 bg-white text-gray-900 focus:outline-none focus:ring-0 resize-none leading-relaxed"
               [style.color]="'var(--text-primary)'"
               placeholder="What inspired this piece? Share the story behind your creation..."></textarea>
           </div>
           
           <!-- Word Count -->
           <div class="text-center py-2">
-            <div class="text-2xl font-light text-themed">{{ getTotalWordCount() }}</div>
-            <div class="text-sm text-themed-secondary">words</div>
+            <div class="text-2xl font-light text-gray-900">{{ getTotalWordCount() }}</div>
+            <div class="text-sm text-gray-900-secondary">words</div>
           </div>
 
           <!-- Submit Actions -->
@@ -129,7 +129,7 @@
     </div>
 
     <!-- Bottom Navigation -->
-    <div class="fixed bottom-0 left-0 right-0 bg-themed-card px-6 py-4">
+    <div class="fixed bottom-0 left-0 right-0 bg-white border border-gray-200 px-6 py-4">
       <div class="flex justify-center space-x-12">
         <button (click)="activeTab = 'submit'"
                 class="flex flex-col items-center space-y-1 transition-colors duration-200"
@@ -165,22 +165,22 @@
     <div class="max-w-4xl mx-auto px-8 py-16">
       <!-- Elegant Header -->
       <div class="text-center mb-16">
-       <h1 class="text-2xl md:text-3xl font-bold text-themed mb-2">
+       <h1 class="text-2xl md:text-3xl font-bold text-gray-900 mb-2">
         Submit your work
       </h1>
       </div>
 
       <!-- Navigation Tabs -->
-      <div class="border-b border-themed mb-12">
+      <div class="border-b border-gray-200 mb-12">
         <nav class="flex justify-center space-x-8" aria-label="Submission Tabs">
           <button
             (click)="activeTab = 'submit'"
-            [class.border-themed-accent]="activeTab === 'submit'"
-            [class.text-themed-accent]="activeTab === 'submit'"
+            [class.border-gray-200-accent]="activeTab === 'submit'"
+            [class.text-gray-900-accent]="activeTab === 'submit'"
             [class.border-transparent]="activeTab !== 'submit'"
-            [class.text-themed-secondary]="activeTab !== 'submit'"
-            [class.hover:text-themed]="activeTab !== 'submit'"
-            [class.hover:border-themed-secondary]="activeTab !== 'submit'"
+            [class.text-gray-900-secondary]="activeTab !== 'submit'"
+            [class.hover:text-gray-900]="activeTab !== 'submit'"
+            [class.hover:border-gray-200-secondary]="activeTab !== 'submit'"
             class="whitespace-nowrap py-3 px-4 border-b-2 font-medium transition-colors duration-200 flex items-center gap-2">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path>
@@ -189,12 +189,12 @@
           </button>
           <button
             (click)="activeTab = 'drafts'"
-            [class.border-themed-accent]="activeTab === 'drafts'"
-            [class.text-themed-accent]="activeTab === 'drafts'"
+            [class.border-gray-200-accent]="activeTab === 'drafts'"
+            [class.text-gray-900-accent]="activeTab === 'drafts'"
             [class.border-transparent]="activeTab !== 'drafts'"
-            [class.text-themed-secondary]="activeTab !== 'drafts'"
-            [class.hover:text-themed]="activeTab !== 'drafts'"
-            [class.hover:border-themed-secondary]="activeTab !== 'drafts'"
+            [class.text-gray-900-secondary]="activeTab !== 'drafts'"
+            [class.hover:text-gray-900]="activeTab !== 'drafts'"
+            [class.hover:border-gray-200-secondary]="activeTab !== 'drafts'"
             class="whitespace-nowrap py-3 px-4 border-b-2 font-medium transition-colors duration-200 flex items-center gap-2 relative">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
@@ -204,12 +204,12 @@
           </button>
           <button
             (click)="activeTab = 'guidelines'"
-            [class.border-themed-accent]="activeTab === 'guidelines'"
-            [class.text-themed-accent]="activeTab === 'guidelines'"
+            [class.border-gray-200-accent]="activeTab === 'guidelines'"
+            [class.text-gray-900-accent]="activeTab === 'guidelines'"
             [class.border-transparent]="activeTab !== 'guidelines'"
-            [class.text-themed-secondary]="activeTab !== 'guidelines'"
-            [class.hover:text-themed]="activeTab !== 'guidelines'"
-            [class.hover:border-themed-secondary]="activeTab !== 'guidelines'"
+            [class.text-gray-900-secondary]="activeTab !== 'guidelines'"
+            [class.hover:text-gray-900]="activeTab !== 'guidelines'"
+            [class.hover:border-gray-200-secondary]="activeTab !== 'guidelines'"
             class="whitespace-nowrap py-3 px-4 border-b-2 font-medium transition-colors duration-200 flex items-center gap-2">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
@@ -225,7 +225,7 @@
           
           <!-- Type Selection -->
           <div class="space-y-6">
-            <h2 class="text-2xl text-themed text-center">What would you like to share?</h2>
+            <h2 class="text-2xl text-gray-900 text-center">What would you like to share?</h2>
             <div class="grid grid-cols-2 gap-6">
               <ng-container *ngFor="let type of submissionTypes">
                 <label class="block cursor-pointer group">
@@ -235,14 +235,14 @@
                          [checked]="selectedType === type.value"
                          (change)="onTypeSelected(type.value)"
                          class="sr-only" />
-                  <div class="p-8 rounded-3xl border-2 transition-all duration-300 text-center h-full flex flex-col justify-center bg-themed-card"
+                  <div class="p-8 rounded-3xl border-2 transition-all duration-300 text-center h-full flex flex-col justify-center bg-white border border-gray-200"
                        [style.border-color]="selectedType === type.value ? 'var(--border-accent)' : 'var(--border-primary)'"
                        [style.background-color]="selectedType === type.value ? 'var(--bg-accent-light)' : 'var(--bg-card)'"
                        [style.transform]="selectedType === type.value ? 'scale(1.05)' : 'scale(1)'"
                        [style.box-shadow]="selectedType === type.value ? 'var(--shadow-xl)' : 'var(--shadow-sm)'">
-                    <div class="mb-4 flex justify-center text-themed-secondary" [innerHTML]="type.icon"></div>
-                    <div class="text-xl font-medium text-themed mb-2">{{ type.label }}</div>
-                    <div class="text-themed-secondary leading-relaxed">{{ type.description }}</div>
+                    <div class="mb-4 flex justify-center text-gray-900-secondary" [innerHTML]="type.icon"></div>
+                    <div class="text-xl font-medium text-gray-900 mb-2">{{ type.label }}</div>
+                    <div class="text-gray-900-secondary leading-relaxed">{{ type.description }}</div>
                   </div>
                 </label>
               </ng-container>
@@ -251,8 +251,8 @@
 
           <!-- Content Creation -->
           <div *ngIf="selectedType" class="space-y-6">
-            <h2 class="text-2xl text-themed text-center">Your {{ selectedType.replace('_', ' ') }}</h2>
-            <div class="bg-themed-card rounded-3xl p-8 shadow-xl">
+            <h2 class="text-2xl text-gray-900 text-center">Your {{ selectedType.replace('_', ' ') }}</h2>
+            <div class="bg-white border border-gray-200 rounded-3xl p-8 shadow-xl">
               <app-content-editor
                 [selectedType]="selectedType"
                 [contents]="getContentControls()"
@@ -266,12 +266,12 @@
           <div *ngIf="selectedType && hasContent()" class="space-y-8">
             <!-- Optional Context -->
             <div class="space-y-4">
-              <h3 class="text-xl text-themed text-center">Context (optional)</h3>
-              <div class="bg-themed-card rounded-3xl p-8">
+              <h3 class="text-xl text-gray-900 text-center">Context (optional)</h3>
+              <div class="bg-white border border-gray-200 rounded-3xl p-8">
                 <textarea 
                   formControlName="description"
                   rows="4"
-                  class="w-full px-0 py-0 border-0 bg-themed text-themed focus:outline-none focus:ring-0 resize-none text-lg leading-relaxed"
+                  class="w-full px-0 py-0 border-0 bg-white text-gray-900 focus:outline-none focus:ring-0 resize-none text-lg leading-relaxed"
                   placeholder="What inspired this piece? Share the story behind your creation..."></textarea>
               </div>
             </div>
@@ -279,8 +279,8 @@
             <!-- Stats & Actions -->
             <div class="flex items-center justify-between">
               <div class="text-center">
-                <div class="text-3xl font-light text-themed">{{ getTotalWordCount() }}</div>
-                <div class="text-themed-secondary">words</div>
+                <div class="text-3xl font-light text-gray-900">{{ getTotalWordCount() }}</div>
+                <div class="text-gray-900-secondary">words</div>
               </div>
               
               <div class="flex space-x-4">
@@ -335,7 +335,7 @@
   <!-- Toast Notifications -->
   <div *ngIf="showToastFlag" 
        class="fixed top-6 right-6 z-50 max-w-sm w-full transition-all duration-500 ease-out transform">
-    <div class="bg-themed-card rounded-2xl p-6"
+    <div class="bg-white border border-gray-200 rounded-2xl p-6"
          [style.box-shadow]="'var(--shadow-xl)'"
          [style.border-color]="toastType === 'success' ? 'var(--bg-success)' : toastType === 'error' ? 'var(--bg-error)' : 'var(--border-accent)'"
          [style.background-color]="toastType === 'success' ? 'rgba(5, 118, 66, 0.1)' : toastType === 'error' ? 'rgba(204, 16, 22, 0.1)' : 'rgba(10, 102, 194, 0.1)'">
@@ -352,13 +352,13 @@
           </svg>
         </div>
         <div class="flex-1">
-          <p class="font-medium leading-relaxed text-themed">
+          <p class="font-medium leading-relaxed text-gray-900">
             {{ toastMessage }}
           </p>
         </div>
         <button 
           (click)="hideToast()"
-          class="text-themed-tertiary hover:text-themed-secondary transition-colors duration-200">
+          class="text-gray-900-tertiary hover:text-gray-900-secondary transition-colors duration-200">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
           </svg>

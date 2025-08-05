@@ -3,7 +3,7 @@
   <!-- Mobile: Clean Form Layout -->
   <div class="lg:hidden space-y-6">
     <div>
-      <label class="block text-base font-medium text-themed mb-4">
+      <label class="block text-base font-medium text-gray-900 mb-4">
         What are you sharing today?
       </label>
       <div class="space-y-3">
@@ -48,8 +48,8 @@
                 
                 <!-- Content -->
                 <div class="flex-1">
-                  <div class="font-medium text-base text-themed">{{ type.label }}</div>
-                  <div class="text-sm text-themed-secondary mt-1">{{ type.description }}</div>
+                  <div class="font-medium text-base text-gray-900">{{ type.label }}</div>
+                  <div class="text-sm text-gray-900-secondary mt-1">{{ type.description }}</div>
                 </div>
                 
                 <!-- Check Mark -->
@@ -68,7 +68,7 @@
     </div>
 
     <div>
-      <label class="block text-base font-medium text-themed mb-3">
+      <label class="block text-base font-medium text-gray-900 mb-3">
         Tell us more (optional)
       </label>
       <textarea [value]="description"
@@ -123,8 +123,8 @@
             
             <!-- Content -->
             <div class="text-center">
-              <div class="font-semibold text-lg text-themed mb-2">{{ type.label }}</div>
-              <div class="text-sm text-themed-secondary">{{ type.description }}</div>
+              <div class="font-semibold text-lg text-gray-900 mb-2">{{ type.label }}</div>
+              <div class="text-sm text-gray-900-secondary">{{ type.description }}</div>
             </div>
             
             <!-- Check Mark -->
@@ -141,7 +141,7 @@
     </div>
 
     <div>
-      <label class="block text-base font-medium text-themed mb-3">
+      <label class="block text-base font-medium text-gray-900 mb-3">
         Brief Description (Optional)
       </label>
       <textarea [value]="description"
@@ -149,7 +149,7 @@
                 rows="3"
                 class="form-input resize-none"
                 placeholder="Tell us about your work..."></textarea>
-      <p class="text-xs text-themed-secondary mt-1">
+      <p class="text-xs text-gray-900-secondary mt-1">
         This helps our editors understand the context of your submission
       </p>
     </div>
