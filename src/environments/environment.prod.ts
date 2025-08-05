@@ -1,4 +1,4 @@
 export const environment = {
   production: true,
-  apiBaseUrl: 'https://nfz27wcvsa.execute-api.ap-south-1.amazonaws.com/test'  // Production API endpoint
+  apiBaseUrl: 'http://13-204-38-128.nip.io/api'  // Production API endpoint using nip.io
 };

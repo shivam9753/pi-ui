@@ -334,6 +334,21 @@ export class BackendService {
     );
   }
 
+  deleteSubmissionImage(submissionId: string): Observable<any> {
+    const jwtToken = localStorage.getItem('jwt_token');
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${jwtToken}`
+    });
+    
+    console.log('🗑️ Deleting image for submission:', submissionId);
+    console.log('📤 URL:', `${this.API_URL}/submissions/${submissionId}/image`);
+    
+    return this.http.delete(`${this.API_URL}/submissions/${submissionId}/image`, { headers }).pipe(
+      tap(response => console.log('✅ Image deleted successfully:', response)),
+      catchError(this.handleError)
+    );
+  }
+
   getPublishedContentById(id: string): Observable<any> {
     const url = `${this.API_URL}/submissions/published/${id}`;
     return this.http.get<any>(url).pipe(

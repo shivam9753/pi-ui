@@ -31,6 +31,7 @@ export class RichTextEditorComponent implements ControlValueAccessor, AfterViewI
   currentAlignment: string = 'left';
   uploadedImages: CompressedImage[] = [];
   isImageUploading: boolean = false;
+  uploadStatus: string = 'Preparing upload...';
   
   private onChange = (value: string) => {};
   private onTouched = () => {};
@@ -205,8 +206,12 @@ export class RichTextEditorComponent implements ControlValueAccessor, AfterViewI
     }
 
     this.isImageUploading = true;
+    this.uploadStatus = 'Compressing image...';
 
     try {
+      // Update status during upload
+      this.uploadStatus = 'Uploading to S3...';
+      
       // Upload directly to S3 via backend
       const uploadResult = await this.uploadToS3(file);
       
@@ -269,12 +274,18 @@ export class RichTextEditorComponent implements ControlValueAccessor, AfterViewI
 
   private insertS3ImageIntoEditor(imageData: any): void {
     const imageId = `img-${Date.now()}`;
+    const compressionText = imageData.compressionRatio && imageData.compressionRatio > 0 
+      ? `(${imageData.compressionRatio}% compressed)` 
+      : '';
+    const originalSizeText = imageData.originalSize 
+      ? `Original: ${ImageCompressionUtil.formatFileSize(imageData.originalSize)} → ` 
+      : '';
+    
     const imageHtml = `<div class="image-container my-4" contenteditable="false">
       <img id="${imageId}" src="${imageData.url}" alt="${imageData.alt || 'Uploaded image'}" class="max-w-full h-auto rounded-lg shadow-sm" />
-      <div class="image-info text-xs text-gray-500 mt-1">
-        Size: ${ImageCompressionUtil.formatFileSize(imageData.size)} 
-        ${imageData.compressionRatio ? `(${imageData.compressionRatio}% compressed)` : ''}
-        • Stored on AWS S3
+      <div class="image-info text-xs text-gray-500 mt-2 bg-gray-50 p-2 rounded border">
+        📊 ${originalSizeText}Final: ${ImageCompressionUtil.formatFileSize(imageData.size)} ${compressionText}<br>
+        ☁️ Stored securely on AWS S3 • CDN accelerated
       </div>
     </div>`;
     

@@ -99,12 +99,16 @@ export class HeaderComponent implements OnInit, OnDestroy {
       // User is logged in, navigate to submit page
       this.router.navigate(['/submit']);
     } else {
-      // User not logged in, show message and redirect to login
-      alert('Please log in to submit your work');
-      this.router.navigate(['/login'], { 
-        queryParams: { returnUrl: '/submit' } 
-      });
+      // User not logged in, store return URL and redirect to login
+      if (typeof localStorage !== 'undefined') {
+        localStorage.setItem('returnUrl', '/submit');
+      }
+      this.router.navigate(['/login']);
     }
+  }
+
+  isSubmitActive(): boolean {
+    return this.currentRoute().startsWith('/submit');
   }
 
   isOnLoginPage(): boolean {

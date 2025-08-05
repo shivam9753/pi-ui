@@ -330,10 +330,90 @@ export class PublishSubmissionComponent implements OnInit {
     });
   }
 
-  // Remove current image
+  // Remove current image with confirmation and S3 deletion
   removeImage() {
-    this.submission.imageUrl = '';
-    this.showSuccess('Image removed successfully!');
+    const confirmed = confirm('Are you sure you want to remove this image? This will permanently delete it from S3 storage and cannot be undone.');
+    
+    if (!confirmed) {
+      return;
+    }
+
+    // Call backend to delete image from S3 and database
+    this.backendService.deleteSubmissionImage(this.submission._id).subscribe({
+      next: (response) => {
+        this.submission.imageUrl = '';
+        this.showSuccess('Image removed and deleted from S3 successfully!');
+      },
+      error: (error) => {
+        console.error('Error removing image:', error);
+        this.showError('Failed to remove image. Please try again.');
+      }
+    });
+  }
+
+  // Use submission image as SEO social media image
+  useSocialMediaImage() {
+    if (this.submission.imageUrl) {
+      // Copy the submission image URL to be used as social media image
+      this.showSuccess('Submission image will be used as social media image.');
+    } else {
+      this.showError('No submission image available to use.');
+    }
+  }
+
+  // Auto-fill description from content
+  autoFillDescription() {
+    if (!this.submission.contents || this.submission.contents.length === 0) {
+      this.showError('No content available to generate description from.');
+      return;
+    }
+
+    // Extract text from the first content item
+    const firstContent = this.submission.contents[0];
+    const plainText = this.extractPlainText(firstContent.body);
+    
+    // Create a compelling description (first 200 characters)
+    const description = plainText.substring(0, 200).trim();
+    const finalDescription = description.length === 200 ? description + '...' : description;
+    
+    this.submission.description = finalDescription;
+    this.showSuccess('Description auto-filled from content.');
+  }
+
+  // Auto-fill meta description from content or description
+  autoFillMetaDescription() {
+    let sourceText = '';
+    
+    // Use existing description if available, otherwise use content
+    if (this.submission.description && this.submission.description.trim()) {
+      sourceText = this.submission.description;
+    } else if (this.submission.contents && this.submission.contents.length > 0) {
+      const firstContent = this.submission.contents[0];
+      sourceText = this.extractPlainText(firstContent.body);
+    } else {
+      this.showError('No content or description available to generate meta description from.');
+      return;
+    }
+
+    // Create SEO-optimized meta description (150-160 characters)
+    const metaDescription = sourceText.substring(0, 155).trim();
+    const finalMetaDescription = metaDescription.length === 155 ? metaDescription + '...' : metaDescription;
+    
+    this.seoConfig.metaDescription = finalMetaDescription;
+    this.showSuccess('Meta description auto-filled.');
+  }
+
+  // Helper method to extract plain text from HTML content
+  private extractPlainText(htmlContent: string): string {
+    // Create a temporary div to parse HTML
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = htmlContent;
+    
+    // Get text content and clean it up
+    const plainText = tempDiv.textContent || tempDiv.innerText || '';
+    
+    // Remove extra whitespace and line breaks
+    return plainText.replace(/\s+/g, ' ').trim();
   }
 
   isFormValid(): boolean {

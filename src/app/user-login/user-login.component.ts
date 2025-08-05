@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { AuthService, GoogleUser } from '../services/auth.service';
 
@@ -19,17 +19,25 @@ export class UserLoginComponent implements OnInit, OnDestroy, AfterViewInit {
 
   constructor(
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private route: ActivatedRoute
   ) {}
 
   ngOnInit(): void {
+    // Check for returnUrl from query params and store in localStorage
+    this.route.queryParams.subscribe(params => {
+      if (params['returnUrl'] && typeof localStorage !== 'undefined') {
+        localStorage.setItem('returnUrl', params['returnUrl']);
+      }
+    });
+
     this.subscriptions.push(
       this.authService.isLoggedIn$.subscribe(isLoggedIn => {
         this.isLoggedIn = isLoggedIn;
         if (isLoggedIn) {
           this.currentUser = this.authService.getCurrentUser();
-          // Redirect if already logged in
-          this.router.navigate(['/explore']);
+          // Redirect if already logged in - navigateAfterLogin will handle returnUrl
+          // Don't manually redirect here as AuthService handles it
         }
       })
     );
