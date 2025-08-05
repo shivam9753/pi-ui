@@ -19,10 +19,11 @@
           <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-white-accent transition-all duration-200 group-hover:w-full"></span>
         </a>
         <button (click)="handleSubmitClick()" 
-                [class.text-gray-900-accent]="isSubmitActive()"
+                [class.text-orange-600]="isSubmitActive()"
+                [class.font-semibold]="isSubmitActive()"
                 class="text-base font-medium text-gray-900-secondary hover:text-gray-900-accent transition-colors duration-200 relative group">
           Submit
-          <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-white-accent transition-all duration-200 group-hover:w-full" 
+          <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-orange-600 transition-all duration-200 group-hover:w-full" 
                 [class.w-full]="isSubmitActive()"></span>
         </button>
         <a *ngIf="canReview()" 
@@ -181,8 +182,7 @@
     <!-- Mobile Login/Auth Section (if not logged in) -->
     <div *ngIf="!loggedInUser()" class="p-6 border-t border-gray-200">
       <div class="space-y-3">
-        <a *ngIf="!isOnLoginPage()" 
-           routerLink="/login" 
+        <a routerLink="/login" 
            (click)="closeMobileMenu()"
            class="w-full flex items-center justify-center px-4 py-3 text-base font-medium btn-primary">
           <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
