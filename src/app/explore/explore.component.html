@@ -66,12 +66,12 @@
                   <div class="flex items-center gap-3">
                     <div class="w-8 h-8 bg-gradient-to-br from-orange-500 to-orange-600 rounded-full flex items-center justify-center">
                       <span class="text-white font-semibold text-sm">
-                        {{ submissions[0].username?.charAt(0)?.toUpperCase() || 'U' }}
+                        {{ submissions[0].author.name?.charAt(0)?.toUpperCase() || 'U' }}
                       </span>
                     </div>
                     <div>
                       <p class="font-semibold text-gray-900 text-sm">
-                        {{ submissions[0].author.username || 'Anonymous' }}
+                        {{ submissions[0].author.name || 'Anonymous' }}
                       </p>
                       <p class="text-gray-900-tertiary text-xs">
                         {{ submissions[0].createdAt | date:'MMM d, yyyy' }}
@@ -126,12 +126,12 @@
                     <div class="flex items-center gap-4">
                       <div class="w-12 h-12 bg-gradient-to-br from-orange-500 to-orange-600 rounded-full flex items-center justify-center">
                         <span class="text-white font-semibold text-lg">
-                          {{ submissions[0].username?.charAt(0)?.toUpperCase() || 'U' }}
+                          {{ submissions[0].author.name?.charAt(0)?.toUpperCase() || 'U' }}
                         </span>
                       </div>
                       <div>
                         <p class="font-semibold text-gray-900">
-                          {{ submissions[0].author.username || 'Anonymous' }}
+                          {{ submissions[0].author.name || 'Anonymous' }}
                         </p>
                         <p class="text-gray-900-tertiary text-sm">
                           {{ submissions[0].createdAt | date:'MMM d, yyyy' }}

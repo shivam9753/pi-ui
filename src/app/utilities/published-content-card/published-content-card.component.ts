@@ -12,12 +12,16 @@ export interface PublishedContent {
   username?: string;
   author?: {
     username?: string;
+    name: string;
   };
   createdAt: string;
   readingTime?: number;
   slug?: string;
   viewCount?: number;
   likeCount?: number;
+  tags?: string[];
+  isLiked?: boolean;
+  isBookmarked?: boolean;
 }
 
 @Component({
@@ -30,10 +34,54 @@ export class PublishedContentCardComponent {
   @Input() content!: PublishedContent;
   @Input() showStats = false; // Show view count, likes, etc.
   @Input() size: 'small' | 'medium' | 'large' = 'medium';
+  @Input() showActions = false; // Show admin action buttons
+  @Input() showHoverActions = true; // Show hover actions for regular users
   @Output() cardClick = new EventEmitter<PublishedContent>();
+  @Output() editClick = new EventEmitter<PublishedContent>();
+  @Output() unpublishClick = new EventEmitter<PublishedContent>();
+  @Output() deleteClick = new EventEmitter<PublishedContent>();
+  @Output() likeClick = new EventEmitter<PublishedContent>();
+  @Output() bookmarkClick = new EventEmitter<PublishedContent>();
+  @Output() shareClick = new EventEmitter<PublishedContent>();
+  @Output() tagClick = new EventEmitter<string>();
 
   onCardClick() {
     this.cardClick.emit(this.content);
+  }
+
+  onEditClick(event: Event) {
+    event.stopPropagation(); // Prevent card click
+    this.editClick.emit(this.content);
+  }
+
+  onUnpublishClick(event: Event) {
+    event.stopPropagation(); // Prevent card click
+    this.unpublishClick.emit(this.content);
+  }
+
+  onDeleteClick(event: Event) {
+    event.stopPropagation(); // Prevent card click
+    this.deleteClick.emit(this.content);
+  }
+
+  onLikeClick(event: Event) {
+    event.stopPropagation();
+    this.likeClick.emit(this.content);
+  }
+
+  onBookmarkClick(event: Event) {
+    event.stopPropagation();
+    this.bookmarkClick.emit(this.content);
+  }
+
+  onShareClick(event: Event) {
+    event.stopPropagation();
+    this.shareClick.emit(this.content);
+  }
+
+  onTagClick(event: Event, tag: string) {
+    event.stopPropagation();
+    this.tagClick.emit(tag);
   }
 
   cleanContent(text: string): string {
@@ -43,7 +91,7 @@ export class PublishedContentCardComponent {
   }
 
   getAuthorName(): string {
-    return this.content.author?.username || this.content.username || 'Anonymous';
+    return this.content.author?.name || this.content.username || 'Anonymous';
   }
 
   getAuthorInitials(): string {
@@ -64,5 +112,10 @@ export class PublishedContentCardComponent {
 
   getReadingTime(): number {
     return this.content.readingTime || 3;
+  }
+
+  getDisplayTags(): string[] {
+    // Return first 2 tags for display
+    return this.content.tags?.slice(0, 2) || [];
   }
 }

@@ -137,14 +137,47 @@
     font-size: 1.125rem;
   }
   
+  /* Reduce excessive negative space on mobile */
+  .magazine-layout .max-w-7xl {
+    padding-left: 1rem;
+    padding-right: 1rem;
+    padding-top: 1.5rem; /* Reduced from default py-12 */
+    padding-bottom: 1.5rem;
+  }
+  
+  .magazine-layout header {
+    margin-bottom: 1.5rem; /* Reduced from 2rem */
+  }
+  
+  .magazine-layout header h1 {
+    font-size: 1.875rem; /* Smaller title on mobile */
+    line-height: 1.2;
+    margin-bottom: 1rem; /* Reduced spacing */
+  }
+  
+  .magazine-layout header .flex {
+    margin-bottom: 1rem; /* Reduced author section spacing */
+    padding-bottom: 1rem;
+  }
   
   .magazine-layout .grid {
     grid-template-columns: 1fr;
+    gap: 1rem; /* Reduced gap */
   }
   
   .magazine-layout aside {
     order: -1;
-    margin-bottom: 2rem;
+    margin-bottom: 1rem; /* Reduced from 2rem */
+  }
+  
+  /* Reduce content section spacing */
+  .content-section {
+    margin-bottom: 2rem; /* Reduced from 4rem */
+  }
+  
+  /* Featured image spacing */
+  .magazine-layout .mb-12 {
+    margin-bottom: 1.5rem;
   }
 }
 
@@ -325,4 +358,180 @@
 ::selection {
   background-color: var(--bg-accent);
   color: var(--text-inverse);
+}
+
+/* ENHANCED READING FEATURES */
+
+/* Focus Mode - Hide all distractions */
+.focus-mode {
+  padding-top: 2rem;
+}
+
+.focus-mode .focus-grid {
+  display: block;
+  max-width: 42rem; /* ~65 characters at 16px */
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+
+.focus-mode .focus-grid main {
+  max-width: none;
+}
+
+/* Optimal line length for reading */
+.reading-text {
+  max-width: 42rem; /* ~65 characters - optimal for reading */
+  margin: 0 auto;
+}
+
+.focus-mode .reading-text {
+  max-width: 38rem; /* Slightly narrower in focus mode */
+}
+
+/* Layout Modes */
+.compact-spacing p {
+  margin-bottom: 1rem;
+}
+
+.spacious-spacing p {
+  margin-bottom: 2rem;
+}
+
+.layout-spacious .content-section {
+  margin-bottom: 5rem;
+}
+
+.layout-spacious .content-body {
+  line-height: 1.9;
+}
+
+.layout-spacious header {
+  margin-bottom: 3rem;
+}
+
+.layout-spacious .content-body p:first-child {
+  margin-bottom: 2.5rem;
+  line-height: 1.8;
+}
+
+/* Typography Enhancement */
+.reading-text p {
+  max-width: 75ch; /* 60-75 character limit for optimal readability */
+  hyphens: auto;
+  text-align: justify;
+  text-justify: inter-word;
+}
+
+/* Focus Mode Body Class */
+body.focus-mode {
+  overflow-x: hidden;
+}
+
+/* Enhanced Typography for Long-form Content */
+.content-body.reading-text {
+  font-feature-settings: "liga" 1, "kern" 1;
+  text-rendering: optimizeLegibility;
+}
+
+/* Better paragraph spacing for longform */
+.reading-text p + p {
+  text-indent: 1.5rem;
+  margin-top: -0.5rem;
+}
+
+.reading-text p:first-child,
+.reading-text h1 + p,
+.reading-text h2 + p,
+.reading-text h3 + p,
+.reading-text h4 + p,
+.reading-text blockquote + p {
+  text-indent: 0;
+  margin-top: 0;
+}
+
+/* Focus Mode Animation */
+.magazine-layout {
+  transition: all 0.3s ease;
+}
+
+.focus-mode {
+  animation: focusIn 0.3s ease-out;
+}
+
+@keyframes focusIn {
+  from {
+    opacity: 0;
+    transform: scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Mobile Focus Mode */
+@media (max-width: 768px) {
+  .focus-mode {
+    padding-top: 1rem; /* Reduced from 2rem */
+  }
+  
+  .focus-mode .focus-grid {
+    padding: 0 1rem;
+    max-width: 100%;
+  }
+  
+  .reading-text {
+    max-width: none;
+  }
+  
+  .reading-text p {
+    max-width: none;
+    text-align: left;
+  }
+  
+  /* Compact mobile spacing in focus mode */
+  .focus-mode .content-section {
+    margin-bottom: 1.5rem;
+  }
+  
+  .focus-mode header {
+    margin-bottom: 1rem;
+  }
+  
+  .focus-mode header h1 {
+    font-size: 1.75rem;
+    margin-bottom: 0.75rem;
+  }
+}
+
+/* Critical Reading Enhancement for Essays */
+.content-body[data-submission-type="cinema_essay"] .reading-text,
+.content-body[data-submission-type="article"] .reading-text {
+  font-size: 1.1rem;
+  line-height: 1.8;
+}
+
+.content-body[data-submission-type="cinema_essay"] .reading-text p,
+.content-body[data-submission-type="article"] .reading-text p {
+  max-width: 70ch; /* Slightly wider for analytical content */
+}
+
+/* Poetry specific formatting */
+.content-body[data-submission-type="poem"] .reading-text {
+  text-align: left;
+  max-width: 32rem;
+}
+
+.content-body[data-submission-type="poem"] .reading-text p {
+  text-align: left;
+  text-indent: 0;
+  max-width: none;
+  margin-bottom: 1.5rem;
+}
+
+/* Enhanced Focus Mode Controls */
+.focus-mode .reading-progress {
+  background: linear-gradient(90deg, #f97316, #ea580c);
+  height: 2px;
+  opacity: 0.8;
 }

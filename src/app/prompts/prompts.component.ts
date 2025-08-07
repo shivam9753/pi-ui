@@ -6,6 +6,7 @@ import { FormsModule } from '@angular/forms';
 import { BackendService } from '../services/backend.service';
 import { AuthService } from '../services/auth.service';
 import { Router } from '@angular/router';
+import { GuidelinesOverlayComponent } from '../submit/guidelines-overlay/guidelines-overlay.component';
 
 interface Prompt {
   _id: string;
@@ -18,15 +19,12 @@ interface Prompt {
   featured: boolean;
   isActive: boolean;
   usageCount: number;
-  createdBy?: any;
-  createdAt?: string;
-  formattedCreatedAt?: string;
 }
 
 @Component({
   selector: 'app-prompts',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, GuidelinesOverlayComponent],
   templateUrl: './prompts.component.html',
   styleUrls: ['./prompts.component.css']
 })
@@ -38,12 +36,14 @@ export class PromptsComponent implements OnInit {
   
   // User state
   isAdmin = false;
-  activeTab = 'browse'; // 'browse' or 'manage'
   
   // Browse filters
   browseType = '';
   browseTextFilter = '';
   browseDifficulty = '';
+
+  activeTab: 'discover' | 'gamified' | 'guidelines' = 'gamified'; // default to gamified or browse as you want
+showGuidelinesOverlay = false;
   
   // Manage filters
   manageType = '';
@@ -112,6 +112,13 @@ export class PromptsComponent implements OnInit {
       this.currentPrompt = this.allPrompts[0];
     }
   }
+
+  get promptIndex(): number {
+  if (!this.filteredPrompts || !this.currentPrompt) return -1;
+  return this.filteredPrompts.findIndex(
+    p => p._id === this.currentPrompt!._id
+  );
+}
 
   refreshPrompt() {
     this.isRefreshing = true;
@@ -192,114 +199,6 @@ export class PromptsComponent implements OnInit {
     return prompts;
   }
 
-  openCreateForm() {
-    this.editingPrompt = null;
-    this.promptForm.reset({
-      title: '',
-      description: '',
-      type: '',
-      tags: '',
-      difficulty: 'beginner',
-      picture: '',
-      featured: false,
-      isActive: true
-    });
-    this.showCreateForm = true;
-  }
-
-  editPrompt(prompt: Prompt) {
-    this.editingPrompt = prompt;
-    this.promptForm.patchValue({
-      title: prompt.title,
-      description: prompt.description,
-      type: prompt.type,
-      tags: prompt.tags.join(', '),
-      difficulty: prompt.difficulty,
-      picture: prompt.picture || '',
-      featured: prompt.featured,
-      isActive: prompt.isActive
-    });
-    this.showCreateForm = true;
-  }
-
-  savePrompt() {
-    if (this.promptForm.invalid) {
-      this.markFormGroupTouched(this.promptForm);
-      return;
-    }
-
-    this.isSaving = true;
-    const formValue = this.promptForm.value;
-    
-    const tags = formValue.tags 
-      ? formValue.tags.split(',').map((tag: string) => tag.trim()).filter((tag: string) => tag.length > 0)
-      : [];
-
-    const promptData = {
-      ...formValue,
-      tags,
-      picture: formValue.picture || null
-    };
-
-    const request = this.editingPrompt
-      ? this.backendService.updatePrompt(this.editingPrompt._id, promptData)
-      : this.backendService.createPrompt(promptData);
-
-    request.subscribe({
-      next: (response: { success: any; data: Prompt; }) => {
-        if (response.success) {
-          if (this.editingPrompt) {
-            // Update existing prompt in array
-            const index = this.allPrompts.findIndex(p => p._id === this.editingPrompt!._id);
-            if (index >= 0) {
-              this.allPrompts[index] = response.data;
-            }
-          } else {
-            // Add new prompt to array
-            this.allPrompts.unshift(response.data);
-          }
-          
-          this.closeCreateForm();
-          this.applyBrowseFilters();
-        }
-        this.isSaving = false;
-      },
-      error: (error: any) => {
-        console.error('Error saving prompt:', error);
-        this.isSaving = false;
-      }
-    });
-  }
-
-  deletePrompt(prompt: Prompt) {
-    if (confirm(`Are you sure you want to delete "${prompt.title}"?`)) {
-      this.backendService.deletePrompt(prompt._id).subscribe({
-        next: (response: { success: any; }) => {
-          if (response.success) {
-            this.allPrompts = this.allPrompts.filter(p => p._id !== prompt._id);
-            this.applyBrowseFilters();
-          }
-        },
-        error: (error: any) => {
-          console.error('Error deleting prompt:', error);
-        }
-      });
-    }
-  }
-
-  togglePromptStatus(prompt: Prompt) {
-    this.backendService.togglePromptStatus(prompt._id).subscribe({
-      next: (response: { success: any; isActive: boolean; }) => {
-        if (response.success) {
-          prompt.isActive = response.isActive;
-          this.applyBrowseFilters();
-        }
-      },
-      error: (error: any) => {
-        console.error('Error toggling prompt status:', error);
-      }
-    });
-  }
 
   usePrompt(prompt: Prompt) {
     // Increment usage count
@@ -323,10 +222,7 @@ export class PromptsComponent implements OnInit {
     });
   }
 
-  closeCreateForm() {
-    this.showCreateForm = false;
-    this.editingPrompt = null;
-  }
+
 
   clearFilters() {
     this.browseType = '';
@@ -365,10 +261,16 @@ export class PromptsComponent implements OnInit {
     });
   }
 
-  private markFormGroupTouched(formGroup: FormGroup) {
-    Object.keys(formGroup.controls).forEach(key => {
-      const control = formGroup.get(key);
-      control?.markAsTouched();
-    });
-  }
+  setActiveTab(tab: 'discover' | 'gamified' | 'guidelines') {
+  this.activeTab = tab;
+}
+openGuidelines() {
+  this.showGuidelinesOverlay = true;
+  this.activeTab = 'guidelines';
+}
+closeGuidelines() {
+  this.showGuidelinesOverlay = false;
+  // Optionally switch to a default tab
+  this.activeTab = 'gamified'; 
+}
 }

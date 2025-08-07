@@ -112,82 +112,6 @@ export class BackendService {
     
     return throwError(() => new Error(errorMessage));
   }
-  // Draft management using localStorage (can be replaced with backend endpoints later)
-  getUserDrafts(id: string | undefined): Observable<any> {
-    return new Observable(observer => {
-      try {
-        const draftsKey = `drafts_${id}`;
-        const drafts = JSON.parse(localStorage.getItem(draftsKey) || '[]');
-        observer.next(drafts);
-        observer.complete();
-      } catch (error) {
-        observer.error(error);
-      }
-    });
-  }
-
-  updateDraft(id: string, draftData: any): Observable<any> {
-    return new Observable(observer => {
-      try {
-        const userId = draftData.userId;
-        const draftsKey = `drafts_${userId}`;
-        const drafts = JSON.parse(localStorage.getItem(draftsKey) || '[]');
-        
-        const draftIndex = drafts.findIndex((d: any) => d.id === id);
-        if (draftIndex >= 0) {
-          drafts[draftIndex] = { ...draftData, id, lastModified: new Date() };
-          localStorage.setItem(draftsKey, JSON.stringify(drafts));
-          observer.next(drafts[draftIndex]);
-        } else {
-          observer.error('Draft not found');
-        }
-        observer.complete();
-      } catch (error) {
-        observer.error(error);
-      }
-    });
-  }
-
-  createDraft(draftData: any): Observable<any> {
-    return new Observable(observer => {
-      try {
-        const userId = draftData.userId;
-        const draftsKey = `drafts_${userId}`;
-        const drafts = JSON.parse(localStorage.getItem(draftsKey) || '[]');
-        
-        const newDraft = {
-          ...draftData,
-          id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
-          lastModified: new Date()
-        };
-        
-        drafts.unshift(newDraft);
-        localStorage.setItem(draftsKey, JSON.stringify(drafts));
-        observer.next(newDraft);
-        observer.complete();
-      } catch (error) {
-        observer.error(error);
-      }
-    });
-  }
-
-  deleteDraft(draftId: string): Observable<any> {
-    return new Observable(observer => {
-      try {
-        // Find the draft in all user's drafts to get userId
-        const user = JSON.parse(localStorage.getItem('user') || '{}');
-        const draftsKey = `drafts_${user.id}`;
-        const drafts = JSON.parse(localStorage.getItem(draftsKey) || '[]');
-        
-        const filteredDrafts = drafts.filter((d: any) => d.id !== draftId);
-        localStorage.setItem(draftsKey, JSON.stringify(filteredDrafts));
-        observer.next({ success: true });
-        observer.complete();
-      } catch (error) {
-        observer.error(error);
-      }
-    });
-  }
 
 
   // Get submissions - use new consolidated endpoint
@@ -388,6 +312,8 @@ export class BackendService {
     throw new Error('No valid authentication token found. Please log in again.');
   }
 
+  
+
   approveSubmission(submissionId: string, reviewData: { reviewNotes: string }) {
     const headers = this.getAuthHeaders();
     return this.http.post(
@@ -431,6 +357,96 @@ export class BackendService {
     return this.http.get(
       `${this.API_URL}/reviews/submission/${submissionId}`,
       { headers }
+    );
+  }
+
+  // Get pending reviews with enhanced filtering
+  getPendingReviews(params: any = {}): Observable<any> {
+    const headers = this.getAuthHeaders();
+    let httpParams = new HttpParams();
+    
+    // Add all filter parameters
+    Object.keys(params).forEach(key => {
+      if (params[key] !== null && params[key] !== undefined && params[key] !== '') {
+        httpParams = httpParams.set(key, params[key]);
+      }
+    });
+    
+    return this.http.get(
+      `${this.API_URL}/reviews/pending`,
+      { headers, params: httpParams }
+    ).pipe(
+      catchError(this.handleError)
+    );
+  }
+
+  // Move submission to in_progress status
+  moveSubmissionToProgress(submissionId: string, notes: string = ''): Observable<any> {
+    const headers = this.getAuthHeaders();
+    return this.http.post(
+      `${this.API_URL}/reviews/${submissionId}/move-to-progress`,
+      { notes },
+      { headers }
+    ).pipe(
+      catchError(this.handleError)
+    );
+  }
+
+  // Request revision for submission
+  requestRevision(submissionId: string, reviewData: { reviewNotes: string, rating?: number }): Observable<any> {
+    const headers = this.getAuthHeaders();
+    return this.http.post(
+      `${this.API_URL}/reviews/${submissionId}/revision`,
+      reviewData,
+      { headers }
+    ).pipe(
+      catchError(this.handleError)
+    );
+  }
+
+  // Get submission history
+  getSubmissionHistory(submissionId: string): Observable<any> {
+    const headers = this.getAuthHeaders();
+    return this.http.get(
+      `${this.API_URL}/submissions/${submissionId}/history`,
+      { headers }
+    ).pipe(
+      catchError(this.handleError)
+    );
+  }
+
+  // Unpublish submission (admin only)
+  unpublishSubmission(submissionId: string, notes: string = ''): Observable<any> {
+    const headers = this.getAuthHeaders();
+    return this.http.patch(
+      `${this.API_URL}/submissions/${submissionId}/unpublish`,
+      { notes },
+      { headers }
+    ).pipe(
+      catchError(this.handleError)
+    );
+  }
+
+  // Delete submission (admin only)
+  deleteSubmission(submissionId: string): Observable<any> {
+    const headers = this.getAuthHeaders();
+    return this.http.delete(
+      `${this.API_URL}/submissions/${submissionId}`,
+      { headers }
+    ).pipe(
+      catchError(this.handleError)
+    );
+  }
+
+  // Resubmit submission after revision
+  resubmitSubmission(submissionId: string, submissionData: any): Observable<any> {
+    const headers = this.getAuthHeaders();
+    return this.http.put(
+      `${this.API_URL}/submissions/${submissionId}/resubmit`,
+      submissionData,
+      { headers }
+    ).pipe(
+      catchError(this.handleError)
     );
   }
 

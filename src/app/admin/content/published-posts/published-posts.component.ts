@@ -5,10 +5,12 @@ import { Router } from '@angular/router';
 import { BackendService } from '../../../services/backend.service';
 import { HtmlSanitizerService } from '../../../services/html-sanitizer.service';
 import { PublishedContentCardComponent, PublishedContent } from '../../../utilities/published-content-card/published-content-card.component';
+import { PrettyLabelPipe } from '../../../pipes/pretty-label.pipe';
+import { TypeBadgePipe } from '../../../pipes/type-badge.pipe';
 
 @Component({
   selector: 'app-published-posts',
-  imports: [CommonModule, DatePipe, TitleCasePipe, FormsModule, PublishedContentCardComponent],
+  imports: [CommonModule, DatePipe, TitleCasePipe, FormsModule, PrettyLabelPipe, TypeBadgePipe],
   templateUrl: './published-posts.component.html',
   styleUrl: './published-posts.component.css'
 })
@@ -36,16 +38,17 @@ export class PublishedPostsComponent implements OnInit {
   loadPublishedSubmissions() {
     this.loading = true;
     
-    // Use optimized endpoint with pagination and sorting
-    this.backendService.getSubmissions("", "published", {
+    // Load both published and draft submissions
+    this.backendService.getSubmissions("", "published_and_draft", {
       limit: 100,
       skip: 0,
       sortBy: 'reviewedAt',
       order: 'desc'
     }).subscribe({
       next: (data) => {
+        // API should already filter by status, so use all returned submissions
         this.publishedSubmissions = data.submissions || [];
-        console.log('Published submissions loaded:', this.publishedSubmissions.length);
+        console.log('Published/Draft submissions loaded:', this.publishedSubmissions.length);
         this.loading = false;
       },
       error: (err) => {
@@ -61,9 +64,59 @@ export class PublishedPostsComponent implements OnInit {
     this.router.navigate(['/publish-configure', submissionId]);
   }
 
+  // Configure and publish a submission (for accepted but unpublished items)
+  configureAndPublish(submissionId: string) {
+    this.router.navigate(['/publish-configure', submissionId]);
+  }
+
   // Navigate to publishing interface for editing (alias)
   editSubmission(submission: any) {
     this.editPublishedPost(submission._id);
+  }
+
+  // Unpublish a submission (move back to draft)
+  unpublishSubmission(submissionId: string, title: string) {
+    if (!confirm(`Are you sure you want to unpublish "${title}"? This will move it back to accepted status.`)) {
+      return;
+    }
+
+    this.backendService.unpublishSubmission(submissionId, 'Unpublished by admin').subscribe({
+      next: (response) => {
+        this.showSuccess('Submission unpublished successfully');
+        // Update the local state instead of refreshing the entire list
+        const submission = this.publishedSubmissions.find(sub => sub._id === submissionId);
+        if (submission) {
+          submission.status = 'draft'; // Change status to show different buttons
+        }
+      },
+      error: (err) => {
+        console.error('Error unpublishing submission:', err);
+        this.showError('Failed to unpublish submission');
+      }
+    });
+  }
+
+  // Delete a submission permanently
+  deleteSubmission(submissionId: string, title: string) {
+    if (!confirm(`Are you sure you want to permanently DELETE "${title}"? This action cannot be undone.`)) {
+      return;
+    }
+
+    // Double confirmation for delete
+    if (!confirm('This will permanently delete the submission and all its content. Are you absolutely sure?')) {
+      return;
+    }
+
+    this.backendService.deleteSubmission(submissionId).subscribe({
+      next: (response) => {
+        this.showSuccess('Submission deleted successfully');
+        this.loadPublishedSubmissions(); // Refresh the list
+      },
+      error: (err) => {
+        console.error('Error deleting submission:', err);
+        this.showError('Failed to delete submission');
+      }
+    });
   }
 
   // Navigate to view the published post (alias)

@@ -15,6 +15,10 @@ export interface GoogleUser {
   given_name: string;
   family_name: string;
   role?: 'user' | 'reviewer' | 'admin';
+  needsProfileCompletion?: boolean;
+  isNewUser?: boolean;
+  profileCompleted?: boolean;
+  bio?: string;
 }
 
 @Injectable({
@@ -49,8 +53,9 @@ export class AuthService {
       google.accounts.id.initialize({
         client_id: "33368155298-o647b4i36rnjfrps98f5jj11rrn220bv.apps.googleusercontent.com",
         callback: (response: any) => this.handleCredentialResponse(response),
-        auto_select: false,
-        cancel_on_tap_outside: true
+        auto_select: true, // Enable auto-select for returning users
+        cancel_on_tap_outside: true,
+        use_fedcm_for_prompt: true // Use FedCM for better UX
       });
 
       // Initialize OAuth2 token client for popup
@@ -58,6 +63,9 @@ export class AuthService {
         client_id: '33368155298-o647b4i36rnjfrps98f5jj11rrn220bv.apps.googleusercontent.com',
         scope: 'openid email profile',
         callback: (response: any) => this.handleOAuthResponse(response),
+        hint: localStorage.getItem('google_user_hint') || '', // Remember user hint
+        hosted_domain: '', // Allow all domains
+        include_granted_scopes: true // Include previously granted scopes
       });
     } catch (error) {
       console.error('Error initializing Google Auth:', error);
@@ -196,8 +204,20 @@ export class AuthService {
         const fullUser: GoogleUser = {
           ...baseUser,
           id: res.user?._id || res.user?.id || baseUser.id,
-          role: res.user?.role || 'user'
+          role: res.user?.role || 'user',
+          needsProfileCompletion: res.needsProfileCompletion,
+          isNewUser: res.isNewUser,
+          profileCompleted: res.user?.profileCompleted,
+          bio: res.user?.bio || baseUser.bio
         };
+        
+        console.log('👤 Full user object created:', fullUser);
+        console.log('📡 Backend response data:', {
+          needsProfileCompletion: res.needsProfileCompletion,
+          profileCompleted: res.user?.profileCompleted,
+          bio: res.user?.bio,
+          name: res.user?.name
+        });
         
         // Save user and token to localStorage
         if (isPlatformBrowser(this.platformId)) {
@@ -206,12 +226,18 @@ export class AuthService {
           if (res.token) {
             localStorage.setItem('jwt_token', res.token);
           }
+          // Save user hint for future OAuth attempts
+          localStorage.setItem('google_user_hint', fullUser.email);
         }
         
         this.userSubject.next(fullUser);
         this.isLoggedInSubject.next(true);
         
         console.log('User logged in successfully:', fullUser);
+        
+        // Check and fix profile completion status if needed
+        this.checkAndFixProfileCompletion(fullUser);
+        
         this.navigateAfterLogin();
       },
       error: (err) => {
@@ -353,6 +379,7 @@ export class AuthService {
         localStorage.removeItem('google_token');
         localStorage.removeItem('jwt_token');
         localStorage.removeItem('returnUrl');
+        localStorage.removeItem('google_user_hint');
         
         // Update state
         this.userSubject.next(null);
@@ -455,6 +482,14 @@ export class AuthService {
   }
 
   private navigateAfterLogin(): void {
+    const currentUser = this.getCurrentUser();
+    
+    // Check if user needs profile completion
+    if (currentUser && this.needsProfileCompletion(currentUser)) {
+      this.router.navigate(['/complete-profile']);
+      return;
+    }
+    
     // Check if there's a stored return URL
     const returnUrl = isPlatformBrowser(this.platformId) 
       ? localStorage.getItem('returnUrl') 
@@ -467,6 +502,42 @@ export class AuthService {
       // Default navigation
       this.router.navigate(['/explore']);
     }
+  }
+
+  private needsProfileCompletion(user: any): boolean {
+    console.log('🔍 Checking profile completion for user:', {
+      name: user.name,
+      bio: user.bio,
+      needsProfileCompletion: user.needsProfileCompletion,
+      profileCompleted: user.profileCompleted,
+      picture: user.picture
+    });
+    
+    // Check if user needs profile completion based on backend response
+    if (user.needsProfileCompletion) {
+      console.log('❌ Backend says needsProfileCompletion = true');
+      return true;
+    }
+    if (user.profileCompleted === false) {
+      console.log('❌ profileCompleted = false');
+      return true;
+    }
+    
+    // Also check for default values that indicate incomplete profile
+    const hasIncompleteProfile = !user.name || 
+           user.name.trim() === '' || 
+           user.name === 'Google authenticated user' ||
+           !user.bio || 
+           user.bio.trim() === '' || 
+           user.bio === 'Google authenticated user';
+           
+    if (hasIncompleteProfile) {
+      console.log('❌ Profile has incomplete data');
+    } else {
+      console.log('✅ Profile appears complete');
+    }
+    
+    return hasIncompleteProfile;
   }
 
   // Public methods for components to use
@@ -557,5 +628,49 @@ export class AuthService {
   // Method to manually trigger Google sign-in (for login component)
   public triggerGoogleSignIn(): void {
     this.signInWithPopup();
+  }
+
+  // Public method to check if user needs profile completion
+  public userNeedsProfileCompletion(): boolean {
+    const currentUser = this.getCurrentUser();
+    return currentUser ? this.needsProfileCompletion(currentUser) : false;
+  }
+
+  // Method to check and fix profile completion status
+  private checkAndFixProfileCompletion(user: GoogleUser): void {
+    if (!user.id) return;
+
+    // Only try to fix if backend says needsProfileCompletion but user seems to have complete data
+    if (user.needsProfileCompletion && user.name && user.bio && 
+        user.name.trim() !== '' && user.bio.trim() !== '' &&
+        user.name !== 'Google authenticated user' && user.bio !== 'Google authenticated user') {
+      
+      console.log('🔧 Attempting to fix profile completion status...');
+      
+      const jwtToken = localStorage.getItem('jwt_token');
+      if (!jwtToken) return;
+
+      fetch(`${environment.apiBaseUrl}/users/${user.id}/fix-profile-completion`, {
+        method: 'PATCH',
+        headers: {
+          'Authorization': `Bearer ${jwtToken}`,
+          'Content-Type': 'application/json'
+        }
+      })
+      .then(response => response.json())
+      .then(result => {
+        if (result.fixed) {
+          console.log('✅ Profile completion status fixed!');
+          
+          // Update the current user object
+          const updatedUser = { ...user, profileCompleted: true, needsProfileCompletion: false };
+          localStorage.setItem('google_user', JSON.stringify(updatedUser));
+          this.userSubject.next(updatedUser);
+        }
+      })
+      .catch(error => {
+        console.error('❌ Failed to fix profile completion:', error);
+      });
+    }
   }
 }

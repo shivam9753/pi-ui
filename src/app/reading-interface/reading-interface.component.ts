@@ -64,6 +64,11 @@ content = signal<PublishedContent | null>(null);
   isReaderMode = signal(false);
   readingProgress = signal(0);
   
+  // Enhanced reading controls
+  isFocusMode = signal(false);
+  layoutMode = signal<'compact' | 'spacious'>('compact');
+  lineHeightPreset = signal<'normal' | 'relaxed'>('normal');
+  
   // Theme toggle disabled - app uses light mode only
   
   // Comments
@@ -184,8 +189,8 @@ content = signal<PublishedContent | null>(null);
           title: data.title,
           description: data.description,
           submissionType: data.submissionType,
-          authorName: data.authorName || data.userId?.username || data.author?.name || 'Unknown Author',
-          authorId: data.authorId || data.userId?._id || data.author?._id || 'unknown',
+          authorName: data.userId?.name || 'Unknown Author',
+          authorId: data.userId?._id || data.author?._id || 'unknown',
           publishedAt: new Date(data.publishedAt || data.createdAt),
           readingTime: data.readingTime || Math.ceil(contentItems.reduce((acc, item) => acc + item.wordCount, 0) / 200),
           viewCount: data.viewCount || 0,
@@ -331,6 +336,25 @@ content = signal<PublishedContent | null>(null);
 
   decreaseFontSize() {
     this.fontSize.update(size => Math.max(size - 2, 12));
+  }
+
+  // Enhanced reading controls
+  toggleFocusMode() {
+    this.isFocusMode.update(mode => !mode);
+    if (this.isFocusMode()) {
+      document.body.classList.add('focus-mode');
+    } else {
+      document.body.classList.remove('focus-mode');
+    }
+  }
+
+  toggleLayoutMode() {
+    this.layoutMode.update(mode => mode === 'compact' ? 'spacious' : 'compact');
+  }
+
+  toggleLineHeightPreset() {
+    this.lineHeightPreset.update(preset => preset === 'normal' ? 'relaxed' : 'normal');
+    this.lineHeight.set(this.lineHeightPreset() === 'normal' ? 1.6 : 1.8);
   }
 
   updateReadingProgress() {

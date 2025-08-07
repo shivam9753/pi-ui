@@ -4,48 +4,42 @@
 
 
 
-<div class="p-5 rounded-2xl bg-white shadow-lg border border-gray-100 transition group w-full max-w-xs mx-auto">
+<div [class]="getCardClasses()">
 
-  <!-- Badge -->
-  <div>
-    <span
-      class="inline-block px-3 py-1 rounded-full bg-orange-500 text-white text-xs font-medium shadow mb-4"
-    >
+  <!-- Badge + Status + Date Row -->
+  <div class="flex items-center justify-between mb-4">
+    <span [class]="data.submissionType | typeBadge : customBadgeColor" class="shadow">
       {{ data.submissionType | prettyLabel }}
     </span>
+    
+    <div class="flex items-center gap-2">
+      <span class="inline-block bg-gray-100 text-gray-500 text-xs rounded-full px-2 py-1 font-medium">
+        {{ getStatusText() }}
+      </span>
+      <span class="inline-block bg-gray-100 text-gray-700 text-xs rounded-full px-2 py-1 font-bold tracking-wide">
+        {{ data.createdAt | date:'MMM d' }}
+      </span>
+    </div>
   </div>
 
-  <!-- Title -->
-  <h3 class="text-xl sm:text-lg font-bold text-gray-900 mb-1">{{ data.title }}</h3>
+  <!-- Title (fixed 2-line height) -->
+  <h3 class="text-xl sm:text-lg font-bold text-gray-900 mb-1 line-clamp-2" style="height: 2.5em; line-height: 1.25em;">{{ data.title }}</h3>
 
-  <!-- Author Row -->
-  <div class="flex items-center gap-2 mb-3">
-    <div class="w-8 h-8 bg-orange-400 text-white rounded-full flex items-center justify-center font-semibold">
-      {{ getAuthorInitial() }}
-    </div>
-    <div class="font-semibold text-gray-700 group-hover:text-orange-600 transition">
-      {{ getAuthorName() }}
+  <!-- Author Row (simple text only) -->
+  <div class="mb-3">
+    <div class="text-sm text-gray-600">
+      by {{ getAuthorName() }}
     </div>
   </div>
 
   <!-- Excerpt -->
-  <p class="text-sm text-gray-600 mb-5 line-clamp-5" style="height:5.75em; line-height:1.15em; overflow:hidden;">
+  <p class="text-sm text-gray-600 mb-4 line-clamp-4" style="height:4.6em; line-height:1.15em; overflow:hidden;">
      {{ getCleanDescription() }}
   </p>
 
-  <!-- Status + Date as chip row -->
-  <div class="flex items-center gap-2 mb-6">
-    <span class="inline-block bg-gray-100 text-gray-500 text-xs rounded-full px-3 py-1 font-medium">
-      {{ getStatusText() }}
-    </span>
-    <span class="inline-block bg-gray-100 text-gray-700 text-xs rounded-full px-3 py-1 font-bold tracking-wide">
-      {{ data.createdAt | date:'MMM d' }}
-    </span>
-  </div>
-
   <!-- Action Button -->
   <button
-    class="flex items-center justify-center gap-2 py-2 bg-orange-500 hover:bg-orange-600 transition text-white rounded-xl font-semibold shadow w-full focus:outline-none focus:ring-2 focus:ring-orange-400 focus:ring-opacity-60 text-base min-h-[44px] disabled:opacity-60 disabled:cursor-not-allowed"
+    [class]="getActionButtonClasses()"
     [disabled]="action.loading"
     (click)="onActionClick()"
     type="button"

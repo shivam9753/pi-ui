@@ -71,14 +71,8 @@ export class AdminComponent implements OnInit {
       this.router.navigate(['/']);
       return;
     }
-
-    // Set default tab based on role
-    if (this.isReviewer && !this.isAdmin) {
-      this.activeTab = 'review'; // Reviewers default to review tab
-    } else if (this.isAdmin) {
-      this.activeTab = 'publish'; // Admins default to publish tab
-    }
-
+    
+    this.activeTab = 'review';
     this.loading = false;
   }
 

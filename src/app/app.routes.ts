@@ -11,6 +11,13 @@ import { PromptsComponent } from './prompts/prompts.component';
 import { AdminComponent } from './admin/admin.component';
 import { PublishSubmissionComponent } from './admin/submissions/publish-submission/publish-submission.component';
 import { ReviewSubmissionComponent } from './admin/submissions/review-submission/review-submission.component';
+import { ProfileCompletionComponent } from './profile-completion/profile-completion.component';
+import { EditSubmissionComponent } from './submit/edit-submission/edit-submission.component';
+import { FaqsComponent } from './info/faqs/faqs.component';
+import { ContactComponent } from './info/contact/contact.component';
+import { PrivacyPolicyComponent } from './info/privacy-policy/privacy-policy.component';
+import { TermsOfUseComponent } from './info/terms-of-use/terms-of-use.component';
+import { PoemParserComponent } from './admin/poem-parser/poem-parser.component';
 
 export const routes: Routes = [
   // Public routes - Use explore as homepage for now
@@ -23,6 +30,12 @@ export const routes: Routes = [
     path: 'login', 
     component: UserLoginComponent,
     title: 'Login'
+  },
+  { 
+    path: 'complete-profile', 
+    component: ProfileCompletionComponent,
+    canActivate: [AuthGuard],
+    title: 'Complete Profile - pi'
   },
   { 
     path: 'explore', 
@@ -41,6 +54,12 @@ export const routes: Routes = [
     component: SubmissionFormComponent, 
     canActivate: [AuthGuard],
     title: 'Submit Work - pi'
+  },
+  { 
+    path: 'edit-submission/:id', 
+    component: EditSubmissionComponent, 
+    canActivate: [AuthGuard],
+    title: 'Edit Submission - pi'
   },
 
   // Admin and Reviewer routes
@@ -84,7 +103,32 @@ export const routes: Routes = [
     canActivate: [AdminGuard],
     title: 'Configure Publishing - pi'
   },
-
+  { 
+    path: 'faqs', 
+    component: FaqsComponent,
+    title: 'FAQs - pi'
+  },
+  { 
+    path: 'contact-us', 
+    component: ContactComponent,
+    title: 'Contact - pi'
+  },
+  { 
+    path: 'privacy-policy', 
+    component: PrivacyPolicyComponent,
+    title: 'Privacy Policy - pi'
+  },
+  { 
+    path: 'terms-of-use', 
+    component: TermsOfUseComponent,
+    title: 'Contact - pi'
+  },
+  { 
+    path: 'poem-parser', 
+    component: PoemParserComponent,
+    canActivate: [AdminGuard],
+    title: 'Poem Parser - pi'
+  },
 
   // Fallback
   { path: '**', redirectTo: '' }

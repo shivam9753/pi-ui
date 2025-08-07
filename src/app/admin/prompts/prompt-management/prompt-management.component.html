@@ -1,12 +1,19 @@
 <!-- Manage Prompts Tab Content -->
 <div class="w-full">
-  <div class="border-b border-gray-200 pb-6 mb-8">
-      <h1 class="text-2xl md:text-3xl font-bold text-gray-900 mb-2">
-        Manage Prompts
-      </h1>
-      <p class="text-gray-900-secondary">
-        Create, edit, and manage writing prompts
-      </p>
+
+    <div class="flex justify-between items-start mb-4">
+      <div>
+        <h1 class="text-2xl font-bold text-gray-900 mb-2">Manage Prompts</h1>
+        <p class="text-gray-600" >Create, edit, and manage writing prompts</p>
+      </div>
+      <button 
+      (click)="createPrompt()"
+      class="btn-primary">
+      <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+      </svg>
+      Create Prompt
+    </button>
     </div>
 
   <!-- Filters -->

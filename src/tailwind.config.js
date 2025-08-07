@@ -6,6 +6,9 @@ module.exports = {
     darkMode: 'class',
     theme: {
       extend: {
+        backgroundColor: {
+          'white': '#ffffff',
+        },
         colors: {
           orange: {
             50: '#fff7ed',

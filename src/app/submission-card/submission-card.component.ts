@@ -3,6 +3,7 @@ import { CommonModule, DatePipe } from '@angular/common';
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { PrettyLabelPipe } from '../pipes/pretty-label.pipe';
+import { TypeBadgePipe } from '../pipes/type-badge.pipe';
 import { HtmlSanitizerService } from '../services/html-sanitizer.service';
 
 export interface CardData {
@@ -34,7 +35,7 @@ export interface CardAction {
 
 @Component({
   selector: 'app-submission-card',
-  imports: [CommonModule, RouterModule, DatePipe, PrettyLabelPipe],
+  imports: [CommonModule, RouterModule, DatePipe, PrettyLabelPipe, TypeBadgePipe],
   templateUrl: './submission-card.component.html',
   styleUrls: ['./submission-card.component.css']
 })
@@ -74,36 +75,15 @@ export class SubmissionCardComponent {
     return this.data.submitterName || this.data.authorName || 'Anonymous';
   }
 
-  getBadgeClasses(): string {
-    if (this.customBadgeColor) {
-      return `px-3 py-1 text-xs font-medium rounded-full text-white ${this.customBadgeColor}`;
-    }
-    
-    // Default badge colors based on submission type
-    const typeColors: { [key: string]: string } = {
-      'article': 'bg-blue-500',
-      'cinema essay': 'bg-purple-500',
-      'review': 'bg-green-500',
-      'interview': 'bg-orange-500',
-      'feature': 'bg-red-500'
-    };
-    
-    const colorClass = typeColors[this.data.submissionType.toLowerCase()] || 'bg-white-accent';
-    return `px-3 py-1 text-xs font-medium rounded-full text-white ${colorClass}`;
+
+  getCardClasses(): string {
+    // Keep cards neutral - only badge shows submission type color
+    return `p-5 rounded-2xl bg-white shadow-lg border border-gray-100 transition group w-full max-w-xs mx-auto`;
   }
 
   getActionButtonClasses(): string {
-    const baseClasses = 'w-full flex items-center justify-center px-4 py-2 text-sm font-medium rounded-lg transition-colors duration-150 group';
-    
-    switch (this.action.variant) {
-      case 'primary':
-        return `${baseClasses} bg-white-accent text-white hover:bg-white-accent/90`;
-      case 'secondary':
-        return `${baseClasses} bg-white-secondary text-gray-900 hover:bg-white-secondary/80`;
-      case 'outline':
-      default:
-        return `${baseClasses} border border-gray-200-accent text-gray-900-accent hover:bg-white-accent hover:text-white`;
-    }
+    // Smaller button with hover effects and proper cursor
+    return `flex items-center justify-center gap-2 py-2 px-3 border border-gray-300 hover:border-gray-500 hover:bg-gray-50 transition-all duration-200 text-gray-700 hover:text-gray-900 rounded-lg font-medium text-sm min-h-[36px] disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer w-full hover:shadow-sm`;
   }
 
   getStatusText(): string {

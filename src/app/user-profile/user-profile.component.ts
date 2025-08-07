@@ -4,13 +4,15 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule, ActivatedRoute, Router } from '@angular/router';
 import { BackendService, UserProfile, PublishedWork } from '../services/backend.service';
+import { TypeBadgePipe } from '../pipes/type-badge.pipe';
+import { PrettyLabelPipe } from '../pipes/pretty-label.pipe';
 
 // Add interfaces for new data types
 interface Submission {
   _id: string;
   title: string;
   submissionType: string;
-  status: 'pending' | 'accepted' | 'published' | 'rejected';
+  status: 'pending_review' | 'in_progress' | 'needs_revision' | 'accepted' | 'published' | 'rejected' | 'draft';
   submittedAt: string;
   reviewedAt?: string;
   publishedWorkId?: string;
@@ -19,6 +21,9 @@ interface Submission {
   tags: string[];
   reviewFeedback?: string;
   wordCount?: number;
+  revisionNotes?: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 interface Draft {
@@ -35,7 +40,7 @@ interface Draft {
 
 @Component({
   selector: 'app-user-profile',
-  imports: [CommonModule, FormsModule, RouterModule],
+  imports: [CommonModule, FormsModule, RouterModule, TypeBadgePipe, PrettyLabelPipe],
   templateUrl: './user-profile.component.html',
   styleUrl: './user-profile.component.css'
 })
@@ -128,8 +133,16 @@ export class UserProfileComponent implements OnInit {
         case 'oldest':
           return new Date(a.submittedAt).getTime() - new Date(b.submittedAt).getTime();
         case 'status':
-          const statusOrder = { 'pending': 0, 'accepted': 1, 'published': 2, 'rejected': 3 };
-          return statusOrder[a.status] - statusOrder[b.status];
+          const statusOrder: { [key: string]: number } = { 
+            'pending_review': 0, 
+            'in_progress': 1,
+            'needs_revision': 2,
+            'accepted': 3, 
+            'published': 4, 
+            'rejected': 5,
+            'draft': 6
+          };
+          return (statusOrder[a.status] || 0) - (statusOrder[b.status] || 0);
         case 'title':
           return a.title.localeCompare(b.title);
         default: // newest
@@ -296,7 +309,7 @@ export class UserProfileComponent implements OnInit {
           _id: '3',
           title: 'Urban Chronicles',
           submissionType: 'prose',
-          status: 'pending',
+          status: 'pending_review',
           submittedAt: '2024-01-25T12:00:00Z',
           excerpt: 'Stories from the heart of the city...',
           content: 'Prose content here...',
@@ -419,6 +432,18 @@ export class UserProfileComponent implements OnInit {
     }
   }
 
+  refreshDrafts() {
+
+  }
+
+  refreshSubmissions() {
+
+  }
+
+  refreshPublishedWorks() {
+    
+  }
+
   isOwnProfile(): boolean {
     const profile = this.userProfile();
     if (!profile) return false;
@@ -488,10 +513,16 @@ export class UserProfileComponent implements OnInit {
         return `${baseClasses} bg-green-100 text-green-800 border border-green-200`;
       case 'accepted':
         return `${baseClasses} bg-blue-100 text-blue-800 border border-blue-200`;
-      case 'pending':
+      case 'pending_review':
         return `${baseClasses} bg-yellow-100 text-yellow-800 border border-yellow-200`;
+      case 'in_progress':
+        return `${baseClasses} bg-blue-100 text-blue-800 border border-blue-200`;
+      case 'needs_revision':
+        return `${baseClasses} bg-orange-100 text-orange-800 border border-orange-200`;
       case 'rejected':
         return `${baseClasses} bg-red-100 text-red-800 border border-red-200`;
+      case 'draft':
+        return `${baseClasses} bg-gray-100 text-gray-800 border border-gray-200`;
       default:
         return `${baseClasses} bg-gray-100 text-gray-800 border border-gray-200`;
     }
@@ -503,10 +534,16 @@ export class UserProfileComponent implements OnInit {
         return 'bg-green-500';
       case 'accepted':
         return 'bg-blue-500';
-      case 'pending':
+      case 'pending_review':
         return 'bg-yellow-500';
+      case 'in_progress':
+        return 'bg-blue-500';
+      case 'needs_revision':
+        return 'bg-orange-500';
       case 'rejected':
         return 'bg-red-500';
+      case 'draft':
+        return 'bg-gray-500';
       default:
         return 'bg-gray-500';
     }
@@ -518,10 +555,16 @@ export class UserProfileComponent implements OnInit {
         return 'Published';
       case 'accepted':
         return 'Accepted';
-      case 'pending':
+      case 'pending_review':
         return 'Pending Review';
-      case 'rejected':
+      case 'in_progress':
+        return 'In Progress';
+      case 'needs_revision':
         return 'Needs Revision';
+      case 'rejected':
+        return 'Rejected';
+      case 'draft':
+        return 'Draft';
       default:
         return 'Unknown';
     }
@@ -529,12 +572,139 @@ export class UserProfileComponent implements OnInit {
 
   // Action methods for submissions
   editSubmission(submission: Submission) {
-    // Navigate to submit page with submission data populated
-    this.router.navigate(['/submit'], { queryParams: { edit: submission._id } });
+    // Navigate to edit submission page
+    this.router.navigate(['/edit-submission', submission._id], { queryParams: { action: 'edit' } });
+  }
+
+  resubmitSubmission(submission: Submission) {
+    // For needs_revision status, navigate to edit submission page with resubmit action
+    this.router.navigate(['/edit-submission', submission._id], { queryParams: { action: 'resubmit' } });
   }
 
   viewSubmissionDetails(submission: Submission) {
-    // TODO: Open modal or navigate to detailed view
+    // Navigate to read interface or admin review page
+    if (submission.status === 'published' && submission.publishedWorkId) {
+      this.router.navigate(['/read', submission.publishedWorkId]);
+    } else {
+      // For non-published submissions, show details in a modal or navigate to review page
+      // TODO: Implement submission details modal
+      console.log('View submission details:', submission);
+    }
+  }
+
+  deleteSubmission(submission: Submission) {
+    if (submission.status !== 'draft' && submission.status !== 'needs_revision') {
+      alert('Only draft and revision submissions can be deleted.');
+      return;
+    }
+
+    if (confirm(`Are you sure you want to delete "${submission.title}"? This action cannot be undone.`)) {
+      this.backendService.deleteSubmission(submission._id).subscribe({
+        next: () => {
+          // Remove from local state
+          const updatedSubmissions = this.submissions().filter(s => s._id !== submission._id);
+          this.submissions.set(updatedSubmissions);
+          console.log('Submission deleted successfully');
+        },
+        error: (error) => {
+          console.error('Error deleting submission:', error);
+          alert('Failed to delete submission. Please try again.');
+        }
+      });
+    }
+  }
+
+  // Helper methods to check submission status and available actions based on user requirements
+  canEdit(submission: Submission): boolean {
+    // Edit for pending review or needs revision
+    return ['pending_review', 'needs_revision'].includes(submission.status);
+  }
+
+  canResubmit(submission: Submission): boolean {
+    // Allow resubmit for needs_revision (this is separate from edit)
+    return submission.status === 'needs_revision';
+  }
+
+  canDelete(submission: Submission): boolean {
+    // Delete only for rejected submissions
+    return submission.status === 'rejected';
+  }
+
+  canView(submission: Submission): boolean {
+    // View for published, draft, accepted, in_progress
+    return ['published', 'draft', 'accepted', 'in_progress'].includes(submission.status);
+  }
+
+  getActionButtons(submission: Submission): Array<{label: string, action: string, class: string}> {
+    const buttons: Array<{label: string, action: string, class: string}> = [];
+
+    if (this.canView(submission)) {
+      buttons.push({
+        label: 'View',
+        action: 'view',
+        class: 'btn-secondary text-sm'
+      });
+    }
+
+    if (this.canEdit(submission)) {
+      buttons.push({
+        label: 'Edit',
+        action: 'edit',
+        class: 'btn-secondary text-sm'
+      });
+    }
+
+    if (this.canResubmit(submission)) {
+      buttons.push({
+        label: 'Resubmit',
+        action: 'resubmit',
+        class: 'btn-primary text-sm'
+      });
+    }
+
+    if (this.canDelete(submission)) {
+      buttons.push({
+        label: 'Delete',
+        action: 'delete',
+        class: 'btn-danger text-sm'
+      });
+    }
+
+    return buttons;
+  }
+
+  handleSubmissionAction(action: string, submission: Submission) {
+    switch (action) {
+      case 'view':
+        this.viewSubmissionDetails(submission);
+        break;
+      case 'edit':
+        this.editSubmission(submission);
+        break;
+      case 'resubmit':
+        this.resubmitSubmission(submission);
+        break;
+      case 'delete':
+        this.deleteSubmission(submission);
+        break;
+      default:
+        console.log('Unknown action:', action);
+    }
+  }
+
+  getButtonClass(action: string): string {
+    switch (action) {
+      case 'view':
+        return 'text-blue-700 hover:text-white hover:bg-blue-600 border-blue-300 bg-blue-50';
+      case 'edit':
+        return 'text-green-700 hover:text-white hover:bg-green-600 border-green-300 bg-green-50';
+      case 'resubmit':
+        return 'text-orange-700 hover:text-white hover:bg-orange-600 border-orange-300 bg-orange-50';
+      case 'delete':
+        return 'text-red-700 hover:text-white hover:bg-red-600 border-red-300 bg-red-50';
+      default:
+        return 'text-gray-700 hover:text-white hover:bg-gray-600 border-gray-300 bg-gray-50';
+    }
   }
 
   // Action methods for drafts
@@ -644,6 +814,11 @@ export class UserProfileComponent implements OnInit {
   cancelEdit() {
     this.isEditMode.set(false);
     this.resetEditForm();
+  }
+
+  editProfileAdvanced() {
+    // Navigate to the profile completion component for advanced editing
+    this.router.navigate(['/complete-profile']);
   }
 
   toggleFollow() {

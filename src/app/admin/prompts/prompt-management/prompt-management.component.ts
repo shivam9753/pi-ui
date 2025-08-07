@@ -33,6 +33,7 @@ export class PromptManagementComponent implements OnInit {
   allPrompts: Prompt[] = [];
   filteredPrompts: Prompt[] = [];
   
+  
   // Filters
   manageType = '';
   manageSearch = '';

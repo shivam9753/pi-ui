@@ -88,6 +88,18 @@
                 </p>
               </div>
 
+              <!-- Edit Profile Button -->
+              <div *ngIf="isOwnProfile() && !isEditMode()" class="mt-4">
+                <button 
+                  (click)="editProfileAdvanced()"
+                  class="inline-flex items-center px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors duration-200">
+                  <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                  </svg>
+                  Edit Profile
+                </button>
+              </div>
+
               <!-- Edit Form -->
               <div *ngIf="isEditMode()" class="space-y-4 text-left">
                 <div>
@@ -147,6 +159,8 @@
       </div>
     </div>
 
+    
+
     <!-- Main Content Tabs (Always show for testing) -->
     <div class="w-full px-4 sm:px-6 lg:px-8 xl:px-12 py-6">
       <div class="max-w-6xl mx-auto">
@@ -189,41 +203,88 @@
 
         <!-- Tab Content -->
         <!-- Published Works Tab -->
-        <div *ngIf="activeTab() === 'published'">
-          <!-- Header and Filters Section -->
-          <div class="mb-8">
-            <!-- Title Section -->
-            <div class="text-center md:text-left mb-6">
-              <h2 class="text-2xl font-bold text-gray-900 mb-2">
-                Published Works
-              </h2>
-              <p class="text-gray-900-secondary">
-                {{ publishedWorks().length }} published {{ publishedWorks().length === 1 ? 'work' : 'works' }}
-              </p>
+        <div *ngIf="activeTab() === 'published'" class="w-full">
+          <!-- Header -->
+          <div class="border-b border-gray-200 pb-6 mb-8">
+            <div class="flex items-center justify-between mb-4">
+              <div>
+                <h1 class="text-2xl md:text-3xl font-bold text-gray-900 mb-2">
+                  Published Works
+                </h1>
+                <p class="text-gray-900-secondary">
+                  View and manage your published content.
+                </p>
+              </div>
+              <button 
+                (click)="refreshPublishedWorks()"
+                class="btn-secondary">
+                <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                </svg>
+                Refresh
+              </button>
+            </div>
+            
+            <!-- Stats Row -->
+            <div class="flex flex-wrap items-center gap-3 sm:gap-6 mb-6 px-1">
+              <div class="flex items-center gap-2 text-sm">
+                <div class="w-2 h-2 bg-green-500 rounded-full"></div>
+                <span class="text-gray-900-secondary">Published:</span>
+                <span class="font-semibold text-gray-900">{{ publishedWorks().length }}</span>
+              </div>
+              <div class="flex items-center gap-2 text-sm">
+                <div class="w-2 h-2 bg-blue-500 rounded-full"></div>
+                <span class="text-gray-900-secondary">Filtered:</span>
+                <span class="font-semibold text-gray-900">{{ filteredWorks().length }}</span>
+              </div>
             </div>
 
-            <!-- Filter Controls -->
-            <div class="flex flex-col sm:flex-row gap-3 justify-center md:justify-start">
-              <select 
-                [(ngModel)]="worksFilter" 
-                (change)="applyWorksFilter()"
-                class="form-input w-full sm:w-auto">
-                <option value="">All Works</option>
-                <option value="poem">Poems</option>
-                <option value="prose">Prose</option>
-                <option value="article">Articles</option>
-                <option value="cinema_essay">Cinema Essays</option>
-              </select>
-              
-              <select 
-                [(ngModel)]="worksSort" 
-                (change)="applyWorksFilter()"
-                class="form-input w-full sm:w-auto">
-                <option value="newest">Newest First</option>
-                <option value="oldest">Oldest First</option>
-                <option value="popular">Most Popular</option>
-                <option value="title">Title A-Z</option>
-              </select>
+            <!-- Filter Bar -->
+            <div class="bg-gradient-to-r from-white to-gray-50/50 p-4 border border-gray-200/60 rounded-xl mb-6 shadow-sm backdrop-blur-sm">
+              <div class="flex flex-wrap items-center gap-3">
+                
+                <!-- Type Filter -->
+                <div class="group relative">
+                  <div class="flex items-center text-sm bg-white px-4 py-2.5 rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200 hover:border-orange-200">
+                    <svg class="w-4 h-4 mr-2 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+                    </svg>
+                    <span class="mr-2 text-gray-600 font-medium">Type</span>
+                    <select [(ngModel)]="worksFilter" (change)="applyWorksFilter()" 
+                            class="bg-transparent focus:outline-none text-gray-900 font-medium min-w-[100px]">
+                      <option value="">All Types</option>
+                      <option value="poem">Poems</option>
+                      <option value="prose">Prose</option>
+                      <option value="article">Articles</option>
+                      <option value="cinema_essay">Cinema Essays</option>
+                    </select>
+                    <svg class="w-4 h-4 ml-1 text-gray-400 group-hover:text-orange-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                    </svg>
+                  </div>
+                </div>
+
+                <!-- Sort Filter -->
+                <div class="group relative">
+                  <div class="flex items-center text-sm bg-white px-4 py-2.5 rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200 hover:border-orange-200">
+                    <svg class="w-4 h-4 mr-2 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12"/>
+                    </svg>
+                    <span class="mr-2 text-gray-600 font-medium">Sort</span>
+                    <select [(ngModel)]="worksSort" (change)="applyWorksFilter()" 
+                            class="bg-transparent focus:outline-none text-gray-900 font-medium min-w-[100px]">
+                      <option value="newest">Newest First</option>
+                      <option value="oldest">Oldest First</option>
+                      <option value="popular">Most Popular</option>
+                      <option value="title">Title A-Z</option>
+                    </select>
+                    <svg class="w-4 h-4 ml-1 text-gray-400 group-hover:text-orange-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                    </svg>
+                  </div>
+                </div>
+
+              </div>
             </div>
           </div>
 
@@ -263,39 +324,91 @@
         </div>
 
         <!-- Submissions Tab -->
-        <div *ngIf="activeTab() === 'submissions'">
-          <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
-            <div class="text-center md:text-left">
-              <h2 class="text-2xl font-bold text-gray-900 mb-2">
-                My Submissions
-              </h2>
-              <p class="text-gray-900-secondary">
-                Track the status of your submitted works
-              </p>
+        <div *ngIf="activeTab() === 'submissions'" class="w-full">
+          <!-- Header -->
+          <div class="border-b border-gray-200 pb-6 mb-8">
+            <div class="flex items-center justify-between mb-4">
+              <div>
+                <h1 class="text-2xl md:text-3xl font-bold text-gray-900 mb-2">
+                  My Submissions
+                </h1>
+                <p class="text-gray-900-secondary">
+                  Track the status of your submitted works.
+                </p>
+              </div>
+              <button 
+                (click)="refreshSubmissions()"
+                class="btn-secondary">
+                <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                </svg>
+                Refresh
+              </button>
+            </div>
+            
+            <!-- Stats Row -->
+            <div class="flex flex-wrap items-center gap-3 sm:gap-6 mb-6 px-1">
+              <div class="flex items-center gap-2 text-sm">
+                <div class="w-2 h-2 bg-blue-500 rounded-full"></div>
+                <span class="text-gray-900-secondary">Total:</span>
+                <span class="font-semibold text-gray-900">{{ submissions().length }}</span>
+              </div>
+              <div class="flex items-center gap-2 text-sm">
+                <div class="w-2 h-2 bg-orange-500 rounded-full"></div>
+                <span class="text-gray-900-secondary">Filtered:</span>
+                <span class="font-semibold text-gray-900">{{ filteredSubmissions().length }}</span>
+              </div>
             </div>
 
-            <!-- Status Filter -->
-            <div class="flex flex-col sm:flex-row gap-3 justify-center md:justify-end">
-              <select 
-                [(ngModel)]="submissionsFilter" 
-                (change)="applySubmissionsFilter()"
-                class="form-input w-full sm:w-auto">
-                <option value="">All Submissions</option>
-                <option value="pending">Pending Review</option>
-                <option value="accepted">Accepted</option>
-                <option value="published">Published</option>
-                <option value="rejected">Needs Revision</option>
-              </select>
-              
-              <select 
-                [(ngModel)]="submissionsSort" 
-                (change)="applySubmissionsFilter()"
-                class="form-input w-full sm:w-auto">
-                <option value="newest">Newest First</option>
-                <option value="oldest">Oldest First</option>
-                <option value="status">By Status</option>
-                <option value="title">Title A-Z</option>
-              </select>
+            <!-- Filter Bar -->
+            <div class="bg-gradient-to-r from-white to-gray-50/50 p-4 border border-gray-200/60 rounded-xl mb-6 shadow-sm backdrop-blur-sm">
+              <div class="flex flex-wrap items-center gap-3">
+                
+                <!-- Status Filter -->
+                <div class="group relative">
+                  <div class="flex items-center text-sm bg-white px-4 py-2.5 rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200 hover:border-orange-200">
+                    <svg class="w-4 h-4 mr-2 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    <span class="mr-2 text-gray-600 font-medium">Status</span>
+                    <select [(ngModel)]="submissionsFilter" (change)="applySubmissionsFilter()" 
+                            class="bg-transparent focus:outline-none text-gray-900 font-medium min-w-[120px]">
+                      <option value="">All Status</option>
+                      <option value="pending_review">Pending Review</option>
+                      <option value="in_progress">In Progress</option>
+                      <option value="needs_revision">Needs Revision</option>
+                      <option value="accepted">Accepted</option>
+                      <option value="published">Published</option>
+                      <option value="rejected">Rejected</option>
+                      <option value="draft">Draft</option>
+                    </select>
+                    <svg class="w-4 h-4 ml-1 text-gray-400 group-hover:text-orange-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                    </svg>
+                  </div>
+                </div>
+
+                <!-- Sort Filter -->
+                <div class="group relative">
+                  <div class="flex items-center text-sm bg-white px-4 py-2.5 rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200 hover:border-orange-200">
+                    <svg class="w-4 h-4 mr-2 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12"/>
+                    </svg>
+                    <span class="mr-2 text-gray-600 font-medium">Sort</span>
+                    <select [(ngModel)]="submissionsSort" (change)="applySubmissionsFilter()" 
+                            class="bg-transparent focus:outline-none text-gray-900 font-medium min-w-[100px]">
+                      <option value="newest">Newest First</option>
+                      <option value="oldest">Oldest First</option>
+                      <option value="status">By Status</option>
+                      <option value="title">Title A-Z</option>
+                    </select>
+                    <svg class="w-4 h-4 ml-1 text-gray-400 group-hover:text-orange-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                    </svg>
+                  </div>
+                </div>
+
+              </div>
             </div>
           </div>
 
@@ -305,67 +418,90 @@
             <p class="text-gray-900-secondary">Loading submissions...</p>
           </div>
 
-          <!-- Submissions Modern Table -->
+          <!-- Submissions Table -->
           <div *ngIf="!submissionsLoading()" class="card-elevated rounded-xl overflow-hidden">
             <div class="overflow-x-auto">
               <table class="min-w-full">
                 <thead class="bg-white-secondary border-b border-gray-200">
                   <tr>
-                    <th class="px-8 py-5 text-left text-xs font-semibold text-gray-900 uppercase tracking-wider">Title & Feedback</th>
-                    <th class="px-8 py-5 text-left text-xs font-semibold text-gray-900 uppercase tracking-wider">Type</th>
-                    <th class="px-8 py-5 text-left text-xs font-semibold text-gray-900 uppercase tracking-wider">Status</th>
-                    <th class="px-8 py-5 text-left text-xs font-semibold text-gray-900 uppercase tracking-wider">Date</th>
-                    <th class="px-8 py-5 text-left text-xs font-semibold text-gray-900 uppercase tracking-wider">Actions</th>
+                    <th class="px-4 py-3 text-left text-xs font-semibold text-gray-900 uppercase tracking-wider">Title & Notes</th>
+                    <th class="px-4 py-3 text-left text-xs font-semibold text-gray-900 uppercase tracking-wider">Type</th>
+                    <th class="px-4 py-3 text-left text-xs font-semibold text-gray-900 uppercase tracking-wider">Status</th>
+                    <th class="px-4 py-3 text-left text-xs font-semibold text-gray-900 uppercase tracking-wider">Date</th>
+                    <th class="px-4 py-3 text-left text-xs font-semibold text-gray-900 uppercase tracking-wider">Actions</th>
                   </tr>
                 </thead>
-                <tbody class="bg-white divide-y divide-themed">
+                <tbody class="bg-themed divide-y divide-gray-200">
                   <tr *ngFor="let submission of filteredSubmissions(); trackBy: trackBySubmissionId" 
                       class="hover:bg-white-secondary/50 transition-all duration-200 group">
-                    <td class="px-8 py-6">
-                      <div class="max-w-sm">
-                        <div class="text-base font-semibold text-gray-900 mb-2 group-hover:text-gray-900-accent transition-colors duration-200">{{ submission.title }}</div>
-                        <div *ngIf="submission.reviewFeedback" class="text-sm text-gray-900-secondary leading-relaxed">
-                          {{ submission.reviewFeedback }}
+                    
+                    <!-- Title & Notes Column -->
+                    <td class="px-4 py-4">
+                      <div class="max-w-xs">
+                        <div class="text-sm font-semibold text-gray-900 mb-1 group-hover:text-gray-900-accent transition-colors duration-200">
+                          {{ submission.title }}
+                        </div>
+                        <!-- Show review feedback for accepted/rejected submissions -->
+                        <div *ngIf="submission.reviewFeedback && ['accepted', 'rejected'].includes(submission.status)" 
+                             class="text-xs text-gray-900-secondary leading-relaxed mb-1">
+                          <strong>Review:</strong> {{ submission.reviewFeedback }}
+                        </div>
+                        <!-- Show revision notes for needs_revision submissions -->
+                        <div *ngIf="submission.status === 'needs_revision' && submission.revisionNotes" 
+                             class="text-xs text-orange-700 bg-orange-50 px-1 py-0.5 rounded mb-1">
+                          <strong>Revision needed:</strong> {{ submission.revisionNotes }}
+                        </div>
+                        <!-- Show excerpt if available -->
+                        <div *ngIf="submission.excerpt" class="text-xs text-gray-900-secondary leading-relaxed line-clamp-2">
+                          {{ submission.excerpt }}
                         </div>
                       </div>
                     </td>
-                    <td class="px-8 py-6">
-                      <span class="px-2 py-1 bg-orange-100 text-orange-800 rounded text-xs font-medium">{{ submission.submissionType }}</span>
+
+                    <!-- Type Column -->
+                    <td class="px-4 py-4">
+                      <span [class]="submission.submissionType | typeBadge">
+                        {{ submission.submissionType | prettyLabel }}
+                      </span>
                     </td>
-                    <td class="px-8 py-6">
+
+                    <!-- Status Column -->
+                    <td class="px-4 py-4">
                       <span [class]="getStatusClass(submission.status)" 
-                            class="inline-flex items-center px-3 py-2 rounded-lg text-sm font-medium">
+                            class="inline-flex items-center px-2 py-1 rounded text-xs font-medium">
                         <div [class]="getStatusDotClass(submission.status)" 
-                             class="w-2 h-2 rounded-full mr-2"></div>
+                             class="w-1.5 h-1.5 rounded-full mr-1"></div>
                         {{ getStatusText(submission.status) }}
                       </span>
                     </td>
-                    <td class="px-8 py-6">
-                      <div class="text-sm text-gray-900-secondary font-mono">
-                        {{ submission.submittedAt | date:'MMM d, y' }}
+
+                    <!-- Date Column -->
+                    <td class="px-4 py-4">
+                      <div class="text-xs text-gray-900-secondary">
+                        {{ submission.submittedAt | date:'MMM d' }}
                       </div>
-                      <div class="text-xs text-gray-900-tertiary font-mono mt-1">
-                        {{ submission.submittedAt | date:'h:mm a' }}
+                      <div class="text-xs text-gray-900-tertiary mt-0.5">
+                        {{ submission.submittedAt | date:'HH:mm' }}
                       </div>
                     </td>
+
+                    <!-- Actions Column -->
                     <td class="px-8 py-6">
-                      <div class="flex items-center gap-3">
-                        <button *ngIf="submission.status === 'published' && submission.publishedWorkId" 
-                                [routerLink]="['/read', submission.publishedWorkId]"
-                                class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-900-accent hover:text-white hover:bg-white-accent rounded-lg transition-all duration-200 border border-gray-200-accent">
-                          <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                      <div class="flex items-center gap-2">
+                        <button *ngFor="let button of getActionButtons(submission)"
+                                (click)="handleSubmissionAction(button.action, submission)"
+                                [class]="'inline-flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 border ' + getButtonClass(button.action)">
+                          <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <!-- View Icon -->
+                            <path *ngIf="button.action === 'view'" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                            <!-- Edit Icon -->
+                            <path *ngIf="button.action === 'edit'" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                            <!-- Resubmit Icon -->
+                            <path *ngIf="button.action === 'resubmit'" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                            <!-- Delete Icon -->
+                            <path *ngIf="button.action === 'delete'" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
                           </svg>
-                          View
-                        </button>
-                        <button *ngIf="submission.status === 'rejected'" 
-                                (click)="editSubmission(submission)"
-                                class="inline-flex items-center px-4 py-2 text-sm font-medium text-orange-600 hover:text-white hover:bg-orange-600 rounded-lg transition-all duration-200 border border-orange-600">
-                          <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
-                          </svg>
-                          Edit
+                          {{ button.label }}
                         </button>
                       </div>
                     </td>
@@ -391,42 +527,92 @@
         </div>
 
         <!-- Drafts Tab -->
-        <div *ngIf="activeTab() === 'drafts'">
-          <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
-            <div class="text-center md:text-left">
-              <h2 class="text-2xl font-bold text-gray-900 mb-2">
-                My Drafts
-              </h2>
-              <p class="text-gray-900-secondary">
-                Your work in progress - continue writing or submit when ready
-              </p>
+        <div *ngIf="activeTab() === 'drafts'" class="w-full">
+          <!-- Header -->
+          <div class="border-b border-gray-200 pb-6 mb-8">
+            <div class="flex items-center justify-between mb-4">
+              <div>
+                <h1 class="text-2xl md:text-3xl font-bold text-gray-900 mb-2">
+                  My Drafts
+                </h1>
+                <p class="text-gray-900-secondary">
+                  Your work in progress - continue writing or submit when ready.
+                </p>
+              </div>
+              <div class="flex gap-2">
+                <button 
+                  (click)="refreshDrafts()"
+                  class="btn-secondary">
+                  <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                  </svg>
+                  Refresh
+                </button>
+                <a routerLink="/submit" class="btn-primary whitespace-nowrap">
+                  New Draft
+                </a>
+              </div>
+            </div>
+            
+            <!-- Stats Row -->
+            <div class="flex flex-wrap items-center gap-3 sm:gap-6 mb-6 px-1">
+              <div class="flex items-center gap-2 text-sm">
+                <div class="w-2 h-2 bg-yellow-500 rounded-full"></div>
+                <span class="text-gray-900-secondary">Drafts:</span>
+                <span class="font-semibold text-gray-900">{{ drafts().length }}</span>
+              </div>
+              <div class="flex items-center gap-2 text-sm">
+                <div class="w-2 h-2 bg-purple-500 rounded-full"></div>
+                <span class="text-gray-900-secondary">Filtered:</span>
+                <span class="font-semibold text-gray-900">{{ filteredDrafts().length }}</span>
+              </div>
             </div>
 
-            <!-- Draft Actions -->
-            <div class="flex flex-col sm:flex-row gap-3 justify-center md:justify-end">
-              <select 
-                [(ngModel)]="draftsFilter" 
-                (change)="applyDraftsFilter()"
-                class="form-input w-full sm:w-auto">
-                <option value="">All Drafts</option>
-                <option value="poem">Poems</option>
-                <option value="prose">Prose</option>
-                <option value="article">Articles</option>
-                <option value="cinema_essay">Cinema Essays</option>
-              </select>
-              
-              <select 
-                [(ngModel)]="draftsSort" 
-                (change)="applyDraftsFilter()"
-                class="form-input w-full sm:w-auto">
-                <option value="newest">Recently Updated</option>
-                <option value="oldest">Oldest First</option>
-                <option value="title">Title A-Z</option>
-              </select>
+            <!-- Filter Bar -->
+            <div class="bg-gradient-to-r from-white to-gray-50/50 p-4 border border-gray-200/60 rounded-xl mb-6 shadow-sm backdrop-blur-sm">
+              <div class="flex flex-wrap items-center gap-3">
+                
+                <!-- Type Filter -->
+                <div class="group relative">
+                  <div class="flex items-center text-sm bg-white px-4 py-2.5 rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200 hover:border-orange-200">
+                    <svg class="w-4 h-4 mr-2 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+                    </svg>
+                    <span class="mr-2 text-gray-600 font-medium">Type</span>
+                    <select [(ngModel)]="draftsFilter" (change)="applyDraftsFilter()" 
+                            class="bg-transparent focus:outline-none text-gray-900 font-medium min-w-[100px]">
+                      <option value="">All Types</option>
+                      <option value="poem">Poems</option>
+                      <option value="prose">Prose</option>
+                      <option value="article">Articles</option>
+                      <option value="cinema_essay">Cinema Essays</option>
+                    </select>
+                    <svg class="w-4 h-4 ml-1 text-gray-400 group-hover:text-orange-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                    </svg>
+                  </div>
+                </div>
 
-              <a routerLink="/submit" class="btn-primary whitespace-nowrap">
-                New Draft
-              </a>
+                <!-- Sort Filter -->
+                <div class="group relative">
+                  <div class="flex items-center text-sm bg-white px-4 py-2.5 rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200 hover:border-orange-200">
+                    <svg class="w-4 h-4 mr-2 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12"/>
+                    </svg>
+                    <span class="mr-2 text-gray-600 font-medium">Sort</span>
+                    <select [(ngModel)]="draftsSort" (change)="applyDraftsFilter()" 
+                            class="bg-transparent focus:outline-none text-gray-900 font-medium min-w-[120px]">
+                      <option value="newest">Recently Updated</option>
+                      <option value="oldest">Oldest First</option>
+                      <option value="title">Title A-Z</option>
+                    </select>
+                    <svg class="w-4 h-4 ml-1 text-gray-400 group-hover:text-orange-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                    </svg>
+                  </div>
+                </div>
+
+              </div>
             </div>
           </div>
 
