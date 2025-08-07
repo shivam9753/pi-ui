@@ -11,6 +11,7 @@ interface SEOConfig {
   metaTitle: string;
   metaDescription: string;
   keywords: string[];
+  ogImage: string;
   allowComments: boolean;
   featuredPost: boolean;
   enableSocialSharing: boolean;
@@ -28,8 +29,10 @@ export class PublishSubmissionComponent implements OnInit {
   isPublishing = false;
   
   // Image upload properties
-  selectedImageFile: File | null = null;
-  isUploadingImage = false;
+  selectedCoverImageFile: File | null = null;
+  selectedSocialImageFile: File | null = null;
+  isUploadingCoverImage = false;
+  isUploadingSocialImage = false;
 
   // Content expansion state
   contentExpanded: boolean[] = [];
@@ -44,6 +47,7 @@ export class PublishSubmissionComponent implements OnInit {
     metaTitle: '',
     metaDescription: '',
     keywords: [],
+    ogImage: '',
     allowComments: true,
     featuredPost: false,
     enableSocialSharing: true
@@ -263,76 +267,129 @@ export class PublishSubmissionComponent implements OnInit {
     return text.trim().split(/\s+/).filter(word => word.length > 0).length;
   }
 
-  // Handle image file selection
-  onImageSelect(event: any) {
+  // Handle cover image file selection
+  onCoverImageSelect(event: any) {
     const file = event.target.files[0];
     if (file) {
-      // Validate file size (5MB max)
-      if (file.size > 5 * 1024 * 1024) {
-        this.showError('Image size must be less than 5MB');
-        event.target.value = ''; // Clear the input
-        return;
-      }
-      
-      // Validate file type
-      if (!file.type.startsWith('image/')) {
-        this.showError('Please select an image file');
-        event.target.value = ''; // Clear the input
-        return;
-      }
-      
-      this.selectedImageFile = file;
-      console.log('Image selected:', file.name, 'Size:', Math.round(file.size / 1024), 'KB');
+      if (!this.validateImageFile(file, event.target)) return;
+      this.selectedCoverImageFile = file;
+      console.log('Cover image selected:', file.name, 'Size:', Math.round(file.size / 1024), 'KB');
     }
   }
 
-  // Upload image to server
-  uploadImage() {
-    if (!this.selectedImageFile || !this.submission) {
+  // Handle social media image file selection
+  onSocialImageSelect(event: any) {
+    const file = event.target.files[0];
+    if (file) {
+      if (!this.validateImageFile(file, event.target)) return;
+      this.selectedSocialImageFile = file;
+      console.log('Social media image selected:', file.name, 'Size:', Math.round(file.size / 1024), 'KB');
+    }
+  }
+
+  // Validate image file (shared validation logic)
+  private validateImageFile(file: File, inputElement: HTMLInputElement): boolean {
+    // Validate file size (5MB max)
+    if (file.size > 5 * 1024 * 1024) {
+      this.showError('Image size must be less than 5MB');
+      inputElement.value = ''; // Clear the input
+      return false;
+    }
+    
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      this.showError('Please select an image file');
+      inputElement.value = ''; // Clear the input
+      return false;
+    }
+    
+    return true;
+  }
+
+  // Upload cover image to server
+  uploadCoverImage() {
+    if (!this.selectedCoverImageFile || !this.submission) {
       return;
     }
 
-    this.isUploadingImage = true;
+    this.isUploadingCoverImage = true;
 
-    this.backendService.uploadSubmissionImage(this.submission._id, this.selectedImageFile).subscribe({
+    this.backendService.uploadSubmissionImage(this.submission._id, this.selectedCoverImageFile).subscribe({
       next: (response) => {
-        console.log('Image uploaded successfully:', response);
+        console.log('Cover image uploaded successfully:', response);
         
-        // Update submission with new image URL
+        // Update submission with new cover image URL
         this.submission.imageUrl = response.imageUrl;
         
-        this.showSuccess('Image uploaded successfully!');
-        this.selectedImageFile = null;
-        this.isUploadingImage = false;
+        this.showSuccess('Cover image uploaded successfully!');
+        this.selectedCoverImageFile = null;
+        this.isUploadingCoverImage = false;
         
         // Clear the file input
-        const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
+        const fileInput = document.querySelector('input[data-type="cover"]') as HTMLInputElement;
         if (fileInput) {
           fileInput.value = '';
         }
       },
       error: (err) => {
-        console.error('Upload error:', err);
-        let errorMessage = 'Failed to upload image';
-        if (err.status === 404) {
-          errorMessage = 'Upload endpoint not found. Please check server configuration.';
-        } else if (err.status === 401) {
-          errorMessage = 'Not authorized to upload images.';
-        } else if (err.status === 413) {
-          errorMessage = 'Image file too large (max 5MB).';
-        } else if (err.error && err.error.error) {
-          errorMessage = err.error.error;
-        }
-        
-        this.showError(errorMessage);
-        this.isUploadingImage = false;
+        console.error('Cover image upload error:', err);
+        this.handleUploadError(err);
+        this.isUploadingCoverImage = false;
       }
     });
   }
 
-  // Remove current image with confirmation and S3 deletion
-  removeImage() {
-    const confirmed = confirm('Are you sure you want to remove this image? This will permanently delete it from S3 storage and cannot be undone.');
+  // Upload social media image to server
+  uploadSocialImage() {
+    if (!this.selectedSocialImageFile || !this.submission) {
+      return;
+    }
+
+    this.isUploadingSocialImage = true;
+
+    this.backendService.uploadSubmissionImage(this.submission._id, this.selectedSocialImageFile).subscribe({
+      next: (response) => {
+        console.log('Social media image uploaded successfully:', response);
+        
+        // Update SEO config with new social media image URL
+        this.seoConfig.ogImage = response.imageUrl;
+        
+        this.showSuccess('Social media image uploaded successfully!');
+        this.selectedSocialImageFile = null;
+        this.isUploadingSocialImage = false;
+        
+        // Clear the file input
+        const fileInput = document.querySelector('input[data-type="social"]') as HTMLInputElement;
+        if (fileInput) {
+          fileInput.value = '';
+        }
+      },
+      error: (err) => {
+        console.error('Social media image upload error:', err);
+        this.handleUploadError(err);
+        this.isUploadingSocialImage = false;
+      }
+    });
+  }
+
+  // Handle upload errors (shared logic)
+  private handleUploadError(err: any) {
+    let errorMessage = 'Failed to upload image';
+    if (err.status === 404) {
+      errorMessage = 'Upload endpoint not found. Please check server configuration.';
+    } else if (err.status === 401) {
+      errorMessage = 'Not authorized to upload images.';
+    } else if (err.status === 413) {
+      errorMessage = 'Image file too large (max 5MB).';
+    } else if (err.error && err.error.error) {
+      errorMessage = err.error.error;
+    }
+    this.showError(errorMessage);
+  }
+
+  // Remove cover image with confirmation and S3 deletion
+  removeCoverImage() {
+    const confirmed = confirm('Are you sure you want to remove the cover image? This will permanently delete it from S3 storage and cannot be undone.');
     
     if (!confirmed) {
       return;
@@ -342,22 +399,44 @@ export class PublishSubmissionComponent implements OnInit {
     this.backendService.deleteSubmissionImage(this.submission._id).subscribe({
       next: (response) => {
         this.submission.imageUrl = '';
-        this.showSuccess('Image removed and deleted from S3 successfully!');
+        this.showSuccess('Cover image removed and deleted from S3 successfully!');
       },
       error: (error) => {
-        console.error('Error removing image:', error);
-        this.showError('Failed to remove image. Please try again.');
+        console.error('Error removing cover image:', error);
+        this.showError('Failed to remove cover image. Please try again.');
       }
     });
   }
 
-  // Use submission image as SEO social media image
-  useSocialMediaImage() {
+  // Remove social media image
+  removeSocialImage() {
+    const confirmed = confirm('Are you sure you want to remove the social media image?');
+    
+    if (!confirmed) {
+      return;
+    }
+
+    this.seoConfig.ogImage = '';
+    this.showSuccess('Social media image removed successfully!');
+  }
+
+  // Use cover image as social media image
+  useCoverImageAsSocial() {
     if (this.submission.imageUrl) {
-      // Copy the submission image URL to be used as social media image
-      this.showSuccess('Submission image will be used as social media image.');
+      this.seoConfig.ogImage = this.submission.imageUrl;
+      this.showSuccess('Cover image set as social media image.');
     } else {
-      this.showError('No submission image available to use.');
+      this.showError('No cover image available to use.');
+    }
+  }
+
+  // Use social media image as cover image
+  useSocialImageAsCover() {
+    if (this.seoConfig.ogImage) {
+      this.submission.imageUrl = this.seoConfig.ogImage;
+      this.showSuccess('Social media image set as cover image.');
+    } else {
+      this.showError('No social media image available to use.');
     }
   }
 
@@ -468,6 +547,7 @@ export class PublishSubmissionComponent implements OnInit {
       metaTitle: this.seoConfig.metaTitle,
       metaDescription: this.seoConfig.metaDescription,
       keywords: this.seoConfig.keywords,
+      ogImage: this.seoConfig.ogImage,
       allowComments: this.seoConfig.allowComments,
       featuredOnHomepage: this.seoConfig.featuredPost,
       enableSocialSharing: this.seoConfig.enableSocialSharing

@@ -111,57 +111,57 @@
   <!-- Published Posts Table -->
   <div *ngIf="!loading" class="card-elevated rounded-xl overflow-hidden">
     <!-- Mobile Card View -->
-    <div class="block md:hidden space-y-4 p-3">
-      <div *ngFor="let submission of filteredSubmissions" class="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
+    <div class="block md:hidden space-y-4 p-1">
+      <div *ngFor="let submission of filteredSubmissions" class="bg-white border border-gray-200 rounded-lg p-5 shadow-sm mx-2">
         <div class="mb-3">
           <h3 class="font-semibold text-gray-900 mb-1">{{ submission.title }}</h3>
           <p class="text-sm text-gray-600">by {{ getAuthorName(submission) }}</p>
           <p class="text-xs text-gray-500 mt-1">{{ getTruncatedDescription(submission, 80) }}</p>
         </div>
         
-        <div class="flex items-center justify-between">
-          <div class="flex items-center gap-2">
-            <span [class]="submission.submissionType | typeBadge">
-              {{ submission.submissionType | prettyLabel }}
-            </span>
-            <span class="px-2 py-1 rounded text-xs font-medium"
-                  [ngClass]="{
-                    'bg-green-100 text-green-800': submission.status === 'published',
-                    'bg-orange-100 text-orange-800': submission.status === 'draft'
-                  }">
-              {{ submission.status | titlecase }}
-            </span>
-            <span class="text-xs text-gray-500">
-              {{ submission.reviewedAt | date:'MMM d' }}
-            </span>
-          </div>
-          
-          <div class="flex gap-2">
-            <!-- For Published -->
-            <ng-container *ngIf="submission.status === 'published'">
-              <button (click)="editPublishedPost(submission._id)" 
-                      class="px-2 py-1 text-xs font-medium text-blue-600 bg-blue-50 border border-blue-200 rounded">
-                Edit
-              </button>
-              <button (click)="unpublishSubmission(submission._id, submission.title)" 
-                      class="px-2 py-1 text-xs font-medium text-orange-600 bg-orange-50 border border-orange-200 rounded">
-                Unpublish
-              </button>
-            </ng-container>
-            
-            <!-- For Draft -->
-            <ng-container *ngIf="submission.status === 'draft'">
-              <button (click)="configureAndPublish(submission._id)" 
-                      class="px-2 py-1 text-xs font-medium text-green-600 bg-green-50 border border-green-200 rounded">
-                Configure & Publish
-              </button>
-            </ng-container>
-            
-            <button (click)="deleteSubmission(submission._id, submission.title)" 
-                    class="px-2 py-1 text-xs font-medium text-red-600 bg-red-50 border border-red-200 rounded">
-              Delete
+        <!-- Status and Meta Info -->
+        <div class="flex flex-wrap items-center gap-2 mb-3">
+          <span [class]="submission.submissionType | typeBadge">
+            {{ submission.submissionType | prettyLabel }}
+          </span>
+          <span class="px-2 py-1 rounded text-xs font-medium"
+                [ngClass]="{
+                  'bg-green-100 text-green-800': submission.status === 'published',
+                  'bg-orange-100 text-orange-800': submission.status === 'draft'
+                }">
+            {{ submission.status | titlecase }}
+          </span>
+          <span class="text-xs text-gray-500">
+            {{ submission.reviewedAt | date:'MMM d' }}
+          </span>
+        </div>
+        
+        <!-- Mobile Action Buttons - Stacked Layout -->
+        <div class="flex flex-wrap gap-2 mobile-card-actions">
+          <!-- For Published -->
+          <ng-container *ngIf="submission.status === 'published'">
+            <button (click)="editPublishedPost(submission._id)" 
+                    class="flex-1 px-3 py-2 text-xs font-medium text-blue-600 bg-blue-50 border border-blue-200 rounded">
+              Edit
             </button>
-          </div>
+            <button (click)="unpublishSubmission(submission._id, submission.title)" 
+                    class="flex-1 px-3 py-2 text-xs font-medium text-orange-600 bg-orange-50 border border-orange-200 rounded">
+              Unpublish
+            </button>
+          </ng-container>
+          
+          <!-- For Draft -->
+          <ng-container *ngIf="submission.status === 'draft'">
+            <button (click)="configureAndPublish(submission._id)" 
+                    class="flex-1 px-3 py-2 text-xs font-medium text-green-600 bg-green-50 border border-green-200 rounded min-w-0">
+              Configure & Publish
+            </button>
+          </ng-container>
+          
+          <button (click)="deleteSubmission(submission._id, submission.title)" 
+                  class="px-3 py-2 text-xs font-medium text-red-600 bg-red-50 border border-red-200 rounded">
+            Delete
+          </button>
         </div>
       </div>
     </div>

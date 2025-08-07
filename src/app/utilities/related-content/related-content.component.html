@@ -39,7 +39,7 @@
          }">
       
       <div *ngFor="let post of relatedPosts; trackBy: trackByPostId" 
-           class="related-post-card bg-white border border-gray-200 border border-gray-200 rounded-xl overflow-hidden hover:shadow-md transition-all duration-300 cursor-pointer group"
+           class="related-post-card bg-white border border-gray-200 rounded-xl overflow-hidden hover:shadow-md transition-all duration-300 cursor-pointer group"
            (click)="navigateToPost(post)">
         
         <!-- Post Image (if available) -->

@@ -2,3 +2,21 @@
   box-shadow: 0 4px 24px 0 rgba(249,115,22,0.12);
   border-color: #fb923c;
 }
+
+/* Ensure loading spinner is visible on all screen sizes */
+.loading-container {
+  min-height: 150px;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  background-color: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  margin: 1rem 0;
+}
+
+.loading-text {
+  font-size: 14px;
+  margin-top: 1rem;
+  color: #6b7280;
+}

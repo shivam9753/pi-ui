@@ -1,7 +1,7 @@
 <!-- Manage Prompts Tab Content -->
 <div class="w-full">
 
-    <div class="flex justify-between items-start mb-4">
+    <div class="flex justify-between items-start mb-4 header-section">
       <div>
         <h1 class="text-2xl font-bold text-gray-900 mb-2">Manage Prompts</h1>
         <p class="text-gray-600" >Create, edit, and manage writing prompts</p>
@@ -194,7 +194,7 @@
       </div>
 
       <!-- Actions -->
-      <div class="flex justify-end gap-3">
+      <div class="flex justify-end gap-3 form-actions">
         <button
           type="button"
           (click)="cancelEdit()"
@@ -220,7 +220,93 @@
 
   <!-- Prompts Table -->
   <div *ngIf="!isLoading" class="bg-white border border-gray-200 rounded-lg overflow-hidden">
-    <div class="overflow-x-auto">
+    
+    <!-- Mobile Card View -->
+    <div class="block md:hidden space-y-4 p-3">
+      <div *ngFor="let prompt of paginatedPrompts" class="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
+        <div class="mb-3">
+          <h3 class="font-semibold text-gray-900 mb-1">{{ prompt.title }}</h3>
+          <p class="text-xs text-gray-500 mt-1 line-clamp-2">{{ prompt.description }}</p>
+        </div>
+        
+        <div class="flex flex-wrap items-center gap-2 mb-3">
+          <span class="px-2 py-1 text-xs font-medium rounded-md bg-white-secondary text-gray-900-secondary border border-gray-200">
+            {{ getTypeLabel(prompt.type) }}
+          </span>
+          <span class="px-2 py-1 text-xs font-medium rounded-md"
+                [class.bg-green-100]="prompt.difficulty === 'beginner'"
+                [class.text-green-800]="prompt.difficulty === 'beginner'"
+                [class.bg-yellow-100]="prompt.difficulty === 'intermediate'"
+                [class.text-yellow-800]="prompt.difficulty === 'intermediate'"
+                [class.bg-red-100]="prompt.difficulty === 'advanced'"
+                [class.text-red-800]="prompt.difficulty === 'advanced'">
+            {{ getDifficultyLabel(prompt.difficulty) }}
+          </span>
+          <div class="flex items-center gap-1">
+            <span class="w-2 h-2 rounded-full"
+                  [class.bg-green-500]="prompt.isActive"
+                  [class.bg-gray-400]="!prompt.isActive"></span>
+            <span class="text-xs text-gray-900-secondary">
+              {{ prompt.isActive ? 'Active' : 'Inactive' }}
+            </span>
+          </div>
+          <span *ngIf="prompt.featured" class="px-1.5 py-0.5 text-xs font-medium bg-orange-100 text-orange-800 rounded">
+            Featured
+          </span>
+        </div>
+        
+        <div class="flex items-center justify-between text-xs text-gray-900-secondary mb-3">
+          <span>Usage: {{ prompt.usageCount || 0 }}</span>
+          <span>{{ prompt.formattedCreatedAt }}</span>
+        </div>
+        
+        <!-- Mobile Action Buttons -->
+        <div class="flex flex-wrap gap-2">
+          <button
+            (click)="togglePromptStatus(prompt)"
+            [title]="prompt.isActive ? 'Deactivate' : 'Activate'"
+            class="flex-1 px-3 py-2 text-xs font-medium rounded border transition-colors duration-200"
+            [class.bg-gray-100]="prompt.isActive"
+            [class.text-gray-700]="prompt.isActive"
+            [class.border-gray-300]="prompt.isActive"
+            [class.bg-green-50]="!prompt.isActive"
+            [class.text-green-700]="!prompt.isActive"
+            [class.border-green-300]="!prompt.isActive">
+            {{ prompt.isActive ? 'Deactivate' : 'Activate' }}
+          </button>
+          
+          <button
+            (click)="toggleFeatured(prompt)"
+            [title]="prompt.featured ? 'Remove from featured' : 'Mark as featured'"
+            class="flex-1 px-3 py-2 text-xs font-medium rounded border transition-colors duration-200"
+            [class.bg-orange-50]="prompt.featured"
+            [class.text-orange-700]="prompt.featured"
+            [class.border-orange-300]="prompt.featured"
+            [class.bg-gray-100]="!prompt.featured"
+            [class.text-gray-700]="!prompt.featured"
+            [class.border-gray-300]="!prompt.featured">
+            {{ prompt.featured ? 'Unfeature' : 'Feature' }}
+          </button>
+          
+          <button
+            (click)="editPrompt(prompt)"
+            title="Edit prompt"
+            class="px-3 py-2 text-xs font-medium text-blue-700 bg-blue-50 border border-blue-300 rounded transition-colors duration-200">
+            Edit
+          </button>
+          
+          <button
+            (click)="deletePrompt(prompt)"
+            title="Delete prompt"
+            class="px-3 py-2 text-xs font-medium text-red-700 bg-red-50 border border-red-300 rounded transition-colors duration-200">
+            Delete
+          </button>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Desktop Table View -->
+    <div class="hidden md:block overflow-x-auto">
       <table class="w-full">
         <thead class="bg-white-secondary">
           <tr>
@@ -365,12 +451,12 @@
     </div>
 
     <!-- Pagination -->
-    <div *ngIf="totalPages > 1" class="px-4 py-3 bg-white-secondary border-t border-gray-200 flex items-center justify-between">
+    <div *ngIf="totalPages > 1" class="px-4 py-3 bg-white-secondary border-t border-gray-200 flex items-center justify-between pagination-controls">
       <div class="text-sm text-gray-900-secondary">
         Showing {{ (currentPage - 1) * itemsPerPage + 1 }} to {{ Math.min(currentPage * itemsPerPage, totalItems) }} of {{ totalItems }} results
       </div>
       
-      <div class="flex items-center gap-2">
+      <div class="flex items-center gap-2 pagination-buttons">
         <button
           (click)="goToPage(currentPage - 1)"
           [disabled]="currentPage === 1"

@@ -1,13 +1,33 @@
 /* Published Content Card Styles */
 .card {
-  @apply bg-white border border-gray-200 rounded-xl shadow-sm;
+  background-color: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.75rem;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
   transform-origin: center;
   will-change: transform, box-shadow;
 }
 
 .card:hover {
-  @apply shadow-2xl;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15), 0 4px 6px -2px rgba(251, 146, 60, 0.1);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+/* Mobile-specific styles for flatter appearance */
+@media (max-width: 768px) {
+  .card {
+    border: 0;
+    box-shadow: none;
+    background-color: white;
+  }
+  
+  .card:hover {
+    box-shadow: none;
+    transform: none !important;
+  }
+  
+  .card:active {
+    transform: scale(0.97) !important;
+  }
 }
 
 /* Enhanced micro-interactions */

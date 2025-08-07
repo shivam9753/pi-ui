@@ -115,9 +115,11 @@
   </div>
 
   <!-- Loading State -->
-  <div *ngIf="loading" class="flex items-center justify-center py-12">
-    <div class="spinner mr-3"></div>
-    <span class="text-gray-600">Loading users...</span>
+  <div *ngIf="loading" class="loading-container">
+    <div class="text-center">
+      <div class="spinner mx-auto"></div>
+      <div class="loading-text text-gray-600 mt-3">Loading users...</div>
+    </div>
   </div>
 
   <!-- User List -->
@@ -146,11 +148,11 @@
                     [alt]="user.username"
                     class="w-10 h-10 rounded-full object-cover" />
                   <span *ngIf="!user.profileImage" class="text-white font-medium text-sm">
-                    {{ user.username.charAt(0).toUpperCase() }}
+                    {{ (user.name || user.username).charAt(0).toUpperCase() }}
                   </span>
                 </div>
                 <div class="ml-4">
-                  <div class="text-sm font-medium text-gray-900">{{ user.name }}</div>
+                  <div class="text-sm font-medium text-gray-900">{{ user.name || user.username }}</div>
                   <div class="text-sm text-gray-500">{{ user.email }}</div>
                 </div>
               </div>
@@ -195,8 +197,8 @@
     </div>
 
     <!-- Mobile Cards -->
-    <div class="md:hidden divide-y divide-gray-200">
-      <div *ngFor="let user of users; trackBy: trackByUserId" class="p-4">
+    <div class="md:hidden space-y-4 p-1">
+      <div *ngFor="let user of users; trackBy: trackByUserId" class="bg-white border border-gray-200 rounded-lg p-5 shadow-sm mx-2">
         <div class="flex items-start space-x-4">
           <!-- Avatar -->
           <div class="flex-shrink-0 w-12 h-12 rounded-full bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center">
@@ -205,7 +207,7 @@
               [alt]="user.username"
               class="w-12 h-12 rounded-full object-cover" />
             <span *ngIf="!user.profileImage" class="text-white font-medium">
-              {{ user.username.charAt(0).toUpperCase() }}
+              {{ (user.name || user.username).charAt(0).toUpperCase() }}
             </span>
           </div>
 
@@ -213,7 +215,7 @@
           <div class="flex-1 min-w-0">
             <div class="flex items-center justify-between">
               <div>
-                <h3 class="text-sm font-medium text-gray-900 truncate">{{ user.username }}</h3>
+                <h3 class="text-sm font-medium text-gray-900 truncate">{{ user.name || user.username }}</h3>
                 <p class="text-sm text-gray-500 truncate">{{ user.email }}</p>
               </div>
               <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium"

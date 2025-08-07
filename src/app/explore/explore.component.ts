@@ -11,7 +11,7 @@ import { PublishedContentCardComponent, PublishedContent } from '../utilities/pu
 
 @Component({
   selector: 'app-explore',
-  imports: [DatePipe, CommonModule, BadgeLabelComponent, FormsModule, PublishedContentCardComponent],
+  imports: [CommonModule, FormsModule, BadgeLabelComponent],
   templateUrl: './explore.component.html',
   styleUrl: './explore.component.css'
 })
@@ -155,6 +155,22 @@ export class ExploreComponent implements OnInit {
   getSelectedTypeLabel(): string {
     const selectedOption = this.filterOptions.find((option: any) => option.value === this.selectedType);
     return selectedOption ? selectedOption.label : 'works';
+  }
+
+  // Helper method to get submissions for display (excluding featured if it exists)
+  getDisplaySubmissions() {
+    if (!this.submissions || this.submissions.length === 0) {
+      return [];
+    }
+    
+    // If we're showing all content (no filter) and have more than 1 submission,
+    // skip the first one as it's shown in featured section
+    if (!this.selectedType && this.submissions.length > 1) {
+      return this.submissions.slice(1);
+    }
+    
+    // For filtered content, show all submissions as there's no separate featured section
+    return this.submissions;
   }
 
   // Helper method to format numbers (for view counts)

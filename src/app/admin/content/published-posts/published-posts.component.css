@@ -35,3 +35,38 @@
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
+
+/* Mobile-specific button fixes */
+@media (max-width: 639px) {
+  /* Fix oversized buttons in filter area and header */
+  .btn-secondary {
+    padding: 10px 12px !important;
+    font-size: 14px !important;
+    min-height: 40px !important;
+  }
+  
+  /* Fix filter buttons and controls */
+  .filter-button,
+  button[title="Refresh list"] {
+    padding: 8px 12px !important;
+    font-size: 14px !important;
+    min-height: 36px !important;
+  }
+  
+  /* Mobile card button improvements */
+  .mobile-card-actions button {
+    padding: 8px 12px;
+    font-size: 12px;
+    min-height: 32px;
+  }
+  
+  /* Responsive filter area */
+  .filter-area {
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  .filter-area > div {
+    width: 100%;
+  }
+}

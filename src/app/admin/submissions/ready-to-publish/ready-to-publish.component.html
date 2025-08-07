@@ -16,9 +16,9 @@
   </div>
 
   <!-- Submissions Cards Grid -->
-  <div *ngIf="!loading" class="space-y-4 py-3">
-    <!-- Desktop: Show as grid, Mobile: Show as stack -->
-    <div class="submissions-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mb-8">
+  <div *ngIf="!loading" class="space-y-4 py-1">
+    <!-- Desktop: Show as grid, Mobile: Show as single column -->
+    <div class="submissions-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mb-8 px-2 md:px-0">
       <app-submission-card 
         *ngFor="let submission of acceptedSubmissions"
         [data]="submission"
@@ -43,7 +43,7 @@
 <!-- Toast Notification -->
 <div *ngIf="showToastFlag"
   class="fixed top-4 right-4 z-50 max-w-sm w-full transition-all duration-300 ease-in-out transform animate-slideInDown">
-  <div class="bg-white border border-gray-200 border border-gray-200 rounded-lg shadow-lg p-4" [ngClass]="{
+  <div class="bg-white border border-gray-200 rounded-lg shadow-lg p-4" [ngClass]="{
            'border-green-300 bg-green-50': toastType === 'success',
            'border-red-300 bg-red-50': toastType === 'error',
            'border-blue-300 bg-blue-50': toastType === 'info'

@@ -78,7 +78,8 @@ export class SubmissionCardComponent {
 
   getCardClasses(): string {
     // Keep cards neutral - only badge shows submission type color
-    return `p-5 rounded-2xl bg-white shadow-lg border border-gray-100 transition group w-full max-w-xs mx-auto`;
+    // Make cards wider on mobile for better readability
+    return `p-5 rounded-2xl bg-white shadow-lg border border-gray-100 transition group w-full max-w-none md:max-w-xs mx-auto md:mx-0`;
   }
 
   getActionButtonClasses(): string {

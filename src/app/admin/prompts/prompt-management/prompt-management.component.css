@@ -27,6 +27,27 @@
   align-items: center;
   justify-content: center;
   transition: all 0.2s;
+  min-height: 44px;
+  font-size: 14px;
+}
+
+/* Mobile-specific button styling */
+@media (max-width: 639px) {
+  .btn-primary {
+    padding: 14px 20px;
+    font-size: 16px;
+    min-height: 48px;
+    border-radius: 12px;
+    font-weight: 600;
+  }
+}
+
+@media (min-width: 640px) {
+  .btn-primary {
+    padding: 10px 16px;
+    font-size: 14px;
+    min-height: 38px;
+  }
 }
 
 .btn-primary:hover {
@@ -45,6 +66,27 @@
   border-radius: 0.375rem;
   font-weight: 500;
   transition: all 0.2s;
+  min-height: 44px;
+  font-size: 14px;
+}
+
+/* Mobile-specific secondary button styling */
+@media (max-width: 639px) {
+  .btn-secondary {
+    padding: 12px 16px;
+    font-size: 15px;
+    min-height: 44px;
+    border-radius: 10px;
+    font-weight: 500;
+  }
+}
+
+@media (min-width: 640px) {
+  .btn-secondary {
+    padding: 10px 16px;
+    font-size: 14px;
+    min-height: 38px;
+  }
 }
 
 .btn-secondary:hover {
@@ -110,5 +152,51 @@ tbody tr:hover {
   
   .grid-cols-1.md\\:grid-cols-2 {
     grid-template-columns: 1fr;
+  }
+}
+
+/* Mobile-specific layout improvements */
+@media (max-width: 639px) {
+  /* Header section - stack title and button vertically */
+  .header-section {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1rem;
+  }
+  
+  .header-section .btn-primary {
+    width: 100%;
+    justify-content: center;
+  }
+  
+  /* Form action buttons - stack vertically on mobile */
+  .form-actions {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  
+  .form-actions .btn-primary,
+  .form-actions .btn-secondary {
+    width: 100%;
+    justify-content: center;
+  }
+  
+  /* Pagination buttons - better mobile spacing */
+  .pagination-controls {
+    flex-direction: column;
+    gap: 0.5rem;
+    align-items: stretch;
+  }
+  
+  .pagination-buttons {
+    display: flex;
+    justify-content: space-between;
+    gap: 0.5rem;
+  }
+  
+  .pagination-buttons button {
+    flex: 1;
+    padding: 12px;
+    font-size: 14px;
   }
 }

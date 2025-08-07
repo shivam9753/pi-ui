@@ -98,7 +98,7 @@
   </div>
 
   <!-- Existing Review (if any) -->
-  <div *ngIf="existingReview" class="mb-8 bg-white border border-gray-200 rounded-lg p-6 border border-gray-200 shadow-sm">
+  <div *ngIf="existingReview" class="mb-8 bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
     <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
       <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
         <path fill-rule="evenodd" d="M18 13V5a2 2 0 00-2-2H4a2 2 0 00-2 2v8a2 2 0 002 2h3l3 3 3-3h3a2 2 0 002-2zM5 7a1 1 0 011-1h8a1 1 0 110 2H6a1 1 0 01-1-1zm1 3a1 1 0 100 2h3a1 1 0 100-2H6z" clip-rule="evenodd"/>
@@ -125,7 +125,7 @@
   <!-- Content Items -->
   <div class="space-y-6" *ngIf="submission && submission.contents && submission.contents.length > 0">
     <div *ngFor="let content of submission.contents; let i = index" 
-         class="bg-white border border-gray-200 rounded-lg p-6 border border-gray-200 shadow-sm">
+         class="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
       
       <!-- Content Header -->
       <div class="mb-4">
@@ -421,7 +421,7 @@
   <!-- Toast Notification -->
   <div *ngIf="showToastFlag" 
        class="fixed top-4 right-4 z-50 max-w-sm w-full transition-all duration-300 ease-in-out transform animate-slideInDown">
-    <div class="bg-white border border-gray-200 border border-gray-200 rounded-lg shadow-lg p-4"
+    <div class="bg-white border border-gray-200 rounded-lg shadow-lg p-4"
          [ngClass]="{
            'border-green-300 bg-green-50': toastType === 'success',
            'border-red-300 bg-red-50': toastType === 'error',
