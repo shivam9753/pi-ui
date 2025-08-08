@@ -129,29 +129,29 @@
     </div>
 
     <!-- Bottom Navigation -->
-    <div class="fixed bottom-0 left-0 right-0 bg-white border border-gray-200 px-6 py-4">
-      <div class="flex justify-center space-x-12">
+    <div class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-6 py-3 safe-area-inset-bottom">
+      <div class="flex justify-center space-x-16">
         <button (click)="activeTab = 'submit'"
-                class="flex flex-col items-center space-y-1 transition-colors duration-200"
+                class="flex flex-col items-center space-y-1 py-2 transition-colors duration-200"
                 [style.color]="activeTab === 'submit' ? 'var(--text-accent)' : 'var(--text-tertiary)'">
-          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path>
           </svg>
           <span class="text-xs font-medium">Write</span>
         </button>
         <button (click)="activeTab = 'drafts'"
-                class="flex flex-col items-center space-y-1 relative transition-colors duration-200"
+                class="flex flex-col items-center space-y-1 py-2 relative transition-colors duration-200"
                 [style.color]="activeTab === 'drafts' ? 'var(--text-accent)' : 'var(--text-tertiary)'">
-          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
           </svg>
           <span class="text-xs font-medium">Drafts</span>
           <div *ngIf="drafts.length > 0" class="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">{{ drafts.length }}</div>
         </button>
         <button (click)="activeTab = 'guidelines'"
-                class="flex flex-col items-center space-y-1 transition-colors duration-200"
+                class="flex flex-col items-center space-y-1 py-2 transition-colors duration-200"
                 [style.color]="activeTab === 'guidelines' ? 'var(--text-accent)' : 'var(--text-tertiary)'">
-          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
           </svg>
           <span class="text-xs font-medium">Guide</span>

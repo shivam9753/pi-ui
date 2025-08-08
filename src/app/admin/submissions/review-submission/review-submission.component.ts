@@ -212,8 +212,12 @@ export class ReviewSubmissionComponent {
       },
       error: (err: any) => {
         console.error('Error approving submission:', err);
-        // Check if it's actually a success response with error status
-        if (err.status === 200 || err.error?.success ) {
+        console.log('Error status:', err.status);
+        console.log('Error response:', err.error);
+        
+        // Check if it's actually a success response (status 200 or success flag)
+        if (err.status === 200 || (err.error && err.error.success === true)) {
+          console.log('Detected successful approval with error status - showing success message');
           this.showSuccessMessage('Submission approved successfully!');
           this.getSubmissionWithContents(this.id);
           this.loadSubmissionHistory(this.id);
@@ -482,5 +486,21 @@ export class ReviewSubmissionComponent {
       .replace(/^(<br\s*\/?>)+|(<br\s*\/?>)+$/g, '')
       // Clean up any remaining empty paragraphs or spaces
       .trim();
+  }
+
+  // Calculate word count from content body
+  getWordCount(content: string): number {
+    if (!content) return 0;
+    
+    // Remove HTML tags and clean up text
+    const cleanText = content
+      .replace(/<[^>]*>/g, ' ')  // Remove HTML tags
+      .replace(/\s+/g, ' ')      // Normalize whitespace
+      .trim();
+    
+    if (!cleanText) return 0;
+    
+    // Count words by splitting on whitespace
+    return cleanText.split(' ').filter(word => word.length > 0).length;
   }
 }

@@ -24,46 +24,73 @@
         </div>
 
         <!-- Featured Story - only show when not filtering by type -->
-        <div *ngIf="!showSearchResults && !selectedType && submissions && submissions.length > 0" class="mb-8">
-          <div class="cursor-pointer" (click)="openSubmission(submissions[0])">
-            <div class="aspect-[16/9] rounded-2xl overflow-hidden mb-4 bg-gray-100">
+        <div *ngIf="!showSearchResults && !selectedType && submissions && submissions.length > 0" class="mb-6">
+          <div class="cursor-pointer group" (click)="openSubmission(submissions[0])">
+            <!-- Hero-style overlay card -->
+            <div class="relative aspect-[3/2] sm:aspect-[16/9] lg:aspect-[24/10] rounded-2xl overflow-hidden bg-gray-900 lg:mr-8">
+              <!-- Background Image -->
               <img 
                 *ngIf="submissions[0].imageUrl" 
                 [src]="submissions[0].imageUrl" 
                 [alt]="submissions[0].title"
-                class="w-full h-full object-cover"/>
+                class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"/>
+              
+              <!-- Fallback gradient background -->
               <div *ngIf="!submissions[0].imageUrl" 
-                   class="w-full h-full bg-gray-100 flex items-center justify-center">
-                <svg class="w-12 h-12 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                </svg>
-              </div>
-            </div>
-            
-            <div class="space-y-3">
-              <div class="text-orange-500 text-sm font-medium">
-                {{ submissions[0].submissionType | titlecase }}
+                   class="absolute inset-0 bg-gradient-to-br from-orange-400 via-orange-500 to-red-500"></div>
+              
+              <!-- Gradient overlay for text readability -->
+              <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
+              <div class="absolute inset-0 bg-gradient-to-r from-black/30 via-transparent to-transparent"></div>
+              
+              <!-- Content overlay -->
+              <div class="absolute inset-0 flex flex-col justify-between p-6 lg:p-8">
+                <!-- Top section with minimal badges -->
+                <div class="flex items-start justify-between">
+                  <div class="flex items-center gap-3 text-xs font-semibold uppercase tracking-wider">
+                    <span style="color: #ff6100 !important;">FEATURED</span>
+                    <span style="color: rgba(255, 255, 255, 0.5) !important;">•</span>
+                    <span style="color: rgba(255, 255, 255, 0.8) !important;">{{ submissions[0].submissionType | titlecase }}</span>
+                  </div>
+                </div>
+
+                <!-- Bottom section with content -->
+                <div class="space-y-3 sm:space-y-5">
+                  <!-- Title - Large and prominent -->
+                  <h1 class="text-lg sm:text-2xl lg:text-5xl font-black leading-tight group-hover:text-orange-300 transition-colors duration-300"
+                      style="color: #ffffff !important; text-shadow: 0 2px 4px rgba(0,0,0,0.3);">
+                    {{ submissions[0].title }}
+                  </h1>
+                  
+                  <!-- Description - Medium size with good contrast -->
+                  <p class="text-sm sm:text-base lg:text-lg leading-relaxed max-w-2xl font-light" 
+                     style="color: rgba(255, 255, 255, 0.85) !important; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-clamp: 2;"
+                     [innerHTML]="cleanContent(submissions[0].excerpt || submissions[0].description || 'Discover this featured piece from our community...')">
+                  </p>
+                  
+                  <!-- Minimal author info - Small and subtle -->
+                  <div class="flex items-center justify-between text-xs sm:text-sm max-w-2xl">
+                    <div class="font-normal" style="color: rgba(255, 255, 255, 0.7) !important;">
+                      By <span class="font-semibold" style="color: rgba(255, 255, 255, 0.9) !important;">{{ submissions[0].author.name || 'Anonymous' }}</span>
+                      <span class="mx-2" style="color: rgba(255, 255, 255, 0.4) !important;">•</span>
+                      <span>{{ submissions[0].createdAt | date:'MMM d, y' }}</span>
+                    </div>
+                    <div class="flex items-center gap-1.5 text-xs sm:text-sm font-medium px-2 py-1 rounded" style="color: #ff6100 !important; background: rgba(255, 97, 0, 0.1);">
+                      <svg class="w-3 h-3 sm:w-3.5 sm:h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                      </svg>
+                      <span>{{ submissions[0].readingTime || 5 }} min</span>
+                    </div>
+                  </div>
+                </div>
               </div>
               
-              <h1 class="text-2xl md:text-3xl font-bold text-gray-900 leading-tight">
-                {{ submissions[0].title }}
-              </h1>
-              
-              <p class="text-gray-600 text-lg leading-relaxed" 
-                 style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;"
-                 [innerHTML]="cleanContent(submissions[0].excerpt || submissions[0].description || 'Read this story...')">
-              </p>
-              
-              <div class="flex items-center gap-3 text-gray-500 text-sm">
-                <span class="font-medium">{{ submissions[0].author.name || 'Anonymous' }}</span>
-                <span>•</span>
-                <span>{{ submissions[0].createdAt | date:'MMM d' }}</span>
-                <span>•</span>
-                <span>{{ submissions[0].readingTime || 5 }} min read</span>
-              </div>
+              <!-- Hover effect overlay -->
+              <div class="absolute inset-0 bg-orange-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
             </div>
           </div>
         </div>
+
 
         <!-- Search and Navigation -->
         <div class="space-y-6">
@@ -93,26 +120,72 @@
             </button>
           </div>
           
-          <!-- Tab Navigation -->
+          <!-- Tab Navigation with Sort Dropdown -->
           <div class="border-b border-gray-200">
-            <nav class="flex overflow-x-auto space-x-8 scrollbar-hide" aria-label="Tabs">
-              <button
-                *ngFor="let option of filterOptions"
-                (click)="onFilterChange(option.value)"
-                [class.border-gray-200-accent]="selectedType === option.value"
-                [class.text-gray-900-accent]="selectedType === option.value"
-                [class.border-transparent]="selectedType !== option.value"
-                [class.text-gray-900-secondary]="selectedType !== option.value"
-                [class.hover:text-gray-900]="selectedType !== option.value"
-                [class.hover:border-gray-200-secondary]="selectedType !== option.value"
-                class="whitespace-nowrap py-3 px-1 border-b-2 font-medium transition-colors duration-200 flex-shrink-0"
-              >
-                {{ option.label }}
-              </button>
-            </nav>
+            <!-- Mobile Layout -->
+            <div class="md:hidden">
+              <nav class="flex overflow-x-auto space-x-6 scrollbar-hide mb-3" aria-label="Tabs">
+                <button
+                  *ngFor="let option of filterOptions"
+                  (click)="onFilterChange(option.value)"
+                  [class.border-orange-500]="selectedType === option.value"
+                  [class.text-orange-600]="selectedType === option.value"
+                  [class.border-transparent]="selectedType !== option.value"
+                  [class.text-gray-600]="selectedType !== option.value"
+                  class="whitespace-nowrap py-2 px-1 border-b-2 font-medium transition-colors duration-200 flex-shrink-0 text-sm"
+                >
+                  {{ option.label }}
+                </button>
+              </nav>
+              <div class="flex items-center gap-2 pb-3">
+                <span class="text-gray-600 text-sm">Sort:</span>
+                <select [(ngModel)]="sortBy" (ngModelChange)="onSortChange($event)"
+                        class="px-2 py-1 border border-gray-200 rounded text-gray-900 text-sm focus:outline-none focus:ring-1 focus:ring-orange-200">
+                  <option *ngFor="let option of sortOptions" [value]="option.value">
+                    {{ option.label }}
+                  </option>
+                </select>
+              </div>
+            </div>
+            
+            <!-- Desktop Layout -->
+            <div class="hidden md:flex justify-between items-center">
+              <nav class="flex overflow-x-auto space-x-8 scrollbar-hide" aria-label="Tabs">
+                <button
+                  *ngFor="let option of filterOptions"
+                  (click)="onFilterChange(option.value)"
+                  [class.border-orange-500]="selectedType === option.value"
+                  [class.text-orange-600]="selectedType === option.value"
+                  [class.border-transparent]="selectedType !== option.value"
+                  [class.text-gray-600]="selectedType !== option.value"
+                  [class.hover:text-gray-900]="selectedType !== option.value"
+                  [class.hover:border-gray-300]="selectedType !== option.value"
+                  class="whitespace-nowrap py-3 px-1 border-b-2 font-medium transition-colors duration-200 flex-shrink-0"
+                >
+                  {{ option.label }}
+                </button>
+              </nav>
+              
+              <!-- Sort Dropdown -->
+              <div class="flex items-center gap-2 text-sm">
+                <span class="text-gray-600">Sort by:</span>
+                <select [(ngModel)]="sortBy" (ngModelChange)="onSortChange($event)"
+                        class="px-3 py-1 border border-gray-200 rounded-md text-gray-900 focus:outline-none focus:ring-2 focus:ring-orange-200 focus:border-orange-300">
+                  <option *ngFor="let option of sortOptions" [value]="option.value">
+                    {{ option.label }}
+                  </option>
+                </select>
+              </div>
+            </div>
           </div>
         </div>
 
+
+        <!-- Content Stats -->
+        <div *ngIf="!showSearchResults && submissions && submissions.length > 0" class="flex items-center justify-between text-sm text-gray-600 mb-4">
+          <span>Showing {{ getDisplaySubmissions().length }} of {{ getTotalDisplayItems() }} {{ selectedType ? getSelectedTypeLabel().toLowerCase() : 'works' }}</span>
+        </div>
+        
         <!-- Stories List -->
         <div *ngIf="(showSearchResults && searchResults.length > 0) || (!showSearchResults && submissions && submissions.length > 0)" class="space-y-6">
           
@@ -146,10 +219,18 @@
                     {{ submission.title }}
                   </h3>
                   
+                  <p class="text-gray-600 text-sm mb-2 leading-relaxed" 
+                     style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;"
+                     [innerHTML]="cleanContent(submission.excerpt || submission.description || '')"
+                     *ngIf="submission.excerpt || submission.description">
+                  </p>
+                  
                   <div class="flex items-center gap-2 text-gray-500 text-sm">
                     <span class="font-medium">{{ submission.author.name || 'Anonymous' }}</span>
                     <span>•</span>
                     <span>{{ submission.createdAt | date:'MMM d' }}</span>
+                    <span>•</span>
+                    <span>{{ submission.readingTime || '5' }} min read</span>
                   </div>
                 </div>
               </div>
@@ -157,7 +238,7 @@
           </div>
           
           <!-- Desktop: Clean grid -->
-          <div class="hidden md:grid grid-cols-2 lg:grid-cols-3 gap-8">
+          <div class="hidden md:grid grid-cols-3 gap-6">
             <div *ngFor="let submission of (showSearchResults ? searchResults : getDisplaySubmissions()); track submission?._id"
                  class="cursor-pointer group" 
                  (click)="openSubmission(submission)">
@@ -185,13 +266,123 @@
                   {{ submission.title }}
                 </h3>
                 
+                <p class="text-gray-600 text-sm mb-3 leading-relaxed" 
+                   style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;"
+                   [innerHTML]="cleanContent(submission.excerpt || submission.description || '')"
+                   *ngIf="submission.excerpt || submission.description">
+                </p>
+                
                 <div class="flex items-center gap-2 text-gray-500 text-sm">
                   <span class="font-medium">{{ submission.author.name || 'Anonymous' }}</span>
                   <span>•</span>
                   <span>{{ submission.createdAt | date:'MMM d' }}</span>
+                  <span>•</span>
+                  <span>{{ submission.readingTime || '5' }} min read</span>
                 </div>
               </div>
             </div>
+          </div>
+          
+          <!-- Load More Button -->
+          <div *ngIf="hasMoreItems() && !showSearchResults" class="text-center mt-8">
+            <button (click)="loadMore()" 
+                    class="px-6 py-3 bg-orange-100 text-orange-800 rounded-lg hover:bg-orange-200 transition-colors font-medium">
+              Load More Stories
+            </button>
+          </div>
+          
+          <!-- Mobile Sidebar Content - After content list -->
+          <div class="lg:hidden mt-8 space-y-6">
+            
+            <!-- Mobile Trending Topics -->
+            <div class="bg-white border border-gray-200 rounded-xl p-4 shadow-sm">
+              <h3 class="font-bold text-gray-900 mb-3 text-base">Popular Topics</h3>
+              <div class="flex flex-wrap gap-2">
+                <button *ngFor="let tag of trendingTags.slice(0, 6)" 
+                        (click)="onTagClick(tag)"
+                        class="px-3 py-1.5 bg-gray-100 text-gray-700 text-xs rounded-full hover:bg-orange-100 hover:text-orange-700 transition-colors cursor-pointer font-medium">
+                  #{{ tag }}
+                </button>
+              </div>
+            </div>
+
+            <!-- Mobile Content Breakdown -->
+            <div class="bg-white border border-gray-200 rounded-xl p-4 shadow-sm">
+              <h3 class="font-bold text-gray-900 mb-3 text-base">Content Types</h3>
+              <div class="grid grid-cols-2 gap-3">
+                <div *ngFor="let type of getContentTypeStats()" class="flex items-center gap-2">
+                  <div class="w-3 h-3 rounded-full flex-shrink-0" [style.background-color]="type.color"></div>
+                  <div class="flex-1 min-w-0">
+                    <div class="text-xs text-gray-700">{{ type.label }}</div>
+                    <div class="font-semibold text-gray-900">{{ type.count }}</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Mobile Announcements - Writing/Content Events -->
+            <div class="bg-gradient-to-br from-orange-50 to-yellow-50 border border-orange-200 rounded-xl p-4 shadow-sm">
+              <div class="flex items-center gap-2 mb-3">
+                <svg class="w-4 h-4 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 717 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"/>
+                </svg>
+                <h3 class="font-bold text-gray-900 text-base">Events & Challenges</h3>
+              </div>
+              <div class="space-y-3">
+                <div *ngFor="let announcement of getWritingAnnouncements().slice(0, 2)" 
+                     class="bg-white rounded-lg p-3 border border-gray-100">
+                  <div class="flex items-start gap-2">
+                    <div class="flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center" [style.background-color]="announcement.color + '20'">
+                      <svg class="w-3 h-3" [style.color]="announcement.color" fill="currentColor" viewBox="0 0 24 24">
+                        <path *ngIf="announcement.type === 'THEME'" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        <path *ngIf="announcement.type === 'CONTEST'" d="M12 2l3.09 6.26L22 9l-5 4.87L18.18 20 12 16.77 5.82 20 7 13.87 2 9l6.91-.74L12 2z"/>
+                      </svg>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                      <div class="flex items-center gap-2 mb-1">
+                        <h4 class="text-xs font-semibold text-gray-900">{{ announcement.title }}</h4>
+                        <span class="text-xs px-1.5 py-0.5 rounded-full text-white font-medium" [style.background-color]="announcement.color">
+                          {{ announcement.type }}
+                        </span>
+                      </div>
+                      <p class="text-xs text-gray-600 leading-relaxed mb-1" 
+                         style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-clamp: 2;">
+                        {{ announcement.description }}
+                      </p>
+                      <button *ngIf="announcement.link" 
+                              (click)="handleAnnouncementAction(announcement)"
+                              class="inline-flex items-center gap-1 text-xs font-medium hover:underline"
+                              [style.color]="announcement.color">
+                        {{ announcement.linkText }}
+                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Mobile Community Stats - Moved to bottom -->
+            <div class="bg-white border border-gray-200 rounded-xl p-4 shadow-sm">
+              <h3 class="font-bold text-gray-900 mb-3 text-base">Community Stats</h3>
+              <div class="grid grid-cols-3 gap-4 text-center">
+                <div>
+                  <div class="font-bold text-gray-900 text-lg">{{ getTotalPublishedCount() }}</div>
+                  <div class="text-xs text-gray-600">Works</div>
+                </div>
+                <div>
+                  <div class="font-bold text-gray-900 text-lg">{{ getActiveWritersCount() }}</div>
+                  <div class="text-xs text-gray-600">Writers</div>
+                </div>
+                <div>
+                  <div class="font-bold text-orange-600 text-lg">+{{ getThisMonthCount() }}</div>
+                  <div class="text-xs text-gray-600">This Month</div>
+                </div>
+              </div>
+            </div>
+            
           </div>
         </div>
 
@@ -221,53 +412,99 @@
         </div>
       </div>
 
-      <!-- SECONDARY SIDEBAR - Subtle and minimal -->
-      <div class="lg:col-span-1 space-y-6">
+      <!-- SECONDARY SIDEBAR - Active and engaging -->
+      <div class="hidden lg:block lg:col-span-1 space-y-6">
         
-        <!-- Write Prompt CTA -->
-        <!-- <div class="card p-5 text-center">
-          <div class="w-12 h-12 mx-auto bg-white-accent bg-opacity-10 rounded-full flex items-center justify-center mb-3">
-            <svg class="w-6 h-6 text-gray-900-accent" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/>
-            </svg>
+        <!-- Community Stats -->
+        <div class="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
+          <h3 class="font-bold text-gray-900 mb-4 text-lg">Community Stats</h3>
+          <div class="space-y-4">
+            <div class="flex justify-between items-center">
+              <span class="text-gray-600">Published Works</span>
+              <span class="font-bold text-gray-900 text-lg">{{ getTotalPublishedCount() }}</span>
+            </div>
+            <div class="flex justify-between items-center">
+              <span class="text-gray-600">Active Writers</span>
+              <span class="font-bold text-gray-900 text-lg">{{ getActiveWritersCount() }}</span>
+            </div>
+            <div class="flex justify-between items-center">
+              <span class="text-gray-600">This Month</span>
+              <span class="font-bold text-orange-600 text-lg">+{{ getThisMonthCount() }}</span>
+            </div>
           </div>
-          <h3 class="font-semibold text-gray-900 mb-2">Need inspiration?</h3>
-          <p class="text-gray-900-secondary text-sm mb-4">Get a writing prompt to spark your creativity</p>
-          <button (click)="generatePrompt()" class="btn-primary text-sm w-full">
-            Get Prompt
-          </button>
-        </div> -->
+        </div>
 
-        <!-- Quick Stats -->
-        <!-- <div class="card p-5">
-          <h3 class="font-semibold text-gray-900 mb-4">Community</h3>
+        <!-- Content Breakdown -->
+        <div class="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
+          <h3 class="font-bold text-gray-900 mb-4 text-lg">Content Types</h3>
           <div class="space-y-3">
-            <div class="flex justify-between text-sm">
-              <span class="text-gray-900-secondary">Published works</span>
-              <span class="font-medium text-gray-900">1,247</span>
-            </div>
-            <div class="flex justify-between text-sm">
-              <span class="text-gray-900-secondary">Active writers</span>
-              <span class="font-medium text-gray-900">89</span>
-            </div>
-            <div class="flex justify-between text-sm">
-              <span class="text-gray-900-secondary">This week</span>
-              <span class="font-medium text-gray-900-accent">+23</span>
+            <div *ngFor="let type of getContentTypeStats()" class="flex justify-between items-center">
+              <div class="flex items-center gap-2">
+                <div class="w-3 h-3 rounded-full" [style.background-color]="type.color"></div>
+                <span class="text-gray-700 text-sm">{{ type.label }}</span>
+              </div>
+              <span class="font-semibold text-gray-900">{{ type.count }}</span>
             </div>
           </div>
-        </div> -->
+        </div>
 
-        <!-- Trending Tags -->
-        <!-- <div class="card p-5">
-          <h3 class="font-semibold text-gray-900 mb-4">Popular topics</h3>
+        <!-- Trending Topics -->
+        <div class="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
+          <h3 class="font-bold text-gray-900 mb-4 text-lg">Popular Topics</h3>
           <div class="flex flex-wrap gap-2">
-            <span *ngFor="let tag of trendingTags.slice(0, 6)" 
-                  (click)="onTagClick(tag)"
-                  class="px-2 py-1 bg-white-secondary text-gray-900-secondary text-xs rounded-full hover:bg-white-accent hover:text-white transition-colors cursor-pointer">
+            <button *ngFor="let tag of trendingTags.slice(0, 8)" 
+                    (click)="onTagClick(tag)"
+                    class="px-3 py-1.5 bg-gray-100 text-gray-700 text-xs rounded-full hover:bg-orange-100 hover:text-orange-700 transition-colors cursor-pointer font-medium">
               #{{ tag }}
-            </span>
+            </button>
           </div>
-        </div> -->
+        </div>
+
+        <!-- Announcements -->
+        <div class="bg-gradient-to-br from-orange-50 to-yellow-50 border border-orange-200 rounded-xl p-6 shadow-sm">
+          <div class="flex items-center gap-2 mb-4">
+            <svg class="w-5 h-5 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"/>
+            </svg>
+            <h3 class="font-bold text-gray-900 text-lg">Events & Challenges</h3>
+          </div>
+          <div class="space-y-3">
+            <div *ngFor="let announcement of getWritingAnnouncements()" 
+                 class="bg-white rounded-lg p-4 border border-gray-100 shadow-sm hover:shadow-md transition-shadow duration-200">
+              <div class="flex items-start gap-3">
+                <!-- Icon based on type -->
+                <div class="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center" [style.background-color]="announcement.color + '20'">
+                  <svg class="w-4 h-4" [style.color]="announcement.color" fill="currentColor" viewBox="0 0 24 24">
+                    <path *ngIf="announcement.type === 'THEME'" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    <path *ngIf="announcement.type === 'FEATURE'" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                    <path *ngIf="announcement.type === 'CONTEST'" d="M12 2l3.09 6.26L22 9l-5 4.87L18.18 20 12 16.77 5.82 20 7 13.87 2 9l6.91-.74L12 2z"/>
+                    <path *ngIf="announcement.type === 'UPCOMING'" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                  </svg>
+                </div>
+                
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-center gap-2 mb-1">
+                    <h4 class="text-sm font-semibold text-gray-900">{{ announcement.title }}</h4>
+                    <span class="text-xs px-2 py-0.5 rounded-full text-white font-medium flex-shrink-0" [style.background-color]="announcement.color">
+                      {{ announcement.type }}
+                    </span>
+                  </div>
+                  <p class="text-xs text-gray-600 leading-relaxed mb-2">{{ announcement.description }}</p>
+                  <button *ngIf="announcement.link" 
+                          (click)="handleAnnouncementAction(announcement)"
+                          class="inline-flex items-center gap-1 text-xs font-medium hover:underline transition-colors"
+                          [style.color]="announcement.color">
+                    {{ announcement.linkText }}
+                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                    </svg>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
       </div>
     </div>
   </div>

@@ -1,5 +1,5 @@
 // header.component.ts
-import { Component, inject, signal, OnInit, OnDestroy } from '@angular/core';
+import { Component, inject, signal, OnInit, OnDestroy, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule, NavigationEnd } from '@angular/router';
 import { ThemeService } from '../services/theming.service';
@@ -22,8 +22,40 @@ export class HeaderComponent implements OnInit, OnDestroy {
   loggedInUser = signal<GoogleUser | null>(null);
   showDropdown = signal(false);
   isMobileMenuOpen = signal(false);
+  showWhatsNewDropdown = signal(false);
   userId = '';
   currentRoute = signal('');
+
+  // App features/updates (for header dropdown)
+  appFeatures = [
+    {
+      title: 'Enhanced Review System',
+      description: 'We\'ve upgraded our submission review process! Faster feedback and more detailed reviewer comments are now available.',
+      type: 'FEATURE',
+      color: '#10b981', 
+      link: '/admin/submissions',
+      linkText: 'Learn More',
+      isNew: true
+    },
+    {
+      title: 'Mobile App Coming Soon',
+      description: 'Read and submit your favorite literary works on the go. Our mobile app will launch early next year with offline reading support.',
+      type: 'UPCOMING',
+      color: '#f59e0b',
+      link: null,
+      linkText: 'Stay Tuned',
+      isNew: false
+    },
+    {
+      title: 'Improved Search',
+      description: 'Search through content more effectively with our enhanced search algorithms and filtering options.',
+      type: 'FEATURE',
+      color: '#3b82f6',
+      link: null,
+      linkText: 'Try Now',
+      isNew: true
+    }
+  ];
   
   private subscriptions: Subscription[] = [];
 
@@ -113,5 +145,48 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   isOnLoginPage(): boolean {
     return this.currentRoute().startsWith('/login');
+  }
+
+  // What's New dropdown methods
+  toggleWhatsNewDropdown() {
+    this.showWhatsNewDropdown.update(value => !value);
+  }
+
+  closeWhatsNewDropdown() {
+    this.showWhatsNewDropdown.set(false);
+  }
+
+  // Get app features for dropdown
+  getAppFeatures() {
+    return this.appFeatures;
+  }
+
+  // Check if there are new app features
+  hasNewAppFeatures() {
+    return this.appFeatures.some(feature => feature.isNew);
+  }
+
+  // Handle app feature click
+  handleAppFeatureAction(feature: any) {
+    if (feature.link) {
+      this.router.navigate([feature.link]);
+    }
+    this.closeWhatsNewDropdown();
+  }
+
+  // Close dropdowns when clicking outside
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent) {
+    const target = event.target as HTMLElement;
+    
+    // Close What's New dropdown if clicked outside
+    if (!target.closest('[data-dropdown="whats-new"]')) {
+      this.closeWhatsNewDropdown();
+    }
+    
+    // Close user dropdown if clicked outside
+    if (!target.closest('[data-dropdown="user"]')) {
+      this.closeDropdown();
+    }
   }
 }

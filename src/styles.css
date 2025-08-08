@@ -3,6 +3,19 @@
 
 @import "tailwindcss";
 
+/* Prevent mobile zoom on input focus */
+@media (max-width: 768px) {
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  input[type="search"],
+  textarea,
+  select {
+    font-size: 16px !important;
+    transform-origin: center;
+  }
+}
+
 @utility bg-themed {
   background-color: var(--bg-primary);
 }
