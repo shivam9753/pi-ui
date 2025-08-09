@@ -184,8 +184,11 @@ export class ExploreComponent implements OnInit {
     let displaySubmissions = [];
     
     // If we're showing all content (no filter) and have more than 1 submission,
-    // skip the first one as it's shown in featured section
-    if (!this.selectedType && this.submissions.length > 1) {
+    // skip the first 4 (1 main featured + 3 other featured) as they're shown in featured section
+    if (!this.selectedType && this.submissions.length > 4) {
+      displaySubmissions = this.submissions.slice(4);
+    } else if (!this.selectedType && this.submissions.length > 1) {
+      // If we have fewer than 4 posts, skip only the main featured one
       displaySubmissions = this.submissions.slice(1);
     } else {
       // For filtered content, show all submissions as there's no separate featured section
@@ -197,6 +200,16 @@ export class ExploreComponent implements OnInit {
     
     // Apply pagination (load more)
     return displaySubmissions.slice(0, this.visibleItemsCount);
+  }
+
+  // Get other featured posts (posts 2-5 for the right sidebar)
+  getOtherFeaturedPosts() {
+    if (!this.submissions || this.submissions.length <= 1) {
+      return [];
+    }
+    
+    // Return posts 2-5 (index 1-4) for the other featured posts section - 4 posts total
+    return this.submissions.slice(1, Math.min(5, this.submissions.length));
   }
 
   // Sort submissions based on selected sort option
@@ -221,8 +234,10 @@ export class ExploreComponent implements OnInit {
   // Check if there are more items to load
   hasMoreItems(): boolean {
     let totalItems = this.submissions.length;
-    if (!this.selectedType && this.submissions.length > 1) {
-      totalItems = this.submissions.length - 1; // Exclude featured item
+    if (!this.selectedType && this.submissions.length > 4) {
+      totalItems = this.submissions.length - 4; // Exclude 4 featured items
+    } else if (!this.selectedType && this.submissions.length > 1) {
+      totalItems = this.submissions.length - 1; // Exclude 1 featured item if less than 4 total
     }
     return this.visibleItemsCount < totalItems;
   }
@@ -239,8 +254,10 @@ export class ExploreComponent implements OnInit {
       return 0;
     }
     
-    if (!this.selectedType && this.submissions.length > 1) {
-      return this.submissions.length - 1; // Exclude featured item
+    if (!this.selectedType && this.submissions.length > 4) {
+      return this.submissions.length - 4; // Exclude 4 featured items
+    } else if (!this.selectedType && this.submissions.length > 1) {
+      return this.submissions.length - 1; // Exclude 1 featured item if less than 4 total
     }
     
     return this.submissions.length;

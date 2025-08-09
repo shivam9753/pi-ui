@@ -1,6 +1,65 @@
+.line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
 .line-clamp-3 {
     display: -webkit-box;
     -webkit-line-clamp: 3;
+    line-clamp: 3;
     -webkit-box-orient: vertical;
     overflow: hidden;
-  }
+}
+
+/* Mobile responsive adjustments for featured posts */
+@media (max-width: 1024px) {
+    .featured-posts-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .other-featured-posts {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .other-featured-posts {
+        grid-template-columns: 1fr;
+    }
+    
+    /* Mobile-specific improvements */
+    .max-w-7xl {
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+    
+    /* Better scrolling for tabs */
+    .scrollbar-hide {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+        scroll-behavior: smooth;
+    }
+    
+    .scrollbar-hide::-webkit-scrollbar {
+        display: none;
+    }
+    
+    /* Improved focus states for mobile */
+    button:focus,
+    select:focus,
+    input:focus {
+        outline: 2px solid #f97316;
+        outline-offset: 2px;
+    }
+    
+    /* Better touch targets */
+    nav button {
+        min-height: 44px;
+        min-width: 44px;
+    }
+}
