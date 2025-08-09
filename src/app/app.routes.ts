@@ -18,6 +18,8 @@ import { ContactComponent } from './info/contact/contact.component';
 import { PrivacyPolicyComponent } from './info/privacy-policy/privacy-policy.component';
 import { TermsOfUseComponent } from './info/terms-of-use/terms-of-use.component';
 import { PoemParserComponent } from './admin/poem-parser/poem-parser.component';
+import { CategoryComponent } from './category/category.component';
+import { TagComponent } from './tag/tag.component';
 
 export const routes: Routes = [
   // Public routes - Use explore as homepage for now
@@ -41,6 +43,16 @@ export const routes: Routes = [
     path: 'explore', 
     component: ExploreComponent,
     title: 'Explore - pi'
+  },
+  { 
+    path: 'category/:category', 
+    component: CategoryComponent,
+    title: 'Category - pi'
+  },
+  { 
+    path: 'tag/:tag', 
+    component: TagComponent,
+    title: 'Tag - pi'
   },
   { 
     path: 'user-profile/:id', 

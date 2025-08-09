@@ -19,7 +19,10 @@
     
     <!-- Content Type Badge -->
     <div class="absolute top-3 left-3">
-      <app-badge-label [type]="content.submissionType"></app-badge-label>
+      <app-badge-label 
+        [type]="content.submissionType"
+        [clickable]="true"
+        (badgeClick)="onCategoryClick($event)"></app-badge-label>
     </div>
 
     <!-- Reading Time Badge - Prominent -->

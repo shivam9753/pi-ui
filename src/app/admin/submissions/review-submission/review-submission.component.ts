@@ -42,6 +42,9 @@ export class ReviewSubmissionComponent {
   analysisData: any = null;
   isAnalyzing = false;
 
+  // Mobile analysis section toggle
+  showMobileAnalysis = false;
+
   constructor(
     private http: HttpClient, 
     private backendService: BackendService, 
@@ -248,6 +251,10 @@ export class ReviewSubmissionComponent {
 
   toggleHistory() {
     this.showHistory = !this.showHistory;
+  }
+
+  toggleMobileAnalysis() {
+    this.showMobileAnalysis = !this.showMobileAnalysis;
   }
 
   rejectSubmission() {

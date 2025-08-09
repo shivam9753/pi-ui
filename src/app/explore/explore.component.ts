@@ -6,11 +6,12 @@ import { FormsModule } from '@angular/forms';
 import { BackendService } from '../services/backend.service';
 import { Router, RouterLink } from '@angular/router';
 import { PublishedContentCardComponent, PublishedContent } from '../utilities/published-content-card/published-content-card.component';
+import { PrettyLabelPipe } from '../pipes/pretty-label.pipe';
 // Removed rxjs imports for debouncing as we're not using real-time search
 
 @Component({
   selector: 'app-explore',
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, PrettyLabelPipe],
   templateUrl: './explore.component.html',
   styleUrl: './explore.component.css'
 })
@@ -71,10 +72,15 @@ export class ExploreComponent implements OnInit {
     this.router.navigate(['/prompts']);
   }
 
-  onTagClick(tag: string) {
-    // Filter content by tag or navigate to tag page
-    console.log('Filtering by tag:', tag);
-    // You can implement tag-based filtering here
+  onTagClick(tag: string, event?: Event) {
+    // Prevent event bubbling
+    if (event) {
+      event.stopPropagation();
+      event.preventDefault();
+    }
+    // Navigate to tag page
+    console.log('Tag clicked in explore:', tag); // Debug log
+    this.router.navigate(['/tag', tag]);
   }
 
   onAuthorClick(author: any) {
@@ -159,6 +165,13 @@ export class ExploreComponent implements OnInit {
     this.getPublishedSubmissions(type);
   }
 
+  // Navigate to dedicated category page
+  navigateToCategory(category: string) {
+    if (category && category !== '') {
+      this.router.navigate(['/category', category]);
+    }
+  }
+
   openSubmission(submission: any) {
     // Navigate to the reading interface with submission ID
     this.router.navigate(['/read', submission._id]);
@@ -175,42 +188,19 @@ export class ExploreComponent implements OnInit {
     return selectedOption ? selectedOption.label : 'works';
   }
 
-  // Helper method to get submissions for display (excluding featured if it exists)
+  // Helper method to get submissions for display
   getDisplaySubmissions() {
     if (!this.submissions || this.submissions.length === 0) {
       return [];
     }
     
-    let displaySubmissions = [];
-    
-    // If we're showing all content (no filter) and have more than 1 submission,
-    // skip the first 4 (1 main featured + 3 other featured) as they're shown in featured section
-    if (!this.selectedType && this.submissions.length > 4) {
-      displaySubmissions = this.submissions.slice(4);
-    } else if (!this.selectedType && this.submissions.length > 1) {
-      // If we have fewer than 4 posts, skip only the main featured one
-      displaySubmissions = this.submissions.slice(1);
-    } else {
-      // For filtered content, show all submissions as there's no separate featured section
-      displaySubmissions = this.submissions;
-    }
-    
-    // Apply sorting
-    displaySubmissions = this.sortSubmissions(displaySubmissions);
+    // Apply sorting to all submissions
+    const sortedSubmissions = this.sortSubmissions(this.submissions);
     
     // Apply pagination (load more)
-    return displaySubmissions.slice(0, this.visibleItemsCount);
+    return sortedSubmissions.slice(0, this.visibleItemsCount);
   }
 
-  // Get other featured posts (posts 2-5 for the right sidebar)
-  getOtherFeaturedPosts() {
-    if (!this.submissions || this.submissions.length <= 1) {
-      return [];
-    }
-    
-    // Return posts 2-5 (index 1-4) for the other featured posts section - 4 posts total
-    return this.submissions.slice(1, Math.min(5, this.submissions.length));
-  }
 
   // Sort submissions based on selected sort option
   sortSubmissions(submissions: any[]) {
@@ -233,13 +223,7 @@ export class ExploreComponent implements OnInit {
 
   // Check if there are more items to load
   hasMoreItems(): boolean {
-    let totalItems = this.submissions.length;
-    if (!this.selectedType && this.submissions.length > 4) {
-      totalItems = this.submissions.length - 4; // Exclude 4 featured items
-    } else if (!this.selectedType && this.submissions.length > 1) {
-      totalItems = this.submissions.length - 1; // Exclude 1 featured item if less than 4 total
-    }
-    return this.visibleItemsCount < totalItems;
+    return this.visibleItemsCount < this.submissions.length;
   }
 
   // Handle sort change
@@ -250,67 +234,9 @@ export class ExploreComponent implements OnInit {
 
   // Get total items available for display
   getTotalDisplayItems(): number {
-    if (!this.submissions || this.submissions.length === 0) {
-      return 0;
-    }
-    
-    if (!this.selectedType && this.submissions.length > 4) {
-      return this.submissions.length - 4; // Exclude 4 featured items
-    } else if (!this.selectedType && this.submissions.length > 1) {
-      return this.submissions.length - 1; // Exclude 1 featured item if less than 4 total
-    }
-    
-    return this.submissions.length;
-  }
-
-  // Sidebar Statistics Methods
-  getTotalPublishedCount(): number {
     return this.submissions?.length || 0;
   }
 
-  getActiveWritersCount(): number {
-    if (!this.submissions || this.submissions.length === 0) return 0;
-    
-    // Count unique authors
-    const uniqueAuthors = new Set(this.submissions.map(sub => sub.author?.name || sub.userId?.name));
-    return uniqueAuthors.size;
-  }
-
-  getThisMonthCount(): number {
-    if (!this.submissions || this.submissions.length === 0) return 0;
-    
-    const currentMonth = new Date().getMonth();
-    const currentYear = new Date().getFullYear();
-    
-    return this.submissions.filter(sub => {
-      const subDate = new Date(sub.createdAt);
-      return subDate.getMonth() === currentMonth && subDate.getFullYear() === currentYear;
-    }).length;
-  }
-
-  getContentTypeStats() {
-    if (!this.submissions || this.submissions.length === 0) {
-      return [
-        { label: 'Poems', count: 0, color: '#f97316' },
-        { label: 'Stories', count: 0, color: '#3b82f6' },
-        { label: 'Articles', count: 0, color: '#10b981' },
-        { label: 'Cinema Essays', count: 0, color: '#8b5cf6' }
-      ];
-    }
-
-    const counts = this.submissions.reduce((acc: any, sub) => {
-      const type = sub.submissionType;
-      acc[type] = (acc[type] || 0) + 1;
-      return acc;
-    }, {});
-
-    return [
-      { label: 'Poems', count: counts.poem || 0, color: '#f97316' },
-      { label: 'Stories', count: counts.story || 0, color: '#3b82f6' },
-      { label: 'Articles', count: counts.article || 0, color: '#10b981' },
-      { label: 'Cinema Essays', count: counts.cinema_essay || 0, color: '#8b5cf6' }
-    ];
-  }
 
   // Helper method to format numbers (for view counts)
   formatNumber(num: number): string {

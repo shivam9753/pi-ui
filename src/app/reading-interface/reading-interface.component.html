@@ -18,7 +18,10 @@
               <span>Back to Explore</span>
             </button>
             <div class="h-4 w-px bg-white-secondary"></div>
-            <app-badge-label [type]="content()!.submissionType"></app-badge-label>
+            <app-badge-label 
+              [type]="content()!.submissionType"
+              [clickable]="true"
+              (badgeClick)="navigateToCategory($event)"></app-badge-label>
           </div>
           
             <!-- Reading Controls -->
@@ -228,6 +231,7 @@
                 <div *ngIf="item.tags && item.tags.length > 0" class="flex flex-wrap gap-2 mt-8 pt-6 border-t border-gray-200">
                   <span class="text-sm text-gray-900-tertiary mr-2">Tags:</span>
                   <span *ngFor="let tag of item.tags" 
+                        (click)="onTagClick(tag, $event)"
                         class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-white-secondary text-gray-900-tertiary border border-gray-200 hover:bg-white-accent hover:text-white transition-colors cursor-pointer">
                     #{{ tag }}
                   </span>
@@ -264,6 +268,7 @@
             <div class="flex flex-wrap items-center gap-3">
               <span class="text-sm font-medium text-gray-900-tertiary">Related Topics:</span>
               <span *ngFor="let tag of content()!.tags" 
+                    (click)="onTagClick(tag, $event)"
                     class="inline-flex items-center px-4 py-2 rounded-full text-sm font-medium bg-orange-500/10 text-orange-400 border border-orange-500/30 hover:bg-orange-500/20 transition-colors duration-200 cursor-pointer">
                 {{ tag }}
               </span>

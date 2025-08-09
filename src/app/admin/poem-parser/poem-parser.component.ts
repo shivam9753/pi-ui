@@ -157,7 +157,7 @@ export class PoemParserComponent {
       this.parsedPoems.push(poem);
     });
 
-    this.jsonOutput = JSON.stringify(this.parsedPoems, null, 2);
+    this.jsonOutput = JSON.stringify(this.parsedPoems[0 ], null, 2);
   }
 
   generateThemes(content: string): string[] {
@@ -358,7 +358,7 @@ export class PoemParserComponent {
     if (!this.jsonOutput) return;
     
     try {
-      await navigator.clipboard.writeText(this.jsonOutput);
+      await navigator.clipboard.writeText(this.jsonOutput[0]);
       alert('JSON copied to clipboard!');
     } catch (err) {
       console.error('Failed to copy: ', err);

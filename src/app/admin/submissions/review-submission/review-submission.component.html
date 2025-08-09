@@ -1,161 +1,281 @@
 <div class="bg-white">
   <!-- Mobile Container -->
-  <div class="sm:hidden px-4 py-4">
+  <div class="sm:hidden px-4 py-3">
     <!-- Simple Clean Header -->
-    <div class="border-b border-gray-200 pb-4 mb-6">
-      <!-- Title -->
-      <div class="mb-4">
-        <h1 class="text-xl font-bold text-gray-900 mb-2">{{ submission?.title }}</h1>
-        <p class="text-gray-600 text-sm" *ngIf="submission.description">{{ submission.description }}</p>
-      </div>
-      
-      <!-- Action Buttons - Mobile Stack -->
-      <div class="flex flex-col gap-3 mb-4">
-        <button 
-              (click)="analyzeSubmission()"
-              [disabled]="isAnalyzing"
-              class="w-full py-3 px-4 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed text-sm font-semibold shadow-sm hover:shadow-md">
-          <span *ngIf="!isAnalyzing" class="flex items-center justify-center gap-2">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-            </svg>
-            Basic Check
-          </span>
-          <span *ngIf="isAnalyzing" class="flex items-center justify-center gap-2">
-            <svg class="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
-              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 818-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 714 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-            </svg>
-            Analyzing...
-          </span>
-        </button>
-        <button *ngIf="canReview() && isPendingReview()" 
-              (click)="startReviewProcess()"
-              [disabled]="isSubmitting"
-              class="w-full py-3 px-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all duration-200 text-sm font-semibold shadow-sm hover:shadow-md">
-          <span class="flex items-center justify-center gap-2">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
-            </svg>
-            Start Review Process
-          </span>
-        </button>
+    <div class="border-b border-gray-200 pb-4 mb-4">
+      <!-- Title Section - More Prominent -->
+      <div class="mb-5">
+        <h1 class="text-2xl font-bold text-gray-900 mb-3 leading-tight">{{ submission?.title }}</h1>
+        <p class="text-gray-700 text-base leading-relaxed" *ngIf="submission.description">{{ submission.description }}</p>
       </div>
 
-      <!-- Author and Metadata Row -->
-      <div class="flex flex-col gap-3 mb-4">
-        <div class="text-gray-700">
-          <span class="text-sm">by</span>
-          <span class="font-semibold ml-1" *ngIf="submission.userId">{{ submission.userId.name }}</span>
+      <!-- Author and Metadata Row - Enhanced -->
+      <div class="mb-5">
+        <div class="flex items-center justify-between mb-3">
+          <div class="text-gray-800">
+            <span class="text-base font-medium">by</span>
+            <span class="font-bold ml-1 text-lg" *ngIf="submission.userId">{{ submission.userId.name }}</span>
+          </div>
+          <span class="px-3 py-1.5 rounded-full text-sm font-semibold" [ngClass]="getStatusBadgeClass()">
+            {{ getStatusDisplayName() }}
+          </span>
         </div>
         <div class="flex flex-wrap items-center gap-3">
-          <div class="flex items-center gap-2">
-            <span class="px-3 py-1 rounded-full text-sm font-semibold" [ngClass]="getStatusBadgeClass()">
-              {{ getStatusDisplayName() }}
-            </span>
-            <span class="text-sm text-gray-400">•</span>
-            <span class="text-sm text-gray-600 font-medium">
-              {{ submission.createdAt | date:'MMM d, yyyy' }}
-            </span>
-          </div>
+          <span class="text-sm text-gray-600 font-medium">
+            {{ submission.createdAt | date:'MMM d, yyyy' }}
+          </span>
+          <span class="text-sm text-gray-400">•</span>
           <app-badge-label [type]="submission.submissionType"></app-badge-label>
         </div>
       </div>
 
-      <!-- Utility Buttons -->
-      <div class="flex gap-3">
-        <button (click)="toggleHistory()" 
-                class="px-3 py-2 text-sm text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors font-medium shadow-sm">
-          {{ showHistory ? 'Hide' : 'Show' }} History
-        </button>
-        <button (click)="goBackToPendingReviews()" 
-                class="px-3 py-2 text-sm text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors font-medium shadow-sm">
-          Back to Reviews
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Desktop Container -->
-  <div class="hidden sm:block bg-white max-w-4xl mx-auto p-6">
-    <!-- Simple Clean Header -->
-    <div class="border-b border-gray-200 pb-4 mb-6">
-      <!-- Title and Action Button Row -->
-      <div class="flex justify-between items-start mb-4">
-        <div>
-          <h1 class="text-2xl font-bold text-gray-900 mb-2">{{ submission?.title }}</h1>
-          <p class="text-gray-600" *ngIf="submission.description">{{ submission.description }}</p>
-        </div>
-        <div class="flex gap-3">
+      <!-- Mobile Analysis Section (Collapsible) -->
+      <div class="mb-4 bg-white border border-gray-200 rounded-lg overflow-hidden">
+        <!-- Analysis Header -->
+        <div class="p-4 bg-gray-50 border-b border-gray-200">
           <button 
-                (click)="analyzeSubmission()"
-                [disabled]="isAnalyzing"
-                class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer text-sm font-medium">
-            <span *ngIf="!isAnalyzing" class="flex items-center gap-2">
+            (click)="toggleMobileAnalysis()"
+            class="w-full flex items-center justify-between text-left">
+            <div class="flex items-center gap-2">
+              <svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2H9a2 2 0 01-2-2z"/>
+              </svg>
+              <h3 class="font-semibold text-gray-900">Analysis</h3>
+              <span *ngIf="analysisData?.analysis" class="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs font-medium">
+                Complete
+              </span>
+            </div>
+            <svg class="w-5 h-5 text-gray-400 transition-transform duration-200" 
+                 [class.rotate-180]="showMobileAnalysis"
+                 fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+            </svg>
+          </button>
+        </div>
+
+        <!-- Analysis Content -->
+        <div *ngIf="showMobileAnalysis" class="p-4 space-y-4">
+          <!-- Run Analysis Button -->
+          <button 
+            (click)="analyzeSubmission()"
+            [disabled]="isAnalyzing"
+            class="w-full py-3 px-4 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium shadow-sm">
+            <span *ngIf="!isAnalyzing" class="flex items-center justify-center gap-2">
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
               </svg>
-              Basic Check
+              Run Analysis
             </span>
-            <span *ngIf="isAnalyzing" class="flex items-center gap-2">
+            <span *ngIf="isAnalyzing" class="flex items-center justify-center gap-2">
               <svg class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 718-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 714 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 818-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 714 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
               </svg>
               Analyzing...
             </span>
           </button>
+
+          <!-- Basic Info (when no analysis) -->
+          <div *ngIf="!analysisData || !analysisData.analysis" class="space-y-3">
+            <div class="grid grid-cols-2 gap-3">
+              <div class="text-center bg-gray-50 rounded-lg p-3">
+                <div class="text-sm font-medium text-gray-900">{{ submission?.submissionType | titlecase }}</div>
+                <div class="text-xs text-gray-600">Type</div>
+              </div>
+              <div class="text-center bg-gray-50 rounded-lg p-3">
+                <div class="text-sm font-medium text-gray-900">{{ submission?.userId?.name || 'Anonymous' }}</div>
+                <div class="text-xs text-gray-600">Author</div>
+              </div>
+            </div>
+            <div class="text-center py-6 text-gray-500">
+              <svg class="w-8 h-8 mx-auto mb-2 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2H9a2 2 0 01-2-2z"/>
+              </svg>
+              <p class="text-sm">Run analysis for detailed insights</p>
+            </div>
+          </div>
+
+          <!-- Analysis Results -->
+          <div *ngIf="analysisData?.analysis" class="space-y-4">
+            <!-- Quality Score -->
+            <div class="bg-blue-50 rounded-lg p-3">
+              <div class="flex justify-between items-center mb-2">
+                <span class="text-sm font-medium text-blue-700">Quality Score</span>
+                <span class="text-xl font-bold text-blue-600">{{ analysisData.analysis.quality }}/10</span>
+              </div>
+              <div class="w-full bg-blue-200 rounded-full h-2">
+                <div class="bg-blue-600 h-2 rounded-full" [style.width.%]="analysisData.analysis.quality * 10"></div>
+              </div>
+            </div>
+
+            <!-- Style & Themes -->
+            <div class="space-y-3">
+              <div class="flex justify-between items-center">
+                <span class="text-sm font-medium text-gray-700">Style:</span>
+                <span class="px-2 py-1 bg-purple-100 text-purple-800 rounded-full text-xs font-medium">{{ analysisData.analysis.style | titlecase }}</span>
+              </div>
+              <div>
+                <span class="text-sm font-medium text-gray-700">Themes:</span>
+                <div class="flex flex-wrap gap-1 mt-1">
+                  <span *ngFor="let theme of analysisData.analysis.themes" 
+                        class="text-xs px-2 py-1 bg-green-100 text-green-800 rounded-full">
+                    {{ theme | titlecase }}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Technical Metrics Grid -->
+            <div *ngIf="analysisData.analysis.technical_metrics || analysisData.analysis.word_count">
+              <h4 class="text-sm font-medium text-gray-700 mb-2">Technical Metrics</h4>
+              <div class="grid grid-cols-2 gap-3">
+                <div class="text-center bg-gray-50 rounded-lg p-3">
+                  <div class="text-lg font-bold text-gray-900">{{ analysisData.analysis.word_count || 0 }}</div>
+                  <div class="text-xs text-gray-600">Words</div>
+                </div>
+                <div class="text-center bg-gray-50 rounded-lg p-3">
+                  <div class="text-lg font-bold text-gray-900">{{ analysisData.analysis.reading_time || 1 }}</div>
+                  <div class="text-xs text-gray-600">Min read</div>
+                </div>
+                <div class="text-center bg-gray-50 rounded-lg p-3" *ngIf="analysisData.analysis.technical_metrics">
+                  <div class="text-lg font-bold text-gray-900">{{ analysisData.analysis.technical_metrics.sentence_count }}</div>
+                  <div class="text-xs text-gray-600">Sentences</div>
+                </div>
+                <div class="text-center bg-gray-50 rounded-lg p-3" *ngIf="analysisData.analysis.technical_metrics">
+                  <div class="text-lg font-bold text-gray-900">{{ (analysisData.analysis.technical_metrics.vocabulary_richness * 100) | number:'1.0-0' }}%</div>
+                  <div class="text-xs text-gray-600">Vocab Rich</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Additional Metrics -->
+            <div class="space-y-2">
+              <div class="flex justify-between items-center" *ngIf="analysisData.analysis.readability">
+                <span class="text-sm font-medium text-gray-700">Readability:</span>
+                <span class="px-2 py-1 bg-yellow-100 text-yellow-800 rounded-full text-xs font-medium">{{ analysisData.analysis.readability.level }}</span>
+              </div>
+              <div class="flex justify-between items-center" *ngIf="analysisData.analysis.sentiment">
+                <span class="text-sm font-medium text-gray-700">Sentiment:</span>
+                <span class="px-2 py-1 rounded-full text-xs font-medium"
+                      [ngClass]="{
+                        'bg-green-100 text-green-800': analysisData.analysis.sentiment === 'positive',
+                        'bg-red-100 text-red-800': analysisData.analysis.sentiment === 'negative',
+                        'bg-gray-100 text-gray-800': analysisData.analysis.sentiment === 'neutral'
+                      }">{{ analysisData.analysis.sentiment | titlecase }}</span>
+              </div>
+              <div class="flex justify-between items-center">
+                <span class="text-sm font-medium text-gray-700">Plagiarism:</span>
+                <span class="text-sm font-bold" 
+                      [class.text-red-600]="analysisData.analysis.plagiarism > 50"
+                      [class.text-green-600]="analysisData.analysis.plagiarism <= 50">
+                  {{ analysisData.analysis.plagiarism }}%
+                </span>
+              </div>
+            </div>
+
+            <!-- Analysis Notes -->
+            <div *ngIf="analysisData.analysis.description" class="bg-gray-50 rounded-lg p-3">
+              <h4 class="text-sm font-semibold text-gray-700 mb-2">Analysis Notes</h4>
+              <p class="text-sm text-gray-600 leading-relaxed">{{ analysisData.analysis.description }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Action Buttons - Subtle and Compact -->
+      <div class="flex flex-col gap-2 mb-4">
         <button *ngIf="canReview() && isPendingReview()" 
-                (click)="startReviewProcess()"
-                [disabled]="isSubmitting"
-                class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium">
-          <span class="flex items-center gap-2">
+              (click)="startReviewProcess()"
+              [disabled]="isSubmitting"
+              class="w-full py-2.5 px-4 bg-blue-50 text-blue-700 border border-blue-200 rounded-lg hover:bg-blue-100 transition-all duration-200 text-sm font-medium">
+          <span class="flex items-center justify-center gap-2">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
             </svg>
-            Start Review Process
+            Begin Review
           </span>
         </button>
-        </div>
       </div>
 
-      <!-- Author and Metadata Row -->
-      <div class="flex justify-between items-center mb-4">
-        <div class="text-gray-700">
-          <span class="text-sm">by</span>
-          <span class="font-semibold ml-1" *ngIf="submission.userId">{{ submission.userId.name }}</span>
-        </div>
-        <div class="flex items-center gap-3">
-          <div class="flex items-center gap-2">
-            <span class="px-3 py-1 rounded-full text-sm font-semibold" [ngClass]="getStatusBadgeClass()">
-              {{ getStatusDisplayName() }}
-            </span>
-            <span class="text-sm text-gray-400">•</span>
-            <span class="text-sm text-gray-600 font-medium">
-              {{ submission.createdAt | date:'MMM d, yyyy' }}
-            </span>
-          </div>
-          <app-badge-label [type]="submission.submissionType"></app-badge-label>
-        </div>
-      </div>
-
-      <!-- Utility Buttons -->
-      <div class="flex gap-3">
+      <!-- Navigation Buttons - Minimal -->
+      <div class="flex gap-2">
         <button (click)="toggleHistory()" 
-                class="px-3 py-2 text-sm text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors font-medium shadow-sm">
+                class="px-3 py-1.5 text-xs text-gray-600 bg-gray-50 border border-gray-200 rounded-md hover:bg-gray-100 transition-colors font-medium">
           {{ showHistory ? 'Hide' : 'Show' }} History
         </button>
         <button (click)="goBackToPendingReviews()" 
-                class="px-3 py-2 text-sm text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors font-medium shadow-sm">
-          Back to Reviews
+                class="px-3 py-1.5 text-xs text-gray-600 bg-gray-50 border border-gray-200 rounded-md hover:bg-gray-100 transition-colors font-medium">
+          ← Back
         </button>
       </div>
     </div>
   </div>
 
-  <!-- Shared Content Container -->
-  <div class="px-4 sm:px-0">
-    <div class="sm:max-w-4xl sm:mx-auto sm:bg-white sm:p-6">
+  <!-- Desktop Container with Sidebar -->
+  <div class="hidden sm:block bg-gray-50 min-h-screen">
+    <div class="max-w-7xl mx-auto p-6">
+      <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+        
+        <!-- Main Content Area -->
+        <div class="lg:col-span-3">
+          <div class="bg-white rounded-lg shadow-sm p-6">
+            <!-- Simple Clean Header -->
+            <div class="border-b border-gray-200 pb-4 mb-6">
+              <!-- Title Row -->
+              <div class="mb-4">
+                <h1 class="text-2xl font-bold text-gray-900 mb-2">{{ submission?.title }}</h1>
+                <p class="text-gray-600" *ngIf="submission.description">{{ submission.description }}</p>
+              </div>
+
+              <!-- Action Button Row -->
+              <div class="flex gap-3 mb-4">
+                <button *ngIf="canReview() && isPendingReview()" 
+                        (click)="startReviewProcess()"
+                        [disabled]="isSubmitting"
+                        class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium">
+                  <span class="flex items-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                    </svg>
+                    Start Review Process
+                  </span>
+                </button>
+              </div>
+
+              <!-- Author and Metadata Row -->
+              <div class="flex justify-between items-center mb-4">
+                <div class="text-gray-700">
+                  <span class="text-sm">by</span>
+                  <span class="font-semibold ml-1" *ngIf="submission.userId">{{ submission.userId.name }}</span>
+                </div>
+                <div class="flex items-center gap-3">
+                  <div class="flex items-center gap-2">
+                    <span class="px-3 py-1 rounded-full text-sm font-semibold" [ngClass]="getStatusBadgeClass()">
+                      {{ getStatusDisplayName() }}
+                    </span>
+                    <span class="text-sm text-gray-400">•</span>
+                    <span class="text-sm text-gray-600 font-medium">
+                      {{ submission.createdAt | date:'MMM d, yyyy' }}
+                    </span>
+                  </div>
+                  <app-badge-label [type]="submission.submissionType"></app-badge-label>
+                </div>
+              </div>
+
+              <!-- Utility Buttons -->
+              <div class="flex gap-3">
+                <button (click)="toggleHistory()" 
+                        class="px-3 py-2 text-sm text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors font-medium shadow-sm">
+                  {{ showHistory ? 'Hide' : 'Show' }} History
+                </button>
+                <button (click)="goBackToPendingReviews()" 
+                        class="px-3 py-2 text-sm text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors font-medium shadow-sm">
+                  Back to Reviews
+                </button>
+              </div>
+            </div>
+
+            <!-- Main Content Area (moved from shared container) -->
 
       <!-- Submission History Section -->
       <div *ngIf="showHistory" class="mb-6 bg-gray-50 rounded-lg p-6">
@@ -488,9 +608,180 @@
             This submission has been {{ submission.status }}
           </div>
         </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Analysis Sidebar -->
+        <div class="lg:col-span-1">
+          <div class="bg-white rounded-lg shadow-sm p-6 sticky top-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+              <svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2H9a2 2 0 01-2-2z"/>
+              </svg>
+              Analysis
+            </h3>
+            
+            <!-- Basic Check Button -->
+            <button 
+              (click)="analyzeSubmission()"
+              [disabled]="isAnalyzing"
+              class="w-full mb-6 py-3 px-4 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium shadow-sm hover:shadow-md">
+              <span *ngIf="!isAnalyzing" class="flex items-center justify-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                Run Analysis
+              </span>
+              <span *ngIf="isAnalyzing" class="flex items-center justify-center gap-2">
+                <svg class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 818-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 714 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Analyzing...
+              </span>
+            </button>
+
+            <!-- Basic Info (shown initially) -->
+            <div *ngIf="!analysisData || !analysisData.analysis" class="space-y-4">
+              <div class="border-b border-gray-200 pb-4">
+                <h4 class="text-sm font-semibold text-gray-700 mb-3">Basic Information</h4>
+                <div class="space-y-2">
+                  <div class="flex justify-between items-center">
+                    <span class="text-sm text-gray-600">Type:</span>
+                    <span class="text-sm font-medium">{{ submission?.submissionType | titlecase }}</span>
+                  </div>
+                  <div class="flex justify-between items-center">
+                    <span class="text-sm text-gray-600">Author:</span>
+                    <span class="text-sm font-medium">{{ submission?.userId?.name || 'Anonymous' }}</span>
+                  </div>
+                  <div class="flex justify-between items-center">
+                    <span class="text-sm text-gray-600">Status:</span>
+                    <span class="px-2 py-1 rounded-full text-xs font-semibold" [ngClass]="getStatusBadgeClass()">
+                      {{ getStatusDisplayName() }}
+                    </span>
+                  </div>
+                  <div class="flex justify-between items-center">
+                    <span class="text-sm text-gray-600">Submitted:</span>
+                    <span class="text-sm font-medium">{{ submission?.createdAt | date:'MMM d, yyyy' }}</span>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="text-center py-8 text-gray-500">
+                <svg class="w-12 h-12 mx-auto mb-3 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2H9a2 2 0 01-2-2z"/>
+                </svg>
+                <p class="text-sm">Run analysis to see detailed insights</p>
+              </div>
+            </div>
+
+            <!-- Detailed Analysis Results -->
+            <div *ngIf="analysisData?.analysis" class="space-y-4">
+              <!-- Quality Score -->
+              <div class="bg-blue-50 rounded-lg p-4">
+                <div class="flex justify-between items-center mb-2">
+                  <span class="text-sm font-medium text-blue-700">Quality Score</span>
+                  <span class="text-2xl font-bold text-blue-600">{{ analysisData.analysis.quality }}/10</span>
+                </div>
+                <div class="w-full bg-blue-200 rounded-full h-2">
+                  <div class="bg-blue-600 h-2 rounded-full" [style.width.%]="analysisData.analysis.quality * 10"></div>
+                </div>
+              </div>
+              
+              <!-- Style & Themes -->
+              <div class="space-y-3">
+                <div class="flex justify-between items-center">
+                  <span class="text-sm font-medium text-gray-700">Style:</span>
+                  <span class="px-2 py-1 bg-purple-100 text-purple-800 rounded-full text-xs font-medium">{{ analysisData.analysis.style | titlecase }}</span>
+                </div>
+                
+                <div>
+                  <span class="text-sm font-medium text-gray-700">Themes:</span>
+                  <div class="flex flex-wrap gap-1 mt-1">
+                    <span *ngFor="let theme of analysisData.analysis.themes" 
+                          class="text-xs px-2 py-1 bg-green-100 text-green-800 rounded-full">
+                      {{ theme | titlecase }}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Technical Metrics -->
+              <div class="border-t border-gray-200 pt-4" *ngIf="analysisData.analysis.technical_metrics">
+                <h4 class="text-sm font-semibold text-gray-700 mb-3">Technical Metrics</h4>
+                <div class="space-y-2">
+                  <div class="flex justify-between items-center">
+                    <span class="text-xs text-gray-600">Word Count:</span>
+                    <span class="text-xs font-medium">{{ analysisData.analysis.word_count }}</span>
+                  </div>
+                  <div class="flex justify-between items-center">
+                    <span class="text-xs text-gray-600">Reading Time:</span>
+                    <span class="text-xs font-medium">{{ analysisData.analysis.reading_time }} min</span>
+                  </div>
+                  <div class="flex justify-between items-center">
+                    <span class="text-xs text-gray-600">Sentences:</span>
+                    <span class="text-xs font-medium">{{ analysisData.analysis.technical_metrics.sentence_count }}</span>
+                  </div>
+                  <div class="flex justify-between items-center">
+                    <span class="text-xs text-gray-600">Vocab Richness:</span>
+                    <span class="text-xs font-medium">{{ (analysisData.analysis.technical_metrics.vocabulary_richness * 100) | number:'1.0-0' }}%</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Readability & Sentiment -->
+              <div class="border-t border-gray-200 pt-4" *ngIf="analysisData.analysis.readability">
+                <div class="space-y-2">
+                  <div class="flex justify-between items-center">
+                    <span class="text-sm font-medium text-gray-700">Readability:</span>
+                    <span class="px-2 py-1 bg-yellow-100 text-yellow-800 rounded-full text-xs font-medium">{{ analysisData.analysis.readability.level }}</span>
+                  </div>
+                  <div class="flex justify-between items-center">
+                    <span class="text-sm font-medium text-gray-700">Sentiment:</span>
+                    <span class="px-2 py-1 rounded-full text-xs font-medium"
+                          [ngClass]="{
+                            'bg-green-100 text-green-800': analysisData.analysis.sentiment === 'positive',
+                            'bg-red-100 text-red-800': analysisData.analysis.sentiment === 'negative',
+                            'bg-gray-100 text-gray-800': analysisData.analysis.sentiment === 'neutral'
+                          }">{{ analysisData.analysis.sentiment | titlecase }}</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Plagiarism & Confidence -->
+              <div class="border-t border-gray-200 pt-4">
+                <div class="space-y-3">
+                  <div class="flex justify-between items-center">
+                    <span class="text-sm font-medium text-gray-700">Plagiarism:</span>
+                    <span class="text-sm font-bold" 
+                          [class.text-red-600]="analysisData.analysis.plagiarism > 50"
+                          [class.text-green-600]="analysisData.analysis.plagiarism <= 50">
+                      {{ analysisData.analysis.plagiarism }}%
+                    </span>
+                  </div>
+                  <div class="flex justify-between items-center">
+                    <span class="text-sm font-medium text-gray-700">Confidence:</span>
+                    <span class="text-sm font-medium text-gray-900">{{ analysisData.analysis.confidence }}%</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Analysis Notes -->
+              <div class="border-t border-gray-200 pt-4" *ngIf="analysisData.analysis.description">
+                <h4 class="text-sm font-semibold text-gray-700 mb-2">Analysis Notes</h4>
+                <p class="text-xs text-gray-600 leading-relaxed">{{ analysisData.analysis.description }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        
       </div>
     </div>
   </div>
+
+  <!-- Shared Content for Mobile (analysis popup) -->
+  <div class="sm:hidden px-4 py-0">
 
   <!-- Analysis Popup -->
   <div *ngIf="showAnalysisPopup" class="fixed inset-0 z-50 flex items-center justify-center">
@@ -509,50 +800,101 @@
         </button>
       </div>
       
-      <!-- Analysis Data -->
-      <div class="space-y-4" *ngIf="analysisData?.analysis">
-        <!-- Quality Score -->
-        <div class="flex justify-between items-center">
-          <span class="text-sm font-medium text-gray-700">Quality Score:</span>
-          <span class="text-lg font-bold text-blue-600">{{ analysisData.analysis.quality }}/10</span>
-        </div>
-        
-        <!-- Style -->
-        <div class="flex justify-between items-center">
-          <span class="text-sm font-medium text-gray-700">Style:</span>
-          <span class="text-sm px-2 py-1 bg-purple-100 text-purple-800 rounded-full">{{ analysisData.analysis.style | titlecase }}</span>
-        </div>
-        
-        <!-- Themes -->
-        <div>
-          <span class="text-sm font-medium text-gray-700">Themes:</span>
-          <div class="flex flex-wrap gap-1 mt-1">
-            <span *ngFor="let theme of analysisData.analysis.themes" 
-                  class="text-xs px-2 py-1 bg-green-100 text-green-800 rounded-full">
-              {{ theme | titlecase }}
-            </span>
+      <!-- Enhanced Analysis Data -->
+      <div class="space-y-4" *ngIf="analysisData?.analysis" class="max-h-96 overflow-y-auto">
+        <!-- Quality Score with progress bar -->
+        <div class="bg-blue-50 rounded-lg p-3">
+          <div class="flex justify-between items-center mb-2">
+            <span class="text-sm font-medium text-blue-700">Quality Score</span>
+            <span class="text-xl font-bold text-blue-600">{{ analysisData.analysis.quality }}/10</span>
+          </div>
+          <div class="w-full bg-blue-200 rounded-full h-2">
+            <div class="bg-blue-600 h-2 rounded-full" [style.width.%]="analysisData.analysis.quality * 10"></div>
           </div>
         </div>
         
-        <!-- Plagiarism Check -->
-        <div class="flex justify-between items-center">
-          <span class="text-sm font-medium text-gray-700">Plagiarism Check:</span>
-          <span class="text-sm px-2 py-1 rounded-full" 
-                [class]="analysisData.analysis.plagiarism > 50 ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'">
-            {{ analysisData.analysis.plagiarism > 50 ? 'Detected' : 'Clean' }}
-          </span>
+        <!-- Style & Themes -->
+        <div class="space-y-3">
+          <div class="flex justify-between items-center">
+            <span class="text-sm font-medium text-gray-700">Style:</span>
+            <span class="px-2 py-1 bg-purple-100 text-purple-800 rounded-full text-xs font-medium">{{ analysisData.analysis.style | titlecase }}</span>
+          </div>
+          
+          <div>
+            <span class="text-sm font-medium text-gray-700">Themes:</span>
+            <div class="flex flex-wrap gap-1 mt-1">
+              <span *ngFor="let theme of analysisData.analysis.themes" 
+                    class="text-xs px-2 py-1 bg-green-100 text-green-800 rounded-full">
+                {{ theme | titlecase }}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Technical Metrics -->
+        <div class="border-t border-gray-200 pt-3" *ngIf="analysisData.analysis.technical_metrics || analysisData.analysis.word_count">
+          <h4 class="text-sm font-semibold text-gray-700 mb-2">Technical Metrics</h4>
+          <div class="grid grid-cols-2 gap-3">
+            <div class="text-center bg-gray-50 rounded-lg p-2">
+              <div class="text-lg font-bold text-gray-900">{{ analysisData.analysis.word_count || 0 }}</div>
+              <div class="text-xs text-gray-600">Words</div>
+            </div>
+            <div class="text-center bg-gray-50 rounded-lg p-2">
+              <div class="text-lg font-bold text-gray-900">{{ analysisData.analysis.reading_time || 1 }}</div>
+              <div class="text-xs text-gray-600">Min read</div>
+            </div>
+            <div class="text-center bg-gray-50 rounded-lg p-2" *ngIf="analysisData.analysis.technical_metrics">
+              <div class="text-lg font-bold text-gray-900">{{ analysisData.analysis.technical_metrics.sentence_count }}</div>
+              <div class="text-xs text-gray-600">Sentences</div>
+            </div>
+            <div class="text-center bg-gray-50 rounded-lg p-2" *ngIf="analysisData.analysis.technical_metrics">
+              <div class="text-lg font-bold text-gray-900">{{ (analysisData.analysis.technical_metrics.vocabulary_richness * 100) | number:'1.0-0' }}%</div>
+              <div class="text-xs text-gray-600">Vocab Rich</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Readability & Sentiment -->
+        <div class="border-t border-gray-200 pt-3" *ngIf="analysisData.analysis.readability || analysisData.analysis.sentiment">
+          <div class="space-y-2">
+            <div class="flex justify-between items-center" *ngIf="analysisData.analysis.readability">
+              <span class="text-sm font-medium text-gray-700">Readability:</span>
+              <span class="px-2 py-1 bg-yellow-100 text-yellow-800 rounded-full text-xs font-medium">{{ analysisData.analysis.readability.level }}</span>
+            </div>
+            <div class="flex justify-between items-center" *ngIf="analysisData.analysis.sentiment">
+              <span class="text-sm font-medium text-gray-700">Sentiment:</span>
+              <span class="px-2 py-1 rounded-full text-xs font-medium"
+                    [ngClass]="{
+                      'bg-green-100 text-green-800': analysisData.analysis.sentiment === 'positive',
+                      'bg-red-100 text-red-800': analysisData.analysis.sentiment === 'negative',
+                      'bg-gray-100 text-gray-800': analysisData.analysis.sentiment === 'neutral'
+                    }">{{ analysisData.analysis.sentiment | titlecase }}</span>
+            </div>
+          </div>
         </div>
         
-        <!-- Confidence -->
-        <div class="flex justify-between items-center pt-2 border-t">
-          <span class="text-sm font-medium text-gray-700">Confidence:</span>
-          <span class="text-sm text-gray-600">{{ analysisData.analysis.confidence }}%</span>
+        <!-- Plagiarism & Confidence -->
+        <div class="border-t border-gray-200 pt-3">
+          <div class="space-y-2">
+            <div class="flex justify-between items-center">
+              <span class="text-sm font-medium text-gray-700">Plagiarism:</span>
+              <span class="text-sm font-bold" 
+                    [class.text-red-600]="analysisData.analysis.plagiarism > 50"
+                    [class.text-green-600]="analysisData.analysis.plagiarism <= 50">
+                {{ analysisData.analysis.plagiarism }}%
+              </span>
+            </div>
+            <div class="flex justify-between items-center">
+              <span class="text-sm font-medium text-gray-700">Confidence:</span>
+              <span class="text-sm font-medium text-gray-900">{{ analysisData.analysis.confidence }}%</span>
+            </div>
+          </div>
         </div>
         
-        <!-- Description -->
-        <div class="pt-3 border-t" *ngIf="analysisData.analysis.description">
-          <span class="text-sm font-medium text-gray-700">Analysis:</span>
-          <p class="text-sm text-gray-600 mt-2 leading-relaxed">{{ analysisData.analysis.description }}</p>
+        <!-- Analysis Notes -->
+        <div class="border-t border-gray-200 pt-3" *ngIf="analysisData.analysis.description">
+          <h4 class="text-sm font-semibold text-gray-700 mb-2">Analysis Notes</h4>
+          <p class="text-sm text-gray-600 leading-relaxed">{{ analysisData.analysis.description }}</p>
         </div>
       </div>
       

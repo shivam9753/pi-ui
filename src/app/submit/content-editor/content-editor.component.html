@@ -73,15 +73,15 @@
           <label class="block text-sm font-medium text-gray-900 mb-2">
             Tags (Optional)
           </label>
-          <input 
-            type="text" 
+          <app-tag-input 
             [formControl]="content.get('tags')"
-            class="w-full px-4 py-3 border border-gray-200 rounded-xl bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-200 focus:border-gray-200-accent transition-colors duration-200"
-            placeholder="Add tags separated by commas..."
-          />
-          <p class="text-xs text-gray-900-secondary mt-2">
-            Example: nature, love, friendship, urban life
-          </p>
+            placeholder="Add tags and press Enter..."
+            helperText="Press Enter to add a tag, or separate multiple tags with commas. Example: nature, love, friendship"
+            [maxTags]="10"
+            [allowDuplicates]="false"
+            [minTagLength]="2"
+            [maxTagLength]="30"
+          ></app-tag-input>
         </div>
 
         <!-- Divider (except for last item) -->

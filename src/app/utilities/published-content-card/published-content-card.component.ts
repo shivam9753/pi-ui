@@ -1,5 +1,6 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
+import { Router } from '@angular/router';
 import { BadgeLabelComponent } from '../badge-label/badge-label.component';
 
 export interface PublishedContent {
@@ -44,6 +45,8 @@ export class PublishedContentCardComponent {
   @Output() bookmarkClick = new EventEmitter<PublishedContent>();
   @Output() shareClick = new EventEmitter<PublishedContent>();
   @Output() tagClick = new EventEmitter<string>();
+
+  constructor(private router: Router) {}
 
   onCardClick() {
     this.cardClick.emit(this.content);
@@ -112,6 +115,11 @@ export class PublishedContentCardComponent {
 
   getReadingTime(): number {
     return this.content.readingTime || 3;
+  }
+
+  // Navigate to category page
+  onCategoryClick(category: string) {
+    this.router.navigate(['/category', category]);
   }
 
   getDisplayTags(): string[] {

@@ -9,6 +9,7 @@ import { PendingReviewsComponent } from "./submissions/pending-reviews/pending-r
 import { PublishedPostsComponent } from "./content/published-posts/published-posts.component";
 import { UserManagementComponent } from './users/user-management/user-management.component';
 import { PromptManagementComponent } from './prompts/prompt-management/prompt-management.component';
+import { PurgeManagementComponent } from './purge/purge-management.component';
 
 @Component({
   selector: 'app-admin',
@@ -19,13 +20,14 @@ import { PromptManagementComponent } from './prompts/prompt-management/prompt-ma
     ReadyToPublishComponent,
     PendingReviewsComponent,
     PublishedPostsComponent,
-    UserManagementComponent
+    UserManagementComponent,
+    PurgeManagementComponent
 ],
   templateUrl: './admin.component.html',
   styleUrl: './admin.component.css'
 })
 export class AdminComponent implements OnInit {
-  activeTab: 'publish' | 'published' | 'users' | 'review' | 'prompts' = 'review';
+  activeTab: 'publish' | 'published' | 'users' | 'review' | 'prompts' | 'purge' = 'review';
   isAdmin = false;
   isReviewer = false;
   currentUser: any = null;
@@ -42,8 +44,8 @@ export class AdminComponent implements OnInit {
     
     // Handle URL fragments for direct tab navigation
     this.route.fragment.subscribe(fragment => {
-      if (fragment && ['publish', 'published', 'users', 'review', 'prompts'].includes(fragment)) {
-        const tab = fragment as 'publish' | 'published' | 'users' | 'review' | 'prompts';
+      if (fragment && ['publish', 'published', 'users', 'review', 'prompts', 'purge'].includes(fragment)) {
+        const tab = fragment as 'publish' | 'published' | 'users' | 'review' | 'prompts' | 'purge';
         // Only set tab if user has permission to access it
         if (this.canAccessTab(tab)) {
           this.activeTab = tab;
@@ -76,7 +78,7 @@ export class AdminComponent implements OnInit {
     this.loading = false;
   }
 
-  setActiveTab(tab: 'publish' | 'published' | 'users' | 'review' | 'prompts') {
+  setActiveTab(tab: 'publish' | 'published' | 'users' | 'review' | 'prompts' | 'purge') {
     // Check if user has permission to access this tab
     if (!this.canAccessTab(tab)) {
       return; // Prevent access to unauthorized tabs

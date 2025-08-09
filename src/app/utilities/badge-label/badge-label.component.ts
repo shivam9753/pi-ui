@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { PrettyLabelPipe } from '../../pipes/pretty-label.pipe';
 
@@ -7,11 +7,13 @@ import { PrettyLabelPipe } from '../../pipes/pretty-label.pipe';
   standalone: true,
   imports: [CommonModule, PrettyLabelPipe],
   template: `
-    <span
-      class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-white-accent text-white"
+    <button
+      (click)="onClick()"
+      [class]="clickable ? 'inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-white-accent text-white hover:bg-opacity-80 transition-colors cursor-pointer' : 'inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-white-accent text-white'"
+      [disabled]="!clickable"
     >
       {{ type | prettyLabel }}
-    </span>
+    </button>
   `,
   styles: [`
     :host {
@@ -33,4 +35,12 @@ import { PrettyLabelPipe } from '../../pipes/pretty-label.pipe';
 })
 export class BadgeLabelComponent {
   @Input() type = '';
+  @Input() clickable = false;
+  @Output() badgeClick = new EventEmitter<string>();
+
+  onClick() {
+    if (this.clickable) {
+      this.badgeClick.emit(this.type);
+    }
+  }
 }

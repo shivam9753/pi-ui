@@ -699,6 +699,28 @@ export class BackendService {
     return this.http.get<any>(`${this.API_URL}/submissions/published?type=${type}`, { params });
   }
 
+  // Get published content by tag
+  getPublishedContentByTag(tag: string, options: {
+    limit?: number;
+    skip?: number;
+    sortBy?: string;
+    order?: 'asc' | 'desc';
+  } = {}): Observable<{
+    tag: string;
+    contents: any[];
+    total: number;
+    pagination: any;
+  }> {
+    let params = new HttpParams();
+    
+    if (options.limit) params = params.set('limit', options.limit.toString());
+    if (options.skip) params = params.set('skip', options.skip.toString());
+    if (options.sortBy) params = params.set('sortBy', options.sortBy);
+    if (options.order) params = params.set('order', options.order);
+
+    return this.http.get<any>(`${this.API_URL}/content/by-tag/${encodeURIComponent(tag)}`, { params });
+  }
+
   getAllPrompts(): Observable<any> {
   return this.http.get<any>(`${this.API_URL}/prompts/all`);
 }

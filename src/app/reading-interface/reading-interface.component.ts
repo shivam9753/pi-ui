@@ -289,6 +289,13 @@ content = signal<PublishedContent | null>(null);
     this.router.navigate(['/explore']);
   }
 
+  // Navigate to category page
+  navigateToCategory(category: string) {
+    if (category) {
+      this.router.navigate(['/category', category]);
+    }
+  }
+
   toggleLike() {
     const current = this.content();
     if (current) {
@@ -324,6 +331,17 @@ content = signal<PublishedContent | null>(null);
       navigator.clipboard.writeText(window.location.href);
       // TODO: Show toast notification
     }
+  }
+
+  onTagClick(tag: string, event?: Event) {
+    // Prevent event bubbling
+    if (event) {
+      event.stopPropagation();
+      event.preventDefault();
+    }
+    // Navigate to tag page
+    console.log('Tag clicked:', tag); // Debug log
+    this.router.navigate(['/tag', tag]);
   }
 
   toggleReadingMode() {

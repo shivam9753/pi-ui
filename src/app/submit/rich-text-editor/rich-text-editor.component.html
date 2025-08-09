@@ -29,7 +29,7 @@
         title="Italic (Ctrl+I)"
       >
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 4h-9m4 16H5m4-8h6m-6 0c0 2.5 2.5 4 2.5 4s2.5-1.5 2.5-4"></path>
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 4h-9m4 16H5m4-8h6"></path>
         </svg>
       </button>
       
@@ -171,9 +171,6 @@
       (drop)="onDrop($event)"
       class="editor-content min-h-[300px] p-4 text-gray-900 bg-white focus:outline-none transition-colors"
       [class]="'text-' + currentAlignment"
-      [class.border-2]="allowImages"
-      [class.border-dashed]="allowImages"
-      [class.border-gray-200-accent]="allowImages"
       role="textbox"
       [attr.aria-label]="'Rich text editor for ' + placeholder"
     ></div>
