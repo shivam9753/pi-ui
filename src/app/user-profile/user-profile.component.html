@@ -30,15 +30,28 @@
   <!-- Profile Content - Only show when not loading and no error -->
   <div *ngIf="!isLoading() && !error() && userProfile()">
     
+    <!-- Private Profile Banner -->
+    <div class="bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-blue-200">
+      <div class="max-w-screen-xl mx-auto px-4 sm:px-6 md:px-10 py-3">
+        <div class="flex items-center justify-center gap-2 text-sm text-blue-700">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+          </svg>
+          <span class="font-medium">Private Profile View</span>
+          <span class="text-blue-600">•</span>
+          <span>This profile is not visible to other users</span>
+        </div>
+      </div>
+    </div>
+    
     <!-- Profile Header -->
     <div class="bg-white border-b border-gray-200">
-      <div class="w-full px-4 sm:px-6 lg:px-8 xl:px-12 py-8">
-        <div class="max-w-4xl mx-auto">
+      <div class="max-w-screen-xl mx-auto px-4 sm:px-6 md:px-10 py-8">
           
           <!-- Profile Info -->
-          <div class="flex flex-col md:flex-row md:items-start gap-6">
+          <div class="flex flex-col md:flex-row md:items-start gap-6 text-left">
             <!-- Profile Image -->
-            <div class="flex-shrink-0 self-center md:self-start">
+            <div class="flex-shrink-0">
               <div class="relative">
                 <div class="w-24 h-24 rounded-full bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center overflow-hidden">
                   <img *ngIf="userProfile()?.profileImage" 
@@ -63,7 +76,7 @@
             </div>
 
             <!-- Profile Details -->
-            <div class="flex-1 text-center md:text-left">
+            <div class="flex-1 text-left">
               <div class="mb-4">
                 <h1 class="text-2xl font-bold text-gray-900 mb-2">
                   {{ userProfile()?.name || userProfile()?.username }}
@@ -155,50 +168,64 @@
               </div>
             </div>
           </div>
-        </div>
       </div>
     </div>
 
-    
+    <!-- Tab Navigation (Admin Style) -->
+    <div class="border-b border-gray-200 bg-white shadow-sm">
+      <div class="max-w-screen-xl mx-auto px-4 sm:px-6 md:px-10">
+        <nav class="flex space-x-2 sm:space-x-8 overflow-x-auto scrollbar-hide" aria-label="Profile Tabs">
+          <button 
+            (click)="activeTab.set('published')"
+            [class.border-orange-500]="activeTab() === 'published'"
+            [class.text-orange-600]="activeTab() === 'published'"
+            [class.border-transparent]="activeTab() !== 'published'"
+            [class.text-gray-600]="activeTab() !== 'published'"
+            [class.hover:text-gray-900]="activeTab() !== 'published'"
+            [class.hover:border-gray-300]="activeTab() !== 'published'"
+            class="whitespace-nowrap py-3 px-3 sm:py-4 sm:px-6 border-b-2 font-medium text-xs sm:text-sm transition-all duration-200 flex items-center gap-1 sm:gap-2 min-w-max">
+            <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"/>
+            </svg>
+            Published Works
+            <span class="ml-1 px-2 py-1 text-xs rounded-full bg-orange-100 text-orange-800">{{ publishedWorks().length }}</span>
+          </button>
+          <button 
+            (click)="activeTab.set('submissions')"
+            [class.border-orange-500]="activeTab() === 'submissions'"
+            [class.text-orange-600]="activeTab() === 'submissions'"
+            [class.border-transparent]="activeTab() !== 'submissions'"
+            [class.text-gray-600]="activeTab() !== 'submissions'"
+            [class.hover:text-gray-900]="activeTab() !== 'submissions'"
+            [class.hover:border-gray-300]="activeTab() !== 'submissions'"
+            class="whitespace-nowrap py-3 px-3 sm:py-4 sm:px-6 border-b-2 font-medium text-xs sm:text-sm transition-all duration-200 flex items-center gap-1 sm:gap-2 min-w-max">
+            <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
+            </svg>
+            My Submissions
+            <span class="ml-1 px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-800">{{ submissions().length }}</span>
+          </button>
+          <button 
+            (click)="activeTab.set('drafts')"
+            [class.border-orange-500]="activeTab() === 'drafts'"
+            [class.text-orange-600]="activeTab() === 'drafts'"
+            [class.border-transparent]="activeTab() !== 'drafts'"
+            [class.text-gray-600]="activeTab() !== 'drafts'"
+            [class.hover:text-gray-900]="activeTab() !== 'drafts'"
+            [class.hover:border-gray-300]="activeTab() !== 'drafts'"
+            class="whitespace-nowrap py-3 px-3 sm:py-4 sm:px-6 border-b-2 font-medium text-xs sm:text-sm transition-all duration-200 flex items-center gap-1 sm:gap-2 min-w-max">
+            <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+            </svg>
+            My Drafts
+            <span class="ml-1 px-2 py-1 text-xs rounded-full bg-yellow-100 text-yellow-800">{{ drafts().length }}</span>
+          </button>
+        </nav>
+      </div>
+    </div>
 
-    <!-- Main Content Tabs (Always show for testing) -->
-    <div class="w-full px-4 sm:px-6 lg:px-8 xl:px-12 py-6">
-      <div class="max-w-6xl mx-auto">
-        <!-- Tab Navigation -->
-        <div class="border-b border-gray-200 mb-8">
-          <nav class="-mb-px flex space-x-8 overflow-x-auto">
-            <button 
-              (click)="activeTab.set('published')"
-              [class.border-gray-200-accent]="activeTab() === 'published'"
-              [class.text-gray-900-accent]="activeTab() === 'published'"
-              [class.border-transparent]="activeTab() !== 'published'"
-              [class.text-gray-900-secondary]="activeTab() !== 'published'"
-              class="whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm hover:text-gray-900-accent hover:border-gray-200-accent transition-colors duration-200">
-              Published Works
-              <span class="ml-2 px-2 py-1 text-xs rounded-full bg-white-tertiary">{{ publishedWorks().length }}</span>
-            </button>
-            <button 
-              (click)="activeTab.set('submissions')"
-              [class.border-gray-200-accent]="activeTab() === 'submissions'"
-              [class.text-gray-900-accent]="activeTab() === 'submissions'"
-              [class.border-transparent]="activeTab() !== 'submissions'"
-              [class.text-gray-900-secondary]="activeTab() !== 'submissions'"
-              class="whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm hover:text-gray-900-accent hover:border-gray-200-accent transition-colors duration-200">
-              My Submissions
-              <span class="ml-2 px-2 py-1 text-xs rounded-full bg-white-tertiary">{{ submissions().length }}</span>
-            </button>
-            <button 
-              (click)="activeTab.set('drafts')"
-              [class.border-gray-200-accent]="activeTab() === 'drafts'"
-              [class.text-gray-900-accent]="activeTab() === 'drafts'"
-              [class.border-transparent]="activeTab() !== 'drafts'"
-              [class.text-gray-900-secondary]="activeTab() !== 'drafts'"
-              class="whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm hover:text-gray-900-accent hover:border-gray-200-accent transition-colors duration-200">
-              Drafts
-              <span class="ml-2 px-2 py-1 text-xs rounded-full bg-white-tertiary">{{ drafts().length }}</span>
-            </button>
-          </nav>
-        </div>
+    <!-- Main Content Tabs -->
+    <div class="max-w-screen-xl mx-auto px-4 sm:px-6 md:px-10 py-6">
 
 
         <!-- Tab Content -->
@@ -297,13 +324,60 @@
           <!-- Published Works Cards -->
           <div *ngIf="!worksLoading()" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             <div *ngFor="let work of filteredWorks(); trackBy: trackByWorkId" 
-                 class="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow cursor-pointer"
+                 class="group bg-white border border-gray-200 rounded-xl p-6 hover:shadow-lg hover:border-orange-200 transition-all duration-300 cursor-pointer overflow-hidden"
                  (click)="onPublishedWorkCardClick(work)">
-              <h3 class="text-lg font-semibold text-gray-900 mb-2">{{ work.title }}</h3>
-              <p *ngIf="work.excerpt" class="text-gray-600 text-sm mb-4">{{ work.excerpt }}</p>
-              <div class="flex items-center justify-between text-xs text-gray-500">
-                <span class="px-2 py-1 bg-orange-100 text-orange-800 rounded">{{ work.submissionType }}</span>
-                <span>{{ work.publishedAt | date:'MMM d, y' }}</span>
+              
+              <!-- Card Header -->
+              <div class="mb-4">
+                <div class="flex items-start justify-between mb-3">
+                  <h3 class="text-lg font-bold text-gray-900 group-hover:text-orange-600 transition-colors leading-tight"
+                      style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+                    {{ work.title }}
+                  </h3>
+                  <!-- Reading time indicator -->
+                  <div class="flex-shrink-0 ml-2">
+                    <span class="inline-flex items-center px-2 py-1 text-xs text-gray-500 bg-gray-100 rounded-full">
+                      <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                      </svg>
+                      {{ work.readingTime || 5 }}m
+                    </span>
+                  </div>
+                </div>
+                
+                <!-- Type Badge -->
+                <div class="mb-3">
+                  <span [class]="getTypeBadgeClass(work.submissionType)">
+                    {{ formatType(work.submissionType) }}
+                  </span>
+                </div>
+              </div>
+              
+              <!-- Excerpt -->
+              <div class="mb-4">
+                <p *ngIf="work.excerpt" class="text-gray-600 text-sm leading-relaxed"
+                   style="display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;">
+                  {{ cleanHtml(work.excerpt) }}
+                </p>
+                <p *ngIf="!work.excerpt" class="text-gray-400 text-sm italic">
+                  No preview available
+                </p>
+              </div>
+              
+              <!-- Card Footer -->
+              <div class="flex items-center justify-between text-xs text-gray-500 pt-4 border-t border-gray-100 group-hover:border-orange-100 transition-colors">
+                <div class="flex items-center">
+                  <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                  </svg>
+                  <span class="font-medium">{{ work.publishedAt | date:'MMM d, y' }}</span>
+                </div>
+                <div class="flex items-center text-orange-600 group-hover:text-orange-700 transition-colors">
+                  <span class="text-xs font-medium">Read more</span>
+                  <svg class="w-3 h-3 ml-1 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                  </svg>
+                </div>
               </div>
             </div>
           </div>
@@ -615,6 +689,22 @@
               </div>
             </div>
           </div>
+          
+          <!-- Auto-deletion Banner -->
+          <div *ngIf="!draftsLoading() && drafts().length > 0" class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-6 rounded-r-lg">
+            <div class="flex">
+              <div class="flex-shrink-0">
+                <svg class="h-5 w-5 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                </svg>
+              </div>
+              <div class="ml-3">
+                <p class="text-sm text-yellow-700">
+                  <strong>Auto-deletion:</strong> These drafts will be automatically deleted after 7 days of inactivity to free up storage space.
+                </p>
+              </div>
+            </div>
+          </div>
 
           <!-- Drafts Loading -->
           <div *ngIf="draftsLoading()" class="text-center py-12">
@@ -704,7 +794,6 @@
             </a>
           </div>
         </div>
-      </div>
     </div>
 
   </div>

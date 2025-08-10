@@ -62,7 +62,15 @@ export class CategoryComponent implements OnInit {
   }
 
   openSubmission(submission: any) {
-    this.router.navigate(['/read', submission._id]);
+    // Navigate to the reading interface with SEO slug or fallback to ID
+    if (submission.slug) {
+      this.router.navigate(['/post', submission.slug]);
+    } else if (submission.seo?.slug) {
+      this.router.navigate(['/post', submission.seo.slug]);
+    } else {
+      // Fallback to ID if no slug available
+      this.router.navigate(['/read', submission._id]);
+    }
   }
 
   // Get submissions for display with pagination

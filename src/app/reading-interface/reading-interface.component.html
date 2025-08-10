@@ -1,147 +1,4 @@
 <div class="min-h-screen bg-white">
-  <!-- Reading Progress Bar -->
-  <div class="reading-progress" [style.width.%]="readingProgress()"></div>
-  
-  <!-- Header Bar -->
-  <div *ngIf="!isFocusMode()" class="border-b border-gray-200 bg-white/95 backdrop-blur-sm sticky top-0 z-50">
-    <!-- Desktop Header -->
-    <div class="hidden sm:block">
-      <div class="max-w-7xl mx-auto px-6 py-3">
-        <div class="flex items-center justify-between">
-          <div class="flex items-center gap-6">
-            <button 
-              (click)="goBack()"
-              class="flex items-center gap-2 text-sm text-gray-900-secondary hover:text-gray-900 transition-colors duration-200 group">
-              <svg class="w-4 h-4 group-hover:translate-x-[-2px] transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-              </svg>
-              <span>Back to Explore</span>
-            </button>
-            <div class="h-4 w-px bg-white-secondary"></div>
-            <app-badge-label 
-              [type]="content()!.submissionType"
-              [clickable]="true"
-              (badgeClick)="navigateToCategory($event)"></app-badge-label>
-          </div>
-          
-            <!-- Reading Controls -->
-          <div class="flex items-center gap-3">
-            <!-- Focus Mode Toggle -->
-            <button 
-              (click)="toggleFocusMode()"
-              [class.bg-orange-100]="isFocusMode()"
-              [class.text-orange-600]="isFocusMode()"
-              [class.bg-gray-100]="!isFocusMode()"
-              [class.text-gray-600]="!isFocusMode()"
-              class="p-2 rounded-lg hover:bg-opacity-80 transition-colors duration-200"
-              title="Toggle focus mode">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-              </svg>
-            </button>
-
-            <!-- Layout Mode Toggle -->
-            <button 
-              (click)="toggleLayoutMode()"
-              class="p-2 bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200 transition-colors duration-200"
-              title="Toggle layout: {{ layoutMode() }}">
-              <svg *ngIf="layoutMode() === 'compact'" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16" />
-              </svg>
-              <svg *ngIf="layoutMode() === 'spacious'" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8h16M4 16h16" />
-              </svg>
-            </button>
-
-            <!-- Line Height Toggle -->
-            <button 
-              (click)="toggleLineHeightPreset()"
-              class="p-2 bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200 transition-colors duration-200"
-              title="Line height: {{ lineHeightPreset() }}">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-              </svg>
-            </button>
-
-            <!-- Font Size Controls -->
-            <div class="flex items-center gap-1 bg-white border border-gray-200 rounded-lg p-1">
-              <button 
-                (click)="decreaseFontSize()"
-                class="p-1 text-gray-900-secondary hover:text-gray-900 transition-colors duration-200"
-                title="Decrease font size">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4" />
-                </svg>
-              </button>
-              <span class="text-xs text-gray-900-tertiary px-2">{{ fontSize() }}px</span>
-              <button 
-                (click)="increaseFontSize()"
-                class="p-1 text-gray-900-secondary hover:text-gray-900 transition-colors duration-200"
-                title="Increase font size">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-                </svg>
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-    
-    <!-- Mobile Header Strip (Compact) -->
-    <div class="sm:hidden px-3 py-2">
-      <div class="flex items-center justify-between">
-        <!-- Left: Back button only -->
-        <button 
-          (click)="goBack()"
-          class="p-1.5 hover:bg-gray-100 rounded-lg transition-colors duration-200"
-          title="Back">
-          <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-          </svg>
-        </button>
-        
-        <!-- Right: Essential controls only -->
-        <div class="flex items-center gap-2">
-          <!-- Focus Mode Toggle - Primary control -->
-          <button 
-            (click)="toggleFocusMode()"
-            [class.bg-orange-100]="isFocusMode()"
-            [class.text-orange-600]="isFocusMode()"
-            [class.bg-gray-100]="!isFocusMode()"
-            [class.text-gray-600]="!isFocusMode()"
-            class="p-1.5 rounded-lg transition-colors duration-200"
-            title="Focus mode">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-            </svg>
-          </button>
-          
-          <!-- Font Size - Compact version -->
-          <div class="flex items-center bg-gray-100 rounded-lg">
-            <button 
-              (click)="decreaseFontSize()"
-              class="p-1.5 text-gray-600 hover:text-gray-900 transition-colors duration-200"
-              title="Smaller text">
-              <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4" />
-              </svg>
-            </button>
-            <button 
-              (click)="increaseFontSize()"
-              class="p-1.5 text-gray-600 hover:text-gray-900 transition-colors duration-200"
-              title="Larger text">
-              <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-              </svg>
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
 
   <!-- Focus Mode Exit Button -->
   <div *ngIf="isFocusMode()" class="fixed top-4 right-4 z-50">
@@ -166,11 +23,82 @@
         <!-- Main Content Column -->
         <main class="col-span-12" 
               [class.lg:col-span-8]="!isFocusMode()"
-              [class.xl:col-span-7]="!isFocusMode()"
+              [class.xl:col-span-8]="!isFocusMode()"
               [class.max-w-4xl]="isFocusMode()"
               [class.mx-auto]="isFocusMode()">
+          
+          <!-- Navigation and Controls -->
+          <div class="flex items-center justify-between mb-4">
+            <div class="flex items-center gap-4">
+              <button 
+                (click)="goBack()"
+                class="flex items-center gap-2 text-sm text-gray-900-secondary hover:text-gray-900 transition-colors duration-200 group">
+                <svg class="w-4 h-4 group-hover:translate-x-[-2px] transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                </svg>
+                <span>Back to Explore</span>
+              </button>
+              <app-badge-label 
+                [type]="content()!.submissionType"
+                [clickable]="true"
+                (badgeClick)="navigateToCategory($event)"></app-badge-label>
+            </div>
+            
+            <!-- Reading Controls -->
+            <div class="flex items-center gap-2">
+              <!-- Focus Mode Toggle -->
+              <button 
+                (click)="toggleFocusMode()"
+                [class.bg-orange-100]="isFocusMode()"
+                [class.text-orange-600]="isFocusMode()"
+                [class.bg-gray-100]="!isFocusMode()"
+                [class.text-gray-600]="!isFocusMode()"
+                class="p-2 rounded-lg hover:bg-opacity-80 transition-colors duration-200"
+                title="Toggle focus mode">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                </svg>
+              </button>
+
+              <!-- Layout Mode Toggle -->
+              <button 
+                (click)="toggleLayoutMode()"
+                class="p-2 bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200 transition-colors duration-200"
+                title="Toggle layout: {{ layoutMode() }}">
+                <svg *ngIf="layoutMode() === 'compact'" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16" />
+                </svg>
+                <svg *ngIf="layoutMode() === 'spacious'" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8h16M4 16h16" />
+                </svg>
+              </button>
+
+              <!-- Font Size Controls -->
+              <div class="flex items-center gap-1 bg-white border border-gray-200 rounded-lg p-1">
+                <button 
+                  (click)="decreaseFontSize()"
+                  class="p-1 text-gray-600 hover:text-gray-900 transition-colors duration-200"
+                  title="Decrease font size">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4" />
+                  </svg>
+                </button>
+                <span class="text-xs text-gray-500 px-2">{{ fontSize() }}px</span>
+                <button 
+                  (click)="increaseFontSize()"
+                  class="p-1 text-gray-600 hover:text-gray-900 transition-colors duration-200"
+                  title="Increase font size">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
+
           <!-- Article Header -->
-          <header class="mb-8 sm:mb-8">
+          <header class="mb-6">
             <h1 class="text-2xl sm:text-4xl lg:text-5xl xl:text-6xl font-serif font-bold text-gray-900 leading-tight mb-3 sm:mb-6">
               {{ content()!.title }}
             </h1>
@@ -193,17 +121,17 @@
 
             <!-- Description -->
             <div *ngIf="content()!.description" class="mb-4 sm:mb-8">
-              <p class="text-lg sm:text-xl text-gray-900-secondary leading-relaxed font-light italic border-l-4 border-orange-500 pl-4 sm:pl-6">
+              <p class="text-lg sm:text-xl text-gray-900-secondary leading-relaxed font-light italic font-serif border-l-4 border-orange-500 pl-4 sm:pl-6">
                 {{ content()!.description }}
               </p>
             </div>
           </header>
 
-          <!-- Featured Image - Original Width, Left Aligned -->
+          <!-- Featured Image - Larger, Full Width -->
           <div *ngIf="content()!.imageUrl" class="mb-6 sm:mb-12">
             <img [src]="content()!.imageUrl" 
                  [alt]="content()!.title"
-                 class="max-w-full h-auto rounded-lg shadow-lg">
+                 class="w-full h-auto sm:max-h-96 lg:max-h-[500px] object-cover rounded-lg shadow-lg">
           </div>
 
           <!-- Content Items -->
@@ -303,19 +231,55 @@
                 </svg>
               </button>
 
-              <button 
-                (click)="shareContent()"
-                class="flex items-center gap-2 px-4 py-2 text-gray-900-secondary bg-white-secondary border border-gray-200 rounded-lg hover:text-blue-400 hover:border-blue-500/30 transition-all duration-200">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z" />
-                </svg>
-              </button>
+              <!-- Social Sharing Buttons -->
+              <div class="flex items-center gap-2">
+                <!-- Native Share (Mobile) -->
+                <button 
+                  *ngIf="canShare()"
+                  (click)="shareContent()"
+                  class="flex items-center gap-2 px-3 py-2 text-gray-900-secondary bg-white-secondary border border-gray-200 rounded-lg hover:text-blue-400 hover:border-blue-500/30 transition-all duration-200"
+                  title="Share">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z" />
+                  </svg>
+                </button>
+
+                <!-- WhatsApp -->
+                <button 
+                  (click)="shareOnWhatsApp()"
+                  class="flex items-center justify-center w-9 h-9 bg-green-500 hover:bg-green-600 text-white rounded-lg transition-colors duration-200"
+                  title="Share on WhatsApp">
+                  <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.890-5.335 11.893-11.893A11.821 11.821 0 0020.885 3.488"/>
+                  </svg>
+                </button>
+
+                <!-- Facebook -->
+                <button 
+                  (click)="shareOnFacebook()"
+                  class="flex items-center justify-center w-9 h-9 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors duration-200"
+                  title="Share on Facebook">
+                  <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                  </svg>
+                </button>
+
+                <!-- Instagram -->
+                <button 
+                  (click)="shareOnInstagram()"
+                  class="flex items-center justify-center w-9 h-9 bg-gradient-to-tr from-yellow-400 via-red-500 to-purple-500 hover:from-yellow-500 hover:via-red-600 hover:to-purple-600 text-white rounded-lg transition-all duration-200"
+                  title="Share on Instagram">
+                  <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12.017 0C8.396 0 7.989.016 6.756.072 5.52.131 4.67.334 3.929.63a5.88 5.88 0 00-2.126 1.384A5.888 5.888 0 00.43 4.14C.135 4.881-.068 5.733.017 6.968.002 8.202.017 8.615.017 12.017s-.015 3.815.072 5.05c.059 1.234.262 2.086.558 2.827a5.895 5.895 0 001.384 2.127 5.868 5.868 0 002.126 1.384c.741.296 1.593.499 2.827.558 1.235.056 1.648.072 5.05.072s3.815-.016 5.05-.072c1.234-.059 2.086-.262 2.827-.558a5.898 5.898 0 002.127-1.384 5.886 5.886 0 001.384-2.127c.296-.741.499-1.593.558-2.827.056-1.235.072-1.648.072-5.05s-.016-3.815-.072-5.05c-.059-1.234-.262-2.086-.558-2.827a5.898 5.898 0 00-1.384-2.127A5.847 5.847 0 0019.778.63c-.741-.296-1.593-.499-2.827-.558C15.812.016 15.399 0 12.017 0zm0 2.162c3.204 0 3.584.012 4.849.07 1.366.062 2.198.336 2.713.558a4.55 4.55 0 011.675 1.09c.5.5.9 1.034 1.09 1.675.222.515.496 1.347.558 2.713.058 1.265.07 1.645.07 4.849s-.012 3.584-.07 4.849c-.062 1.366-.336 2.198-.558 2.713a4.55 4.55 0 01-1.09 1.675c-.5.5-1.034.9-1.675 1.09-.515.222-1.347.496-2.713.558-1.265.058-1.645.07-4.849.07s-3.584-.012-4.849-.07c-1.366-.062-2.198-.336-2.713-.558a4.55 4.55 0 01-1.675-1.09c-.5-.5-.9-1.034-1.09-1.675-.222-.515-.496-1.347-.558-2.713-.058-1.265-.07-1.645-.07-4.849s.012-3.584.07-4.849c.062-1.366.336-2.198.558-2.713a4.55 4.55 0 011.09-1.675c.5-.5 1.034-.9 1.675-1.09.515-.222 1.347-.496 2.713-.558 1.265-.058 1.645-.07 4.849-.07l.028 2.162-.028-2.162zm0 3.676c-3.405 0-6.162 2.76-6.162 6.162 0 3.405 2.76 6.162 6.162 6.162 3.405 0 6.162-2.76 6.162-6.162 0-3.405-2.76-6.162-6.162-6.162zM12.017 16a4 4 0 114-.001 4 4 0 01-4 .001zm7.846-10.405a1.441 1.441 0 01-2.88 0 1.441 1.441 0 012.88 0z"/>
+                  </svg>
+                </button>
+              </div>
             </div>
           </div>
         </main>
 
         <!-- Sidebar -->
-        <aside *ngIf="!isFocusMode()" class="col-span-12 lg:col-span-4 xl:col-span-4 xl:col-start-9">
+        <aside *ngIf="!isFocusMode()" class="col-span-12 lg:col-span-4 xl:col-span-4">
           <div class="sticky top-24">
             <!-- Related Content in Sidebar (Desktop Only) -->
             <div class="hidden lg:block">

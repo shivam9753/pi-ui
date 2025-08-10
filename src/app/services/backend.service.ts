@@ -58,6 +58,12 @@ export interface PublishedWork {
   tags: string[];
   imageUrl?: string;
   content?: string;
+  slug?: string;
+  seo?: {
+    slug: string;
+    metaTitle?: string;
+    metaDescription?: string;
+  };
 }
 
 
@@ -226,8 +232,9 @@ export class BackendService {
 
   // Get submission with contents
   getSubmissionWithContents(id: string): Observable<any> {
+    const headers = this.getAuthHeaders();
     const url = `${this.API_URL}/submissions/${id}/contents`;
-    return this.http.get(url).pipe(
+    return this.http.get(url, { headers }).pipe(
       this.handleApiCall(url, 'GET')
     );
   }
@@ -790,6 +797,49 @@ getUserSubmissions(): Observable<any> {
       console.error('getUserSubmissions error:', error);
       return throwError(() => error);
     })
+  );
+}
+
+// Draft management methods
+getUserDrafts(): Observable<any> {
+  const headers = this.getAuthHeaders();
+  return this.http.get(
+    `${this.API_URL}/submissions/drafts/my`,
+    { headers }
+  ).pipe(
+    catchError(this.handleError)
+  );
+}
+
+saveDraft(draftData: any): Observable<any> {
+  const headers = this.getAuthHeaders();
+  return this.http.post(
+    `${this.API_URL}/submissions/drafts`,
+    draftData,
+    { headers }
+  ).pipe(
+    catchError(this.handleError)
+  );
+}
+
+submitDraft(draftId: string): Observable<any> {
+  const headers = this.getAuthHeaders();
+  return this.http.post(
+    `${this.API_URL}/submissions/drafts/${draftId}/submit`,
+    {},
+    { headers }
+  ).pipe(
+    catchError(this.handleError)
+  );
+}
+
+deleteDraft(draftId: string): Observable<any> {
+  const headers = this.getAuthHeaders();
+  return this.http.delete(
+    `${this.API_URL}/submissions/drafts/${draftId}`,
+    { headers }
+  ).pipe(
+    catchError(this.handleError)
   );
 }
 

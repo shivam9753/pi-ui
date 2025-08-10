@@ -12,27 +12,29 @@
 
 /* Typography - Magazine Style */
 .font-serif {
-  font-family: 'Cardo', 'Georgia', 'Times New Roman', serif;
+  font-family: 'Garamond', 'EB Garamond', 'Cardo', 'Georgia', 'Times New Roman', serif;
 }
 
 /* Content Body Styling - Enhanced for Magazine Layout */
 .content-body {
   font-family: 'Lato', 'Charter', 'Georgia', serif;
-  line-height: 1.75;
-  font-size: 1.125rem;
+  line-height: 1.8;
+  font-size: 20px !important;
   color: var(--text-primary);
   max-width: none;
 }
 
 .content-body p {
-  margin-bottom: 1.5rem;
+  margin-bottom: 1.75rem;
   text-align: left;
+  line-height: 1.85;
+  font-size: 20px !important;
 }
 
 .content-body p:first-child {
-  font-size: 1.25rem;
-  line-height: 1.7;
-  margin-bottom: 2rem;
+  font-size: 1.35rem;
+  line-height: 1.8;
+  margin-bottom: 2.25rem;
 }
 
 /* Prose Custom Styling */
@@ -41,14 +43,15 @@
 }
 
 .prose-custom p {
-  margin-bottom: 1.5rem;
-  line-height: 1.75;
+  margin-bottom: 1.75rem;
+  line-height: 1.85;
+  font-size: 20px !important;
 }
 
 .prose-custom p:first-of-type {
-  font-size: 1.25rem;
-  line-height: 1.7;
-  margin-bottom: 2rem;
+  font-size: 22px;
+  line-height: 1.8;
+  margin-bottom: 2.25rem;
   font-weight: 300;
 }
 
@@ -115,34 +118,39 @@
   margin-bottom: 0.5rem;
 }
 
-/* Reading Progress Bar */
-.reading-progress {
-  position: fixed;
-  top: 0;
-  left: 0;
-  height: 3px;
-  background: linear-gradient(90deg, #f97316, #ea580c);
-  z-index: 1000;
-  transition: width 0.3s ease;
-}
 
 /* Responsive Magazine Layout */
 @media (max-width: 768px) {
   .content-body {
-    font-size: 1rem;
-    line-height: 1.7;
+    font-size: 20px !important;
+    line-height: 1.75;
+  }
+  
+  .content-body p {
+    text-align: left;
+    margin-left: 0;
+    margin-right: 0;
+    font-size: 20px !important;
   }
   
   .content-body p:first-child {
-    font-size: 1.125rem;
+    font-size: 22px !important;
+    line-height: 1.8;
   }
   
-  /* Reduce excessive negative space on mobile */
+  /* Reduce excessive negative space on mobile and ensure proper alignment */
   .magazine-layout .max-w-7xl {
-    padding-left: 1rem;
-    padding-right: 1rem;
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
     padding-top: 1.5rem; /* Reduced from default py-12 */
     padding-bottom: 1.5rem;
+  }
+  
+  /* Ensure content alignment on mobile */
+  .magazine-layout main {
+    max-width: 100%;
+    margin-left: 0;
+    margin-right: 0;
   }
   
   .magazine-layout header {
@@ -183,20 +191,28 @@
 
 @media (min-width: 769px) and (max-width: 1024px) {
   .content-body {
-    font-size: 1.125rem;
-    line-height: 1.75;
+    font-size: 20px !important;
+    line-height: 1.8;
   }
   
+  .content-body p {
+    font-size: 20px !important;
+  }
 }
 
 @media (min-width: 1025px) {
   .content-body {
-    font-size: 1.125rem;
-    line-height: 1.8;
+    font-size: 20px !important;
+    line-height: 1.85;
+  }
+  
+  .content-body p {
+    font-size: 20px !important;
   }
   
   .content-body p:first-child {
-    font-size: 1.3rem;
+    font-size: 22px !important;
+    line-height: 1.8;
   }
 }
 
@@ -240,9 +256,30 @@
 }
 
 /* Sidebar enhancements */
-.magazine-layout aside .bg-white border border-gray-200 {
-  border: 1px solid var(--border-gray-200);
+.magazine-layout aside {
+  font-size: 14px;
+}
+
+.magazine-layout aside .bg-white {
+  border: 1px solid rgb(229 231 235);
   box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+  border-radius: 8px;
+}
+
+.magazine-layout aside h3 {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+
+.magazine-layout aside .related-content-item {
+  padding: 12px;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+.magazine-layout aside .related-content-item:hover {
+  background-color: rgb(249 250 251);
 }
 
 /* Enhanced hover states */
@@ -530,8 +567,3 @@ body.focus-mode {
 }
 
 /* Enhanced Focus Mode Controls */
-.focus-mode .reading-progress {
-  background: linear-gradient(90deg, #f97316, #ea580c);
-  height: 2px;
-  opacity: 0.8;
-}

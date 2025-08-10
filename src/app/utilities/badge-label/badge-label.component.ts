@@ -9,10 +9,10 @@ import { PrettyLabelPipe } from '../../pipes/pretty-label.pipe';
   template: `
     <button
       (click)="onClick()"
-      [class]="clickable ? 'inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-white-accent text-white hover:bg-opacity-80 transition-colors cursor-pointer' : 'inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-white-accent text-white'"
+      [class]="getBadgeClasses()"
       [disabled]="!clickable"
     >
-      {{ type | prettyLabel }}
+      <span *ngIf="type === 'opinion'" class="mr-1">⚡</span>{{ type | prettyLabel }}
     </button>
   `,
   styles: [`
@@ -42,5 +42,18 @@ export class BadgeLabelComponent {
     if (this.clickable) {
       this.badgeClick.emit(this.type);
     }
+  }
+
+  getBadgeClasses(): string {
+    const baseClasses = 'inline-flex items-center px-2 py-1 rounded-full text-xs font-medium transition-colors';
+    const clickableClasses = this.clickable ? ' hover:bg-opacity-80 cursor-pointer' : '';
+    
+    // Special styling for Opinion type (expedited)
+    if (this.type === 'opinion') {
+      return `${baseClasses} bg-orange-500 text-white${clickableClasses}`;
+    }
+    
+    // Default styling for other types
+    return `${baseClasses} bg-white-accent text-white${clickableClasses}`;
   }
 }

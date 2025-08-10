@@ -29,6 +29,22 @@
 <!-- Content -->
 <div class="overflow-y-auto max-h-[calc(90vh-120px)]">
  
+ <!-- Auto-deletion Banner -->
+ <div *ngIf="drafts.length > 0" class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mx-6 mt-4 mb-2">
+   <div class="flex">
+     <div class="flex-shrink-0">
+       <svg class="h-5 w-5 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+       </svg>
+     </div>
+     <div class="ml-3">
+       <p class="text-sm text-yellow-700">
+         <strong>Auto-deletion:</strong> These drafts will be automatically deleted after 7 days of inactivity to free up storage space.
+       </p>
+     </div>
+   </div>
+ </div>
+ 
  <!-- Empty State -->
  <div *ngIf="drafts.length === 0" class="text-center py-12">
    <svg class="w-20 h-20 mx-auto text-gray-900-tertiary mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -142,6 +158,23 @@
 
 <!-- Inline Mode -->
 <div *ngIf="isInline" class="w-full">
+ 
+ <!-- Auto-deletion Banner -->
+ <div *ngIf="drafts.length > 0" class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-4">
+   <div class="flex">
+     <div class="flex-shrink-0">
+       <svg class="h-5 w-5 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+       </svg>
+     </div>
+     <div class="ml-3">
+       <p class="text-sm text-yellow-700">
+         <strong>Auto-deletion:</strong> These drafts will be automatically deleted after 7 days of inactivity to free up storage space.
+       </p>
+     </div>
+   </div>
+ </div>
+ 
  <!-- Empty State -->
  <div *ngIf="drafts.length === 0" class="text-center py-12">
    <svg class="w-20 h-20 mx-auto text-gray-900-tertiary mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

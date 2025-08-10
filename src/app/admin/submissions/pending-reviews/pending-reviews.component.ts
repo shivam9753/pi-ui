@@ -38,15 +38,18 @@ export class PendingReviewsComponent implements OnInit {
     types: [
       { label: 'All Types', value: '' },
       { label: 'Poem', value: 'poem' },
-      { label: 'Story', value: 'story' },
+      { label: 'Prose', value: 'prose' },
       { label: 'Article', value: 'article' },
-      { label: 'Quote', value: 'quote' },
+      { label: 'Opinion', value: 'opinion' },
+      { label: 'Book Review', value: 'book_review' },
       { label: 'Cinema Essay', value: 'cinema_essay' }
     ],
     statuses: [
       { label: 'All Statuses', value: '' },
       { label: 'Pending Review', value: 'pending_review' },
-      { label: 'In Progress', value: 'in_progress' }
+      { label: 'In Progress', value: 'in_progress' },
+      { label: 'Needs Revision', value: 'needs_revision' },
+      { label: 'Resubmitted', value: 'resubmitted' }
     ],
     authorTypes: [
       { label: 'All Authors', value: '' },
@@ -68,6 +71,9 @@ export class PendingReviewsComponent implements OnInit {
   };
 
   showAdvancedFilters = false;
+
+  // Quick filter chips state
+  activeQuickFilters: string[] = [];
 
   constructor(
     private backendService: BackendService,
@@ -195,6 +201,83 @@ export class PendingReviewsComponent implements OnInit {
   // Handle card action clicks - navigate to review submission
   onCardAction(submissionId: string) {
     this.router.navigate(['/review-submission', submissionId]);
+  }
+
+  // Quick filter methods
+  applyQuickFilter(filterType: string) {
+    // Toggle filter
+    const index = this.activeQuickFilters.indexOf(filterType);
+    if (index > -1) {
+      this.activeQuickFilters.splice(index, 1);
+    } else {
+      this.activeQuickFilters.push(filterType);
+    }
+    
+    // Apply filter logic
+    this.applyQuickFilterLogic(filterType);
+    this.loadSubmissions(1);
+  }
+
+  private applyQuickFilterLogic(filterType: string) {
+    switch (filterType) {
+      case 'urgent':
+        if (this.activeQuickFilters.includes('urgent')) {
+          this.filters.type = 'opinion';
+        } else {
+          this.filters.type = '';
+        }
+        break;
+      
+      case 'resubmitted':
+        if (this.activeQuickFilters.includes('resubmitted')) {
+          this.filters.status = 'resubmitted';
+        } else {
+          this.filters.status = '';
+        }
+        break;
+      
+      case 'myReviews':
+        if (this.activeQuickFilters.includes('myReviews')) {
+          this.filters.status = 'in_progress';
+        } else {
+          this.filters.status = '';
+        }
+        break;
+      
+      case 'newAuthors':
+        if (this.activeQuickFilters.includes('newAuthors')) {
+          this.filters.authorType = 'new';
+        } else {
+          this.filters.authorType = '';
+        }
+        break;
+      
+      case 'quickRead':
+        if (this.activeQuickFilters.includes('quickRead')) {
+          this.filters.wordLength = 'quick';
+        } else {
+          this.filters.wordLength = '';
+        }
+        break;
+    }
+  }
+
+  getQuickFilterClass(filterType: string): string {
+    const isActive = this.activeQuickFilters.includes(filterType);
+    const baseClasses = 'border-gray-200 bg-white text-gray-700 hover:bg-gray-50 hover:border-gray-300';
+    const activeClasses = 'border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100';
+    
+    return isActive ? activeClasses : baseClasses;
+  }
+
+  clearQuickFilters() {
+    this.activeQuickFilters = [];
+    // Reset all quick filter related filters
+    this.filters.type = '';
+    this.filters.status = '';
+    this.filters.authorType = '';
+    this.filters.wordLength = '';
+    this.loadSubmissions(1);
   }
 
   // Get card action for move to progress

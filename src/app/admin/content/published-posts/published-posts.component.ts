@@ -74,7 +74,7 @@ export class PublishedPostsComponent implements OnInit {
     this.editPublishedPost(submission._id);
   }
 
-  // Unpublish a submission (move back to draft)
+  // Unpublish a submission (move back to accepted)
   unpublishSubmission(submissionId: string, title: string) {
     if (!confirm(`Are you sure you want to unpublish "${title}"? This will move it back to accepted status.`)) {
       return;
@@ -82,11 +82,11 @@ export class PublishedPostsComponent implements OnInit {
 
     this.backendService.unpublishSubmission(submissionId, 'Unpublished by admin').subscribe({
       next: (response) => {
-        this.showSuccess('Submission unpublished successfully');
+        this.showSuccess('Submission unpublished successfully and moved to accepted status');
         // Update the local state instead of refreshing the entire list
         const submission = this.publishedSubmissions.find(sub => sub._id === submissionId);
         if (submission) {
-          submission.status = 'draft'; // Change status to show different buttons
+          submission.status = 'accepted'; // Change status to show different buttons
         }
       },
       error: (err) => {

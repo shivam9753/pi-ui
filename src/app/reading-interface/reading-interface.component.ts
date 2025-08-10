@@ -189,7 +189,7 @@ content = signal<PublishedContent | null>(null);
           title: data.title,
           description: data.description,
           submissionType: data.submissionType,
-          authorName: data.userId?.name || 'Unknown Author',
+          authorName: data.userId?.name || data.userId?.username || 'Unknown Author',
           authorId: data.userId?._id || data.author?._id || 'unknown',
           publishedAt: new Date(data.publishedAt || data.createdAt),
           readingTime: data.readingTime || Math.ceil(contentItems.reduce((acc, item) => acc + item.wordCount, 0) / 200),
@@ -248,23 +248,23 @@ content = signal<PublishedContent | null>(null);
           }];
         }
         
-        // Transform the API response to match our interface
+        // API now returns clean data, minimal transformation needed
         const transformedContent: PublishedContent = {
           _id: data._id,
           title: data.title,
           description: data.description,
           submissionType: data.submissionType,
-          authorName: data.authorName || data.userId?.username || data.author?.name || 'Unknown Author',
-          authorId: data.authorId || data.userId?._id || data.author?._id || 'unknown',
-          publishedAt: new Date(data.publishedAt || data.createdAt),
-          readingTime: data.readingTime || this.calculateReadingTime(contentItems),
+          authorName: data.authorName || 'Unknown Author',
+          authorId: data.authorId,
+          publishedAt: new Date(data.publishedAt),
+          readingTime: data.readingTime,
           viewCount: data.viewCount || 0,
           likeCount: data.likeCount || 0,
           commentCount: data.commentCount || 0,
           tags: data.tags || [],
           imageUrl: data.imageUrl,
-          excerpt: data.excerpt || data.description || '',
-          contents: contentItems,
+          excerpt: data.excerpt,
+          contents: data.contents || [],
           isLiked: false, // TODO: Get from user preferences
           isBookmarked: false // TODO: Get from user preferences
         };
@@ -320,17 +320,42 @@ content = signal<PublishedContent | null>(null);
     }
   }
 
+  canShare() {
+    return typeof navigator !== 'undefined' && 'share' in navigator;
+  }
+
   shareContent() {
     if (navigator.share) {
       navigator.share({
         title: this.content()?.title,
+        text: this.content()?.excerpt || this.content()?.description,
         url: window.location.href
       });
-    } else {
-      // Fallback: copy to clipboard
-      navigator.clipboard.writeText(window.location.href);
-      // TODO: Show toast notification
     }
+  }
+
+  // Social sharing methods
+  shareOnFacebook() {
+    const url = window.location.href;
+    const facebookUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`;
+    window.open(facebookUrl, '_blank', 'width=600,height=400');
+  }
+
+  shareOnWhatsApp() {
+    const content = this.content();
+    if (!content) return;
+    
+    const text = `${content.title} by ${content.authorName} - ${window.location.href}`;
+    const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(text)}`;
+    window.open(whatsappUrl, '_blank');
+  }
+
+  shareOnInstagram() {
+    // Instagram doesn't support direct sharing via URL, so we'll show a message
+    const content = this.content();
+    if (!content) return;
+    
+    alert('To share on Instagram: Take a screenshot or copy this link manually and share it in your Instagram story or post!');
   }
 
   onTagClick(tag: string, event?: Event) {

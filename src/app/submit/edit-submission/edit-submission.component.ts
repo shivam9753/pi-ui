@@ -13,7 +13,7 @@ export interface EditableSubmission {
   description: string;
   submissionType: string;
   contents: any[];
-  status: 'draft' | 'pending_review' | 'in_progress' | 'needs_revision' | 'accepted' | 'published' | 'rejected';
+  status: 'draft' | 'pending_review' | 'in_progress' | 'needs_revision' | 'accepted' | 'published' | 'rejected' | 'resubmitted';
   revisionNotes?: string;
   reviewFeedback?: string;
   submittedAt: string;
@@ -52,27 +52,39 @@ export class EditSubmissionComponent implements OnInit {
 
   submissionTypes = [
     { 
+      label: 'Opinion', 
+      value: 'opinion', 
+      description: 'Your perspective on current topics',
+      icon: '💭'
+    },
+    { 
       label: 'Poem', 
       value: 'poem', 
-      description: 'Poetry, verses, and lyrical works',
+      description: 'Verses, lyrics, free verse',
       icon: '📝'
     },
     { 
       label: 'Prose', 
       value: 'prose', 
-      description: 'Short stories, creative writing, and narrative pieces',
+      description: 'Short stories, narratives',
       icon: '📖'
     },
     { 
       label: 'Article', 
       value: 'article', 
-      description: 'Essays, opinion pieces, and informative articles',
+      description: 'In-depth analysis, research',
       icon: '📰'
+    },
+    { 
+      label: 'Book Review', 
+      value: 'book_review', 
+      description: 'Book analysis, recommendations',
+      icon: '📚'
     },
     { 
       label: 'Cinema Essay', 
       value: 'cinema_essay', 
-      description: 'Film reviews, analysis, and cinema-related content',
+      description: 'Film analysis, reviews',
       icon: '🎬'
     }
   ];
@@ -119,20 +131,36 @@ export class EditSubmissionComponent implements OnInit {
   }
 
   loadSubmission() {
+    console.log('Loading submission with ID:', this.submissionId);
     this.backendService.getSubmissionWithContents(this.submissionId).subscribe({
       next: (data: any) => {
+        console.log('Received submission data:', data);
         this.submission = data;
         this.populateForm(data);
       },
       error: (error: any) => {
         console.error('Error loading submission:', error);
-        this.showToast('Error loading submission. Please try again.', 'error');
+        console.error('Full error object:', error);
+        let errorMessage = 'Error loading submission. Please try again.';
+        
+        if (error.status === 404) {
+          errorMessage = 'Submission not found. You may not have permission to edit this submission.';
+        } else if (error.status === 401) {
+          errorMessage = 'You need to be logged in to edit this submission.';
+        } else if (error.status === 403) {
+          errorMessage = 'You do not have permission to edit this submission.';
+        }
+        
+        this.showToast(errorMessage, 'error');
         this.router.navigate(['/user-profile']);
       }
     });
   }
 
   populateForm(submission: EditableSubmission) {
+    console.log('Populating form with submission:', submission);
+    console.log('Submission contents:', submission.contents);
+    
     this.form.patchValue({
       title: submission.title,
       description: submission.description,
@@ -144,7 +172,9 @@ export class EditSubmissionComponent implements OnInit {
     contentsArray.clear();
 
     if (submission.contents && submission.contents.length > 0) {
-      submission.contents.forEach(content => {
+      console.log('Adding', submission.contents.length, 'contents to form');
+      submission.contents.forEach((content, index) => {
+        console.log(`Content ${index}:`, content);
         contentsArray.push(this.fb.group({
           title: [content.title || '', Validators.required],
           body: [content.body || '', Validators.required],
@@ -152,10 +182,12 @@ export class EditSubmissionComponent implements OnInit {
         }));
       });
     } else {
+      console.log('No contents found, adding default content');
       // Add at least one content item
       this.addContent();
     }
 
+    console.log('Form after population:', this.form.value);
     this.hasChanges = false;
   }
 
@@ -196,8 +228,14 @@ export class EditSubmissionComponent implements OnInit {
 
     this.isSaving = true;
     const formData = this.form.value;
+    
+    // Clean form data - remove empty optional fields
+    const cleanedData = { ...formData };
+    if (!cleanedData.description || cleanedData.description.trim() === '') {
+      delete cleanedData.description;
+    }
 
-    this.backendService.updateSubmission(this.submissionId, formData).subscribe({
+    this.backendService.updateSubmission(this.submissionId, cleanedData).subscribe({
       next: (response: any) => {
         this.showToast('Changes saved successfully!', 'success');
         this.hasChanges = false;
@@ -223,10 +261,16 @@ export class EditSubmissionComponent implements OnInit {
 
     this.isSubmitting = true;
     const formData = this.form.value;
+    
+    // Clean form data - remove empty optional fields
+    const cleanedData = { ...formData };
+    if (!cleanedData.description || cleanedData.description.trim() === '') {
+      delete cleanedData.description;
+    }
 
     if (this.isResubmitting) {
       // Resubmit after revision
-      this.backendService.resubmitSubmission(this.submissionId, formData).subscribe({
+      this.backendService.resubmitSubmission(this.submissionId, cleanedData).subscribe({
         next: (response: any) => {
           this.showToast('Submission resubmitted successfully! It will be reviewed again.', 'success');
           setTimeout(() => {
@@ -241,8 +285,8 @@ export class EditSubmissionComponent implements OnInit {
       });
     } else {
       // Update and change status to pending_review
-      formData.status = 'pending_review';
-      this.backendService.updateSubmission(this.submissionId, formData).subscribe({
+      cleanedData.status = 'pending_review';
+      this.backendService.updateSubmission(this.submissionId, cleanedData).subscribe({
         next: (response: any) => {
           this.showToast('Submission updated and sent for review!', 'success');
           setTimeout(() => {

@@ -119,4 +119,10 @@ export class SubmissionCardComponent {
       'No preview available'
     );
   }
+
+  // Check if submission type supports quick review/fast track
+  isQuickReviewType(): boolean {
+    const quickReviewTypes = ['opinion'];
+    return quickReviewTypes.includes(this.data.submissionType?.toLowerCase());
+  }
 }

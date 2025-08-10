@@ -110,10 +110,18 @@ export class ExploreComponent implements OnInit {
   getPublishedSubmissions(type: string = '') {
     this.selectedType = type;
     
+    console.log('🔍 Fetching published content, type:', type);
+    
     if (type === 'popular') {
       // Get popular content (you can modify this to use view counts, likes, etc.)
       this.backendService.getPublishedContent('').subscribe(
         (data) => {
+          console.log('📦 Received popular data:', data);
+          console.log('📦 Number of submissions:', data.submissions?.length || 0);
+          if (data.submissions?.length > 0) {
+            console.log('📦 First submission sample:', data.submissions[0]);
+          }
+          
           // Sort by creation date as proxy for popularity (you can enhance this)
           this.submissions = (data.submissions || []).sort((a: any, b: any) => 
             new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
@@ -123,7 +131,14 @@ export class ExploreComponent implements OnInit {
       );
     } else {
       this.backendService.getPublishedContent(type).subscribe(
-        (data) => (this.submissions = data.submissions || []),
+        (data) => {
+          console.log('📦 Received content data:', data);
+          console.log('📦 Number of submissions:', data.submissions?.length || 0);
+          if (data.submissions?.length > 0) {
+            console.log('📦 First submission sample:', data.submissions[0]);
+          }
+          this.submissions = data.submissions || [];
+        },
         (error) => console.error("Error fetching submissions", error)
       );
     }
@@ -173,8 +188,21 @@ export class ExploreComponent implements OnInit {
   }
 
   openSubmission(submission: any) {
-    // Navigate to the reading interface with submission ID
-    this.router.navigate(['/read', submission._id]);
+    console.log('🚀 openSubmission called with:', submission.title);
+    console.log('🔗 slug:', submission.slug);
+    console.log('🔗 seo.slug:', submission.seo?.slug);
+    
+    // Navigate to the reading interface with SEO slug or fallback to ID
+    if (submission.slug) {
+      console.log('✅ Navigating to /post/' + submission.slug);
+      this.router.navigate(['/post', submission.slug]);
+    } else if (submission.seo?.slug) {
+      console.log('✅ Navigating to /post/' + submission.seo.slug);
+      this.router.navigate(['/post', submission.seo.slug]);
+    } else {
+      console.log('❌ No slug found, using ID fallback');
+      this.router.navigate(['/read', submission._id]);
+    }
   }
 
   onContentCardClick(content: PublishedContent) {

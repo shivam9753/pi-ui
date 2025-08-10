@@ -19,6 +19,8 @@ export class TypeBadgePipe implements PipeTransform {
       'prose': 'bg-green-500',
       'poem': 'bg-orange-500',
       'review': 'bg-red-500',
+      'book_review': 'bg-teal-500',
+      'opinion': 'bg-yellow-500',
       'quote': 'bg-pink-500',
       'story': 'bg-indigo-500'
     };

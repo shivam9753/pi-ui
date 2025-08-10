@@ -26,6 +26,9 @@
           </span>
           <span class="text-sm text-gray-400">•</span>
           <app-badge-label [type]="submission.submissionType"></app-badge-label>
+          <span *ngIf="submission.submissionType === 'opinion'" class="inline-flex items-center px-2 py-1 bg-orange-100 text-orange-800 text-xs font-medium rounded-full">
+            ⚡ Expedited Review
+          </span>
         </div>
       </div>
 
@@ -259,6 +262,9 @@
                     </span>
                   </div>
                   <app-badge-label [type]="submission.submissionType"></app-badge-label>
+                  <span *ngIf="submission.submissionType === 'opinion'" class="inline-flex items-center px-2 py-1 bg-orange-100 text-orange-800 text-xs font-medium rounded-full">
+                    ⚡ Expedited Review
+                  </span>
                 </div>
               </div>
 
