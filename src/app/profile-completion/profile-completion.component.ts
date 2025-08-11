@@ -4,12 +4,13 @@ import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService, GoogleUser } from '../services/auth.service';
 import { BackendService } from '../services/backend.service';
+import { ToastNotificationComponent } from '../shared/components/toast-notification/toast-notification.component';
 import { environment } from '../../environments/environment';
 
 @Component({
   selector: 'app-profile-completion',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, ToastNotificationComponent],
   templateUrl: './profile-completion.component.html',
   styleUrls: ['./profile-completion.component.css']
 })
@@ -26,7 +27,7 @@ export class ProfileCompletionComponent implements OnInit {
   
   // Toast notification properties
   toastMessage = '';
-  toastType: 'success' | 'error' | 'info' = 'info';
+  toastType: 'success' | 'error' | 'info' | 'warning' = 'info';
   showToastFlag = false;
 
   constructor(
@@ -259,15 +260,10 @@ export class ProfileCompletionComponent implements OnInit {
   }
 
   // Toast notification methods
-  showToast(message: string, type: 'success' | 'error' | 'info' = 'info') {
+  showToast(message: string, type: 'success' | 'error' | 'info' | 'warning' = 'info') {
     this.toastMessage = message;
     this.toastType = type;
     this.showToastFlag = true;
-    
-    // Auto-hide after 5 seconds
-    setTimeout(() => {
-      this.hideToast();
-    }, 5000);
   }
 
   hideToast() {

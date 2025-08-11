@@ -6,11 +6,13 @@ import { FormsModule } from '@angular/forms';
 import { BackendService } from '../../../services/backend.service';
 import { AuthService } from '../../../services/auth.service';
 import { BadgeLabelComponent } from '../../../utilities/badge-label/badge-label.component';
+import { ToastNotificationComponent } from '../../../shared/components/toast-notification/toast-notification.component';
+import { StatusBadgeComponent } from '../../../shared/components/status-badge/status-badge.component';
 import { environment } from '../../../../environments/environment';
 
 @Component({
   selector: 'app-review-submission',
-  imports: [DatePipe, TitleCasePipe, CommonModule, FormsModule, BadgeLabelComponent],
+  imports: [DatePipe, TitleCasePipe, CommonModule, FormsModule, BadgeLabelComponent, ToastNotificationComponent, StatusBadgeComponent],
   templateUrl: './review-submission.component.html',
   styleUrl: './review-submission.component.css'
 })
@@ -34,7 +36,7 @@ export class ReviewSubmissionComponent {
 
   // Toast notification properties
   toastMessage = '';
-  toastType: 'success' | 'error' | 'info' = 'info';
+  toastType: 'success' | 'error' | 'info' | 'warning' = 'info';
   showToastFlag = false;
 
   // Analysis popup properties
@@ -378,15 +380,10 @@ export class ReviewSubmissionComponent {
   }
 
   // Toast notification methods
-  showToast(message: string, type: 'success' | 'error' | 'info'): void {
+  showToast(message: string, type: 'success' | 'error' | 'info' | 'warning' = 'info'): void {
     this.toastMessage = message;
     this.toastType = type;
     this.showToastFlag = true;
-
-    // Auto-hide toast after 5 seconds
-    setTimeout(() => {
-      this.hideToast();
-    }, 5000);
   }
 
   hideToast(): void {

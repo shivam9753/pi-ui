@@ -8,6 +8,7 @@ import { BackendService } from '../../services/backend.service';
 import { ContentEditorComponent } from '../content-editor/content-editor.component';
 import { DraftsListComponent } from '../drafts-list/drafts-list.component';
 import { GuidelinesOverlayComponent } from '../guidelines-overlay/guidelines-overlay.component';
+import { ToastNotificationComponent } from '../../shared/components/toast-notification/toast-notification.component';
 import { Subscription } from 'rxjs';
 
 export interface Draft {
@@ -33,7 +34,8 @@ export interface CanComponentDeactivate {
     CommonModule, 
     DraftsListComponent,
     GuidelinesOverlayComponent,
-    ContentEditorComponent
+    ContentEditorComponent,
+    ToastNotificationComponent
   ]
 })
 
@@ -108,7 +110,7 @@ export class SubmissionFormComponent implements OnInit, OnDestroy, CanComponentD
 
   // Toast state
   toastMessage = '';
-  toastType: 'success' | 'error' | 'info' = 'info';
+  toastType: 'success' | 'error' | 'info' | 'warning' = 'info';
   showToastFlag = false;
 
   constructor(
@@ -512,15 +514,10 @@ export class SubmissionFormComponent implements OnInit, OnDestroy, CanComponentD
   }
 
   // Toast notification methods
-  showToast(message: string, type: 'success' | 'error' | 'info' = 'info'): void {
+  showToast(message: string, type: 'success' | 'error' | 'info' | 'warning' = 'info'): void {
     this.toastMessage = message;
     this.toastType = type;
     this.showToastFlag = true;
-    
-    // Auto-hide after 5 seconds
-    setTimeout(() => {
-      this.hideToast();
-    }, 5000);
   }
 
   hideToast(): void {

@@ -6,6 +6,9 @@ import { RouterModule, ActivatedRoute, Router } from '@angular/router';
 import { BackendService, UserProfile, PublishedWork } from '../services/backend.service';
 import { TypeBadgePipe } from '../pipes/type-badge.pipe';
 import { PrettyLabelPipe } from '../pipes/pretty-label.pipe';
+import { EmptyStateComponent } from '../shared/components/empty-state/empty-state.component';
+import { LoadingStateComponent } from '../shared/components/loading-state/loading-state.component';
+import { StatusBadgeComponent } from '../shared/components/status-badge/status-badge.component';
 
 // Add interfaces for new data types
 interface Submission {
@@ -46,7 +49,7 @@ interface Draft {
 
 @Component({
   selector: 'app-user-profile',
-  imports: [CommonModule, FormsModule, RouterModule, TypeBadgePipe, PrettyLabelPipe],
+  imports: [CommonModule, FormsModule, RouterModule, TypeBadgePipe, PrettyLabelPipe, EmptyStateComponent, LoadingStateComponent, StatusBadgeComponent],
   templateUrl: './user-profile.component.html',
   styleUrl: './user-profile.component.css'
 })
@@ -897,5 +900,10 @@ export class UserProfileComponent implements OnInit {
     
     const formatted = type.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
     return formatted;
+  }
+
+  // Empty state action methods
+  goToSubmit(): void {
+    this.router.navigate(['/submit']);
   }
 }

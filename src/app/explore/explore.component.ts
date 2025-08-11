@@ -1,11 +1,11 @@
 // explore.component.ts - Add this method to your existing file
 
 import { Component, OnInit } from '@angular/core';
-import { CommonModule, DatePipe, TitleCasePipe } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { BackendService } from '../services/backend.service';
-import { Router, RouterLink } from '@angular/router';
-import { PublishedContentCardComponent, PublishedContent } from '../utilities/published-content-card/published-content-card.component';
+import { Router } from '@angular/router';
+import { PublishedContent } from '../utilities/published-content-card/published-content-card.component';
 import { PrettyLabelPipe } from '../pipes/pretty-label.pipe';
 // Removed rxjs imports for debouncing as we're not using real-time search
 
@@ -25,6 +25,12 @@ export class ExploreComponent implements OnInit {
   sortBy: string = 'latest';
   visibleItemsCount: number = 12;
   loadMoreIncrement: number = 12;
+  
+  // Pagination properties
+  currentPage: number = 1;
+  itemsPerPage: number = 9;
+  totalItems: number = 0;
+  totalPages: number = 0;
   
   
   // Updated filter options with better labels
@@ -126,6 +132,7 @@ export class ExploreComponent implements OnInit {
           this.submissions = (data.submissions || []).sort((a: any, b: any) => 
             new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
           );
+          this.updatePagination();
         },
         (error) => console.error("Error fetching submissions", error)
       );
@@ -138,6 +145,7 @@ export class ExploreComponent implements OnInit {
             console.log('📦 First submission sample:', data.submissions[0]);
           }
           this.submissions = data.submissions || [];
+          this.updatePagination();
         },
         (error) => console.error("Error fetching submissions", error)
       );
@@ -290,4 +298,68 @@ export class ExploreComponent implements OnInit {
       .replace(/&quot;/g, '"')
       .trim();                         // Remove leading/trailing whitespace
   }
+
+  // Pagination methods
+  getCurrentPageSubmissions(): any[] {
+    if (this.showSearchResults) {
+      return this.searchResults;
+    }
+    
+    const startIndex = (this.currentPage - 1) * this.itemsPerPage;
+    const endIndex = startIndex + this.itemsPerPage;
+    return this.submissions.slice(startIndex, endIndex);
+  }
+
+  updatePagination() {
+    this.totalItems = this.submissions.length;
+    this.totalPages = Math.ceil(this.totalItems / this.itemsPerPage);
+  }
+
+  goToPage(page: number) {
+    if (page >= 1 && page <= this.totalPages) {
+      this.currentPage = page;
+      // Scroll to top of content
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }
+
+  getPageNumbers(): number[] {
+    const pages = [];
+    const start = Math.max(1, this.currentPage - 2);
+    const end = Math.min(this.totalPages, this.currentPage + 2);
+    
+    for (let i = start; i <= end; i++) {
+      pages.push(i);
+    }
+    return pages;
+  }
+
+  // Excerpt truncation method
+  getTruncatedExcerpt(submission: any, maxLength: number = 100): string {
+    const content = submission.excerpt || submission.description || '';
+    if (!content) return '';
+    
+    // Clean HTML and get plain text
+    const cleanText = this.cleanContent(content)
+      .replace(/<[^>]*>/g, '') // Remove any remaining HTML tags
+      .replace(/\s+/g, ' ')    // Normalize whitespace
+      .trim();
+    
+    if (cleanText.length <= maxLength) {
+      return cleanText;
+    }
+    
+    // Find the last complete word within the limit
+    const truncated = cleanText.substring(0, maxLength);
+    const lastSpaceIndex = truncated.lastIndexOf(' ');
+    
+    if (lastSpaceIndex > 0) {
+      return truncated.substring(0, lastSpaceIndex) + '...';
+    }
+    
+    return truncated + '...';
+  }
+
+  // Make Math available in template
+  Math = Math;
 }

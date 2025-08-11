@@ -348,6 +348,7 @@
       [isInline]="true"
       (loadDraft)="loadDraftAndSwitchToSubmit($event)"
       (deleteDraft)="deleteDraft($event)"
+      (createNew)="activeTab = 'submit'"
     ></app-drafts-list>
   </div>
   
@@ -360,38 +361,13 @@
   </div>
 
   <!-- Toast Notifications -->
-  <div *ngIf="showToastFlag" 
-       class="fixed top-6 right-6 z-50 max-w-sm w-full transition-all duration-500 ease-out transform">
-    <div class="bg-white border border-gray-200 rounded-2xl p-6"
-         [style.box-shadow]="'var(--shadow-xl)'"
-         [style.border-color]="toastType === 'success' ? 'var(--bg-success)' : toastType === 'error' ? 'var(--bg-error)' : 'var(--border-accent)'"
-         [style.background-color]="toastType === 'success' ? 'rgba(5, 118, 66, 0.1)' : toastType === 'error' ? 'rgba(204, 16, 22, 0.1)' : 'rgba(10, 102, 194, 0.1)'">
-      <div class="flex items-start space-x-4">
-        <div class="flex-shrink-0">
-          <svg *ngIf="toastType === 'success'" class="w-6 h-6" [style.color]="'var(--bg-success)'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-          </svg>
-          <svg *ngIf="toastType === 'error'" class="w-6 h-6" [style.color]="'var(--bg-error)'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-          </svg>
-          <svg *ngIf="toastType === 'info'" class="w-6 h-6" [style.color]="'var(--text-accent)'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-          </svg>
-        </div>
-        <div class="flex-1">
-          <p class="font-medium leading-relaxed text-gray-900">
-            {{ toastMessage }}
-          </p>
-        </div>
-        <button 
-          (click)="hideToast()"
-          class="text-gray-900-tertiary hover:text-gray-900-secondary transition-colors duration-200">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-          </svg>
-        </button>
-      </div>
-    </div>
-  </div>
+  <app-toast-notification
+    [message]="toastMessage"
+    [type]="toastType"
+    [isVisible]="showToastFlag"
+    [autoClose]="true"
+    [duration]="5000"
+    (closed)="hideToast()">
+  </app-toast-notification>
 
 </div>

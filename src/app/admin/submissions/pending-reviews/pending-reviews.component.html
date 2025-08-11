@@ -15,242 +15,43 @@
   </div>
 
   <!-- RIGHT: All Filters -->
-  <!-- Modern Enhanced Filter Bar -->
-<div class="bg-gradient-to-r from-white to-gray-50/50 p-4 border border-gray-200/60 rounded-xl mb-6 shadow-sm backdrop-blur-sm">
-  <div class="flex flex-wrap items-center gap-3">
-    
-    <!-- Status Filter -->
-    <div class="group relative">
-      <div class="flex items-center text-sm bg-white px-4 py-2.5 rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200 hover:border-orange-200">
-        <svg class="w-4 h-4 mr-2 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-        </svg>
-        <span class="mr-2 text-gray-600 font-medium">Status</span>
-        <select [(ngModel)]="filters.status" (ngModelChange)="onFilterChange()" 
-                class="bg-transparent focus:outline-none text-gray-900 font-medium min-w-[80px]">
-          <option *ngFor="let o of filterOptions.statuses" [value]="o.value">{{ o.label }}</option>
-        </select>
-        <svg class="w-4 h-4 ml-1 text-gray-400 group-hover:text-orange-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-        </svg>
-      </div>
-    </div>
+  <div class="flex-1">
+    <app-filter-bar
+      [filterConfigs]="filterConfigs"
+      [quickFilters]="quickFilters"
+      [initialFilters]="filters"
+      [showApplyButton]="false"
+      [debounceTime]="300"
+      (filtersChange)="onFiltersChange($event)"
+      (search)="onSearchChange($event)"
+      (quickFilterToggle)="onQuickFilterToggle($event)">
+    </app-filter-bar>
 
-    <!-- Type Filter -->
-    <div class="group relative">
-      <div class="flex items-center text-sm bg-white px-4 py-2.5 rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200 hover:border-orange-200">
-        <svg class="w-4 h-4 mr-2 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
-        </svg>
-        <span class="mr-2 text-gray-600 font-medium">Type</span>
-        <select [(ngModel)]="filters.type" (ngModelChange)="onFilterChange()" 
-                class="bg-transparent focus:outline-none text-gray-900 font-medium min-w-[80px]">
-          <option *ngFor="let o of filterOptions.types" [value]="o.value">{{ o.label }}</option>
-        </select>
-        <svg class="w-4 h-4 ml-1 text-gray-400 group-hover:text-orange-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-        </svg>
-      </div>
-    </div>
-
-    <!-- Author Type Filter -->
-    <div class="group relative">
-      <div class="flex items-center text-sm bg-white px-4 py-2.5 rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200 hover:border-orange-200">
-        <svg class="w-4 h-4 mr-2 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
-        </svg>
-        <span class="mr-2 text-gray-600 font-medium">Author</span>
-        <select [(ngModel)]="filters.authorType" (ngModelChange)="onFilterChange()" 
-                class="bg-transparent focus:outline-none text-gray-900 font-medium min-w-[80px]">
-          <option *ngFor="let o of filterOptions.authorTypes" [value]="o.value">{{ o.label }}</option>
-        </select>
-        <svg class="w-4 h-4 ml-1 text-gray-400 group-hover:text-orange-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-        </svg>
-      </div>
-    </div>
-
-    <!-- Sort By -->
-    <div class="group relative">
-      <div class="flex items-center text-sm bg-white px-4 py-2.5 rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200 hover:border-orange-200">
-        <svg class="w-4 h-4 mr-2 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12"/>
-        </svg>
-        <span class="mr-2 text-gray-600 font-medium">Sort</span>
-        <select [(ngModel)]="filters.sortBy" (ngModelChange)="onFilterChange()" 
-                class="bg-transparent focus:outline-none text-gray-900 font-medium min-w-[80px]">
-          <option *ngFor="let o of filterOptions.sortOptions" [value]="o.value">{{ o.label }}</option>
-        </select>
-        <svg class="w-4 h-4 ml-1 text-gray-400 group-hover:text-orange-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-        </svg>
-      </div>
-    </div>
-
-    <!-- Word Length -->
-    <div class="group relative">
-      <div class="flex items-center text-sm bg-white px-4 py-2.5 rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200 hover:border-orange-200">
-        <svg class="w-4 h-4 mr-2 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
-        </svg>
-        <span class="mr-2 text-gray-600 font-medium">Length</span>
-        <select [(ngModel)]="filters.wordLength" (ngModelChange)="onFilterChange()" 
-                class="bg-transparent focus:outline-none text-gray-900 font-medium min-w-[80px]">
-          <option *ngFor="let o of filterOptions.wordLengths" [value]="o.value">{{ o.label }}</option>
-        </select>
-        <svg class="w-4 h-4 ml-1 text-gray-400 group-hover:text-orange-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-        </svg>
-      </div>
-    </div>
-
-    <!-- Date Range - Grouped Together -->
-    <div class="flex items-center gap-2 bg-white px-4 py-2.5 rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200 hover:border-orange-200">
-      <svg class="w-4 h-4 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-      </svg>
-      <span class="text-gray-600 font-medium text-sm mr-2">From</span>
-      <input type="date" [(ngModel)]="filters.dateFrom" (ngModelChange)="onFilterChange()" 
-             class="bg-transparent focus:outline-none text-gray-900 text-sm" />
-      <span class="text-gray-400 mx-2">to</span>
-      <input type="date" [(ngModel)]="filters.dateTo" (ngModelChange)="onFilterChange()" 
-             class="bg-transparent focus:outline-none text-gray-900 text-sm" />
-    </div>
-
-    <!-- Search - Prominent -->
-    <div class="flex-1 min-w-[200px]">
-      <div class="relative">
-        <div class="flex items-center bg-white px-4 py-2.5 rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200 focus-within:border-orange-300 focus-within:ring-2 focus-within:ring-orange-100">
-          <svg class="w-4 h-4 mr-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-          </svg>
-          <input type="text" placeholder="Search submissions..." [(ngModel)]="filters.search" (ngModelChange)="onFilterChange()" 
-                 class="w-full bg-transparent focus:outline-none text-gray-900 placeholder-gray-400 text-sm" />
-        </div>
-      </div>
-    </div>
-
-    <!-- Clear Filters - Enhanced Button -->
-    <button (click)="clearFilters()" 
-            class="inline-flex items-center px-4 py-2.5 text-sm font-medium text-gray-600 hover:text-red-600 bg-white border border-gray-200 rounded-lg hover:border-red-200 hover:bg-red-50 transition-all duration-200 shadow-sm hover:shadow-md"
-            title="Clear all filters">
-      <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-      </svg>
-      Clear All
-    </button>
-
-  </div>
-
-  <!-- Quick Filter Chips -->
-  <div class="mt-4 pt-3 border-t border-gray-100">
-    <div class="flex flex-wrap gap-2 mb-3">
-      <span class="text-xs text-gray-500 font-medium mb-1 w-full">Quick Filters:</span>
-      
-      <!-- Urgent Review Filter -->
-      <button (click)="applyQuickFilter('urgent')" 
-              [class]="getQuickFilterClass('urgent')"
-              class="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-full border transition-all duration-200">
-        <svg class="w-3 h-3 mr-1.5 text-red-500" fill="currentColor" viewBox="0 0 20 20">
-          <path fill-rule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clip-rule="evenodd" />
-        </svg>
-        Urgent
-        <svg *ngIf="activeQuickFilters.includes('urgent')" class="w-3 h-3 ml-1" fill="currentColor" viewBox="0 0 20 20">
-          <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
-        </svg>
-      </button>
-
-      <!-- Resubmitted Filter -->
-      <button (click)="applyQuickFilter('resubmitted')" 
-              [class]="getQuickFilterClass('resubmitted')"
-              class="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-full border transition-all duration-200">
-        <svg class="w-3 h-3 mr-1.5" fill="currentColor" viewBox="0 0 20 20">
-          <path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clip-rule="evenodd" />
-        </svg>
-        Resubmitted
-        <svg *ngIf="activeQuickFilters.includes('resubmitted')" class="w-3 h-3 ml-1" fill="currentColor" viewBox="0 0 20 20">
-          <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
-        </svg>
-      </button>
-
-      <!-- My Reviews Filter -->
-      <button (click)="applyQuickFilter('myReviews')" 
-              [class]="getQuickFilterClass('myReviews')"
-              class="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-full border transition-all duration-200">
-        <svg class="w-3 h-3 mr-1.5" fill="currentColor" viewBox="0 0 20 20">
-          <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
-        </svg>
-        My Reviews
-        <svg *ngIf="activeQuickFilters.includes('myReviews')" class="w-3 h-3 ml-1" fill="currentColor" viewBox="0 0 20 20">
-          <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
-        </svg>
-      </button>
-
-      <!-- New Authors Filter -->
-      <button (click)="applyQuickFilter('newAuthors')" 
-              [class]="getQuickFilterClass('newAuthors')"
-              class="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-full border transition-all duration-200">
-        <svg class="w-3 h-3 mr-1.5" fill="currentColor" viewBox="0 0 20 20">
-          <path d="M8 9a3 3 0 100-6 3 3 0 000 6zM8 11a6 6 0 016 6H2a6 6 0 016-6zM16 7a1 1 0 10-2 0v1h-1a1 1 0 100 2h1v1a1 1 0 102 0v-1h1a1 1 0 100-2h-1V7z" />
-        </svg>
-        New Authors
-        <svg *ngIf="activeQuickFilters.includes('newAuthors')" class="w-3 h-3 ml-1" fill="currentColor" viewBox="0 0 20 20">
-          <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
-        </svg>
-      </button>
-
-      <!-- Quick Read Filter -->
-      <button (click)="applyQuickFilter('quickRead')" 
-              [class]="getQuickFilterClass('quickRead')"
-              class="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-full border transition-all duration-200">
-        <svg class="w-3 h-3 mr-1.5" fill="currentColor" viewBox="0 0 20 20">
-          <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd" />
-        </svg>
-        Quick Read
-        <svg *ngIf="activeQuickFilters.includes('quickRead')" class="w-3 h-3 ml-1" fill="currentColor" viewBox="0 0 20 20">
-          <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
-        </svg>
-      </button>
-
-      <!-- Clear Quick Filters -->
-      <button *ngIf="activeQuickFilters.length > 0" 
-              (click)="clearQuickFilters()" 
-              class="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-full border border-red-200 bg-red-50 text-red-700 hover:bg-red-100 transition-all duration-200">
-        <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
-          <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
-        </svg>
-        Clear All
-      </button>
-    </div>
-  </div>
-
-  <!-- Results Counter -->
-  <div class="mt-3 pt-3 border-t border-gray-100">
-    <div class="flex items-center justify-between">
-      <span class="text-sm text-gray-500">
+    <!-- Results Counter -->
+    <div class="flex items-center justify-between text-sm bg-gray-50 p-3 rounded-lg">
+      <span class="text-gray-600">
         {{ totalSubmissions }} submission{{ totalSubmissions !== 1 ? 's' : '' }} found
       </span>
-      <div class="flex items-center gap-2">
+      <div class="flex items-center gap-2 text-orange-400">
         <div class="w-2 h-2 bg-orange-400 rounded-full animate-pulse"></div>
-        <span class="text-xs text-gray-400">Live filtering</span>
+        <span class="text-xs">Live filtering</span>
       </div>
     </div>
   </div>
-</div>
-
-</div>
+  
+  <!-- OLD COMPLEX FILTER REMOVED -->
 
     
     <!-- Submissions Grid -->
     <div *ngIf="!loading && submissions && submissions.length > 0" class="py-1">
       <div class="submissions-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mb-8 px-2 md:px-0">
-        <app-submission-card 
+        <app-content-card 
           *ngFor="let submission of submissions; trackBy: trackSubmission"
-          [data]="submission"
-          [action]="getCardAction()"
-          [showReviewer]="false"
-          (actionClicked)="onCardAction($event)">
-        </app-submission-card>
+          [content]="convertToContentCardData(submission)"
+          [showStatus]="true"
+          [showActions]="true"
+          [actions]="getCardActions()">
+        </app-content-card>
       </div>
 
       <!-- Pagination Controls -->

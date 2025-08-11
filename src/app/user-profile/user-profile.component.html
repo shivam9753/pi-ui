@@ -2,12 +2,13 @@
 <div class="min-h-screen bg-white">
   
   <!-- Loading State -->
-  <div *ngIf="isLoading()" class="flex items-center justify-center min-h-screen">
-    <div class="text-center">
-      <div class="spinner mx-auto mb-4"></div>
-      <p class="text-gray-900-secondary">Loading profile...</p>
-    </div>
-  </div>
+  <app-loading-state 
+    *ngIf="isLoading()" 
+    type="spinner"
+    size="lg"
+    loadingText="Loading profile..."
+    containerClass="flex items-center justify-center min-h-screen">
+  </app-loading-state>
 
   <!-- Error State -->
   <div *ngIf="error() && !isLoading()" class="flex items-center justify-center min-h-screen">
@@ -316,10 +317,13 @@
           </div>
 
           <!-- Published Works Content -->
-          <div *ngIf="worksLoading()" class="text-center py-12">
-            <div class="spinner mx-auto mb-4"></div>
-            <p class="text-gray-900-secondary">Loading works...</p>
-          </div>
+          <app-loading-state 
+            *ngIf="worksLoading()"
+            type="spinner"
+            size="md"
+            loadingText="Loading works..."
+            containerClass="text-center py-12">
+          </app-loading-state>
 
           <!-- Published Works Cards -->
           <div *ngIf="!worksLoading()" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -383,18 +387,14 @@
           </div>
 
           <!-- Empty State for Published Works -->
-          <div *ngIf="!worksLoading() && filteredWorks().length === 0" class="text-center py-12">
-            <div class="w-16 h-16 mx-auto bg-white-secondary rounded-full flex items-center justify-center mb-4">
-              <svg class="w-8 h-8 text-gray-900-tertiary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-              </svg>
-            </div>
-            <h3 class="text-lg font-medium text-gray-900 mb-2">No published works yet</h3>
-            <p class="text-gray-900-secondary mb-4">You haven't published any works yet.</p>
-            <a routerLink="/submit" class="btn-primary inline-block">
-              Create Your First Work
-            </a>
-          </div>
+          <app-empty-state 
+            *ngIf="!worksLoading() && filteredWorks().length === 0"
+            title="No published works yet"
+            message="You haven't published any works yet."
+            icon="document"
+            actionText="Create Your First Work"
+            [onAction]="goToSubmit.bind(this)">
+          </app-empty-state>
         </div>
 
         <!-- Submissions Tab -->
@@ -487,10 +487,13 @@
           </div>
 
           <!-- Submissions Loading -->
-          <div *ngIf="submissionsLoading()" class="text-center py-12">
-            <div class="spinner mx-auto mb-4"></div>
-            <p class="text-gray-900-secondary">Loading submissions...</p>
-          </div>
+          <app-loading-state 
+            *ngIf="submissionsLoading()"
+            type="spinner"
+            size="md"
+            loadingText="Loading submissions..."
+            containerClass="text-center py-12">
+          </app-loading-state>
 
           <!-- Submissions Table -->
           <div *ngIf="!submissionsLoading()" class="card-elevated rounded-xl overflow-hidden">
@@ -541,12 +544,11 @@
 
                     <!-- Status Column -->
                     <td class="px-4 py-4">
-                      <span [class]="getStatusClass(submission.status)" 
-                            class="inline-flex items-center px-2 py-1 rounded text-xs font-medium">
-                        <div [class]="getStatusDotClass(submission.status)" 
-                             class="w-1.5 h-1.5 rounded-full mr-1"></div>
-                        {{ getStatusText(submission.status) }}
-                      </span>
+                      <app-status-badge 
+                        [status]="submission.status" 
+                        size="sm"
+                        [showIcon]="true">
+                      </app-status-badge>
                     </td>
 
                     <!-- Date Column -->
@@ -586,18 +588,14 @@
           </div>
 
           <!-- Empty State for Submissions -->
-          <div *ngIf="!submissionsLoading() && filteredSubmissions().length === 0" class="text-center py-12">
-            <div class="w-16 h-16 mx-auto bg-white-secondary rounded-full flex items-center justify-center mb-4">
-              <svg class="w-8 h-8 text-gray-900-tertiary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-              </svg>
-            </div>
-            <h3 class="text-lg font-medium text-gray-900 mb-2">No submissions yet</h3>
-            <p class="text-gray-900-secondary mb-4">Start by submitting your first work for review.</p>
-            <a routerLink="/submit" class="btn-primary inline-block">
-              Submit Your First Work
-            </a>
-          </div>
+          <app-empty-state 
+            *ngIf="!submissionsLoading() && filteredSubmissions().length === 0"
+            title="No submissions yet"
+            message="Start by submitting your first work for review."
+            icon="folder"
+            actionText="Submit Your First Work"
+            [onAction]="goToSubmit.bind(this)">
+          </app-empty-state>
         </div>
 
         <!-- Drafts Tab -->
@@ -707,10 +705,13 @@
           </div>
 
           <!-- Drafts Loading -->
-          <div *ngIf="draftsLoading()" class="text-center py-12">
-            <div class="spinner mx-auto mb-4"></div>
-            <p class="text-gray-900-secondary">Loading drafts...</p>
-          </div>
+          <app-loading-state 
+            *ngIf="draftsLoading()"
+            type="spinner"
+            size="md"
+            loadingText="Loading drafts..."
+            containerClass="text-center py-12">
+          </app-loading-state>
 
           <!-- Drafts Cards Layout -->
           <div *ngIf="!draftsLoading()" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
@@ -781,18 +782,14 @@
           </div>
 
           <!-- Empty State for Drafts -->
-          <div *ngIf="!draftsLoading() && filteredDrafts().length === 0" class="text-center py-12">
-            <div class="w-16 h-16 mx-auto bg-white-secondary rounded-full flex items-center justify-center mb-4">
-              <svg class="w-8 h-8 text-gray-900-tertiary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-              </svg>
-            </div>
-            <h3 class="text-lg font-medium text-gray-900 mb-2">No drafts yet</h3>
-            <p class="text-gray-900-secondary mb-4">Start writing your first draft and save your work in progress.</p>
-            <a routerLink="/submit" class="btn-primary inline-block">
-              Start Writing
-            </a>
-          </div>
+          <app-empty-state 
+            *ngIf="!draftsLoading() && filteredDrafts().length === 0"
+            title="No drafts yet"
+            message="Start writing your first draft and save your work in progress."
+            icon="pencil"
+            actionText="Start Writing"
+            [onAction]="goToSubmit.bind(this)">
+          </app-empty-state>
         </div>
     </div>
 

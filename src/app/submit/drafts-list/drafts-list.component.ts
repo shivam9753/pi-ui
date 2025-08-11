@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
 
 export interface Draft {
   id: string;
@@ -13,7 +14,7 @@ export interface Draft {
 
 @Component({
   selector: 'app-drafts-list',
-  imports: [CommonModule],
+  imports: [CommonModule, EmptyStateComponent],
   templateUrl: './drafts-list.component.html',
   styleUrl: './drafts-list.component.css'
 })
@@ -24,6 +25,7 @@ export class DraftsListComponent {
   @Output() loadDraft = new EventEmitter<Draft>();
   @Output() deleteDraft = new EventEmitter<string>();
   @Output() close = new EventEmitter<void>();
+  @Output() createNew = new EventEmitter<void>();
 
   draftToDelete: Draft | null = null;
 
@@ -74,6 +76,11 @@ export class DraftsListComponent {
       this.deleteDraft.emit(this.draftToDelete.id);
       this.draftToDelete = null;
     }
+  }
+
+  onCreateNewDraft(): void {
+    this.createNew.emit();
+    this.close.emit();
   }
 
   closeOverlay(event: any): void {

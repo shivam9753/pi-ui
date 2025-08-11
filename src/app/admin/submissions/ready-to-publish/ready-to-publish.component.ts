@@ -3,12 +3,12 @@ import { CommonModule, DatePipe, TitleCasePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { BadgeLabelComponent } from '../../../utilities/badge-label/badge-label.component';
-import { CardAction, SubmissionCardComponent } from '../../../submission-card/submission-card.component';
+import { ContentCardComponent, ContentCardData } from '../../../shared/components/content-card/content-card.component';
 import { BackendService } from '../../../services/backend.service';
 
 @Component({
   selector: 'app-ready-to-publish',
-  imports: [CommonModule, FormsModule, SubmissionCardComponent],
+  imports: [CommonModule, FormsModule, ContentCardComponent],
   templateUrl: './ready-to-publish.component.html',
   styleUrl: './ready-to-publish.component.css'
 })
@@ -74,16 +74,41 @@ export class ReadyToPublishComponent {
 
 
   // Get card action configuration
-  getCardAction(): CardAction {
+  getCardAction() {
     return {
       label: 'Configure & Publish',
       variant: 'outline'
     };
   }
 
-  // Handle card action clicks
-  onCardAction(submissionId: string) {
-    this.configurePublishing(submissionId);
+  // Get card actions for content cards
+  getCardActions() {
+    return [
+      {
+        label: 'Configure Publishing',
+        handler: (content: ContentCardData) => this.configurePublishing(content.id),
+        class: 'px-3 py-1 text-sm rounded border border-blue-600 text-blue-600 hover:bg-blue-50'
+      }
+    ];
+  }
+
+  // Convert submission to ContentCardData format
+  convertToContentCardData(submission: any): ContentCardData {
+    return {
+      id: submission._id || submission.id,
+      title: submission.title,
+      description: submission.description || submission.excerpt,
+      excerpt: submission.excerpt,
+      author: submission.authorName ? { name: submission.authorName, username: '' } : undefined,
+      submissionType: submission.submissionType,
+      status: submission.status,
+      createdAt: submission.createdAt,
+      publishedAt: submission.publishedAt,
+      imageUrl: submission.imageUrl,
+      tags: submission.tags,
+      readingTime: submission.readingTime,
+      isFeatured: submission.isFeatured
+    };
   }
 
 
