@@ -61,6 +61,12 @@ export const routes: Routes = [
     component: UserProfileComponent, 
     canActivate: [AuthGuard]
   },
+  { 
+    path: 'profile', 
+    component: UserProfileComponent, 
+    canActivate: [AuthGuard],
+    title: 'My Profile - pi'
+  },
   { path: 'read/:id', component: ReadingInterfaceComponent },
   { path: 'post/:slug', component: ReadingInterfaceComponent },
   { 

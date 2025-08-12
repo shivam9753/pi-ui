@@ -195,6 +195,7 @@ export class UserProfileComponent implements OnInit {
     this.route.params.subscribe(params => {
       const userId = params['id'] || this.userId;
       if (userId) {
+        // User ID provided in route - load specific user profile
         this.loadUserProfile(userId);
         this.loadPublishedWorks(userId);
         this.checkFollowStatus(userId);
@@ -202,8 +203,59 @@ export class UserProfileComponent implements OnInit {
         // Load additional data - for now always load to test
         this.loadSubmissions();
         this.loadDrafts();
+      } else {
+        // No user ID in route - load current user's profile
+        this.loadCurrentUserProfile();
       }
     });
+  }
+
+  // Load current logged-in user's profile
+  async loadCurrentUserProfile() {
+    try {
+      this.isLoading.set(true);
+      this.error.set(null);
+      
+      // Try to get current user's profile from API first
+      this.backendService.getCurrentUserProfileFromAPI().subscribe({
+        next: (response: any) => {
+          const profile = response.profile;
+          this.userProfile.set(profile);
+          this.resetEditForm();
+          
+          // Load additional data with user ID
+          this.loadPublishedWorks(profile._id);
+          this.loadSubmissions();
+          this.loadDrafts();
+          
+          this.isLoading.set(false);
+        },
+        error: (error: any) => {
+          console.error('Error loading current user profile:', error);
+          
+          // Fallback: try to get from localStorage
+          const currentUser = this.backendService.getCurrentUserProfile();
+          if (currentUser && currentUser._id) {
+            // Load profile data using current user's ID from localStorage
+            this.loadUserProfile(currentUser._id);
+            this.loadPublishedWorks(currentUser._id);
+            
+            // Load user-specific data (submissions and drafts)
+            this.loadSubmissions();
+            this.loadDrafts();
+          } else {
+            // If no current user, redirect to login
+            this.error.set('Please log in to view your profile');
+            this.isLoading.set(false);
+            setTimeout(() => this.router.navigate(['/login']), 2000);
+          }
+        }
+      });
+    } catch (error) {
+      console.error('Error in loadCurrentUserProfile:', error);
+      this.error.set('Failed to load your profile');
+      this.isLoading.set(false);
+    }
   }
 
   // Existing methods (keeping all the original functionality)
@@ -905,5 +957,28 @@ export class UserProfileComponent implements OnInit {
   // Empty state action methods
   goToSubmit(): void {
     this.router.navigate(['/submit']);
+  }
+
+  // Stats methods for the new profile header
+  getPostViews(): string {
+    // Calculate total post views from published works
+    const totalViews = this.publishedWorks().reduce((sum, work) => sum + (work.viewCount || 0), 0);
+    return this.formatStatNumber(totalViews);
+  }
+
+  getReadingScore(): string {
+    // Calculate a reading score based on publications and engagement
+    const publications = this.publishedWorks().length;
+    const totalViews = this.publishedWorks().reduce((sum, work) => sum + (work.viewCount || 0), 0);
+    
+    // Simple reading score algorithm: publications weight + views weight
+    const score = Math.round((publications * 10) + (totalViews * 0.1));
+    return this.formatStatNumber(score);
+  }
+
+  private formatStatNumber(num: number): string {
+    if (num >= 1000000) return (num / 1000000).toFixed(1).replace('.0', '') + 'M';
+    if (num >= 1000) return (num / 1000).toFixed(1).replace('.0', '') + 'K';
+    return num.toString();
   }
 }

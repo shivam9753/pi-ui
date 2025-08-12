@@ -581,6 +581,11 @@ export class BackendService {
     return this.http.get<any>(`${this.API_URL}/users/${id}`);
   }
 
+  // Get current user's profile (authenticated)
+  getCurrentUserProfileFromAPI(): Observable<UserProfile> {
+    return this.http.get<any>(`${this.API_URL}/users/profile`);
+  }
+
   // Get user profile with enhanced stats
   getUserProfile(id: string): Observable<UserProfile> {
     return this.http.get<any>(`${this.API_URL}/users/${id}/profile`);
