@@ -20,6 +20,38 @@ export class AllSubmissionsComponent implements OnInit {
   // Edit mode
   editingSubmission: any = null;
   selectedUserId = '';
+  
+  // Bulk operations
+  selectedSubmissions = new Set<string>();
+  allSelected = false;
+  showBulkActions = false;
+  bulkSelectedUserId = '';
+  bulkActionLoading = false;
+  
+  // Filters
+  statusFilter = '';
+  typeFilter = '';
+  searchText = '';
+  
+  // Available status and type options for filtering
+  statusOptions = [
+    { value: '', label: 'All Statuses' },
+    { value: 'pending_review', label: 'Pending Review' },
+    { value: 'in_progress', label: 'In Progress' },
+    { value: 'accepted', label: 'Accepted' },
+    { value: 'rejected', label: 'Rejected' },
+    { value: 'published', label: 'Published' },
+    { value: 'needs_revision', label: 'Needs Revision' }
+  ];
+  
+  typeOptions = [
+    { value: '', label: 'All Types' },
+    { value: 'poem', label: 'Poem' },
+    { value: 'story', label: 'Story' },
+    { value: 'article', label: 'Article' },
+    { value: 'quote', label: 'Quote' },
+    { value: 'cinema_essay', label: 'Cinema Essay' }
+  ];
 
   constructor(private http: HttpClient) {}
 
@@ -110,5 +142,150 @@ export class AllSubmissionsComponent implements OnInit {
       case 'needs_revision': return 'bg-orange-100 text-orange-800';
       default: return 'bg-gray-100 text-gray-800';
     }
+  }
+  
+  // Bulk selection methods
+  toggleAllSelection() {
+    this.allSelected = !this.allSelected;
+    if (this.allSelected) {
+      // Select all filtered submissions
+      this.filteredSubmissions.forEach(sub => this.selectedSubmissions.add(sub._id));
+    } else {
+      this.selectedSubmissions.clear();
+    }
+    this.updateBulkActionsVisibility();
+  }
+  
+  toggleSubmissionSelection(submissionId: string) {
+    if (this.selectedSubmissions.has(submissionId)) {
+      this.selectedSubmissions.delete(submissionId);
+    } else {
+      this.selectedSubmissions.add(submissionId);
+    }
+    this.updateAllSelectedState();
+    this.updateBulkActionsVisibility();
+  }
+  
+  updateAllSelectedState() {
+    const filteredIds = this.filteredSubmissions.map(sub => sub._id);
+    this.allSelected = filteredIds.length > 0 && filteredIds.every(id => this.selectedSubmissions.has(id));
+  }
+  
+  updateBulkActionsVisibility() {
+    this.showBulkActions = this.selectedSubmissions.size > 0;
+  }
+  
+  isSubmissionSelected(submissionId: string): boolean {
+    return this.selectedSubmissions.has(submissionId);
+  }
+  
+  clearSelection() {
+    this.selectedSubmissions.clear();
+    this.allSelected = false;
+    this.showBulkActions = false;
+    this.bulkSelectedUserId = '';
+  }
+  
+  // Filtering
+  get filteredSubmissions() {
+    return this.submissions.filter(submission => {
+      const matchesStatus = !this.statusFilter || submission.status === this.statusFilter;
+      const matchesType = !this.typeFilter || submission.submissionType === this.typeFilter;
+      
+      // Text search - search in title, description, and author name/email
+      const matchesSearch = !this.searchText || this.matchesSearchText(submission, this.searchText);
+      
+      return matchesStatus && matchesType && matchesSearch;
+    });
+  }
+  
+  private matchesSearchText(submission: any, searchText: string): boolean {
+    const search = searchText.toLowerCase().trim();
+    if (!search) return true;
+    
+    // Search in title
+    if (submission.title?.toLowerCase().includes(search)) {
+      return true;
+    }
+    
+    // Search in description
+    if (submission.description?.toLowerCase().includes(search)) {
+      return true;
+    }
+    
+    // Search in author name
+    if (submission.userId?.name?.toLowerCase().includes(search)) {
+      return true;
+    }
+    
+    // Search in author email
+    if (submission.userId?.email?.toLowerCase().includes(search)) {
+      return true;
+    }
+    
+    // Search in author username
+    if (submission.userId?.username?.toLowerCase().includes(search)) {
+      return true;
+    }
+    
+    return false;
+  }
+  
+  onFilterChange() {
+    // Clear selections when filters change
+    this.clearSelection();
+  }
+  
+  clearAllFilters() {
+    this.statusFilter = '';
+    this.typeFilter = '';
+    this.searchText = '';
+    this.onFilterChange();
+  }
+  
+  // Bulk operations
+  bulkReassignUser() {
+    if (!this.bulkSelectedUserId) {
+      this.showMessage('Please select a user to assign submissions to', 'error');
+      return;
+    }
+    
+    if (this.selectedSubmissions.size === 0) {
+      this.showMessage('Please select submissions to reassign', 'error');
+      return;
+    }
+    
+    const selectedUser = this.users.find(u => u._id === this.bulkSelectedUserId);
+    const confirmMsg = `Are you sure you want to reassign ${this.selectedSubmissions.size} submission(s) to ${selectedUser?.name || 'selected user'}?`;
+    
+    if (!confirm(confirmMsg)) {
+      return;
+    }
+    
+    this.bulkActionLoading = true;
+    const submissionIds = Array.from(this.selectedSubmissions);
+    const headers = this.getAuthHeaders();
+    
+    this.http.put(`${environment.apiBaseUrl}/admin/submissions/bulk-reassign`, {
+      submissionIds,
+      newUserId: this.bulkSelectedUserId
+    }, { headers }).subscribe({
+      next: (res: any) => {
+        this.showMessage(`Successfully reassigned ${submissionIds.length} submission(s) to ${selectedUser?.name}`, 'success');
+        this.clearSelection();
+        this.loadSubmissions();
+        this.bulkActionLoading = false;
+      },
+      error: (err) => {
+        this.showMessage(err.error?.message || 'Failed to bulk reassign submissions', 'error');
+        this.bulkActionLoading = false;
+      }
+    });
+  }
+  
+  // Filter by published status specifically
+  filterPublishedSubmissions() {
+    this.statusFilter = 'published';
+    this.onFilterChange();
   }
 }

@@ -459,6 +459,25 @@ export class PublishSubmissionComponent implements OnInit {
     this.showSuccess('Description auto-filled from content.');
   }
 
+  // Auto-fill excerpt from content
+  autoFillExcerpt() {
+    if (!this.submission.contents || this.submission.contents.length === 0) {
+      this.showError('No content available to generate excerpt from.');
+      return;
+    }
+
+    // Extract text from the first content item
+    const firstContent = this.submission.contents[0];
+    const plainText = this.extractPlainText(firstContent.body);
+    
+    // Create a short excerpt (first 150 characters for cards)
+    const excerpt = plainText.substring(0, 150).trim();
+    const finalExcerpt = excerpt.length === 150 ? excerpt + '...' : excerpt;
+    
+    this.submission.excerpt = finalExcerpt;
+    this.showSuccess('Excerpt auto-filled from content.');
+  }
+
   // Auto-fill meta description from content or description
   autoFillMetaDescription() {
     let sourceText = '';
@@ -509,7 +528,9 @@ export class PublishSubmissionComponent implements OnInit {
     const updateData = {
       title: this.submission.title,
       description: this.submission.description,
+      excerpt: this.submission.excerpt,
       imageUrl: this.submission.imageUrl,
+      tags: this.seoConfig.keywords, // Save keywords as tags
       contents: this.submission.contents.map((content: any) => ({
         _id: content._id,
         title: content.title,
