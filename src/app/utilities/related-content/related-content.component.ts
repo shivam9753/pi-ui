@@ -54,7 +54,7 @@ export class RelatedContentComponent implements OnInit {
 
     // Get posts of the same type, excluding current post
     this.backendService.getSubmissions('', 'published', {
-      limit: 6, // Get more than 3 in case we need to filter out current post
+      limit: 10, // Get more posts in case we need to filter out current post
       skip: 0,
       sortBy: 'reviewedAt',
       order: 'desc'
@@ -75,7 +75,7 @@ export class RelatedContentComponent implements OnInit {
         }
         
         // Transform data to match our interface
-        this.relatedPosts = posts.slice(0, 3).map((post: any) => ({
+        this.relatedPosts = posts.slice(0, this.layout === 'sidebar' ? 4 : 3).map((post: any) => ({
           _id: post._id,
           title: post.title,
           excerpt: post.excerpt || '',

@@ -260,8 +260,14 @@ export class BackendService {
 
   // Submit new submission
   submitNewSubmission(submission: any): Observable<any> {
+    const jwtToken = localStorage.getItem('jwt_token');
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${jwtToken}`,
+      'Content-Type': 'application/json'
+    });
+    
     const url = `${this.API_URL}/submissions`;
-    return this.http.post<any>(url, submission).pipe(
+    return this.http.post<any>(url, submission, { headers }).pipe(
       this.handleApiCall(url, 'POST')
     );
   }

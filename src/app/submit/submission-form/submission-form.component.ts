@@ -64,7 +64,7 @@ export class SubmissionFormComponent implements OnInit, OnDestroy {
     { 
       label: 'Poem', 
       value: 'poem', 
-      description: 'Verses, lyrics, free verse (min 3 poems required)',
+      description: 'OMeaning, minus the excess (min 3 poems required)',
       expedited: false
     },
     { 
@@ -452,13 +452,11 @@ export class SubmissionFormComponent implements OnInit, OnDestroy {
     const submissionPayload = {
       ...formValue,
       contents: contentsWithType,
-      authorId: this.loggedInUser?.id,
       submittedAt: new Date().toISOString()
     };
 
     console.log('Submitting form with payload:', submissionPayload);
     console.log('Current logged in user:', this.loggedInUser);
-    console.log('Author ID being sent:', this.loggedInUser?.id);
     
     this.backendService.submitNewSubmission(submissionPayload).subscribe({
       next: (result) => {

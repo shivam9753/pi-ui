@@ -65,7 +65,9 @@ export class ReviewSubmissionComponent {
     if (this.id) {
       this.getSubmissionWithContents(this.id);
     }
-  }
+    if(!environment.production)
+      this,this.isAnalysisEnabled = true;
+    }
 
   ngOnInit() {
     this.authService.user$.subscribe(data => {

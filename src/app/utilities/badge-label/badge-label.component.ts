@@ -52,10 +52,10 @@ export class BadgeLabelComponent {
     
     // Special styling for Opinion type (expedited)
     if (this.type === 'opinion') {
-      return `${baseClasses} bg-orange-500 text-white${clickableClasses}`;
+      return `${baseClasses} bg-orange-600 text-white${clickableClasses}`;
     }
     
-    // Default styling for other types
-    return `${baseClasses} bg-white-accent text-white${clickableClasses}`;
+    // Default styling for other types  
+    return `${baseClasses} bg-orange-600 text-white${clickableClasses}`;
   }
 }

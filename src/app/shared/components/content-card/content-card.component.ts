@@ -30,18 +30,12 @@ export interface ContentCardData {
       [ngClass]="{ 'ring-2 ring-orange-500': isFeatured }"
       style="min-height: 280px; max-height: 400px;">
     
-      <!-- Image Header (if available) -->
-      @if (content.imageUrl) {
-        <div class="relative h-48 overflow-hidden">
-          <img [src]="content.imageUrl"
-            [alt]="content.title"
-            class="w-full h-full object-cover">
-          @if (content.isFeatured) {
-            <div
-              class="absolute top-2 left-2 bg-orange-500 text-white px-2 py-1 rounded text-xs font-medium">
-              Featured
-            </div>
-          }
+      <!-- Featured Badge (without image) -->
+      @if (content.isFeatured) {
+        <div class="p-2">
+          <div class="inline-flex bg-orange-500 text-white px-2 py-1 rounded text-xs font-medium">
+            Featured
+          </div>
         </div>
       }
     
@@ -64,7 +58,7 @@ export interface ContentCardData {
         </div>
     
         <!-- Title -->
-        <h3 class="text-lg font-semibold text-gray-900 mb-2 line-clamp-2"
+        <h3 class="text-base font-medium text-gray-900 mb-2 line-clamp-2"
           [class.cursor-pointer]="clickable"
           (click)="onTitleClick()">
           {{ content.title }}
@@ -73,7 +67,7 @@ export interface ContentCardData {
         <!-- Description/Excerpt -->
         @if (content.description || content.excerpt) {
           <p
-            class="text-gray-600 text-sm mb-4 line-clamp-3">
+            class="text-gray-600 text-sm mb-4 line-clamp-4">
             {{ sanitizeHtml(content.description || content.excerpt) }}
           </p>
         }
@@ -83,13 +77,13 @@ export interface ContentCardData {
           <div class="flex flex-wrap gap-1 mb-4">
             @for (tag of content.tags.slice(0, 3); track tag) {
               <span
-                class="inline-flex items-center px-2 py-1 rounded text-xs bg-gray-100 text-gray-700">
+                class="inline-flex items-center px-1.5 py-0.5 rounded text-xs bg-gray-100 text-gray-600">
                 #{{ tag }}
               </span>
             }
             @if (content.tags.length > 3) {
               <span
-                class="text-xs text-gray-500">
+                class="text-xs text-gray-400">
                 +{{ content.tags.length - 3 }} more
               </span>
             }
@@ -147,6 +141,12 @@ export interface ContentCardData {
     .line-clamp-3 {
       display: -webkit-box;
       -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .line-clamp-4 {
+      display: -webkit-box;
+      -webkit-line-clamp: 4;
       -webkit-box-orient: vertical;
       overflow: hidden;
     }

@@ -12,16 +12,17 @@
 
 /* Typography - Magazine Style */
 .font-serif {
-  font-family: 'Garamond', 'EB Garamond', 'Cardo', 'Georgia', 'Times New Roman', serif;
+  font-family: 'Crimson Text', Georgia, serif;
 }
 
 /* Content Body Styling - Enhanced for Magazine Layout */
 .content-body {
-  font-family: 'Lato', 'Charter', 'Georgia', serif;
+  font-family: 'Crimson Text', Georgia, serif;
   line-height: 1.8;
   font-size: 20px !important;
   color: var(--text-primary);
   max-width: none;
+  font-weight: 500;
 }
 
 .content-body p {
@@ -65,7 +66,7 @@
 .content-body h4,
 .content-body h5,
 .content-body h6 {
-  font-family: 'Cardo', serif;
+  font-family: 'Source Sans Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   margin-top: 2.5rem;
   margin-bottom: 1.5rem;
   color: var(--text-primary);
@@ -299,8 +300,9 @@
 /* Poetry and prose specific formatting */
 .content-body[data-type="poem"] {
   text-align: left;
-  font-family: 'Cardo', serif;
+  font-family: 'Crimson Text', Georgia, serif;
   line-height: 1.6;
+  font-weight: 500;
 }
 
 .content-body[data-type="prose"] {
@@ -567,3 +569,30 @@ body.focus-mode {
 }
 
 /* Enhanced Focus Mode Controls */
+
+/* Mobile Navigation Bar */
+.safe-area-bottom {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* Add padding to main content when mobile nav is visible */
+@media (max-width: 767px) {
+  .magazine-layout {
+    padding-bottom: 80px; /* Space for mobile navigation */
+  }
+  
+  .magazine-layout.focus-mode {
+    padding-bottom: 80px; /* Maintain spacing in focus mode */
+  }
+}
+
+/* Mobile Navigation Buttons */
+@media (max-width: 767px) {
+  .mobile-nav-button {
+    -webkit-tap-highlight-color: transparent;
+  }
+  
+  .mobile-nav-button:active {
+    transform: scale(0.95);
+  }
+}

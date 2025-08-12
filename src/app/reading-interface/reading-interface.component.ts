@@ -65,7 +65,6 @@ content = signal<PublishedContent | null>(null);
   readingProgress = signal(0);
   
   // Enhanced reading controls
-  isFocusMode = signal(false);
   layoutMode = signal<'compact' | 'spacious'>('compact');
   lineHeightPreset = signal<'normal' | 'relaxed'>('normal');
   
@@ -285,9 +284,6 @@ content = signal<PublishedContent | null>(null);
 
   // ... keep all your existing methods (goBack, toggleLike, etc.) ...
 
-  goBack() {
-    this.router.navigate(['/explore']);
-  }
 
   // Navigate to category page
   navigateToCategory(category: string) {
@@ -369,6 +365,25 @@ content = signal<PublishedContent | null>(null);
     this.router.navigate(['/tag', tag]);
   }
 
+  // Helper method to clean tag display
+  getTagDisplayName(tag: string): string {
+    // If tag looks like a hash (starts with # and contains numbers/letters), 
+    // extract meaningful part or return a cleaned version
+    if (tag.startsWith('#') && tag.length > 20) {
+      // This looks like a hash ID, so we'll try to make it more readable
+      // For now, we'll just return 'Tag' or check if there's a pattern
+      return 'Topic'; // Generic fallback
+    }
+    
+    // If tag looks like a hash ID (long string of numbers/letters), clean it
+    if (tag.match(/^[a-f0-9]{24}$/)) {
+      return 'Topic'; // Generic fallback for ObjectId-like strings
+    }
+    
+    // If tag contains hash characters, clean them
+    return tag.replace(/^#+/, '').trim() || 'Topic';
+  }
+
   toggleReadingMode() {
     this.isReaderMode.update(mode => !mode);
   }
@@ -382,17 +397,18 @@ content = signal<PublishedContent | null>(null);
   }
 
   // Enhanced reading controls
-  toggleFocusMode() {
-    this.isFocusMode.update(mode => !mode);
-    if (this.isFocusMode()) {
-      document.body.classList.add('focus-mode');
-    } else {
-      document.body.classList.remove('focus-mode');
-    }
-  }
-
   toggleLayoutMode() {
     this.layoutMode.update(mode => mode === 'compact' ? 'spacious' : 'compact');
+  }
+
+  goBack() {
+    // Check if we can go back in browser history
+    if (window.history.length > 1) {
+      window.history.back();
+    } else {
+      // Fallback to explore page if no history
+      this.router.navigate(['/explore']);
+    }
   }
 
   toggleLineHeightPreset() {

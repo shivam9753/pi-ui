@@ -53,16 +53,16 @@ export class ExploreComponent implements OnInit {
   // Writing/Content related announcements (for sidebar)
   writingAnnouncements = [
     {
-      title: 'Winter Poetry Challenge',
-      description: 'Submit your poems on the theme of "Winter Solitude" by December 31st. Featured submissions will be published in our special winter edition.',
+      title: 'Kommune x PoemsIndia Writing Program',
+      description: 'Submit your poems on the theme of "Incomplete Freedom" by August 25th=. Featured submissions will be published in our special edition.',
       type: 'THEME',
-      color: '#3b82f6',
+      color: '#d1872cff',
       link: '/submit',
       linkText: 'Submit Now'
     },
     {
-      title: 'Cinema Essay Contest',
-      description: 'Share your thoughts on contemporary cinema. Best essays will be featured on our homepage and shared across our social channels.',
+      title: 'Pitches for Climate Change',
+      description: 'Share your thoughts on climate change. Best essays will be featured on our homepage and shared across our social channels.',
       type: 'CONTEST',
       color: '#8b5cf6',
       link: '/submit',

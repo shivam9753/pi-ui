@@ -105,8 +105,96 @@ export class RichTextEditorComponent implements ControlValueAccessor, AfterViewI
 
   onPaste(event: ClipboardEvent): void {
     event.preventDefault();
-    const text = event.clipboardData?.getData('text/plain') || '';
-    document.execCommand('insertText', false, text);
+    
+    const clipboardData = event.clipboardData;
+    if (!clipboardData) return;
+    
+    // Try to get HTML content first, fallback to plain text
+    let content = clipboardData.getData('text/html');
+    
+    if (!content) {
+      // If no HTML, get plain text and convert line breaks
+      content = clipboardData.getData('text/plain')
+        .replace(/\n/g, '<br>')
+        .replace(/\r/g, '');
+    } else {
+      // Clean up HTML content - remove unwanted tags and attributes
+      content = this.sanitizeClipboardHTML(content);
+    }
+    
+    if (!content) return;
+    
+    // Insert content at cursor position using modern approach
+    const selection = window.getSelection();
+    if (selection && selection.rangeCount > 0) {
+      const range = selection.getRangeAt(0);
+      range.deleteContents();
+      
+      // Create a temporary div to parse the HTML
+      const tempDiv = document.createElement('div');
+      tempDiv.innerHTML = content;
+      
+      // Insert each child node
+      const fragment = document.createDocumentFragment();
+      while (tempDiv.firstChild) {
+        fragment.appendChild(tempDiv.firstChild);
+      }
+      
+      range.insertNode(fragment);
+      
+      // Move cursor to end of inserted content
+      range.collapse(false);
+      selection.removeAllRanges();
+      selection.addRange(range);
+    } else {
+      // Fallback: append to end of editor
+      this.editor.nativeElement.innerHTML += content;
+    }
+    
+    // Trigger content change
+    this.onContentChange({ target: this.editor.nativeElement } as any);
+  }
+  
+  private sanitizeClipboardHTML(html: string): string {
+    // Create a temporary div to parse HTML safely
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = html;
+    
+    // Allow only basic formatting tags
+    const allowedTags = ['p', 'div', 'br', 'strong', 'b', 'em', 'i', 'u', 'span'];
+    const allowedAttributes = ['class', 'style'];
+    
+    this.cleanElement(tempDiv, allowedTags, allowedAttributes);
+    
+    return tempDiv.innerHTML;
+  }
+  
+  private cleanElement(element: Element, allowedTags: string[], allowedAttributes: string[]): void {
+    // Convert to array to avoid live NodeList issues
+    const children = Array.from(element.children);
+    
+    children.forEach(child => {
+      const tagName = child.tagName.toLowerCase();
+      
+      if (!allowedTags.includes(tagName)) {
+        // Replace disallowed tags with their content
+        const span = document.createElement('span');
+        span.innerHTML = child.innerHTML;
+        child.parentNode?.replaceChild(span, child);
+        this.cleanElement(span, allowedTags, allowedAttributes);
+      } else {
+        // Clean attributes
+        const attributes = Array.from(child.attributes);
+        attributes.forEach(attr => {
+          if (!allowedAttributes.includes(attr.name.toLowerCase())) {
+            child.removeAttribute(attr.name);
+          }
+        });
+        
+        // Recursively clean child elements
+        this.cleanElement(child, allowedTags, allowedAttributes);
+      }
+    });
   }
 
   toggleFormat(command: string): void {

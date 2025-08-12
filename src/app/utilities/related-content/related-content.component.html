@@ -9,13 +9,15 @@
   }">
 
     <!-- Section Header -->
-    <div class="mb-6">
-      <h3 class="text-xl font-semibold text-gray-900 mb-2">
+    <div class="mb-8">
+      <h3 class="text-2xl font-bold text-gray-900 mb-4" [ngClass]="{
+        'text-xl': layout === 'sidebar'
+      }">
         More {{ getContentTypeLabel(contentType) }}s
+        @if (!loading && relatedPosts.length > 0) {
+          <span class="text-gray-500 font-normal text-lg ml-2">({{ relatedPosts.length }})</span>
+        }
       </h3>
-      <p class="text-gray-900-secondary text-sm">
-        Discover other {{ getContentTypeLabel(contentType).toLowerCase() }}s you might enjoy
-      </p>
     </div>
 
     <!-- Loading State -->
@@ -35,100 +37,121 @@
       </div>
     }
 
-    <!-- Related Posts Grid -->
+    <!-- Related Posts List -->
     @if (!loading && !error && relatedPosts.length > 0) {
-      <div
-         [ngClass]="{
-           'grid grid-cols-1 md:grid-cols-3 gap-6': layout === 'bottom',
-           'flex flex-col space-y-4': layout === 'sidebar'
-         }">
+      <div [ngClass]="{
+        'grid grid-cols-1 md:grid-cols-3 gap-6': layout === 'bottom',
+        'space-y-0': layout === 'sidebar'
+      }">
         @for (post of relatedPosts; track trackByPostId($index, post)) {
-          <div
-            class="related-post-card bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-md transition-all duration-300 cursor-pointer group"
-           [ngClass]="{
-             'mb-4': layout === 'sidebar'
-           }"
-            (click)="navigateToPost(post)">
-            <!-- Post Image (if available) -->
-            @if (post.imageUrl) {
-              <div
-             [ngClass]="{
-               'aspect-video': layout === 'bottom',
-               'aspect-[4/3] h-40': layout === 'sidebar'
-             }"
-                class="bg-white-tertiary overflow-hidden">
-                <img [src]="post.imageUrl"
-                  [alt]="post.title"
-                  class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                  loading="lazy">
-              </div>
-            }
-            <!-- Post Content -->
-        <div [ngClass]="{
-          'p-4': layout === 'bottom',
-          'p-3': layout === 'sidebar'
-        }">
-              <!-- Content Type Badge -->
-              <div class="flex items-center justify-between mb-2">
-                <span class="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium"
-                  [style.background-color]="'var(--bg-accent-light)'"
-                  [style.color]="'var(--text-accent)'">
-                  {{ getContentTypeLabel(post.submissionType) }}
-                </span>
-                <span class="text-xs text-gray-900-tertiary">
-                  {{ post.readingTime }} min read
-                </span>
-              </div>
-              <!-- Post Title -->
-          <h4 [ngClass]="{
-                'font-semibold text-gray-900 text-sm line-clamp-2 mb-2': layout === 'bottom',
-                'font-semibold text-gray-900 text-base line-clamp-2 mb-2': layout === 'sidebar'
-              }"
-                class="group-hover:text-gray-900-accent transition-colors">
-                {{ post.title }}
-              </h4>
-              <!-- Post Excerpt -->
-          <p [ngClass]="{
-               'text-gray-900-secondary text-xs line-clamp-2 mb-3': layout === 'bottom',
-               'text-gray-900-secondary text-sm line-clamp-3 mb-3': layout === 'sidebar'
-             }"
-                class="leading-relaxed">
-                {{ truncateExcerpt(post.excerpt) }}
-              </p>
-              <!-- Post Meta -->
-              <div class="flex items-center justify-between text-xs text-gray-900-tertiary">
-                <button
-                  (click)="navigateToAuthor(post.authorId)"
-                  (click)="$event.stopPropagation()"
-                  class="hover:text-gray-900-accent transition-colors font-medium">
-                  {{ post.authorName }}
-                </button>
-                <div class="flex items-center space-x-2">
-                  <span>{{ getTimeAgo(post.publishedAt) }}</span>
-                  <span class="w-1 h-1 bg-white-tertiary rounded-full"></span>
-                  <span>{{ post.viewCount }} views</span>
-                </div>
-              </div>
-              <!-- Tags (show first 2) -->
-              @if (post.tags && post.tags.length > 0) {
-                <div
-                  class="flex flex-wrap gap-1 mt-2">
-                  @for (tag of post.tags.slice(0, 2); track tag) {
-                    <span
-                      class="px-2 py-0.5 bg-white-tertiary text-gray-900-secondary text-xs rounded-md">
-                      #{{ tag }}
-                    </span>
-                  }
-                  @if (post.tags.length > 2) {
-                    <span
-                      class="text-gray-900-tertiary text-xs">
-                      +{{ post.tags.length - 2 }}
-                    </span>
-                  }
+          <!-- Bottom layout - keep cards -->
+          @if (layout === 'bottom') {
+            <article class="related-post-card bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-md transition-all duration-300 cursor-pointer group"
+              (click)="navigateToPost(post)">
+              
+              <!-- Post Image (if available) -->
+              @if (post.imageUrl) {
+                <div class="aspect-video bg-white-tertiary overflow-hidden">
+                  <img [src]="post.imageUrl"
+                    [alt]="post.title"
+                    class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    loading="lazy">
                 </div>
               }
-            </div>
-          </div>
+              
+              <!-- Post Content -->
+              <div class="p-4">
+                <!-- Content Type Badge -->
+                <div class="flex items-center justify-between mb-2">
+                  <span class="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium"
+                    [ngClass]="{
+                      'bg-orange-100 text-orange-600': post.submissionType === 'article',
+                      'bg-blue-100 text-blue-600': post.submissionType === 'poem',
+                      'bg-green-100 text-green-600': post.submissionType === 'story',
+                      'bg-purple-100 text-purple-600': post.submissionType === 'cinema_essay',
+                      'bg-yellow-100 text-yellow-600': post.submissionType === 'quote'
+                    }">
+                    {{ getContentTypeLabel(post.submissionType) }}
+                  </span>
+                  <span class="text-xs text-gray-900-tertiary">
+                    {{ post.readingTime }} min read
+                  </span>
+                </div>
+                
+                <!-- Post Title -->
+                <h4 class="font-semibold text-gray-900 text-sm line-clamp-2 mb-2 group-hover:text-gray-900-accent transition-colors">
+                  {{ post.title }}
+                </h4>
+                
+                <!-- Post Excerpt -->
+                <p class="text-gray-900-secondary text-xs line-clamp-2 mb-3 leading-relaxed">
+                  {{ truncateExcerpt(post.excerpt, 100) }}
+                </p>
+                
+                <!-- Post Meta -->
+                <div class="flex items-center justify-between text-xs text-gray-900-tertiary">
+                  <button
+                    (click)="navigateToAuthor(post.authorId)"
+                    (click)="$event.stopPropagation()"
+                    class="hover:text-gray-900-accent transition-colors font-medium">
+                    {{ post.authorName }}
+                  </button>
+                  <div class="flex items-center space-x-2">
+                    <span>{{ getTimeAgo(post.publishedAt) }}</span>
+                  </div>
+                </div>
+              </div>
+            </article>
+          }
+          
+          <!-- Sidebar layout - compact list -->
+          @if (layout === 'sidebar') {
+            <article class="flex cursor-pointer group hover:bg-gray-50 transition-all duration-200 mb-8 last:mb-0"
+              (click)="navigateToPost(post)">
+              
+              <!-- Content Section -->
+              <div class="flex-1 pr-4">
+                <!-- Content Type Badge -->
+                <span class="inline-block px-2 py-1 text-xs font-semibold tracking-wider uppercase mb-2"
+                  [ngClass]="{
+                    'bg-orange-100 text-orange-600': post.submissionType === 'article',
+                    'bg-blue-100 text-blue-600': post.submissionType === 'poem',
+                    'bg-green-100 text-green-600': post.submissionType === 'story',
+                    'bg-purple-100 text-purple-600': post.submissionType === 'cinema_essay',
+                    'bg-yellow-100 text-yellow-600': post.submissionType === 'quote'
+                  }">
+                  {{ getContentTypeLabel(post.submissionType) }}
+                </span>
+
+                <!-- Post Title -->
+                <h4 class="font-bold text-gray-900 group-hover:text-gray-700 transition-colors mb-2 text-lg leading-tight line-clamp-2">
+                  {{ post.title }}
+                </h4>
+
+                <!-- Post Excerpt -->
+                <p class="text-gray-600 text-sm leading-relaxed mb-3 line-clamp-3">
+                  {{ truncateExcerpt(post.excerpt, 120) }}
+                </p>
+
+                <!-- Author -->
+                <p class="text-gray-600 text-sm">
+                  By {{ post.authorName }}
+                </p>
+              </div>
+
+              <!-- Image Section -->
+              @if (post.imageUrl) {
+                <div class="flex-shrink-0 ml-4">
+                  <div class="w-20 h-16 rounded overflow-hidden bg-gray-200">
+                    <img [src]="post.imageUrl"
+                         [alt]="post.title"
+                         class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                         loading="lazy">
+                  </div>
+                </div>
+              }
+            </article>
+          }
         }
       </div>
     }
