@@ -1,7 +1,7 @@
 <!-- Main Container -->
 <div class="min-h-screen bg-gray-100">
   <div class="max-w-screen-xl mx-auto px-4 sm:px-6 md:px-10 py-6">
-    
+
     <!-- Header Section -->
     <div class="mb-8">
       <h1 class="text-2xl font-bold text-gray-800 mb-1">Writing Prompts</h1>
@@ -20,7 +20,7 @@
         [class.border-transparent]="activeTab !== 'discover'"
         [class.text-gray-500]="activeTab !== 'discover'"
         class="whitespace-nowrap py-3 px-1 border-b-2 font-medium transition-colors text-sm"
-      >
+        >
         Discover
       </button>
       <button
@@ -31,7 +31,7 @@
         [class.border-transparent]="activeTab !== 'gamified'"
         [class.text-gray-500]="activeTab !== 'gamified'"
         class="whitespace-nowrap py-3 px-1 border-b-2 font-medium transition-colors text-sm"
-      >
+        >
         Random Prompt
       </button>
       <button
@@ -42,186 +42,213 @@
         [class.border-transparent]="activeTab !== 'guidelines'"
         [class.text-gray-500]="activeTab !== 'guidelines'"
         class="whitespace-nowrap py-3 px-1 border-b-2 font-medium transition-colors text-sm"
-      >
+        >
         Guidelines
       </button>
     </nav>
 
     <!-- Discover Tab -->
-    <div *ngIf="activeTab === 'discover'">
-      <!-- Filters Section -->
-      <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
-        <h2 class="text-lg font-semibold text-gray-800 mb-4">Filter Prompts</h2>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">Type</label>
-            <select [(ngModel)]="browseType" (ngModelChange)="onBrowseFilterChange()" 
-                    class="w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500 text-sm">
-              <option value="">All Types</option>
-              <option value="poem">Poem</option>
-              <option value="prose">Prose</option>
-              <option value="article">Article</option>
-              <option value="cinema_essay">Cinema Essay</option>
-            </select>
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">Difficulty</label>
-            <select [(ngModel)]="browseDifficulty" (ngModelChange)="onBrowseFilterChange()" 
-                    class="w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500 text-sm">
-              <option value="">All Levels</option>
-              <option value="beginner">Beginner</option>
-              <option value="intermediate">Intermediate</option>
-              <option value="advanced">Advanced</option>
-            </select>
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">Search Text</label>
-            <input
-              type="text"
-              [(ngModel)]="browseTextFilter"
-              (ngModelChange)="onBrowseFilterChange()"
-              placeholder="Search in title, description, tags..."
-              class="w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500 text-sm"
-            />
-          </div>
-        </div>
-      </div>
-
-      <!-- Prompts List -->
-      <div *ngIf="filteredPrompts.length > 0" class="space-y-4">
-        <div
-          *ngFor="let prompt of filteredPrompts"
-          class="bg-white rounded-lg border border-gray-200 p-6 hover:shadow-md transition-shadow"
-        >
-          <div class="flex flex-wrap gap-2 mb-3">
-            <span class="inline-flex items-center bg-orange-100 text-orange-700 font-medium px-2.5 py-1 rounded-full text-xs">
-              {{ getTypeLabel(prompt.type) }}
-            </span>
-            <span class="inline-flex items-center px-2.5 py-1 rounded-full font-medium text-xs"
-              [ngClass]="getDifficultyColor(prompt.difficulty || '')">
-              {{ prompt.difficulty | titlecase }}
-            </span>
-            <span *ngIf="prompt.featured" class="inline-flex items-center bg-yellow-100 text-yellow-800 font-medium px-2.5 py-1 text-xs rounded-full">
-              ⭐ Featured
-            </span>
-          </div>
-          <h3 class="text-lg font-semibold text-gray-900 mb-2">{{ prompt.title }}</h3>
-          <p class="text-gray-600 text-sm leading-relaxed mb-3">{{ prompt.description }}</p>
-          <div *ngIf="prompt.tags?.length" class="flex flex-wrap gap-1">
-            <span *ngFor="let tag of prompt.tags"
-              class="inline-flex items-center bg-gray-100 text-gray-600 font-medium px-2 py-1 text-xs rounded">
-              #{{ tag }}
-            </span>
+    @if (activeTab === 'discover') {
+      <div>
+        <!-- Filters Section -->
+        <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
+          <h2 class="text-lg font-semibold text-gray-800 mb-4">Filter Prompts</h2>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Type</label>
+              <select [(ngModel)]="browseType" (ngModelChange)="onBrowseFilterChange()"
+                class="w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500 text-sm">
+                <option value="">All Types</option>
+                <option value="poem">Poem</option>
+                <option value="prose">Prose</option>
+                <option value="article">Article</option>
+                <option value="cinema_essay">Cinema Essay</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Difficulty</label>
+              <select [(ngModel)]="browseDifficulty" (ngModelChange)="onBrowseFilterChange()"
+                class="w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500 text-sm">
+                <option value="">All Levels</option>
+                <option value="beginner">Beginner</option>
+                <option value="intermediate">Intermediate</option>
+                <option value="advanced">Advanced</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Search Text</label>
+              <input
+                type="text"
+                [(ngModel)]="browseTextFilter"
+                (ngModelChange)="onBrowseFilterChange()"
+                placeholder="Search in title, description, tags..."
+                class="w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500 text-sm"
+                />
+            </div>
           </div>
         </div>
+        <!-- Prompts List -->
+        @if (filteredPrompts.length > 0) {
+          <div class="space-y-4">
+            @for (prompt of filteredPrompts; track prompt) {
+              <div
+                class="bg-white rounded-lg border border-gray-200 p-6 hover:shadow-md transition-shadow"
+                >
+                <div class="flex flex-wrap gap-2 mb-3">
+                  <span class="inline-flex items-center bg-orange-100 text-orange-700 font-medium px-2.5 py-1 rounded-full text-xs">
+                    {{ getTypeLabel(prompt.type) }}
+                  </span>
+                  <span class="inline-flex items-center px-2.5 py-1 rounded-full font-medium text-xs"
+                    [ngClass]="getDifficultyColor(prompt.difficulty || '')">
+                    {{ prompt.difficulty | titlecase }}
+                  </span>
+                  @if (prompt.featured) {
+                    <span class="inline-flex items-center bg-yellow-100 text-yellow-800 font-medium px-2.5 py-1 text-xs rounded-full">
+                      ⭐ Featured
+                    </span>
+                  }
+                </div>
+                <h3 class="text-lg font-semibold text-gray-900 mb-2">{{ prompt.title }}</h3>
+                <p class="text-gray-600 text-sm leading-relaxed mb-3">{{ prompt.description }}</p>
+                @if (prompt.tags?.length) {
+                  <div class="flex flex-wrap gap-1">
+                    @for (tag of prompt.tags; track tag) {
+                      <span
+                        class="inline-flex items-center bg-gray-100 text-gray-600 font-medium px-2 py-1 text-xs rounded">
+                        #{{ tag }}
+                      </span>
+                    }
+                  </div>
+                }
+              </div>
+            }
+          </div>
+        }
+        <!-- Empty State -->
+        @if (filteredPrompts.length === 0) {
+          <div class="text-center py-12">
+            <div class="w-16 h-16 mx-auto bg-gray-100 rounded-full flex items-center justify-center mb-4">
+              <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
+              </svg>
+            </div>
+            <h3 class="text-lg font-medium text-gray-900 mb-2">No prompts found</h3>
+            <p class="text-gray-500">Try adjusting your filters to see more writing prompts.</p>
+          </div>
+        }
       </div>
-      
-      <!-- Empty State -->
-      <div *ngIf="filteredPrompts.length === 0" class="text-center py-12">
-        <div class="w-16 h-16 mx-auto bg-gray-100 rounded-full flex items-center justify-center mb-4">
-          <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
-          </svg>
-        </div>
-        <h3 class="text-lg font-medium text-gray-900 mb-2">No prompts found</h3>
-        <p class="text-gray-500">Try adjusting your filters to see more writing prompts.</p>
-      </div>
-    </div>
+    }
 
     <!-- Random Prompt Tab -->
-    <div *ngIf="activeTab === 'gamified'">
-      <div *ngIf="currentPrompt" class="max-w-2xl mx-auto">
-        <div class="bg-white border border-gray-200 rounded-lg shadow-sm p-8 text-center">
-          <!-- Tags -->
-          <div class="flex flex-wrap justify-center gap-2 mb-4">
-            <span class="inline-flex items-center bg-orange-100 font-medium text-orange-700 px-3 py-1 rounded-full text-sm">
-              {{ getTypeLabel(currentPrompt.type) }}
-            </span>
-            <span class="inline-flex items-center px-3 py-1 rounded-full font-medium text-sm"
-              [ngClass]="getDifficultyColor(currentPrompt.difficulty || '')">
-              {{ currentPrompt.difficulty | titlecase }}
-            </span>
-            <span *ngIf="currentPrompt.featured"
-              class="inline-flex items-center bg-yellow-100 text-yellow-800 font-medium text-sm px-3 py-1 rounded-full">
-              ⭐ Featured
-            </span>
-          </div>
-
-          <!-- Title -->
-          <h2 class="text-2xl font-bold text-gray-900 mb-4">
-            {{ currentPrompt.title }}
-          </h2>
-
-          <!-- Description -->
-          <p class="text-gray-600 text-base leading-relaxed mb-6">
-            {{ currentPrompt.description }}
-          </p>
-
-          <!-- Image -->
-          <div *ngIf="currentPrompt.picture" class="mb-6">
-            <img
-              [src]="currentPrompt.picture"
-              [alt]="currentPrompt.title || 'Prompt image'"
-              class="mx-auto rounded-lg max-h-64 object-cover border border-gray-200">
-          </div>
-
-          <!-- Tags -->
-          <div *ngIf="currentPrompt.tags?.length" class="flex flex-wrap justify-center gap-1 mb-6">
-            <span *ngFor="let tag of currentPrompt.tags"
-              class="inline-flex items-center bg-gray-100 text-gray-600 font-medium px-2 py-1 text-xs rounded">
-              #{{ tag }}
-            </span>
-          </div>
-
-          <!-- Progress -->
-          <div *ngIf="filteredPrompts && filteredPrompts.length > 1 && promptIndex >= 0" class="mb-6">
-            <span class="text-sm text-gray-500">
-              {{ promptIndex + 1 }} of {{ filteredPrompts.length }} prompts
-            </span>
-          </div>
-
-          <!-- Action Button -->
-          <button
-            type="button"
-            (click)="refreshPrompt()"
-            [disabled]="isRefreshing"
-            class="inline-flex items-center px-6 py-3 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-orange-600 hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 disabled:opacity-50"
-            [ngClass]="{ 'opacity-50': isRefreshing }">
-            <span *ngIf="!isRefreshing">New Prompt</span>
-            <div *ngIf="isRefreshing" class="flex items-center">
-              <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-              </svg>
-              Loading...
+    @if (activeTab === 'gamified') {
+      <div>
+        @if (currentPrompt) {
+          <div class="max-w-2xl mx-auto">
+            <div class="bg-white border border-gray-200 rounded-lg shadow-sm p-8 text-center">
+              <!-- Tags -->
+              <div class="flex flex-wrap justify-center gap-2 mb-4">
+                <span class="inline-flex items-center bg-orange-100 font-medium text-orange-700 px-3 py-1 rounded-full text-sm">
+                  {{ getTypeLabel(currentPrompt.type) }}
+                </span>
+                <span class="inline-flex items-center px-3 py-1 rounded-full font-medium text-sm"
+                  [ngClass]="getDifficultyColor(currentPrompt.difficulty || '')">
+                  {{ currentPrompt.difficulty | titlecase }}
+                </span>
+                @if (currentPrompt.featured) {
+                  <span
+                    class="inline-flex items-center bg-yellow-100 text-yellow-800 font-medium text-sm px-3 py-1 rounded-full">
+                    ⭐ Featured
+                  </span>
+                }
+              </div>
+              <!-- Title -->
+              <h2 class="text-2xl font-bold text-gray-900 mb-4">
+                {{ currentPrompt.title }}
+              </h2>
+              <!-- Description -->
+              <p class="text-gray-600 text-base leading-relaxed mb-6">
+                {{ currentPrompt.description }}
+              </p>
+              <!-- Image -->
+              @if (currentPrompt.picture) {
+                <div class="mb-6">
+                  <img
+                    [src]="currentPrompt.picture"
+                    [alt]="currentPrompt.title || 'Prompt image'"
+                    class="mx-auto rounded-lg max-h-64 object-cover border border-gray-200">
+                </div>
+              }
+              <!-- Tags -->
+              @if (currentPrompt.tags?.length) {
+                <div class="flex flex-wrap justify-center gap-1 mb-6">
+                  @for (tag of currentPrompt.tags; track tag) {
+                    <span
+                      class="inline-flex items-center bg-gray-100 text-gray-600 font-medium px-2 py-1 text-xs rounded">
+                      #{{ tag }}
+                    </span>
+                  }
+                </div>
+              }
+              <!-- Progress -->
+              @if (filteredPrompts && filteredPrompts.length > 1 && promptIndex >= 0) {
+                <div class="mb-6">
+                  <span class="text-sm text-gray-500">
+                    {{ promptIndex + 1 }} of {{ filteredPrompts.length }} prompts
+                  </span>
+                </div>
+              }
+              <!-- Action Button -->
+              <button
+                type="button"
+                (click)="refreshPrompt()"
+                [disabled]="isRefreshing"
+                class="inline-flex items-center px-6 py-3 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-orange-600 hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 disabled:opacity-50"
+                [ngClass]="{ 'opacity-50': isRefreshing }">
+                @if (!isRefreshing) {
+                  <span>New Prompt</span>
+                }
+                @if (isRefreshing) {
+                  <div class="flex items-center">
+                    <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                      <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Loading...
+                  </div>
+                }
+              </button>
+              <!-- Usage Count -->
+              @if (currentPrompt.usageCount) {
+                <div class="mt-4 text-sm text-gray-500">
+                  Used by <span class="font-medium">{{ currentPrompt.usageCount }}</span> writers
+                </div>
+              }
             </div>
-          </button>
-
-          <!-- Usage Count -->
-          <div *ngIf="currentPrompt.usageCount" class="mt-4 text-sm text-gray-500">
-            Used by <span class="font-medium">{{ currentPrompt.usageCount }}</span> writers
           </div>
-        </div>
+        }
+        <!-- Empty State -->
+        @if (!currentPrompt) {
+          <div class="text-center py-12">
+            <div class="w-16 h-16 mx-auto bg-gray-100 rounded-full flex items-center justify-center mb-4">
+              <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
+              </svg>
+            </div>
+            <h3 class="text-lg font-medium text-gray-900 mb-2">No prompt available</h3>
+            <p class="text-gray-500">Try changing filters or refresh the page.</p>
+          </div>
+        }
       </div>
-
-      <!-- Empty State -->
-      <div *ngIf="!currentPrompt" class="text-center py-12">
-        <div class="w-16 h-16 mx-auto bg-gray-100 rounded-full flex items-center justify-center mb-4">
-          <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
-          </svg>
-        </div>
-        <h3 class="text-lg font-medium text-gray-900 mb-2">No prompt available</h3>
-        <p class="text-gray-500">Try changing filters or refresh the page.</p>
-      </div>
-    </div>
+    }
 
     <!-- Guidelines Tab -->
-    <div *ngIf="activeTab === 'guidelines'">
-      <div class="bg-white rounded-lg shadow-sm">
-        <app-guidelines-overlay [isInline]="true"></app-guidelines-overlay>
+    @if (activeTab === 'guidelines') {
+      <div>
+        <div class="bg-white rounded-lg shadow-sm">
+          <app-guidelines-overlay [isInline]="true"></app-guidelines-overlay>
+        </div>
       </div>
-    </div>
+    }
 
   </div> <!-- End main container -->
 </div> <!-- End wrapper -->

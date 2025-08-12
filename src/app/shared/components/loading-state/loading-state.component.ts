@@ -8,42 +8,50 @@ import { CommonModule } from '@angular/common';
   template: `
     <div class="flex items-center justify-center py-8" [ngClass]="containerClass">
       <!-- Spinner Variants -->
-      <div *ngIf="type === 'spinner'" class="relative">
-        <div class="animate-spin rounded-full border-4 border-gray-200" 
-             [ngClass]="getSpinnerSizeClass()">
-          <div class="border-t-4 border-orange-600 rounded-full" 
-               [ngClass]="getSpinnerSizeClass()"></div>
+      @if (type === 'spinner') {
+        <div class="relative">
+          <div class="animate-spin rounded-full border-4 border-gray-200"
+            [ngClass]="getSpinnerSizeClass()">
+            <div class="border-t-4 border-orange-600 rounded-full"
+            [ngClass]="getSpinnerSizeClass()"></div>
+          </div>
         </div>
-      </div>
-
+      }
+    
       <!-- Dots Variant -->
-      <div *ngIf="type === 'dots'" class="flex space-x-2">
-        <div class="animate-bounce bg-orange-500 rounded-full" 
-             [ngClass]="getDotSizeClass()" 
-             style="animation-delay: 0ms;"></div>
-        <div class="animate-bounce bg-orange-500 rounded-full" 
-             [ngClass]="getDotSizeClass()" 
-             style="animation-delay: 150ms;"></div>
-        <div class="animate-bounce bg-orange-500 rounded-full" 
-             [ngClass]="getDotSizeClass()" 
-             style="animation-delay: 300ms;"></div>
-      </div>
-
+      @if (type === 'dots') {
+        <div class="flex space-x-2">
+          <div class="animate-bounce bg-orange-500 rounded-full"
+            [ngClass]="getDotSizeClass()"
+          style="animation-delay: 0ms;"></div>
+          <div class="animate-bounce bg-orange-500 rounded-full"
+            [ngClass]="getDotSizeClass()"
+          style="animation-delay: 150ms;"></div>
+          <div class="animate-bounce bg-orange-500 rounded-full"
+            [ngClass]="getDotSizeClass()"
+          style="animation-delay: 300ms;"></div>
+        </div>
+      }
+    
       <!-- Pulse Variant -->
-      <div *ngIf="type === 'pulse'" class="flex flex-col items-center space-y-4">
-        <div class="animate-pulse bg-orange-200 rounded-lg" [ngClass]="getPulseSizeClass()"></div>
-        <div class="animate-pulse bg-orange-200 rounded-lg" [ngClass]="getPulseSizeClass()" 
-             style="animation-delay: 200ms; width: 80%;"></div>
-        <div class="animate-pulse bg-orange-200 rounded-lg" [ngClass]="getPulseSizeClass()" 
-             style="animation-delay: 400ms; width: 60%;"></div>
-      </div>
-
+      @if (type === 'pulse') {
+        <div class="flex flex-col items-center space-y-4">
+          <div class="animate-pulse bg-orange-200 rounded-lg" [ngClass]="getPulseSizeClass()"></div>
+          <div class="animate-pulse bg-orange-200 rounded-lg" [ngClass]="getPulseSizeClass()"
+          style="animation-delay: 200ms; width: 80%;"></div>
+          <div class="animate-pulse bg-orange-200 rounded-lg" [ngClass]="getPulseSizeClass()"
+          style="animation-delay: 400ms; width: 60%;"></div>
+        </div>
+      }
+    
       <!-- Loading Text -->
-      <span *ngIf="showText" class="ml-3 text-gray-600 font-medium" [ngClass]="getTextSizeClass()">
-        {{ loadingText }}
-      </span>
+      @if (showText) {
+        <span class="ml-3 text-gray-600 font-medium" [ngClass]="getTextSizeClass()">
+          {{ loadingText }}
+        </span>
+      }
     </div>
-  `
+    `
 })
 export class LoadingStateComponent {
   @Input() type: 'spinner' | 'dots' | 'pulse' = 'spinner';

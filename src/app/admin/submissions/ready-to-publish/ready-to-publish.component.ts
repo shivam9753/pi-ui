@@ -99,7 +99,7 @@ export class ReadyToPublishComponent {
       title: submission.title,
       description: submission.description || submission.excerpt,
       excerpt: submission.excerpt,
-      author: submission.authorName ? { name: submission.authorName, username: '' } : undefined,
+      author: submission.author || (submission.authorName ? { name: submission.authorName, username: '' } : undefined),
       submissionType: submission.submissionType,
       status: submission.status,
       createdAt: submission.createdAt,

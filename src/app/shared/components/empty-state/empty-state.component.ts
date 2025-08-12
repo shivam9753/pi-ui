@@ -8,28 +8,30 @@ import { CommonModule } from '@angular/common';
   template: `
     <div class="text-center py-12">
       <!-- Icon -->
-      <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full" 
-           [ngClass]="getIconBgClass()">
+      <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full"
+        [ngClass]="getIconBgClass()">
         <svg class="h-6 w-6" [ngClass]="getIconTextClass()" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" [attr.d]="getIconPath()"></path>
         </svg>
       </div>
-      
+    
       <!-- Title -->
       <h3 class="mt-4 text-lg font-medium text-gray-900">{{ title }}</h3>
-      
+    
       <!-- Message -->
       <p class="mt-2 text-sm text-gray-500 max-w-sm mx-auto">{{ message }}</p>
-      
+    
       <!-- Action Button -->
-      <div *ngIf="actionText" class="mt-6">
-        <button (click)="onAction?.()" 
-                class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-orange-600 hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500">
-          {{ actionText }}
-        </button>
-      </div>
+      @if (actionText) {
+        <div class="mt-6">
+          <button (click)="onAction?.()"
+            class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-orange-600 hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500">
+            {{ actionText }}
+          </button>
+        </div>
+      }
     </div>
-  `
+    `
 })
 export class EmptyStateComponent {
   @Input() title = 'No items found';

@@ -1,20 +1,22 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { PrettyLabelPipe } from '../../pipes/pretty-label.pipe';
 
 @Component({
   selector: 'app-badge-label',
   standalone: true,
-  imports: [CommonModule, PrettyLabelPipe],
+  imports: [PrettyLabelPipe],
   template: `
     <button
       (click)="onClick()"
       [class]="getBadgeClasses()"
       [disabled]="!clickable"
-    >
-      <span *ngIf="type === 'opinion'" class="mr-1">⚡</span>{{ type | prettyLabel }}
-    </button>
-  `,
+      >
+      @if (type === 'opinion') {
+        <span class="mr-1">⚡</span>
+        }{{ type | prettyLabel }}
+      </button>
+    `,
   styles: [`
     :host {
       display: inline-block;

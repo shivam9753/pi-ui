@@ -26,94 +26,117 @@ export interface ContentCardData {
   standalone: true,
   imports: [CommonModule],
   template: `
-    <div class="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200 border border-gray-200 overflow-hidden"
-         [ngClass]="{ 'ring-2 ring-orange-500': isFeatured }">
-      
+    <div class="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200 border border-gray-200 overflow-hidden h-auto"
+      [ngClass]="{ 'ring-2 ring-orange-500': isFeatured }"
+      style="min-height: 280px; max-height: 400px;">
+    
       <!-- Image Header (if available) -->
-      <div *ngIf="content.imageUrl" class="relative h-48 overflow-hidden">
-        <img [src]="content.imageUrl" 
-             [alt]="content.title" 
-             class="w-full h-full object-cover">
-        <div *ngIf="content.isFeatured" 
-             class="absolute top-2 left-2 bg-orange-500 text-white px-2 py-1 rounded text-xs font-medium">
-          Featured
+      @if (content.imageUrl) {
+        <div class="relative h-48 overflow-hidden">
+          <img [src]="content.imageUrl"
+            [alt]="content.title"
+            class="w-full h-full object-cover">
+          @if (content.isFeatured) {
+            <div
+              class="absolute top-2 left-2 bg-orange-500 text-white px-2 py-1 rounded text-xs font-medium">
+              Featured
+            </div>
+          }
         </div>
-      </div>
-
+      }
+    
       <!-- Card Content -->
       <div class="p-6">
         <!-- Header with Type and Status -->
         <div class="flex items-center justify-between mb-3">
           <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
-                [ngClass]="getTypeClasses()">
+            [ngClass]="getTypeClasses()">
             {{ getTypeLabel() }}
           </span>
-          
-          <span *ngIf="showStatus && content.status" 
-                class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
-                [ngClass]="getStatusClasses()">
-            {{ getStatusLabel() }}
-          </span>
+    
+          @if (showStatus && content.status) {
+            <span
+              class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
+              [ngClass]="getStatusClasses()">
+              {{ getStatusLabel() }}
+            </span>
+          }
         </div>
-
+    
         <!-- Title -->
-        <h3 class="text-lg font-semibold text-gray-900 mb-2 line-clamp-2" 
-            [class.cursor-pointer]="clickable"
-            (click)="onTitleClick()">
+        <h3 class="text-lg font-semibold text-gray-900 mb-2 line-clamp-2"
+          [class.cursor-pointer]="clickable"
+          (click)="onTitleClick()">
           {{ content.title }}
         </h3>
-
+    
         <!-- Description/Excerpt -->
-        <p *ngIf="content.description || content.excerpt" 
-           class="text-gray-600 text-sm mb-4 line-clamp-3">
-          {{ content.description || content.excerpt }}
-        </p>
-
+        @if (content.description || content.excerpt) {
+          <p
+            class="text-gray-600 text-sm mb-4 line-clamp-3">
+            {{ sanitizeHtml(content.description || content.excerpt) }}
+          </p>
+        }
+    
         <!-- Tags -->
-        <div *ngIf="content.tags && content.tags.length > 0" class="flex flex-wrap gap-1 mb-4">
-          <span *ngFor="let tag of content.tags.slice(0, 3)" 
+        @if (content.tags && content.tags.length > 0) {
+          <div class="flex flex-wrap gap-1 mb-4">
+            @for (tag of content.tags.slice(0, 3); track tag) {
+              <span
                 class="inline-flex items-center px-2 py-1 rounded text-xs bg-gray-100 text-gray-700">
-            #{{ tag }}
-          </span>
-          <span *ngIf="content.tags.length > 3" 
+                #{{ tag }}
+              </span>
+            }
+            @if (content.tags.length > 3) {
+              <span
                 class="text-xs text-gray-500">
-            +{{ content.tags.length - 3 }} more
-          </span>
-        </div>
-
+                +{{ content.tags.length - 3 }} more
+              </span>
+            }
+          </div>
+        }
+    
         <!-- Footer -->
         <div class="flex items-center justify-between text-sm text-gray-500">
           <div class="flex items-center space-x-4">
             <!-- Author -->
-            <span *ngIf="content.author">
-              by {{ content.author.name }}
-            </span>
-            
+            @if (content.author) {
+              <span>
+                by {{ content.author.name || content.author.username || 'Anonymous' }}
+              </span>
+            }
+    
             <!-- Reading Time -->
-            <span *ngIf="content.readingTime" class="flex items-center">
-              <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-              </svg>
-              {{ content.readingTime }} min read
-            </span>
+            @if (content.readingTime) {
+              <span class="flex items-center">
+                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                {{ content.readingTime }} min read
+              </span>
+            }
           </div>
-
+    
           <!-- Date -->
           <span>{{ getDisplayDate() }}</span>
         </div>
-
+    
         <!-- Action Buttons -->
-        <div *ngIf="showActions" class="flex items-center justify-end space-x-2 mt-4 pt-4 border-t border-gray-100">
-          <button *ngFor="let action of actions"
-                  (click)="action.handler(content)"
-                  [ngClass]="action.class || 'px-3 py-1 text-sm rounded border border-gray-300 text-gray-700 hover:bg-gray-50'"
-                  class="transition-colors duration-200">
-            {{ action.label }}
-          </button>
-        </div>
+        @if (showActions) {
+          <div class="flex items-center justify-end space-x-2 mt-4 pt-4 border-t border-gray-100">
+            @for (action of actions; track action) {
+              <button
+                (click)="action.handler(content)"
+                [ngClass]="action.class || 'px-3 py-1 text-sm rounded border border-gray-300 text-gray-700 hover:bg-gray-50'"
+                class="transition-colors duration-200">
+                {{ action.label }}
+              </button>
+            }
+          </div>
+        }
       </div>
     </div>
-  `,
+    `,
   styles: [`
     .line-clamp-2 {
       display: -webkit-box;
@@ -221,5 +244,21 @@ export class ContentCardComponent {
       month: 'short',
       day: 'numeric'
     });
+  }
+
+  sanitizeHtml(html: string | undefined): string {
+    if (!html) return '';
+    // Remove HTML tags, decode common entities, and clean up extra whitespace
+    return html
+      .replace(/<[^>]*>/g, '') // Remove all HTML tags
+      .replace(/&nbsp;/g, ' ') // Replace non-breaking spaces
+      .replace(/&amp;/g, '&')  // Decode ampersands
+      .replace(/&lt;/g, '<')   // Decode less than
+      .replace(/&gt;/g, '>')   // Decode greater than
+      .replace(/&quot;/g, '"') // Decode quotes
+      .replace(/&#39;/g, "'")  // Decode apostrophes
+      .replace(/&[^;]+;/g, ' ') // Replace any other entities with space
+      .replace(/\s+/g, ' ')     // Collapse multiple whitespace to single space
+      .trim();
   }
 }

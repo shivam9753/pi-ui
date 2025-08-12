@@ -10,83 +10,98 @@
   </div>
 
   <!-- Loading -->
-  <div *ngIf="loading" class="text-center py-12">
-    <div class="spinner mx-auto"></div>
-    <p class="text-gray-900-secondary mt-4">Loading accepted submissions...</p>
-  </div>
+  @if (loading) {
+    <div class="text-center py-12">
+      <div class="spinner mx-auto"></div>
+      <p class="text-gray-900-secondary mt-4">Loading accepted submissions...</p>
+    </div>
+  }
 
   <!-- Submissions Cards Grid -->
-  <div *ngIf="!loading" class="space-y-4 py-1">
-    <!-- Desktop: Show as grid, Mobile: Show as single column -->
-    <div class="submissions-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mb-8 px-2 md:px-0">
-      <app-content-card 
-        *ngFor="let submission of acceptedSubmissions"
-        [content]="convertToContentCardData(submission)"
-        [showStatus]="true"
-        [showActions]="true"
-        [actions]="getCardActions()">
-      </app-content-card>
+  @if (!loading) {
+    <div class="space-y-4 py-1">
+      <!-- Desktop: Show as grid, Mobile: Show as single column -->
+      <div class="submissions-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mb-8 px-2 md:px-0">
+        @for (submission of acceptedSubmissions; track submission) {
+          <app-content-card
+            [content]="convertToContentCardData(submission)"
+            [showStatus]="true"
+            [showActions]="true"
+            [actions]="getCardActions()">
+          </app-content-card>
+        }
+      </div>
     </div>
-  </div>
+  }
 
   <!-- Empty State -->
-  <div *ngIf="acceptedSubmissions.length === 0" class="text-center py-12">
-    <svg class="w-16 h-16 text-gray-900-tertiary mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-        d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-    </svg>
-    <h3 class="text-lg font-medium text-gray-900 mb-2">No accepted submissions</h3>
-    <p class="text-gray-900-secondary">There are no accepted submissions ready for publishing.</p>
-  </div>
+  @if (acceptedSubmissions.length === 0) {
+    <div class="text-center py-12">
+      <svg class="w-16 h-16 text-gray-900-tertiary mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+          d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+      </svg>
+      <h3 class="text-lg font-medium text-gray-900 mb-2">No accepted submissions</h3>
+      <p class="text-gray-900-secondary">There are no accepted submissions ready for publishing.</p>
+    </div>
+  }
 </div>
 
 <!-- Toast Notification -->
-<div *ngIf="showToastFlag"
-  class="fixed top-4 right-4 z-50 max-w-sm w-full transition-all duration-300 ease-in-out transform animate-slideInDown">
+@if (showToastFlag) {
+  <div
+    class="fixed top-4 right-4 z-50 max-w-sm w-full transition-all duration-300 ease-in-out transform animate-slideInDown">
   <div class="bg-white border border-gray-200 rounded-lg shadow-lg p-4" [ngClass]="{
            'border-green-300 bg-green-50': toastType === 'success',
            'border-red-300 bg-red-50': toastType === 'error',
            'border-blue-300 bg-blue-50': toastType === 'info'
          }">
-    <div class="flex items-start">
-      <div class="flex-shrink-0">
-        <!-- Success Icon -->
-        <svg *ngIf="toastType === 'success'" class="w-5 h-5 text-green-500" fill="none" stroke="currentColor"
-          viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-            d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-        </svg>
-        <!-- Error Icon -->
-        <svg *ngIf="toastType === 'error'" class="w-5 h-5 text-red-500" fill="none" stroke="currentColor"
-          viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-            d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-        </svg>
-        <!-- Info Icon -->
-        <svg *ngIf="toastType === 'info'" class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor"
-          viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-            d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-        </svg>
-      </div>
-      <div class="ml-3 flex-1">
+      <div class="flex items-start">
+        <div class="flex-shrink-0">
+          <!-- Success Icon -->
+          @if (toastType === 'success') {
+            <svg class="w-5 h-5 text-green-500" fill="none" stroke="currentColor"
+              viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+          }
+          <!-- Error Icon -->
+          @if (toastType === 'error') {
+            <svg class="w-5 h-5 text-red-500" fill="none" stroke="currentColor"
+              viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+          }
+          <!-- Info Icon -->
+          @if (toastType === 'info') {
+            <svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor"
+              viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+          }
+        </div>
+        <div class="ml-3 flex-1">
         <p class="text-sm font-medium" [ngClass]="{
                'text-green-800': toastType === 'success',
                'text-red-800': toastType === 'error',
                'text-blue-800': toastType === 'info'
              }">
-          {{ toastMessage }}
-        </p>
-      </div>
-      <div class="ml-4 flex-shrink-0">
-        <button (click)="hideToast()"
-          class="inline-flex text-gray-900-tertiary hover:text-gray-900-secondary focus:outline-none focus:text-gray-900-secondary transition ease-in-out duration-150">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-          </svg>
-        </button>
+            {{ toastMessage }}
+          </p>
+        </div>
+        <div class="ml-4 flex-shrink-0">
+          <button (click)="hideToast()"
+            class="inline-flex text-gray-900-tertiary hover:text-gray-900-secondary focus:outline-none focus:text-gray-900-secondary transition ease-in-out duration-150">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+          </button>
+        </div>
       </div>
     </div>
   </div>
-</div>
+}
 

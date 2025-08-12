@@ -1,11 +1,11 @@
 import { Component, Input, Output, EventEmitter, forwardRef } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormsModule, ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 
 @Component({
   selector: 'app-tag-input',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [FormsModule],
   providers: [
     {
       provide: NG_VALUE_ACCESSOR,
@@ -16,25 +16,28 @@ import { FormsModule, ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/f
   template: `
     <div class="tag-input-container">
       <!-- Tags Display -->
-      <div class="flex flex-wrap gap-2 mb-3" *ngIf="tags.length > 0">
-        <span
-          *ngFor="let tag of tags; trackBy: trackByTag; let i = index"
-          class="inline-flex items-center gap-1 px-3 py-1 bg-orange-100 text-orange-800 text-sm font-medium rounded-full"
-        >
-          {{ tag }}
-          <button
-            type="button"
-            (click)="removeTag(i)"
-            class="flex items-center justify-center w-4 h-4 ml-1 text-orange-600 hover:text-orange-800 hover:bg-orange-200 rounded-full transition-colors"
-            [attr.aria-label]="'Remove tag ' + tag"
-          >
-            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-            </svg>
-          </button>
-        </span>
-      </div>
-
+      @if (tags.length > 0) {
+        <div class="flex flex-wrap gap-2 mb-3">
+          @for (tag of tags; track trackByTag(i, tag); let i = $index) {
+            <span
+              class="inline-flex items-center gap-1 px-3 py-1 bg-orange-100 text-orange-800 text-sm font-medium rounded-full"
+              >
+              {{ tag }}
+              <button
+                type="button"
+                (click)="removeTag(i)"
+                class="flex items-center justify-center w-4 h-4 ml-1 text-orange-600 hover:text-orange-800 hover:bg-orange-200 rounded-full transition-colors"
+                [attr.aria-label]="'Remove tag ' + tag"
+                >
+                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+              </button>
+            </span>
+          }
+        </div>
+      }
+    
       <!-- Input Field -->
       <div class="relative">
         <input
@@ -47,20 +50,24 @@ import { FormsModule, ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/f
           [placeholder]="placeholder"
           class="w-full px-4 py-3 border border-gray-200 rounded-xl bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-200 focus:border-orange-300 transition-colors duration-200"
           [class.border-red-400]="hasError"
-        />
-        
+          />
+    
         <!-- Helper Text -->
-        <p class="text-xs text-gray-500 mt-2" *ngIf="!hasError">
-          {{ helperText }}
-        </p>
-        
+        @if (!hasError) {
+          <p class="text-xs text-gray-500 mt-2">
+            {{ helperText }}
+          </p>
+        }
+    
         <!-- Error Text -->
-        <p class="text-xs text-red-500 mt-2" *ngIf="hasError">
-          {{ errorText }}
-        </p>
+        @if (hasError) {
+          <p class="text-xs text-red-500 mt-2">
+            {{ errorText }}
+          </p>
+        }
       </div>
     </div>
-  `,
+    `,
   styles: [`
     .tag-input-container {
       width: 100%;

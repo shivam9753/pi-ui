@@ -1,12 +1,12 @@
 import { Component, OnInit, OnDestroy, AfterViewInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { Router, ActivatedRoute } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { AuthService, GoogleUser } from '../services/auth.service';
 
 @Component({
   selector: 'app-user-login',
-  imports: [CommonModule],
+  imports: [],
   templateUrl: './user-login.component.html',
   styleUrl: './user-login.component.css'
 })

@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormsModule } from '@angular/forms';
 import { themeKeywords } from '../../shared/const';
 
@@ -18,12 +18,12 @@ interface ParsedPoem {
 @Component({
   selector: 'app-poem-parser',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [FormsModule],
   template: `
     <div class="min-h-screen bg-white p-8">
       <div class="max-w-6xl mx-auto">
         <h1 class="text-3xl font-bold text-gray-900 mb-8">Poem Parser</h1>
-        
+    
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
           <!-- Input Section -->
           <div>
@@ -33,25 +33,25 @@ interface ParsedPoem {
               class="w-full h-96 p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 font-mono text-sm"
               placeholder="Paste your poems here. Each poem should start with ## followed by the title..."
             ></textarea>
-            
+    
             <div class="mt-4 flex gap-4">
               <button
                 (click)="parsePoems()"
                 [disabled]="!inputText.trim()"
                 class="px-6 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
+                >
                 Parse Poems
               </button>
-              
+    
               <button
                 (click)="clearAll()"
                 class="px-6 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600"
-              >
+                >
                 Clear All
               </button>
             </div>
           </div>
-
+    
           <!-- Output Section -->
           <div>
             <div class="flex justify-between items-center mb-4">
@@ -61,30 +61,32 @@ interface ParsedPoem {
                   (click)="copyToClipboard()"
                   [disabled]="!jsonOutput"
                   class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed text-sm"
-                >
+                  >
                   Copy JSON
                 </button>
                 <button
                   (click)="downloadJson()"
                   [disabled]="!jsonOutput"
                   class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 disabled:opacity-50 disabled:cursor-not-allowed text-sm"
-                >
+                  >
                   Download JSON
                 </button>
               </div>
             </div>
-            
+    
             <div class="bg-gray-50 rounded-lg p-4 h-96 overflow-y-auto">
               <pre class="text-sm text-gray-800 whitespace-pre-wrap">{{ jsonOutput || 'Parsed JSON will appear here...' }}</pre>
             </div>
-            
+    
             <div class="mt-4 text-sm text-gray-600">
               <p><strong>Found:</strong> {{ parsedPoems.length }} poem(s)</p>
-              <p *ngIf="parsedPoems.length > 0"><strong>Total characters:</strong> {{ jsonOutput.length }}</p>
+              @if (parsedPoems.length > 0) {
+                <p><strong>Total characters:</strong> {{ jsonOutput.length }}</p>
+              }
             </div>
           </div>
         </div>
-
+    
         <!-- Instructions -->
         <div class="mt-8 bg-blue-50 border border-blue-200 rounded-lg p-6">
           <h3 class="text-lg font-semibold text-blue-900 mb-3">Instructions</h3>
@@ -97,7 +99,7 @@ interface ParsedPoem {
         </div>
       </div>
     </div>
-  `
+    `
 })
 export class PoemParserComponent {
   inputText = '';

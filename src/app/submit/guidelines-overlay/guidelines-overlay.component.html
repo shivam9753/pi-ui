@@ -1,445 +1,423 @@
 <!-- Overlay Mode -->
-<div *ngIf="!isInline" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4"
-         (click)="closeOverlay($event)">
-      
-      <!-- Modal Container -->
-      <div class="bg-white border border-gray-200 rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden"
-           (click)="$event.stopPropagation()">
-        
-        <!-- Header -->
-        <div class="bg-gradient-to-r from-orange-600 to-red-600 text-white p-6">
-          <div class="flex items-center justify-between">
-            <div>
-              <h2 class="text-2xl font-bold">Submission Guidelines</h2>
-              <p class="text-orange-100 mt-1">
-                Please read these guidelines before submitting your work
-              </p>
-            </div>
-            <button 
-              (click)="close.emit()"
-              class="text-white hover:text-orange-100 transition-colors duration-200"
-            >
-              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-              </svg>
-            </button>
+@if (!isInline) {
+  <div class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4"
+    (click)="closeOverlay($event)">
+    <!-- Modal Container -->
+    <div class="bg-white border border-gray-200 rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden"
+      (click)="$event.stopPropagation()">
+      <!-- Header -->
+      <div class="bg-gradient-to-r from-orange-600 to-red-600 text-white p-6">
+        <div class="flex items-center justify-between">
+          <div>
+            <h2 class="text-2xl font-bold">Submission Guidelines</h2>
+            <p class="text-orange-100 mt-1">
+              Please read these guidelines before submitting your work
+            </p>
           </div>
+          <button
+            (click)="close.emit()"
+            class="text-white hover:text-orange-100 transition-colors duration-200"
+            >
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+          </button>
         </div>
-
-        <!-- Content -->
-        <div class="overflow-y-auto max-h-[calc(90vh-140px)] p-6">
-          
-          <!-- General Guidelines -->
-          <section class="mb-8">
-            <h3 class="text-xl font-semibold text-gray-900 mb-4 flex items-center">
-              <svg class="w-6 h-6 mr-2 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-              </svg>
-              General Guidelines
-            </h3>
-            <div class="space-y-3 text-gray-900-secondary">
-              <p>• All submissions must be <strong>original work</strong> by the author</p>
-              <p>• Previously published work will not be accepted</p>
-              <p>• Please ensure your work is properly proofread before submission</p>
-              <p>• We accept simultaneous submissions but please notify us if your work is accepted elsewhere</p>
-              <p>• Response time is typically 4-6 weeks</p>
-            </div>
-          </section>
-
-          <!-- Content-Specific Guidelines -->
-          <section class="mb-8">
-            <h3 class="text-xl font-semibold text-gray-900 mb-4 flex items-center">
-              <svg class="w-6 h-6 mr-2 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
-              </svg>
-              Content-Specific Guidelines
-            </h3>
-            
-            <div class="grid md:grid-cols-2 gap-6">
-              <!-- Poetry -->
-              <div class="bg-white-secondary rounded-lg p-4 border border-gray-200">
-                <h4 class="font-semibold text-orange-600 mb-2 flex items-center">
-                  <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
-                  </svg>
-                  Poetry
-                </h4>
-                <ul class="text-sm text-gray-900-secondary space-y-1">
-                  <li>• Submit up to 5 poems per submission</li>
-                  <li>• Any style or form welcome</li>
-                  <li>• Maximum 100 lines per poem</li>
-                  <li>• Include brief bio (50 words max)</li>
-                </ul>
-              </div>
-
-              <!-- Articles -->
-              <div class="bg-white-secondary rounded-lg p-4 border border-gray-200">
-                <h4 class="font-semibold text-orange-600 mb-2 flex items-center">
-                  <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4 0V6a2 2 0 00-2-2H5a2 2 0 00-2 2v3m2 5h10m-5-3h5"></path>
-                  </svg>
-                  Articles
-                </h4>
-                <ul class="text-sm text-gray-900-secondary space-y-1">
-                  <li>• Word limit: 1,500-3,000 words</li>
-                  <li>• Well-researched and fact-checked</li>
-                  <li>• Include citations for sources</li>
-                  <li>• Author bio (100 words max)</li>
-                </ul>
-              </div>
-
-              <!-- Cinema Essays -->
-              <div class="bg-white-secondary rounded-lg p-4 border border-gray-200">
-                <h4 class="font-semibold text-orange-600 mb-2 flex items-center">
-                  <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 4V2a1 1 0 011-1h8a1 1 0 011 1v2h3a2 2 0 012 2v11a3 3 0 01-3 3H5a3 3 0 01-3-3V6a2 2 0 012-2h3z"></path>
-                  </svg>
-                  Cinema Essays
-                </h4>
-                <ul class="text-sm text-gray-900-secondary space-y-1">
-                  <li>• Word limit: 2,000-4,000 words</li>
-                  <li>• Focus on film analysis and critique</li>
-                  <li>• Include filmography references</li>
-                  <li>• Academic or journalistic style</li>
-                </ul>
-              </div>
-
-              <!-- Prose -->
-              <div class="bg-white-secondary rounded-lg p-4 border border-gray-200">
-                <h4 class="font-semibold text-orange-600 mb-2 flex items-center">
-                  <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                  </svg>
-                  Prose
-                </h4>
-                <ul class="text-sm text-gray-900-secondary space-y-1">
-                  <li>• Word limit: 1,000-5,000 words</li>
-                  <li>• Fiction or creative non-fiction</li>
-                  <li>• Strong narrative voice</li>
-                  <li>• Complete stories preferred</li>
-                </ul>
-              </div>
-            </div>
-          </section>
-
-          <!-- Submission Process -->
-          <section class="mb-8">
-            <h3 class="text-xl font-semibold text-gray-900 mb-4 flex items-center">
-              <svg class="w-6 h-6 mr-2 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
-              </svg>
-              Submission Process
-            </h3>
+      </div>
+      <!-- Content -->
+      <div class="overflow-y-auto max-h-[calc(90vh-140px)] p-6">
+        <!-- General Guidelines -->
+        <section class="mb-8">
+          <h3 class="text-xl font-semibold text-gray-900 mb-4 flex items-center">
+            <svg class="w-6 h-6 mr-2 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            General Guidelines
+          </h3>
+          <div class="space-y-3 text-gray-900-secondary">
+            <p>• All submissions must be <strong>original work</strong> by the author</p>
+            <p>• Previously published work will not be accepted</p>
+            <p>• Please ensure your work is properly proofread before submission</p>
+            <p>• We accept simultaneous submissions but please notify us if your work is accepted elsewhere</p>
+            <p>• Response time is typically 4-6 weeks</p>
+          </div>
+        </section>
+        <!-- Content-Specific Guidelines -->
+        <section class="mb-8">
+          <h3 class="text-xl font-semibold text-gray-900 mb-4 flex items-center">
+            <svg class="w-6 h-6 mr-2 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+            </svg>
+            Content-Specific Guidelines
+          </h3>
+          <div class="grid md:grid-cols-2 gap-6">
+            <!-- Poetry -->
             <div class="bg-white-secondary rounded-lg p-4 border border-gray-200">
-              <ol class="text-gray-900-secondary space-y-2">
-                <li class="flex items-start">
-                  <span class="flex-shrink-0 w-6 h-6 bg-orange-600 text-white text-sm rounded-full flex items-center justify-center mr-3 mt-0.5">1</span>
-                  <span>Complete the submission form with your work</span>
-                </li>
-                <li class="flex items-start">
-                  <span class="flex-shrink-0 w-6 h-6 bg-orange-600 text-white text-sm rounded-full flex items-center justify-center mr-3 mt-0.5">2</span>
-                  <span>Review your submission carefully before submitting</span>
-                </li>
-                <li class="flex items-start">
-                  <span class="flex-shrink-0 w-6 h-6 bg-orange-600 text-white text-sm rounded-full flex items-center justify-center mr-3 mt-0.5">3</span>
-                  <span>You'll receive a confirmation email within 24 hours</span>
-                </li>
-                <li class="flex items-start">
-                  <span class="flex-shrink-0 w-6 h-6 bg-orange-600 text-white text-sm rounded-full flex items-center justify-center mr-3 mt-0.5">4</span>
-                  <span>Our editorial team will review your submission</span>
-                </li>
-                <li class="flex items-start">
-                  <span class="flex-shrink-0 w-6 h-6 bg-orange-600 text-white text-sm rounded-full flex items-center justify-center mr-3 mt-0.5">5</span>
-                  <span>You'll hear back from us within 4-6 weeks</span>
-                </li>
-              </ol>
-            </div>
-          </section>
-
-          <!-- Rights and Legal -->
-          <section class="mb-8">
-            <h3 class="text-xl font-semibold text-gray-900 mb-4 flex items-center">
-              <svg class="w-6 h-6 mr-2 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
-              </svg>
-              Rights & Legal
-            </h3>
-            <div class="space-y-3 text-gray-900-secondary">
-              <p>• By submitting, you confirm that you own the rights to your work</p>
-              <p>• You retain copyright to your work</p>
-              <p>• If accepted, we request first publication rights</p>
-              <p>• You may withdraw your submission at any time before publication</p>
-              <p>• We reserve the right to make minor editorial changes</p>
-            </div>
-          </section>
-
-          <!-- What We're Looking For -->
-          <section class="mb-8">
-            <h3 class="text-xl font-semibold text-gray-900 mb-4 flex items-center">
-              <svg class="w-6 h-6 mr-2 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-              </svg>
-              What We're Looking For
-            </h3>
-            <div class="bg-white-secondary rounded-lg p-4 border border-gray-200">
-              <ul class="text-gray-900-secondary space-y-2">
-                <li>• <strong>Authentic voices</strong> that offer fresh perspectives</li>
-                <li>• <strong>Strong craftsmanship</strong> with attention to language and structure</li>
-                <li>• <strong>Compelling narratives</strong> that engage readers emotionally</li>
-                <li>• <strong>Cultural diversity</strong> and underrepresented viewpoints</li>
-                <li>• <strong>Contemporary relevance</strong> with timeless appeal</li>
-                <li>• <strong>Risk-taking</strong> that pushes creative boundaries</li>
+              <h4 class="font-semibold text-orange-600 mb-2 flex items-center">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+                </svg>
+                Poetry
+              </h4>
+              <ul class="text-sm text-gray-900-secondary space-y-1">
+                <li>• Submit up to 5 poems per submission</li>
+                <li>• Any style or form welcome</li>
+                <li>• Maximum 100 lines per poem</li>
+                <li>• Include brief bio (50 words max)</li>
               </ul>
             </div>
-          </section>
-
-          <!-- Formatting Guidelines -->
-          <section class="mb-8">
-            <h3 class="text-xl font-semibold text-gray-900 mb-4 flex items-center">
-              <svg class="w-6 h-6 mr-2 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7"></path>
-              </svg>
-              Formatting Guidelines
-            </h3>
-            <div class="space-y-3 text-gray-900-secondary">
-              <p>• Use standard fonts (Times New Roman, Arial, or similar)</p>
-              <p>• Double-space prose submissions</p>
-              <p>• Single-space poetry with stanza breaks clearly indicated</p>
-              <p>• Include page numbers for multi-page submissions</p>
-              <p>• Use standard margins (1 inch on all sides)</p>
-              <p>• Save drafts regularly using our auto-save feature</p>
-            </div>
-          </section>
-
-          <!-- Contact Information -->
-          <section class="mb-6">
-            <h3 class="text-xl font-semibold text-gray-900 mb-4 flex items-center">
-              <svg class="w-6 h-6 mr-2 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
-              </svg>
-              Questions?
-            </h3>
+            <!-- Articles -->
             <div class="bg-white-secondary rounded-lg p-4 border border-gray-200">
-              <p class="text-gray-900 mb-2">
-                If you have any questions about our submission guidelines, please don't hesitate to contact us:
-              </p>
-              <p class="text-gray-900-secondary">
-                <strong>Email:</strong> submissionsXliteraryjournal.com<br>
-                <strong>Response time:</strong> We typically respond to inquiries within 2-3 business days
-              </p>
+              <h4 class="font-semibold text-orange-600 mb-2 flex items-center">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4 0V6a2 2 0 00-2-2H5a2 2 0 00-2 2v3m2 5h10m-5-3h5"></path>
+                </svg>
+                Articles
+              </h4>
+              <ul class="text-sm text-gray-900-secondary space-y-1">
+                <li>• Word limit: 1,500-3,000 words</li>
+                <li>• Well-researched and fact-checked</li>
+                <li>• Include citations for sources</li>
+                <li>• Author bio (100 words max)</li>
+              </ul>
             </div>
-          </section>
-        </div>
-
-        <!-- Footer -->
-        <div class="bg-white-secondary px-6 py-4 border-t border-gray-200">
-          <div class="flex justify-between items-center">
-            <p class="text-sm text-gray-900-tertiary">
-              Last updated: January 2025
+            <!-- Cinema Essays -->
+            <div class="bg-white-secondary rounded-lg p-4 border border-gray-200">
+              <h4 class="font-semibold text-orange-600 mb-2 flex items-center">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 4V2a1 1 0 011-1h8a1 1 0 011 1v2h3a2 2 0 012 2v11a3 3 0 01-3 3H5a3 3 0 01-3-3V6a2 2 0 012-2h3z"></path>
+                </svg>
+                Cinema Essays
+              </h4>
+              <ul class="text-sm text-gray-900-secondary space-y-1">
+                <li>• Word limit: 2,000-4,000 words</li>
+                <li>• Focus on film analysis and critique</li>
+                <li>• Include filmography references</li>
+                <li>• Academic or journalistic style</li>
+              </ul>
+            </div>
+            <!-- Prose -->
+            <div class="bg-white-secondary rounded-lg p-4 border border-gray-200">
+              <h4 class="font-semibold text-orange-600 mb-2 flex items-center">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                </svg>
+                Prose
+              </h4>
+              <ul class="text-sm text-gray-900-secondary space-y-1">
+                <li>• Word limit: 1,000-5,000 words</li>
+                <li>• Fiction or creative non-fiction</li>
+                <li>• Strong narrative voice</li>
+                <li>• Complete stories preferred</li>
+              </ul>
+            </div>
+          </div>
+        </section>
+        <!-- Submission Process -->
+        <section class="mb-8">
+          <h3 class="text-xl font-semibold text-gray-900 mb-4 flex items-center">
+            <svg class="w-6 h-6 mr-2 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+            </svg>
+            Submission Process
+          </h3>
+          <div class="bg-white-secondary rounded-lg p-4 border border-gray-200">
+            <ol class="text-gray-900-secondary space-y-2">
+              <li class="flex items-start">
+                <span class="flex-shrink-0 w-6 h-6 bg-orange-600 text-white text-sm rounded-full flex items-center justify-center mr-3 mt-0.5">1</span>
+                <span>Complete the submission form with your work</span>
+              </li>
+              <li class="flex items-start">
+                <span class="flex-shrink-0 w-6 h-6 bg-orange-600 text-white text-sm rounded-full flex items-center justify-center mr-3 mt-0.5">2</span>
+                <span>Review your submission carefully before submitting</span>
+              </li>
+              <li class="flex items-start">
+                <span class="flex-shrink-0 w-6 h-6 bg-orange-600 text-white text-sm rounded-full flex items-center justify-center mr-3 mt-0.5">3</span>
+                <span>You'll receive a confirmation email within 24 hours</span>
+              </li>
+              <li class="flex items-start">
+                <span class="flex-shrink-0 w-6 h-6 bg-orange-600 text-white text-sm rounded-full flex items-center justify-center mr-3 mt-0.5">4</span>
+                <span>Our editorial team will review your submission</span>
+              </li>
+              <li class="flex items-start">
+                <span class="flex-shrink-0 w-6 h-6 bg-orange-600 text-white text-sm rounded-full flex items-center justify-center mr-3 mt-0.5">5</span>
+                <span>You'll hear back from us within 4-6 weeks</span>
+              </li>
+            </ol>
+          </div>
+        </section>
+        <!-- Rights and Legal -->
+        <section class="mb-8">
+          <h3 class="text-xl font-semibold text-gray-900 mb-4 flex items-center">
+            <svg class="w-6 h-6 mr-2 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+            </svg>
+            Rights & Legal
+          </h3>
+          <div class="space-y-3 text-gray-900-secondary">
+            <p>• By submitting, you confirm that you own the rights to your work</p>
+            <p>• You retain copyright to your work</p>
+            <p>• If accepted, we request first publication rights</p>
+            <p>• You may withdraw your submission at any time before publication</p>
+            <p>• We reserve the right to make minor editorial changes</p>
+          </div>
+        </section>
+        <!-- What We're Looking For -->
+        <section class="mb-8">
+          <h3 class="text-xl font-semibold text-gray-900 mb-4 flex items-center">
+            <svg class="w-6 h-6 mr-2 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+            </svg>
+            What We're Looking For
+          </h3>
+          <div class="bg-white-secondary rounded-lg p-4 border border-gray-200">
+            <ul class="text-gray-900-secondary space-y-2">
+              <li>• <strong>Authentic voices</strong> that offer fresh perspectives</li>
+              <li>• <strong>Strong craftsmanship</strong> with attention to language and structure</li>
+              <li>• <strong>Compelling narratives</strong> that engage readers emotionally</li>
+              <li>• <strong>Cultural diversity</strong> and underrepresented viewpoints</li>
+              <li>• <strong>Contemporary relevance</strong> with timeless appeal</li>
+              <li>• <strong>Risk-taking</strong> that pushes creative boundaries</li>
+            </ul>
+          </div>
+        </section>
+        <!-- Formatting Guidelines -->
+        <section class="mb-8">
+          <h3 class="text-xl font-semibold text-gray-900 mb-4 flex items-center">
+            <svg class="w-6 h-6 mr-2 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7"></path>
+            </svg>
+            Formatting Guidelines
+          </h3>
+          <div class="space-y-3 text-gray-900-secondary">
+            <p>• Use standard fonts (Times New Roman, Arial, or similar)</p>
+            <p>• Double-space prose submissions</p>
+            <p>• Single-space poetry with stanza breaks clearly indicated</p>
+            <p>• Include page numbers for multi-page submissions</p>
+            <p>• Use standard margins (1 inch on all sides)</p>
+            <p>• Save drafts regularly using our auto-save feature</p>
+          </div>
+        </section>
+        <!-- Contact Information -->
+        <section class="mb-6">
+          <h3 class="text-xl font-semibold text-gray-900 mb-4 flex items-center">
+            <svg class="w-6 h-6 mr-2 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+            </svg>
+            Questions?
+          </h3>
+          <div class="bg-white-secondary rounded-lg p-4 border border-gray-200">
+            <p class="text-gray-900 mb-2">
+              If you have any questions about our submission guidelines, please don't hesitate to contact us:
             </p>
-            <button 
-              (click)="close.emit()"
-              class="btn-primary"
+            <p class="text-gray-900-secondary">
+              <strong>Email:</strong> submissionsXliteraryjournal.com<br>
+              <strong>Response time:</strong> We typically respond to inquiries within 2-3 business days
+            </p>
+          </div>
+        </section>
+      </div>
+      <!-- Footer -->
+      <div class="bg-white-secondary px-6 py-4 border-t border-gray-200">
+        <div class="flex justify-between items-center">
+          <p class="text-sm text-gray-900-tertiary">
+            Last updated: January 2025
+          </p>
+          <button
+            (click)="close.emit()"
+            class="btn-primary"
             >
-              Got it!
-            </button>
-          </div>
+            Got it!
+          </button>
         </div>
-      </div>
-    </div>
-
-<!-- Inline Mode -->
-<div *ngIf="isInline" class="w-full">
-
-  <!-- Content -->
-  <div class="space-y-12">
-    
-    <!-- General Guidelines -->
-    <div class="bg-white border border-gray-200 rounded-3xl p-8 shadow-xl">
-      <h2 class="text-2xl font-semibold text-gray-900 mb-6 text-center">General Guidelines</h2>
-      <div class="space-y-4 text-gray-900-secondary text-lg leading-relaxed">
-        <p>• All submissions must be <strong>original work</strong> by the author</p>
-        <p>• Previously published work will not be accepted</p>
-        <p>• Please ensure your work is properly proofread before submission</p>
-        <p>• We accept simultaneous submissions but please notify us if your work is accepted elsewhere</p>
-        <p>• Response time is typically 4-6 weeks</p>
-      </div>
-    </div>
-
-    <!-- Content-Specific Guidelines -->
-    <div class="bg-white border border-gray-200 rounded-3xl p-8 shadow-xl">
-      <h2 class="text-2xl font-semibold text-gray-900 mb-8 text-center">Content-Specific Guidelines</h2>
-      
-      <div class="grid md:grid-cols-2 gap-8">
-        <!-- Poetry -->
-        <div class="bg-white-secondary rounded-2xl p-6 border border-gray-200 text-center">
-          <div class="w-16 h-16 bg-white-accent rounded-2xl flex items-center justify-center mx-auto mb-4">
-            <svg class="w-8 h-8 text-gray-900-inverse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
-            </svg>
-          </div>
-          <h3 class="text-xl font-semibold text-gray-900 mb-4">Poetry</h3>
-          <ul class="text-gray-900-secondary space-y-2 text-left">
-            <li>• Submit up to 5 poems per submission</li>
-            <li>• Any style or form welcome</li>
-            <li>• Maximum 100 lines per poem</li>
-            <li>• Include brief bio (50 words max)</li>
-          </ul>
-        </div>
-
-        <!-- Articles -->
-        <div class="bg-white-secondary rounded-2xl p-6 border border-gray-200 text-center">
-          <div class="w-16 h-16 bg-white-accent rounded-2xl flex items-center justify-center mx-auto mb-4">
-            <svg class="w-8 h-8 text-gray-900-inverse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4 0V6a2 2 0 00-2-2H5a2 2 0 00-2 2v3m2 5h10m-5-3h5"></path>
-            </svg>
-          </div>
-          <h3 class="text-xl font-semibold text-gray-900 mb-4">Articles</h3>
-          <ul class="text-gray-900-secondary space-y-2 text-left">
-            <li>• Word limit: 1,500-3,000 words</li>
-            <li>• Well-researched and fact-checked</li>
-            <li>• Include citations for sources</li>
-            <li>• Author bio (100 words max)</li>
-          </ul>
-        </div>
-
-        <!-- Cinema Essays -->
-        <div class="bg-white-secondary rounded-2xl p-6 border border-gray-200 text-center">
-          <div class="w-16 h-16 bg-white-accent rounded-2xl flex items-center justify-center mx-auto mb-4">
-            <svg class="w-8 h-8 text-gray-900-inverse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 4V2a1 1 0 011-1h8a1 1 0 011 1v2h3a2 2 0 012 2v11a3 3 0 01-3 3H5a3 3 0 01-3-3V6a2 2 0 012-2h3z"></path>
-            </svg>
-          </div>
-          <h3 class="text-xl font-semibold text-gray-900 mb-4">Cinema Essays</h3>
-          <ul class="text-gray-900-secondary space-y-2 text-left">
-            <li>• Word limit: 2,000-4,000 words</li>
-            <li>• Focus on film analysis and critique</li>
-            <li>• Include filmography references</li>
-            <li>• Academic or journalistic style</li>
-          </ul>
-        </div>
-
-        <!-- Prose -->
-        <div class="bg-white-secondary rounded-2xl p-6 border border-gray-200 text-center">
-          <div class="w-16 h-16 bg-white-accent rounded-2xl flex items-center justify-center mx-auto mb-4">
-            <svg class="w-8 h-8 text-gray-900-inverse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-            </svg>
-          </div>
-          <h3 class="text-xl font-semibold text-gray-900 mb-4">Prose</h3>
-          <ul class="text-gray-900-secondary space-y-2 text-left">
-            <li>• Word limit: 1,000-5,000 words</li>
-            <li>• Fiction or creative non-fiction</li>
-            <li>• Strong narrative voice</li>
-            <li>• Complete stories preferred</li>
-          </ul>
-        </div>
-      </div>
-    </div>
-
-    <!-- Submission Process -->
-    <div class="bg-white border border-gray-200 rounded-3xl p-8 shadow-xl">
-      <h2 class="text-2xl font-semibold text-gray-900 mb-8 text-center">Submission Process</h2>
-      <div class="space-y-6">
-        <div class="flex items-start space-x-4">
-          <div class="flex-shrink-0 w-12 h-12 bg-white-accent text-gray-900-inverse rounded-2xl flex items-center justify-center font-bold text-lg">1</div>
-          <div class="flex-1 pt-2">
-            <h3 class="font-semibold text-gray-900 mb-1">Complete the submission form</h3>
-            <p class="text-gray-900-secondary">Fill out all required fields and upload your work</p>
-          </div>
-        </div>
-        <div class="flex items-start space-x-4">
-          <div class="flex-shrink-0 w-12 h-12 bg-white-accent text-gray-900-inverse rounded-2xl flex items-center justify-center font-bold text-lg">2</div>
-          <div class="flex-1 pt-2">
-            <h3 class="font-semibold text-gray-900 mb-1">Review carefully</h3>
-            <p class="text-gray-900-secondary">Double-check your work before submitting</p>
-          </div>
-        </div>
-        <div class="flex items-start space-x-4">
-          <div class="flex-shrink-0 w-12 h-12 bg-white-accent text-gray-900-inverse rounded-2xl flex items-center justify-center font-bold text-lg">3</div>
-          <div class="flex-1 pt-2">
-            <h3 class="font-semibold text-gray-900 mb-1">Confirmation email</h3>
-            <p class="text-gray-900-secondary">You'll receive confirmation within 24 hours</p>
-          </div>
-        </div>
-        <div class="flex items-start space-x-4">
-          <div class="flex-shrink-0 w-12 h-12 bg-white-accent text-gray-900-inverse rounded-2xl flex items-center justify-center font-bold text-lg">4</div>
-          <div class="flex-1 pt-2">
-            <h3 class="font-semibold text-gray-900 mb-1">Editorial review</h3>
-            <p class="text-gray-900-secondary">Our team will carefully evaluate your submission</p>
-          </div>
-        </div>
-        <div class="flex items-start space-x-4">
-          <div class="flex-shrink-0 w-12 h-12 bg-white-accent text-gray-900-inverse rounded-2xl flex items-center justify-center font-bold text-lg">5</div>
-          <div class="flex-1 pt-2">
-            <h3 class="font-semibold text-gray-900 mb-1">Response</h3>
-            <p class="text-gray-900-secondary">We'll get back to you within 4-6 weeks</p>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- What We're Looking For -->
-    <div class="bg-white border border-gray-200 rounded-3xl p-8 shadow-xl">
-      <h2 class="text-2xl font-semibold text-gray-900 mb-8 text-center">What We're Looking For</h2>
-      <div class="grid md:grid-cols-2 gap-6">
-        <div class="space-y-4">
-          <div class="flex items-center space-x-3">
-            <div class="w-2 h-2 bg-white-accent rounded-full"></div>
-            <p class="text-gray-900"><strong>Authentic voices</strong> that offer fresh perspectives</p>
-          </div>
-          <div class="flex items-center space-x-3">
-            <div class="w-2 h-2 bg-white-accent rounded-full"></div>
-            <p class="text-gray-900"><strong>Strong craftsmanship</strong> with attention to language</p>
-          </div>
-          <div class="flex items-center space-x-3">
-            <div class="w-2 h-2 bg-white-accent rounded-full"></div>
-            <p class="text-gray-900"><strong>Compelling narratives</strong> that engage readers</p>
-          </div>
-        </div>
-        <div class="space-y-4">
-          <div class="flex items-center space-x-3">
-            <div class="w-2 h-2 bg-white-accent rounded-full"></div>
-            <p class="text-gray-900"><strong>Cultural diversity</strong> and underrepresented viewpoints</p>
-          </div>
-          <div class="flex items-center space-x-3">
-            <div class="w-2 h-2 bg-white-accent rounded-full"></div>
-            <p class="text-gray-900"><strong>Contemporary relevance</strong> with timeless appeal</p>
-          </div>
-          <div class="flex items-center space-x-3">
-            <div class="w-2 h-2 bg-white-accent rounded-full"></div>
-            <p class="text-gray-900"><strong>Risk-taking</strong> that pushes creative boundaries</p>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Rights and Legal -->
-    <div class="bg-white border border-gray-200 rounded-3xl p-8 shadow-xl">
-      <h2 class="text-2xl font-semibold text-gray-900 mb-6 text-center">Rights & Legal</h2>
-      <div class="space-y-4 text-gray-900-secondary text-lg leading-relaxed">
-        <p>• By submitting, you confirm that you own the rights to your work</p>
-        <p>• You retain copyright to your work</p>
-        <p>• If accepted, we request first publication rights</p>
-        <p>• You may withdraw your submission at any time before publication</p>
-        <p>• We reserve the right to make minor editorial changes</p>
-      </div>
-    </div>
-
-    <!-- Contact Information -->
-    <div class="bg-white border border-gray-200 rounded-3xl p-8 shadow-xl text-center">
-      <h2 class="text-2xl font-semibold text-gray-900 mb-6">Questions?</h2>
-      <p class="text-gray-900-secondary text-lg mb-6">
-        If you have any questions about our submission guidelines, please don't hesitate to contact us
-      </p>
-      <div class="bg-white-secondary rounded-2xl p-6 border border-gray-200">
-        <p class="text-gray-900 mb-2">
-          <strong>Email:</strong> submissions&#64;literaryjournal.com
-        </p>
-        <p class="text-gray-900-secondary">
-          <strong>Response time:</strong> We typically respond to inquiries within 2-3 business days
-        </p>
       </div>
     </div>
   </div>
-</div>
+}
+
+<!-- Inline Mode -->
+@if (isInline) {
+  <div class="w-full">
+    <!-- Content -->
+    <div class="space-y-12">
+      <!-- General Guidelines -->
+      <div class="bg-white border border-gray-200 rounded-3xl p-8 shadow-xl">
+        <h2 class="text-2xl font-semibold text-gray-900 mb-6 text-center">General Guidelines</h2>
+        <div class="space-y-4 text-gray-900-secondary text-lg leading-relaxed">
+          <p>• All submissions must be <strong>original work</strong> by the author</p>
+          <p>• Previously published work will not be accepted</p>
+          <p>• Please ensure your work is properly proofread before submission</p>
+          <p>• We accept simultaneous submissions but please notify us if your work is accepted elsewhere</p>
+          <p>• Response time is typically 4-6 weeks</p>
+        </div>
+      </div>
+      <!-- Content-Specific Guidelines -->
+      <div class="bg-white border border-gray-200 rounded-3xl p-8 shadow-xl">
+        <h2 class="text-2xl font-semibold text-gray-900 mb-8 text-center">Content-Specific Guidelines</h2>
+        <div class="grid md:grid-cols-2 gap-8">
+          <!-- Poetry -->
+          <div class="bg-white-secondary rounded-2xl p-6 border border-gray-200 text-center">
+            <div class="w-16 h-16 bg-white-accent rounded-2xl flex items-center justify-center mx-auto mb-4">
+              <svg class="w-8 h-8 text-gray-900-inverse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+              </svg>
+            </div>
+            <h3 class="text-xl font-semibold text-gray-900 mb-4">Poetry</h3>
+            <ul class="text-gray-900-secondary space-y-2 text-left">
+              <li>• Submit up to 5 poems per submission</li>
+              <li>• Any style or form welcome</li>
+              <li>• Maximum 100 lines per poem</li>
+              <li>• Include brief bio (50 words max)</li>
+            </ul>
+          </div>
+          <!-- Articles -->
+          <div class="bg-white-secondary rounded-2xl p-6 border border-gray-200 text-center">
+            <div class="w-16 h-16 bg-white-accent rounded-2xl flex items-center justify-center mx-auto mb-4">
+              <svg class="w-8 h-8 text-gray-900-inverse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4 0V6a2 2 0 00-2-2H5a2 2 0 00-2 2v3m2 5h10m-5-3h5"></path>
+              </svg>
+            </div>
+            <h3 class="text-xl font-semibold text-gray-900 mb-4">Articles</h3>
+            <ul class="text-gray-900-secondary space-y-2 text-left">
+              <li>• Word limit: 1,500-3,000 words</li>
+              <li>• Well-researched and fact-checked</li>
+              <li>• Include citations for sources</li>
+              <li>• Author bio (100 words max)</li>
+            </ul>
+          </div>
+          <!-- Cinema Essays -->
+          <div class="bg-white-secondary rounded-2xl p-6 border border-gray-200 text-center">
+            <div class="w-16 h-16 bg-white-accent rounded-2xl flex items-center justify-center mx-auto mb-4">
+              <svg class="w-8 h-8 text-gray-900-inverse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 4V2a1 1 0 011-1h8a1 1 0 011 1v2h3a2 2 0 012 2v11a3 3 0 01-3 3H5a3 3 0 01-3-3V6a2 2 0 012-2h3z"></path>
+              </svg>
+            </div>
+            <h3 class="text-xl font-semibold text-gray-900 mb-4">Cinema Essays</h3>
+            <ul class="text-gray-900-secondary space-y-2 text-left">
+              <li>• Word limit: 2,000-4,000 words</li>
+              <li>• Focus on film analysis and critique</li>
+              <li>• Include filmography references</li>
+              <li>• Academic or journalistic style</li>
+            </ul>
+          </div>
+          <!-- Prose -->
+          <div class="bg-white-secondary rounded-2xl p-6 border border-gray-200 text-center">
+            <div class="w-16 h-16 bg-white-accent rounded-2xl flex items-center justify-center mx-auto mb-4">
+              <svg class="w-8 h-8 text-gray-900-inverse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+              </svg>
+            </div>
+            <h3 class="text-xl font-semibold text-gray-900 mb-4">Prose</h3>
+            <ul class="text-gray-900-secondary space-y-2 text-left">
+              <li>• Word limit: 1,000-5,000 words</li>
+              <li>• Fiction or creative non-fiction</li>
+              <li>• Strong narrative voice</li>
+              <li>• Complete stories preferred</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <!-- Submission Process -->
+      <div class="bg-white border border-gray-200 rounded-3xl p-8 shadow-xl">
+        <h2 class="text-2xl font-semibold text-gray-900 mb-8 text-center">Submission Process</h2>
+        <div class="space-y-6">
+          <div class="flex items-start space-x-4">
+            <div class="flex-shrink-0 w-12 h-12 bg-white-accent text-gray-900-inverse rounded-2xl flex items-center justify-center font-bold text-lg">1</div>
+            <div class="flex-1 pt-2">
+              <h3 class="font-semibold text-gray-900 mb-1">Complete the submission form</h3>
+              <p class="text-gray-900-secondary">Fill out all required fields and upload your work</p>
+            </div>
+          </div>
+          <div class="flex items-start space-x-4">
+            <div class="flex-shrink-0 w-12 h-12 bg-white-accent text-gray-900-inverse rounded-2xl flex items-center justify-center font-bold text-lg">2</div>
+            <div class="flex-1 pt-2">
+              <h3 class="font-semibold text-gray-900 mb-1">Review carefully</h3>
+              <p class="text-gray-900-secondary">Double-check your work before submitting</p>
+            </div>
+          </div>
+          <div class="flex items-start space-x-4">
+            <div class="flex-shrink-0 w-12 h-12 bg-white-accent text-gray-900-inverse rounded-2xl flex items-center justify-center font-bold text-lg">3</div>
+            <div class="flex-1 pt-2">
+              <h3 class="font-semibold text-gray-900 mb-1">Confirmation email</h3>
+              <p class="text-gray-900-secondary">You'll receive confirmation within 24 hours</p>
+            </div>
+          </div>
+          <div class="flex items-start space-x-4">
+            <div class="flex-shrink-0 w-12 h-12 bg-white-accent text-gray-900-inverse rounded-2xl flex items-center justify-center font-bold text-lg">4</div>
+            <div class="flex-1 pt-2">
+              <h3 class="font-semibold text-gray-900 mb-1">Editorial review</h3>
+              <p class="text-gray-900-secondary">Our team will carefully evaluate your submission</p>
+            </div>
+          </div>
+          <div class="flex items-start space-x-4">
+            <div class="flex-shrink-0 w-12 h-12 bg-white-accent text-gray-900-inverse rounded-2xl flex items-center justify-center font-bold text-lg">5</div>
+            <div class="flex-1 pt-2">
+              <h3 class="font-semibold text-gray-900 mb-1">Response</h3>
+              <p class="text-gray-900-secondary">We'll get back to you within 4-6 weeks</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- What We're Looking For -->
+      <div class="bg-white border border-gray-200 rounded-3xl p-8 shadow-xl">
+        <h2 class="text-2xl font-semibold text-gray-900 mb-8 text-center">What We're Looking For</h2>
+        <div class="grid md:grid-cols-2 gap-6">
+          <div class="space-y-4">
+            <div class="flex items-center space-x-3">
+              <div class="w-2 h-2 bg-white-accent rounded-full"></div>
+              <p class="text-gray-900"><strong>Authentic voices</strong> that offer fresh perspectives</p>
+            </div>
+            <div class="flex items-center space-x-3">
+              <div class="w-2 h-2 bg-white-accent rounded-full"></div>
+              <p class="text-gray-900"><strong>Strong craftsmanship</strong> with attention to language</p>
+            </div>
+            <div class="flex items-center space-x-3">
+              <div class="w-2 h-2 bg-white-accent rounded-full"></div>
+              <p class="text-gray-900"><strong>Compelling narratives</strong> that engage readers</p>
+            </div>
+          </div>
+          <div class="space-y-4">
+            <div class="flex items-center space-x-3">
+              <div class="w-2 h-2 bg-white-accent rounded-full"></div>
+              <p class="text-gray-900"><strong>Cultural diversity</strong> and underrepresented viewpoints</p>
+            </div>
+            <div class="flex items-center space-x-3">
+              <div class="w-2 h-2 bg-white-accent rounded-full"></div>
+              <p class="text-gray-900"><strong>Contemporary relevance</strong> with timeless appeal</p>
+            </div>
+            <div class="flex items-center space-x-3">
+              <div class="w-2 h-2 bg-white-accent rounded-full"></div>
+              <p class="text-gray-900"><strong>Risk-taking</strong> that pushes creative boundaries</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Rights and Legal -->
+      <div class="bg-white border border-gray-200 rounded-3xl p-8 shadow-xl">
+        <h2 class="text-2xl font-semibold text-gray-900 mb-6 text-center">Rights & Legal</h2>
+        <div class="space-y-4 text-gray-900-secondary text-lg leading-relaxed">
+          <p>• By submitting, you confirm that you own the rights to your work</p>
+          <p>• You retain copyright to your work</p>
+          <p>• If accepted, we request first publication rights</p>
+          <p>• You may withdraw your submission at any time before publication</p>
+          <p>• We reserve the right to make minor editorial changes</p>
+        </div>
+      </div>
+      <!-- Contact Information -->
+      <div class="bg-white border border-gray-200 rounded-3xl p-8 shadow-xl text-center">
+        <h2 class="text-2xl font-semibold text-gray-900 mb-6">Questions?</h2>
+        <p class="text-gray-900-secondary text-lg mb-6">
+          If you have any questions about our submission guidelines, please don't hesitate to contact us
+        </p>
+        <div class="bg-white-secondary rounded-2xl p-6 border border-gray-200">
+          <p class="text-gray-900 mb-2">
+            <strong>Email:</strong> submissions&#64;literaryjournal.com
+          </p>
+          <p class="text-gray-900-secondary">
+            <strong>Response time:</strong> We typically respond to inquiries within 2-3 business days
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+}

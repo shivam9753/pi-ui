@@ -10,7 +10,7 @@
           View and edit all published content.
         </p>
       </div>
-      <button 
+      <button
         (click)="refreshList()"
         class="btn-secondary">
         <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -19,371 +19,387 @@
         Refresh
       </button>
     </div>
-    
-   <!-- Minimal Stats Row -->
-  <div class="flex flex-wrap items-center gap-3 sm:gap-6 mb-6 px-1">
-    <div class="flex items-center gap-2 text-sm">
-      <div class="w-2 h-2 bg-green-500 rounded-full"></div>
-      <span class="text-gray-900-secondary">Published:</span>
-      <span class="font-semibold text-gray-900">{{ publishedSubmissions.length }}</span>
-    </div>
-    <div class="flex items-center gap-2 text-sm">
-      <div class="w-2 h-2 bg-blue-500 rounded-full"></div>
-      <span class="text-gray-900-secondary">Types:</span>
-      <span class="font-semibold text-gray-900">{{ submissionTypes.length }}</span>
-    </div>
-    <div class="flex items-center gap-2 text-sm">
-      <div class="w-2 h-2 bg-orange-500 rounded-full"></div>
-      <span class="text-gray-900-secondary">Results:</span>
-      <span class="font-semibold text-gray-900">{{ filteredSubmissions.length }}</span>
-    </div>
-  </div>
 
-  <!-- Modern Enhanced Filter Bar for Published Posts -->
-  <div class="bg-gradient-to-r from-white to-gray-50/50 p-4 border border-gray-200/60 rounded-xl mb-6 shadow-sm backdrop-blur-sm">
-    <div class="flex flex-wrap items-center gap-3">
-      
-      <!-- Search - Prominent -->
-      <div class="flex-1 min-w-[300px]">
-        <div class="relative">
-          <div class="flex items-center bg-white px-4 py-2.5 rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200 focus-within:border-orange-300 focus-within:ring-2 focus-within:ring-orange-100">
-            <svg class="w-5 h-5 mr-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+    <!-- Minimal Stats Row -->
+    <div class="flex flex-wrap items-center gap-3 sm:gap-6 mb-6 px-1">
+      <div class="flex items-center gap-2 text-sm">
+        <div class="w-2 h-2 bg-green-500 rounded-full"></div>
+        <span class="text-gray-900-secondary">Published:</span>
+        <span class="font-semibold text-gray-900">{{ publishedSubmissions.length }}</span>
+      </div>
+      <div class="flex items-center gap-2 text-sm">
+        <div class="w-2 h-2 bg-blue-500 rounded-full"></div>
+        <span class="text-gray-900-secondary">Types:</span>
+        <span class="font-semibold text-gray-900">{{ submissionTypes.length }}</span>
+      </div>
+      <div class="flex items-center gap-2 text-sm">
+        <div class="w-2 h-2 bg-orange-500 rounded-full"></div>
+        <span class="text-gray-900-secondary">Results:</span>
+        <span class="font-semibold text-gray-900">{{ filteredSubmissions.length }}</span>
+      </div>
+    </div>
+
+    <!-- Modern Enhanced Filter Bar for Published Posts -->
+    <div class="bg-gradient-to-r from-white to-gray-50/50 p-4 border border-gray-200/60 rounded-xl mb-6 shadow-sm backdrop-blur-sm">
+      <div class="flex flex-wrap items-center gap-3">
+
+        <!-- Search - Prominent -->
+        <div class="flex-1 min-w-[300px]">
+          <div class="relative">
+            <div class="flex items-center bg-white px-4 py-2.5 rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200 focus-within:border-orange-300 focus-within:ring-2 focus-within:ring-orange-100">
+              <svg class="w-5 h-5 mr-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+              </svg>
+              <input type="text" placeholder="Search by title, author, or description..." [(ngModel)]="searchTerm"
+                class="w-full bg-transparent focus:outline-none text-gray-900 placeholder-gray-400 text-sm" />
+            </div>
+          </div>
+        </div>
+
+        <!-- Type Filter -->
+        <div class="group relative">
+          <div class="flex items-center text-sm bg-white px-4 py-2.5 rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200 hover:border-orange-200">
+            <svg class="w-4 h-4 mr-2 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
             </svg>
-            <input type="text" placeholder="Search by title, author, or description..." [(ngModel)]="searchTerm" 
-                   class="w-full bg-transparent focus:outline-none text-gray-900 placeholder-gray-400 text-sm" />
+            <span class="mr-2 text-gray-600 font-medium">Content Type</span>
+            <select [(ngModel)]="selectedType"
+              class="bg-transparent focus:outline-none text-gray-900 font-medium min-w-[100px]">
+              <option value="">All Types</option>
+              @for (type of submissionTypes; track type) {
+                <option [value]="type">
+                  {{ type | titlecase }}
+                </option>
+              }
+            </select>
+            <svg class="w-4 h-4 ml-1 text-gray-400 group-hover:text-orange-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+            </svg>
+          </div>
+        </div>
+
+        <!-- Refresh Button -->
+        <button (click)="refreshList()"
+          class="inline-flex items-center px-4 py-2.5 text-sm font-medium text-gray-600 hover:text-orange-600 bg-white border border-gray-200 rounded-lg hover:border-orange-200 hover:bg-orange-50 transition-all duration-200 shadow-sm hover:shadow-md"
+          title="Refresh list">
+          <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+          </svg>
+          Refresh
+        </button>
+
+      </div>
+
+      <!-- Results Counter -->
+      <div class="mt-4 pt-4 border-t border-gray-100">
+        <div class="flex items-center justify-between flex-wrap gap-3">
+          <div class="text-sm text-gray-500">
+            Showing {{ filteredSubmissions.length }} of {{ publishedSubmissions.length }} posts
+          </div>
+          <div class="flex items-center gap-2">
+            <div class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+            <span class="text-xs text-gray-400">Published & Ready to Publish</span>
           </div>
         </div>
       </div>
-
-      <!-- Type Filter -->
-      <div class="group relative">
-        <div class="flex items-center text-sm bg-white px-4 py-2.5 rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200 hover:border-orange-200">
-          <svg class="w-4 h-4 mr-2 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
-          </svg>
-          <span class="mr-2 text-gray-600 font-medium">Content Type</span>
-          <select [(ngModel)]="selectedType" 
-                  class="bg-transparent focus:outline-none text-gray-900 font-medium min-w-[100px]">
-            <option value="">All Types</option>
-            <option *ngFor="let type of submissionTypes" [value]="type">
-              {{ type | titlecase }}
-            </option>
-          </select>
-          <svg class="w-4 h-4 ml-1 text-gray-400 group-hover:text-orange-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-          </svg>
-        </div>
-      </div>
-
-      <!-- Refresh Button -->
-      <button (click)="refreshList()" 
-              class="inline-flex items-center px-4 py-2.5 text-sm font-medium text-gray-600 hover:text-orange-600 bg-white border border-gray-200 rounded-lg hover:border-orange-200 hover:bg-orange-50 transition-all duration-200 shadow-sm hover:shadow-md"
-              title="Refresh list">
-        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
-        </svg>
-        Refresh
-      </button>
-
     </div>
 
-    <!-- Results Counter -->
-    <div class="mt-4 pt-4 border-t border-gray-100">
-      <div class="flex items-center justify-between flex-wrap gap-3">
-        <div class="text-sm text-gray-500">
-          Showing {{ filteredSubmissions.length }} of {{ publishedSubmissions.length }} posts
-        </div>
-        <div class="flex items-center gap-2">
-          <div class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-          <span class="text-xs text-gray-400">Published & Ready to Publish</span>
-        </div>
+    <!-- Loading -->
+    @if (loading) {
+      <div class="text-center py-12">
+        <div class="spinner mx-auto"></div>
+        <p class="text-gray-900-secondary mt-4">Loading published posts...</p>
       </div>
-    </div>
-  </div>
+    }
 
-  <!-- Loading -->
-  <div *ngIf="loading" class="text-center py-12">
-    <div class="spinner mx-auto"></div>
-    <p class="text-gray-900-secondary mt-4">Loading published posts...</p>
-  </div>
-
-  <!-- Published Posts Table -->
-  <div *ngIf="!loading" class="card-elevated rounded-xl overflow-hidden">
-    <!-- Mobile Card View -->
-    <div class="block md:hidden space-y-4 p-1">
-      <div *ngFor="let submission of filteredSubmissions" class="bg-white border border-gray-200 rounded-lg p-5 shadow-sm mx-2">
-        <div class="mb-3">
-          <h3 class="font-semibold text-gray-900 mb-1">{{ submission.title }}</h3>
-          <p class="text-sm text-gray-600">by {{ getAuthorName(submission) }}</p>
-          <p class="text-xs text-gray-500 mt-1">{{ getTruncatedDescription(submission, 80) }}</p>
-        </div>
-        
-        <!-- Status and Meta Info -->
-        <div class="flex flex-wrap items-center gap-2 mb-3">
-          <span [class]="submission.submissionType | typeBadge">
-            {{ submission.submissionType | prettyLabel }}
-          </span>
-          <span class="px-2 py-1 rounded text-xs font-medium"
+    <!-- Published Posts Table -->
+    @if (!loading) {
+      <div class="card-elevated rounded-xl overflow-hidden">
+        <!-- Mobile Card View -->
+        <div class="block md:hidden space-y-4 p-1">
+          @for (submission of filteredSubmissions; track submission) {
+            <div class="bg-white border border-gray-200 rounded-lg p-5 shadow-sm mx-2">
+              <div class="mb-3">
+                <h3 class="font-semibold text-gray-900 mb-1">{{ submission.title }}</h3>
+                <p class="text-sm text-gray-600">by {{ getAuthorName(submission) }}</p>
+                <p class="text-xs text-gray-500 mt-1">{{ getTruncatedDescription(submission, 80) }}</p>
+              </div>
+              <!-- Status and Meta Info -->
+              <div class="flex flex-wrap items-center gap-2 mb-3">
+                <span [class]="submission.submissionType | typeBadge">
+                  {{ submission.submissionType | prettyLabel }}
+                </span>
+                <span class="px-2 py-1 rounded text-xs font-medium"
                 [ngClass]="{
                   'bg-green-100 text-green-800': submission.status === 'published',
                   'bg-orange-100 text-orange-800': submission.status === 'draft'
                 }">
-            {{ submission.status | titlecase }}
-          </span>
-          <span class="text-xs text-gray-500">
-            {{ submission.reviewedAt | date:'MMM d' }}
-          </span>
-        </div>
-        
-        <!-- Mobile Action Buttons - Stacked Layout -->
-        <div class="flex flex-wrap gap-2 mobile-card-actions">
-          <!-- For Published -->
-          <ng-container *ngIf="submission.status === 'published'">
-            <button (click)="editPublishedPost(submission._id)" 
+                  {{ submission.status | titlecase }}
+                </span>
+                <span class="text-xs text-gray-500">
+                  {{ submission.reviewedAt | date:'MMM d' }}
+                </span>
+              </div>
+              <!-- Mobile Action Buttons - Stacked Layout -->
+              <div class="flex flex-wrap gap-2 mobile-card-actions">
+                <!-- For Published -->
+                @if (submission.status === 'published') {
+                  <button (click)="editPublishedPost(submission._id)"
                     class="flex-1 px-3 py-2 text-xs font-medium text-blue-600 bg-blue-50 border border-blue-200 rounded">
-              Edit
-            </button>
-            <button (click)="unpublishSubmission(submission._id, submission.title)" 
+                    Edit
+                  </button>
+                  <button (click)="unpublishSubmission(submission._id, submission.title)"
                     class="flex-1 px-3 py-2 text-xs font-medium text-orange-600 bg-orange-50 border border-orange-200 rounded">
-              Unpublish
-            </button>
-          </ng-container>
-          
-          <!-- For Draft -->
-          <ng-container *ngIf="submission.status === 'draft'">
-            <button (click)="configureAndPublish(submission._id)" 
+                    Unpublish
+                  </button>
+                }
+                <!-- For Draft -->
+                @if (submission.status === 'draft') {
+                  <button (click)="configureAndPublish(submission._id)"
                     class="flex-1 px-3 py-2 text-xs font-medium text-green-600 bg-green-50 border border-green-200 rounded min-w-0">
-              Configure & Publish
-            </button>
-          </ng-container>
-          
-          <button (click)="deleteSubmission(submission._id, submission.title)" 
+                    Configure & Publish
+                  </button>
+                }
+                <button (click)="deleteSubmission(submission._id, submission.title)"
                   class="px-3 py-2 text-xs font-medium text-red-600 bg-red-50 border border-red-200 rounded">
-            Delete
-          </button>
+                  Delete
+                </button>
+              </div>
+            </div>
+          }
         </div>
-      </div>
-    </div>
-    
-    <!-- Desktop Table View -->
-    <div class="hidden md:block overflow-x-auto">
-      <table class="min-w-full">
-        <thead class="bg-white-secondary border-b border-gray-200">
-          <tr>
-            <th class="px-4 py-3 text-left text-xs font-semibold text-gray-900 uppercase tracking-wider">Image</th>
-            <th class="px-4 py-3 text-left text-xs font-semibold text-gray-900 uppercase tracking-wider">Title & Author</th>
-            <th class="px-4 py-3 text-left text-xs font-semibold text-gray-900 uppercase tracking-wider">Type</th>
-            <th class="px-4 py-3 text-left text-xs font-semibold text-gray-900 uppercase tracking-wider">Status</th>
-            <th class="px-4 py-3 text-left text-xs font-semibold text-gray-900 uppercase tracking-wider">Stats</th>
-            <th class="px-4 py-3 text-left text-xs font-semibold text-gray-900 uppercase tracking-wider">Date</th>
-            <th class="px-4 py-3 text-left text-xs font-semibold text-gray-900 uppercase tracking-wider">Actions</th>
-          </tr>
-        </thead>
-        <tbody class="bg-themed divide-y divide-gray-200">
-          <tr *ngFor="let submission of filteredSubmissions" 
-              class="hover:bg-white-secondary/50 transition-all duration-200 group">
-            
-            <!-- Featured Image Column -->
-            <td class="px-4 py-4">
-              <div class="w-12 h-12 rounded-lg overflow-hidden bg-white-tertiary border border-gray-200 flex items-center justify-center">
-                <img *ngIf="submission.imageUrl" 
-                     [src]="submission.imageUrl" 
-                     [alt]="submission.title"
-                     class="w-full h-full object-cover">
-                <svg *ngIf="!submission.imageUrl" class="w-4 h-4 text-gray-900-tertiary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                </svg>
-              </div>
-            </td>
-
-            <!-- Title & Author Column -->
-            <td class="px-4 py-4">
-              <div class="max-w-xs">
-                <div class="text-sm font-semibold text-gray-900 mb-1 group-hover:text-gray-900-accent transition-colors duration-200">
-                  {{ submission.title }}
-                </div>
-                <div class="text-xs text-gray-900-secondary mb-1">
-                  By {{ getAuthorName(submission) }}
-                </div>
-                <div class="text-xs text-gray-900-secondary leading-relaxed line-clamp-2">
-                  {{ getTruncatedDescription(submission, 80) }}
-                </div>
-              </div>
-            </td>
-
-            <!-- Type Column -->
-            <td class="px-4 py-4">
-              <div class="flex flex-col gap-1">
-                <span [class]="submission.submissionType | typeBadge">
-                  {{ submission.submissionType | prettyLabel }}
-                </span>
-                <span *ngIf="submission.isFeatured" 
-                      class="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-yellow-100 text-yellow-800 border border-yellow-200">
-                  ⭐
-                </span>
-              </div>
-            </td>
-
-            <!-- Status Column -->
-            <td class="px-4 py-4">
-              <span class="inline-flex items-center px-2 py-1 rounded text-xs font-medium"
+        <!-- Desktop Table View -->
+        <div class="hidden md:block overflow-x-auto">
+          <table class="min-w-full">
+            <thead class="bg-white-secondary border-b border-gray-200">
+              <tr>
+                <th class="px-4 py-3 text-left text-xs font-semibold text-gray-900 uppercase tracking-wider">Image</th>
+                <th class="px-4 py-3 text-left text-xs font-semibold text-gray-900 uppercase tracking-wider">Title & Author</th>
+                <th class="px-4 py-3 text-left text-xs font-semibold text-gray-900 uppercase tracking-wider">Type</th>
+                <th class="px-4 py-3 text-left text-xs font-semibold text-gray-900 uppercase tracking-wider">Status</th>
+                <th class="px-4 py-3 text-left text-xs font-semibold text-gray-900 uppercase tracking-wider">Stats</th>
+                <th class="px-4 py-3 text-left text-xs font-semibold text-gray-900 uppercase tracking-wider">Date</th>
+                <th class="px-4 py-3 text-left text-xs font-semibold text-gray-900 uppercase tracking-wider">Actions</th>
+              </tr>
+            </thead>
+            <tbody class="bg-themed divide-y divide-gray-200">
+              @for (submission of filteredSubmissions; track submission) {
+                <tr
+                  class="hover:bg-white-secondary/50 transition-all duration-200 group">
+                  <!-- Featured Image Column -->
+                  <td class="px-4 py-4">
+                    <div class="w-12 h-12 rounded-lg overflow-hidden bg-white-tertiary border border-gray-200 flex items-center justify-center">
+                      @if (submission.imageUrl) {
+                        <img
+                          [src]="submission.imageUrl"
+                          [alt]="submission.title"
+                          class="w-full h-full object-cover">
+                      }
+                      @if (!submission.imageUrl) {
+                        <svg class="w-4 h-4 text-gray-900-tertiary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                        </svg>
+                      }
+                    </div>
+                  </td>
+                  <!-- Title & Author Column -->
+                  <td class="px-4 py-4">
+                    <div class="max-w-xs">
+                      <div class="text-sm font-semibold text-gray-900 mb-1 group-hover:text-gray-900-accent transition-colors duration-200">
+                        {{ submission.title }}
+                      </div>
+                      <div class="text-xs text-gray-900-secondary mb-1">
+                        By {{ getAuthorName(submission) }}
+                      </div>
+                      <div class="text-xs text-gray-900-secondary leading-relaxed line-clamp-2">
+                        {{ getTruncatedDescription(submission, 80) }}
+                      </div>
+                    </div>
+                  </td>
+                  <!-- Type Column -->
+                  <td class="px-4 py-4">
+                    <div class="flex flex-col gap-1">
+                      <span [class]="submission.submissionType | typeBadge">
+                        {{ submission.submissionType | prettyLabel }}
+                      </span>
+                      @if (submission.isFeatured) {
+                        <span
+                          class="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-yellow-100 text-yellow-800 border border-yellow-200">
+                          ⭐
+                        </span>
+                      }
+                    </div>
+                  </td>
+                  <!-- Status Column -->
+                  <td class="px-4 py-4">
+                    <span class="inline-flex items-center px-2 py-1 rounded text-xs font-medium"
                     [ngClass]="{
                       'bg-green-100 text-green-800 border border-green-200': submission.status === 'published',
                       'bg-orange-100 text-orange-800 border border-orange-200': submission.status === 'draft'
                     }">
-                <div class="w-1.5 h-1.5 rounded-full mr-1"
+                      <div class="w-1.5 h-1.5 rounded-full mr-1"
                      [ngClass]="{
                        'bg-green-500': submission.status === 'published',
                        'bg-orange-500': submission.status === 'draft'
                      }"></div>
-                {{ submission.status | titlecase }}
-              </span>
-            </td>
-
-            <!-- Stats Column -->
-            <td class="px-4 py-4">
-              <div class="text-xs text-gray-900-secondary space-y-0.5">
-                <div *ngIf="submission.viewCount" class="flex items-center gap-1">
-                  <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                  </svg>
-                  {{ submission.viewCount }}
-                </div>
-                <div *ngIf="submission.readingTime" class="flex items-center gap-1">
-                  <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                  </svg>
-                  {{ submission.readingTime }}m
-                </div>
-                <div *ngIf="submission.tags && submission.tags.length > 0" class="flex items-center gap-1">
-                  <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/>
-                  </svg>
-                  {{ submission.tags.length }}
-                </div>
-              </div>
-            </td>
-
-            <!-- Date Column -->
-            <td class="px-4 py-4">
-              <div class="text-xs text-gray-900-secondary">
-                {{ submission.reviewedAt | date:'MMM d' }}
-              </div>
-              <div class="text-xs text-gray-900-tertiary mt-0.5">
-                {{ submission.reviewedAt | date:'HH:mm' }}
-              </div>
-            </td>
-
-            <!-- Actions Column -->
-            <td class="px-4 py-4">
-              <div class="flex items-center gap-1">
-                <!-- For Published Submissions -->
-                <ng-container *ngIf="submission.status === 'published'">
-                  <!-- Edit Button -->
-                  <button (click)="editPublishedPost(submission._id)"
+                      {{ submission.status | titlecase }}
+                    </span>
+                  </td>
+                  <!-- Stats Column -->
+                  <td class="px-4 py-4">
+                    <div class="text-xs text-gray-900-secondary space-y-0.5">
+                      @if (submission.viewCount) {
+                        <div class="flex items-center gap-1">
+                          <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                          </svg>
+                          {{ submission.viewCount }}
+                        </div>
+                      }
+                      @if (submission.readingTime) {
+                        <div class="flex items-center gap-1">
+                          <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                          </svg>
+                          {{ submission.readingTime }}m
+                        </div>
+                      }
+                      @if (submission.tags && submission.tags.length > 0) {
+                        <div class="flex items-center gap-1">
+                          <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/>
+                          </svg>
+                          {{ submission.tags.length }}
+                        </div>
+                      }
+                    </div>
+                  </td>
+                  <!-- Date Column -->
+                  <td class="px-4 py-4">
+                    <div class="text-xs text-gray-900-secondary">
+                      {{ submission.reviewedAt | date:'MMM d' }}
+                    </div>
+                    <div class="text-xs text-gray-900-tertiary mt-0.5">
+                      {{ submission.reviewedAt | date:'HH:mm' }}
+                    </div>
+                  </td>
+                  <!-- Actions Column -->
+                  <td class="px-4 py-4">
+                    <div class="flex items-center gap-1">
+                      <!-- For Published Submissions -->
+                      @if (submission.status === 'published') {
+                        <!-- Edit Button -->
+                        <button (click)="editPublishedPost(submission._id)"
                           class="p-2 text-blue-700 hover:text-white hover:bg-blue-600 rounded-lg transition-all duration-200 border border-blue-300 bg-blue-50"
                           title="Edit">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
-                    </svg>
-                  </button>
-
-                  <!-- Unpublish Button -->
-                  <button (click)="unpublishSubmission(submission._id, submission.title)"
+                          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                          </svg>
+                        </button>
+                        <!-- Unpublish Button -->
+                        <button (click)="unpublishSubmission(submission._id, submission.title)"
                           class="p-2 text-orange-700 hover:text-white hover:bg-orange-600 rounded-lg transition-all duration-200 border border-orange-300 bg-orange-50"
                           title="Unpublish">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                    </svg>
-                  </button>
-                </ng-container>
-
-                <!-- For Draft (Unpublished) Submissions -->
-                <ng-container *ngIf="submission.status === 'draft'">
-                  <!-- Configure & Publish Button -->
-                  <button (click)="configureAndPublish(submission._id)"
+                          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                          </svg>
+                        </button>
+                      }
+                      <!-- For Draft (Unpublished) Submissions -->
+                      @if (submission.status === 'draft') {
+                        <!-- Configure & Publish Button -->
+                        <button (click)="configureAndPublish(submission._id)"
                           class="p-2 text-green-700 hover:text-white hover:bg-green-600 rounded-lg transition-all duration-200 border border-green-300 bg-green-50"
                           title="Configure & Publish">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
-                    </svg>
-                  </button>
-                </ng-container>
-
-                <!-- Delete Button (for all) -->
-                <button (click)="deleteSubmission(submission._id, submission.title)"
+                          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                          </svg>
+                        </button>
+                      }
+                      <!-- Delete Button (for all) -->
+                      <button (click)="deleteSubmission(submission._id, submission.title)"
                         class="p-2 text-red-700 hover:text-white hover:bg-red-600 rounded-lg transition-all duration-200 border border-red-300 bg-red-50"
                         title="Delete">
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                  </svg>
-                </button>
-              </div>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-
-    <!-- Empty State -->
-    <div *ngIf="filteredSubmissions.length === 0" class="text-center py-12">
-      <div class="w-16 h-16 mx-auto bg-white-secondary rounded-full flex items-center justify-center mb-4">
-        <svg class="w-8 h-8 text-gray-900-tertiary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-        </svg>
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                        </svg>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+        <!-- Empty State -->
+        @if (filteredSubmissions.length === 0) {
+          <div class="text-center py-12">
+            <div class="w-16 h-16 mx-auto bg-white-secondary rounded-full flex items-center justify-center mb-4">
+              <svg class="w-8 h-8 text-gray-900-tertiary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+              </svg>
+            </div>
+            <h3 class="text-lg font-medium text-gray-900 mb-2">No published posts found</h3>
+            <p class="text-gray-900-secondary mb-4">
+              {{ searchTerm || selectedType ? 'Try adjusting your filters.' : 'No posts have been published yet.' }}
+            </p>
+          </div>
+        }
       </div>
-      <h3 class="text-lg font-medium text-gray-900 mb-2">No published posts found</h3>
-      <p class="text-gray-900-secondary mb-4">
-        {{ searchTerm || selectedType ? 'Try adjusting your filters.' : 'No posts have been published yet.' }}
-      </p>
-    </div>
-  </div>
+    }
 
-  <!-- Toast Notification -->
-  <div *ngIf="showToastFlag" 
-       class="fixed top-4 right-4 z-50 max-w-sm w-full transition-all duration-300 ease-in-out transform animate-slideInDown">
-    <div class="bg-themed dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg p-4"
+    <!-- Toast Notification -->
+    @if (showToastFlag) {
+      <div
+        class="fixed top-4 right-4 z-50 max-w-sm w-full transition-all duration-300 ease-in-out transform animate-slideInDown">
+        <div class="bg-themed dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg p-4"
          [ngClass]="{
            'border-green-200 bg-green-50 dark:bg-green-900/20 dark:border-green-800': toastType === 'success',
            'border-red-200 bg-red-50 dark:bg-red-900/20 dark:border-red-800': toastType === 'error',
            'border-blue-200 bg-blue-50 dark:bg-blue-900/20 dark:border-blue-800': toastType === 'info'
          }">
-      <div class="flex items-start">
-        <div class="flex-shrink-0">
-          <!-- Success Icon -->
-          <svg *ngIf="toastType === 'success'" class="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-          </svg>
-          <!-- Error Icon -->
-          <svg *ngIf="toastType === 'error'" class="w-5 h-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-          </svg>
-          <!-- Info Icon -->
-          <svg *ngIf="toastType === 'info'" class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-          </svg>
-        </div>
-        <div class="ml-3 flex-1">
-          <p class="text-sm font-medium"
+          <div class="flex items-start">
+            <div class="flex-shrink-0">
+              <!-- Success Icon -->
+              @if (toastType === 'success') {
+                <svg class="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+              }
+              <!-- Error Icon -->
+              @if (toastType === 'error') {
+                <svg class="w-5 h-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+              }
+              <!-- Info Icon -->
+              @if (toastType === 'info') {
+                <svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+              }
+            </div>
+            <div class="ml-3 flex-1">
+              <p class="text-sm font-medium"
              [ngClass]="{
                'text-green-800 dark:text-green-200': toastType === 'success',
                'text-red-800 dark:text-red-200': toastType === 'error',
                'text-blue-800 dark:text-blue-200': toastType === 'info'
              }">
-            {{ toastMessage }}
-          </p>
-        </div>
-        <div class="ml-4 flex-shrink-0">
-          <button 
-            (click)="hideToast()"
-            class="inline-flex text-gray-400 hover:text-gray-600 focus:outline-none focus:text-gray-600 transition ease-in-out duration-150">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-            </svg>
-          </button>
+                {{ toastMessage }}
+              </p>
+            </div>
+            <div class="ml-4 flex-shrink-0">
+              <button
+                (click)="hideToast()"
+                class="inline-flex text-gray-400 hover:text-gray-600 focus:outline-none focus:text-gray-600 transition ease-in-out duration-150">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+              </button>
+            </div>
+          </div>
         </div>
       </div>
-    </div>
+    }
   </div>
-</div>

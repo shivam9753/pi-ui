@@ -1,797 +1,806 @@
 <!-- Add this to the beginning of your existing template, before the profile header -->
 <div class="min-h-screen bg-white">
-  
+
   <!-- Loading State -->
-  <app-loading-state 
-    *ngIf="isLoading()" 
-    type="spinner"
-    size="lg"
-    loadingText="Loading profile..."
-    containerClass="flex items-center justify-center min-h-screen">
-  </app-loading-state>
+  @if (isLoading()) {
+    <app-loading-state
+      type="spinner"
+      size="lg"
+      loadingText="Loading profile..."
+      containerClass="flex items-center justify-center min-h-screen">
+    </app-loading-state>
+  }
 
   <!-- Error State -->
-  <div *ngIf="error() && !isLoading()" class="flex items-center justify-center min-h-screen">
-    <div class="text-center max-w-md mx-auto px-4">
-      <div class="w-16 h-16 bg-red-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
-        <svg class="w-8 h-8 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-        </svg>
+  @if (error() && !isLoading()) {
+    <div class="flex items-center justify-center min-h-screen">
+      <div class="text-center max-w-md mx-auto px-4">
+        <div class="w-16 h-16 bg-red-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+          <svg class="w-8 h-8 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+        </div>
+        <h3 class="text-xl font-semibold text-gray-900 mb-2">{{ error() }}</h3>
+        <p class="text-gray-900-secondary mb-4">Please try again or contact support if the problem persists.</p>
+        <button
+          (click)="clearError(); loadUserProfile(userId || '')"
+          class="btn-primary">
+          Try Again
+        </button>
       </div>
-      <h3 class="text-xl font-semibold text-gray-900 mb-2">{{ error() }}</h3>
-      <p class="text-gray-900-secondary mb-4">Please try again or contact support if the problem persists.</p>
-      <button 
-        (click)="clearError(); loadUserProfile(userId || '')"
-        class="btn-primary">
-        Try Again
-      </button>
     </div>
-  </div>
+  }
 
   <!-- Profile Content - Only show when not loading and no error -->
-  <div *ngIf="!isLoading() && !error() && userProfile()">
-    
-    <!-- Private Profile Banner -->
-    <div class="bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-blue-200">
-      <div class="max-w-screen-xl mx-auto px-4 sm:px-6 md:px-10 py-3">
-        <div class="flex items-center justify-center gap-2 text-sm text-blue-700">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
-          </svg>
-          <span class="font-medium">Private Profile View</span>
-          <span class="text-blue-600">•</span>
-          <span>This profile is not visible to other users</span>
+  @if (!isLoading() && !error() && userProfile()) {
+    <div>
+      <!-- Private Profile Banner -->
+      <div class="bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-blue-200">
+        <div class="max-w-screen-xl mx-auto px-4 sm:px-6 md:px-10 py-3">
+          <div class="flex items-center justify-center gap-2 text-sm text-blue-700">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+            </svg>
+            <span class="font-medium">Private Profile View</span>
+            <span class="text-blue-600">•</span>
+            <span>This profile is not visible to other users</span>
+          </div>
         </div>
       </div>
-    </div>
-    
-    <!-- Profile Header -->
-    <div class="bg-white border-b border-gray-200">
-      <div class="max-w-screen-xl mx-auto px-4 sm:px-6 md:px-10 py-8">
-          
+      <!-- Profile Header -->
+      <div class="bg-white border-b border-gray-200">
+        <div class="max-w-screen-xl mx-auto px-4 sm:px-6 md:px-10 py-8">
           <!-- Profile Info -->
           <div class="flex flex-col md:flex-row md:items-start gap-6 text-left">
             <!-- Profile Image -->
             <div class="flex-shrink-0">
               <div class="relative">
                 <div class="w-24 h-24 rounded-full bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center overflow-hidden">
-                  <img *ngIf="userProfile()?.profileImage" 
-                       [src]="userProfile()!.profileImage" 
-                       [alt]="userProfile()!.username"
-                       class="w-full h-full object-cover" />
-                  <span *ngIf="!userProfile()?.profileImage" 
-                        class="text-white text-2xl font-bold">
-                    {{ userProfile()?.username?.[0]?.toUpperCase() }}
-                  </span>
+                  @if (userProfile()?.profileImage) {
+                    <img
+                      [src]="userProfile()!.profileImage"
+                      [alt]="userProfile()!.username"
+                      class="w-full h-full object-cover" />
+                  }
+                  @if (!userProfile()?.profileImage) {
+                    <span
+                      class="text-white text-2xl font-bold">
+                      {{ userProfile()?.username?.[0]?.toUpperCase() }}
+                    </span>
+                  }
                 </div>
-                
                 <!-- Edit button for own profile -->
-                <button *ngIf="isOwnProfile()" 
-                        (click)="toggleEditMode()"
-                        class="absolute -bottom-1 -right-1 w-8 h-8 bg-gray-700 hover:bg-gray-800 rounded-full flex items-center justify-center text-white transition-colors duration-200">
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-                  </svg>
-                </button>
+                @if (isOwnProfile()) {
+                  <button
+                    (click)="toggleEditMode()"
+                    class="absolute -bottom-1 -right-1 w-8 h-8 bg-gray-700 hover:bg-gray-800 rounded-full flex items-center justify-center text-white transition-colors duration-200">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                    </svg>
+                  </button>
+                }
               </div>
             </div>
-
             <!-- Profile Details -->
             <div class="flex-1 text-left">
               <div class="mb-4">
                 <h1 class="text-2xl font-bold text-gray-900 mb-2">
                   {{ userProfile()?.name || userProfile()?.username }}
                 </h1>
-                <p *ngIf="userProfile()?.name && userProfile()?.username !== userProfile()?.name" class="text-sm text-gray-500">
-                  {{ '@' + userProfile()?.username }}
-                </p>
-                
+                @if (userProfile()?.name && userProfile()?.username !== userProfile()?.name) {
+                  <p class="text-sm text-gray-500">
+                    {{ '@' + userProfile()?.username }}
+                  </p>
+                }
                 <!-- Role Badge (only for admin/reviewer) -->
-                <div *ngIf="userProfile()?.role === 'admin' || userProfile()?.role === 'reviewer'" class="mb-3">
-                  <span class="inline-flex items-center px-3 py-1 text-sm font-medium rounded-full"
-                        [class]="userProfile()?.role === 'admin' ? 'bg-red-100 text-red-800' : 'bg-blue-100 text-blue-800'">
-                    {{ userProfile()?.role | titlecase }}
-                  </span>
-                </div>
-              </div>
-
-              <!-- Bio -->
-              <div *ngIf="!isEditMode() && userProfile()?.bio">
-                <p class="text-gray-600 leading-relaxed">
-                  {{ userProfile()!.bio }}
-                </p>
-              </div>
-
-              <!-- Edit Profile Button -->
-              <div *ngIf="isOwnProfile() && !isEditMode()" class="mt-4">
-                <button 
-                  (click)="editProfileAdvanced()"
-                  class="inline-flex items-center px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors duration-200">
-                  <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
-                  </svg>
-                  Edit Profile
-                </button>
-              </div>
-
-              <!-- Edit Form -->
-              <div *ngIf="isEditMode()" class="space-y-4 text-left">
-                <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-2">
-                    Display Name
-                  </label>
-                  <input 
-                    type="text" 
-                    [(ngModel)]="editForm.name"
-                    placeholder="Your display name"
-                    maxlength="100"
-                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent">
-                </div>
-
-                <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-2">
-                    Profile Image URL
-                  </label>
-                  <input 
-                    type="url" 
-                    [(ngModel)]="editForm.profileImage"
-                    placeholder="https://example.com/image.jpg"
-                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent">
-                </div>
-                
-                <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-2">
-                    Bio
-                  </label>
-                  <textarea 
-                    [(ngModel)]="editForm.bio"
-                    rows="3"
-                    maxlength="500"
-                    placeholder="Tell us about yourself..."
-                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent resize-none">
-                  </textarea>
-                  <p class="text-xs text-gray-500 mt-1">{{ editForm.bio?.length || 0 }}/500 characters</p>
-                </div>
-
-                <!-- Edit Actions -->
-                <div class="flex gap-3">
-                  <button 
-                    (click)="saveProfile()"
-                    class="px-4 py-2 bg-orange-600 text-white rounded-md hover:bg-orange-700 transition-colors duration-200">
-                    Save Changes
-                  </button>
-                  <button 
-                    (click)="cancelEdit()"
-                    class="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300 transition-colors duration-200">
-                    Cancel
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-      </div>
-    </div>
-
-    <!-- Tab Navigation (Admin Style) -->
-    <div class="border-b border-gray-200 bg-white shadow-sm">
-      <div class="max-w-screen-xl mx-auto px-4 sm:px-6 md:px-10">
-        <nav class="flex space-x-2 sm:space-x-8 overflow-x-auto scrollbar-hide" aria-label="Profile Tabs">
-          <button 
-            (click)="activeTab.set('published')"
-            [class.border-orange-500]="activeTab() === 'published'"
-            [class.text-orange-600]="activeTab() === 'published'"
-            [class.border-transparent]="activeTab() !== 'published'"
-            [class.text-gray-600]="activeTab() !== 'published'"
-            [class.hover:text-gray-900]="activeTab() !== 'published'"
-            [class.hover:border-gray-300]="activeTab() !== 'published'"
-            class="whitespace-nowrap py-3 px-3 sm:py-4 sm:px-6 border-b-2 font-medium text-xs sm:text-sm transition-all duration-200 flex items-center gap-1 sm:gap-2 min-w-max">
-            <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"/>
-            </svg>
-            Published Works
-            <span class="ml-1 px-2 py-1 text-xs rounded-full bg-orange-100 text-orange-800">{{ publishedWorks().length }}</span>
-          </button>
-          <button 
-            (click)="activeTab.set('submissions')"
-            [class.border-orange-500]="activeTab() === 'submissions'"
-            [class.text-orange-600]="activeTab() === 'submissions'"
-            [class.border-transparent]="activeTab() !== 'submissions'"
-            [class.text-gray-600]="activeTab() !== 'submissions'"
-            [class.hover:text-gray-900]="activeTab() !== 'submissions'"
-            [class.hover:border-gray-300]="activeTab() !== 'submissions'"
-            class="whitespace-nowrap py-3 px-3 sm:py-4 sm:px-6 border-b-2 font-medium text-xs sm:text-sm transition-all duration-200 flex items-center gap-1 sm:gap-2 min-w-max">
-            <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
-            </svg>
-            My Submissions
-            <span class="ml-1 px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-800">{{ submissions().length }}</span>
-          </button>
-          <button 
-            (click)="activeTab.set('drafts')"
-            [class.border-orange-500]="activeTab() === 'drafts'"
-            [class.text-orange-600]="activeTab() === 'drafts'"
-            [class.border-transparent]="activeTab() !== 'drafts'"
-            [class.text-gray-600]="activeTab() !== 'drafts'"
-            [class.hover:text-gray-900]="activeTab() !== 'drafts'"
-            [class.hover:border-gray-300]="activeTab() !== 'drafts'"
-            class="whitespace-nowrap py-3 px-3 sm:py-4 sm:px-6 border-b-2 font-medium text-xs sm:text-sm transition-all duration-200 flex items-center gap-1 sm:gap-2 min-w-max">
-            <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
-            </svg>
-            My Drafts
-            <span class="ml-1 px-2 py-1 text-xs rounded-full bg-yellow-100 text-yellow-800">{{ drafts().length }}</span>
-          </button>
-        </nav>
-      </div>
-    </div>
-
-    <!-- Main Content Tabs -->
-    <div class="max-w-screen-xl mx-auto px-4 sm:px-6 md:px-10 py-6">
-
-
-        <!-- Tab Content -->
-        <!-- Published Works Tab -->
-        <div *ngIf="activeTab() === 'published'" class="w-full">
-          <!-- Header -->
-          <div class="border-b border-gray-200 pb-6 mb-8">
-            <div class="flex items-center justify-between mb-4">
-              <div>
-                <h1 class="text-2xl md:text-3xl font-bold text-gray-900 mb-2">
-                  Published Works
-                </h1>
-                <p class="text-gray-900-secondary">
-                  View and manage your published content.
-                </p>
-              </div>
-              <button 
-                (click)="refreshPublishedWorks()"
-                class="btn-secondary">
-                <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
-                </svg>
-                Refresh
-              </button>
-            </div>
-            
-            <!-- Stats Row -->
-            <div class="flex flex-wrap items-center gap-3 sm:gap-6 mb-6 px-1">
-              <div class="flex items-center gap-2 text-sm">
-                <div class="w-2 h-2 bg-green-500 rounded-full"></div>
-                <span class="text-gray-900-secondary">Published:</span>
-                <span class="font-semibold text-gray-900">{{ publishedWorks().length }}</span>
-              </div>
-              <div class="flex items-center gap-2 text-sm">
-                <div class="w-2 h-2 bg-blue-500 rounded-full"></div>
-                <span class="text-gray-900-secondary">Filtered:</span>
-                <span class="font-semibold text-gray-900">{{ filteredWorks().length }}</span>
-              </div>
-            </div>
-
-            <!-- Filter Bar -->
-            <div class="bg-gradient-to-r from-white to-gray-50/50 p-4 border border-gray-200/60 rounded-xl mb-6 shadow-sm backdrop-blur-sm">
-              <div class="flex flex-wrap items-center gap-3">
-                
-                <!-- Type Filter -->
-                <div class="group relative">
-                  <div class="flex items-center text-sm bg-white px-4 py-2.5 rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200 hover:border-orange-200">
-                    <svg class="w-4 h-4 mr-2 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
-                    </svg>
-                    <span class="mr-2 text-gray-600 font-medium">Type</span>
-                    <select [(ngModel)]="worksFilter" (change)="applyWorksFilter()" 
-                            class="bg-transparent focus:outline-none text-gray-900 font-medium min-w-[100px]">
-                      <option value="">All Types</option>
-                      <option value="poem">Poems</option>
-                      <option value="prose">Prose</option>
-                      <option value="article">Articles</option>
-                      <option value="cinema_essay">Cinema Essays</option>
-                    </select>
-                    <svg class="w-4 h-4 ml-1 text-gray-400 group-hover:text-orange-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-                    </svg>
-                  </div>
-                </div>
-
-                <!-- Sort Filter -->
-                <div class="group relative">
-                  <div class="flex items-center text-sm bg-white px-4 py-2.5 rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200 hover:border-orange-200">
-                    <svg class="w-4 h-4 mr-2 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12"/>
-                    </svg>
-                    <span class="mr-2 text-gray-600 font-medium">Sort</span>
-                    <select [(ngModel)]="worksSort" (change)="applyWorksFilter()" 
-                            class="bg-transparent focus:outline-none text-gray-900 font-medium min-w-[100px]">
-                      <option value="newest">Newest First</option>
-                      <option value="oldest">Oldest First</option>
-                      <option value="popular">Most Popular</option>
-                      <option value="title">Title A-Z</option>
-                    </select>
-                    <svg class="w-4 h-4 ml-1 text-gray-400 group-hover:text-orange-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-                    </svg>
-                  </div>
-                </div>
-
-              </div>
-            </div>
-          </div>
-
-          <!-- Published Works Content -->
-          <app-loading-state 
-            *ngIf="worksLoading()"
-            type="spinner"
-            size="md"
-            loadingText="Loading works..."
-            containerClass="text-center py-12">
-          </app-loading-state>
-
-          <!-- Published Works Cards -->
-          <div *ngIf="!worksLoading()" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <div *ngFor="let work of filteredWorks(); trackBy: trackByWorkId" 
-                 class="group bg-white border border-gray-200 rounded-xl p-6 hover:shadow-lg hover:border-orange-200 transition-all duration-300 cursor-pointer overflow-hidden"
-                 (click)="onPublishedWorkCardClick(work)">
-              
-              <!-- Card Header -->
-              <div class="mb-4">
-                <div class="flex items-start justify-between mb-3">
-                  <h3 class="text-lg font-bold text-gray-900 group-hover:text-orange-600 transition-colors leading-tight"
-                      style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
-                    {{ work.title }}
-                  </h3>
-                  <!-- Reading time indicator -->
-                  <div class="flex-shrink-0 ml-2">
-                    <span class="inline-flex items-center px-2 py-1 text-xs text-gray-500 bg-gray-100 rounded-full">
-                      <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                      </svg>
-                      {{ work.readingTime || 5 }}m
+                @if (userProfile()?.role === 'admin' || userProfile()?.role === 'reviewer') {
+                  <div class="mb-3">
+                    <span class="inline-flex items-center px-3 py-1 text-sm font-medium rounded-full"
+                      [class]="userProfile()?.role === 'admin' ? 'bg-red-100 text-red-800' : 'bg-blue-100 text-blue-800'">
+                      {{ userProfile()?.role | titlecase }}
                     </span>
                   </div>
+                }
+              </div>
+              <!-- Bio -->
+              @if (!isEditMode() && userProfile()?.bio) {
+                <div>
+                  <p class="text-gray-600 leading-relaxed">
+                    {{ userProfile()!.bio }}
+                  </p>
                 </div>
-                
-                <!-- Type Badge -->
-                <div class="mb-3">
-                  <span [class]="getTypeBadgeClass(work.submissionType)">
-                    {{ formatType(work.submissionType) }}
-                  </span>
-                </div>
-              </div>
-              
-              <!-- Excerpt -->
-              <div class="mb-4">
-                <p *ngIf="work.excerpt" class="text-gray-600 text-sm leading-relaxed"
-                   style="display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;">
-                  {{ cleanHtml(work.excerpt) }}
-                </p>
-                <p *ngIf="!work.excerpt" class="text-gray-400 text-sm italic">
-                  No preview available
-                </p>
-              </div>
-              
-              <!-- Card Footer -->
-              <div class="flex items-center justify-between text-xs text-gray-500 pt-4 border-t border-gray-100 group-hover:border-orange-100 transition-colors">
-                <div class="flex items-center">
-                  <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                  </svg>
-                  <span class="font-medium">{{ work.publishedAt | date:'MMM d, y' }}</span>
-                </div>
-                <div class="flex items-center text-orange-600 group-hover:text-orange-700 transition-colors">
-                  <span class="text-xs font-medium">Read more</span>
-                  <svg class="w-3 h-3 ml-1 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                  </svg>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Empty State for Published Works -->
-          <app-empty-state 
-            *ngIf="!worksLoading() && filteredWorks().length === 0"
-            title="No published works yet"
-            message="You haven't published any works yet."
-            icon="document"
-            actionText="Create Your First Work"
-            [onAction]="goToSubmit.bind(this)">
-          </app-empty-state>
-        </div>
-
-        <!-- Submissions Tab -->
-        <div *ngIf="activeTab() === 'submissions'" class="w-full">
-          <!-- Header -->
-          <div class="border-b border-gray-200 pb-6 mb-8">
-            <div class="flex items-center justify-between mb-4">
-              <div>
-                <h1 class="text-2xl md:text-3xl font-bold text-gray-900 mb-2">
-                  My Submissions
-                </h1>
-                <p class="text-gray-900-secondary">
-                  Track the status of your submitted works.
-                </p>
-              </div>
-              <button 
-                (click)="refreshSubmissions()"
-                class="btn-secondary">
-                <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
-                </svg>
-                Refresh
-              </button>
-            </div>
-            
-            <!-- Stats Row -->
-            <div class="flex flex-wrap items-center gap-3 sm:gap-6 mb-6 px-1">
-              <div class="flex items-center gap-2 text-sm">
-                <div class="w-2 h-2 bg-blue-500 rounded-full"></div>
-                <span class="text-gray-900-secondary">Total:</span>
-                <span class="font-semibold text-gray-900">{{ submissions().length }}</span>
-              </div>
-              <div class="flex items-center gap-2 text-sm">
-                <div class="w-2 h-2 bg-orange-500 rounded-full"></div>
-                <span class="text-gray-900-secondary">Filtered:</span>
-                <span class="font-semibold text-gray-900">{{ filteredSubmissions().length }}</span>
-              </div>
-            </div>
-
-            <!-- Filter Bar -->
-            <div class="bg-gradient-to-r from-white to-gray-50/50 p-4 border border-gray-200/60 rounded-xl mb-6 shadow-sm backdrop-blur-sm">
-              <div class="flex flex-wrap items-center gap-3">
-                
-                <!-- Status Filter -->
-                <div class="group relative">
-                  <div class="flex items-center text-sm bg-white px-4 py-2.5 rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200 hover:border-orange-200">
-                    <svg class="w-4 h-4 mr-2 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+              }
+              <!-- Edit Profile Button -->
+              @if (isOwnProfile() && !isEditMode()) {
+                <div class="mt-4">
+                  <button
+                    (click)="editProfileAdvanced()"
+                    class="inline-flex items-center px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors duration-200">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
                     </svg>
-                    <span class="mr-2 text-gray-600 font-medium">Status</span>
-                    <select [(ngModel)]="submissionsFilter" (change)="applySubmissionsFilter()" 
-                            class="bg-transparent focus:outline-none text-gray-900 font-medium min-w-[120px]">
-                      <option value="">All Status</option>
-                      <option value="pending_review">Pending Review</option>
-                      <option value="in_progress">In Progress</option>
-                      <option value="needs_revision">Needs Revision</option>
-                      <option value="accepted">Accepted</option>
-                      <option value="published">Published</option>
-                      <option value="rejected">Rejected</option>
-                      <option value="draft">Draft</option>
-                    </select>
-                    <svg class="w-4 h-4 ml-1 text-gray-400 group-hover:text-orange-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-                    </svg>
+                    Edit Profile
+                  </button>
+                </div>
+              }
+              <!-- Edit Form -->
+              @if (isEditMode()) {
+                <div class="space-y-4 text-left">
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                      Display Name
+                    </label>
+                    <input
+                      type="text"
+                      [(ngModel)]="editForm.name"
+                      placeholder="Your display name"
+                      maxlength="100"
+                      class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent">
+                  </div>
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                      Profile Image URL
+                    </label>
+                    <input
+                      type="url"
+                      [(ngModel)]="editForm.profileImage"
+                      placeholder="https://example.com/image.jpg"
+                      class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent">
+                  </div>
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                      Bio
+                    </label>
+                    <textarea
+                      [(ngModel)]="editForm.bio"
+                      rows="3"
+                      maxlength="500"
+                      placeholder="Tell us about yourself..."
+                      class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent resize-none">
+                    </textarea>
+                    <p class="text-xs text-gray-500 mt-1">{{ editForm.bio?.length || 0 }}/500 characters</p>
+                  </div>
+                  <!-- Edit Actions -->
+                  <div class="flex gap-3">
+                    <button
+                      (click)="saveProfile()"
+                      class="px-4 py-2 bg-orange-600 text-white rounded-md hover:bg-orange-700 transition-colors duration-200">
+                      Save Changes
+                    </button>
+                    <button
+                      (click)="cancelEdit()"
+                      class="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300 transition-colors duration-200">
+                      Cancel
+                    </button>
                   </div>
                 </div>
-
-                <!-- Sort Filter -->
-                <div class="group relative">
-                  <div class="flex items-center text-sm bg-white px-4 py-2.5 rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200 hover:border-orange-200">
-                    <svg class="w-4 h-4 mr-2 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12"/>
-                    </svg>
-                    <span class="mr-2 text-gray-600 font-medium">Sort</span>
-                    <select [(ngModel)]="submissionsSort" (change)="applySubmissionsFilter()" 
-                            class="bg-transparent focus:outline-none text-gray-900 font-medium min-w-[100px]">
-                      <option value="newest">Newest First</option>
-                      <option value="oldest">Oldest First</option>
-                      <option value="status">By Status</option>
-                      <option value="title">Title A-Z</option>
-                    </select>
-                    <svg class="w-4 h-4 ml-1 text-gray-400 group-hover:text-orange-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-                    </svg>
-                  </div>
-                </div>
-
-              </div>
+              }
             </div>
           </div>
-
-          <!-- Submissions Loading -->
-          <app-loading-state 
-            *ngIf="submissionsLoading()"
-            type="spinner"
-            size="md"
-            loadingText="Loading submissions..."
-            containerClass="text-center py-12">
-          </app-loading-state>
-
-          <!-- Submissions Table -->
-          <div *ngIf="!submissionsLoading()" class="card-elevated rounded-xl overflow-hidden">
-            <div class="overflow-x-auto">
-              <table class="min-w-full">
-                <thead class="bg-white-secondary border-b border-gray-200">
-                  <tr>
-                    <th class="px-4 py-3 text-left text-xs font-semibold text-gray-900 uppercase tracking-wider">Title & Notes</th>
-                    <th class="px-4 py-3 text-left text-xs font-semibold text-gray-900 uppercase tracking-wider">Type</th>
-                    <th class="px-4 py-3 text-left text-xs font-semibold text-gray-900 uppercase tracking-wider">Status</th>
-                    <th class="px-4 py-3 text-left text-xs font-semibold text-gray-900 uppercase tracking-wider">Date</th>
-                    <th class="px-4 py-3 text-left text-xs font-semibold text-gray-900 uppercase tracking-wider">Actions</th>
-                  </tr>
-                </thead>
-                <tbody class="bg-themed divide-y divide-gray-200">
-                  <tr *ngFor="let submission of filteredSubmissions(); trackBy: trackBySubmissionId" 
-                      class="hover:bg-white-secondary/50 transition-all duration-200 group">
-                    
-                    <!-- Title & Notes Column -->
-                    <td class="px-4 py-4">
-                      <div class="max-w-xs">
-                        <div class="text-sm font-semibold text-gray-900 mb-1 group-hover:text-gray-900-accent transition-colors duration-200">
-                          {{ submission.title }}
-                        </div>
-                        <!-- Show review feedback for accepted/rejected submissions -->
-                        <div *ngIf="submission.reviewFeedback && ['accepted', 'rejected'].includes(submission.status)" 
-                             class="text-xs text-gray-900-secondary leading-relaxed mb-1">
-                          <strong>Review:</strong> {{ submission.reviewFeedback }}
-                        </div>
-                        <!-- Show revision notes for needs_revision submissions -->
-                        <div *ngIf="submission.status === 'needs_revision' && submission.revisionNotes" 
-                             class="text-xs text-orange-700 bg-orange-50 px-1 py-0.5 rounded mb-1">
-                          <strong>Revision needed:</strong> {{ submission.revisionNotes }}
-                        </div>
-                        <!-- Show excerpt if available -->
-                        <div *ngIf="submission.excerpt" class="text-xs text-gray-900-secondary leading-relaxed line-clamp-2">
-                          {{ submission.excerpt }}
-                        </div>
-                      </div>
-                    </td>
-
-                    <!-- Type Column -->
-                    <td class="px-4 py-4">
-                      <span [class]="submission.submissionType | typeBadge">
-                        {{ submission.submissionType | prettyLabel }}
-                      </span>
-                    </td>
-
-                    <!-- Status Column -->
-                    <td class="px-4 py-4">
-                      <app-status-badge 
-                        [status]="submission.status" 
-                        size="sm"
-                        [showIcon]="true">
-                      </app-status-badge>
-                    </td>
-
-                    <!-- Date Column -->
-                    <td class="px-4 py-4">
-                      <div class="text-xs text-gray-900-secondary">
-                        {{ submission.submittedAt | date:'MMM d' }}
-                      </div>
-                      <div class="text-xs text-gray-900-tertiary mt-0.5">
-                        {{ submission.submittedAt | date:'HH:mm' }}
-                      </div>
-                    </td>
-
-                    <!-- Actions Column -->
-                    <td class="px-8 py-6">
-                      <div class="flex items-center gap-2">
-                        <button *ngFor="let button of getActionButtons(submission)"
-                                (click)="handleSubmissionAction(button.action, submission)"
-                                [class]="'inline-flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 border ' + getButtonClass(button.action)">
-                          <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <!-- View Icon -->
-                            <path *ngIf="button.action === 'view'" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-                            <!-- Edit Icon -->
-                            <path *ngIf="button.action === 'edit'" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
-                            <!-- Resubmit Icon -->
-                            <path *ngIf="button.action === 'resubmit'" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
-                            <!-- Delete Icon -->
-                            <path *ngIf="button.action === 'delete'" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                          </svg>
-                          {{ button.label }}
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-
-          <!-- Empty State for Submissions -->
-          <app-empty-state 
-            *ngIf="!submissionsLoading() && filteredSubmissions().length === 0"
-            title="No submissions yet"
-            message="Start by submitting your first work for review."
-            icon="folder"
-            actionText="Submit Your First Work"
-            [onAction]="goToSubmit.bind(this)">
-          </app-empty-state>
         </div>
-
-        <!-- Drafts Tab -->
-        <div *ngIf="activeTab() === 'drafts'" class="w-full">
-          <!-- Header -->
-          <div class="border-b border-gray-200 pb-6 mb-8">
-            <div class="flex items-center justify-between mb-4">
-              <div>
-                <h1 class="text-2xl md:text-3xl font-bold text-gray-900 mb-2">
-                  My Drafts
-                </h1>
-                <p class="text-gray-900-secondary">
-                  Your work in progress - continue writing or submit when ready.
-                </p>
-              </div>
-              <div class="flex gap-2">
-                <button 
-                  (click)="refreshDrafts()"
+      </div>
+      <!-- Tab Navigation (Admin Style) -->
+      <div class="border-b border-gray-200 bg-white shadow-sm">
+        <div class="max-w-screen-xl mx-auto px-4 sm:px-6 md:px-10">
+          <nav class="flex space-x-2 sm:space-x-8 overflow-x-auto scrollbar-hide" aria-label="Profile Tabs">
+            <button
+              (click)="activeTab.set('published')"
+              [class.border-orange-500]="activeTab() === 'published'"
+              [class.text-orange-600]="activeTab() === 'published'"
+              [class.border-transparent]="activeTab() !== 'published'"
+              [class.text-gray-600]="activeTab() !== 'published'"
+              [class.hover:text-gray-900]="activeTab() !== 'published'"
+              [class.hover:border-gray-300]="activeTab() !== 'published'"
+              class="whitespace-nowrap py-3 px-3 sm:py-4 sm:px-6 border-b-2 font-medium text-xs sm:text-sm transition-all duration-200 flex items-center gap-1 sm:gap-2 min-w-max">
+              <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"/>
+              </svg>
+              Published Works
+              <span class="ml-1 px-2 py-1 text-xs rounded-full bg-orange-100 text-orange-800">{{ publishedWorks().length }}</span>
+            </button>
+            <button
+              (click)="activeTab.set('submissions')"
+              [class.border-orange-500]="activeTab() === 'submissions'"
+              [class.text-orange-600]="activeTab() === 'submissions'"
+              [class.border-transparent]="activeTab() !== 'submissions'"
+              [class.text-gray-600]="activeTab() !== 'submissions'"
+              [class.hover:text-gray-900]="activeTab() !== 'submissions'"
+              [class.hover:border-gray-300]="activeTab() !== 'submissions'"
+              class="whitespace-nowrap py-3 px-3 sm:py-4 sm:px-6 border-b-2 font-medium text-xs sm:text-sm transition-all duration-200 flex items-center gap-1 sm:gap-2 min-w-max">
+              <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
+              </svg>
+              My Submissions
+              <span class="ml-1 px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-800">{{ submissions().length }}</span>
+            </button>
+            <button
+              (click)="activeTab.set('drafts')"
+              [class.border-orange-500]="activeTab() === 'drafts'"
+              [class.text-orange-600]="activeTab() === 'drafts'"
+              [class.border-transparent]="activeTab() !== 'drafts'"
+              [class.text-gray-600]="activeTab() !== 'drafts'"
+              [class.hover:text-gray-900]="activeTab() !== 'drafts'"
+              [class.hover:border-gray-300]="activeTab() !== 'drafts'"
+              class="whitespace-nowrap py-3 px-3 sm:py-4 sm:px-6 border-b-2 font-medium text-xs sm:text-sm transition-all duration-200 flex items-center gap-1 sm:gap-2 min-w-max">
+              <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+              </svg>
+              My Drafts
+              <span class="ml-1 px-2 py-1 text-xs rounded-full bg-yellow-100 text-yellow-800">{{ drafts().length }}</span>
+            </button>
+          </nav>
+        </div>
+      </div>
+      <!-- Main Content Tabs -->
+      <div class="max-w-screen-xl mx-auto px-4 sm:px-6 md:px-10 py-6">
+        <!-- Tab Content -->
+        <!-- Published Works Tab -->
+        @if (activeTab() === 'published') {
+          <div class="w-full">
+            <!-- Header -->
+            <div class="border-b border-gray-200 pb-6 mb-8">
+              <div class="flex items-center justify-between mb-4">
+                <div>
+                  <h1 class="text-2xl md:text-3xl font-bold text-gray-900 mb-2">
+                    Published Works
+                  </h1>
+                  <p class="text-gray-900-secondary">
+                    View and manage your published content.
+                  </p>
+                </div>
+                <button
+                  (click)="refreshPublishedWorks()"
                   class="btn-secondary">
                   <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
                   </svg>
                   Refresh
                 </button>
-                <a routerLink="/submit" class="btn-primary whitespace-nowrap">
-                  New Draft
-                </a>
               </div>
-            </div>
-            
-            <!-- Stats Row -->
-            <div class="flex flex-wrap items-center gap-3 sm:gap-6 mb-6 px-1">
-              <div class="flex items-center gap-2 text-sm">
-                <div class="w-2 h-2 bg-yellow-500 rounded-full"></div>
-                <span class="text-gray-900-secondary">Drafts:</span>
-                <span class="font-semibold text-gray-900">{{ drafts().length }}</span>
+              <!-- Stats Row -->
+              <div class="flex flex-wrap items-center gap-3 sm:gap-6 mb-6 px-1">
+                <div class="flex items-center gap-2 text-sm">
+                  <div class="w-2 h-2 bg-green-500 rounded-full"></div>
+                  <span class="text-gray-900-secondary">Published:</span>
+                  <span class="font-semibold text-gray-900">{{ publishedWorks().length }}</span>
+                </div>
+                <div class="flex items-center gap-2 text-sm">
+                  <div class="w-2 h-2 bg-blue-500 rounded-full"></div>
+                  <span class="text-gray-900-secondary">Filtered:</span>
+                  <span class="font-semibold text-gray-900">{{ filteredWorks().length }}</span>
+                </div>
               </div>
-              <div class="flex items-center gap-2 text-sm">
-                <div class="w-2 h-2 bg-purple-500 rounded-full"></div>
-                <span class="text-gray-900-secondary">Filtered:</span>
-                <span class="font-semibold text-gray-900">{{ filteredDrafts().length }}</span>
-              </div>
-            </div>
-
-            <!-- Filter Bar -->
-            <div class="bg-gradient-to-r from-white to-gray-50/50 p-4 border border-gray-200/60 rounded-xl mb-6 shadow-sm backdrop-blur-sm">
-              <div class="flex flex-wrap items-center gap-3">
-                
-                <!-- Type Filter -->
-                <div class="group relative">
-                  <div class="flex items-center text-sm bg-white px-4 py-2.5 rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200 hover:border-orange-200">
-                    <svg class="w-4 h-4 mr-2 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
-                    </svg>
-                    <span class="mr-2 text-gray-600 font-medium">Type</span>
-                    <select [(ngModel)]="draftsFilter" (change)="applyDraftsFilter()" 
-                            class="bg-transparent focus:outline-none text-gray-900 font-medium min-w-[100px]">
-                      <option value="">All Types</option>
-                      <option value="poem">Poems</option>
-                      <option value="prose">Prose</option>
-                      <option value="article">Articles</option>
-                      <option value="cinema_essay">Cinema Essays</option>
-                    </select>
-                    <svg class="w-4 h-4 ml-1 text-gray-400 group-hover:text-orange-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-                    </svg>
+              <!-- Filter Bar -->
+              <div class="bg-gradient-to-r from-white to-gray-50/50 p-4 border border-gray-200/60 rounded-xl mb-6 shadow-sm backdrop-blur-sm">
+                <div class="flex flex-wrap items-center gap-3">
+                  <!-- Type Filter -->
+                  <div class="group relative">
+                    <div class="flex items-center text-sm bg-white px-4 py-2.5 rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200 hover:border-orange-200">
+                      <svg class="w-4 h-4 mr-2 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+                      </svg>
+                      <span class="mr-2 text-gray-600 font-medium">Type</span>
+                      <select [(ngModel)]="worksFilter" (change)="applyWorksFilter()"
+                        class="bg-transparent focus:outline-none text-gray-900 font-medium min-w-[100px]">
+                        <option value="">All Types</option>
+                        <option value="poem">Poems</option>
+                        <option value="prose">Prose</option>
+                        <option value="article">Articles</option>
+                        <option value="cinema_essay">Cinema Essays</option>
+                      </select>
+                      <svg class="w-4 h-4 ml-1 text-gray-400 group-hover:text-orange-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                      </svg>
+                    </div>
+                  </div>
+                  <!-- Sort Filter -->
+                  <div class="group relative">
+                    <div class="flex items-center text-sm bg-white px-4 py-2.5 rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200 hover:border-orange-200">
+                      <svg class="w-4 h-4 mr-2 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12"/>
+                      </svg>
+                      <span class="mr-2 text-gray-600 font-medium">Sort</span>
+                      <select [(ngModel)]="worksSort" (change)="applyWorksFilter()"
+                        class="bg-transparent focus:outline-none text-gray-900 font-medium min-w-[100px]">
+                        <option value="newest">Newest First</option>
+                        <option value="oldest">Oldest First</option>
+                        <option value="popular">Most Popular</option>
+                        <option value="title">Title A-Z</option>
+                      </select>
+                      <svg class="w-4 h-4 ml-1 text-gray-400 group-hover:text-orange-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                      </svg>
+                    </div>
                   </div>
                 </div>
-
-                <!-- Sort Filter -->
-                <div class="group relative">
-                  <div class="flex items-center text-sm bg-white px-4 py-2.5 rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200 hover:border-orange-200">
-                    <svg class="w-4 h-4 mr-2 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12"/>
-                    </svg>
-                    <span class="mr-2 text-gray-600 font-medium">Sort</span>
-                    <select [(ngModel)]="draftsSort" (change)="applyDraftsFilter()" 
-                            class="bg-transparent focus:outline-none text-gray-900 font-medium min-w-[120px]">
-                      <option value="newest">Recently Updated</option>
-                      <option value="oldest">Oldest First</option>
-                      <option value="title">Title A-Z</option>
-                    </select>
-                    <svg class="w-4 h-4 ml-1 text-gray-400 group-hover:text-orange-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-                    </svg>
+              </div>
+            </div>
+            <!-- Published Works Content -->
+            @if (worksLoading()) {
+              <app-loading-state
+                type="spinner"
+                size="md"
+                loadingText="Loading works..."
+                containerClass="text-center py-12">
+              </app-loading-state>
+            }
+            <!-- Published Works Cards -->
+            @if (!worksLoading()) {
+              <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                @for (work of filteredWorks(); track trackByWorkId($index, work)) {
+                  <div
+                    class="group bg-white border border-gray-200 rounded-xl p-6 hover:shadow-lg hover:border-orange-200 transition-all duration-300 cursor-pointer overflow-hidden"
+                    (click)="onPublishedWorkCardClick(work)">
+                    <!-- Card Header -->
+                    <div class="mb-4">
+                      <div class="flex items-start justify-between mb-3">
+                        <h3 class="text-lg font-bold text-gray-900 group-hover:text-orange-600 transition-colors leading-tight"
+                          style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+                          {{ work.title }}
+                        </h3>
+                        <!-- Reading time indicator -->
+                        <div class="flex-shrink-0 ml-2">
+                          <span class="inline-flex items-center px-2 py-1 text-xs text-gray-500 bg-gray-100 rounded-full">
+                            <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                            {{ work.readingTime || 5 }}m
+                          </span>
+                        </div>
+                      </div>
+                      <!-- Type Badge -->
+                      <div class="mb-3">
+                        <span [class]="getTypeBadgeClass(work.submissionType)">
+                          {{ formatType(work.submissionType) }}
+                        </span>
+                      </div>
+                    </div>
+                    <!-- Excerpt -->
+                    <div class="mb-4">
+                      @if (work.excerpt) {
+                        <p class="text-gray-600 text-sm leading-relaxed"
+                          style="display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;">
+                          {{ cleanHtml(work.excerpt) }}
+                        </p>
+                      }
+                      @if (!work.excerpt) {
+                        <p class="text-gray-400 text-sm italic">
+                          No preview available
+                        </p>
+                      }
+                    </div>
+                    <!-- Card Footer -->
+                    <div class="flex items-center justify-between text-xs text-gray-500 pt-4 border-t border-gray-100 group-hover:border-orange-100 transition-colors">
+                      <div class="flex items-center">
+                        <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                        </svg>
+                        <span class="font-medium">{{ work.publishedAt | date:'MMM d, y' }}</span>
+                      </div>
+                      <div class="flex items-center text-orange-600 group-hover:text-orange-700 transition-colors">
+                        <span class="text-xs font-medium">Read more</span>
+                        <svg class="w-3 h-3 ml-1 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                        </svg>
+                      </div>
+                    </div>
                   </div>
-                </div>
-
+                }
               </div>
-            </div>
+            }
+            <!-- Empty State for Published Works -->
+            @if (!worksLoading() && filteredWorks().length === 0) {
+              <app-empty-state
+                title="No published works yet"
+                message="You haven't published any works yet."
+                icon="document"
+                actionText="Create Your First Work"
+                [onAction]="goToSubmit.bind(this)">
+              </app-empty-state>
+            }
           </div>
-          
-          <!-- Auto-deletion Banner -->
-          <div *ngIf="!draftsLoading() && drafts().length > 0" class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-6 rounded-r-lg">
-            <div class="flex">
-              <div class="flex-shrink-0">
-                <svg class="h-5 w-5 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
-                </svg>
-              </div>
-              <div class="ml-3">
-                <p class="text-sm text-yellow-700">
-                  <strong>Auto-deletion:</strong> These drafts will be automatically deleted after 7 days of inactivity to free up storage space.
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <!-- Drafts Loading -->
-          <app-loading-state 
-            *ngIf="draftsLoading()"
-            type="spinner"
-            size="md"
-            loadingText="Loading drafts..."
-            containerClass="text-center py-12">
-          </app-loading-state>
-
-          <!-- Drafts Cards Layout -->
-          <div *ngIf="!draftsLoading()" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-            <div *ngFor="let draft of filteredDrafts(); trackBy: trackByDraftId" 
-                 class="card card-hover p-6 relative border-l-4 border-yellow-400">
-              
-              <!-- Draft Indicator -->
-              <div class="absolute top-4 right-4">
-                <div class="px-2 py-1 rounded-md text-xs font-medium bg-yellow-100 text-yellow-800 border border-yellow-200">
-                  DRAFT
+        }
+        <!-- Submissions Tab -->
+        @if (activeTab() === 'submissions') {
+          <div class="w-full">
+            <!-- Header -->
+            <div class="border-b border-gray-200 pb-6 mb-8">
+              <div class="flex items-center justify-between mb-4">
+                <div>
+                  <h1 class="text-2xl md:text-3xl font-bold text-gray-900 mb-2">
+                    My Submissions
+                  </h1>
+                  <p class="text-gray-900-secondary">
+                    Track the status of your submitted works.
+                  </p>
                 </div>
-              </div>
-
-              <!-- Card Header -->
-              <div class="mb-4 pr-16">
-                <h3 class="text-lg font-semibold text-gray-900 mb-2 line-clamp-2">
-                  {{ draft.title || 'Untitled Draft' }}
-                </h3>
-                <div class="flex items-center gap-3 text-sm">
-                  <span class="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-white-tertiary/50 text-gray-900-secondary border border-gray-200/30">
-                    {{ draft.type | titlecase }}
-                  </span>
-                  <span class="text-gray-900-tertiary font-mono">{{ draft.wordCount || 0 }} words</span>
-                </div>
-              </div>
-
-              <!-- Draft Preview -->
-              <div class="mb-6">
-                <p class="text-gray-900-secondary text-sm leading-relaxed line-clamp-4 italic">
-                  {{ draft.excerpt || (draft.content && draft.content.substring(0, 120) + '...') || 'Start writing your draft...' }}
-                </p>
-              </div>
-
-              <!-- Last Updated -->
-              <div class="mb-4 pb-4 border-b border-gray-200/20">
-                <div class="flex items-center text-xs text-gray-900-tertiary">
-                  <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                <button
+                  (click)="refreshSubmissions()"
+                  class="btn-secondary">
+                  <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
                   </svg>
-                  Updated {{ draft.updatedAt | date:'MMM d, y' }}
+                  Refresh
+                </button>
+              </div>
+              <!-- Stats Row -->
+              <div class="flex flex-wrap items-center gap-3 sm:gap-6 mb-6 px-1">
+                <div class="flex items-center gap-2 text-sm">
+                  <div class="w-2 h-2 bg-blue-500 rounded-full"></div>
+                  <span class="text-gray-900-secondary">Total:</span>
+                  <span class="font-semibold text-gray-900">{{ submissions().length }}</span>
+                </div>
+                <div class="flex items-center gap-2 text-sm">
+                  <div class="w-2 h-2 bg-orange-500 rounded-full"></div>
+                  <span class="text-gray-900-secondary">Filtered:</span>
+                  <span class="font-semibold text-gray-900">{{ filteredSubmissions().length }}</span>
                 </div>
               </div>
-
-              <!-- Action Buttons -->
-              <div class="flex flex-wrap gap-2">
-                <button (click)="editDraft(draft)" 
+              <!-- Filter Bar -->
+              <div class="bg-gradient-to-r from-white to-gray-50/50 p-4 border border-gray-200/60 rounded-xl mb-6 shadow-sm backdrop-blur-sm">
+                <div class="flex flex-wrap items-center gap-3">
+                  <!-- Status Filter -->
+                  <div class="group relative">
+                    <div class="flex items-center text-sm bg-white px-4 py-2.5 rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200 hover:border-orange-200">
+                      <svg class="w-4 h-4 mr-2 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                      </svg>
+                      <span class="mr-2 text-gray-600 font-medium">Status</span>
+                      <select [(ngModel)]="submissionsFilter" (change)="applySubmissionsFilter()"
+                        class="bg-transparent focus:outline-none text-gray-900 font-medium min-w-[120px]">
+                        <option value="">All Status</option>
+                        <option value="pending_review">Pending Review</option>
+                        <option value="in_progress">In Progress</option>
+                        <option value="needs_revision">Needs Revision</option>
+                        <option value="accepted">Accepted</option>
+                        <option value="published">Published</option>
+                        <option value="rejected">Rejected</option>
+                        <option value="draft">Draft</option>
+                      </select>
+                      <svg class="w-4 h-4 ml-1 text-gray-400 group-hover:text-orange-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                      </svg>
+                    </div>
+                  </div>
+                  <!-- Sort Filter -->
+                  <div class="group relative">
+                    <div class="flex items-center text-sm bg-white px-4 py-2.5 rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200 hover:border-orange-200">
+                      <svg class="w-4 h-4 mr-2 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12"/>
+                      </svg>
+                      <span class="mr-2 text-gray-600 font-medium">Sort</span>
+                      <select [(ngModel)]="submissionsSort" (change)="applySubmissionsFilter()"
+                        class="bg-transparent focus:outline-none text-gray-900 font-medium min-w-[100px]">
+                        <option value="newest">Newest First</option>
+                        <option value="oldest">Oldest First</option>
+                        <option value="status">By Status</option>
+                        <option value="title">Title A-Z</option>
+                      </select>
+                      <svg class="w-4 h-4 ml-1 text-gray-400 group-hover:text-orange-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                      </svg>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- Submissions Loading -->
+            @if (submissionsLoading()) {
+              <app-loading-state
+                type="spinner"
+                size="md"
+                loadingText="Loading submissions..."
+                containerClass="text-center py-12">
+              </app-loading-state>
+            }
+            <!-- Submissions Table -->
+            @if (!submissionsLoading()) {
+              <div class="card-elevated rounded-xl overflow-hidden">
+                <div class="overflow-x-auto">
+                  <table class="min-w-full">
+                    <thead class="bg-white-secondary border-b border-gray-200">
+                      <tr>
+                        <th class="px-4 py-3 text-left text-xs font-semibold text-gray-900 uppercase tracking-wider">Title & Notes</th>
+                        <th class="px-4 py-3 text-left text-xs font-semibold text-gray-900 uppercase tracking-wider">Type</th>
+                        <th class="px-4 py-3 text-left text-xs font-semibold text-gray-900 uppercase tracking-wider">Status</th>
+                        <th class="px-4 py-3 text-left text-xs font-semibold text-gray-900 uppercase tracking-wider">Date</th>
+                        <th class="px-4 py-3 text-left text-xs font-semibold text-gray-900 uppercase tracking-wider">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody class="bg-themed divide-y divide-gray-200">
+                      @for (submission of filteredSubmissions(); track trackBySubmissionId($index, submission)) {
+                        <tr
+                          class="hover:bg-white-secondary/50 transition-all duration-200 group">
+                          <!-- Title & Notes Column -->
+                          <td class="px-4 py-4">
+                            <div class="max-w-xs">
+                              <div class="text-sm font-semibold text-gray-900 mb-1 group-hover:text-gray-900-accent transition-colors duration-200">
+                                {{ submission.title }}
+                              </div>
+                              <!-- Show review feedback for accepted/rejected submissions -->
+                              @if (submission.reviewFeedback && ['accepted', 'rejected'].includes(submission.status)) {
+                                <div
+                                  class="text-xs text-gray-900-secondary leading-relaxed mb-1">
+                                  <strong>Review:</strong> {{ submission.reviewFeedback }}
+                                </div>
+                              }
+                              <!-- Show revision notes for needs_revision submissions -->
+                              @if (submission.status === 'needs_revision' && submission.revisionNotes) {
+                                <div
+                                  class="text-xs text-orange-700 bg-orange-50 px-1 py-0.5 rounded mb-1">
+                                  <strong>Revision needed:</strong> {{ submission.revisionNotes }}
+                                </div>
+                              }
+                              <!-- Show excerpt if available -->
+                              @if (submission.excerpt) {
+                                <div class="text-xs text-gray-900-secondary leading-relaxed line-clamp-2">
+                                  {{ submission.excerpt }}
+                                </div>
+                              }
+                            </div>
+                          </td>
+                          <!-- Type Column -->
+                          <td class="px-4 py-4">
+                            <span [class]="submission.submissionType | typeBadge">
+                              {{ submission.submissionType | prettyLabel }}
+                            </span>
+                          </td>
+                          <!-- Status Column -->
+                          <td class="px-4 py-4">
+                            <app-status-badge
+                              [status]="submission.status"
+                              size="sm"
+                              [showIcon]="true">
+                            </app-status-badge>
+                          </td>
+                          <!-- Date Column -->
+                          <td class="px-4 py-4">
+                            <div class="text-xs text-gray-900-secondary">
+                              {{ submission.submittedAt | date:'MMM d' }}
+                            </div>
+                            <div class="text-xs text-gray-900-tertiary mt-0.5">
+                              {{ submission.submittedAt | date:'HH:mm' }}
+                            </div>
+                          </td>
+                          <!-- Actions Column -->
+                          <td class="px-8 py-6">
+                            <div class="flex items-center gap-2">
+                              @for (button of getActionButtons(submission); track button) {
+                                <button
+                                  (click)="handleSubmissionAction(button.action, submission)"
+                                  [class]="'inline-flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 border ' + getButtonClass(button.action)">
+                                  <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <!-- View Icon -->
+                                    @if (button.action === 'view') {
+                                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                                    }
+                                    <!-- Edit Icon -->
+                                    @if (button.action === 'edit') {
+                                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                                    }
+                                    <!-- Resubmit Icon -->
+                                    @if (button.action === 'resubmit') {
+                                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                                    }
+                                    <!-- Delete Icon -->
+                                    @if (button.action === 'delete') {
+                                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                    }
+                                  </svg>
+                                  {{ button.label }}
+                                </button>
+                              }
+                            </div>
+                          </td>
+                        </tr>
+                      }
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            }
+            <!-- Empty State for Submissions -->
+            @if (!submissionsLoading() && filteredSubmissions().length === 0) {
+              <app-empty-state
+                title="No submissions yet"
+                message="Start by submitting your first work for review."
+                icon="folder"
+                actionText="Submit Your First Work"
+                [onAction]="goToSubmit.bind(this)">
+              </app-empty-state>
+            }
+          </div>
+        }
+        <!-- Drafts Tab -->
+        @if (activeTab() === 'drafts') {
+          <div class="w-full">
+            <!-- Header -->
+            <div class="border-b border-gray-200 pb-6 mb-8">
+              <div class="flex items-center justify-between mb-4">
+                <div>
+                  <h1 class="text-2xl md:text-3xl font-bold text-gray-900 mb-2">
+                    My Drafts
+                  </h1>
+                  <p class="text-gray-900-secondary">
+                    Your work in progress - continue writing or submit when ready.
+                  </p>
+                </div>
+                <div class="flex gap-2">
+                  <button
+                    (click)="refreshDrafts()"
+                    class="btn-secondary">
+                    <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                    </svg>
+                    Refresh
+                  </button>
+                  <a routerLink="/submit" class="btn-primary whitespace-nowrap">
+                    New Draft
+                  </a>
+                </div>
+              </div>
+              <!-- Stats Row -->
+              <div class="flex flex-wrap items-center gap-3 sm:gap-6 mb-6 px-1">
+                <div class="flex items-center gap-2 text-sm">
+                  <div class="w-2 h-2 bg-yellow-500 rounded-full"></div>
+                  <span class="text-gray-900-secondary">Drafts:</span>
+                  <span class="font-semibold text-gray-900">{{ drafts().length }}</span>
+                </div>
+                <div class="flex items-center gap-2 text-sm">
+                  <div class="w-2 h-2 bg-purple-500 rounded-full"></div>
+                  <span class="text-gray-900-secondary">Filtered:</span>
+                  <span class="font-semibold text-gray-900">{{ filteredDrafts().length }}</span>
+                </div>
+              </div>
+              <!-- Filter Bar -->
+              <div class="bg-gradient-to-r from-white to-gray-50/50 p-4 border border-gray-200/60 rounded-xl mb-6 shadow-sm backdrop-blur-sm">
+                <div class="flex flex-wrap items-center gap-3">
+                  <!-- Type Filter -->
+                  <div class="group relative">
+                    <div class="flex items-center text-sm bg-white px-4 py-2.5 rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200 hover:border-orange-200">
+                      <svg class="w-4 h-4 mr-2 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+                      </svg>
+                      <span class="mr-2 text-gray-600 font-medium">Type</span>
+                      <select [(ngModel)]="draftsFilter" (change)="applyDraftsFilter()"
+                        class="bg-transparent focus:outline-none text-gray-900 font-medium min-w-[100px]">
+                        <option value="">All Types</option>
+                        <option value="poem">Poems</option>
+                        <option value="prose">Prose</option>
+                        <option value="article">Articles</option>
+                        <option value="cinema_essay">Cinema Essays</option>
+                      </select>
+                      <svg class="w-4 h-4 ml-1 text-gray-400 group-hover:text-orange-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                      </svg>
+                    </div>
+                  </div>
+                  <!-- Sort Filter -->
+                  <div class="group relative">
+                    <div class="flex items-center text-sm bg-white px-4 py-2.5 rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200 hover:border-orange-200">
+                      <svg class="w-4 h-4 mr-2 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12"/>
+                      </svg>
+                      <span class="mr-2 text-gray-600 font-medium">Sort</span>
+                      <select [(ngModel)]="draftsSort" (change)="applyDraftsFilter()"
+                        class="bg-transparent focus:outline-none text-gray-900 font-medium min-w-[120px]">
+                        <option value="newest">Recently Updated</option>
+                        <option value="oldest">Oldest First</option>
+                        <option value="title">Title A-Z</option>
+                      </select>
+                      <svg class="w-4 h-4 ml-1 text-gray-400 group-hover:text-orange-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                      </svg>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- Auto-deletion Banner -->
+            @if (!draftsLoading() && drafts().length > 0) {
+              <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-6 rounded-r-lg">
+                <div class="flex">
+                  <div class="flex-shrink-0">
+                    <svg class="h-5 w-5 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                    </svg>
+                  </div>
+                  <div class="ml-3">
+                    <p class="text-sm text-yellow-700">
+                      <strong>Auto-deletion:</strong> These drafts will be automatically deleted after 7 days of inactivity to free up storage space.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            }
+            <!-- Drafts Loading -->
+            @if (draftsLoading()) {
+              <app-loading-state
+                type="spinner"
+                size="md"
+                loadingText="Loading drafts..."
+                containerClass="text-center py-12">
+              </app-loading-state>
+            }
+            <!-- Drafts Cards Layout -->
+            @if (!draftsLoading()) {
+              <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                @for (draft of filteredDrafts(); track trackByDraftId($index, draft)) {
+                  <div
+                    class="card card-hover p-6 relative border-l-4 border-yellow-400">
+                    <!-- Draft Indicator -->
+                    <div class="absolute top-4 right-4">
+                      <div class="px-2 py-1 rounded-md text-xs font-medium bg-yellow-100 text-yellow-800 border border-yellow-200">
+                        DRAFT
+                      </div>
+                    </div>
+                    <!-- Card Header -->
+                    <div class="mb-4 pr-16">
+                      <h3 class="text-lg font-semibold text-gray-900 mb-2 line-clamp-2">
+                        {{ draft.title || 'Untitled Draft' }}
+                      </h3>
+                      <div class="flex items-center gap-3 text-sm">
+                        <span class="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-white-tertiary/50 text-gray-900-secondary border border-gray-200/30">
+                          {{ draft.type | titlecase }}
+                        </span>
+                        <span class="text-gray-900-tertiary font-mono">{{ draft.wordCount || 0 }} words</span>
+                      </div>
+                    </div>
+                    <!-- Draft Preview -->
+                    <div class="mb-6">
+                      <p class="text-gray-900-secondary text-sm leading-relaxed line-clamp-4 italic">
+                        {{ draft.excerpt || (draft.content && draft.content.substring(0, 120) + '...') || 'Start writing your draft...' }}
+                      </p>
+                    </div>
+                    <!-- Last Updated -->
+                    <div class="mb-4 pb-4 border-b border-gray-200/20">
+                      <div class="flex items-center text-xs text-gray-900-tertiary">
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        Updated {{ draft.updatedAt | date:'MMM d, y' }}
+                      </div>
+                    </div>
+                    <!-- Action Buttons -->
+                    <div class="flex flex-wrap gap-2">
+                      <button (click)="editDraft(draft)"
                         class="flex-1 inline-flex items-center justify-center px-3 py-2 text-sm font-medium text-gray-900-accent hover:text-white hover:bg-white-accent rounded-lg transition-all duration-200 border border-gray-200-accent">
-                  <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
-                  </svg>
-                  Edit
-                </button>
-                <button (click)="submitDraft(draft)" 
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                        </svg>
+                        Edit
+                      </button>
+                      <button (click)="submitDraft(draft)"
                         class="flex-1 inline-flex items-center justify-center px-3 py-2 text-sm font-medium text-emerald-600 hover:text-white hover:bg-emerald-600 rounded-lg transition-all duration-200 border border-emerald-600">
-                  <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
-                  </svg>
-                  Submit
-                </button>
-                <button (click)="deleteDraft(draft)" 
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
+                        </svg>
+                        Submit
+                      </button>
+                      <button (click)="deleteDraft(draft)"
                         class="inline-flex items-center justify-center p-2 text-red-600 hover:text-white hover:bg-red-600 rounded-lg transition-all duration-200 border border-red-600">
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                  </svg>
-                </button>
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+                }
               </div>
-            </div>
+            }
+            <!-- Empty State for Drafts -->
+            @if (!draftsLoading() && filteredDrafts().length === 0) {
+              <app-empty-state
+                title="No drafts yet"
+                message="Start writing your first draft and save your work in progress."
+                icon="pencil"
+                actionText="Start Writing"
+                [onAction]="goToSubmit.bind(this)">
+              </app-empty-state>
+            }
           </div>
-
-          <!-- Empty State for Drafts -->
-          <app-empty-state 
-            *ngIf="!draftsLoading() && filteredDrafts().length === 0"
-            title="No drafts yet"
-            message="Start writing your first draft and save your work in progress."
-            icon="pencil"
-            actionText="Start Writing"
-            [onAction]="goToSubmit.bind(this)">
-          </app-empty-state>
-        </div>
+        }
+      </div>
     </div>
-
-  </div>
+  }
 </div>

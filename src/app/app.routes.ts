@@ -21,6 +21,7 @@ import { TermsOfUseComponent } from './info/terms-of-use/terms-of-use.component'
 import { PoemParserComponent } from './admin/poem-parser/poem-parser.component';
 import { CategoryComponent } from './category/category.component';
 import { TagComponent } from './tag/tag.component';
+import { JsonConverterComponent } from './admin/json-converter/json-converter.component';
 
 export const routes: Routes = [
   // Public routes - Use explore as homepage for now
@@ -66,7 +67,6 @@ export const routes: Routes = [
     path: 'submit', 
     component: SubmissionFormComponent, 
     canActivate: [AuthGuard],
-    canDeactivate: [CanDeactivateGuard],
     title: 'Submit Work - pi'
   },
   { 
@@ -142,6 +142,12 @@ export const routes: Routes = [
     component: PoemParserComponent,
     canActivate: [AdminGuard],
     title: 'Poem Parser - pi'
+  },
+  { 
+    path: 'json-parser', 
+    component: JsonConverterComponent,
+    canActivate: [AdminGuard],
+    title: 'JOSNß Parser - pi'
   },
 
   // Fallback

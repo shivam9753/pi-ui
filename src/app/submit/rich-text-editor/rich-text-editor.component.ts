@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import { Component, ElementRef, EventEmitter, forwardRef, Input, Output, ViewChild, AfterViewInit, inject } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
@@ -7,7 +7,7 @@ import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-rich-text-editor',
-  imports: [CommonModule],
+  imports: [],
   templateUrl: './rich-text-editor.component.html',
   styleUrls: ['./rich-text-editor.component.css'],
   providers: [

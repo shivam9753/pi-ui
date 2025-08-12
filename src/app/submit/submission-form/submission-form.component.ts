@@ -1,5 +1,5 @@
 // submission-form.component.ts
-import { CommonModule } from '@angular/common';
+
 import { Component, OnInit, OnDestroy, HostListener, ChangeDetectorRef } from '@angular/core';
 import { FormBuilder, FormGroup, FormArray, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router, CanDeactivate, ActivatedRoute } from '@angular/router';
@@ -21,25 +21,22 @@ export interface Draft {
   wordCount: number;
 }
 
-export interface CanComponentDeactivate {
-  canDeactivate: () => boolean | Promise<boolean>;
-}
+// Removed unsaved work prompts as requested
 
 @Component({
   selector: 'app-submission-form',
   templateUrl: './submission-form.component.html',
   styleUrls: ['./submission-form.component.css'],
   imports: [
-    ReactiveFormsModule, 
-    CommonModule, 
+    ReactiveFormsModule,
     DraftsListComponent,
     GuidelinesOverlayComponent,
     ContentEditorComponent,
     ToastNotificationComponent
-  ]
+]
 })
 
-export class SubmissionFormComponent implements OnInit, OnDestroy, CanComponentDeactivate {
+export class SubmissionFormComponent implements OnInit, OnDestroy {
   form: FormGroup;
   loggedInUser: GoogleUser | null = null;
   selectedType = '';
@@ -67,7 +64,7 @@ export class SubmissionFormComponent implements OnInit, OnDestroy, CanComponentD
     { 
       label: 'Poem', 
       value: 'poem', 
-      description: 'Verses, lyrics, free verse',
+      description: 'Verses, lyrics, free verse (min 3 poems required)',
       expedited: false
     },
     { 
@@ -430,6 +427,16 @@ export class SubmissionFormComponent implements OnInit, OnDestroy, CanComponentD
     if (!this.validateForm()) {
       this.showToast('Please complete all required fields', 'error');
       return;
+    }
+
+    // Check poem count for poetry submissions
+    const submissionType = this.form.get('submissionType')?.value;
+    if (submissionType === 'poem') {
+      const contents = this.form.get('contents') as FormArray;
+      if (contents.controls.length < 3) {
+        this.showToast('Poetry submissions require at least 3 poems', 'error');
+        return;
+      }
     }
 
     this.isSubmitting = true;

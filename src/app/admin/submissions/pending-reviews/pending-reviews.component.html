@@ -1,125 +1,128 @@
 <!-- Background with themed styling -->
 <div class="w-full">
-    
-    <!-- Header + Filters Side by Side -->
-<div class="flex flex-col lg:flex-row lg:items-start gap-8 border-b border-gray-200 pb-6 mb-8">
-  
-  <!-- LEFT: Heading and Subheading -->
-  <div class="flex-1 mb-4 lg:mb-0">
-    <h1 class="text-2xl md:text-3xl font-bold text-gray-900 mb-2">
-      Pending Review
-    </h1>
-    <p class="text-gray-900-secondary">
-      Review new submissions and manage review queue.
-    </p>
-  </div>
 
-  <!-- RIGHT: All Filters -->
-  <div class="flex-1">
-    <app-filter-bar
-      [filterConfigs]="filterConfigs"
-      [quickFilters]="quickFilters"
-      [initialFilters]="filters"
-      [showApplyButton]="false"
-      [debounceTime]="300"
-      (filtersChange)="onFiltersChange($event)"
-      (search)="onSearchChange($event)"
-      (quickFilterToggle)="onQuickFilterToggle($event)">
-    </app-filter-bar>
+  <!-- Header + Filters Side by Side -->
+  <div class="flex flex-col lg:flex-row lg:items-start gap-8 border-b border-gray-200 pb-6 mb-8">
 
-    <!-- Results Counter -->
-    <div class="flex items-center justify-between text-sm bg-gray-50 p-3 rounded-lg">
-      <span class="text-gray-600">
-        {{ totalSubmissions }} submission{{ totalSubmissions !== 1 ? 's' : '' }} found
-      </span>
-      <div class="flex items-center gap-2 text-orange-400">
-        <div class="w-2 h-2 bg-orange-400 rounded-full animate-pulse"></div>
-        <span class="text-xs">Live filtering</span>
+    <!-- LEFT: Heading and Subheading -->
+    <div class="flex-1 mb-4 lg:mb-0">
+      <h1 class="text-2xl md:text-3xl font-bold text-gray-900 mb-2">
+        Pending Review
+      </h1>
+      <p class="text-gray-900-secondary">
+        Review new submissions and manage review queue.
+      </p>
+    </div>
+
+    <!-- RIGHT: All Filters -->
+    <div class="flex-1">
+      <app-filter-bar
+        [filterConfigs]="filterConfigs"
+        [quickFilters]="quickFilters"
+        [initialFilters]="filters"
+        [showApplyButton]="false"
+        [debounceTime]="300"
+        (filtersChange)="onFiltersChange($event)"
+        (search)="onSearchChange($event)"
+        (quickFilterToggle)="onQuickFilterToggle($event)">
+      </app-filter-bar>
+
+      <!-- Results Counter -->
+      <div class="flex items-center justify-between text-sm bg-gray-50 p-3 rounded-lg">
+        <span class="text-gray-600">
+          {{ totalSubmissions }} submission{{ totalSubmissions !== 1 ? 's' : '' }} found
+        </span>
+        <div class="flex items-center gap-2 text-orange-400">
+          <div class="w-2 h-2 bg-orange-400 rounded-full animate-pulse"></div>
+          <span class="text-xs">Live filtering</span>
+        </div>
       </div>
     </div>
-  </div>
-  
-  <!-- OLD COMPLEX FILTER REMOVED -->
 
-    
+    <!-- OLD COMPLEX FILTER REMOVED -->
+
+
     <!-- Submissions Grid -->
-    <div *ngIf="!loading && submissions && submissions.length > 0" class="py-1">
-      <div class="submissions-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mb-8 px-2 md:px-0">
-        <app-content-card 
-          *ngFor="let submission of submissions; trackBy: trackSubmission"
-          [content]="convertToContentCardData(submission)"
-          [showStatus]="true"
-          [showActions]="true"
-          [actions]="getCardActions()">
-        </app-content-card>
-      </div>
-
-      <!-- Pagination Controls -->
-      <div *ngIf="totalPages > 1" class="flex flex-col sm:flex-row items-center justify-between gap-4 mt-8 pt-6 border-t border-gray-200">
-        
-        <!-- Page Info -->
-        <div class="text-sm text-gray-900-secondary">
-          Showing {{ (currentPage - 1) * pageSize + 1 }} to {{ Math.min(currentPage * pageSize, totalSubmissions) }} of {{ totalSubmissions }} submissions
+    @if (!loading && submissions && submissions.length > 0) {
+      <div class="py-1">
+        <div class="submissions-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mb-8 px-2 md:px-0">
+          @for (submission of submissions; track trackSubmission($index, submission)) {
+            <app-content-card
+              [content]="convertToContentCardData(submission)"
+              [showStatus]="true"
+              [showActions]="true"
+              [actions]="getCardActions()">
+            </app-content-card>
+          }
         </div>
-
-        <!-- Pagination Buttons -->
-        <div class="flex items-center space-x-1">
-          <!-- Previous Button -->
-          <button
-            (click)="onPageChange(currentPage - 1)"
-            [disabled]="currentPage === 1 || loading"
-            class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
-          >
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
-            </svg>
-          </button>
-
-          <!-- Page Numbers -->
-          <button
-            *ngFor="let page of pages"
-            (click)="onPageChange(page)"
-            [disabled]="loading"
+        <!-- Pagination Controls -->
+        @if (totalPages > 1) {
+          <div class="flex flex-col sm:flex-row items-center justify-between gap-4 mt-8 pt-6 border-t border-gray-200">
+            <!-- Page Info -->
+            <div class="text-sm text-gray-900-secondary">
+              Showing {{ (currentPage - 1) * pageSize + 1 }} to {{ Math.min(currentPage * pageSize, totalSubmissions) }} of {{ totalSubmissions }} submissions
+            </div>
+            <!-- Pagination Buttons -->
+            <div class="flex items-center space-x-1">
+              <!-- Previous Button -->
+              <button
+                (click)="onPageChange(currentPage - 1)"
+                [disabled]="currentPage === 1 || loading"
+                class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
+                >
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                </svg>
+              </button>
+              <!-- Page Numbers -->
+              @for (page of pages; track page) {
+                <button
+                  (click)="onPageChange(page)"
+                  [disabled]="loading"
             [ngClass]="{
               'bg-orange-500 text-white border-orange-500': page === currentPage,
               'bg-white text-gray-700 border-gray-300 hover:bg-gray-50': page !== currentPage
             }"
-            class="px-3 py-2 text-sm font-medium border rounded-md transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {{ page }}
-          </button>
+                  class="px-3 py-2 text-sm font-medium border rounded-md transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                  {{ page }}
+                </button>
+              }
+              <!-- Next Button -->
+              <button
+                (click)="onPageChange(currentPage + 1)"
+                [disabled]="currentPage === totalPages || loading"
+                class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
+                >
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                </svg>
+              </button>
+            </div>
+          </div>
+        }
+      </div>
+    }
 
-          <!-- Next Button -->
-          <button
-            (click)="onPageChange(currentPage + 1)"
-            [disabled]="currentPage === totalPages || loading"
-            class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
-          >
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-            </svg>
-          </button>
-        </div>
-      </div>
-    </div>
-    
     <!-- Empty State -->
-    <div *ngIf="!loading && (!submissions || submissions.length === 0)" class="text-center py-16">
-      <div class="w-16 h-16 mx-auto bg-gray-100 rounded-full flex items-center justify-center mb-4">
-        <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-        </svg>
+    @if (!loading && (!submissions || submissions.length === 0)) {
+      <div class="text-center py-16">
+        <div class="w-16 h-16 mx-auto bg-gray-100 rounded-full flex items-center justify-center mb-4">
+          <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+          </svg>
+        </div>
+        <h3 class="text-lg font-medium text-gray-900 mb-2">No submissions found</h3>
+        <p class="text-gray-500 max-w-sm mx-auto">
+          No submissions match your current filters. Try adjusting your search criteria.
+        </p>
+        <button
+          (click)="clearFilters()"
+          class="mt-4 text-orange-600 hover:text-orange-500 font-medium text-sm"
+          >
+          Clear all filters
+        </button>
       </div>
-      <h3 class="text-lg font-medium text-gray-900 mb-2">No submissions found</h3>
-      <p class="text-gray-500 max-w-sm mx-auto">
-        No submissions match your current filters. Try adjusting your search criteria.
-      </p>
-      <button
-        (click)="clearFilters()"
-        class="mt-4 text-orange-600 hover:text-orange-500 font-medium text-sm"
-      >
-        Clear all filters
-      </button>
-    </div>
-</div>
+    }
+  </div>
 

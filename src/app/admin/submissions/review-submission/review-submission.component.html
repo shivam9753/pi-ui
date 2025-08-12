@@ -6,7 +6,9 @@
       <!-- Title Section - More Prominent -->
       <div class="mb-5">
         <h1 class="text-2xl font-bold text-gray-900 mb-3 leading-tight">{{ submission?.title }}</h1>
-        <p class="text-gray-700 text-base leading-relaxed" *ngIf="submission.description">{{ submission.description }}</p>
+        @if (submission.description) {
+          <p class="text-gray-700 text-base leading-relaxed">{{ submission.description }}</p>
+        }
       </div>
 
       <!-- Author and Metadata Row - Enhanced -->
@@ -14,7 +16,9 @@
         <div class="flex items-center justify-between mb-3">
           <div class="text-gray-800">
             <span class="text-base font-medium">by</span>
-            <span class="font-bold ml-1 text-lg" *ngIf="submission.userId">{{ submission.userId.name }}</span>
+            @if (submission.userId) {
+              <span class="font-bold ml-1 text-lg">{{ submission.userId.name }}</span>
+            }
           </div>
           <span class="px-3 py-1.5 rounded-full text-sm font-semibold" [ngClass]="getStatusBadgeClass()">
             {{ getStatusDisplayName() }}
@@ -26,12 +30,13 @@
           </span>
           <span class="text-sm text-gray-400">•</span>
           <app-status-badge [status]="submission.submissionType" size="sm"></app-status-badge>
-          <app-status-badge 
-            *ngIf="submission.submissionType === 'opinion'"
-            status="featured" 
-            size="sm"
-            [showIcon]="true">
-          </app-status-badge>
+          @if (submission.submissionType === 'opinion') {
+            <app-status-badge
+              status="featured"
+              size="sm"
+              [showIcon]="true">
+            </app-status-badge>
+          }
         </div>
       </div>
 
@@ -39,7 +44,7 @@
       <div class="mb-4 bg-white border border-gray-200 rounded-lg overflow-hidden">
         <!-- Analysis Header -->
         <div class="p-4 bg-gray-50 border-b border-gray-200">
-          <button 
+          <button
             (click)="toggleMobileAnalysis()"
             class="w-full flex items-center justify-between text-left">
             <div class="flex items-center gap-2">
@@ -47,170 +52,151 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2H9a2 2 0 01-2-2z"/>
               </svg>
               <h3 class="font-semibold text-gray-900">Analysis</h3>
-              <span *ngIf="analysisData?.analysis" class="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs font-medium">
-                Complete
-              </span>
+              @if (analysisData && analysisData.length > 0) {
+                <span class="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs font-medium">
+                  Complete
+                </span>
+              }
             </div>
-            <svg class="w-5 h-5 text-gray-400 transition-transform duration-200" 
-                 [class.rotate-180]="showMobileAnalysis"
-                 fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg class="w-5 h-5 text-gray-400 transition-transform duration-200"
+              [class.rotate-180]="showMobileAnalysis"
+              fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
             </svg>
           </button>
         </div>
 
         <!-- Analysis Content -->
-        <div *ngIf="showMobileAnalysis" class="p-4 space-y-4">
-          <!-- Run Analysis Button -->
-          <button 
-            (click)="analyzeSubmission()"
-            [disabled]="isAnalyzing"
-            class="w-full py-3 px-4 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium shadow-sm">
-            <span *ngIf="!isAnalyzing" class="flex items-center justify-center gap-2">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-              </svg>
-              Run Analysis
-            </span>
-            <span *ngIf="isAnalyzing" class="flex items-center justify-center gap-2">
-              <svg class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
-                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 818-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 714 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-              </svg>
-              Analyzing...
-            </span>
-          </button>
-
-          <!-- Basic Info (when no analysis) -->
-          <div *ngIf="!analysisData || !analysisData.analysis" class="space-y-3">
-            <div class="grid grid-cols-2 gap-3">
-              <div class="text-center bg-gray-50 rounded-lg p-3">
-                <div class="text-sm font-medium text-gray-900">{{ submission?.submissionType | titlecase }}</div>
-                <div class="text-xs text-gray-600">Type</div>
-              </div>
-              <div class="text-center bg-gray-50 rounded-lg p-3">
-                <div class="text-sm font-medium text-gray-900">{{ submission?.userId?.name || 'Anonymous' }}</div>
-                <div class="text-xs text-gray-600">Author</div>
-              </div>
-            </div>
-            <div class="text-center py-6 text-gray-500">
-              <svg class="w-8 h-8 mx-auto mb-2 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2H9a2 2 0 01-2-2z"/>
-              </svg>
-              <p class="text-sm">Run analysis for detailed insights</p>
-            </div>
-          </div>
-
-          <!-- Analysis Results -->
-          <div *ngIf="analysisData?.analysis" class="space-y-4">
-            <!-- Quality Score -->
-            <div class="bg-blue-50 rounded-lg p-3">
-              <div class="flex justify-between items-center mb-2">
-                <span class="text-sm font-medium text-blue-700">Quality Score</span>
-                <span class="text-xl font-bold text-blue-600">{{ analysisData.analysis.quality }}/10</span>
-              </div>
-              <div class="w-full bg-blue-200 rounded-full h-2">
-                <div class="bg-blue-600 h-2 rounded-full" [style.width.%]="analysisData.analysis.quality * 10"></div>
-              </div>
-            </div>
-
-            <!-- Style & Themes -->
-            <div class="space-y-3">
-              <div class="flex justify-between items-center">
-                <span class="text-sm font-medium text-gray-700">Style:</span>
-                <span class="px-2 py-1 bg-purple-100 text-purple-800 rounded-full text-xs font-medium">{{ analysisData.analysis.style | titlecase }}</span>
-              </div>
-              <div>
-                <span class="text-sm font-medium text-gray-700">Themes:</span>
-                <div class="flex flex-wrap gap-1 mt-1">
-                  <span *ngFor="let theme of analysisData.analysis.themes" 
-                        class="text-xs px-2 py-1 bg-green-100 text-green-800 rounded-full">
-                    {{ theme | titlecase }}
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            <!-- Technical Metrics Grid -->
-            <div *ngIf="analysisData.analysis.technical_metrics || analysisData.analysis.word_count">
-              <h4 class="text-sm font-medium text-gray-700 mb-2">Technical Metrics</h4>
-              <div class="grid grid-cols-2 gap-3">
-                <div class="text-center bg-gray-50 rounded-lg p-3">
-                  <div class="text-lg font-bold text-gray-900">{{ analysisData.analysis.word_count || 0 }}</div>
-                  <div class="text-xs text-gray-600">Words</div>
-                </div>
-                <div class="text-center bg-gray-50 rounded-lg p-3">
-                  <div class="text-lg font-bold text-gray-900">{{ analysisData.analysis.reading_time || 1 }}</div>
-                  <div class="text-xs text-gray-600">Min read</div>
-                </div>
-                <div class="text-center bg-gray-50 rounded-lg p-3" *ngIf="analysisData.analysis.technical_metrics">
-                  <div class="text-lg font-bold text-gray-900">{{ analysisData.analysis.technical_metrics.sentence_count }}</div>
-                  <div class="text-xs text-gray-600">Sentences</div>
-                </div>
-                <div class="text-center bg-gray-50 rounded-lg p-3" *ngIf="analysisData.analysis.technical_metrics">
-                  <div class="text-lg font-bold text-gray-900">{{ (analysisData.analysis.technical_metrics.vocabulary_richness * 100) | number:'1.0-0' }}%</div>
-                  <div class="text-xs text-gray-600">Vocab Rich</div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Additional Metrics -->
-            <div class="space-y-2">
-              <div class="flex justify-between items-center" *ngIf="analysisData.analysis.readability">
-                <span class="text-sm font-medium text-gray-700">Readability:</span>
-                <span class="px-2 py-1 bg-yellow-100 text-yellow-800 rounded-full text-xs font-medium">{{ analysisData.analysis.readability.level }}</span>
-              </div>
-              <div class="flex justify-between items-center" *ngIf="analysisData.analysis.sentiment">
-                <span class="text-sm font-medium text-gray-700">Sentiment:</span>
-                <span class="px-2 py-1 rounded-full text-xs font-medium"
-                      [ngClass]="{
-                        'bg-green-100 text-green-800': analysisData.analysis.sentiment === 'positive',
-                        'bg-red-100 text-red-800': analysisData.analysis.sentiment === 'negative',
-                        'bg-gray-100 text-gray-800': analysisData.analysis.sentiment === 'neutral'
-                      }">{{ analysisData.analysis.sentiment | titlecase }}</span>
-              </div>
-              <div class="flex justify-between items-center">
-                <span class="text-sm font-medium text-gray-700">Plagiarism:</span>
-                <span class="text-sm font-bold" 
-                      [class.text-red-600]="analysisData.analysis.plagiarism > 50"
-                      [class.text-green-600]="analysisData.analysis.plagiarism <= 50">
-                  {{ analysisData.analysis.plagiarism }}%
+        @if (showMobileAnalysis) {
+          <div class="p-4 space-y-4">
+            <!-- AI Analysis Button -->
+            <button
+              (click)="analyzeSubmission()"
+              [disabled]="isAnalyzing || !isAnalysisEnabled"
+              [ngClass]="isAnalysisEnabled ? 'bg-green-600 hover:bg-green-700' : 'bg-gray-400 cursor-not-allowed'"
+              class="w-full py-3 px-4 text-white rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium shadow-sm">
+              @if (!isAnalyzing) {
+                <span class="flex items-center justify-center gap-2">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                  </svg>
+                  AI Analysis
                 </span>
+              }
+              @if (isAnalyzing) {
+                <span class="flex items-center justify-center gap-2">
+                  <svg class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 818-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 714 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  Analyzing...
+                </span>
+              }
+            </button>
+            
+            <!-- Beta Info Card (Mobile) -->
+            @if (!isAnalysisEnabled) {
+              <div class="bg-blue-50 border border-blue-200 rounded-lg p-3 mt-3">
+                <div class="flex items-start gap-2">
+                  <svg class="w-4 h-4 text-blue-500 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                  </svg>
+                  <div class="text-sm text-blue-800">
+                    <p class="font-medium mb-1">🚀 AI Analysis Coming Soon!</p>
+                    <p class="text-blue-700 leading-relaxed">This feature will help identify plagiarized content and provide insights about themes, quality, and writing style to assist in the review process.</p>
+                  </div>
+                </div>
               </div>
-            </div>
-
-            <!-- Analysis Notes -->
-            <div *ngIf="analysisData.analysis.description" class="bg-gray-50 rounded-lg p-3">
-              <h4 class="text-sm font-semibold text-gray-700 mb-2">Analysis Notes</h4>
-              <p class="text-sm text-gray-600 leading-relaxed">{{ analysisData.analysis.description }}</p>
-            </div>
+            }
+            
+            <!-- Basic Info (when no analysis) -->
+            @if (!analysisData || analysisData.length === 0) {
+              <div class="space-y-3">
+                <div class="grid grid-cols-2 gap-3">
+                  <div class="text-center bg-gray-50 rounded-lg p-3">
+                    <div class="text-sm font-medium text-gray-900">{{ submission?.submissionType | titlecase }}</div>
+                    <div class="text-xs text-gray-600">Type</div>
+                  </div>
+                  <div class="text-center bg-gray-50 rounded-lg p-3">
+                    <div class="text-sm font-medium text-gray-900">{{ submission?.userId?.name || 'Anonymous' }}</div>
+                    <div class="text-xs text-gray-600">Author</div>
+                  </div>
+                </div>
+                <div class="text-center py-6 text-gray-500">
+                  <svg class="w-8 h-8 mx-auto mb-2 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2H9a2 2 0 01-2-2z"/>
+                  </svg>
+                  <p class="text-sm">Run analysis for detailed insights</p>
+                </div>
+              </div>
+            }
+            <!-- Analysis Results (Multi-Content) -->
+            @if (analysisData && analysisData.length > 0) {
+              <div class="space-y-3">
+                @for (analysis of analysisData; track analysis.contentIndex) {
+                  <div class="border border-gray-200 rounded-lg p-3 bg-gray-50">
+                    <!-- Content Header -->
+                    <div class="flex justify-between items-center mb-2 pb-2 border-b border-gray-300">
+                      <h4 class="text-sm font-semibold text-gray-900">{{ analysis.contentTitle }}</h4>
+                      <span class="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-medium">
+                        {{ analysis.contentType | titlecase }}
+                      </span>
+                    </div>
+                    
+                    <!-- Analysis Content -->
+                    @if (analysis.error) {
+                      <div class="text-center py-3">
+                        <div class="text-red-500 text-sm">{{ analysis.errorMessage }}</div>
+                      </div>
+                    }
+                    
+                    @if (analysis.analysis && !analysis.error) {
+                      <div class="space-y-2">
+                        <!-- Quality Score -->
+                        <div class="bg-blue-50 rounded-lg p-2">
+                          <div class="flex justify-between items-center mb-1">
+                            <span class="text-xs font-medium text-blue-700">Quality Score</span>
+                            <span class="text-sm font-bold text-blue-600">{{ analysis.analysis.quality }}/10</span>
+                          </div>
+                          <div class="w-full bg-blue-200 rounded-full h-1">
+                            <div class="bg-blue-600 h-1 rounded-full" [style.width.%]="analysis.analysis.quality * 10"></div>
+                          </div>
+                        </div>
+                      </div>
+                    }
+                  </div>
+                }
+              </div>
+            }
           </div>
-        </div>
+        }
       </div>
 
       <!-- Action Buttons - Subtle and Compact -->
       <div class="flex flex-col gap-2 mb-4">
-        <button *ngIf="canReview() && isPendingReview()" 
-              (click)="startReviewProcess()"
-              [disabled]="isSubmitting"
-              class="w-full py-2.5 px-4 bg-blue-50 text-blue-700 border border-blue-200 rounded-lg hover:bg-blue-100 transition-all duration-200 text-sm font-medium">
-          <span class="flex items-center justify-center gap-2">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
-            </svg>
-            Begin Review
-          </span>
-        </button>
+        @if (canStartReview()) {
+          <button
+            (click)="startReviewProcess()"
+            [disabled]="isSubmitting"
+            class="w-full py-2.5 px-4 bg-blue-50 text-blue-700 border border-blue-200 rounded-lg hover:bg-blue-100 transition-all duration-200 text-sm font-medium">
+            <span class="flex items-center justify-center gap-2">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+              </svg>
+              Begin Review
+            </span>
+          </button>
+        }
       </div>
 
       <!-- Navigation Buttons - Minimal -->
       <div class="flex gap-2">
-        <button (click)="toggleHistory()" 
-                class="px-3 py-1.5 text-xs text-gray-600 bg-gray-50 border border-gray-200 rounded-md hover:bg-gray-100 transition-colors font-medium">
+        <button (click)="toggleHistory()"
+          class="px-3 py-1.5 text-xs text-gray-600 bg-gray-50 border border-gray-200 rounded-md hover:bg-gray-100 transition-colors font-medium">
           {{ showHistory ? 'Hide' : 'Show' }} History
         </button>
-        <button (click)="goBackToPendingReviews()" 
-                class="px-3 py-1.5 text-xs text-gray-600 bg-gray-50 border border-gray-200 rounded-md hover:bg-gray-100 transition-colors font-medium">
+        <button (click)="goBackToPendingReviews()"
+          class="px-3 py-1.5 text-xs text-gray-600 bg-gray-50 border border-gray-200 rounded-md hover:bg-gray-100 transition-colors font-medium">
           ← Back
         </button>
       </div>
@@ -221,7 +207,7 @@
   <div class="hidden sm:block bg-gray-50 min-h-screen">
     <div class="max-w-7xl mx-auto p-6">
       <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
-        
+
         <!-- Main Content Area -->
         <div class="lg:col-span-3">
           <div class="bg-white rounded-lg shadow-sm p-6">
@@ -230,29 +216,35 @@
               <!-- Title Row -->
               <div class="mb-4">
                 <h1 class="text-2xl font-bold text-gray-900 mb-2">{{ submission?.title }}</h1>
-                <p class="text-gray-600" *ngIf="submission.description">{{ submission.description }}</p>
+                @if (submission.description) {
+                  <p class="text-gray-600">{{ submission.description }}</p>
+                }
               </div>
 
               <!-- Action Button Row -->
               <div class="flex gap-3 mb-4">
-                <button *ngIf="canReview() && isPendingReview()" 
-                        (click)="startReviewProcess()"
-                        [disabled]="isSubmitting"
-                        class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium">
-                  <span class="flex items-center gap-2">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
-                    </svg>
-                    Start Review Process
-                  </span>
-                </button>
+                @if (canStartReview()) {
+                  <button
+                    (click)="startReviewProcess()"
+                    [disabled]="isSubmitting"
+                    class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium">
+                    <span class="flex items-center gap-2">
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                      </svg>
+                      Start Review Process
+                    </span>
+                  </button>
+                }
               </div>
 
               <!-- Author and Metadata Row -->
               <div class="flex justify-between items-center mb-4">
                 <div class="text-gray-700">
                   <span class="text-sm">by</span>
-                  <span class="font-semibold ml-1" *ngIf="submission.userId">{{ submission.userId.name }}</span>
+                  @if (submission.userId) {
+                    <span class="font-semibold ml-1">{{ submission.userId.name }}</span>
+                  }
                 </div>
                 <div class="flex items-center gap-3">
                   <div class="flex items-center gap-2">
@@ -265,23 +257,24 @@
                     </span>
                   </div>
                   <app-status-badge [status]="submission.submissionType" size="sm"></app-status-badge>
-                  <app-status-badge 
-                    *ngIf="submission.submissionType === 'opinion'"
-                    status="featured" 
-                    size="sm"
-                    [showIcon]="true">
-                  </app-status-badge>
+                  @if (submission.submissionType === 'opinion') {
+                    <app-status-badge
+                      status="featured"
+                      size="sm"
+                      [showIcon]="true">
+                    </app-status-badge>
+                  }
                 </div>
               </div>
 
               <!-- Utility Buttons -->
               <div class="flex gap-3">
-                <button (click)="toggleHistory()" 
-                        class="px-3 py-2 text-sm text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors font-medium shadow-sm">
+                <button (click)="toggleHistory()"
+                  class="px-3 py-2 text-sm text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors font-medium shadow-sm">
                   {{ showHistory ? 'Hide' : 'Show' }} History
                 </button>
-                <button (click)="goBackToPendingReviews()" 
-                        class="px-3 py-2 text-sm text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors font-medium shadow-sm">
+                <button (click)="goBackToPendingReviews()"
+                  class="px-3 py-2 text-sm text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors font-medium shadow-sm">
                   Back to Reviews
                 </button>
               </div>
@@ -289,341 +282,405 @@
 
             <!-- Main Content Area (moved from shared container) -->
 
-      <!-- Submission History Section -->
-      <div *ngIf="showHistory" class="mb-6 bg-gray-50 rounded-lg p-6">
-        <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-          </svg>
-          Submission History
-        </h3>
-        
-        <div *ngIf="loadingHistory" class="flex justify-center py-4">
-          <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-orange-500"></div>
-        </div>
-        
-        <div *ngIf="!loadingHistory && submissionHistory.length === 0" class="text-center py-4 text-gray-500">
-          No history available
-        </div>
-        
-        <div *ngIf="!loadingHistory && submissionHistory.length > 0" class="space-y-4">
-          <div *ngFor="let entry of submissionHistory" class="bg-white rounded-lg p-4 shadow-sm border border-gray-200">
-            <div class="flex justify-between items-start mb-2">
-              <div class="flex items-center gap-2">
-                <span class="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium" [ngClass]="getStatusBadgeClass()">
-                  {{ entry.action.replace('_', ' ') | titlecase }}
-                </span>
-                <span class="text-sm text-gray-600">{{ entry.timestamp | date:'medium' }}</span>
+            <!-- Submission History Section -->
+            @if (showHistory) {
+              <div class="mb-6 bg-gray-50 rounded-lg p-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                  </svg>
+                  Submission History
+                </h3>
+                @if (loadingHistory) {
+                  <div class="flex justify-center py-4">
+                    <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-orange-500"></div>
+                  </div>
+                }
+                @if (!loadingHistory && submissionHistory.length === 0) {
+                  <div class="text-center py-4 text-gray-500">
+                    No history available
+                  </div>
+                }
+                @if (!loadingHistory && submissionHistory.length > 0) {
+                  <div class="space-y-4">
+                    @for (entry of submissionHistory; track entry) {
+                      <div class="bg-white rounded-lg p-4 shadow-sm border border-gray-200">
+                        <div class="flex justify-between items-start mb-2">
+                          <div class="flex items-center gap-2">
+                            <span class="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium" [ngClass]="getStatusBadgeClass()">
+                              {{ entry.action.replace('_', ' ') | titlecase }}
+                            </span>
+                            <span class="text-sm text-gray-600">{{ entry.timestamp | date:'medium' }}</span>
+                          </div>
+                          @if (entry.user) {
+                            <span class="text-sm text-gray-500">
+                              by {{ entry.user.name || entry.user.username }}
+                            </span>
+                          }
+                        </div>
+                        @if (entry.notes) {
+                          <p class="text-sm text-gray-700 mt-2">{{ entry.notes }}</p>
+                        }
+                      </div>
+                    }
+                  </div>
+                }
               </div>
-              <span class="text-sm text-gray-500" *ngIf="entry.user">
-                by {{ entry.user.name || entry.user.username }}
-              </span>
-            </div>
-            <p *ngIf="entry.notes" class="text-sm text-gray-700 mt-2">{{ entry.notes }}</p>
-          </div>
-        </div>
-      </div>
+            }
 
-      <!-- Existing Review (if any) -->
-      <div *ngIf="existingReview" class="mb-6 bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
-        <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-          <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-            <path fill-rule="evenodd" d="M18 13V5a2 2 0 00-2-2H4a2 2 0 00-2 2v8a2 2 0 002 2h3l3 3 3-3h3a2 2 0 002-2zM5 7a1 1 0 011-1h8a1 1 0 110 2H6a1 1 0 01-1-1zm1 3a1 1 0 100 2h3a1 1 0 100-2H6z" clip-rule="evenodd"/>
-          </svg>
-          Review by {{ existingReview.reviewerName }}
-        </h3>
-        <div class="space-y-3">
-          <div class="flex items-center gap-4 text-sm">
-            <span class="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium"
+            <!-- Existing Review (if any) -->
+            @if (existingReview) {
+              <div class="mb-6 bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                  <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M18 13V5a2 2 0 00-2-2H4a2 2 0 00-2 2v8a2 2 0 002 2h3l3 3 3-3h3a2 2 0 002-2zM5 7a1 1 0 011-1h8a1 1 0 110 2H6a1 1 0 01-1-1zm1 3a1 1 0 100 2h3a1 1 0 100-2H6z" clip-rule="evenodd"/>
+                  </svg>
+                  Review by {{ existingReview.reviewerName }}
+                </h3>
+                <div class="space-y-3">
+                  <div class="flex items-center gap-4 text-sm">
+                    <span class="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium"
                   [ngClass]="{
                     'bg-green-100 text-green-800 border border-green-300': existingReview.status === 'accepted',
                     'bg-red-100 text-red-800 border border-red-300': existingReview.status === 'rejected'
                   }">
-              {{ existingReview.status | titlecase }}
-            </span>
-            <span class="text-gray-600">{{ existingReview.reviewedAt | date:'medium' }}</span>
-          </div>
-          <div class="bg-gray-50 rounded-lg p-4 border-l-4 border-gray-300">
-            <p class="text-gray-900 whitespace-pre-line">{{ existingReview.reviewNotes }}</p>
-          </div>
-        </div>
-      </div>
+                      {{ existingReview.status | titlecase }}
+                    </span>
+                    <span class="text-gray-600">{{ existingReview.reviewedAt | date:'medium' }}</span>
+                  </div>
+                  <div class="bg-gray-50 rounded-lg p-4 border-l-4 border-gray-300">
+                    <p class="text-gray-900 whitespace-pre-line">{{ existingReview.reviewNotes }}</p>
+                  </div>
+                </div>
+              </div>
+            }
 
-      <!-- Content Items -->
-      <div class="space-y-6" *ngIf="submission && submission.contents && submission.contents.length > 0">
-        <div *ngFor="let content of submission.contents; let i = index" 
-             class="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
-          
-          <!-- Content Header -->
-          <div class="mb-4">
-            <h2 class="text-xl font-semibold text-gray-900 mb-2">
-              {{ i + 1 }}. {{ content.title }}
-            </h2>
-            <div class="flex flex-wrap gap-4 text-sm text-gray-600">
-              <span class="flex items-center gap-1">
-                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                  <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd" />
-                </svg>
-                {{ content.createdAt | date:'shortDate' }}
-              </span>
-              <span class="flex items-center gap-1">
-                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                  <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 0 100-2H7z" clip-rule="evenodd" />
-                </svg>
-                <span class="font-semibold text-gray-800">{{ content.wordCount || getWordCount(content.body) }}</span> words
-              </span>
-            </div>
-          </div>
+            <!-- Content Items -->
+            @if (submission && submission.contents && submission.contents.length > 0) {
+              <div class="space-y-6">
+                @for (content of submission.contents; track content; let i = $index) {
+                  <div
+                    class="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
+                    <!-- Content Header -->
+                    <div class="mb-4">
+                      <h2 class="text-xl font-semibold text-gray-900 mb-2">
+                        {{ i + 1 }}. {{ content.title }}
+                      </h2>
+                      <div class="flex flex-wrap gap-4 text-sm text-gray-600">
+                        <span class="flex items-center gap-1">
+                          <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd" />
+                          </svg>
+                          {{ content.createdAt | date:'shortDate' }}
+                        </span>
+                        <span class="flex items-center gap-1">
+                          <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 0 100-2H7z" clip-rule="evenodd" />
+                          </svg>
+                          <span class="font-semibold text-gray-800">{{ content.wordCount || getWordCount(content.body) }}</span> words
+                        </span>
+                      </div>
+                    </div>
+                    <!-- Content Body -->
+                    <div class="mb-4">
+                      <div class="bg-gray-50 rounded-lg p-6 border-l-4 border-orange-500">
+                        <div class="text-lg text-gray-900 font-serif leading-relaxed content-body"
+                          style="line-height: 1.8; letter-spacing: 0.3px;"
+                        [innerHTML]="cleanContent(content.body)"></div>
+                      </div>
+                    </div>
+                    <!-- Tags -->
+                    @if (content.tags && content.tags.length > 0) {
+                      <div class="flex flex-wrap items-center gap-2 pt-4 border-t border-gray-100">
+                        <span class="text-sm font-medium text-gray-900">Tags:</span>
+                        @for (tag of content.tags; track tag) {
+                          @if (tag && tag.trim()) {
+                            <app-badge-label
+                              [type]="tag">
+                            </app-badge-label>
+                          }
+                        }
+                      </div>
+                    }
+                    @if (!content.tags || content.tags.length === 0) {
+                      <div class="pt-4 border-t border-gray-100">
+                        <span class="text-sm text-gray-500 italic">No tags provided</span>
+                      </div>
+                    }
+                  </div>
+                }
+              </div>
+            }
 
-          <!-- Content Body -->
-          <div class="mb-4">
-            <div class="bg-gray-50 rounded-lg p-6 border-l-4 border-orange-500">
-              <div class="text-lg text-gray-900 font-serif leading-relaxed content-body" 
-                   style="line-height: 1.8; letter-spacing: 0.3px;" 
-                   [innerHTML]="cleanContent(content.body)"></div>
-            </div>
-          </div>
+            <!-- No Content Message -->
+            @if (submission && (!submission.contents || submission.contents.length === 0)) {
+              <div class="mt-8 text-center">
+                <div class="bg-yellow-50 border border-yellow-300 rounded-lg p-6">
+                  <div class="flex items-center justify-center mb-2">
+                    <svg class="w-6 h-6 text-yellow-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.998-.833-2.768 0L3.946 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                    </svg>
+                    <h3 class="text-lg font-medium text-yellow-800">No Content Available</h3>
+                  </div>
+                  <p class="text-yellow-700">This submission doesn't have any content items to display.</p>
+                </div>
+              </div>
+            }
 
-          <!-- Tags -->
-          <div *ngIf="content.tags && content.tags.length > 0" class="flex flex-wrap items-center gap-2 pt-4 border-t border-gray-100">
-            <span class="text-sm font-medium text-gray-900">Tags:</span>
-            <ng-container *ngFor="let tag of content.tags">
-              <app-badge-label 
-                *ngIf="tag && tag.trim()"
-                [type]="tag">
-              </app-badge-label>
-            </ng-container>
-          </div>
-          <div *ngIf="!content.tags || content.tags.length === 0" class="pt-4 border-t border-gray-100">
-            <span class="text-sm text-gray-500 italic">No tags provided</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- No Content Message -->
-      <div class="mt-8 text-center" *ngIf="submission && (!submission.contents || submission.contents.length === 0)">
-        <div class="bg-yellow-50 border border-yellow-300 rounded-lg p-6">
-          <div class="flex items-center justify-center mb-2">
-            <svg class="w-6 h-6 text-yellow-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.998-.833-2.768 0L3.946 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
-            </svg>
-            <h3 class="text-lg font-medium text-yellow-800">No Content Available</h3>
-          </div>
-          <p class="text-yellow-700">This submission doesn't have any content items to display.</p>
-        </div>
-      </div>
-
-      <!-- Review Section -->
-      <div class="mt-8 pt-6 border-t border-gray-200" *ngIf="canReview() || showReviewForm">
-        
-        <!-- Review Action Buttons (for in_progress status) -->
-        <div *ngIf="isInProgress() && !showReviewForm" class="mb-6">
-          <!-- Single Responsive Layout -->
-          <div class="flex flex-col sm:flex-row sm:justify-center gap-3">
-            <button 
-              (click)="setReviewAction('approve')"
-              [disabled]="isSubmitting"
-              class="w-full sm:w-auto px-6 py-3 text-sm font-semibold text-green-800 bg-green-100 rounded-lg hover:bg-green-200 transition-colors duration-200 disabled:opacity-50 flex items-center gap-2 shadow-sm hover:shadow-md">
-              <span *ngIf="!isSubmitting" class="flex items-center gap-2">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-                </svg>
-                Accept Submission
-              </span>
-              <span *ngIf="isSubmitting" class="flex items-center gap-2">
-                <svg class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
-                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-                Processing...
-              </span>
-            </button>
-            
-            <button 
-              (click)="setReviewAction('reject')"
-              [disabled]="isSubmitting"
-              class="w-full sm:w-auto px-6 py-3 text-sm font-semibold text-red-800 bg-red-100 rounded-lg hover:bg-red-200 transition-colors duration-200 disabled:opacity-50 flex items-center gap-2 shadow-sm hover:shadow-md">
-              <span *ngIf="!isSubmitting" class="flex items-center gap-2">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                </svg>
-                Reject Submission
-              </span>
-              <span *ngIf="isSubmitting" class="flex items-center gap-2">
-                <svg class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
-                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 714 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-                Processing...
-              </span>
-            </button>
-            
-            <button 
-              (click)="setReviewAction('revision')"
-              [disabled]="isSubmitting"
-              class="w-full sm:w-auto px-6 py-3 text-sm font-semibold text-orange-800 bg-orange-100 rounded-lg hover:bg-orange-200 transition-colors duration-200 disabled:opacity-50 flex items-center gap-2 shadow-sm hover:shadow-md">
-              <span *ngIf="!isSubmitting" class="flex items-center gap-2">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
-                </svg>
-                Ask for Revision
-              </span>
-              <span *ngIf="isSubmitting" class="flex items-center gap-2">
-                <svg class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
-                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 718-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 714 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-                Processing...
-              </span>
-            </button>
-          </div>
-        </div>
-        
-        <!-- Review Comments Section -->
-        <div class="mb-8" *ngIf="showReviewForm">
-          <div class="bg-gray-50 rounded-lg p-6 border border-gray-200">
-            <label for="reviewNotes" class="block text-base font-semibold text-gray-900 mb-3">
-              <span class="flex items-center gap-2">
-                <svg class="w-5 h-5 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/>
-                </svg>
-                Review Comments 
-                <span class="text-red-600 text-sm" *ngIf="reviewAction === 'reject' || reviewAction === 'revision'">*Required</span>
-              </span>
-            </label>
-            <textarea
-              id="reviewNotes"
-              [(ngModel)]="reviewNotes"
-              rows="5"
-              class="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-orange-300 focus:border-orange-500 resize-vertical shadow-sm"
-              style="font-size: 16px; line-height: 1.5;"
+            <!-- Review Section -->
+            @if ((canReview() && canReviewSubmission()) || showReviewForm) {
+              <div class="mt-8 pt-6 border-t border-gray-200">
+                <!-- Review Action Buttons (for reviewable submissions) -->
+                @if (canReview() && canReviewSubmission() && !showReviewForm) {
+                  <div class="mb-6">
+                    <!-- Single Responsive Layout -->
+                    <div class="flex flex-col sm:flex-row sm:justify-center gap-3">
+                      <button
+                        (click)="setReviewAction('approve')"
+                        [disabled]="isSubmitting"
+                        class="w-full sm:w-auto px-6 py-3 text-sm font-semibold text-green-800 bg-green-100 rounded-lg hover:bg-green-200 transition-colors duration-200 disabled:opacity-50 flex items-center gap-2 shadow-sm hover:shadow-md">
+                        @if (!isSubmitting) {
+                          <span class="flex items-center gap-2">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                            </svg>
+                            Accept Submission
+                          </span>
+                        }
+                        @if (isSubmitting) {
+                          <span class="flex items-center gap-2">
+                            <svg class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            Processing...
+                          </span>
+                        }
+                      </button>
+                      <button
+                        (click)="setReviewAction('reject')"
+                        [disabled]="isSubmitting"
+                        class="w-full sm:w-auto px-6 py-3 text-sm font-semibold text-red-800 bg-red-100 rounded-lg hover:bg-red-200 transition-colors duration-200 disabled:opacity-50 flex items-center gap-2 shadow-sm hover:shadow-md">
+                        @if (!isSubmitting) {
+                          <span class="flex items-center gap-2">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                            </svg>
+                            Reject Submission
+                          </span>
+                        }
+                        @if (isSubmitting) {
+                          <span class="flex items-center gap-2">
+                            <svg class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 714 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            Processing...
+                          </span>
+                        }
+                      </button>
+                      <button
+                        (click)="setReviewAction('revision')"
+                        [disabled]="isSubmitting"
+                        class="w-full sm:w-auto px-6 py-3 text-sm font-semibold text-orange-800 bg-orange-100 rounded-lg hover:bg-orange-200 transition-colors duration-200 disabled:opacity-50 flex items-center gap-2 shadow-sm hover:shadow-md">
+                        @if (!isSubmitting) {
+                          <span class="flex items-center gap-2">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                            </svg>
+                            Ask for Revision
+                          </span>
+                        }
+                        @if (isSubmitting) {
+                          <span class="flex items-center gap-2">
+                            <svg class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 718-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 714 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            Processing...
+                          </span>
+                        }
+                      </button>
+                    </div>
+                  </div>
+                }
+                <!-- Review Comments Section -->
+                @if (showReviewForm) {
+                  <div class="mb-8">
+                    <div class="bg-gray-50 rounded-lg p-6 border border-gray-200">
+                      <label for="reviewNotes" class="block text-base font-semibold text-gray-900 mb-3">
+                        <span class="flex items-center gap-2">
+                          <svg class="w-5 h-5 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/>
+                          </svg>
+                          Review Comments
+                          @if (reviewAction === 'reject' || reviewAction === 'revision') {
+                            <span class="text-red-600 text-sm">*Required</span>
+                          }
+                        </span>
+                      </label>
+                      <textarea
+                        id="reviewNotes"
+                        [(ngModel)]="reviewNotes"
+                        rows="5"
+                        class="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-orange-300 focus:border-orange-500 resize-vertical shadow-sm"
+                        style="font-size: 16px; line-height: 1.5;"
               [placeholder]="reviewAction === 'approve' ? 'Share what you liked about this submission (optional)...' : 
                            reviewAction === 'revision' ? 'Provide specific feedback on what needs improvement (required)...' :
                            reviewAction === 'move_to_progress' ? 'Add any initial notes before starting the review process (optional)...' :
                            'Explain your decision and provide constructive feedback (required)...'"
-              [class.border-red-300]="(reviewAction === 'reject' || reviewAction === 'revision') && !reviewNotes.trim()"
-              [class.focus:ring-red-300]="(reviewAction === 'reject' || reviewAction === 'revision') && !reviewNotes.trim()"
-            ></textarea>
-            
-            <div class="mt-3 flex items-center justify-between">
-              <p class="text-sm text-gray-600" *ngIf="reviewAction === 'reject' || reviewAction === 'revision'">
-                <span class="flex items-center gap-1">
-                  <svg class="w-4 h-4 text-red-500" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
-                  </svg>
-                  Detailed feedback helps authors improve their work
-                </span>
-              </p>
-              <p class="text-xs text-gray-500" *ngIf="reviewNotes">
-                {{ reviewNotes.length }} characters
-              </p>
-            </div>
-          </div>
-        </div>
-
-
-        <!-- Form Actions (when review form is showing) -->
-        <div class="mt-8 bg-white rounded-xl border border-gray-200 p-6 shadow-sm" *ngIf="reviewAction && showReviewForm">
-          <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
-            <!-- Action Info -->
-            <div class="flex items-center gap-3">
-              <div class="w-10 h-10 rounded-full flex items-center justify-center"
+                        [class.border-red-300]="(reviewAction === 'reject' || reviewAction === 'revision') && !reviewNotes.trim()"
+                        [class.focus:ring-red-300]="(reviewAction === 'reject' || reviewAction === 'revision') && !reviewNotes.trim()"
+                      ></textarea>
+                      <div class="mt-3 flex items-center justify-between">
+                        @if (reviewAction === 'reject' || reviewAction === 'revision') {
+                          <p class="text-sm text-gray-600">
+                            <span class="flex items-center gap-1">
+                              <svg class="w-4 h-4 text-red-500" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                              </svg>
+                              Detailed feedback helps authors improve their work
+                            </span>
+                          </p>
+                        }
+                        @if (reviewNotes) {
+                          <p class="text-xs text-gray-500">
+                            {{ reviewNotes.length }} characters
+                          </p>
+                        }
+                      </div>
+                    </div>
+                  </div>
+                }
+                <!-- Form Actions (when review form is showing) -->
+                @if (reviewAction && showReviewForm) {
+                  <div class="mt-8 bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
+                    <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+                      <!-- Action Info -->
+                      <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-full flex items-center justify-center"
                    [ngClass]="{
                      'bg-green-100': reviewAction === 'approve',
                      'bg-red-100': reviewAction === 'reject',
                      'bg-orange-100': reviewAction === 'revision',
                      'bg-blue-100': reviewAction === 'move_to_progress'
                    }">
-                <svg class="w-5 h-5"
+                          <svg class="w-5 h-5"
                      [ngClass]="{
                        'text-green-600': reviewAction === 'approve',
                        'text-red-600': reviewAction === 'reject',
                        'text-orange-600': reviewAction === 'revision',
                        'text-blue-600': reviewAction === 'move_to_progress'
                      }"
-                     fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path *ngIf="reviewAction === 'approve'" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                  <path *ngIf="reviewAction === 'reject'" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                  <path *ngIf="reviewAction === 'revision'" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
-                  <path *ngIf="reviewAction === 'move_to_progress'" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h1m4 0h1m-6 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                </svg>
-              </div>
-              <div>
-                <h4 class="font-semibold text-gray-900">
-                  {{ reviewAction === 'approve' ? 'Approve Submission' :
-                     reviewAction === 'reject' ? 'Reject Submission' :
-                     reviewAction === 'revision' ? 'Request Revision' :
-                     reviewAction === 'move_to_progress' ? 'Start Review' : 'Review Action' }}
-                </h4>
-                <p class="text-sm text-gray-500">Complete your review with feedback</p>
-              </div>
-            </div>
-
-            <!-- Action Buttons -->
-            <div class="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
-              <!-- Cancel Button -->
-              <button 
-                (click)="cancelReview()"
-                [disabled]="isSubmitting"
-                class="w-full sm:w-auto px-6 py-2.5 text-sm font-medium text-gray-700 bg-gray-100 border border-gray-200 rounded-lg hover:bg-gray-200 focus:outline-none focus:ring-4 focus:ring-gray-100 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed">
-                Cancel
-              </button>
-              
-              <!-- Confirm Action Button -->
-              <button 
-                (click)="confirmReview()"
-                [disabled]="isSubmitting || ((reviewAction === 'reject' || reviewAction === 'revision') && !reviewNotes.trim())"
-                class="w-full sm:w-auto px-6 py-2.5 text-sm font-medium text-white rounded-lg focus:outline-none focus:ring-4 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm hover:shadow-md"
+                            fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            @if (reviewAction === 'approve') {
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            }
+                            @if (reviewAction === 'reject') {
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                            }
+                            @if (reviewAction === 'revision') {
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                            }
+                            @if (reviewAction === 'move_to_progress') {
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h1m4 0h1m-6 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            }
+                          </svg>
+                        </div>
+                        <div>
+                          <h4 class="font-semibold text-gray-900">
+                            {{ reviewAction === 'approve' ? 'Approve Submission' :
+                            reviewAction === 'reject' ? 'Reject Submission' :
+                            reviewAction === 'revision' ? 'Request Revision' :
+                            reviewAction === 'move_to_progress' ? 'Start Review' : 'Review Action' }}
+                          </h4>
+                          <p class="text-sm text-gray-500">Complete your review with feedback</p>
+                        </div>
+                      </div>
+                      <!-- Action Buttons -->
+                      <div class="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+                        <!-- Cancel Button -->
+                        <button
+                          (click)="cancelReview()"
+                          [disabled]="isSubmitting"
+                          class="w-full sm:w-auto px-6 py-2.5 text-sm font-medium text-gray-700 bg-gray-100 border border-gray-200 rounded-lg hover:bg-gray-200 focus:outline-none focus:ring-4 focus:ring-gray-100 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed">
+                          Cancel
+                        </button>
+                        <!-- Confirm Action Button -->
+                        <button
+                          (click)="confirmReview()"
+                          [disabled]="isSubmitting || ((reviewAction === 'reject' || reviewAction === 'revision') && !reviewNotes.trim())"
+                          class="w-full sm:w-auto px-6 py-2.5 text-sm font-medium text-white rounded-lg focus:outline-none focus:ring-4 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm hover:shadow-md"
                 [ngClass]="{
                   'bg-green-600 hover:bg-green-700 focus:ring-green-200': reviewAction === 'approve',
                   'bg-red-600 hover:bg-red-700 focus:ring-red-200': reviewAction === 'reject',
                   'bg-orange-600 hover:bg-orange-700 focus:ring-orange-200': reviewAction === 'revision',
                   'bg-blue-600 hover:bg-blue-700 focus:ring-blue-200': reviewAction === 'move_to_progress'
                 }">
-                <span *ngIf="!isSubmitting" class="flex items-center justify-center gap-2">
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path *ngIf="reviewAction === 'approve'" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4"/>
-                    <path *ngIf="reviewAction === 'reject'" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                    <path *ngIf="reviewAction === 'revision'" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
-                    <path *ngIf="reviewAction === 'move_to_progress'" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
-                  </svg>
-                  {{ reviewAction === 'approve' ? 'Confirm Approval' :
-                     reviewAction === 'reject' ? 'Confirm Rejection' :
-                     reviewAction === 'revision' ? 'Send Revision Request' :
-                     reviewAction === 'move_to_progress' ? 'Start Review Process' : 'Confirm' }}
-                </span>
-                <span *ngIf="isSubmitting" class="flex items-center justify-center gap-2">
-                  <svg class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
-                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 718-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 714 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                  </svg>
-                  Processing...
-                </span>
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
+                          @if (!isSubmitting) {
+                            <span class="flex items-center justify-center gap-2">
+                              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                @if (reviewAction === 'approve') {
+                                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4"/>
+                                }
+                                @if (reviewAction === 'reject') {
+                                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                                }
+                                @if (reviewAction === 'revision') {
+                                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                                }
+                                @if (reviewAction === 'move_to_progress') {
+                                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
+                                }
+                              </svg>
+                              {{ reviewAction === 'approve' ? 'Confirm Approval' :
+                              reviewAction === 'reject' ? 'Confirm Rejection' :
+                              reviewAction === 'revision' ? 'Send Revision Request' :
+                              reviewAction === 'move_to_progress' ? 'Start Review Process' : 'Confirm' }}
+                            </span>
+                          }
+                          @if (isSubmitting) {
+                            <span class="flex items-center justify-center gap-2">
+                              <svg class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 718-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 714 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                              </svg>
+                              Processing...
+                            </span>
+                          }
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                }
+              </div>
+            }
 
-      <!-- Already Reviewed Message -->
-      <div class="mt-8 pt-6 border-t border-gray-200" *ngIf="submission.status !== 'pending_review' && !existingReview">
-        <div class="text-center py-8">
-          <div class="inline-flex items-center px-4 py-2 rounded-lg"
+            <!-- Already Reviewed Message -->
+            @if (submission.status !== 'pending_review' && !existingReview) {
+              <div class="mt-8 pt-6 border-t border-gray-200">
+                <div class="text-center py-8">
+                  <div class="inline-flex items-center px-4 py-2 rounded-lg"
                [ngClass]="{
                  'bg-green-100 text-green-800 border border-green-300': submission.status === 'accepted',
                  'bg-red-100 text-red-800 border border-red-300': submission.status === 'rejected'
                }">
-            <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
-              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" *ngIf="submission.status === 'accepted'"/>
-              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" *ngIf="submission.status === 'rejected'"/>
-            </svg>
-            This submission has been {{ submission.status }}
+                    <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                      @if (submission.status === 'accepted') {
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                      }
+                      @if (submission.status === 'rejected') {
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                      }
+                    </svg>
+                    This submission has been {{ submission.status }}
+                  </div>
+                </div>
+              </div>
+            }
           </div>
         </div>
-            </div>
-          </div>
-        </div>
-        
+
         <!-- Analysis Sidebar -->
         <div class="lg:col-span-1">
           <div class="bg-white rounded-lg shadow-sm p-6 sticky top-6">
@@ -633,300 +690,315 @@
               </svg>
               Analysis
             </h3>
-            
+
             <!-- Basic Check Button -->
-            <button 
+            <button
               (click)="analyzeSubmission()"
-              [disabled]="isAnalyzing"
-              class="w-full mb-6 py-3 px-4 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium shadow-sm hover:shadow-md">
-              <span *ngIf="!isAnalyzing" class="flex items-center justify-center gap-2">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                </svg>
-                Run Analysis
-              </span>
-              <span *ngIf="isAnalyzing" class="flex items-center justify-center gap-2">
-                <svg class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
-                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 818-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 714 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-                Analyzing...
-              </span>
+              [disabled]="isAnalyzing || !isAnalysisEnabled"
+              [ngClass]="isAnalysisEnabled ? 'bg-green-600 hover:bg-green-700' : 'bg-gray-400 cursor-not-allowed'"
+              class="w-full mb-6 py-3 px-4 text-white rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium shadow-sm hover:shadow-md">
+              @if (!isAnalyzing) {
+                <span class="flex items-center justify-center gap-2">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                  </svg>
+                  AI Analysis
+                </span>
+              }
+              @if (isAnalyzing) {
+                <span class="flex items-center justify-center gap-2">
+                  <svg class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 818-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 714 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  Analyzing...
+                </span>
+              }
             </button>
 
             <!-- Basic Info (shown initially) -->
-            <div *ngIf="!analysisData || !analysisData.analysis" class="space-y-4">
-              <div class="border-b border-gray-200 pb-4">
-                <h4 class="text-sm font-semibold text-gray-700 mb-3">Basic Information</h4>
-                <div class="space-y-2">
-                  <div class="flex justify-between items-center">
-                    <span class="text-sm text-gray-600">Type:</span>
-                    <span class="text-sm font-medium">{{ submission?.submissionType | titlecase }}</span>
-                  </div>
-                  <div class="flex justify-between items-center">
-                    <span class="text-sm text-gray-600">Author:</span>
-                    <span class="text-sm font-medium">{{ submission?.userId?.name || 'Anonymous' }}</span>
-                  </div>
-                  <div class="flex justify-between items-center">
-                    <span class="text-sm text-gray-600">Status:</span>
-                    <span class="px-2 py-1 rounded-full text-xs font-semibold" [ngClass]="getStatusBadgeClass()">
-                      {{ getStatusDisplayName() }}
-                    </span>
-                  </div>
-                  <div class="flex justify-between items-center">
-                    <span class="text-sm text-gray-600">Submitted:</span>
-                    <span class="text-sm font-medium">{{ submission?.createdAt | date:'MMM d, yyyy' }}</span>
+            @if (!analysisData || analysisData.length === 0) {
+              <div class="space-y-4">
+                <div class="border-b border-gray-200 pb-4">
+                  <h4 class="text-sm font-semibold text-gray-700 mb-3">Basic Information</h4>
+                  <div class="space-y-2">
+                    <div class="flex justify-between items-center">
+                      <span class="text-sm text-gray-600">Type:</span>
+                      <span class="text-sm font-medium">{{ submission?.submissionType | titlecase }}</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                      <span class="text-sm text-gray-600">Author:</span>
+                      <span class="text-sm font-medium">{{ submission?.userId?.name || 'Anonymous' }}</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                      <span class="text-sm text-gray-600">Status:</span>
+                      <span class="px-2 py-1 rounded-full text-xs font-semibold" [ngClass]="getStatusBadgeClass()">
+                        {{ getStatusDisplayName() }}
+                      </span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                      <span class="text-sm text-gray-600">Submitted:</span>
+                      <span class="text-sm font-medium">{{ submission?.createdAt | date:'MMM d, yyyy' }}</span>
+                    </div>
                   </div>
                 </div>
+                <div class="text-center py-8 text-gray-500">
+                  <svg class="w-12 h-12 mx-auto mb-3 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2H9a2 2 0 01-2-2z"/>
+                  </svg>
+                  <p class="text-sm">Run analysis to see detailed insights</p>
+                </div>
               </div>
-              
-              <div class="text-center py-8 text-gray-500">
-                <svg class="w-12 h-12 mx-auto mb-3 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2H9a2 2 0 01-2-2z"/>
-                </svg>
-                <p class="text-sm">Run analysis to see detailed insights</p>
-              </div>
-            </div>
+            }
 
-            <!-- Detailed Analysis Results -->
-            <div *ngIf="analysisData?.analysis" class="space-y-4">
-              <!-- Quality Score -->
-              <div class="bg-blue-50 rounded-lg p-4">
-                <div class="flex justify-between items-center mb-2">
-                  <span class="text-sm font-medium text-blue-700">Quality Score</span>
-                  <span class="text-2xl font-bold text-blue-600">{{ analysisData.analysis.quality }}/10</span>
-                </div>
-                <div class="w-full bg-blue-200 rounded-full h-2">
-                  <div class="bg-blue-600 h-2 rounded-full" [style.width.%]="analysisData.analysis.quality * 10"></div>
-                </div>
-              </div>
-              
-              <!-- Style & Themes -->
+            <!-- Detailed Analysis Results (Multi-Content) -->
+            @if (analysisData && analysisData.length > 0) {
               <div class="space-y-3">
-                <div class="flex justify-between items-center">
-                  <span class="text-sm font-medium text-gray-700">Style:</span>
-                  <span class="px-2 py-1 bg-purple-100 text-purple-800 rounded-full text-xs font-medium">{{ analysisData.analysis.style | titlecase }}</span>
-                </div>
-                
-                <div>
-                  <span class="text-sm font-medium text-gray-700">Themes:</span>
-                  <div class="flex flex-wrap gap-1 mt-1">
-                    <span *ngFor="let theme of analysisData.analysis.themes" 
-                          class="text-xs px-2 py-1 bg-green-100 text-green-800 rounded-full">
-                      {{ theme | titlecase }}
-                    </span>
+                @for (analysis of analysisData; track analysis.contentIndex) {
+                  <div class="border border-gray-200 rounded-lg p-3 bg-gray-50">
+                    <!-- Content Header -->
+                    <div class="flex justify-between items-center mb-2 pb-2 border-b border-gray-300">
+                      <h4 class="text-sm font-semibold text-gray-900">{{ analysis.contentTitle }}</h4>
+                      <span class="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-medium">
+                        {{ analysis.contentType | titlecase }}
+                      </span>
+                    </div>
+                    
+                    <!-- Analysis Content -->
+                    @if (analysis.error) {
+                      <div class="text-center py-3">
+                        <div class="text-red-500 text-sm">{{ analysis.errorMessage }}</div>
+                      </div>
+                    }
+                    
+                    @if (analysis.analysis && !analysis.error) {
+                      <div class="space-y-2">
+                        <!-- Quality Score -->
+                        <div class="bg-blue-50 rounded-lg p-2">
+                          <div class="flex justify-between items-center mb-1">
+                            <span class="text-xs font-medium text-blue-700">Quality Score</span>
+                            <span class="text-sm font-bold text-blue-600">{{ analysis.analysis.quality }}/10</span>
+                          </div>
+                          <div class="w-full bg-blue-200 rounded-full h-1">
+                            <div class="bg-blue-600 h-1 rounded-full" [style.width.%]="analysis.analysis.quality * 10"></div>
+                          </div>
+                        </div>
+                      </div>
+                    }
                   </div>
-                </div>
+                }
               </div>
-
-              <!-- Technical Metrics -->
-              <div class="border-t border-gray-200 pt-4" *ngIf="analysisData.analysis.technical_metrics">
-                <h4 class="text-sm font-semibold text-gray-700 mb-3">Technical Metrics</h4>
-                <div class="space-y-2">
-                  <div class="flex justify-between items-center">
-                    <span class="text-xs text-gray-600">Word Count:</span>
-                    <span class="text-xs font-medium">{{ analysisData.analysis.word_count }}</span>
-                  </div>
-                  <div class="flex justify-between items-center">
-                    <span class="text-xs text-gray-600">Reading Time:</span>
-                    <span class="text-xs font-medium">{{ analysisData.analysis.reading_time }} min</span>
-                  </div>
-                  <div class="flex justify-between items-center">
-                    <span class="text-xs text-gray-600">Sentences:</span>
-                    <span class="text-xs font-medium">{{ analysisData.analysis.technical_metrics.sentence_count }}</span>
-                  </div>
-                  <div class="flex justify-between items-center">
-                    <span class="text-xs text-gray-600">Vocab Richness:</span>
-                    <span class="text-xs font-medium">{{ (analysisData.analysis.technical_metrics.vocabulary_richness * 100) | number:'1.0-0' }}%</span>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Readability & Sentiment -->
-              <div class="border-t border-gray-200 pt-4" *ngIf="analysisData.analysis.readability">
-                <div class="space-y-2">
-                  <div class="flex justify-between items-center">
-                    <span class="text-sm font-medium text-gray-700">Readability:</span>
-                    <span class="px-2 py-1 bg-yellow-100 text-yellow-800 rounded-full text-xs font-medium">{{ analysisData.analysis.readability.level }}</span>
-                  </div>
-                  <div class="flex justify-between items-center">
-                    <span class="text-sm font-medium text-gray-700">Sentiment:</span>
-                    <span class="px-2 py-1 rounded-full text-xs font-medium"
-                          [ngClass]="{
-                            'bg-green-100 text-green-800': analysisData.analysis.sentiment === 'positive',
-                            'bg-red-100 text-red-800': analysisData.analysis.sentiment === 'negative',
-                            'bg-gray-100 text-gray-800': analysisData.analysis.sentiment === 'neutral'
-                          }">{{ analysisData.analysis.sentiment | titlecase }}</span>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Plagiarism & Confidence -->
-              <div class="border-t border-gray-200 pt-4">
-                <div class="space-y-3">
-                  <div class="flex justify-between items-center">
-                    <span class="text-sm font-medium text-gray-700">Plagiarism:</span>
-                    <span class="text-sm font-bold" 
-                          [class.text-red-600]="analysisData.analysis.plagiarism > 50"
-                          [class.text-green-600]="analysisData.analysis.plagiarism <= 50">
-                      {{ analysisData.analysis.plagiarism }}%
-                    </span>
-                  </div>
-                  <div class="flex justify-between items-center">
-                    <span class="text-sm font-medium text-gray-700">Confidence:</span>
-                    <span class="text-sm font-medium text-gray-900">{{ analysisData.analysis.confidence }}%</span>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Analysis Notes -->
-              <div class="border-t border-gray-200 pt-4" *ngIf="analysisData.analysis.description">
-                <h4 class="text-sm font-semibold text-gray-700 mb-2">Analysis Notes</h4>
-                <p class="text-xs text-gray-600 leading-relaxed">{{ analysisData.analysis.description }}</p>
-              </div>
-            </div>
-          </div>
-        </div>
-        
-      </div>
-    </div>
+            }
   </div>
 
   <!-- Shared Content for Mobile (analysis popup) -->
   <div class="sm:hidden px-4 py-0">
 
-  <!-- Analysis Popup -->
-  <div *ngIf="showAnalysisPopup" class="fixed inset-0 z-50 flex items-center justify-center">
-    <!-- Backdrop -->
-    <div class="absolute inset-0 bg-black bg-opacity-50" (click)="closeAnalysisPopup()"></div>
-    
-    <!-- Popup Content -->
-    <div class="relative bg-white rounded-lg shadow-lg p-6 max-w-md w-full mx-4">
-      <!-- Header -->
-      <div class="flex justify-between items-center mb-4">
-        <h3 class="text-lg font-semibold text-gray-900">Analysis Results</h3>
-        <button (click)="closeAnalysisPopup()" class="text-gray-400 hover:text-gray-600">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-          </svg>
-        </button>
-      </div>
-      
-      <!-- Enhanced Analysis Data -->
-      <div class="space-y-4" *ngIf="analysisData?.analysis" class="max-h-96 overflow-y-auto">
-        <!-- Quality Score with progress bar -->
-        <div class="bg-blue-50 rounded-lg p-3">
-          <div class="flex justify-between items-center mb-2">
-            <span class="text-sm font-medium text-blue-700">Quality Score</span>
-            <span class="text-xl font-bold text-blue-600">{{ analysisData.analysis.quality }}/10</span>
-          </div>
-          <div class="w-full bg-blue-200 rounded-full h-2">
-            <div class="bg-blue-600 h-2 rounded-full" [style.width.%]="analysisData.analysis.quality * 10"></div>
-          </div>
-        </div>
-        
-        <!-- Style & Themes -->
-        <div class="space-y-3">
-          <div class="flex justify-between items-center">
-            <span class="text-sm font-medium text-gray-700">Style:</span>
-            <span class="px-2 py-1 bg-purple-100 text-purple-800 rounded-full text-xs font-medium">{{ analysisData.analysis.style | titlecase }}</span>
+    <!-- Analysis Popup -->
+    @if (showAnalysisPopup) {
+      <div class="fixed inset-0 z-50 flex items-center justify-center">
+        <!-- Backdrop -->
+        <div class="absolute inset-0 bg-black bg-opacity-50" (click)="closeAnalysisPopup()"></div>
+        <!-- Popup Content -->
+        <div class="relative bg-white rounded-lg shadow-lg p-4 max-w-lg w-full mx-4 max-h-[90vh] overflow-y-auto">
+          <!-- Header -->
+          <div class="flex justify-between items-center mb-4">
+            <h3 class="text-lg font-semibold text-gray-900">Analysis Results</h3>
+            <div class="flex items-center gap-2">
+              @if (analysisData && analysisData.length > 0) {
+                <span class="px-2 py-1 bg-gray-100 text-gray-600 rounded-full text-xs font-medium">
+                  {{ analysisData.length }} piece{{ analysisData.length > 1 ? 's' : '' }}
+                </span>
+              }
+              <button (click)="closeAnalysisPopup()" class="text-gray-400 hover:text-gray-600">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+              </button>
+            </div>
           </div>
           
-          <div>
-            <span class="text-sm font-medium text-gray-700">Themes:</span>
-            <div class="flex flex-wrap gap-1 mt-1">
-              <span *ngFor="let theme of analysisData.analysis.themes" 
-                    class="text-xs px-2 py-1 bg-green-100 text-green-800 rounded-full">
-                {{ theme | titlecase }}
-              </span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Technical Metrics -->
-        <div class="border-t border-gray-200 pt-3" *ngIf="analysisData.analysis.technical_metrics || analysisData.analysis.word_count">
-          <h4 class="text-sm font-semibold text-gray-700 mb-2">Technical Metrics</h4>
-          <div class="grid grid-cols-2 gap-3">
-            <div class="text-center bg-gray-50 rounded-lg p-2">
-              <div class="text-lg font-bold text-gray-900">{{ analysisData.analysis.word_count || 0 }}</div>
-              <div class="text-xs text-gray-600">Words</div>
-            </div>
-            <div class="text-center bg-gray-50 rounded-lg p-2">
-              <div class="text-lg font-bold text-gray-900">{{ analysisData.analysis.reading_time || 1 }}</div>
-              <div class="text-xs text-gray-600">Min read</div>
-            </div>
-            <div class="text-center bg-gray-50 rounded-lg p-2" *ngIf="analysisData.analysis.technical_metrics">
-              <div class="text-lg font-bold text-gray-900">{{ analysisData.analysis.technical_metrics.sentence_count }}</div>
-              <div class="text-xs text-gray-600">Sentences</div>
-            </div>
-            <div class="text-center bg-gray-50 rounded-lg p-2" *ngIf="analysisData.analysis.technical_metrics">
-              <div class="text-lg font-bold text-gray-900">{{ (analysisData.analysis.technical_metrics.vocabulary_richness * 100) | number:'1.0-0' }}%</div>
-              <div class="text-xs text-gray-600">Vocab Rich</div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Readability & Sentiment -->
-        <div class="border-t border-gray-200 pt-3" *ngIf="analysisData.analysis.readability || analysisData.analysis.sentiment">
-          <div class="space-y-2">
-            <div class="flex justify-between items-center" *ngIf="analysisData.analysis.readability">
-              <span class="text-sm font-medium text-gray-700">Readability:</span>
-              <span class="px-2 py-1 bg-yellow-100 text-yellow-800 rounded-full text-xs font-medium">{{ analysisData.analysis.readability.level }}</span>
-            </div>
-            <div class="flex justify-between items-center" *ngIf="analysisData.analysis.sentiment">
-              <span class="text-sm font-medium text-gray-700">Sentiment:</span>
-              <span class="px-2 py-1 rounded-full text-xs font-medium"
+          <!-- Multiple Analysis Results -->
+          @if (analysisData && analysisData.length > 0) {
+            <div class="space-y-4">
+              @for (analysis of analysisData; track analysis.contentIndex) {
+                <div class="border border-gray-200 rounded-lg p-3 bg-gray-50">
+                  <!-- Content Header -->
+                  <div class="flex justify-between items-center mb-2 pb-2 border-b border-gray-300">
+                    <h4 class="text-sm font-semibold text-gray-900">{{ analysis.contentTitle }}</h4>
+                    <span class="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-medium">
+                      {{ analysis.contentType | titlecase }}
+                    </span>
+                  </div>
+                  
+                  <!-- Analysis Content -->
+                  @if (analysis.error) {
+                    <div class="text-center py-3">
+                      <div class="text-red-500 text-sm">{{ analysis.errorMessage }}</div>
+                    </div>
+                  }
+                  
+                  @if (analysis.analysis && !analysis.error) {
+                    <div class="space-y-3">
+                      <!-- Quality Score with progress bar -->
+                      <div class="bg-blue-50 rounded-lg p-3">
+                        <div class="flex justify-between items-center mb-2">
+                          <span class="text-sm font-medium text-blue-700">Quality Score</span>
+                          <span class="text-lg font-bold text-blue-600">{{ analysis.analysis.quality }}/10</span>
+                        </div>
+                        <div class="w-full bg-blue-200 rounded-full h-2">
+                          <div class="bg-blue-600 h-2 rounded-full" [style.width.%]="analysis.analysis.quality * 10"></div>
+                        </div>
+                        <!-- Enhanced Quality Breakdown -->
+                        @if (analysis.analysis.quality_breakdown) {
+                  <div class="mt-3 pt-3 border-t border-blue-200">
+                    <h5 class="text-xs font-medium text-blue-700 mb-2">Detailed Breakdown</h5>
+                    <div class="grid grid-cols-2 gap-2 text-xs">
+                      @for (aspect of getQualityAspects().slice(0, 6); track aspect.key) {
+                        <div class="flex justify-between items-center">
+                          <span class="text-blue-600 truncate">{{ aspect.shortLabel }}:</span>
+                          <span class="font-medium text-blue-700">{{ analysisData?.[0]?.analysis.quality_breakdown[aspect.key] || 'N/A' }}</span>
+                        </div>
+                      }
+                    </div>
+                    @if (getQualityAspects().length > 6) {
+                      <div class="mt-2 text-center">
+                        <button class="text-xs text-blue-600 hover:text-blue-800" (click)="showFullBreakdown = !showFullBreakdown">
+                          {{ showFullBreakdown ? 'Show Less' : 'Show All (' + getQualityAspects().length + ')' }}
+                        </button>
+                      </div>
+                      @if (showFullBreakdown) {
+                        <div class="grid grid-cols-2 gap-2 text-xs mt-2 pt-2 border-t border-blue-200">
+                          @for (aspect of getQualityAspects().slice(6); track aspect.key) {
+                            <div class="flex justify-between items-center">
+                              <span class="text-blue-600 truncate">{{ aspect.shortLabel }}:</span>
+                              <span class="font-medium text-blue-700">{{ analysisData?.[0]?.analysis.quality_breakdown[aspect.key] || 'N/A' }}</span>
+                            </div>
+                          }
+                        </div>
+                      }
+                    }
+                  </div>
+                }
+              </div>
+              <!-- Style & Themes -->
+              <div class="space-y-3">
+                <div class="flex justify-between items-center">
+                  <span class="text-sm font-medium text-gray-700">Style:</span>
+                  <span class="px-2 py-1 bg-purple-100 text-purple-800 rounded-full text-xs font-medium">{{ analysisData?.[0]?.analysis.style | titlecase }}</span>
+                </div>
+                <div>
+                  <span class="text-sm font-medium text-gray-700">Themes:</span>
+                  <div class="flex flex-wrap gap-1 mt-1">
+                    @for (theme of analysisData?.[0]?.analysis.themes; track theme) {
+                      <span
+                        class="text-xs px-2 py-1 bg-green-100 text-green-800 rounded-full">
+                        {{ theme | titlecase }}
+                      </span>
+                    }
+                  </div>
+                </div>
+              </div>
+              <!-- Technical Metrics -->
+              @if (analysisData?.[0]?.analysis.technical_metrics || analysisData?.[0]?.analysis.word_count) {
+                <div class="border-t border-gray-200 pt-3">
+                  <h4 class="text-sm font-semibold text-gray-700 mb-2">Technical Metrics</h4>
+                  <div class="grid grid-cols-2 gap-3">
+                    <div class="text-center bg-gray-50 rounded-lg p-2">
+                      <div class="text-lg font-bold text-gray-900">{{ analysisData?.[0]?.analysis.word_count || 0 }}</div>
+                      <div class="text-xs text-gray-600">Words</div>
+                    </div>
+                    <div class="text-center bg-gray-50 rounded-lg p-2">
+                      <div class="text-lg font-bold text-gray-900">{{ analysisData?.[0]?.analysis.reading_time || 1 }}</div>
+                      <div class="text-xs text-gray-600">Min read</div>
+                    </div>
+                    @if (analysisData?.[0]?.analysis.technical_metrics) {
+                      <div class="text-center bg-gray-50 rounded-lg p-2">
+                        <div class="text-lg font-bold text-gray-900">{{ analysisData?.[0]?.analysis.technical_metrics.sentence_count }}</div>
+                        <div class="text-xs text-gray-600">Sentences</div>
+                      </div>
+                    }
+                    @if (analysisData?.[0]?.analysis.technical_metrics) {
+                      <div class="text-center bg-gray-50 rounded-lg p-2">
+                        <div class="text-lg font-bold text-gray-900">{{ (analysisData?.[0]?.analysis.technical_metrics.vocabulary_richness * 100) | number:'1.0-0' }}%</div>
+                        <div class="text-xs text-gray-600">Vocab Rich</div>
+                      </div>
+                    }
+                  </div>
+                </div>
+              }
+              <!-- Readability & Sentiment -->
+              @if (analysisData?.[0]?.analysis.readability || analysisData?.[0]?.analysis.sentiment) {
+                <div class="border-t border-gray-200 pt-3">
+                  <div class="space-y-2">
+                    @if (analysisData?.[0]?.analysis.readability) {
+                      <div class="flex justify-between items-center">
+                        <span class="text-sm font-medium text-gray-700">Readability:</span>
+                        <span class="px-2 py-1 bg-yellow-100 text-yellow-800 rounded-full text-xs font-medium">{{ analysisData?.[0]?.analysis.readability.level }}</span>
+                      </div>
+                    }
+                    @if (analysisData?.[0]?.analysis.sentiment) {
+                      <div class="flex justify-between items-center">
+                        <span class="text-sm font-medium text-gray-700">Sentiment:</span>
+                        <span class="px-2 py-1 rounded-full text-xs font-medium"
                     [ngClass]="{
-                      'bg-green-100 text-green-800': analysisData.analysis.sentiment === 'positive',
-                      'bg-red-100 text-red-800': analysisData.analysis.sentiment === 'negative',
-                      'bg-gray-100 text-gray-800': analysisData.analysis.sentiment === 'neutral'
-                    }">{{ analysisData.analysis.sentiment | titlecase }}</span>
+                      'bg-green-100 text-green-800': analysisData?.[0]?.analysis.sentiment === 'positive',
+                      'bg-red-100 text-red-800': analysisData?.[0]?.analysis.sentiment === 'negative',
+                      'bg-gray-100 text-gray-800': analysisData?.[0]?.analysis.sentiment === 'neutral'
+                    }">{{ analysisData?.[0]?.analysis.sentiment | titlecase }}</span>
+                      </div>
+                    }
+                  </div>
+                </div>
+              }
+              <!-- Plagiarism & Confidence -->
+              <div class="border-t border-gray-200 pt-3">
+                <div class="space-y-2">
+                  <div class="flex justify-between items-center">
+                    <span class="text-sm font-medium text-gray-700">Plagiarism:</span>
+                    <span class="text-sm font-bold"
+                      [class.text-red-600]="analysisData?.[0]?.analysis.plagiarism > 50"
+                      [class.text-green-600]="analysisData?.[0]?.analysis.plagiarism <= 50">
+                      {{ analysisData?.[0]?.analysis.plagiarism }}%
+                    </span>
+                  </div>
+                  <div class="flex justify-between items-center">
+                    <span class="text-sm font-medium text-gray-700">Confidence:</span>
+                    <span class="text-sm font-medium text-gray-900">{{ analysisData?.[0]?.analysis.confidence }}%</span>
+                  </div>
+                </div>
+              </div>
+              <!-- Analysis Notes -->
+              @if (analysisData?.[0]?.analysis.description) {
+                <div class="border-t border-gray-200 pt-3">
+                  <h4 class="text-sm font-semibold text-gray-700 mb-2">Analysis Notes</h4>
+                  <p class="text-sm text-gray-600 leading-relaxed">{{ analysisData?.[0]?.analysis.description }}</p>
+                </div>
+              }
+                    </div>
+                  }
+                </div>
+              }
             </div>
+          }
+          <!-- Close Button -->
+          <div class="mt-6 flex justify-end">
+            <button (click)="closeAnalysisPopup()"
+              class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">
+              Close
+            </button>
           </div>
         </div>
-        
-        <!-- Plagiarism & Confidence -->
-        <div class="border-t border-gray-200 pt-3">
-          <div class="space-y-2">
-            <div class="flex justify-between items-center">
-              <span class="text-sm font-medium text-gray-700">Plagiarism:</span>
-              <span class="text-sm font-bold" 
-                    [class.text-red-600]="analysisData.analysis.plagiarism > 50"
-                    [class.text-green-600]="analysisData.analysis.plagiarism <= 50">
-                {{ analysisData.analysis.plagiarism }}%
-              </span>
-            </div>
-            <div class="flex justify-between items-center">
-              <span class="text-sm font-medium text-gray-700">Confidence:</span>
-              <span class="text-sm font-medium text-gray-900">{{ analysisData.analysis.confidence }}%</span>
-            </div>
-          </div>
-        </div>
-        
-        <!-- Analysis Notes -->
-        <div class="border-t border-gray-200 pt-3" *ngIf="analysisData.analysis.description">
-          <h4 class="text-sm font-semibold text-gray-700 mb-2">Analysis Notes</h4>
-          <p class="text-sm text-gray-600 leading-relaxed">{{ analysisData.analysis.description }}</p>
-        </div>
       </div>
-      
-      <!-- Close Button -->
-      <div class="mt-6 flex justify-end">
-        <button (click)="closeAnalysisPopup()" 
-                class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">
-          Close
-        </button>
-      </div>
-    </div>
+    }
   </div>
-
+  
   <!-- Toast Notification -->
   <app-toast-notification
-    [message]="toastMessage"
-    [type]="toastType"
-    [isVisible]="showToastFlag"
-    [autoClose]="true"
-    [duration]="5000"
-    (closed)="hideToast()">
-  </app-toast-notification>
-</div>
+      [message]="toastMessage"
+      [type]="toastType"
+      [isVisible]="showToastFlag"
+      [autoClose]="true"
+      [duration]="5000"
+      (closed)="hideToast()">
+    </app-toast-notification>

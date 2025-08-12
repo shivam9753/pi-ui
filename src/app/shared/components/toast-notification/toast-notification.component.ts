@@ -7,34 +7,34 @@ import { trigger, state, style, transition, animate } from '@angular/animations'
   standalone: true,
   imports: [CommonModule],
   template: `
-    <div *ngIf="isVisible" 
-         [@slideIn]="isVisible ? 'in' : 'out'"
-         class="fixed top-6 right-6 z-50 max-w-sm w-full transition-all duration-300 ease-out transform">
-      <div [ngClass]="getToastClasses()" class="bg-white border rounded-2xl p-6 shadow-xl">
-        <div class="flex items-start space-x-4">
-          <!-- Icon -->
-          <div [ngClass]="getIconClasses()" class="flex-shrink-0 w-6 h-6 flex items-center justify-center rounded-full">
-            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-              <path [attr.d]="getIconPath()"></path>
-            </svg>
+    @if (isVisible) {
+      <div
+        [@slideIn]="isVisible ? 'in' : 'out'"
+        class="fixed top-6 right-6 z-50 max-w-sm w-full transition-all duration-300 ease-out transform">
+        <div [ngClass]="getToastClasses()" class="bg-white border rounded-2xl p-6 shadow-xl">
+          <div class="flex items-start space-x-4">
+            <!-- Icon -->
+            <div [ngClass]="getIconClasses()" class="flex-shrink-0 w-6 h-6 flex items-center justify-center rounded-full">
+              <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                <path [attr.d]="getIconPath()"></path>
+              </svg>
+            </div>
+            <!-- Message Content -->
+            <div class="flex-1 min-w-0">
+              <p class="font-medium text-gray-900 text-sm leading-5">{{ message }}</p>
+            </div>
+            <!-- Close Button -->
+            <button (click)="close()"
+              class="flex-shrink-0 text-gray-400 hover:text-gray-600 transition-colors duration-200">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+              </svg>
+            </button>
           </div>
-          
-          <!-- Message Content -->
-          <div class="flex-1 min-w-0">
-            <p class="font-medium text-gray-900 text-sm leading-5">{{ message }}</p>
-          </div>
-          
-          <!-- Close Button -->
-          <button (click)="close()" 
-                  class="flex-shrink-0 text-gray-400 hover:text-gray-600 transition-colors duration-200">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-            </svg>
-          </button>
         </div>
       </div>
-    </div>
-  `,
+    }
+    `,
   animations: [
     trigger('slideIn', [
       state('in', style({

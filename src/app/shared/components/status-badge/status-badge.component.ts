@@ -9,15 +9,17 @@ export type StatusType = 'pending_review' | 'in_progress' | 'accepted' | 'reject
   imports: [CommonModule],
   template: `
     <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
-          [ngClass]="getBadgeClasses()">
+      [ngClass]="getBadgeClasses()">
       <!-- Status Icon (optional) -->
-      <svg *ngIf="showIcon" class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 24 24">
-        <path [attr.d]="getIconPath()"></path>
-      </svg>
-      
+      @if (showIcon) {
+        <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 24 24">
+          <path [attr.d]="getIconPath()"></path>
+        </svg>
+      }
+    
       {{ getStatusLabel() }}
     </span>
-  `
+    `
 })
 export class StatusBadgeComponent {
   @Input() status!: StatusType | string;

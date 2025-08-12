@@ -191,12 +191,31 @@ export class BackendService {
     );
   }
   // Get published content (accepted submissions)
-  getPublishedContent(type?: string): Observable<any> {
-    let url = `${this.API_URL}/submissions/published`;
+  getPublishedContent(type?: string, options: { limit?: number; skip?: number; sortBy?: string; order?: 'asc' | 'desc' } = {}): Observable<any> {
+    let params = new HttpParams();
+    
     if (type) {
-      url += `?type=${type}`;
+      params = params.set('type', type);
     }
-    return this.http.get<any>(url).pipe(
+    
+    if (options.limit) {
+      params = params.set('limit', options.limit.toString());
+    }
+    
+    if (options.skip) {
+      params = params.set('skip', options.skip.toString());
+    }
+    
+    if (options.sortBy) {
+      params = params.set('sortBy', options.sortBy);
+    }
+    
+    if (options.order) {
+      params = params.set('order', options.order);
+    }
+
+    const url = `${this.API_URL}/submissions/published`;
+    return this.http.get<any>(url, { params }).pipe(
       this.handleApiCall(url, 'GET')
     );
   }

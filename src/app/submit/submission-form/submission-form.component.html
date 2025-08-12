@@ -12,166 +12,182 @@
     </div>
 
     <!-- Progress Steps -->
-    <div *ngIf="activeTab === 'submit'" class="px-6 py-4 bg-white-tertiary">
-      <div class="flex items-center justify-center space-x-2">
-        <div class="flex items-center space-x-2">
-          <div [class]="getCurrentStep() >= 1 ? 'w-2 h-2 rounded-full' : 'w-2 h-2 rounded-full'" [style.background-color]="getCurrentStep() >= 1 ? 'var(--bg-accent)' : 'var(--border-primary)'"></div>
-          <div [class]="getCurrentStep() >= 2 ? 'w-8 h-0.5' : 'w-8 h-0.5'" [style.background-color]="getCurrentStep() >= 2 ? 'var(--bg-accent)' : 'var(--border-primary)'"></div>
-          <div [class]="getCurrentStep() >= 2 ? 'w-2 h-2 rounded-full' : 'w-2 h-2 rounded-full'" [style.background-color]="getCurrentStep() >= 2 ? 'var(--bg-accent)' : 'var(--border-primary)'"></div>
-          <div [class]="getCurrentStep() >= 3 ? 'w-8 h-0.5' : 'w-8 h-0.5'" [style.background-color]="getCurrentStep() >= 3 ? 'var(--bg-accent)' : 'var(--border-primary)'"></div>
-          <div [class]="getCurrentStep() >= 3 ? 'w-2 h-2 rounded-full' : 'w-2 h-2 rounded-full'" [style.background-color]="getCurrentStep() >= 3 ? 'var(--bg-accent)' : 'var(--border-primary)'"></div>
+    @if (activeTab === 'submit') {
+      <div class="px-6 py-4 bg-white-tertiary">
+        <div class="flex items-center justify-center space-x-2">
+          <div class="flex items-center space-x-2">
+            <div [class]="getCurrentStep() >= 1 ? 'w-2 h-2 rounded-full' : 'w-2 h-2 rounded-full'" [style.background-color]="getCurrentStep() >= 1 ? 'var(--bg-accent)' : 'var(--border-primary)'"></div>
+            <div [class]="getCurrentStep() >= 2 ? 'w-8 h-0.5' : 'w-8 h-0.5'" [style.background-color]="getCurrentStep() >= 2 ? 'var(--bg-accent)' : 'var(--border-primary)'"></div>
+            <div [class]="getCurrentStep() >= 2 ? 'w-2 h-2 rounded-full' : 'w-2 h-2 rounded-full'" [style.background-color]="getCurrentStep() >= 2 ? 'var(--bg-accent)' : 'var(--border-primary)'"></div>
+            <div [class]="getCurrentStep() >= 3 ? 'w-8 h-0.5' : 'w-8 h-0.5'" [style.background-color]="getCurrentStep() >= 3 ? 'var(--bg-accent)' : 'var(--border-primary)'"></div>
+            <div [class]="getCurrentStep() >= 3 ? 'w-2 h-2 rounded-full' : 'w-2 h-2 rounded-full'" [style.background-color]="getCurrentStep() >= 3 ? 'var(--bg-accent)' : 'var(--border-primary)'"></div>
+          </div>
         </div>
+        <p class="text-xs text-center text-gray-900-tertiary mt-2">{{ getCurrentStepText() }}</p>
       </div>
-      <p class="text-xs text-center text-gray-900-tertiary mt-2">{{ getCurrentStepText() }}</p>
-    </div>
+    }
 
     <!-- Form Content -->
-    <div *ngIf="activeTab === 'submit'" class="px-6 py-6 pb-32">
-      <form [formGroup]="form" (ngSubmit)="submitForm()" class="space-y-8">
-        
-        <!-- Step 1: Type Selection -->
-        <div class="space-y-4">
-          <h2 class="text-lg text-gray-900">What would you like to share?</h2>
-          <div class="space-y-3">
-            <ng-container *ngFor="let type of submissionTypes">
-              <label class="block">
-                <input type="radio" 
-                       name="submissionType" 
-                       [value]="type.value"
-                       [checked]="selectedType === type.value"
-                       (change)="onTypeSelected(type.value)"
-                       class="sr-only" />
-                <div class="p-4 rounded-lg border transition-all duration-200 cursor-pointer"
+    @if (activeTab === 'submit') {
+      <div class="px-6 py-6 pb-32">
+        <form [formGroup]="form" (ngSubmit)="submitForm()" class="space-y-8">
+          <!-- Step 1: Type Selection -->
+          <div class="space-y-4">
+            <h2 class="text-lg text-gray-900">What would you like to share?</h2>
+            <div class="space-y-3">
+              @for (type of submissionTypes; track type) {
+                <label class="block">
+                  <input type="radio"
+                    name="submissionType"
+                    [value]="type.value"
+                    [checked]="selectedType === type.value"
+                    (change)="onTypeSelected(type.value)"
+                    class="sr-only" />
+                  <div class="p-4 rounded-lg border transition-all duration-200 cursor-pointer"
                      [class]="selectedType === type.value ? 
                              'border-orange-500 bg-orange-50 shadow-md' : 
                              'border-gray-200 bg-white hover:bg-gray-50 hover:border-gray-300'">
-                  <div class="flex items-center space-x-3">
-                    <!-- Icon -->
-                    <div class="w-8 h-8 flex items-center justify-center"
-                         [class]="selectedType === type.value ? 'text-orange-600' : 'text-gray-600'">
-                      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" [attr.d]="getIconForType(type.value)"></path>
-                      </svg>
-                    </div>
-                    <div class="flex-1">
-                      <div class="font-medium text-gray-900">
-                        {{ type.label }}
-                        <span *ngIf="type.fastTrack" class="ml-2 text-xs text-orange-600 font-medium">Quick Review & Publishing</span>
+                    <div class="flex items-center space-x-3">
+                      <!-- Icon -->
+                      <div class="w-8 h-8 flex items-center justify-center"
+                        [class]="selectedType === type.value ? 'text-orange-600' : 'text-gray-600'">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" [attr.d]="getIconForType(type.value)"></path>
+                        </svg>
                       </div>
-                      <div class="text-sm text-gray-600">{{ type.description }}</div>
-                    </div>
-                    <div *ngIf="selectedType === type.value" class="w-5 h-5 text-gray-900-accent">
-                      <svg fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
-                      </svg>
+                      <div class="flex-1">
+                        <div class="font-medium text-gray-900">
+                          {{ type.label }}
+                          @if (type.fastTrack) {
+                            <span class="ml-2 text-xs text-orange-600 font-medium">Quick Review & Publishing</span>
+                          }
+                        </div>
+                        <div class="text-sm text-gray-600">{{ type.description }}</div>
+                      </div>
+                      @if (selectedType === type.value) {
+                        <div class="w-5 h-5 text-gray-900-accent">
+                          <svg fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                          </svg>
+                        </div>
+                      }
                     </div>
                   </div>
-                </div>
-              </label>
-            </ng-container>
+                </label>
+              }
+            </div>
           </div>
-        </div>
-
-        <!-- Step 2: Writing -->
-        <div *ngIf="selectedType" class="space-y-4" data-section="content">
-          <h2 class="text-lg text-gray-900">Your {{ selectedType.replace('_', ' ') }}</h2>
-          <div class="bg-white border border-gray-200 rounded-2xl p-6">
-            <app-content-editor
-              [selectedType]="selectedType"
-              [contents]="getContentControls()"
-              [formArray]="getContentsFormArray()"
-              (contentsChanged)="onContentChanged($event)"
-            ></app-content-editor>
-          </div>
-        </div>
-
-        <!-- Step 3: Final Details -->
-        <div *ngIf="selectedType && hasContent()" class="space-y-4">
-          <h2 class="text-lg text-gray-900">Add context (optional)</h2>
-          <div class="bg-white border border-gray-200  rounded-2xl p-6">
-            <textarea 
-              formControlName="description"
-              rows="3"
-              class="w-full px-0 py-0 border-0 bg-white text-gray-900 focus:outline-none focus:ring-0 resize-none leading-relaxed"
-              [style.color]="'var(--text-primary)'"
-              placeholder="What inspired this piece? Share the story behind your creation..."></textarea>
-          </div>
-          
-          <!-- Word Count -->
-          <div class="text-center py-2">
-            <div class="text-2xl font-light text-gray-900">{{ getTotalWordCount() }}</div>
-            <div class="text-sm text-gray-900-secondary">words</div>
-          </div>
-
-          <!-- Submit Actions -->
-          <div class="space-y-3 pt-4">
-            <!-- Save Draft Button -->
-            <button 
-              type="button"
-              (click)="saveAsDraft()"
-              [disabled]="!hasContent() || isSavingDraft"
-              class="w-full font-medium py-3 px-6 rounded-2xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center border-2"
-              [style.border-color]="'var(--border-accent)'"
-              [style.color]="'var(--text-accent)'"
-              style="background-color: transparent;"
-            >
-              <div *ngIf="isSavingDraft" class="w-4 h-4 border-2 border-orange-500 border-t-transparent rounded-full animate-spin mr-2"></div>
-              <svg *ngIf="!isSavingDraft" class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3-3m0 0l-3 3m3-3v12"/>
-              </svg>
-              {{ isSavingDraft ? 'Saving Draft...' : 'Save as Draft' }}
-            </button>
-            
-            <!-- Submit Button -->
-            <button 
-              type="submit"
-              [disabled]="!validateForm() || isSubmitting"
-              class="w-full font-medium py-4 px-6 rounded-2xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
-              [style.background-color]="'var(--bg-accent)'"
-              [style.color]="'var(--text-inverse)'"
-            >
-              <div *ngIf="isSubmitting" class="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-3"></div>
-              {{ isSubmitting ? 'Submitting...' : 'Submit for Review' }}
-            </button>
-            <button 
-              type="button"
-              (click)="saveAsDraft()"
-              [disabled]="!hasContent() || isSavingDraft"
-              class="w-full font-medium py-4 px-6 rounded-2xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
-              [style.background-color]="'var(--bg-secondary)'"
-              [style.color]="'var(--text-primary)'"
-            >
-              <div *ngIf="isSavingDraft" class="w-5 h-5 border-2 border-current border-t-transparent rounded-full animate-spin mr-3"></div>
-              {{ isSavingDraft ? 'Saving...' : 'Save as Draft' }}
-            </button>
-          </div>
-        </div>
-      </form>
-    </div>
+          <!-- Step 2: Writing -->
+          @if (selectedType) {
+            <div class="space-y-4" data-section="content">
+              <h2 class="text-lg text-gray-900">Your {{ selectedType.replace('_', ' ') }}</h2>
+              <div class="bg-white border border-gray-200 rounded-2xl p-6">
+                <app-content-editor
+                  [selectedType]="selectedType"
+                  [contents]="getContentControls()"
+                  [formArray]="getContentsFormArray()"
+                  (contentsChanged)="onContentChanged($event)"
+                ></app-content-editor>
+              </div>
+            </div>
+          }
+          <!-- Step 3: Final Details -->
+          @if (selectedType && hasContent()) {
+            <div class="space-y-4">
+              <h2 class="text-lg text-gray-900">Add context (optional)</h2>
+              <div class="bg-white border border-gray-200  rounded-2xl p-6">
+                <textarea
+                  formControlName="description"
+                  rows="3"
+                  class="w-full px-0 py-0 border-0 bg-white text-gray-900 focus:outline-none focus:ring-0 resize-none leading-relaxed"
+                  [style.color]="'var(--text-primary)'"
+                placeholder="What inspired this piece? Share the story behind your creation..."></textarea>
+              </div>
+              <!-- Word Count -->
+              <div class="text-center py-2">
+                <div class="text-2xl font-light text-gray-900">{{ getTotalWordCount() }}</div>
+                <div class="text-sm text-gray-900-secondary">words</div>
+              </div>
+              <!-- Submit Actions -->
+              <div class="space-y-3 pt-4">
+                <!-- Save Draft Button -->
+                <button
+                  type="button"
+                  (click)="saveAsDraft()"
+                  [disabled]="!hasContent() || isSavingDraft"
+                  class="w-full font-medium py-3 px-6 rounded-2xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center border-2"
+                  [style.border-color]="'var(--border-accent)'"
+                  [style.color]="'var(--text-accent)'"
+                  style="background-color: transparent;"
+                  >
+                  @if (isSavingDraft) {
+                    <div class="w-4 h-4 border-2 border-orange-500 border-t-transparent rounded-full animate-spin mr-2"></div>
+                  }
+                  @if (!isSavingDraft) {
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3-3m0 0l-3 3m3-3v12"/>
+                    </svg>
+                  }
+                  {{ isSavingDraft ? 'Saving Draft...' : 'Save as Draft' }}
+                </button>
+                <!-- Submit Button -->
+                <button
+                  type="submit"
+                  [disabled]="!validateForm() || isSubmitting"
+                  class="w-full font-medium py-4 px-6 rounded-2xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+                  [style.background-color]="'var(--bg-accent)'"
+                  [style.color]="'var(--text-inverse)'"
+                  >
+                  @if (isSubmitting) {
+                    <div class="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-3"></div>
+                  }
+                  {{ isSubmitting ? 'Submitting...' : 'Submit for Review' }}
+                </button>
+                <button
+                  type="button"
+                  (click)="saveAsDraft()"
+                  [disabled]="!hasContent() || isSavingDraft"
+                  class="w-full font-medium py-4 px-6 rounded-2xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+                  [style.background-color]="'var(--bg-secondary)'"
+                  [style.color]="'var(--text-primary)'"
+                  >
+                  @if (isSavingDraft) {
+                    <div class="w-5 h-5 border-2 border-current border-t-transparent rounded-full animate-spin mr-3"></div>
+                  }
+                  {{ isSavingDraft ? 'Saving...' : 'Save as Draft' }}
+                </button>
+              </div>
+            </div>
+          }
+        </form>
+      </div>
+    }
 
     <!-- Bottom Navigation -->
     <div class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-6 py-3 safe-area-inset-bottom">
       <div class="flex justify-center space-x-16">
         <button (click)="activeTab = 'submit'"
-                class="flex flex-col items-center space-y-1 py-2 transition-colors duration-200"
-                [style.color]="activeTab === 'submit' ? 'var(--text-accent)' : 'var(--text-tertiary)'">
+          class="flex flex-col items-center space-y-1 py-2 transition-colors duration-200"
+          [style.color]="activeTab === 'submit' ? 'var(--text-accent)' : 'var(--text-tertiary)'">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path>
           </svg>
           <span class="text-xs font-medium">Write</span>
         </button>
         <button (click)="activeTab = 'drafts'"
-                class="flex flex-col items-center space-y-1 py-2 relative transition-colors duration-200"
-                [style.color]="activeTab === 'drafts' ? 'var(--text-accent)' : 'var(--text-tertiary)'">
+          class="flex flex-col items-center space-y-1 py-2 relative transition-colors duration-200"
+          [style.color]="activeTab === 'drafts' ? 'var(--text-accent)' : 'var(--text-tertiary)'">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
           </svg>
           <span class="text-xs font-medium">My Drafts</span>
-          <div *ngIf="drafts.length > 0" class="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">{{ drafts.length }}</div>
+          @if (drafts.length > 0) {
+            <div class="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">{{ drafts.length }}</div>
+          }
         </button>
         <button (click)="activeTab = 'guidelines'"
-                class="flex flex-col items-center space-y-1 py-2 transition-colors duration-200"
-                [style.color]="activeTab === 'guidelines' ? 'var(--text-accent)' : 'var(--text-tertiary)'">
+          class="flex flex-col items-center space-y-1 py-2 transition-colors duration-200"
+          [style.color]="activeTab === 'guidelines' ? 'var(--text-accent)' : 'var(--text-tertiary)'">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
           </svg>
@@ -186,9 +202,9 @@
     <div class="max-w-4xl mx-auto px-8 py-16">
       <!-- Elegant Header -->
       <div class="text-center mb-16">
-       <h1 class="text-2xl md:text-3xl font-bold text-gray-900 mb-2">
-        Submit your work
-      </h1>
+        <h1 class="text-2xl md:text-3xl font-bold text-gray-900 mb-2">
+          Submit your work
+        </h1>
       </div>
 
       <!-- Navigation Tabs -->
@@ -221,7 +237,9 @@
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
             </svg>
             My Drafts
-            <span *ngIf="drafts.length > 0" class="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">{{ drafts.length }}</span>
+            @if (drafts.length > 0) {
+              <span class="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">{{ drafts.length }}</span>
+            }
           </button>
           <button
             (click)="activeTab = 'guidelines'"
@@ -241,124 +259,135 @@
       </div>
 
       <!-- Submit Form -->
-      <div *ngIf="activeTab === 'submit'">
-        <form [formGroup]="form" (ngSubmit)="submitForm()" class="space-y-12">
-          
-          <!-- Type Selection -->
-          <div class="space-y-6">
-            <h2 class="text-2xl text-gray-900 text-center">What would you like to share?</h2>
-            <div class="grid grid-cols-2 gap-6">
-              <ng-container *ngFor="let type of submissionTypes">
-                <label class="block cursor-pointer group">
-                  <input type="radio" 
-                         name="submissionType" 
-                         [value]="type.value"
-                         [checked]="selectedType === type.value"
-                         (change)="onTypeSelected(type.value)"
-                         class="sr-only" />
-                  <div class="p-6 rounded-xl border transition-all duration-200 text-center h-full flex flex-col justify-center"
-                       [class]="selectedType === type.value ? 'border-orange-500 bg-orange-50 shadow-lg' : 'border-gray-200 bg-white hover:bg-gray-50 hover:border-gray-300'">
-                    <!-- Icon -->
-                    <div class="w-12 h-12 mx-auto mb-4 flex items-center justify-center"
-                         [class]="selectedType === type.value ? 'text-orange-600' : 'text-gray-600'">
-                      <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" [attr.d]="getIconForType(type.value)"></path>
-                      </svg>
+      @if (activeTab === 'submit') {
+        <div>
+          <form [formGroup]="form" (ngSubmit)="submitForm()" class="space-y-12">
+            <!-- Type Selection -->
+            <div class="space-y-6">
+              <h2 class="text-2xl text-gray-900 text-center">What would you like to share?</h2>
+              <div class="grid grid-cols-2 gap-6">
+                @for (type of submissionTypes; track type) {
+                  <label class="block cursor-pointer group">
+                    <input type="radio"
+                      name="submissionType"
+                      [value]="type.value"
+                      [checked]="selectedType === type.value"
+                      (change)="onTypeSelected(type.value)"
+                      class="sr-only" />
+                    <div class="p-6 rounded-xl border transition-all duration-200 text-center h-full flex flex-col justify-center"
+                      [class]="selectedType === type.value ? 'border-orange-500 bg-orange-50 shadow-lg' : 'border-gray-200 bg-white hover:bg-gray-50 hover:border-gray-300'">
+                      <!-- Icon -->
+                      <div class="w-12 h-12 mx-auto mb-4 flex items-center justify-center"
+                        [class]="selectedType === type.value ? 'text-orange-600' : 'text-gray-600'">
+                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" [attr.d]="getIconForType(type.value)"></path>
+                        </svg>
+                      </div>
+                      <div class="text-lg font-semibold text-gray-900 mb-2">
+                        {{ type.label }}
+                      </div>
+                      <div class="text-sm text-gray-600 mb-1">{{ type.description }}</div>
+                      @if (type.fastTrack) {
+                        <div class="text-xs text-orange-600 font-medium">Quick Review & Publishing</div>
+                      }
                     </div>
-                    <div class="text-lg font-semibold text-gray-900 mb-2">
-                      {{ type.label }}
-                    </div>
-                    <div class="text-sm text-gray-600 mb-1">{{ type.description }}</div>
-                    <div *ngIf="type.fastTrack" class="text-xs text-orange-600 font-medium">Quick Review & Publishing</div>
+                  </label>
+                }
+              </div>
+            </div>
+            <!-- Content Creation -->
+            @if (selectedType) {
+              <div class="space-y-6" data-section="content">
+                <h2 class="text-2xl text-gray-900 text-center">Your {{ selectedType.replace('_', ' ') }}</h2>
+                <div class="bg-white border border-gray-200 rounded-3xl p-8 shadow-xl">
+                  <app-content-editor
+                    [selectedType]="selectedType"
+                    [contents]="getContentControls()"
+                    [formArray]="getContentsFormArray()"
+                    (contentsChanged)="onContentChanged($event)"
+                  ></app-content-editor>
+                </div>
+              </div>
+            }
+            <!-- Context & Submission -->
+            @if (selectedType && hasContent()) {
+              <div class="space-y-8">
+                <!-- Optional Context -->
+                <div class="space-y-4">
+                  <h3 class="text-xl text-gray-900 text-center">Context (optional)</h3>
+                  <div class="bg-white border border-gray-200 rounded-3xl p-8">
+                    <textarea
+                      formControlName="description"
+                      rows="4"
+                      class="w-full px-0 py-0 border-0 bg-white text-gray-900 focus:outline-none focus:ring-0 resize-none text-lg leading-relaxed"
+                    placeholder="What inspired this piece? Share the story behind your creation..."></textarea>
                   </div>
-                </label>
-              </ng-container>
-            </div>
-          </div>
-
-          <!-- Content Creation -->
-          <div *ngIf="selectedType" class="space-y-6" data-section="content">
-            <h2 class="text-2xl text-gray-900 text-center">Your {{ selectedType.replace('_', ' ') }}</h2>
-            <div class="bg-white border border-gray-200 rounded-3xl p-8 shadow-xl">
-              <app-content-editor
-                [selectedType]="selectedType"
-                [contents]="getContentControls()"
-                [formArray]="getContentsFormArray()"
-                (contentsChanged)="onContentChanged($event)"
-              ></app-content-editor>
-            </div>
-          </div>
-
-          <!-- Context & Submission -->
-          <div *ngIf="selectedType && hasContent()" class="space-y-8">
-            <!-- Optional Context -->
-            <div class="space-y-4">
-              <h3 class="text-xl text-gray-900 text-center">Context (optional)</h3>
-              <div class="bg-white border border-gray-200 rounded-3xl p-8">
-                <textarea 
-                  formControlName="description"
-                  rows="4"
-                  class="w-full px-0 py-0 border-0 bg-white text-gray-900 focus:outline-none focus:ring-0 resize-none text-lg leading-relaxed"
-                  placeholder="What inspired this piece? Share the story behind your creation..."></textarea>
+                </div>
+                <!-- Stats & Actions -->
+                <div class="flex items-center justify-between">
+                  <div class="text-center">
+                    <div class="text-3xl font-light text-gray-900">{{ getTotalWordCount() }}</div>
+                    <div class="text-gray-900-secondary">words</div>
+                  </div>
+                  <div class="flex space-x-4">
+                    <button
+                      type="button"
+                      (click)="saveAsDraft()"
+                      [disabled]="!hasContent() || isSavingDraft"
+                      class="px-8 py-4 font-medium rounded-2xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
+                      [style.background-color]="'var(--bg-secondary)'"
+                      [style.color]="'var(--text-primary)'"
+                      >
+                      @if (isSavingDraft) {
+                        <div class="w-5 h-5 border-2 border-current border-t-transparent rounded-full animate-spin mr-3"></div>
+                      }
+                      {{ isSavingDraft ? 'Saving...' : 'Save Draft' }}
+                    </button>
+                    <button
+                      type="submit"
+                      [disabled]="!validateForm() || isSubmitting"
+                      class="px-8 py-4 font-medium rounded-2xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
+                      [style.background-color]="'var(--bg-accent)'"
+                      [style.color]="'var(--text-inverse)'"
+                      [style.box-shadow]="'var(--shadow-lg)'"
+                      >
+                      @if (isSubmitting) {
+                        <div class="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-3"></div>
+                      }
+                      {{ isSubmitting ? 'Submitting...' : 'Submit for Review' }}
+                    </button>
+                  </div>
+                </div>
               </div>
-            </div>
-
-            <!-- Stats & Actions -->
-            <div class="flex items-center justify-between">
-              <div class="text-center">
-                <div class="text-3xl font-light text-gray-900">{{ getTotalWordCount() }}</div>
-                <div class="text-gray-900-secondary">words</div>
-              </div>
-              
-              <div class="flex space-x-4">
-                <button 
-                  type="button"
-                  (click)="saveAsDraft()"
-                  [disabled]="!hasContent() || isSavingDraft"
-                  class="px-8 py-4 font-medium rounded-2xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
-                  [style.background-color]="'var(--bg-secondary)'"
-                  [style.color]="'var(--text-primary)'"
-                >
-                  <div *ngIf="isSavingDraft" class="w-5 h-5 border-2 border-current border-t-transparent rounded-full animate-spin mr-3"></div>
-                  {{ isSavingDraft ? 'Saving...' : 'Save Draft' }}
-                </button>
-                <button 
-                  type="submit"
-                  [disabled]="!validateForm() || isSubmitting"
-                  class="px-8 py-4 font-medium rounded-2xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
-                  [style.background-color]="'var(--bg-accent)'"
-                  [style.color]="'var(--text-inverse)'"
-                  [style.box-shadow]="'var(--shadow-lg)'"
-                >
-                  <div *ngIf="isSubmitting" class="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-3"></div>
-                  {{ isSubmitting ? 'Submitting...' : 'Submit for Review' }}
-                </button>
-              </div>
-            </div>
-          </div>
-        </form>
-      </div>
+            }
+          </form>
+        </div>
+      }
     </div>
   </div>
 
   <!-- Other Tab Contents -->
-  <div *ngIf="activeTab === 'drafts'" class="px-6 py-8 lg:px-8">
-    <app-drafts-list
-      [drafts]="drafts"
-      [isInline]="true"
-      (loadDraft)="loadDraftAndSwitchToSubmit($event)"
-      (deleteDraft)="deleteDraft($event)"
-      (createNew)="activeTab = 'submit'"
-    ></app-drafts-list>
-  </div>
-  
-  <div *ngIf="activeTab === 'guidelines'" class="px-6 py-8 lg:px-8">
-    <div class="max-w-4xl mx-auto">
-      <app-guidelines-overlay
+  @if (activeTab === 'drafts') {
+    <div class="px-6 py-8 lg:px-8">
+      <app-drafts-list
+        [drafts]="drafts"
         [isInline]="true"
-      ></app-guidelines-overlay>
+        (loadDraft)="loadDraftAndSwitchToSubmit($event)"
+        (deleteDraft)="deleteDraft($event)"
+        (createNew)="activeTab = 'submit'"
+      ></app-drafts-list>
     </div>
-  </div>
+  }
+
+  @if (activeTab === 'guidelines') {
+    <div class="px-6 py-8 lg:px-8">
+      <div class="max-w-4xl mx-auto">
+        <app-guidelines-overlay
+          [isInline]="true"
+        ></app-guidelines-overlay>
+      </div>
+    </div>
+  }
 
   <!-- Toast Notifications -->
   <app-toast-notification

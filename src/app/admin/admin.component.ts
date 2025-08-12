@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { Router, ActivatedRoute } from '@angular/router';
 import { AuthService } from '../services/auth.service';
 
@@ -10,24 +10,27 @@ import { PublishedPostsComponent } from "./content/published-posts/published-pos
 import { UserManagementComponent } from './users/user-management/user-management.component';
 import { PromptManagementComponent } from './prompts/prompt-management/prompt-management.component';
 import { PurgeManagementComponent } from './purge/purge-management.component';
+import { CreateUsersComponent } from './users/create-users/create-users.component';
+import { AllSubmissionsComponent } from './submissions/all-submissions/all-submissions.component';
 
 @Component({
   selector: 'app-admin',
   standalone: true,
   imports: [
-    CommonModule,
     PromptManagementComponent,
     ReadyToPublishComponent,
     PendingReviewsComponent,
     PublishedPostsComponent,
     UserManagementComponent,
-    PurgeManagementComponent
+    PurgeManagementComponent,
+    CreateUsersComponent,
+    AllSubmissionsComponent
 ],
   templateUrl: './admin.component.html',
   styleUrl: './admin.component.css'
 })
 export class AdminComponent implements OnInit {
-  activeTab: 'publish' | 'published' | 'users' | 'review' | 'prompts' | 'purge' = 'review';
+  activeTab: 'publish' | 'published' | 'users' | 'review' | 'prompts' | 'purge' | 'users_create' | 'submissions_all' = 'review';
   isAdmin = false;
   isReviewer = false;
   currentUser: any = null;
@@ -44,8 +47,8 @@ export class AdminComponent implements OnInit {
     
     // Handle URL fragments for direct tab navigation
     this.route.fragment.subscribe(fragment => {
-      if (fragment && ['publish', 'published', 'users', 'review', 'prompts', 'purge'].includes(fragment)) {
-        const tab = fragment as 'publish' | 'published' | 'users' | 'review' | 'prompts' | 'purge';
+      if (fragment && ['publish', 'published', 'users', 'review', 'prompts', 'purge', 'users_create', 'submissions_all'].includes(fragment)) {
+        const tab = fragment as 'publish' | 'published' | 'users' | 'review' | 'prompts' | 'purge' | 'users_create' | 'submissions_all';
         // Only set tab if user has permission to access it
         if (this.canAccessTab(tab)) {
           this.activeTab = tab;
@@ -78,7 +81,7 @@ export class AdminComponent implements OnInit {
     this.loading = false;
   }
 
-  setActiveTab(tab: 'publish' | 'published' | 'users' | 'review' | 'prompts' | 'purge') {
+  setActiveTab(tab: 'publish' | 'published' | 'users' | 'review' | 'prompts' | 'purge' | 'users_create' | 'submissions_all') {
     // Check if user has permission to access this tab
     if (!this.canAccessTab(tab)) {
       return; // Prevent access to unauthorized tabs

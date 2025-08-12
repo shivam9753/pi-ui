@@ -1,303 +1,303 @@
 <!-- Overlay Mode -->
-<div *ngIf="!isInline" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4"
-(click)="closeOverlay($event)">
-
-<!-- Modal Container -->
-<div class="bg-white border border-gray-200 rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden"
-  (click)="$event.stopPropagation()">
-
-<!-- Header -->
-<div class="bg-gradient-to-r from-orange-600 to-red-600 text-white p-6">
- <div class="flex items-center justify-between">
-   <div>
-     <h2 class="text-2xl font-bold">My Drafts</h2>
-     <p class="text-orange-100 mt-1">
-       {{ drafts.length }} {{ drafts.length === 1 ? 'draft' : 'drafts' }} saved
-     </p>
-   </div>
-   <button 
-     (click)="close.emit()"
-     class="text-white hover:text-orange-100 transition-colors duration-200"
-   >
-     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-     </svg>
-   </button>
- </div>
-</div>
-
-<!-- Content -->
-<div class="overflow-y-auto max-h-[calc(90vh-120px)]">
- 
- <!-- Auto-deletion Banner -->
- <div *ngIf="drafts.length > 0" class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mx-6 mt-4 mb-2">
-   <div class="flex">
-     <div class="flex-shrink-0">
-       <svg class="h-5 w-5 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
-       </svg>
-     </div>
-     <div class="ml-3">
-       <p class="text-sm text-yellow-700">
-         <strong>Auto-deletion:</strong> These drafts will be automatically deleted after 7 days of inactivity to free up storage space.
-       </p>
-     </div>
-   </div>
- </div>
- 
- <!-- Empty State -->
- <app-empty-state 
-   *ngIf="drafts.length === 0"
-   title="No drafts yet"
-   message="Start working on a submission and it will be automatically saved as a draft."
-   icon="pencil"
-   actionText="Start Writing"
-   [onAction]="onCreateNewDraft.bind(this)">
- </app-empty-state>
-
- <!-- Drafts List -->
- <div *ngIf="drafts.length > 0" class="p-6">
-   <div class="space-y-4">
-     <div *ngFor="let draft of drafts; trackBy: trackByDraftId" 
-          class="group bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-all duration-200 hover:border-orange-300">
-       
-       <div class="flex items-start justify-between">
-         <!-- Draft Info -->
-         <div class="flex-1 min-w-0">
-           <div class="flex items-center space-x-3 mb-2">
-             <!-- Type Badge -->
-             <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
-                   [class.bg-blue-100]="draft.submissionType === 'poem'"
-                   [class.text-blue-800]="draft.submissionType === 'poem'"
-                   [class.bg-green-100]="draft.submissionType === 'article'"
-                   [class.text-green-800]="draft.submissionType === 'article'"
-                   [class.bg-purple-100]="draft.submissionType === 'cinema_essay'"
-                   [class.text-purple-800]="draft.submissionType === 'cinema_essay'"
-                   [class.bg-orange-100]="draft.submissionType === 'prose'"
-                   [class.text-orange-800]="draft.submissionType === 'prose'">
-               {{ getTypeDisplayName(draft.submissionType) }}
-             </span>
-             
-             <!-- Content Count -->
-             <span class="text-sm text-gray-900-secondary">
-               {{ draft.contents.length }} {{ draft.contents.length === 1 ? 'item' : 'items' }}
-             </span>
-             
-             <!-- Word Count -->
-             <span class="text-sm text-gray-900-secondary">
-               {{ draft.wordCount }} words
-             </span>
-           </div>
-           
-           <h3 class="text-lg font-semibold text-gray-900 mb-1 truncate">
-             {{ draft.title || 'Untitled Draft' }}
-           </h3>
-           
-           <p *ngIf="draft.description" class="text-sm text-gray-900-secondary mb-2 line-clamp-2">
-             {{ draft.description }}
-           </p>
-           
-           <div class="text-xs text-gray-900-tertiary">
-             Last modified {{ formatDate(draft.lastModified) }}
-           </div>
-         </div>
-
-         <!-- Actions -->
-         <div class="flex items-center space-x-2 ml-4">
-           <button 
-             (click)="loadDraft.emit(draft)"
-             class="btn-primary text-sm"
-           >
-             Continue
-           </button>
-           <button 
-             (click)="confirmDelete(draft)"
-             class="px-3 py-2 text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors duration-200"
-             title="Delete draft"
-           >
-             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-             </svg>
-           </button>
-         </div>
-       </div>
-
-       <!-- Preview of first content -->
-       <div *ngIf="draft.contents.length > 0" class="mt-4 pt-4 border-t border-gray-200">
-         <div class="bg-white-secondary rounded-lg p-3 border border-gray-200">
-           <div class="text-sm font-medium text-gray-900 mb-1">
-             {{ draft.contents[0].title || 'Untitled' }}
-           </div>
-           <div class="text-xs text-gray-900-secondary line-clamp-2 font-mono">
-             {{ getContentPreview(draft.contents[0].body) }}
-           </div>
-         </div>
-       </div>
-     </div>
-   </div>
- </div>
-</div>
-
-<!-- Footer -->
-<div class="bg-white-secondary px-6 py-4 border-t border-gray-200">
- <div class="flex justify-between items-center">
-   <p class="text-sm text-gray-900-secondary">
-     Drafts are automatically saved every 30 seconds while you work
-   </p>
-   <button 
-     (click)="close.emit()"
-     class="btn-secondary text-sm"
-   >
-     Close
-   </button>
- </div>
-</div>
-</div>
-</div>
+@if (!isInline) {
+  <div class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4"
+    (click)="closeOverlay($event)">
+    <!-- Modal Container -->
+    <div class="bg-white border border-gray-200 rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden"
+      (click)="$event.stopPropagation()">
+      <!-- Header -->
+      <div class="bg-gradient-to-r from-orange-600 to-red-600 text-white p-6">
+        <div class="flex items-center justify-between">
+          <div>
+            <h2 class="text-2xl font-bold">My Drafts</h2>
+            <p class="text-orange-100 mt-1">
+              {{ drafts.length }} {{ drafts.length === 1 ? 'draft' : 'drafts' }} saved
+            </p>
+          </div>
+          <button
+            (click)="close.emit()"
+            class="text-white hover:text-orange-100 transition-colors duration-200"
+            >
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+          </button>
+        </div>
+      </div>
+      <!-- Content -->
+      <div class="overflow-y-auto max-h-[calc(90vh-120px)]">
+        <!-- Auto-deletion Banner -->
+        @if (drafts.length > 0) {
+          <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mx-6 mt-4 mb-2">
+            <div class="flex">
+              <div class="flex-shrink-0">
+                <svg class="h-5 w-5 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                </svg>
+              </div>
+              <div class="ml-3">
+                <p class="text-sm text-yellow-700">
+                  <strong>Auto-deletion:</strong> These drafts will be automatically deleted after 7 days of inactivity to free up storage space.
+                </p>
+              </div>
+            </div>
+          </div>
+        }
+        <!-- Empty State -->
+        @if (drafts.length === 0) {
+          <app-empty-state
+            title="No drafts yet"
+            message="Start working on a submission and it will be automatically saved as a draft."
+            icon="pencil"
+            actionText="Start Writing"
+            [onAction]="onCreateNewDraft.bind(this)">
+          </app-empty-state>
+        }
+        <!-- Drafts List -->
+        @if (drafts.length > 0) {
+          <div class="p-6">
+            <div class="space-y-4">
+              @for (draft of drafts; track trackByDraftId($index, draft)) {
+                <div
+                  class="group bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-all duration-200 hover:border-orange-300">
+                  <div class="flex items-start justify-between">
+                    <!-- Draft Info -->
+                    <div class="flex-1 min-w-0">
+                      <div class="flex items-center space-x-3 mb-2">
+                        <!-- Type Badge -->
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
+                          [class.bg-blue-100]="draft.submissionType === 'poem'"
+                          [class.text-blue-800]="draft.submissionType === 'poem'"
+                          [class.bg-green-100]="draft.submissionType === 'article'"
+                          [class.text-green-800]="draft.submissionType === 'article'"
+                          [class.bg-purple-100]="draft.submissionType === 'cinema_essay'"
+                          [class.text-purple-800]="draft.submissionType === 'cinema_essay'"
+                          [class.bg-orange-100]="draft.submissionType === 'prose'"
+                          [class.text-orange-800]="draft.submissionType === 'prose'">
+                          {{ getTypeDisplayName(draft.submissionType) }}
+                        </span>
+                        <!-- Content Count -->
+                        <span class="text-sm text-gray-900-secondary">
+                          {{ draft.contents.length }} {{ draft.contents.length === 1 ? 'item' : 'items' }}
+                        </span>
+                        <!-- Word Count -->
+                        <span class="text-sm text-gray-900-secondary">
+                          {{ draft.wordCount }} words
+                        </span>
+                      </div>
+                      <h3 class="text-lg font-semibold text-gray-900 mb-1 truncate">
+                        {{ draft.title || 'Untitled Draft' }}
+                      </h3>
+                      @if (draft.description) {
+                        <p class="text-sm text-gray-900-secondary mb-2 line-clamp-2">
+                          {{ draft.description }}
+                        </p>
+                      }
+                      <div class="text-xs text-gray-900-tertiary">
+                        Last modified {{ formatDate(draft.lastModified) }}
+                      </div>
+                    </div>
+                    <!-- Actions -->
+                    <div class="flex items-center space-x-2 ml-4">
+                      <button
+                        (click)="loadDraft.emit(draft)"
+                        class="btn-primary text-sm"
+                        >
+                        Continue
+                      </button>
+                      <button
+                        (click)="confirmDelete(draft)"
+                        class="px-3 py-2 text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors duration-200"
+                        title="Delete draft"
+                        >
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+                  <!-- Preview of first content -->
+                  @if (draft.contents.length > 0) {
+                    <div class="mt-4 pt-4 border-t border-gray-200">
+                      <div class="bg-white-secondary rounded-lg p-3 border border-gray-200">
+                        <div class="text-sm font-medium text-gray-900 mb-1">
+                          {{ draft.contents[0].title || 'Untitled' }}
+                        </div>
+                        <div class="text-xs text-gray-900-secondary line-clamp-2 font-mono">
+                          {{ getContentPreview(draft.contents[0].body) }}
+                        </div>
+                      </div>
+                    </div>
+                  }
+                </div>
+              }
+            </div>
+          </div>
+        }
+      </div>
+      <!-- Footer -->
+      <div class="bg-white-secondary px-6 py-4 border-t border-gray-200">
+        <div class="flex justify-between items-center">
+          <p class="text-sm text-gray-900-secondary">
+            Drafts are automatically saved every 30 seconds while you work
+          </p>
+          <button
+            (click)="close.emit()"
+            class="btn-secondary text-sm"
+            >
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+}
 
 <!-- Inline Mode -->
-<div *ngIf="isInline" class="w-full">
- 
- <!-- Auto-deletion Banner -->
- <div *ngIf="drafts.length > 0" class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-4">
-   <div class="flex">
-     <div class="flex-shrink-0">
-       <svg class="h-5 w-5 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
-       </svg>
-     </div>
-     <div class="ml-3">
-       <p class="text-sm text-yellow-700">
-         <strong>Auto-deletion:</strong> These drafts will be automatically deleted after 7 days of inactivity to free up storage space.
-       </p>
-     </div>
-   </div>
- </div>
- 
- <!-- Empty State -->
- <app-empty-state 
-   *ngIf="drafts.length === 0"
-   title="No drafts yet"
-   message="Start working on a submission and it will be automatically saved as a draft."
-   icon="pencil"
-   actionText="Start Writing"
-   [onAction]="onCreateNewDraft.bind(this)">
- </app-empty-state>
-
- <!-- Drafts List -->
- <div *ngIf="drafts.length > 0" class="space-y-4">
-   <div *ngFor="let draft of drafts; trackBy: trackByDraftId" 
-        class="group bg-white-secondary border border-gray-200 rounded-lg p-6 hover:shadow-md transition-all duration-200 hover:border-orange-300">
-     
-     <div class="flex items-start justify-between">
-       <!-- Draft Info -->
-       <div class="flex-1 min-w-0">
-         <div class="flex items-center space-x-3 mb-2">
-           <!-- Type Badge -->
-           <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
-                 [class.bg-blue-100]="draft.submissionType === 'poem'"
-                 [class.text-blue-800]="draft.submissionType === 'poem'"
-                 [class.bg-green-100]="draft.submissionType === 'article'"
-                 [class.text-green-800]="draft.submissionType === 'article'"
-                 [class.bg-purple-100]="draft.submissionType === 'cinema_essay'"
-                 [class.text-purple-800]="draft.submissionType === 'cinema_essay'"
-                 [class.bg-orange-100]="draft.submissionType === 'prose'"
-                 [class.text-orange-800]="draft.submissionType === 'prose'">
-             {{ getTypeDisplayName(draft.submissionType) }}
-           </span>
-           
-           <!-- Content Count -->
-           <span class="text-sm text-gray-900-secondary">
-             {{ draft.contents.length }} {{ draft.contents.length === 1 ? 'item' : 'items' }}
-           </span>
-           
-           <!-- Word Count -->
-           <span class="text-sm text-gray-900-secondary">
-             {{ draft.wordCount }} words
-           </span>
-         </div>
-         
-         <h3 class="text-lg font-semibold text-gray-900 mb-1 truncate">
-           {{ draft.title || 'Untitled Draft' }}
-         </h3>
-         
-         <p *ngIf="draft.description" class="text-sm text-gray-900-secondary mb-2 line-clamp-2">
-           {{ draft.description }}
-         </p>
-         
-         <div class="text-xs text-gray-900-tertiary">
-           Last modified {{ formatDate(draft.lastModified) }}
-         </div>
-       </div>
-
-       <!-- Actions -->
-       <div class="flex items-center space-x-2 ml-4">
-         <button 
-           (click)="loadDraft.emit(draft)"
-           class="btn-primary text-sm"
-         >
-           Continue
-         </button>
-         <button 
-           (click)="confirmDelete(draft)"
-           class="px-3 py-2 text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors duration-200"
-           title="Delete draft"
-         >
-           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-           </svg>
-         </button>
-       </div>
-     </div>
-
-     <!-- Preview of first content -->
-     <div *ngIf="draft.contents.length > 0" class="mt-4 pt-4 border-t border-gray-200">
-       <div class="bg-white rounded-lg p-3 border border-gray-200">
-         <div class="text-sm font-medium text-gray-900 mb-1">
-           {{ draft.contents[0].title || 'Untitled' }}
-         </div>
-         <div class="text-xs text-gray-900-secondary line-clamp-2 font-mono">
-           {{ getContentPreview(draft.contents[0].body) }}
-         </div>
-       </div>
-     </div>
-   </div>
- </div>
-</div>
+@if (isInline) {
+  <div class="w-full">
+    <!-- Auto-deletion Banner -->
+    @if (drafts.length > 0) {
+      <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-4">
+        <div class="flex">
+          <div class="flex-shrink-0">
+            <svg class="h-5 w-5 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+            </svg>
+          </div>
+          <div class="ml-3">
+            <p class="text-sm text-yellow-700">
+              <strong>Auto-deletion:</strong> These drafts will be automatically deleted after 7 days of inactivity to free up storage space.
+            </p>
+          </div>
+        </div>
+      </div>
+    }
+    <!-- Empty State -->
+    @if (drafts.length === 0) {
+      <app-empty-state
+        title="No drafts yet"
+        message="Start working on a submission and it will be automatically saved as a draft."
+        icon="pencil"
+        actionText="Start Writing"
+        [onAction]="onCreateNewDraft.bind(this)">
+      </app-empty-state>
+    }
+    <!-- Drafts List -->
+    @if (drafts.length > 0) {
+      <div class="space-y-4">
+        @for (draft of drafts; track trackByDraftId($index, draft)) {
+          <div
+            class="group bg-white-secondary border border-gray-200 rounded-lg p-6 hover:shadow-md transition-all duration-200 hover:border-orange-300">
+            <div class="flex items-start justify-between">
+              <!-- Draft Info -->
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center space-x-3 mb-2">
+                  <!-- Type Badge -->
+                  <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
+                    [class.bg-blue-100]="draft.submissionType === 'poem'"
+                    [class.text-blue-800]="draft.submissionType === 'poem'"
+                    [class.bg-green-100]="draft.submissionType === 'article'"
+                    [class.text-green-800]="draft.submissionType === 'article'"
+                    [class.bg-purple-100]="draft.submissionType === 'cinema_essay'"
+                    [class.text-purple-800]="draft.submissionType === 'cinema_essay'"
+                    [class.bg-orange-100]="draft.submissionType === 'prose'"
+                    [class.text-orange-800]="draft.submissionType === 'prose'">
+                    {{ getTypeDisplayName(draft.submissionType) }}
+                  </span>
+                  <!-- Content Count -->
+                  <span class="text-sm text-gray-900-secondary">
+                    {{ draft.contents.length }} {{ draft.contents.length === 1 ? 'item' : 'items' }}
+                  </span>
+                  <!-- Word Count -->
+                  <span class="text-sm text-gray-900-secondary">
+                    {{ draft.wordCount }} words
+                  </span>
+                </div>
+                <h3 class="text-lg font-semibold text-gray-900 mb-1 truncate">
+                  {{ draft.title || 'Untitled Draft' }}
+                </h3>
+                @if (draft.description) {
+                  <p class="text-sm text-gray-900-secondary mb-2 line-clamp-2">
+                    {{ draft.description }}
+                  </p>
+                }
+                <div class="text-xs text-gray-900-tertiary">
+                  Last modified {{ formatDate(draft.lastModified) }}
+                </div>
+              </div>
+              <!-- Actions -->
+              <div class="flex items-center space-x-2 ml-4">
+                <button
+                  (click)="loadDraft.emit(draft)"
+                  class="btn-primary text-sm"
+                  >
+                  Continue
+                </button>
+                <button
+                  (click)="confirmDelete(draft)"
+                  class="px-3 py-2 text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors duration-200"
+                  title="Delete draft"
+                  >
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                  </svg>
+                </button>
+              </div>
+            </div>
+            <!-- Preview of first content -->
+            @if (draft.contents.length > 0) {
+              <div class="mt-4 pt-4 border-t border-gray-200">
+                <div class="bg-white rounded-lg p-3 border border-gray-200">
+                  <div class="text-sm font-medium text-gray-900 mb-1">
+                    {{ draft.contents[0].title || 'Untitled' }}
+                  </div>
+                  <div class="text-xs text-gray-900-secondary line-clamp-2 font-mono">
+                    {{ getContentPreview(draft.contents[0].body) }}
+                  </div>
+                </div>
+              </div>
+            }
+          </div>
+        }
+      </div>
+    }
+  </div>
+}
 
 <!-- Delete Confirmation Modal -->
-<div *ngIf="draftToDelete" 
-class="fixed inset-0 bg-black bg-opacity-75 z-60 flex items-center justify-center p-4"
-(click)="cancelDelete()">
-<div class="bg-white border border-gray-200 rounded-lg shadow-xl max-w-md w-full p-6"
-  (click)="$event.stopPropagation()">
-<div class="flex items-center mb-4">
- <div class="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center mr-3">
-   <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
-   </svg>
- </div>
- <h3 class="text-lg font-semibold text-gray-900">Delete Draft</h3>
-</div>
-
-<p class="text-gray-900-secondary mb-6">
- Are you sure you want to delete "<strong>{{ draftToDelete.title || 'Untitled' }}</strong>"? 
- This action cannot be undone.
-</p>
-
-<div class="flex justify-end space-x-3">
- <button 
-   (click)="cancelDelete()"
-   class="btn-secondary"
- >
-   Cancel
- </button>
- <button 
-   (click)="executeDelete()"
-   class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors duration-200"
- >
-   Delete
- </button>
-</div>
-</div>
-</div>
+@if (draftToDelete) {
+  <div
+    class="fixed inset-0 bg-black bg-opacity-75 z-60 flex items-center justify-center p-4"
+    (click)="cancelDelete()">
+    <div class="bg-white border border-gray-200 rounded-lg shadow-xl max-w-md w-full p-6"
+      (click)="$event.stopPropagation()">
+      <div class="flex items-center mb-4">
+        <div class="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center mr-3">
+          <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+          </svg>
+        </div>
+        <h3 class="text-lg font-semibold text-gray-900">Delete Draft</h3>
+      </div>
+      <p class="text-gray-900-secondary mb-6">
+        Are you sure you want to delete "<strong>{{ draftToDelete.title || 'Untitled' }}</strong>"?
+        This action cannot be undone.
+      </p>
+      <div class="flex justify-end space-x-3">
+        <button
+          (click)="cancelDelete()"
+          class="btn-secondary"
+          >
+          Cancel
+        </button>
+        <button
+          (click)="executeDelete()"
+          class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors duration-200"
+          >
+          Delete
+        </button>
+      </div>
+    </div>
+  </div>
+}

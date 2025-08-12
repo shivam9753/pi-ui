@@ -1,0 +1,23 @@
+<div>
+  <h2>JSON Converter</h2>
+
+  <input type="file" (change)="onFileUpload($event)" />
+
+  <label for="category">Filter by Category:</label>
+  <select id="category" [(ngModel)]="selectedCategory" (change)="applyFilter()">
+    <option *ngFor="let cat of categories" [value]="cat.id">
+      {{ cat.label }}
+    </option>
+  </select>
+
+  <button (click)="downloadHTMLFormat()" [disabled]="!convertedHTMLData.length">
+    Download HTML Format
+  </button>
+
+  <button (click)="downloadModelFormat()" [disabled]="!convertedModelData.length">
+    Download Model Format
+  </button>
+
+  <h3>Preview (HTML Format)</h3>
+  <div [innerHTML]="previewHTML"></div>
+</div>

@@ -23,8 +23,6 @@ export class ExploreComponent implements OnInit {
   isSearching: boolean = false;
   showSearchResults: boolean = false;
   sortBy: string = 'latest';
-  visibleItemsCount: number = 12;
-  loadMoreIncrement: number = 12;
   
   // Pagination properties
   currentPage: number = 1;
@@ -115,37 +113,53 @@ export class ExploreComponent implements OnInit {
 
   getPublishedSubmissions(type: string = '') {
     this.selectedType = type;
+    this.currentPage = 1; // Reset to first page when filtering
     
     console.log('🔍 Fetching published content, type:', type);
     
+    this.loadPublishedSubmissions(type);
+  }
+
+  loadPublishedSubmissions(type: string = '') {
+    const skip = (this.currentPage - 1) * this.itemsPerPage;
+    const params: any = {
+      limit: this.itemsPerPage,
+      skip: skip,
+      sortBy: this.sortBy === 'latest' ? 'reviewedAt' : this.sortBy,
+      order: 'desc' as 'desc'
+    };
+    
+    if (type && type !== 'popular') {
+      params.type = type;
+    }
+    
     if (type === 'popular') {
       // Get popular content (you can modify this to use view counts, likes, etc.)
-      this.backendService.getPublishedContent('').subscribe(
+      this.backendService.getPublishedContent('', params).subscribe(
         (data) => {
           console.log('📦 Received popular data:', data);
           console.log('📦 Number of submissions:', data.submissions?.length || 0);
-          if (data.submissions?.length > 0) {
-            console.log('📦 First submission sample:', data.submissions[0]);
-          }
           
-          // Sort by creation date as proxy for popularity (you can enhance this)
-          this.submissions = (data.submissions || []).sort((a: any, b: any) => 
-            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-          );
-          this.updatePagination();
+          // For the first page, replace submissions; for subsequent pages, you could append for "load more" style
+          this.submissions = data.submissions || [];
+          this.totalItems = data.total || 0;
+          this.totalPages = Math.ceil(this.totalItems / this.itemsPerPage);
+          
+          console.log('📊 Pagination info:', { totalItems: this.totalItems, totalPages: this.totalPages, currentPage: this.currentPage });
         },
         (error) => console.error("Error fetching submissions", error)
       );
     } else {
-      this.backendService.getPublishedContent(type).subscribe(
+      this.backendService.getPublishedContent(type, params).subscribe(
         (data) => {
           console.log('📦 Received content data:', data);
           console.log('📦 Number of submissions:', data.submissions?.length || 0);
-          if (data.submissions?.length > 0) {
-            console.log('📦 First submission sample:', data.submissions[0]);
-          }
+          
           this.submissions = data.submissions || [];
-          this.updatePagination();
+          this.totalItems = data.total || 0;
+          this.totalPages = Math.ceil(this.totalItems / this.itemsPerPage);
+          
+          console.log('📊 Pagination info:', { totalItems: this.totalItems, totalPages: this.totalPages, currentPage: this.currentPage });
         },
         (error) => console.error("Error fetching submissions", error)
       );
@@ -224,18 +238,6 @@ export class ExploreComponent implements OnInit {
     return selectedOption ? selectedOption.label : 'works';
   }
 
-  // Helper method to get submissions for display
-  getDisplaySubmissions() {
-    if (!this.submissions || this.submissions.length === 0) {
-      return [];
-    }
-    
-    // Apply sorting to all submissions
-    const sortedSubmissions = this.sortSubmissions(this.submissions);
-    
-    // Apply pagination (load more)
-    return sortedSubmissions.slice(0, this.visibleItemsCount);
-  }
 
 
   // Sort submissions based on selected sort option
@@ -252,25 +254,11 @@ export class ExploreComponent implements OnInit {
     }
   }
 
-  // Load more submissions
-  loadMore() {
-    this.visibleItemsCount += this.loadMoreIncrement;
-  }
-
-  // Check if there are more items to load
-  hasMoreItems(): boolean {
-    return this.visibleItemsCount < this.submissions.length;
-  }
-
   // Handle sort change
   onSortChange(sortValue: string) {
     this.sortBy = sortValue;
-    this.visibleItemsCount = this.loadMoreIncrement; // Reset pagination
-  }
-
-  // Get total items available for display
-  getTotalDisplayItems(): number {
-    return this.submissions?.length || 0;
+    this.currentPage = 1; // Reset to first page
+    this.loadPublishedSubmissions(this.selectedType);
   }
 
 
@@ -299,25 +287,11 @@ export class ExploreComponent implements OnInit {
       .trim();                         // Remove leading/trailing whitespace
   }
 
-  // Pagination methods
-  getCurrentPageSubmissions(): any[] {
-    if (this.showSearchResults) {
-      return this.searchResults;
-    }
-    
-    const startIndex = (this.currentPage - 1) * this.itemsPerPage;
-    const endIndex = startIndex + this.itemsPerPage;
-    return this.submissions.slice(startIndex, endIndex);
-  }
-
-  updatePagination() {
-    this.totalItems = this.submissions.length;
-    this.totalPages = Math.ceil(this.totalItems / this.itemsPerPage);
-  }
 
   goToPage(page: number) {
     if (page >= 1 && page <= this.totalPages) {
       this.currentPage = page;
+      this.loadPublishedSubmissions(this.selectedType);
       // Scroll to top of content
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }

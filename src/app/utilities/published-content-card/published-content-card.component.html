@@ -1,28 +1,28 @@
 <div class="card group overflow-hidden hover:shadow-xl transition-all duration-300 cursor-pointer transform hover:scale-[1.02] hover:border-orange-200"
-     (click)="onCardClick()">
-  
+  (click)="onCardClick()">
+
   <!-- Image Section -->
   <div class="relative bg-white-tertiary overflow-hidden" [ngClass]="getImageClass()">
-    <img
-      *ngIf="content.imageUrl; else placeholder"
-      [src]="content.imageUrl"
-      [alt]="content.title"
-      class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-    />
-    <ng-template #placeholder>
+    @if (content.imageUrl) {
+      <img
+        [src]="content.imageUrl"
+        [alt]="content.title"
+        class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+        />
+    } @else {
       <div class="w-full h-full bg-white-tertiary flex items-center justify-center">
         <svg class="w-8 h-8 text-gray-900-tertiary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
         </svg>
       </div>
-    </ng-template>
-    
+    }
+
     <!-- Content Type Badge -->
     <div class="absolute top-3 left-3">
-      <app-badge-label 
+      <app-badge-label
         [type]="content.submissionType"
         [clickable]="true"
-        (badgeClick)="onCategoryClick($event)"></app-badge-label>
+      (badgeClick)="onCategoryClick($event)"></app-badge-label>
     </div>
 
     <!-- Reading Time Badge - Prominent -->
@@ -31,60 +31,66 @@
     </div>
 
     <!-- Hover Actions Overlay (Desktop only) -->
-    <div *ngIf="showHoverActions" 
-         class="absolute inset-0 bg-black bg-opacity-60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-3 hidden md:flex">
-      <!-- Bookmark -->
-      <button 
-        (click)="onBookmarkClick($event)"
-        [class.text-orange-400]="content.isBookmarked"
-        [class.text-white]="!content.isBookmarked"
-        class="p-2 rounded-full bg-white bg-opacity-20 backdrop-blur-sm hover:bg-opacity-30 transition-all duration-200 transform hover:scale-110"
-        title="Bookmark">
-        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-          <path d="M5 4a2 2 0 012-2h6a2 2 0 012 2v14l-5-2.5L5 18V4z"/>
-        </svg>
-      </button>
-      
-      <!-- Like -->
-      <button 
-        (click)="onLikeClick($event)"
-        [class.text-red-400]="content.isLiked"
-        [class.text-white]="!content.isLiked"
-        class="p-2 rounded-full bg-white bg-opacity-20 backdrop-blur-sm hover:bg-opacity-30 transition-all duration-200 transform hover:scale-110"
-        title="Like">
-        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-          <path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd"/>
-        </svg>
-      </button>
-      
-      <!-- Share -->
-      <button 
-        (click)="onShareClick($event)"
-        class="p-2 rounded-full bg-white bg-opacity-20 backdrop-blur-sm hover:bg-opacity-30 text-white transition-all duration-200 transform hover:scale-110"
-        title="Share">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z"/>
-        </svg>
-      </button>
-    </div>
+    @if (showHoverActions) {
+      <div
+        class="absolute inset-0 bg-black bg-opacity-60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-3 hidden md:flex">
+        <!-- Bookmark -->
+        <button
+          (click)="onBookmarkClick($event)"
+          [class.text-orange-400]="content.isBookmarked"
+          [class.text-white]="!content.isBookmarked"
+          class="p-2 rounded-full bg-white bg-opacity-20 backdrop-blur-sm hover:bg-opacity-30 transition-all duration-200 transform hover:scale-110"
+          title="Bookmark">
+          <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+            <path d="M5 4a2 2 0 012-2h6a2 2 0 012 2v14l-5-2.5L5 18V4z"/>
+          </svg>
+        </button>
+        <!-- Like -->
+        <button
+          (click)="onLikeClick($event)"
+          [class.text-red-400]="content.isLiked"
+          [class.text-white]="!content.isLiked"
+          class="p-2 rounded-full bg-white bg-opacity-20 backdrop-blur-sm hover:bg-opacity-30 transition-all duration-200 transform hover:scale-110"
+          title="Like">
+          <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd"/>
+          </svg>
+        </button>
+        <!-- Share -->
+        <button
+          (click)="onShareClick($event)"
+          class="p-2 rounded-full bg-white bg-opacity-20 backdrop-blur-sm hover:bg-opacity-30 text-white transition-all duration-200 transform hover:scale-110"
+          title="Share">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z"/>
+          </svg>
+        </button>
+      </div>
+    }
 
     <!-- Stats Overlay (optional) -->
-    <div *ngIf="showStats && (content.viewCount || content.likeCount)" 
-         class="absolute bottom-3 left-3 flex space-x-2">
-      <div *ngIf="content.viewCount" class="bg-black bg-opacity-75 text-white text-xs px-2 py-1 rounded-full flex items-center">
-        <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-        </svg>
-        {{ content.viewCount }}
+    @if (showStats && (content.viewCount || content.likeCount)) {
+      <div
+        class="absolute bottom-3 left-3 flex space-x-2">
+        @if (content.viewCount) {
+          <div class="bg-black bg-opacity-75 text-white text-xs px-2 py-1 rounded-full flex items-center">
+            <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+            </svg>
+            {{ content.viewCount }}
+          </div>
+        }
+        @if (content.likeCount) {
+          <div class="bg-black bg-opacity-75 text-white text-xs px-2 py-1 rounded-full flex items-center">
+            <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+            </svg>
+            {{ content.likeCount }}
+          </div>
+        }
       </div>
-      <div *ngIf="content.likeCount" class="bg-black bg-opacity-75 text-white text-xs px-2 py-1 rounded-full flex items-center">
-        <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 24 24">
-          <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
-        </svg>
-        {{ content.likeCount }}
-      </div>
-    </div>
+    }
   </div>
 
   <!-- Content Section -->
@@ -95,20 +101,23 @@
     </h3>
 
     <!-- Excerpt/Description -->
-    <p class="text-gray-900-secondary text-sm leading-relaxed mb-4" 
-       style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;"
-       [innerHTML]="cleanContent(content.excerpt || content.description || 'No preview available')">
+    <p class="text-gray-900-secondary text-sm leading-relaxed mb-4"
+      style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;"
+      [innerHTML]="cleanContent(content.excerpt || content.description || 'No preview available')">
     </p>
 
     <!-- Tags (Richer Card Meta) -->
-    <div *ngIf="getDisplayTags().length > 0" class="flex flex-wrap gap-2 mb-4">
-      <button 
-        *ngFor="let tag of getDisplayTags()"
-        (click)="onTagClick($event, tag)"
-        class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-orange-50 text-orange-700 border border-orange-200 hover:bg-orange-100 hover:border-orange-300 transition-colors duration-200">
-        #{{ tag }}
-      </button>
-    </div>
+    @if (getDisplayTags().length > 0) {
+      <div class="flex flex-wrap gap-2 mb-4">
+        @for (tag of getDisplayTags(); track tag) {
+          <button
+            (click)="onTagClick($event, tag)"
+            class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-orange-50 text-orange-700 border border-orange-200 hover:bg-orange-100 hover:border-orange-300 transition-colors duration-200">
+            #{{ tag }}
+          </button>
+        }
+      </div>
+    }
 
     <!-- Author and Meta Info -->
     <div class="flex items-center justify-between">
@@ -128,10 +137,10 @@
           </p>
         </div>
       </div>
-      
+
       <!-- Mobile Quick Actions -->
       <div class="flex items-center gap-2 md:hidden">
-        <button 
+        <button
           (click)="onBookmarkClick($event)"
           [class.text-orange-500]="content.isBookmarked"
           [class.text-gray-400]="!content.isBookmarked"
@@ -141,7 +150,7 @@
             <path d="M5 4a2 2 0 012-2h6a2 2 0 012 2v14l-5-2.5L5 18V4z"/>
           </svg>
         </button>
-        <button 
+        <button
           (click)="onLikeClick($event)"
           [class.text-red-500]="content.isLiked"
           [class.text-gray-400]="!content.isLiked"
@@ -155,28 +164,30 @@
     </div>
 
     <!-- Admin Action Buttons (shown when showActions is true) -->
-    <div *ngIf="showActions" class="flex gap-2 mt-4 pt-4 border-t border-gray-200">
-      <button (click)="onEditClick($event)"
-              class="flex-1 inline-flex items-center justify-center px-3 py-2 text-xs font-medium text-blue-700 bg-blue-50 border border-blue-300 rounded-lg hover:bg-blue-100 transition-colors duration-200">
-        <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
-        </svg>
-        Edit
-      </button>
-      <button (click)="onUnpublishClick($event)"
-              class="flex-1 inline-flex items-center justify-center px-3 py-2 text-xs font-medium text-orange-700 bg-orange-50 border border-orange-300 rounded-lg hover:bg-orange-100 transition-colors duration-200">
-        <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"/>
-        </svg>
-        Unpublish
-      </button>
-      <button (click)="onDeleteClick($event)"
-              class="flex-1 inline-flex items-center justify-center px-3 py-2 text-xs font-medium text-red-700 bg-red-50 border border-red-300 rounded-lg hover:bg-red-100 transition-colors duration-200">
-        <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-        </svg>
-        Delete
-      </button>
-    </div>
+    @if (showActions) {
+      <div class="flex gap-2 mt-4 pt-4 border-t border-gray-200">
+        <button (click)="onEditClick($event)"
+          class="flex-1 inline-flex items-center justify-center px-3 py-2 text-xs font-medium text-blue-700 bg-blue-50 border border-blue-300 rounded-lg hover:bg-blue-100 transition-colors duration-200">
+          <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+          </svg>
+          Edit
+        </button>
+        <button (click)="onUnpublishClick($event)"
+          class="flex-1 inline-flex items-center justify-center px-3 py-2 text-xs font-medium text-orange-700 bg-orange-50 border border-orange-300 rounded-lg hover:bg-orange-100 transition-colors duration-200">
+          <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
+          Unpublish
+        </button>
+        <button (click)="onDeleteClick($event)"
+          class="flex-1 inline-flex items-center justify-center px-3 py-2 text-xs font-medium text-red-700 bg-red-50 border border-red-300 rounded-lg hover:bg-red-100 transition-colors duration-200">
+          <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+          </svg>
+          Delete
+        </button>
+      </div>
+    }
   </div>
 </div>

@@ -175,8 +175,8 @@ export class EditSubmissionComponent implements OnInit {
       submission.contents.forEach((content, index) => {
         console.log(`Content ${index}:`, content);
         contentsArray.push(this.fb.group({
-          title: [content.title || '', Validators.required],
-          body: [content.body || '', Validators.required],
+          title: [content.title || '', [Validators.required]],
+          body: [content.body || '', [Validators.required]],
           type: [content.type || submission.submissionType]
         }));
       });

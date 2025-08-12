@@ -2,192 +2,253 @@
 <div class="min-h-screen bg-white transition-colors duration-300">
 
   <!-- Loading State -->
-  <div *ngIf="loading" class="flex items-center justify-center min-h-screen">
-    <div class="text-center">
-      <div class="w-12 h-12 mx-auto mb-4 border-4 border-orange-500/20 border-t-orange-500 rounded-full animate-spin"></div>
-      <p class="text-gray-600">Loading admin dashboard...</p>
+  @if (loading) {
+    <div class="flex items-center justify-center min-h-screen">
+      <div class="text-center">
+        <div class="w-12 h-12 mx-auto mb-4 border-4 border-orange-500/20 border-t-orange-500 rounded-full animate-spin"></div>
+        <p class="text-gray-600">Loading admin dashboard...</p>
+      </div>
     </div>
-  </div>
+  }
 
   <!-- Main Admin Dashboard -->
-  <div *ngIf="!loading && (isAdmin || isReviewer)" class="bg-gray-100 pb-10">
-
-    <!-- Header -->
-    <div class="max-w-screen-xl mx-auto px-4 sm:px-6 md:px-10 pt-6">
-      <h1 class="text-xl font-bold text-gray-800 mb-1">
-        <span *ngIf="isAdmin">Admin Dashboard</span>
-        <span *ngIf="isReviewer && !isAdmin">Review Dashboard</span>
-      </h1>
-      <p class="text-gray-500 text-sm">
-        <span *ngIf="isAdmin">Manage publications, users, reviews, and prompts from one centralized location.</span>
-        <span *ngIf="isReviewer && !isAdmin">Review and approve submissions for publication.</span>
-      </p>
-    </div>
-
-    <!-- Tab Navigation (Enhanced Modern Style) -->
-    <div class="border-b border-gray-200 mt-8 bg-white shadow-sm">
-      <div class="max-w-screen-xl mx-auto px-0 sm:px-6 md:px-10">
-        <div class="mobile-tab-nav sm:mobile-tab-nav-disabled">
-          <nav class="flex justify-center sm:justify-center space-x-2 sm:space-x-8 overflow-x-auto scrollbar-hide px-4 sm:px-0" aria-label="Admin Tabs">
-
-          <!-- Review Submissions - Available to both admins and reviewers -->
-          <button
-            *ngIf="canAccessTab('review')"
-            (click)="setActiveTab('review')"
-            [class.border-orange-500]="activeTab === 'review'"
-            [class.text-orange-600]="activeTab === 'review'"
-            [class.border-transparent]="activeTab !== 'review'"
-            [class.text-gray-600]="activeTab !== 'review'"
-            [class.hover:text-gray-900]="activeTab !== 'review'"
-            [class.hover:border-gray-300]="activeTab !== 'review'"
-            class="whitespace-nowrap py-3 px-3 sm:py-4 sm:px-6 border-b-2 font-medium text-xs sm:text-sm transition-all duration-200 flex items-center gap-1 sm:gap-2 min-w-max"
-          >
-            <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path>
-            </svg>
-            Review
-          </button>
-
-          <!-- Publish - Admin only -->
-          <button
-            *ngIf="canAccessTab('publish')"
-            (click)="setActiveTab('publish')"
-            [class.border-orange-500]="activeTab === 'publish'"
-            [class.text-orange-600]="activeTab === 'publish'"
-            [class.border-transparent]="activeTab !== 'publish'"
-            [class.text-gray-600]="activeTab !== 'publish'"
-            [class.hover:text-gray-900]="activeTab !== 'publish'"
-            [class.hover:border-gray-300]="activeTab !== 'publish'"
-            class="whitespace-nowrap py-3 px-3 sm:py-4 sm:px-6 border-b-2 font-medium text-xs sm:text-sm transition-all duration-200 flex items-center gap-1 sm:gap-2 min-w-max"
-          >
-            <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
-            </svg>
-            Publish
-          </button>
-
-          <!-- Manage Published - Admin only -->
-          <button
-            *ngIf="canAccessTab('published')"
-            (click)="setActiveTab('published')"
-            [class.border-orange-500]="activeTab === 'published'"
-            [class.text-orange-600]="activeTab === 'published'"
-            [class.border-transparent]="activeTab !== 'published'"
-            [class.text-gray-600]="activeTab !== 'published'"
-            [class.hover:text-gray-900]="activeTab !== 'published'"
-            [class.hover:border-gray-300]="activeTab !== 'published'"
-            class="whitespace-nowrap py-3 px-3 sm:py-4 sm:px-6 border-b-2 font-medium text-xs sm:text-sm transition-all duration-200 flex items-center gap-1 sm:gap-2 min-w-max"
-          >
-            <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"></path>
-            </svg>
-            Published
-          </button>
-
-          <!-- Manage Users - Admin only -->
-          <button
-            *ngIf="canAccessTab('users')"
-            (click)="setActiveTab('users')"
-            [class.border-orange-500]="activeTab === 'users'"
-            [class.text-orange-600]="activeTab === 'users'"
-            [class.border-transparent]="activeTab !== 'users'"
-            [class.text-gray-600]="activeTab !== 'users'"
-            [class.hover:text-gray-900]="activeTab !== 'users'"
-            [class.hover:border-gray-300]="activeTab !== 'users'"
-            class="whitespace-nowrap py-3 px-3 sm:py-4 sm:px-6 border-b-2 font-medium text-xs sm:text-sm transition-all duration-200 flex items-center gap-1 sm:gap-2 min-w-max"
-          >
-            <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"></path>
-            </svg>
-            Users
-          </button>
-
-          <!-- Manage Prompts - Admin only -->
-          <button
-            *ngIf="canAccessTab('prompts')"
-            (click)="setActiveTab('prompts')"
-            [class.border-orange-500]="activeTab === 'prompts'"
-            [class.text-orange-600]="activeTab === 'prompts'"
-            [class.border-transparent]="activeTab !== 'prompts'"
-            [class.text-gray-600]="activeTab !== 'prompts'"
-            [class.hover:text-gray-900]="activeTab !== 'prompts'"
-            [class.hover:border-gray-300]="activeTab !== 'prompts'"
-            class="whitespace-nowrap py-3 px-3 sm:py-4 sm:px-6 border-b-2 font-medium text-xs sm:text-sm transition-all duration-200 flex items-center gap-1 sm:gap-2 min-w-max"
-          >
-            <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
-            </svg>
-            Prompts
-          </button>
-
-          <!-- Data Purge - Admin only -->
-          <button
-            *ngIf="canAccessTab('purge')"
-            (click)="setActiveTab('purge')"
-            [class.border-orange-500]="activeTab === 'purge'"
-            [class.text-orange-600]="activeTab === 'purge'"
-            [class.border-transparent]="activeTab !== 'purge'"
-            [class.text-gray-600]="activeTab !== 'purge'"
-            [class.hover:text-gray-900]="activeTab !== 'purge'"
-            [class.hover:border-gray-300]="activeTab !== 'purge'"
-            class="whitespace-nowrap py-3 px-3 sm:py-4 sm:px-6 border-b-2 font-medium text-xs sm:text-sm transition-all duration-200 flex items-center gap-1 sm:gap-2 min-w-max"
-          >
-            <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-            </svg>
-            Purge Data
-          </button>
-
-          </nav>
+  @if (!loading && (isAdmin || isReviewer)) {
+    <div class="bg-gray-100 pb-10">
+      <!-- Header -->
+      <div class="max-w-screen-xl mx-auto px-4 sm:px-6 md:px-10 pt-6">
+        <h1 class="text-xl font-bold text-gray-800 mb-1">
+          @if (isAdmin) {
+            <span>Admin Dashboard</span>
+          }
+          @if (isReviewer && !isAdmin) {
+            <span>Review Dashboard</span>
+          }
+        </h1>
+        <p class="text-gray-500 text-sm">
+          @if (isAdmin) {
+            <span>Manage publications, users, reviews, and prompts from one centralized location.</span>
+          }
+          @if (isReviewer && !isAdmin) {
+            <span>Review and approve submissions for publication.</span>
+          }
+        </p>
+      </div>
+      <!-- Tab Navigation (Enhanced Modern Style) -->
+      <div class="border-b border-gray-200 mt-8 bg-white shadow-sm">
+        <div class="max-w-screen-xl mx-auto px-0 sm:px-6 md:px-10">
+          <div class="mobile-tab-nav sm:mobile-tab-nav-disabled">
+            <nav class="flex justify-center sm:justify-center space-x-2 sm:space-x-8 overflow-x-auto scrollbar-hide px-4 sm:px-0" aria-label="Admin Tabs">
+              <!-- Review Submissions - Available to both admins and reviewers -->
+              @if (canAccessTab('review')) {
+                <button
+                  (click)="setActiveTab('review')"
+                  [class.border-orange-500]="activeTab === 'review'"
+                  [class.text-orange-600]="activeTab === 'review'"
+                  [class.border-transparent]="activeTab !== 'review'"
+                  [class.text-gray-600]="activeTab !== 'review'"
+                  [class.hover:text-gray-900]="activeTab !== 'review'"
+                  [class.hover:border-gray-300]="activeTab !== 'review'"
+                  class="whitespace-nowrap py-3 px-3 sm:py-4 sm:px-6 border-b-2 font-medium text-xs sm:text-sm transition-all duration-200 flex items-center gap-1 sm:gap-2 min-w-max"
+                  >
+                  <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path>
+                  </svg>
+                  Review
+                </button>
+              }
+              <!-- Publish - Admin only -->
+              @if (canAccessTab('publish')) {
+                <button
+                  (click)="setActiveTab('publish')"
+                  [class.border-orange-500]="activeTab === 'publish'"
+                  [class.text-orange-600]="activeTab === 'publish'"
+                  [class.border-transparent]="activeTab !== 'publish'"
+                  [class.text-gray-600]="activeTab !== 'publish'"
+                  [class.hover:text-gray-900]="activeTab !== 'publish'"
+                  [class.hover:border-gray-300]="activeTab !== 'publish'"
+                  class="whitespace-nowrap py-3 px-3 sm:py-4 sm:px-6 border-b-2 font-medium text-xs sm:text-sm transition-all duration-200 flex items-center gap-1 sm:gap-2 min-w-max"
+                  >
+                  <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
+                  </svg>
+                  Publish
+                </button>
+              }
+              <!-- Manage Published - Admin only -->
+              @if (canAccessTab('published')) {
+                <button
+                  (click)="setActiveTab('published')"
+                  [class.border-orange-500]="activeTab === 'published'"
+                  [class.text-orange-600]="activeTab === 'published'"
+                  [class.border-transparent]="activeTab !== 'published'"
+                  [class.text-gray-600]="activeTab !== 'published'"
+                  [class.hover:text-gray-900]="activeTab !== 'published'"
+                  [class.hover:border-gray-300]="activeTab !== 'published'"
+                  class="whitespace-nowrap py-3 px-3 sm:py-4 sm:px-6 border-b-2 font-medium text-xs sm:text-sm transition-all duration-200 flex items-center gap-1 sm:gap-2 min-w-max"
+                  >
+                  <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"></path>
+                  </svg>
+                  Published
+                </button>
+              }
+              <!-- Manage Users - Admin only -->
+              @if (canAccessTab('users')) {
+                <button
+                  (click)="setActiveTab('users')"
+                  [class.border-orange-500]="activeTab === 'users'"
+                  [class.text-orange-600]="activeTab === 'users'"
+                  [class.border-transparent]="activeTab !== 'users'"
+                  [class.text-gray-600]="activeTab !== 'users'"
+                  [class.hover:text-gray-900]="activeTab !== 'users'"
+                  [class.hover:border-gray-300]="activeTab !== 'users'"
+                  class="whitespace-nowrap py-3 px-3 sm:py-4 sm:px-6 border-b-2 font-medium text-xs sm:text-sm transition-all duration-200 flex items-center gap-1 sm:gap-2 min-w-max"
+                  >
+                  <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"></path>
+                  </svg>
+                  Users
+                </button>
+              }
+              <!-- Manage Prompts - Admin only -->
+              @if (canAccessTab('prompts')) {
+                <button
+                  (click)="setActiveTab('prompts')"
+                  [class.border-orange-500]="activeTab === 'prompts'"
+                  [class.text-orange-600]="activeTab === 'prompts'"
+                  [class.border-transparent]="activeTab !== 'prompts'"
+                  [class.text-gray-600]="activeTab !== 'prompts'"
+                  [class.hover:text-gray-900]="activeTab !== 'prompts'"
+                  [class.hover:border-gray-300]="activeTab !== 'prompts'"
+                  class="whitespace-nowrap py-3 px-3 sm:py-4 sm:px-6 border-b-2 font-medium text-xs sm:text-sm transition-all duration-200 flex items-center gap-1 sm:gap-2 min-w-max"
+                  >
+                  <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
+                  </svg>
+                  Prompts
+                </button>
+              }
+              <!-- Data Purge - Admin only -->
+              @if (canAccessTab('purge')) {
+                <button
+                  (click)="setActiveTab('purge')"
+                  [class.border-orange-500]="activeTab === 'purge'"
+                  [class.text-orange-600]="activeTab === 'purge'"
+                  [class.border-transparent]="activeTab !== 'purge'"
+                  [class.text-gray-600]="activeTab !== 'purge'"
+                  [class.hover:text-gray-900]="activeTab !== 'purge'"
+                  [class.hover:border-gray-300]="activeTab !== 'purge'"
+                  class="whitespace-nowrap py-3 px-3 sm:py-4 sm:px-6 border-b-2 font-medium text-xs sm:text-sm transition-all duration-200 flex items-center gap-1 sm:gap-2 min-w-max"
+                  >
+                  <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                  </svg>
+                  Purge Data
+                </button>
+              }
+              
+              <!-- Create Users Tab -->
+              @if (canAccessTab('users_create')) {
+                <button
+                  (click)="setActiveTab('users_create')"
+                  [class.border-orange-500]="activeTab === 'users_create'"
+                  [class.text-orange-600]="activeTab === 'users_create'"
+                  [class.border-transparent]="activeTab !== 'users_create'"
+                  [class.text-gray-600]="activeTab !== 'users_create'"
+                  [class.hover:text-gray-900]="activeTab !== 'users_create'"
+                  [class.hover:border-gray-300]="activeTab !== 'users_create'"
+                  class="whitespace-nowrap py-3 px-3 sm:py-4 sm:px-6 border-b-2 font-medium text-xs sm:text-sm transition-all duration-200 flex items-center gap-1 sm:gap-2 min-w-max">
+                  <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/>
+                  </svg>
+                  Create Users
+                </button>
+              }
+              
+              <!-- All Submissions Tab -->
+              @if (canAccessTab('submissions_all')) {
+                <button
+                  (click)="setActiveTab('submissions_all')"
+                  [class.border-orange-500]="activeTab === 'submissions_all'"
+                  [class.text-orange-600]="activeTab === 'submissions_all'"
+                  [class.border-transparent]="activeTab !== 'submissions_all'"
+                  [class.text-gray-600]="activeTab !== 'submissions_all'"
+                  [class.hover:text-gray-900]="activeTab !== 'submissions_all'"
+                  [class.hover:border-gray-300]="activeTab !== 'submissions_all'"
+                  class="whitespace-nowrap py-3 px-3 sm:py-4 sm:px-6 border-b-2 font-medium text-xs sm:text-sm transition-all duration-200 flex items-center gap-1 sm:gap-2 min-w-max">
+                  <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                  </svg>
+                  All Submissions
+                </button>
+              }
+            </nav>
+          </div>
+        </div>
+      </div>
+      <!-- Tab Content (White Background) -->
+      <!-- Full-width white background -->
+      <div class="bg-white w-full">
+        <!-- Centered inner content -->
+        <div class="pt-6 max-w-screen-xl mx-auto px-4 sm:px-6 md:px-10">
+          @if (activeTab === 'publish') {
+            <div class="animate-fade-in">
+              <app-ready-to-publish></app-ready-to-publish>
+            </div>
+          }
+          @if (activeTab === 'published') {
+            <div class="animate-fade-in">
+              <app-published-posts></app-published-posts>
+            </div>
+          }
+          @if (activeTab === 'users') {
+            <div class="animate-fade-in">
+              <app-user-management></app-user-management>
+            </div>
+          }
+          @if (activeTab === 'review') {
+            <div class="animate-fade-in">
+              <app-pending-reviews></app-pending-reviews>
+            </div>
+          }
+          @if (activeTab === 'prompts') {
+            <div class="animate-fade-in">
+              <app-prompt-management></app-prompt-management>
+            </div>
+          }
+          @if (activeTab === 'purge') {
+            <div class="animate-fade-in">
+              <app-purge-management></app-purge-management>
+            </div>
+          }
+          @if (activeTab === 'users_create') {
+            <div class="animate-fade-in">
+              <app-create-users></app-create-users>
+            </div>
+          }
+          @if (activeTab === 'submissions_all') {
+            <div class="animate-fade-in">
+              <app-all-submissions></app-all-submissions>
+            </div>
+          }
         </div>
       </div>
     </div>
-
-    <!-- Tab Content (White Background) -->
-    <!-- Full-width white background -->
-<div class="bg-white w-full">
-  <!-- Centered inner content -->
-  <div class="pt-6 max-w-screen-xl mx-auto px-4 sm:px-6 md:px-10">
-    
-    <div *ngIf="activeTab === 'publish'" class="animate-fade-in">
-      <app-ready-to-publish></app-ready-to-publish>
-    </div>
-
-    <div *ngIf="activeTab === 'published'" class="animate-fade-in">
-      <app-published-posts></app-published-posts>
-    </div>
-
-    <div *ngIf="activeTab === 'users'" class="animate-fade-in">
-      <app-user-management></app-user-management>
-    </div>
-
-    <div *ngIf="activeTab === 'review'" class="animate-fade-in">
-      <app-pending-reviews></app-pending-reviews>
-    </div>
-
-    <div *ngIf="activeTab === 'prompts'" class="animate-fade-in">
-      <app-prompt-management></app-prompt-management>
-    </div>
-
-    <div *ngIf="activeTab === 'purge'" class="animate-fade-in">
-      <app-purge-management></app-purge-management>
-    </div>
-
-  </div>
-</div>  
-  </div>
+  }
 
   <!-- Access Denied -->
-  <div *ngIf="!loading && !isAdmin" class="flex items-center justify-center min-h-screen bg-white">
-    <div class="text-center max-w-md mx-auto p-8">
-      <div class="w-16 h-16 mx-auto mb-4 bg-red-100 rounded-full flex items-center justify-center">
-        <svg class="w-8 h-8 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.664-.833-2.464 0L4.35 16.5c-.77.833.192 2.5 1.732 2.5z" />
-        </svg>
+  @if (!loading && !isAdmin) {
+    <div class="flex items-center justify-center min-h-screen bg-white">
+      <div class="text-center max-w-md mx-auto p-8">
+        <div class="w-16 h-16 mx-auto mb-4 bg-red-100 rounded-full flex items-center justify-center">
+          <svg class="w-8 h-8 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.664-.833-2.464 0L4.35 16.5c-.77.833.192 2.5 1.732 2.5z" />
+          </svg>
+        </div>
+        <h2 class="text-xl font-semibold text-gray-800 mb-2">Access Denied</h2>
+        <p class="text-gray-600 mb-4">You don't have permission to access the admin dashboard.</p>
+        <button (click)="router.navigate(['/'])" class="btn-primary">Go Home</button>
       </div>
-      <h2 class="text-xl font-semibold text-gray-800 mb-2">Access Denied</h2>
-      <p class="text-gray-600 mb-4">You don't have permission to access the admin dashboard.</p>
-      <button (click)="router.navigate(['/'])" class="btn-primary">Go Home</button>
     </div>
-  </div>
+  }
 </div>

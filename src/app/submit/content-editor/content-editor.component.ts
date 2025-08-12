@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RichTextEditorComponent } from '../rich-text-editor/rich-text-editor.component';
@@ -7,7 +7,7 @@ import { CompressedImage } from '../../shared/utils/image-compression.util';
 
 @Component({
   selector: 'app-content-editor',
-  imports: [ReactiveFormsModule, CommonModule, FormsModule, RichTextEditorComponent, TagInputComponent],
+  imports: [ReactiveFormsModule, FormsModule, RichTextEditorComponent, TagInputComponent],
   templateUrl: './content-editor.component.html',
   styleUrl: './content-editor.component.css'
 })

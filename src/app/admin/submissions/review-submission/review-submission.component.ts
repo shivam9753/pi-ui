@@ -41,11 +41,18 @@ export class ReviewSubmissionComponent {
 
   // Analysis popup properties
   showAnalysisPopup = false;
-  analysisData: any = null;
+  analysisData: any[] = []; // Array of analysis results for each content piece
   isAnalyzing = false;
+  currentAnalysisIndex = 0; // Track which content is being analyzed
+  
+  // Feature flags
+  isAnalysisEnabled = false; // Set to true in development, false in production
 
   // Mobile analysis section toggle
   showMobileAnalysis = false;
+  
+  // Quality breakdown display
+  showFullBreakdown = false;
 
   constructor(
     private http: HttpClient, 
@@ -177,26 +184,79 @@ export class ReviewSubmissionComponent {
   }
 
   analyzeSubmission() {
+    // Check if analysis is enabled
+    if (!this.isAnalysisEnabled) {
+      this.showToast('🚀 AI Analysis is coming soon! This feature will help identify plagiarized content and provide insights about themes, quality, and writing style to assist in the review process.', 'info');
+      return;
+    }
+    
     this.isAnalyzing = true;
+    this.analysisData = []; // Reset analysis data
+    this.currentAnalysisIndex = 0;
+    
+    // Get all content pieces that have text
+    const contentPieces = this.submission.contents.filter((content: any) => content.body && content.body.trim());
+    
+    if (contentPieces.length === 0) {
+      this.showToast('No content found to analyze.', 'error');
+      this.isAnalyzing = false;
+      return;
+    }
+    
+    // Analyze each content piece separately
+    this.analyzeContentPiece(contentPieces, 0);
+  }
+  
+  analyzeContentPiece(contentPieces: any[], index: number) {
+    if (index >= contentPieces.length) {
+      // All content pieces analyzed
+      this.isAnalyzing = false;
+      this.showAnalysisPopup = true;
+      return;
+    }
+    
+    this.currentAnalysisIndex = index;
+    const content = contentPieces[index];
+    
     this.http.post(`${environment.apiBaseUrl}/submissions/${this.submission._id}/analyze`, {
-      submissionText: this.submission.contents[0].body
+      submissionText: content.body
     }).subscribe({
-      next: (res) => {
-        this.analysisData = res;
-        this.showAnalysisPopup = true;
-        this.isAnalyzing = false;
+      next: (res: any) => {
+        // Add content metadata to analysis result
+        const analysisWithMetadata = {
+          ...res,
+          contentIndex: index,
+          contentTitle: content.title || `Content ${index + 1}`,
+          contentType: content.type || this.submission.submissionType,
+          originalContent: content.body
+        };
+        
+        this.analysisData.push(analysisWithMetadata);
+        
+        // Analyze next content piece
+        this.analyzeContentPiece(contentPieces, index + 1);
       },
       error: (err) => {
-        console.error('Analysis failed:', err);
-        this.showToast('Analysis failed. Please try again.', 'error');
-        this.isAnalyzing = false;
+        console.error(`Analysis failed for content ${index + 1}:`, err);
+        
+        // Add error result and continue
+        this.analysisData.push({
+          contentIndex: index,
+          contentTitle: content.title || `Content ${index + 1}`,
+          contentType: content.type || this.submission.submissionType,
+          error: true,
+          errorMessage: 'Analysis failed for this content piece'
+        });
+        
+        // Continue with next content piece
+        this.analyzeContentPiece(contentPieces, index + 1);
       }
     });
   }
 
   closeAnalysisPopup() {
     this.showAnalysisPopup = false;
-    this.analysisData = null;
+    this.analysisData = [];
   }
 
   approveSubmission() {
@@ -401,7 +461,7 @@ export class ReviewSubmissionComponent {
   // Helper method to check if user can review
   canReview(): boolean {
     return this.submission?.status && 
-           ['pending_review', 'in_progress'].includes(this.submission.status) &&
+           ['pending_review', 'in_progress', 'resubmitted'].includes(this.submission.status) &&
            this.loggedInUser?.role && 
            ['admin', 'reviewer'].includes(this.loggedInUser.role);
   }
@@ -429,6 +489,18 @@ export class ReviewSubmissionComponent {
 
   isPublished(): boolean {
     return this.submission?.status === 'published';
+  }
+
+  canReviewSubmission(): boolean {
+    const reviewableStatuses = ['pending_review', 'in_progress', 'resubmitted'];
+    return reviewableStatuses.includes(this.submission?.status);
+  }
+
+  // Check if "Start Review" button should show (only for never-reviewed submissions)
+  canStartReview(): boolean {
+    return this.submission?.status === 'pending_review' && 
+           this.loggedInUser?.role && 
+           ['admin', 'reviewer'].includes(this.loggedInUser.role);
   }
 
   getStatusBadgeClass(): string {
@@ -506,5 +578,21 @@ export class ReviewSubmissionComponent {
     
     // Count words by splitting on whitespace
     return cleanText.split(' ').filter(word => word.length > 0).length;
+  }
+  
+  // Get quality aspects for enhanced breakdown display
+  getQualityAspects() {
+    return [
+      { key: 'imagery', label: 'Imagery', shortLabel: 'Imagery' },
+      { key: 'sensory_details', label: 'Sensory Details', shortLabel: 'Sensory' },
+      { key: 'cohesiveness', label: 'Cohesiveness', shortLabel: 'Cohesion' },
+      { key: 'rich_language', label: 'Rich Language', shortLabel: 'Language' },
+      { key: 'format_structure', label: 'Format & Structure', shortLabel: 'Structure' },
+      { key: 'emotional_resonance', label: 'Emotional Resonance', shortLabel: 'Emotion' },
+      { key: 'originality', label: 'Originality', shortLabel: 'Original' },
+      { key: 'rhythm', label: 'Rhythm', shortLabel: 'Rhythm' },
+      { key: 'layers_of_meaning', label: 'Layers of Meaning', shortLabel: 'Depth' },
+      { key: 'memorable_lines', label: 'Memorable Lines', shortLabel: 'Impact' }
+    ];
   }
 }
