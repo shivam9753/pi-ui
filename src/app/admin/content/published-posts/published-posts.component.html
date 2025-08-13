@@ -20,12 +20,12 @@
       </button>
     </div>
 
-    <!-- Minimal Stats Row -->
+    <!-- Stats Row with Total Count -->
     <div class="flex flex-wrap items-center gap-3 sm:gap-6 mb-6 px-1">
       <div class="flex items-center gap-2 text-sm">
         <div class="w-2 h-2 bg-green-500 rounded-full"></div>
-        <span class="text-gray-900-secondary">Published:</span>
-        <span class="font-semibold text-gray-900">{{ publishedSubmissions.length }}</span>
+        <span class="text-gray-900-secondary">Total Posts:</span>
+        <span class="font-semibold text-gray-900">{{ totalCount }}</span>
       </div>
       <div class="flex items-center gap-2 text-sm">
         <div class="w-2 h-2 bg-blue-500 rounded-full"></div>
@@ -34,8 +34,13 @@
       </div>
       <div class="flex items-center gap-2 text-sm">
         <div class="w-2 h-2 bg-orange-500 rounded-full"></div>
-        <span class="text-gray-900-secondary">Results:</span>
-        <span class="font-semibold text-gray-900">{{ filteredSubmissions.length }}</span>
+        <span class="text-gray-900-secondary">Page:</span>
+        <span class="font-semibold text-gray-900">{{ currentPage }} of {{ totalPages }}</span>
+      </div>
+      <div class="flex items-center gap-2 text-sm">
+        <div class="w-2 h-2 bg-purple-500 rounded-full"></div>
+        <span class="text-gray-900-secondary">Showing:</span>
+        <span class="font-semibold text-gray-900">{{ getCurrentPageInfo().start }}-{{ getCurrentPageInfo().end }}</span>
       </div>
     </div>
 
@@ -94,7 +99,7 @@
       <div class="mt-4 pt-4 border-t border-gray-100">
         <div class="flex items-center justify-between flex-wrap gap-3">
           <div class="text-sm text-gray-500">
-            Showing {{ filteredSubmissions.length }} of {{ publishedSubmissions.length }} posts
+            Showing {{ getCurrentPageInfo().start }}-{{ getCurrentPageInfo().end }} of {{ totalCount }} posts
           </div>
           <div class="flex items-center gap-2">
             <div class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
@@ -346,6 +351,47 @@
           </div>
         }
       </div>
+
+      <!-- Pagination Controls -->
+      @if (!loading && totalPages > 1) {
+        <div class="mt-6 flex items-center justify-between">
+          <div class="text-sm text-gray-600">
+            Page {{ currentPage }} of {{ totalPages }}
+          </div>
+          <div class="flex items-center space-x-2">
+            <!-- Previous Button -->
+            <button
+              (click)="previousPage()"
+              [disabled]="currentPage === 1"
+              class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+              </svg>
+            </button>
+
+            <!-- Page Numbers -->
+            @for (page of getPageNumbers(); track page) {
+              <button
+                (click)="goToPage(page)"
+                [class]="page === currentPage ? 
+                  'px-3 py-2 text-sm font-medium text-white bg-blue-600 border border-blue-600 rounded-md' :
+                  'px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50'">
+                {{ page }}
+              </button>
+            }
+
+            <!-- Next Button -->
+            <button
+              (click)="nextPage()"
+              [disabled]="!hasMore"
+              class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+              </svg>
+            </button>
+          </div>
+        </div>
+      }
     }
 
     <!-- Toast Notification -->

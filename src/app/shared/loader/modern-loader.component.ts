@@ -4,7 +4,7 @@ import { LoaderService } from '../../services/loader.service';
 import { Subject, takeUntil } from 'rxjs';
 
 @Component({
-  selector: 'app-loader',
+  selector: 'app-modern-loader',
   standalone: true,
   imports: [CommonModule],
   template: `
@@ -54,9 +54,13 @@ import { Subject, takeUntil } from 'rxjs';
         transform: translateY(0) scale(1);
       }
     }
+    
+    .animate-slide-in {
+      animation: slideInScale 0.3s ease-out;
+    }
   `]
 })
-export class LoaderComponent implements OnInit, OnDestroy {
+export class ModernLoaderComponent implements OnInit, OnDestroy {
   isVisible = false;
   showLoader = false;
   private destroy$ = new Subject<void>();
@@ -82,6 +86,7 @@ export class LoaderComponent implements OnInit, OnDestroy {
 
   private show() {
     this.isVisible = true;
+    // Small delay to ensure DOM is updated before animation
     setTimeout(() => {
       this.showLoader = true;
     }, 10);
@@ -89,6 +94,7 @@ export class LoaderComponent implements OnInit, OnDestroy {
 
   private hide() {
     this.showLoader = false;
+    // Wait for animation to complete before removing from DOM
     setTimeout(() => {
       this.isVisible = false;
     }, 300);

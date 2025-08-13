@@ -136,6 +136,20 @@ export class UserService {
   }
 
   /**
+   * Update user (alias for updateUserProfile for admin use)
+   */
+  updateUser(userId: string, userData: Partial<User>): Observable<{ message: string; user: User }> {
+    return this.updateUserProfile(userId, userData);
+  }
+
+  /**
+   * Upload user profile image (admin only)
+   */
+  uploadUserProfileImage(userId: string, formData: FormData): Observable<{ success: boolean; message: string; imageUrl: string; user: User }> {
+    return this.apiService.post<{ success: boolean; message: string; imageUrl: string; user: User }>(`/admin/users/${userId}/upload-profile-image`, formData);
+  }
+
+  /**
    * Update user role (admin only)
    */
   updateUserRole(userId: string, role: 'user' | 'reviewer' | 'admin'): Observable<{ message: string; user: User }> {

@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { CommonModule, DatePipe, TitleCasePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { UserService, User, UserStats } from '../../../services/user.service';
+import { compressImageToAVIF } from '../../../shared/utils/image-compression.util';
 
 interface Message {
   type: 'success' | 'error';
@@ -35,6 +36,19 @@ export class UserManagementComponent implements OnInit {
   loading = false;
   changingRoles = new Set<string>();
   message: Message | null = null;
+  
+  // Edit user modal
+  showEditModal = false;
+  editingUser: User | null = null;
+  editUserForm = {
+    name: '',
+    email: '',
+    bio: '',
+    role: ''
+  };
+  selectedFile: File | null = null;
+  previewUrl: string | null = null;
+  uploadingImage = false;
   
   // Debouncing
   private searchTimeout: any;
@@ -218,6 +232,132 @@ export class UserManagementComponent implements OnInit {
   // Helper for template
   Math() {
     return Math;
+  }
+
+  // Edit user methods
+  openEditModal(user: User) {
+    this.editingUser = { ...user };
+    this.editUserForm = {
+      name: user.name || '',
+      email: user.email || '',
+      bio: user.bio || '',
+      role: user.role || ''
+    };
+    this.selectedFile = null;
+    this.previewUrl = null;
+    this.showEditModal = true;
+  }
+
+  closeEditModal() {
+    this.showEditModal = false;
+    this.editingUser = null;
+    this.selectedFile = null;
+    this.previewUrl = null;
+  }
+
+  async onFileSelected(event: any) {
+    const file = event.target.files[0];
+    if (file) {
+      // Validate file type
+      if (!file.type.startsWith('image/')) {
+        this.showMessage('error', 'Please select an image file');
+        return;
+      }
+      
+      // Validate file size (5MB max for original)
+      if (file.size > 5 * 1024 * 1024) {
+        this.showMessage('error', 'Original image size must be less than 5MB');
+        return;
+      }
+      
+      try {
+        // Compress to AVIF format
+        this.showMessage('success', 'Compressing image to AVIF format...');
+        const compressed = await compressImageToAVIF(file, {
+          maxWidth: 800,
+          maxHeight: 800,
+          quality: 0.85
+        });
+        
+        this.selectedFile = compressed.file;
+        this.previewUrl = compressed.dataUrl;
+        
+        // Show compression info
+        const originalSize = (file.size / 1024).toFixed(1);
+        const compressedSize = (compressed.file.size / 1024).toFixed(1);
+        this.showMessage(
+          'success',
+          `Image compressed: ${originalSize}KB → ${compressedSize}KB (${compressed.compressionRatio}% reduction)`
+        );
+      } catch (error) {
+        console.error('Error compressing image:', error);
+        this.showMessage('error', 'Failed to compress image. Using original.');
+        
+        // Fallback to original file
+        this.selectedFile = file;
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          this.previewUrl = e.target?.result as string;
+        };
+        reader.readAsDataURL(file);
+      }
+    }
+  }
+
+  removeImage() {
+    this.selectedFile = null;
+    this.previewUrl = null;
+  }
+
+  async saveUserChanges() {
+    if (!this.editingUser) return;
+    
+    this.loading = true;
+    
+    try {
+      // Update user profile
+      const updateResponse = await this.userService.updateUser(this.editingUser._id, {
+        name: this.editUserForm.name,
+        email: this.editUserForm.email,
+        bio: this.editUserForm.bio
+      }).toPromise();
+      
+      // Update role if changed
+      if (this.editUserForm.role !== this.editingUser.role) {
+        await this.userService.updateUserRole(this.editingUser._id, this.editUserForm.role as any).toPromise();
+      }
+      
+      // Upload image if selected
+      if (this.selectedFile) {
+        await this.uploadUserImage(this.editingUser._id);
+      }
+      
+      this.showMessage('success', 'User updated successfully');
+      this.closeEditModal();
+      this.loadUsers();
+    } catch (error: any) {
+      this.showMessage('error', error.error?.message || 'Failed to update user');
+    } finally {
+      this.loading = false;
+    }
+  }
+
+  async uploadUserImage(userId: string) {
+    if (!this.selectedFile) return;
+    
+    this.uploadingImage = true;
+    
+    try {
+      const formData = new FormData();
+      formData.append('profileImage', this.selectedFile);
+      
+      await this.userService.uploadUserProfileImage(userId, formData).toPromise();
+    } catch (error) {
+      console.error('Error uploading profile image:', error);
+      this.showMessage('error', 'Profile updated but image upload failed');
+    } finally {
+      this.uploadingImage = false;
+    }
   }
 
   ngOnDestroy() {

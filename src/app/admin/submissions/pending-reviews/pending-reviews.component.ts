@@ -332,6 +332,9 @@ export class PendingReviewsComponent implements OnInit {
       author: submission.userId ? { 
         name: submission.userId.name || submission.userId.username || 'Unknown', 
         username: submission.userId.username || ''
+      } : submission.submitterName ? { 
+        name: submission.submitterName,
+        username: submission.submitterName
       } : undefined,
       submissionType: submission.submissionType,
       status: submission.status,
@@ -340,8 +343,24 @@ export class PendingReviewsComponent implements OnInit {
       imageUrl: submission.imageUrl,
       tags: submission.tags,
       readingTime: submission.readingTime,
-      isFeatured: submission.isFeatured
+      isFeatured: submission.isFeatured,
+      wordCount: submission.wordCount || this.calculateWordCount(submission.description || submission.excerpt || '')
     };
+  }
+
+  // Calculate word count from text
+  private calculateWordCount(text: string): number {
+    if (!text) return 0;
+    // Remove HTML tags and clean up text
+    const cleanText = text
+      .replace(/<[^>]*>/g, ' ')  // Remove HTML tags
+      .replace(/\s+/g, ' ')      // Normalize whitespace
+      .trim();
+    
+    if (!cleanText) return 0;
+    
+    // Count words by splitting on whitespace
+    return cleanText.split(' ').filter(word => word.length > 0).length;
   }
 
   // Quick filter methods

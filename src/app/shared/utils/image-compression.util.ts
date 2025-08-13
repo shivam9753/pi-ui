@@ -2,7 +2,8 @@ export interface ImageCompressionOptions {
   maxWidth?: number;
   maxHeight?: number;
   quality?: number;
-  outputFormat?: 'jpeg' | 'png' | 'webp';
+  outputFormat?: 'jpeg' | 'png' | 'webp' | 'avif';
+  fallbackFormat?: 'jpeg' | 'webp';
 }
 
 export interface CompressedImage {
@@ -14,6 +15,14 @@ export interface CompressedImage {
 }
 
 export class ImageCompressionUtil {
+  // Check AVIF support
+  static isAVIFSupported(): boolean {
+    const canvas = document.createElement('canvas');
+    canvas.width = 1;
+    canvas.height = 1;
+    return canvas.toDataURL('image/avif').indexOf('data:image/avif') === 0;
+  }
+
   static async compressImage(
     file: File, 
     options: ImageCompressionOptions = {}
@@ -22,8 +31,13 @@ export class ImageCompressionUtil {
       maxWidth = 1200,
       maxHeight = 800,
       quality = 0.8,
-      outputFormat = 'jpeg'
+      outputFormat = 'avif',
+      fallbackFormat = 'webp'
     } = options;
+
+    // Check if AVIF is requested and supported
+    const useAVIF = outputFormat === 'avif' && this.isAVIFSupported();
+    const finalFormat = useAVIF ? 'avif' : (outputFormat === 'avif' ? fallbackFormat : outputFormat);
 
     return new Promise((resolve, reject) => {
       const canvas = document.createElement('canvas');
@@ -47,6 +61,9 @@ export class ImageCompressionUtil {
         // Draw and compress
         ctx!.drawImage(img, 0, 0, width, height);
 
+        // For AVIF, use higher quality since it's more efficient
+        const finalQuality = finalFormat === 'avif' ? Math.min(quality + 0.1, 1) : quality;
+
         canvas.toBlob(
           (blob) => {
             if (!blob) {
@@ -54,8 +71,12 @@ export class ImageCompressionUtil {
               return;
             }
 
-            const compressedFile = new File([blob], file.name, {
-              type: `image/${outputFormat}`,
+            // Generate appropriate filename
+            const originalName = file.name.replace(/\.[^/.]+$/, '');
+            const filename = `${originalName}.${finalFormat}`;
+
+            const compressedFile = new File([blob], filename, {
+              type: `image/${finalFormat}`,
               lastModified: Date.now()
             });
 
@@ -74,8 +95,8 @@ export class ImageCompressionUtil {
             };
             reader.readAsDataURL(compressedFile);
           },
-          `image/${outputFormat}`,
-          quality
+          `image/${finalFormat}`,
+          finalQuality
         );
       };
 
@@ -84,8 +105,21 @@ export class ImageCompressionUtil {
     });
   }
 
+  // Compress to AVIF with optimal settings
+  static async compressToAVIF(
+    file: File,
+    options: Omit<ImageCompressionOptions, 'outputFormat'> = {}
+  ): Promise<CompressedImage> {
+    return this.compressImage(file, {
+      ...options,
+      outputFormat: 'avif',
+      quality: options.quality || 0.85, // Higher quality for AVIF
+      fallbackFormat: 'webp'
+    });
+  }
+
   static isValidImageFile(file: File): boolean {
-    const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+    const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/avif'];
     return validTypes.includes(file.type);
   }
 
@@ -113,11 +147,61 @@ export class ImageCompressionUtil {
         const y = (img.height - minDimension) / 2;
 
         ctx!.drawImage(img, x, y, minDimension, minDimension, 0, 0, size, size);
-        resolve(canvas.toDataURL('image/jpeg', 0.8));
+        
+        // Try AVIF first, fallback to WebP, then JPEG
+        if (this.isAVIFSupported()) {
+          resolve(canvas.toDataURL('image/avif', 0.85));
+        } else {
+          resolve(canvas.toDataURL('image/webp', 0.8) || canvas.toDataURL('image/jpeg', 0.8));
+        }
       };
 
       img.onerror = () => reject(new Error('Failed to create thumbnail'));
       img.src = URL.createObjectURL(file);
     });
   }
+
+  // Get format info for display
+  static getFormatInfo(format: string): { name: string; description: string; quality: string } {
+    switch (format) {
+      case 'avif':
+        return {
+          name: 'AVIF',
+          description: 'Next-gen format with superior compression',
+          quality: 'Excellent'
+        };
+      case 'webp':
+        return {
+          name: 'WebP',
+          description: 'Modern format with good compression',
+          quality: 'Very Good'
+        };
+      case 'jpeg':
+        return {
+          name: 'JPEG',
+          description: 'Standard format with wide compatibility',
+          quality: 'Good'
+        };
+      case 'png':
+        return {
+          name: 'PNG',
+          description: 'Lossless format for graphics',
+          quality: 'Lossless'
+        };
+      default:
+        return {
+          name: format.toUpperCase(),
+          description: 'Unknown format',
+          quality: 'Unknown'
+        };
+    }
+  }
+}
+
+// Helper function for easy AVIF compression
+export async function compressImageToAVIF(
+  file: File,
+  options: Omit<ImageCompressionOptions, 'outputFormat'> = {}
+): Promise<CompressedImage> {
+  return ImageCompressionUtil.compressToAVIF(file, options);
 }

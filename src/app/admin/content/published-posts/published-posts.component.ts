@@ -20,6 +20,13 @@ export class PublishedPostsComponent implements OnInit {
   searchTerm = '';
   selectedType = '';
 
+  // Pagination properties
+  currentPage = 1;
+  itemsPerPage = 20;
+  totalCount = 0;
+  totalPages = 0;
+  hasMore = false;
+
   // Toast notification properties
   toastMessage = '';
   toastType: 'success' | 'error' | 'info' = 'info';
@@ -38,17 +45,27 @@ export class PublishedPostsComponent implements OnInit {
   loadPublishedSubmissions() {
     this.loading = true;
     
-    // Load both published and draft submissions
+    const skip = (this.currentPage - 1) * this.itemsPerPage;
+    
+    // Load both published and draft submissions with pagination
     this.backendService.getSubmissions("", "published_and_draft", {
-      limit: 100,
-      skip: 0,
+      limit: this.itemsPerPage,
+      skip: skip,
       sortBy: 'reviewedAt',
       order: 'desc'
     }).subscribe({
       next: (data) => {
-        // API should already filter by status, so use all returned submissions
         this.publishedSubmissions = data.submissions || [];
-        console.log('Published/Draft submissions loaded:', this.publishedSubmissions.length);
+        this.totalCount = data.total || 0;
+        this.totalPages = Math.ceil(this.totalCount / this.itemsPerPage);
+        this.hasMore = data.pagination?.hasMore || false;
+        
+        console.log('Published/Draft submissions loaded:', {
+          count: this.publishedSubmissions.length,
+          page: this.currentPage,
+          total: this.totalCount,
+          pages: this.totalPages
+        });
         this.loading = false;
       },
       error: (err) => {
@@ -133,7 +150,8 @@ export class PublishedPostsComponent implements OnInit {
     this.router.navigate(['/post', slug]);
   }
 
-  // Filter submissions based on search and type
+  // Note: Since we're doing server-side pagination, filtering is handled server-side
+  // For client-side filtering within the current page:
   get filteredSubmissions() {
     let filtered = this.publishedSubmissions;
 
@@ -153,10 +171,23 @@ export class PublishedPostsComponent implements OnInit {
     return filtered;
   }
 
+  // Apply filters and reset to first page
+  applyFilters() {
+    this.currentPage = 1;
+    this.loadPublishedSubmissions();
+  }
+
   // Get unique submission types for filter
   get submissionTypes() {
     const types = [...new Set(this.publishedSubmissions.map(sub => sub.submissionType))];
     return types.sort();
+  }
+
+  // Get current page info for display
+  getCurrentPageInfo() {
+    const start = (this.currentPage - 1) * this.itemsPerPage + 1;
+    const end = Math.min(this.currentPage * this.itemsPerPage, this.totalCount);
+    return { start, end, total: this.totalCount };
   }
 
   // Calculate word count for content
@@ -191,7 +222,41 @@ export class PublishedPostsComponent implements OnInit {
 
   // Refresh the submissions list
   refreshList() {
+    this.currentPage = 1;
     this.loadPublishedSubmissions();
+  }
+
+  // Pagination methods
+  goToPage(page: number) {
+    if (page < 1 || page > this.totalPages) return;
+    this.currentPage = page;
+    this.loadPublishedSubmissions();
+  }
+
+  nextPage() {
+    if (this.hasMore) {
+      this.goToPage(this.currentPage + 1);
+    }
+  }
+
+  previousPage() {
+    if (this.currentPage > 1) {
+      this.goToPage(this.currentPage - 1);
+    }
+  }
+
+  // Get page numbers for pagination display
+  getPageNumbers(): number[] {
+    const pages: number[] = [];
+    const maxPagesToShow = 5;
+    const startPage = Math.max(1, this.currentPage - Math.floor(maxPagesToShow / 2));
+    const endPage = Math.min(this.totalPages, startPage + maxPagesToShow - 1);
+    
+    for (let i = startPage; i <= endPage; i++) {
+      pages.push(i);
+    }
+    
+    return pages;
   }
 
   // Handle card click for published content

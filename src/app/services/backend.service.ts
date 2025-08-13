@@ -278,10 +278,6 @@ export class BackendService {
       'Authorization': `Bearer ${jwtToken}`
     });
     
-    console.log('🖼️ Uploading image for submission:', submissionId);
-    console.log('📤 URL:', `${this.API_URL}/submissions/${submissionId}/upload-image`);
-    console.log('🔑 Auth header:', headers.get('Authorization'));
-    
     const formData = new FormData();
     formData.append('image', imageFile);
     

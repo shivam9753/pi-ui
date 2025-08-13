@@ -4,10 +4,13 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
+    "serve:staging": "ng serve --configuration staging",
     "build": "ng build",
+    "build:staging": "ng build --configuration staging",
     "build:prod": "ng build --configuration production",
     "watch": "ng build --watch --configuration development",
-    "test": "ng test"
+    "test": "ng test",
+    "analyze": "ng build --configuration production --stats-json && npx webpack-bundle-analyzer dist/pi/stats.json"
   },
   "private": true,
   "dependencies": {

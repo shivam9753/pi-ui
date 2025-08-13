@@ -9,10 +9,11 @@ import { BadgeLabelComponent } from '../../../utilities/badge-label/badge-label.
 import { ToastNotificationComponent } from '../../../shared/components/toast-notification/toast-notification.component';
 import { StatusBadgeComponent } from '../../../shared/components/status-badge/status-badge.component';
 import { environment } from '../../../../environments/environment';
+import { AnalysisPanelComponent } from './analysis-panel.component';
 
 @Component({
   selector: 'app-review-submission',
-  imports: [DatePipe, TitleCasePipe, CommonModule, FormsModule, BadgeLabelComponent, ToastNotificationComponent, StatusBadgeComponent],
+  imports: [DatePipe, TitleCasePipe, CommonModule, FormsModule, BadgeLabelComponent, ToastNotificationComponent, StatusBadgeComponent, AnalysisPanelComponent],
   templateUrl: './review-submission.component.html',
   styleUrl: './review-submission.component.css'
 })
