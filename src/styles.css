@@ -72,6 +72,10 @@
   color: var(--text-accent);
 }
 
+@utility text-themed-inverse {
+  color: var(--text-inverse);
+}
+
 @utility border-themed {
   border-color: var(--border-primary);
 }
@@ -128,42 +132,91 @@
   --radius-xl: 16px;
 }
 
-/* Modern dark theme */
+/* Add this to your src/styles.css or main CSS file */
+
+/* Your existing Valentin-style dark theme variables */
 .dark {
-  --bg-primary: #1b1f23;
-  --bg-secondary: #2d3339;
-  --bg-tertiary: #374151;
-  --bg-elevated: #1b1f23;
-  --bg-card: #2d3339;
-  --bg-hover: #374151;
-  --bg-accent: #70b5ff;
-  --bg-accent-hover: #5ba3f5;
-  --bg-accent-light: #1e293b;
-  --bg-success: #10b981;
-  --bg-warning: #f59e0b;
-  --bg-error: #ef4444;
+  --bg-primary: #0d0d0d;
+  --bg-secondary: #161616;
+  --bg-tertiary: #1f1f1f;
+  --bg-elevated: #141414;
+  --bg-card: #171717;
+  --bg-hover: #222222;
+  --bg-accent: #ff6100;
+  --bg-accent-hover: #cc4e00;
+  --bg-accent-light: rgba(255, 97, 0, 0.08);
   
-  --text-primary: #ffffff;
-  --text-secondary: #d1d5db;
-  --text-tertiary: #9ca3af;
-  --text-inverse: #000000;
-  --text-accent: #70b5ff;
-  --text-accent-hover: #5ba3f5;
-  --text-muted: #6b7280;
+  --text-primary: #f8f8f8;
+  --text-secondary: #b4b4b4;
+  --text-tertiary: #7a7a7a;
+  --text-accent: #ff6100;
+  --text-accent-hover: #cc4e00;
+  --text-muted: #5a5a5a;
   
-  --border-primary: #4b5563;
-  --border-secondary: #6b7280;
-  --border-accent: #70b5ff;
-  --border-focus: #70b5ff;
-  --border-light: #374151;
+  --border-primary: #2a2a2a;
+  --border-secondary: #333333;
+  --border-accent: #ff6100;
+  --border-focus: #ff6100;
+  --border-light: #1e1e1e;
   
-  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
-  --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.25);
-  --shadow-lg: 0 4px 16px rgba(0, 0, 0, 0.3);
-  --shadow-xl: 0 8px 32px rgba(0, 0, 0, 0.4);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.5);
+  --shadow-lg: 0 4px 16px rgba(0, 0, 0, 0.6);
+  --shadow-xl: 0 8px 32px rgba(0, 0, 0, 0.7);
   
-  --ring-color: rgba(112, 181, 255, 0.3);
+  --ring-color: rgba(255, 97, 0, 0.2);
 }
+
+/* Enhanced hover states for dark mode */
+.dark .hover\:bg-themed-hover:hover {
+  background-color: var(--bg-hover) !important;
+}
+
+.dark .hover\:bg-orange-600:hover {
+  background-color: var(--bg-accent-hover) !important;
+}
+
+.dark .hover\:border-gray-300:hover {
+  border-color: var(--border-secondary) !important;
+}
+
+/* Fix for submission form cards */
+.dark .border-gray-200 {
+  border-color: var(--border-primary) !important;
+}
+
+.dark .bg-white {
+  background-color: var(--bg-primary) !important;
+}
+
+.dark .bg-gray-50 {
+  background-color: var(--bg-secondary) !important;
+}
+
+/* Tailwind Dark Mode Overrides for Angular */
+.dark .bg-gray-100 { background-color: var(--bg-tertiary) !important; }
+.dark .bg-gray-200 { background-color: var(--bg-card) !important; }
+.dark .bg-gray-300 { background-color: var(--bg-hover) !important; }
+
+.dark .text-gray-900 { color: var(--text-primary) !important; }
+.dark .text-gray-800 { color: var(--text-primary) !important; }
+.dark .text-gray-700 { color: var(--text-secondary) !important; }
+.dark .text-gray-600 { color: var(--text-secondary) !important; }
+.dark .text-gray-500 { color: var(--text-tertiary) !important; }
+.dark .text-gray-400 { color: var(--text-tertiary) !important; }
+.dark .text-black { color: var(--text-primary) !important; }
+
+.dark .border-gray-200 { border-color: var(--border-primary) !important; }
+.dark .border-gray-300 { border-color: var(--border-secondary) !important; }
+
+.dark .text-orange-500 { color: var(--text-accent) !important; }
+.dark .text-orange-600 { color: var(--text-accent) !important; }
+.dark .text-orange-400 { color: #fb923c !important; }
+.dark .bg-orange-500 { background-color: var(--bg-accent) !important; }
+.dark .bg-orange-50 { background-color: rgba(255, 97, 0, 0.05) !important; }
+.dark .bg-orange-950 { background-color: rgba(255, 97, 0, 0.08) !important; }
+.dark .border-orange-500 { border-color: var(--border-accent) !important; }
+.dark .border-orange-400 { border-color: #fb923c !important; }
 
 /* Base styles */
 * {

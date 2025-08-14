@@ -105,10 +105,8 @@ export class PublishSubmissionComponent implements OnInit {
         this.initializeSEOConfig();
         this.loadUserProfile(this.submission.userId);
         this.loading = false;
-        console.log('Submission loaded for publishing:', this.submission);
       },
       error: (err) => {
-        console.error('Error loading submission:', err);
         this.showError('Failed to load submission');
         this.loading = false;
       }
@@ -273,7 +271,6 @@ export class PublishSubmissionComponent implements OnInit {
     if (file) {
       if (!this.validateImageFile(file, event.target)) return;
       this.selectedCoverImageFile = file;
-      console.log('Cover image selected:', file.name, 'Size:', Math.round(file.size / 1024), 'KB');
     }
   }
 
@@ -283,7 +280,6 @@ export class PublishSubmissionComponent implements OnInit {
     if (file) {
       if (!this.validateImageFile(file, event.target)) return;
       this.selectedSocialImageFile = file;
-      console.log('Social media image selected:', file.name, 'Size:', Math.round(file.size / 1024), 'KB');
     }
   }
 
@@ -316,7 +312,6 @@ export class PublishSubmissionComponent implements OnInit {
 
     this.backendService.uploadSubmissionImage(this.submission._id, this.selectedCoverImageFile).subscribe({
       next: (response) => {
-        console.log('Cover image uploaded successfully:', response);
         
         // Update submission with new cover image URL
         this.submission.imageUrl = response.imageUrl;
@@ -332,7 +327,6 @@ export class PublishSubmissionComponent implements OnInit {
         }
       },
       error: (err) => {
-        console.error('Cover image upload error:', err);
         this.handleUploadError(err);
         this.isUploadingCoverImage = false;
       }
@@ -349,7 +343,6 @@ export class PublishSubmissionComponent implements OnInit {
 
     this.backendService.uploadSubmissionImage(this.submission._id, this.selectedSocialImageFile).subscribe({
       next: (response) => {
-        console.log('Social media image uploaded successfully:', response);
         
         // Update SEO config with new social media image URL
         this.seoConfig.ogImage = response.imageUrl;
@@ -365,7 +358,6 @@ export class PublishSubmissionComponent implements OnInit {
         }
       },
       error: (err) => {
-        console.error('Social media image upload error:', err);
         this.handleUploadError(err);
         this.isUploadingSocialImage = false;
       }
@@ -402,7 +394,6 @@ export class PublishSubmissionComponent implements OnInit {
         this.showSuccess('Cover image removed and deleted from S3 successfully!');
       },
       error: (error) => {
-        console.error('Error removing cover image:', error);
         this.showError('Failed to remove cover image. Please try again.');
       }
     });
@@ -542,11 +533,9 @@ export class PublishSubmissionComponent implements OnInit {
 
     this.backendService.updateSubmission(this.submission._id, updateData).subscribe({
       next: (response) => {
-        console.log('Submission updated successfully:', response);
         this.showSuccess('Changes saved successfully!');
       },
       error: (err) => {
-        console.error('Error saving changes:', err);
         this.showError('Failed to save changes. Please try again.');
       }
     });
@@ -577,7 +566,6 @@ export class PublishSubmissionComponent implements OnInit {
     // Use the new SEO-enabled publishing endpoint
     this.backendService.publishSubmissionWithSEO(this.submission._id, seoData).subscribe({
       next: (response) => {
-        console.log('Submission published with SEO configuration:', response);
         
         const publishedUrl = response.url || `/post/${seoData.slug}`;
         this.showSuccess(`"${this.submission.title}" has been published successfully! Available at: ${publishedUrl}`);
@@ -590,7 +578,6 @@ export class PublishSubmissionComponent implements OnInit {
         this.isPublishing = false;
       },
       error: (err) => {
-        console.error('Error publishing submission with SEO:', err);
         
         // Check if the error is slug-related
         if (err.message?.includes('Slug already exists')) {
@@ -653,7 +640,6 @@ export class PublishSubmissionComponent implements OnInit {
         }
       },
       error: (err) => {
-        console.error('Error loading user profile:', err);
       }
     });
   }
@@ -672,7 +658,6 @@ export class PublishSubmissionComponent implements OnInit {
         this.checkProfileApprovalComplete();
       },
       error: (err) => {
-        console.error('Error approving bio:', err);
         this.showError('Failed to approve bio. Please try again.');
       }
     });
@@ -691,7 +676,6 @@ export class PublishSubmissionComponent implements OnInit {
         this.checkProfileApprovalComplete();
       },
       error: (err) => {
-        console.error('Error approving profile image:', err);
         this.showError('Failed to approve profile image. Please try again.');
       }
     });

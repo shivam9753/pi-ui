@@ -1,46 +1,14 @@
 <!-- Background with themed styling -->
 <div class="w-full">
 
-  <!-- Header + Filters Side by Side -->
-  <div class="flex flex-col lg:flex-row lg:items-start gap-8 border-b border-gray-200 pb-6 mb-8">
-
-    <!-- LEFT: Heading and Subheading -->
-    <div class="flex-1 mb-4 lg:mb-0">
-      <h1 class="text-2xl md:text-3xl font-bold text-gray-900 mb-2">
-        Pending Review
-      </h1>
-      <p class="text-gray-900-secondary">
-        Review new submissions and manage review queue.
-      </p>
-    </div>
-
-    <!-- RIGHT: All Filters -->
-    <div class="flex-1">
-      <app-filter-bar
-        [filterConfigs]="filterConfigs"
-        [quickFilters]="quickFilters"
-        [initialFilters]="filters"
-        [showApplyButton]="false"
-        [debounceTime]="300"
-        (filtersChange)="onFiltersChange($event)"
-        (search)="onSearchChange($event)"
-        (quickFilterToggle)="onQuickFilterToggle($event)">
-      </app-filter-bar>
-
-      <!-- Results Counter -->
-      <div class="flex items-center justify-between text-sm bg-gray-50 p-3 rounded-lg">
-        <span class="text-gray-600">
-          {{ totalSubmissions }} submission{{ totalSubmissions !== 1 ? 's' : '' }} found
-        </span>
-        <div class="flex items-center gap-2 text-orange-400">
-          <div class="w-2 h-2 bg-orange-400 rounded-full animate-pulse"></div>
-          <span class="text-xs">Live filtering</span>
-        </div>
-      </div>
-    </div>
-
-    <!-- OLD COMPLEX FILTER REMOVED -->
-
+  <!-- Standardized Header -->
+  <app-admin-page-header
+    title="Pending Review"
+    subtitle="Review new submissions and manage review queue."
+    [stats]="headerStats"
+    [loading]="loading"
+    (onRefresh)="onRefresh()">
+  </app-admin-page-header>
 
     <!-- Submissions Grid -->
     @if (!loading && submissions && submissions.length > 0) {
@@ -113,16 +81,6 @@
           </svg>
         </div>
         <h3 class="text-lg font-medium text-gray-900 mb-2">No submissions found</h3>
-        <p class="text-gray-500 max-w-sm mx-auto">
-          No submissions match your current filters. Try adjusting your search criteria.
-        </p>
-        <button
-          (click)="clearFilters()"
-          class="mt-4 text-orange-600 hover:text-orange-500 font-medium text-sm"
-          >
-          Clear all filters
-        </button>
       </div>
     }
   </div>
-

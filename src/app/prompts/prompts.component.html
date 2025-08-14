@@ -110,7 +110,7 @@
                 </div>
                 <h3 class="text-lg font-semibold text-gray-900 mb-2">{{ prompt.title }}</h3>
                 <p class="text-gray-600 text-sm leading-relaxed mb-3">{{ prompt.description }}</p>
-                @if (prompt.tags?.length) {
+                @if (prompt.tags.length) {
                   <div class="flex flex-wrap gap-1">
                     @for (tag of prompt.tags; track tag) {
                       <span
@@ -179,7 +179,7 @@
                 </div>
               }
               <!-- Tags -->
-              @if (currentPrompt.tags?.length) {
+              @if (currentPrompt.tags.length) {
                 <div class="flex flex-wrap justify-center gap-1 mb-6">
                   @for (tag of currentPrompt.tags; track tag) {
                     <span

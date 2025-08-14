@@ -61,7 +61,6 @@ export class ReviewSubmissionComponent {
     private authService: AuthService,
     private router: Router
   ) {
-    console.log("In review submission");
     this.id = this.activatedRoute.snapshot.paramMap.get('id')!;
     if (this.id) {
       this.getSubmissionWithContents(this.id);
@@ -86,8 +85,6 @@ export class ReviewSubmissionComponent {
         
         this.submission = data;
         this.buildTimelineSteps();
-        console.log('Fetched submission:', data);
-        console.log('Contents array:', data.contents);
         
         // Check if submission has been reviewed
         if (data.status !== 'pending_review') {
@@ -98,7 +95,7 @@ export class ReviewSubmissionComponent {
         this.loadSubmissionHistory(id);
       },
       error: (err: any) => {
-        console.error('Error fetching submission:', err);
+        // Error fetching submission
       }
     });
   }
@@ -108,10 +105,9 @@ export class ReviewSubmissionComponent {
     this.backendService.getReviewDetails(submissionId).subscribe({
       next: (data: any) => {
         this.existingReview = data.submission?.review;
-        console.log('Existing review:', this.existingReview);
       },
       error: (err: any) => {
-        console.error('Error fetching review details:', err);
+        // Error fetching review details
       }
     });
   }
@@ -240,8 +236,6 @@ export class ReviewSubmissionComponent {
         this.analyzeContentPiece(contentPieces, index + 1);
       },
       error: (err) => {
-        console.error(`Analysis failed for content ${index + 1}:`, err);
-        
         // Add error result and continue
         this.analysisData.push({
           contentIndex: index,
@@ -269,7 +263,6 @@ export class ReviewSubmissionComponent {
 
     this.backendService.approveSubmission(this.id, reviewData).subscribe({
       next: (res: any) => {
-        console.log('Submission approved:', res);
         this.showSuccessMessage('Submission approved successfully!');
         
         // Refresh the submission data and history
@@ -279,13 +272,8 @@ export class ReviewSubmissionComponent {
         this.isSubmitting = false;
       },
       error: (err: any) => {
-        console.error('Error approving submission:', err);
-        console.log('Error status:', err.status);
-        console.log('Error response:', err.error);
-        
         // Check if it's actually a success response (status 200 or success flag)
         if (err.status === 200 || (err.error && err.error.success === true)) {
-          console.log('Detected successful approval with error status - showing success message');
           this.showSuccessMessage('Submission approved successfully!');
           this.getSubmissionWithContents(this.id);
           this.loadSubmissionHistory(this.id);
@@ -303,11 +291,9 @@ export class ReviewSubmissionComponent {
     this.backendService.getSubmissionHistory(submissionId).subscribe({
       next: (data: any) => {
         this.submissionHistory = data.history || [];
-        console.log('Submission history:', this.submissionHistory);
         this.loadingHistory = false;
       },
       error: (err: any) => {
-        console.error('Error loading submission history:', err);
         this.submissionHistory = [];
         this.loadingHistory = false;
       }
@@ -329,7 +315,6 @@ export class ReviewSubmissionComponent {
 
     this.backendService.rejectSubmission(this.id, reviewData).subscribe({
       next: (res: any) => {
-        console.log('Submission rejected:', res);
         this.showSuccessMessage('Submission rejected.');
         
         // Refresh the submission data and history
@@ -339,7 +324,6 @@ export class ReviewSubmissionComponent {
         this.isSubmitting = false;
       },
       error: (err: any) => {
-        console.error('Error rejecting submission:', err);
         // Check if it's actually a success response with error status
         if (err.status === 200 || err.error?.success) {
           this.showSuccessMessage('Submission rejected.');
@@ -361,7 +345,6 @@ export class ReviewSubmissionComponent {
 
     this.backendService.requestRevision(this.id, reviewData).subscribe({
       next: (res: any) => {
-        console.log('Revision requested:', res);
         this.showSuccessMessage('Revision requested. Author has been notified.');
         
         // Refresh the submission data and history
@@ -371,7 +354,6 @@ export class ReviewSubmissionComponent {
         this.isSubmitting = false;
       },
       error: (err: any) => {
-        console.error('Error requesting revision:', err);
         // Check if it's actually a success response with error status
         if (err.status === 200 || err.error?.success) {
           this.showSuccessMessage('Revision requested. Author has been notified.');
@@ -391,7 +373,6 @@ export class ReviewSubmissionComponent {
 
     this.backendService.moveSubmissionToProgress(this.id, notes).subscribe({
       next: (res: any) => {
-        console.log('Submission moved to progress:', res);
         this.showSuccessMessage('Submission moved to in progress.');
         
         // Refresh the submission data and history
@@ -400,7 +381,6 @@ export class ReviewSubmissionComponent {
         this.resetReviewForm();
       },
       error: (err: any) => {
-        console.error('Error moving submission to progress:', err);
         this.showErrorMessage('Error moving submission to progress. Please try again.');
         this.isSubmitting = false;
       }
@@ -419,7 +399,6 @@ export class ReviewSubmissionComponent {
 
     this.backendService.moveSubmissionToProgress(this.id, notes).subscribe({
       next: (res: any) => {
-        console.log('Review process started:', res);
         this.showSuccessMessage('Review process started successfully!');
         
         // Refresh the submission data and history
@@ -428,7 +407,6 @@ export class ReviewSubmissionComponent {
         this.isSubmitting = false;
       },
       error: (err: any) => {
-        console.error('Error starting review process:', err);
         this.showErrorMessage('Error starting review process. Please try again.');
         this.isSubmitting = false;
       }

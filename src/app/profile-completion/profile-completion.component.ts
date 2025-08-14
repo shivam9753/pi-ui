@@ -49,14 +49,17 @@ export class ProfileCompletionComponent implements OnInit {
     // Determine if this is edit mode (user already has some profile data)
     this.isEditMode = !this.needsProfileCompletion(this.user);
     
-    // Pre-fill with existing data
+    // Pre-fill with existing data from the user object
+    // Use backend-validated data if available, otherwise use Google data
     this.profileData.name = this.user.name || '';
     this.profileData.bio = this.user.bio || '';
     
     // Set image preview if user already has a profile image
+    // Check for both backend profileImage and Google picture
     if (this.user.picture) {
       this.profileImagePreview = this.user.picture;
     }
+    
   }
 
   needsProfileCompletion(user: any): boolean {
@@ -142,7 +145,6 @@ export class ProfileCompletionComponent implements OnInit {
       }, 2000);
 
     } catch (error) {
-      console.error('Error updating profile:', error);
       this.showToast('An error occurred while updating your profile.', 'error');
     } finally {
       this.isSubmitting = false;
@@ -172,7 +174,6 @@ export class ProfileCompletionComponent implements OnInit {
       const result = await response.json();
       return result.image?.url || result.url || result.imageUrl || '';
     } catch (error) {
-      console.error('Error uploading image:', error);
       throw new Error('Failed to upload profile image');
     }
   }

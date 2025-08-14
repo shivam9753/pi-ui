@@ -69,12 +69,6 @@ export class ApiService {
       }
     }
 
-    console.error('API Error:', {
-      status: error.status,
-      message: errorMessage,
-      url: error.url,
-      error: error.error
-    });
 
     return throwError(() => ({ status: error.status, message: errorMessage }));
   }

@@ -2,8 +2,17 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ApiService } from './api.service';
 import { Submission } from './submission.service';
+import {
+  Review,
+  CreateReviewPayload,
+  ReviewsResponse,
+  PendingReviewsResponse,
+  ReviewStats,
+  PendingSubmission
+} from '../models';
 
-export interface Review {
+// Legacy interface for backward compatibility
+export interface LegacyReview {
   _id: string;
   submissionId: string;
   reviewerId: string;
@@ -13,8 +22,8 @@ export interface Review {
   updatedAt: string;
 }
 
-export interface ReviewsResponse {
-  reviews: Review[];
+export interface LegacyReviewsResponse {
+  reviews: LegacyReview[];
   total: number;
   pagination: {
     limit: number;

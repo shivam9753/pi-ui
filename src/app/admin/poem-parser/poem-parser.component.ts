@@ -172,7 +172,6 @@ export class PoemParserComponent {
       keywords.forEach((keywordObj: any) => {
         // Skip if keywordObj is invalid
         if (!keywordObj || !keywordObj.word || !keywordObj.weight) {
-          console.warn(`Invalid keyword object in theme ${theme}:`, keywordObj);
           return;
         }
         
@@ -363,7 +362,6 @@ export class PoemParserComponent {
       await navigator.clipboard.writeText(this.jsonOutput[0]);
       alert('JSON copied to clipboard!');
     } catch (err) {
-      console.error('Failed to copy: ', err);
     }
   }
 

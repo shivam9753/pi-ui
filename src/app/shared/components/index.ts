@@ -8,5 +8,4 @@ export { FilterBarComponent, FilterConfig, FilterOption, FilterState } from './f
 export { PaginationComponent, PaginationInfo } from './pagination/pagination.component';
 
 // Re-export existing components
-export { LoaderComponent } from '../loader/loader.component';
 export { ModalComponent, ModalButton } from '../../modal/modal.component';

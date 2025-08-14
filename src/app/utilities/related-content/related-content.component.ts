@@ -93,7 +93,6 @@ export class RelatedContentComponent implements OnInit {
         this.loading = false;
       },
       error: (err) => {
-        console.error('Error loading related content:', err);
         this.error = 'Failed to load related content';
         this.loading = false;
       }

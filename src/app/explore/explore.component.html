@@ -33,7 +33,7 @@
                     (click)="onFilterChange(option.value)"
                     [class.border-orange-500]="selectedType === option.value"
                     [class.text-orange-600]="selectedType === option.value"
-                    [class.bg-orange-50]="selectedType === option.value"
+                    
                     [class.border-transparent]="selectedType !== option.value"
                     [class.text-gray-600]="selectedType !== option.value"
                     class="whitespace-nowrap py-2 px-3 border-b-2 font-medium transition-all duration-200 flex-shrink-0 text-sm"
@@ -282,7 +282,7 @@
                 </div>
               </div>
               <!-- Mobile Announcements - Writing/Content Events -->
-              <div class="bg-gradient-to-br from-orange-50 to-yellow-50 border border-orange-200 rounded-xl p-3 shadow-sm">
+              <div class="rounded-xl p-3 shadow-sm">
                 <div class="flex items-center gap-2 mb-2">
                   <svg class="w-3.5 h-3.5 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
@@ -292,7 +292,7 @@
                 <div class="space-y-2">
                   @for (announcement of getWritingAnnouncements().slice(0, 2); track announcement) {
                     <div
-                      class="bg-white rounded-lg p-2.5 border border-gray-100">
+                      class="bg-white dark:bg-gray-800 rounded-lg p-2.5 border border-gray-100 dark:border-gray-700">
                       <div class="flex items-start gap-2">
                         <div class="flex-shrink-0 w-5 h-5 rounded-full flex items-center justify-center" [style.background-color]="announcement.color + '20'">
                           <svg class="w-2.5 h-2.5" [style.color]="announcement.color" fill="currentColor" viewBox="0 0 24 24">
@@ -389,7 +389,7 @@
           </div>
 
           <!-- Events & Challenges -->
-          <div class="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
+          <div class="border border-gray-200 rounded-lg p-4 shadow-sm">
             <h3 class="text-sm font-bold text-gray-900 mb-3 uppercase tracking-wide">EVENTS & CHALLENGES</h3>
             <div class="space-y-4">
               @for (announcement of getWritingAnnouncements(); track announcement) {

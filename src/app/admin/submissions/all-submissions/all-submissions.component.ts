@@ -3,10 +3,12 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { environment } from '../../../../environments/environment';
+import { AdminPageHeaderComponent, AdminPageStat } from '../../../shared/components/admin-page-header/admin-page-header.component';
+
 
 @Component({
   selector: 'app-all-submissions',
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, AdminPageHeaderComponent],
   templateUrl: './all-submissions.component.html',
   styleUrl: './all-submissions.component.css'
 })
@@ -27,31 +29,6 @@ export class AllSubmissionsComponent implements OnInit {
   showBulkActions = false;
   bulkSelectedUserId = '';
   bulkActionLoading = false;
-  
-  // Filters
-  statusFilter = '';
-  typeFilter = '';
-  searchText = '';
-  
-  // Available status and type options for filtering
-  statusOptions = [
-    { value: '', label: 'All Statuses' },
-    { value: 'pending_review', label: 'Pending Review' },
-    { value: 'in_progress', label: 'In Progress' },
-    { value: 'accepted', label: 'Accepted' },
-    { value: 'rejected', label: 'Rejected' },
-    { value: 'published', label: 'Published' },
-    { value: 'needs_revision', label: 'Needs Revision' }
-  ];
-  
-  typeOptions = [
-    { value: '', label: 'All Types' },
-    { value: 'poem', label: 'Poem' },
-    { value: 'story', label: 'Story' },
-    { value: 'article', label: 'Article' },
-    { value: 'quote', label: 'Quote' },
-    { value: 'cinema_essay', label: 'Cinema Essay' }
-  ];
 
   constructor(private http: HttpClient) {}
 
@@ -90,7 +67,6 @@ export class AllSubmissionsComponent implements OnInit {
         this.users = res.users || [];
       },
       error: (err) => {
-        console.error('Failed to load users:', err);
       }
     });
   }
@@ -144,31 +120,13 @@ export class AllSubmissionsComponent implements OnInit {
     }
   }
   
-  // Bulk selection methods
-  toggleAllSelection() {
-    this.allSelected = !this.allSelected;
-    if (this.allSelected) {
-      // Select all filtered submissions
-      this.filteredSubmissions.forEach(sub => this.selectedSubmissions.add(sub._id));
-    } else {
-      this.selectedSubmissions.clear();
-    }
-    this.updateBulkActionsVisibility();
-  }
-  
   toggleSubmissionSelection(submissionId: string) {
     if (this.selectedSubmissions.has(submissionId)) {
       this.selectedSubmissions.delete(submissionId);
     } else {
       this.selectedSubmissions.add(submissionId);
     }
-    this.updateAllSelectedState();
     this.updateBulkActionsVisibility();
-  }
-  
-  updateAllSelectedState() {
-    const filteredIds = this.filteredSubmissions.map(sub => sub._id);
-    this.allSelected = filteredIds.length > 0 && filteredIds.every(id => this.selectedSubmissions.has(id));
   }
   
   updateBulkActionsVisibility() {
@@ -185,64 +143,7 @@ export class AllSubmissionsComponent implements OnInit {
     this.showBulkActions = false;
     this.bulkSelectedUserId = '';
   }
-  
-  // Filtering
-  get filteredSubmissions() {
-    return this.submissions.filter(submission => {
-      const matchesStatus = !this.statusFilter || submission.status === this.statusFilter;
-      const matchesType = !this.typeFilter || submission.submissionType === this.typeFilter;
-      
-      // Text search - search in title, description, and author name/email
-      const matchesSearch = !this.searchText || this.matchesSearchText(submission, this.searchText);
-      
-      return matchesStatus && matchesType && matchesSearch;
-    });
-  }
-  
-  private matchesSearchText(submission: any, searchText: string): boolean {
-    const search = searchText.toLowerCase().trim();
-    if (!search) return true;
-    
-    // Search in title
-    if (submission.title?.toLowerCase().includes(search)) {
-      return true;
-    }
-    
-    // Search in description
-    if (submission.description?.toLowerCase().includes(search)) {
-      return true;
-    }
-    
-    // Search in author name
-    if (submission.userId?.name?.toLowerCase().includes(search)) {
-      return true;
-    }
-    
-    // Search in author email
-    if (submission.userId?.email?.toLowerCase().includes(search)) {
-      return true;
-    }
-    
-    // Search in author username
-    if (submission.userId?.username?.toLowerCase().includes(search)) {
-      return true;
-    }
-    
-    return false;
-  }
-  
-  onFilterChange() {
-    // Clear selections when filters change
-    this.clearSelection();
-  }
-  
-  clearAllFilters() {
-    this.statusFilter = '';
-    this.typeFilter = '';
-    this.searchText = '';
-    this.onFilterChange();
-  }
-  
+
   // Bulk operations
   bulkReassignUser() {
     if (!this.bulkSelectedUserId) {
@@ -282,10 +183,11 @@ export class AllSubmissionsComponent implements OnInit {
       }
     });
   }
-  
-  // Filter by published status specifically
-  filterPublishedSubmissions() {
-    this.statusFilter = 'published';
-    this.onFilterChange();
+
+  // New methods for mobile-optimized filters
+  refreshData(): void {
+    this.loadSubmissions();
+    this.loadUsers();
   }
+
 }

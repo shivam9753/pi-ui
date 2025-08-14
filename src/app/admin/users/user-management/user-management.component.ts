@@ -3,8 +3,11 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { CommonModule, DatePipe, TitleCasePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { UserService, User, UserStats } from '../../../services/user.service';
+import { UserService } from '../../../services/user.service';
+import { UserListItem, User } from '../../../models';
 import { compressImageToAVIF } from '../../../shared/utils/image-compression.util';
+import { AdminPageHeaderComponent, AdminPageStat } from '../../../shared/components/admin-page-header/admin-page-header.component';
+
 
 interface Message {
   type: 'success' | 'error';
@@ -13,14 +16,14 @@ interface Message {
 
 @Component({
   selector: 'app-user-management',
-  imports: [DatePipe, TitleCasePipe, CommonModule, FormsModule],
+  imports: [DatePipe, TitleCasePipe, CommonModule, FormsModule, AdminPageHeaderComponent],
   templateUrl: './user-management.component.html',
   styleUrls: ['./user-management.component.css']
 })
 export class UserManagementComponent implements OnInit {
-  users: User[] = [];
+  users: UserListItem[] = [];
   totalUsers = 0;
-  userStats: UserStats = { users: 0, reviewers: 0, admins: 0, total: 0 };
+  userStats = { users: 0, reviewers: 0, admins: 0, total: 0 };
   
   // Filters and search
   selectedRole = '';
@@ -39,7 +42,7 @@ export class UserManagementComponent implements OnInit {
   
   // Edit user modal
   showEditModal = false;
-  editingUser: User | null = null;
+  editingUser: UserListItem | null = null;
   editUserForm = {
     name: '',
     email: '',
@@ -86,7 +89,6 @@ export class UserManagementComponent implements OnInit {
           this.loading = false;
         },
         error: (error) => {
-          console.error('Error searching users:', error);
           this.showMessage('error', error.message || 'Failed to search users. Please try again.');
           this.users = [];
           this.loading = false;
@@ -119,7 +121,6 @@ export class UserManagementComponent implements OnInit {
           this.loading = false;
         },
         error: (error) => {
-          console.error('Error loading users:', error);
           this.showMessage('error', error.message || 'Failed to load users. Please try again.');
           this.users = [];
           this.loading = false;
@@ -129,7 +130,7 @@ export class UserManagementComponent implements OnInit {
   }
 
 
-  changeUserRole(user: User, event: any) {
+  changeUserRole(user: UserListItem, event: any) {
     const newRole = event.target.value as 'user' | 'reviewer' | 'admin';
     
     if (newRole === user.role) {
@@ -162,7 +163,6 @@ export class UserManagementComponent implements OnInit {
         this.changingRoles.delete(user._id);
       },
       error: (error) => {
-        console.error('Error changing user role:', error);
         this.showMessage('error', error.message || 'Failed to update user role. Please try again.');
         
         // Reset the select to original value
@@ -190,7 +190,7 @@ export class UserManagementComponent implements OnInit {
     }, 500);
   }
 
-  viewUserProfile(user: User) {
+  viewUserProfile(user: UserListItem) {
     this.router.navigate(['/profile', user._id]);
   }
 
@@ -210,7 +210,7 @@ export class UserManagementComponent implements OnInit {
   }
 
   // Utility methods
-  trackByUserId(index: number, user: User): string {
+  trackByUserId(index: number, user: UserListItem): string {
     return user._id;
   }
 
@@ -235,7 +235,7 @@ export class UserManagementComponent implements OnInit {
   }
 
   // Edit user methods
-  openEditModal(user: User) {
+  openEditModal(user: UserListItem) {
     this.editingUser = { ...user };
     this.editUserForm = {
       name: user.name || '',
@@ -290,7 +290,6 @@ export class UserManagementComponent implements OnInit {
           `Image compressed: ${originalSize}KB → ${compressedSize}KB (${compressed.compressionRatio}% reduction)`
         );
       } catch (error) {
-        console.error('Error compressing image:', error);
         this.showMessage('error', 'Failed to compress image. Using original.');
         
         // Fallback to original file
@@ -353,7 +352,6 @@ export class UserManagementComponent implements OnInit {
       
       await this.userService.uploadUserProfileImage(userId, formData).toPromise();
     } catch (error) {
-      console.error('Error uploading profile image:', error);
       this.showMessage('error', 'Profile updated but image upload failed');
     } finally {
       this.uploadingImage = false;
@@ -365,4 +363,22 @@ export class UserManagementComponent implements OnInit {
       clearTimeout(this.searchTimeout);
     }
   }
+
+  // New methods for mobile-optimized filters
+  onSearchChange(value: string): void {
+    this.searchQuery = value;
+    this.onSearch();
+  }
+
+  onRoleFilterChangeFromFilter(value: string): void {
+    this.selectedRole = value;
+    this.onRoleFilterChange();
+  }
+
+  clearAllFilters(): void {
+    this.searchQuery = '';
+    this.selectedRole = '';
+    this.loadUsers();
+  }
+
 }

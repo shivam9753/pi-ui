@@ -1,34 +1,33 @@
 <div class="bg-white">
   <!-- Mobile Container -->
-  <div class="sm:hidden px-4 py-3">
-    <!-- Simple Clean Header -->
-    <div class="border-b border-gray-200 pb-4 mb-4">
-      <!-- Title Section - More Prominent -->
-      <div class="mb-5">
-        <h1 class="text-2xl font-bold text-gray-900 mb-3 leading-tight">{{ submission?.title }}</h1>
+  <div class="sm:hidden">
+    <!-- Clean Header -->
+    <div class="px-6 pt-6 pb-6 border-b border-gray-200">
+      <!-- Title Section -->
+      <div class="mb-6">
+        <h1 class="text-3xl sm:text-4xl font-serif font-bold text-gray-900 leading-tight mb-3">{{ submission?.title }}</h1>
         @if (submission.description) {
-          <p class="text-gray-700 text-base leading-relaxed">{{ submission.description }}</p>
+          <p class="text-lg text-gray-700 leading-relaxed font-light italic font-serif border-l-4 border-orange-500 pl-4">{{ submission.description }}</p>
         }
       </div>
 
-      <!-- Author and Metadata Row - Enhanced -->
-      <div class="mb-5">
-        <div class="flex items-center justify-between mb-3">
+      <!-- Author and Metadata Row -->
+      <div class="flex items-start justify-between mb-6">
+        <div>
           <div class="text-gray-800">
-            <span class="text-base font-medium">by</span>
+            <span class="text-lg font-medium">by</span>
             @if (submission.userId) {
-              <span class="font-bold ml-1 text-lg">{{ submission.userId.name }}</span>
+              <span class="font-medium ml-1 text-lg text-gray-900">{{ submission.userId.name }}</span>
             }
           </div>
+          <div class="text-sm text-gray-600 mt-1">
+            {{ submission.createdAt | date:'MMMM d, y' }}
+          </div>
+        </div>
+        <div class="text-right flex flex-col items-end gap-2">
           <span class="px-3 py-1.5 rounded-full text-sm font-semibold" [ngClass]="getStatusBadgeClass()">
             {{ getStatusDisplayName() }}
           </span>
-        </div>
-        <div class="flex flex-wrap items-center gap-3">
-          <span class="text-sm text-gray-600 font-medium">
-            {{ submission.createdAt | date:'MMM d, yyyy' }}
-          </span>
-          <span class="text-sm text-gray-400">•</span>
           <app-status-badge [status]="submission.submissionType" size="sm"></app-status-badge>
           @if (submission.submissionType === 'opinion') {
             <app-status-badge
@@ -41,27 +40,25 @@
       </div>
 
       <!-- Mobile Analysis Section -->
-      <div class="mb-4 bg-white border border-gray-200 rounded-lg overflow-hidden">
-        <div class="p-4 bg-gray-50 border-b border-gray-200">
-          <button
-            (click)="toggleMobileAnalysis()"
-            class="w-full flex items-center justify-between text-left">
-            <div class="flex items-center gap-2">
-              <svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2H9a2 2 0 01-2-2z"/>
-              </svg>
-              <h3 class="font-semibold text-gray-900">Analysis</h3>
-            </div>
-            <svg class="w-5 h-5 text-gray-400 transition-transform duration-200"
-              [class.rotate-180]="showMobileAnalysis"
-              fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+      <div class="mb-6">
+        <button
+          (click)="toggleMobileAnalysis()"
+          class="w-full flex items-center justify-between p-4 bg-gray-50 border border-gray-200 rounded-lg text-left">
+          <div class="flex items-center gap-2">
+            <svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2H9a2 2 0 01-2-2z"/>
             </svg>
-          </button>
-        </div>
+            <h3 class="font-semibold text-gray-900">Analysis</h3>
+          </div>
+          <svg class="w-5 h-5 text-gray-400 transition-transform duration-200"
+            [class.rotate-180]="showMobileAnalysis"
+            fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+          </svg>
+        </button>
 
         @if (showMobileAnalysis) {
-          <div class="p-4">
+          <div class="mt-4 p-4 bg-white border border-gray-200 rounded-lg">
             <app-analysis-panel
               [submission]="submission"
               [analysisData]="analysisData"
@@ -73,13 +70,13 @@
         }
       </div>
 
-      <!-- Action Buttons - Subtle and Compact -->
-      <div class="flex flex-col gap-2 mb-4">
+      <!-- Action Buttons -->
+      <div class="mb-6">
         @if (canStartReview()) {
           <button
             (click)="startReviewProcess()"
             [disabled]="isSubmitting"
-            class="w-full py-2.5 px-4 bg-blue-50 text-blue-700 border border-blue-200 rounded-lg hover:bg-blue-100 transition-all duration-200 text-sm font-medium">
+            class="w-full py-3 px-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all duration-200 font-medium">
             <span class="flex items-center justify-center gap-2">
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
@@ -90,96 +87,244 @@
         }
       </div>
 
-      <!-- Navigation Buttons - Minimal -->
-      <div class="flex gap-2">
+      <!-- Navigation Buttons -->
+      <div class="flex gap-3">
         <button (click)="toggleHistory()"
-          class="px-3 py-1.5 text-xs text-gray-600 bg-gray-50 border border-gray-200 rounded-md hover:bg-gray-100 transition-colors font-medium">
+          class="px-4 py-2 text-sm text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors font-medium">
           {{ showHistory ? 'Hide' : 'Show' }} History
         </button>
         <button (click)="goBackToPendingReviews()"
-          class="px-3 py-1.5 text-xs text-gray-600 bg-gray-50 border border-gray-200 rounded-md hover:bg-gray-100 transition-colors font-medium">
+          class="px-4 py-2 text-sm text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors font-medium">
           ← Back
         </button>
       </div>
     </div>
+
+    <!-- Mobile Content Section -->
+    <div class="px-6">
+      <!-- Submission History Section -->
+      @if (showHistory) {
+        <div class="mb-8 bg-gray-50 rounded-lg p-6">
+          <h3 class="text-xl font-semibold text-gray-900 mb-6 flex items-center gap-2">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            Submission History
+          </h3>
+          @if (loadingHistory) {
+            <div class="flex justify-center py-4">
+              <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-orange-500"></div>
+            </div>
+          }
+          @if (!loadingHistory && submissionHistory.length === 0) {
+            <div class="text-center py-4 text-gray-500">
+              No history available
+            </div>
+          }
+          @if (!loadingHistory && submissionHistory.length > 0) {
+            <div class="space-y-3">
+              @for (entry of submissionHistory; track entry) {
+                <div class="bg-white rounded-lg p-3 shadow-sm border border-gray-200">
+                  <div class="flex justify-between items-start mb-2">
+                    <div class="flex items-center gap-2">
+                      <span class="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium" [ngClass]="getStatusBadgeClass()">
+                        {{ entry.action.replace('_', ' ') | titlecase }}
+                      </span>
+                      <span class="text-sm text-gray-600">{{ entry.timestamp | date:'medium' }}</span>
+                    </div>
+                    @if (entry.user) {
+                      <span class="text-sm text-gray-500">
+                        by {{ entry.user.name || entry.user.username }}
+                      </span>
+                    }
+                  </div>
+                  @if (entry.notes) {
+                    <p class="text-sm text-gray-700 mt-2">{{ entry.notes }}</p>
+                  }
+                </div>
+              }
+            </div>
+          }
+        </div>
+      }
+
+      <!-- Existing Review (if any) -->
+      @if (existingReview) {
+        <div class="mb-6 bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
+          <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M18 13V5a2 2 0 00-2-2H4a2 2 0 00-2 2v8a2 2 0 002 2h3l3 3 3-3h3a2 2 0 002-2zM5 7a1 1 0 011-1h8a1 1 0 110 2H6a1 1 0 01-1-1zm1 3a1 1 0 100 2h3a1 1 0 100-2H6z" clip-rule="evenodd"/>
+            </svg>
+            Review by {{ existingReview.reviewerName }}
+          </h3>
+          <div class="space-y-3">
+            <div class="flex items-center gap-4 text-sm">
+              <span class="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium"
+            [ngClass]="{
+              'bg-green-100 text-green-800 border border-green-300': existingReview.status === 'accepted',
+              'bg-red-100 text-red-800 border border-red-300': existingReview.status === 'rejected'
+            }">
+                {{ existingReview.status | titlecase }}
+              </span>
+              <span class="text-gray-600">{{ existingReview.reviewedAt | date:'medium' }}</span>
+            </div>
+            <div class="bg-gray-50 rounded-lg p-3 border-l-4 border-gray-300">
+              <p class="text-gray-900 whitespace-pre-line">{{ existingReview.reviewNotes }}</p>
+            </div>
+          </div>
+        </div>
+      }
+
+      <!-- Content Items -->
+      @if (submission && submission.contents && submission.contents.length > 0) {
+        <div class="prose-custom space-y-8">
+          @for (content of submission.contents; track content; let i = $index) {
+            <article class="content-section">
+              <!-- Content Title (if multiple items) -->
+              @if (submission.contents.length > 1) {
+                <h2 class="text-2xl sm:text-3xl font-serif font-bold text-gray-900 mb-6 pb-3 border-b border-gray-200">
+                  {{ i + 1 }}. {{ content.title }}
+                </h2>
+              }
+              
+              <!-- Content Metadata -->
+              <div class="flex flex-wrap gap-4 text-sm text-gray-600 mb-6">
+                <span class="flex items-center gap-1">
+                  <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd" />
+                  </svg>
+                  {{ content.createdAt | date:'MMMM d, y' }}
+                </span>
+                <span class="flex items-center gap-1">
+                  <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 0 100-2H7z" clip-rule="evenodd" />
+                  </svg>
+                  <span class="font-medium text-gray-800">{{ content.wordCount || getWordCount(content.body) }}</span> words
+                </span>
+              </div>
+              
+              <!-- Content Body -->
+              <div class="content-body reading-text mb-8"
+                style="font-size: 18px; line-height: 1.7; letter-spacing: 0.2px;"
+                [innerHTML]="cleanContent(content.body)">
+              </div>
+              
+              <!-- Tags -->
+              @if (content.tags && content.tags.length > 0) {
+                <div class="flex flex-wrap items-center gap-3 pt-6 border-t border-gray-200">
+                  <span class="text-sm font-medium text-gray-700">Tags:</span>
+                  @for (tag of content.tags; track tag) {
+                    @if (tag && tag.trim()) {
+                      <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-orange-500/10 text-orange-600 border border-orange-500/30">
+                        {{ tag }}
+                      </span>
+                    }
+                  }
+                </div>
+              }
+              @if (!content.tags || content.tags.length === 0) {
+                <div class="pt-6 border-t border-gray-200">
+                  <span class="text-sm text-gray-500 italic">No tags provided</span>
+                </div>
+              }
+            </article>
+          }
+        </div>
+      }
+
+      <!-- No Content Message -->
+      @if (submission && (!submission.contents || submission.contents.length === 0)) {
+        <div class="mt-6 text-center">
+          <div class="bg-yellow-50 border border-yellow-300 rounded-lg p-4">
+            <div class="flex items-center justify-center mb-2">
+              <svg class="w-6 h-6 text-yellow-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.998-.833-2.768 0L3.946 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+              </svg>
+              <h3 class="text-lg font-medium text-yellow-800">No Content Available</h3>
+            </div>
+            <p class="text-yellow-700">This submission doesn't have any content items to display.</p>
+          </div>
+        </div>
+      }
+    </div>
   </div>
 
   <!-- Desktop Container with Sidebar -->
-  <div class="hidden sm:block bg-gray-50 min-h-screen">
-    <div class="max-w-7xl mx-auto p-6">
-      <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+  <div class="hidden sm:block bg-white min-h-screen">
+    <div class="max-w-7xl mx-auto px-6 pt-4 pb-4">
+      <div class="grid grid-cols-12 gap-8 lg:gap-12">
 
         <!-- Main Content Area -->
-        <div class="lg:col-span-3">
-          <div class="bg-white rounded-lg shadow-sm p-6">
-            <!-- Simple Clean Header -->
-            <div class="border-b border-gray-200 pb-4 mb-6">
-              <!-- Title Row -->
-              <div class="mb-4">
-                <h1 class="text-2xl font-bold text-gray-900 mb-2">{{ submission?.title }}</h1>
-                @if (submission.description) {
-                  <p class="text-gray-600">{{ submission.description }}</p>
-                }
-              </div>
+        <main class="col-span-12 lg:col-span-8 xl:col-span-8">
+          <!-- Article Header -->
+          <header class="mb-4 relative sm:mt-8">
+            <!-- Title Row -->
+            <div class="mb-6">
+              <h1 class="text-2xl sm:text-4xl lg:text-5xl xl:text-6xl font-serif font-bold text-gray-900 leading-tight mb-2 sm:mb-4 mt-8 sm:mt-12">{{ submission?.title }}</h1>
+              @if (submission.description) {
+                <div class="mb-4 sm:mb-8">
+                  <p class="text-lg sm:text-xl text-gray-700 leading-relaxed font-light italic font-serif border-l-4 border-orange-500 pl-4 sm:pl-6">{{ submission.description }}</p>
+                </div>
+              }
+            </div>
 
-              <!-- Action Button Row -->
-              <div class="flex gap-3 mb-4">
-                @if (canStartReview()) {
-                  <button
-                    (click)="startReviewProcess()"
-                    [disabled]="isSubmitting"
-                    class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium">
-                    <span class="flex items-center gap-2">
-                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
-                      </svg>
-                      Start Review Process
-                    </span>
-                  </button>
-                }
-              </div>
+            <!-- Action Button Row -->
+            <div class="flex gap-3 mb-6">
+              @if (canStartReview()) {
+                <button
+                  (click)="startReviewProcess()"
+                  [disabled]="isSubmitting"
+                  class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium">
+                  <span class="flex items-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                    </svg>
+                    Start Review Process
+                  </span>
+                </button>
+              }
+            </div>
 
-              <!-- Author and Metadata Row -->
-              <div class="flex justify-between items-center mb-4">
-                <div class="text-gray-700">
-                  <span class="text-sm">by</span>
+            <!-- Author and Metadata -->
+            <div class="flex items-start justify-between mb-4 pb-4 sm:mb-8 sm:pb-8 border-b border-gray-200">
+              <div>
+                <div class="text-lg font-medium text-gray-900">
+                  <span>by</span>
                   @if (submission.userId) {
-                    <span class="font-semibold ml-1">{{ submission.userId.name }}</span>
+                    <span class="ml-1">{{ submission.userId.name }}</span>
                   }
                 </div>
-                <div class="flex items-center gap-3">
-                  <div class="flex items-center gap-2">
-                    <span class="px-3 py-1 rounded-full text-sm font-semibold" [ngClass]="getStatusBadgeClass()">
-                      {{ getStatusDisplayName() }}
-                    </span>
-                    <span class="text-sm text-gray-400">•</span>
-                    <span class="text-sm text-gray-600 font-medium">
-                      {{ submission.createdAt | date:'MMM d, yyyy' }}
-                    </span>
-                  </div>
-                  <app-status-badge [status]="submission.submissionType" size="sm"></app-status-badge>
-                  @if (submission.submissionType === 'opinion') {
-                    <app-status-badge
-                      status="featured"
-                      size="sm"
-                      [showIcon]="true">
-                    </app-status-badge>
-                  }
+                <div class="text-sm text-gray-600 mt-1">
+                  {{ submission.createdAt | date:'MMMM d, y' }}
                 </div>
               </div>
-
-              <!-- Utility Buttons -->
-              <div class="flex gap-3">
-                <button (click)="toggleHistory()"
-                  class="px-3 py-2 text-sm text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors font-medium shadow-sm">
-                  {{ showHistory ? 'Hide' : 'Show' }} History
-                </button>
-                <button (click)="goBackToPendingReviews()"
-                  class="px-3 py-2 text-sm text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors font-medium shadow-sm">
-                  Back to Reviews
-                </button>
+              <div class="text-right mr-4 flex flex-col items-end gap-2">
+                <span class="px-3 py-1 rounded-full text-sm font-semibold" [ngClass]="getStatusBadgeClass()">
+                  {{ getStatusDisplayName() }}
+                </span>
+                <app-status-badge [status]="submission.submissionType" size="sm"></app-status-badge>
+                @if (submission.submissionType === 'opinion') {
+                  <app-status-badge
+                    status="featured"
+                    size="sm"
+                    [showIcon]="true">
+                  </app-status-badge>
+                }
               </div>
             </div>
+
+            <!-- Utility Buttons -->
+            <div class="flex gap-3 mb-6">
+              <button (click)="toggleHistory()"
+                class="px-4 py-2 text-sm text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors font-medium">
+                {{ showHistory ? 'Hide' : 'Show' }} History
+              </button>
+              <button (click)="goBackToPendingReviews()"
+                class="px-4 py-2 text-sm text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors font-medium">
+                Back to Reviews
+              </button>
+            </div>
+          </header>
 
             <!-- Main Content Area (moved from shared container) -->
 
@@ -256,62 +401,76 @@
               </div>
             }
 
-            <!-- Content Items -->
+          <!-- Content Items -->
+          <div class="prose-custom">
             @if (submission && submission.contents && submission.contents.length > 0) {
-              <div class="space-y-6">
+              <div>
                 @for (content of submission.contents; track content; let i = $index) {
-                  <div
-                    class="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
-                    <!-- Content Header -->
-                    <div class="mb-4">
-                      <h2 class="text-xl font-semibold text-gray-900 mb-2">
+                  <article class="content-section mb-8 sm:mb-16">
+                    <!-- Content Title (if multiple items) -->
+                    @if (submission.contents.length > 1) {
+                      <h2 class="text-xl sm:text-2xl lg:text-3xl font-serif font-bold text-gray-900 mb-4 sm:mb-8 pb-2 sm:pb-4 border-b border-gray-200">
                         {{ i + 1 }}. {{ content.title }}
                       </h2>
-                      <div class="flex flex-wrap gap-4 text-sm text-gray-600">
-                        <span class="flex items-center gap-1">
-                          <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd" />
-                          </svg>
-                          {{ content.createdAt | date:'shortDate' }}
-                        </span>
-                        <span class="flex items-center gap-1">
-                          <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 0 100-2H7z" clip-rule="evenodd" />
-                          </svg>
-                          <span class="font-semibold text-gray-800">{{ content.wordCount || getWordCount(content.body) }}</span> words
-                        </span>
-                      </div>
+                    }
+                    
+                    <!-- Content Metadata -->
+                    <div class="flex flex-wrap gap-4 text-sm text-gray-600 mb-6">
+                      <span class="flex items-center gap-1">
+                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                          <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd" />
+                        </svg>
+                        {{ content.createdAt | date:'MMMM d, y' }}
+                      </span>
+                      <span class="flex items-center gap-1">
+                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                          <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 0 100-2H7z" clip-rule="evenodd" />
+                        </svg>
+                        <span class="font-medium text-gray-800">{{ content.wordCount || getWordCount(content.body) }}</span> words
+                      </span>
                     </div>
+                    
                     <!-- Content Body -->
-                    <div class="mb-4">
-                      <div class="bg-gray-50 rounded-lg p-6 border-l-4 border-orange-500">
-                        <div class="text-lg text-gray-900 font-serif leading-relaxed content-body"
-                          style="line-height: 1.8; letter-spacing: 0.3px;"
-                        [innerHTML]="cleanContent(content.body)"></div>
-                      </div>
+                    <div class="content-body reading-text mb-8"
+                      style="font-size: 18px; line-height: 1.7; letter-spacing: 0.2px;"
+                      [innerHTML]="cleanContent(content.body)">
                     </div>
+                    
                     <!-- Tags -->
                     @if (content.tags && content.tags.length > 0) {
-                      <div class="flex flex-wrap items-center gap-2 pt-4 border-t border-gray-100">
-                        <span class="text-sm font-medium text-gray-900">Tags:</span>
+                      <div class="flex flex-wrap items-center gap-3 mt-8 pt-6 border-t border-gray-200">
+                        <span class="text-sm text-gray-700 mr-2">Tags:</span>
                         @for (tag of content.tags; track tag) {
                           @if (tag && tag.trim()) {
-                            <app-badge-label
-                              [type]="tag">
-                            </app-badge-label>
+                            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-orange-500/10 text-orange-600 border border-orange-500/30">
+                              {{ tag }}
+                            </span>
                           }
                         }
                       </div>
                     }
                     @if (!content.tags || content.tags.length === 0) {
-                      <div class="pt-4 border-t border-gray-100">
+                      <div class="mt-8 pt-6 border-t border-gray-200">
                         <span class="text-sm text-gray-500 italic">No tags provided</span>
                       </div>
                     }
-                  </div>
+                  </article>
                 }
               </div>
+            } @else {
+              <div class="bg-white border border-gray-200 rounded-lg p-12 text-center">
+                <div class="w-16 h-16 mx-auto mb-4 bg-gray-100 rounded-full flex items-center justify-center">
+                  <svg class="w-8 h-8 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                </div>
+                <h3 class="text-lg font-semibold text-gray-900 mb-2">Content Not Available</h3>
+                <p class="text-gray-600 mb-4">
+                  The main content for this submission is currently not available.
+                </p>
+              </div>
             }
+          </div>
 
             <!-- No Content Message -->
             @if (submission && (!submission.contents || submission.contents.length === 0)) {
@@ -383,7 +542,7 @@
                       <button
                         (click)="setReviewAction('revision')"
                         [disabled]="isSubmitting"
-                        class="w-full sm:w-auto px-6 py-3 text-sm font-semibold text-orange-800 bg-orange-100 rounded-lg hover:bg-orange-200 transition-colors duration-200 disabled:opacity-50 flex items-center gap-2 shadow-sm hover:shadow-md">
+                        class="w-full sm:w-auto px-6 py-3 text-sm font-semibold text-orange-800 bg-orange-100 rounded-lg hover:bg-orange-100 transition-colors duration-200 disabled:opacity-50 flex items-center gap-2 shadow-sm hover:shadow-md">
                         @if (!isSubmitting) {
                           <span class="flex items-center gap-2">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -579,12 +738,14 @@
                 </div>
               </div>
             }
-          </div>
-        </div>
+        </main>
 
         <!-- Analysis Sidebar -->
-        <div class="lg:col-span-1">
-          <div class="bg-white rounded-lg shadow-sm p-6 sticky top-6">
+        <aside class="col-span-12 lg:col-span-4 xl:col-span-4 relative">
+          <!-- Vertical separator line -->
+          <div class="hidden lg:block absolute left-0 top-0 bottom-0 w-px bg-gray-200"></div>
+          
+          <div class="sticky top-24 lg:pl-8">
             <app-analysis-panel
               [submission]="submission"
               [analysisData]="analysisData"
@@ -592,6 +753,10 @@
               [isAnalysisEnabled]="isAnalysisEnabled"
               (analyze)="analyzeSubmission()">
             </app-analysis-panel>
+          </div>
+        </aside>
+      </div>
+    </div>
   </div>
 
   <!-- Shared Content for Mobile (analysis popup) -->

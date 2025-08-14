@@ -4,13 +4,15 @@ import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { BackendService } from '../../../services/backend.service';
 import { HtmlSanitizerService } from '../../../services/html-sanitizer.service';
-import { PublishedContentCardComponent, PublishedContent } from '../../../utilities/published-content-card/published-content-card.component';
+import { PublishedContent } from '../../../utilities/published-content-card/published-content-card.component';
 import { PrettyLabelPipe } from '../../../pipes/pretty-label.pipe';
 import { TypeBadgePipe } from '../../../pipes/type-badge.pipe';
+import { AdminPageHeaderComponent, AdminPageStat } from '../../../shared/components/admin-page-header/admin-page-header.component';
+
 
 @Component({
   selector: 'app-published-posts',
-  imports: [CommonModule, DatePipe, TitleCasePipe, FormsModule, PrettyLabelPipe, TypeBadgePipe],
+  imports: [CommonModule, DatePipe, TitleCasePipe, FormsModule, PrettyLabelPipe, TypeBadgePipe, AdminPageHeaderComponent],
   templateUrl: './published-posts.component.html',
   styleUrl: './published-posts.component.css'
 })
@@ -59,17 +61,9 @@ export class PublishedPostsComponent implements OnInit {
         this.totalCount = data.total || 0;
         this.totalPages = Math.ceil(this.totalCount / this.itemsPerPage);
         this.hasMore = data.pagination?.hasMore || false;
-        
-        console.log('Published/Draft submissions loaded:', {
-          count: this.publishedSubmissions.length,
-          page: this.currentPage,
-          total: this.totalCount,
-          pages: this.totalPages
-        });
         this.loading = false;
       },
       error: (err) => {
-        console.error('Error loading published submissions:', err);
         this.showError('Failed to load published submissions');
         this.loading = false;
       }
@@ -107,7 +101,6 @@ export class PublishedPostsComponent implements OnInit {
         }
       },
       error: (err) => {
-        console.error('Error unpublishing submission:', err);
         this.showError('Failed to unpublish submission');
       }
     });
@@ -130,7 +123,6 @@ export class PublishedPostsComponent implements OnInit {
         this.loadPublishedSubmissions(); // Refresh the list
       },
       error: (err) => {
-        console.error('Error deleting submission:', err);
         this.showError('Failed to delete submission');
       }
     });
@@ -306,4 +298,5 @@ export class PublishedPostsComponent implements OnInit {
     const cleanDesc = this.getCleanDescription(submission);
     return this.htmlSanitizer.truncateText(cleanDesc, maxLength);
   }
+
 }

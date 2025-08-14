@@ -83,13 +83,11 @@ export class ExploreComponent implements OnInit {
       event.preventDefault();
     }
     // Navigate to tag page
-    console.log('Tag clicked in explore:', tag); // Debug log
     this.router.navigate(['/tag', tag]);
   }
 
   onAuthorClick(author: any) {
     // Navigate to author profile
-    console.log('View author:', author);
     // You can implement navigation to author profile here
   }
 
@@ -115,7 +113,6 @@ export class ExploreComponent implements OnInit {
     this.selectedType = type;
     this.currentPage = 1; // Reset to first page when filtering
     
-    console.log('🔍 Fetching published content, type:', type);
     
     this.loadPublishedSubmissions(type);
   }
@@ -137,31 +134,25 @@ export class ExploreComponent implements OnInit {
       // Get popular content (you can modify this to use view counts, likes, etc.)
       this.backendService.getPublishedContent('', params).subscribe(
         (data) => {
-          console.log('📦 Received popular data:', data);
-          console.log('📦 Number of submissions:', data.submissions?.length || 0);
           
           // For the first page, replace submissions; for subsequent pages, you could append for "load more" style
           this.submissions = data.submissions || [];
           this.totalItems = data.total || 0;
           this.totalPages = Math.ceil(this.totalItems / this.itemsPerPage);
           
-          console.log('📊 Pagination info:', { totalItems: this.totalItems, totalPages: this.totalPages, currentPage: this.currentPage });
         },
-        (error) => console.error("Error fetching submissions", error)
+        (error) => {}
       );
     } else {
       this.backendService.getPublishedContent(type, params).subscribe(
         (data) => {
-          console.log('📦 Received content data:', data);
-          console.log('📦 Number of submissions:', data.submissions?.length || 0);
           
           this.submissions = data.submissions || [];
           this.totalItems = data.total || 0;
           this.totalPages = Math.ceil(this.totalItems / this.itemsPerPage);
           
-          console.log('📊 Pagination info:', { totalItems: this.totalItems, totalPages: this.totalPages, currentPage: this.currentPage });
         },
-        (error) => console.error("Error fetching submissions", error)
+        (error) => {}
       );
     }
   }
@@ -177,7 +168,6 @@ export class ExploreComponent implements OnInit {
         this.isSearching = false;
       },
       (error) => {
-        console.error('Error searching submissions:', error);
         this.isSearching = false;
         this.showSearchResults = false;
       }
@@ -210,19 +200,13 @@ export class ExploreComponent implements OnInit {
   }
 
   openSubmission(submission: any) {
-    console.log('🚀 openSubmission called with:', submission.title);
-    console.log('🔗 slug:', submission.slug);
-    console.log('🔗 seo.slug:', submission.seo?.slug);
     
     // Navigate to the reading interface with SEO slug or fallback to ID
     if (submission.slug) {
-      console.log('✅ Navigating to /post/' + submission.slug);
       this.router.navigate(['/post', submission.slug]);
     } else if (submission.seo?.slug) {
-      console.log('✅ Navigating to /post/' + submission.seo.slug);
       this.router.navigate(['/post', submission.seo.slug]);
     } else {
-      console.log('❌ No slug found, using ID fallback');
       this.router.navigate(['/read', submission._id]);
     }
   }

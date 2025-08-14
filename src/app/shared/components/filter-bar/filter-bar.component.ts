@@ -206,7 +206,7 @@ export class FilterBarComponent implements OnInit {
         yellow: 'border-yellow-300 bg-yellow-100 text-yellow-800 hover:bg-yellow-200',
         red: 'border-red-300 bg-red-100 text-red-800 hover:bg-red-200',
         purple: 'border-purple-300 bg-purple-100 text-purple-800 hover:bg-purple-200',
-        orange: 'border-orange-300 bg-orange-100 text-orange-800 hover:bg-orange-200'
+        orange: 'border-orange-300 bg-orange-100 text-orange-800 hover:bg-orange-100'
       };
       return colorMap[color];
     }

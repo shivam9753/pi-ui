@@ -4,12 +4,13 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ContentCardComponent, ContentCardData } from '../../../shared/components/content-card/content-card.component';
-import { FilterBarComponent, FilterConfig, FilterState, QuickFilterConfig } from '../../../shared/components/filter-bar/filter-bar.component';
+import { AdminPageHeaderComponent, AdminPageStat } from '../../../shared/components/admin-page-header/admin-page-header.component';
 import { BackendService } from '../../../services/backend.service';
+import { AuthorService } from '../../../services/author.service';
 
 @Component({
   selector: 'app-pending-reviews',
-  imports: [ContentCardComponent, CommonModule, FormsModule, FilterBarComponent],
+  imports: [ContentCardComponent, CommonModule, FormsModule, AdminPageHeaderComponent],
   templateUrl: './pending-reviews.component.html',
   styleUrl: './pending-reviews.component.css'
 })
@@ -22,8 +23,19 @@ export class PendingReviewsComponent implements OnInit {
   hasMore: boolean = false;
   loading: boolean = false;
 
+  // New component properties
+  headerStats: AdminPageStat[] = [];
+  currentSearch = '';
+  currentStatus = '';
+  currentType = '';
+  currentAuthor = '';
+  fromDate = '';
+  toDate = '';
+  lengthFilter = '';
+  activeQuickFilters: string[] = [];
+
   // Enhanced filtering options
-  filters: FilterState = {
+  filters: any = {
     type: '',
     status: '', // 'pending_review' or 'in_progress' or both
     search: '',
@@ -36,7 +48,7 @@ export class PendingReviewsComponent implements OnInit {
   };
 
   // Filter configuration for FilterBarComponent
-  filterConfigs: FilterConfig[] = [
+  filterConfigs: any[] = [
     {
       key: 'search',
       label: 'Search',
@@ -98,7 +110,7 @@ export class PendingReviewsComponent implements OnInit {
   ];
 
   // Quick filters configuration
-  quickFilters: QuickFilterConfig[] = [
+  quickFilters: any[] = [
     {
       key: 'urgent',
       label: 'Urgent',
@@ -164,12 +176,10 @@ export class PendingReviewsComponent implements OnInit {
 
   showAdvancedFilters = false;
 
-  // Quick filter chips state
-  activeQuickFilters: string[] = [];
-
   constructor(
     private backendService: BackendService,
-    private router: Router
+    private router: Router,
+    private authorService: AuthorService
   ) {
     
   }
@@ -194,7 +204,6 @@ export class PendingReviewsComponent implements OnInit {
         this.loading = false;
       },
       (error) => {
-        console.error('Error fetching pending reviews:', error);
         this.loading = false;
       }
     );
@@ -229,7 +238,7 @@ export class PendingReviewsComponent implements OnInit {
   }
 
   // Handle filter changes from FilterBarComponent
-  onFiltersChange(newFilters: FilterState) {
+  onFiltersChange(newFilters: any) {
     this.filters = { ...this.filters, ...newFilters };
     this.loadSubmissions(1);
   }
@@ -242,7 +251,6 @@ export class PendingReviewsComponent implements OnInit {
 
   // Handle quick filter toggle from FilterBarComponent
   onQuickFilterToggle(event: {key: string, active: boolean}) {
-    console.log('Quick filter toggle:', event);
     
     // Update active quick filters array
     if (event.active) {
@@ -263,20 +271,6 @@ export class PendingReviewsComponent implements OnInit {
     }
   }
 
-  clearFilters() {
-    this.filters = {
-      type: '',
-      status: '',
-      search: '',
-      authorType: '',
-      wordLength: '',
-      dateFrom: '',
-      dateTo: '',
-      sortBy: 'createdAt',
-      sortOrder: 'desc'
-    };
-    this.loadSubmissions(1);
-  }
 
   toggleAdvancedFilters() {
     this.showAdvancedFilters = !this.showAdvancedFilters;
@@ -285,12 +279,11 @@ export class PendingReviewsComponent implements OnInit {
   moveToProgress(submissionId: string) {
     this.backendService.moveSubmissionToProgress(submissionId, 'Moving to in progress for detailed review').subscribe(
       (response) => {
-        console.log('Submission moved to progress:', response);
         // Refresh the list
         this.loadSubmissions(this.currentPage);
       },
       (error) => {
-        console.error('Error moving submission to progress:', error);
+        // Error moving submission to progress
       }
     );
   }
@@ -329,13 +322,7 @@ export class PendingReviewsComponent implements OnInit {
       title: submission.title,
       description: submission.description || submission.excerpt,
       excerpt: submission.excerpt,
-      author: submission.userId ? { 
-        name: submission.userId.name || submission.userId.username || 'Unknown', 
-        username: submission.userId.username || ''
-      } : submission.submitterName ? { 
-        name: submission.submitterName,
-        username: submission.submitterName
-      } : undefined,
+      author: this.authorService.normalizeAuthor(submission),
       submissionType: submission.submissionType,
       status: submission.status,
       createdAt: submission.createdAt,
@@ -380,7 +367,6 @@ export class PendingReviewsComponent implements OnInit {
 
   private applyQuickFilterLogic(filterType: string, active?: boolean) {
     const isActive = active !== undefined ? active : this.activeQuickFilters.includes(filterType);
-    console.log('Applying quick filter logic:', filterType, 'active:', isActive);
     
     switch (filterType) {
       case 'urgent':
@@ -403,8 +389,6 @@ export class PendingReviewsComponent implements OnInit {
         this.filters['wordLength'] = isActive ? 'quick' : '';
         break;
     }
-    
-    console.log('Updated filters:', this.filters);
   }
 
   getQuickFilterClass(filterType: string): string {
@@ -435,4 +419,9 @@ export class PendingReviewsComponent implements OnInit {
 
   // Make Math available in template
   Math = Math;
+
+  // New methods for mobile-optimized filters
+  onRefresh(): void {
+    this.loadSubmissions(this.currentPage);
+  }
 }

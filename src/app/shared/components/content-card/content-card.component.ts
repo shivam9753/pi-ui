@@ -1,15 +1,13 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Author } from '../../../models';
 
 export interface ContentCardData {
   id: string;
   title: string;
   description?: string;
   excerpt?: string;
-  author?: {
-    name: string;
-    username: string;
-  };
+  author?: Author;
   submissionType: string;
   status?: string;
   createdAt: string;
@@ -20,6 +18,9 @@ export interface ContentCardData {
   isFeatured?: boolean;
   slug?: string;
   wordCount?: number;
+  viewCount?: number;
+  recentViews?: number;
+  windowStartTime?: string;
 }
 
 @Component({
@@ -27,7 +28,7 @@ export interface ContentCardData {
   standalone: true,
   imports: [CommonModule],
   template: `
-    <div class="bg-white rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 border border-gray-200 overflow-hidden group"
+    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 border border-gray-200 dark:border-gray-700 overflow-hidden group"
       [ngClass]="{ 'ring-2 ring-orange-400 shadow-orange-100': isFeatured }"
       style="min-height: 320px;">
     
@@ -48,6 +49,13 @@ export interface ContentCardData {
         <!-- Header with Type and Status -->
         <div class="flex items-center justify-between mb-4">
           <div class="flex items-center gap-2">
+            <!-- Trending Badge -->
+            @if (isTrending()) {
+              <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-gradient-to-r from-orange-500 to-red-500 text-white animate-pulse">
+                🔥 Trending
+              </span>
+            }
+            
             <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold"
               [ngClass]="getTypeClasses()">
               {{ getTypeLabel() }}
@@ -55,7 +63,7 @@ export interface ContentCardData {
             
             <!-- Word Count for Opinion pieces -->
             @if (isOpinionPiece() && content.wordCount) {
-              <span class="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-amber-100 text-amber-800 border border-amber-200">
+              <span class="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-amber-100 text-amber-800 border border-amber-200 dark:bg-amber-900/30 dark:text-amber-300 dark:border-amber-700">
                 {{ content.wordCount }} words
               </span>
             }
@@ -71,7 +79,7 @@ export interface ContentCardData {
         </div>
     
         <!-- Title -->
-        <h3 class="text-lg font-bold text-gray-900 mb-3 line-clamp-2 group-hover:text-orange-600 transition-colors duration-200"
+        <h3 class="ext-lg font-bold text-gray-900 dark:text-gray-100 mb-3 line-clamp-2 min-h-[3rem] group-hover:text-orange-600 dark:group-hover:text-orange-400 transition-colors duration-200"
           [class.cursor-pointer]="clickable"
           (click)="onTitleClick()">
           {{ content.title }}
@@ -84,21 +92,16 @@ export interface ContentCardData {
               {{ getAuthorInitials() }}
             </div>
             <div>
-              <div class="text-sm font-medium text-gray-900">
-                {{ content.author.name || content.author.username || 'Anonymous' }}
+              <div class="text-sm font-medium text-gray-900 dark:text-gray-100">
+                {{ content.author.name || 'Anonymous' }}
               </div>
-              @if (content.author.name && content.author.username && content.author.name !== content.author.username) {
-                <div class="text-xs text-gray-500">
-                  {{ '@' + content.author.username }}
-                </div>
-              }
             </div>
           </div>
         }
     
         <!-- Description/Excerpt -->
         @if (content.description || content.excerpt) {
-          <p class="text-gray-600 text-sm mb-4 line-clamp-3 leading-relaxed">
+          <p class="text-gray-600 dark:text-gray-300 text-sm mb-4 leading-relaxed line-clamp-3 min-h-[4.875rem]">
             {{ sanitizeHtml(content.description || content.excerpt) }}
           </p>
         }
@@ -108,13 +111,13 @@ export interface ContentCardData {
           <div class="flex flex-wrap gap-1 mb-4">
             @for (tag of content.tags.slice(0, 2); track tag) {
               <span
-                class="inline-flex items-center px-2 py-1 rounded-md text-xs bg-gray-100 text-gray-700 hover:bg-gray-200 transition-colors">
+                class="inline-flex items-center px-2 py-1 rounded-md text-xs bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600 transition-colors">
                 #{{ tag }}
               </span>
             }
             @if (content.tags.length > 2) {
               <span
-                class="text-xs text-gray-400 px-2 py-1">
+                class="text-xs text-gray-400 dark:text-gray-500 px-2 py-1">
                 +{{ content.tags.length - 2 }} more
               </span>
             }
@@ -122,7 +125,7 @@ export interface ContentCardData {
         }
     
         <!-- Footer -->
-        <div class="flex items-center justify-between text-sm text-gray-500 pt-3 border-t border-gray-100">
+        <div class="flex items-center justify-between text-sm text-gray-500 dark:text-gray-400 pt-3 border-t border-gray-100 dark:border-gray-700">
           <div class="flex items-center space-x-3">
             <!-- Reading Time -->
             @if (content.readingTime) {
@@ -131,6 +134,17 @@ export interface ContentCardData {
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                 </svg>
                 {{ content.readingTime }}m
+              </span>
+            }
+            
+            <!-- View Count -->
+            @if (content.viewCount) {
+              <span class="flex items-center">
+                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                </svg>
+                {{ formatNumber(content.viewCount) }}
               </span>
             }
             
@@ -146,7 +160,7 @@ export interface ContentCardData {
     
         <!-- Action Buttons -->
         @if (showActions && actions.length > 0) {
-          <div class="flex items-center justify-end space-x-2 mt-4 pt-4 border-t border-gray-100">
+          <div class="flex items-center justify-end space-x-2 mt-4 pt-4 border-t border-gray-100 dark:border-gray-700">
             @for (action of actions; track action) {
               <button
                 (click)="action.handler(content)"
@@ -219,17 +233,17 @@ export class ContentCardComponent {
   getTypeClasses(): string {
     switch (this.content.submissionType) {
       case 'poem':
-        return 'bg-purple-100 text-purple-800';
+        return 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300';
       case 'story':
-        return 'bg-green-100 text-green-800';
+        return 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300';
       case 'article':
-        return 'bg-blue-100 text-blue-800';
+        return 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300';
       case 'quote':
-        return 'bg-yellow-100 text-yellow-800';
+        return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300';
       case 'cinema_essay':
-        return 'bg-red-100 text-red-800';
+        return 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300';
       default:
-        return 'bg-gray-100 text-gray-800';
+        return 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200';
     }
   }
 
@@ -250,19 +264,19 @@ export class ContentCardComponent {
   getStatusClasses(): string {
     switch (this.content.status) {
       case 'pending_review':
-        return 'bg-yellow-100 text-yellow-800';
+        return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300';
       case 'in_progress':
-        return 'bg-blue-100 text-blue-800';
+        return 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300';
       case 'accepted':
-        return 'bg-green-100 text-green-800';
+        return 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300';
       case 'rejected':
-        return 'bg-red-100 text-red-800';
+        return 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300';
       case 'needs_revision':
-        return 'bg-orange-100 text-orange-800';
+        return 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300';
       case 'published':
-        return 'bg-emerald-100 text-emerald-800';
+        return 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300';
       default:
-        return 'bg-gray-100 text-gray-800';
+        return 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200';
     }
   }
 
@@ -294,17 +308,45 @@ export class ContentCardComponent {
   getAuthorInitials(): string {
     if (!this.content.author) return '?';
     
-    const name = this.content.author.name || this.content.author.username || 'Anonymous';
+    const name = this.content.author.name || 'Anonymous';
     const words = name.split(' ');
     
     if (words.length === 1) {
       return words[0].charAt(0).toUpperCase();
     }
     
-    return words.slice(0, 2).map(word => word.charAt(0).toUpperCase()).join('');
+    return words.slice(0, 2).map((word: string) => word.charAt(0).toUpperCase()).join('');
   }
 
   isOpinionPiece(): boolean {
     return this.content.submissionType === 'article' || this.content.submissionType === 'opinion';
+  }
+
+  /**
+   * Check if content is trending based on recent views
+   */
+  isTrending(): boolean {
+    if (!this.content.recentViews || !this.content.viewCount) return false;
+    
+    // Consider trending if:
+    // 1. Has at least 10 recent views, AND
+    // 2. Recent views are at least 30% of total views
+    const minRecentViews = 10;
+    const trendingThreshold = 0.3;
+    
+    return this.content.recentViews >= minRecentViews && 
+           (this.content.recentViews / this.content.viewCount) >= trendingThreshold;
+  }
+
+  /**
+   * Format large numbers (1234 -> 1.2k, 1000000 -> 1M)
+   */
+  formatNumber(num: number): string {
+    if (num >= 1000000) {
+      return (num / 1000000).toFixed(1).replace(/\.0$/, '') + 'M';
+    } else if (num >= 1000) {
+      return (num / 1000).toFixed(1).replace(/\.0$/, '') + 'k';
+    }
+    return num.toString();
   }
 }

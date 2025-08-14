@@ -326,7 +326,6 @@ export class RichTextEditorComponent implements ControlValueAccessor, AfterViewI
       }
       
     } catch (error: any) {
-      console.error('Image upload failed:', error);
       let errorMessage = 'Failed to upload image. Please try again.';
       
       if (error.status === 401) {

@@ -5,6 +5,7 @@ import { RouterModule } from '@angular/router';
 import { PrettyLabelPipe } from '../pipes/pretty-label.pipe';
 import { TypeBadgePipe } from '../pipes/type-badge.pipe';
 import { HtmlSanitizerService } from '../services/html-sanitizer.service';
+import { Author, AuthorUtils } from '../models';
 
 export interface CardData {
   _id?: string;
@@ -13,6 +14,8 @@ export interface CardData {
   submissionType: string;
   excerpt?: string;
   description?: string;
+  author?: Author; // Standardized author info
+  // Legacy fields for backward compatibility
   submitterName?: string;
   authorName?: string;
   reviewerName?: string;
@@ -66,13 +69,29 @@ export class SubmissionCardComponent {
     this.badgeClicked.emit(this.data.submissionType);
   }
 
+  getAuthor(): Author {
+    // If we have standardized author data, use it
+    if (this.data.author) {
+      return this.data.author;
+    }
+    // Otherwise, normalize from legacy fields
+    return AuthorUtils.normalizeAuthor(this.data);
+  }
+
   getAuthorInitial(): string {
-    const authorName = this.data.submitterName || this.data.authorName || 'Unknown';
-    return authorName.charAt(0)?.toUpperCase() || 'U';
+    return AuthorUtils.getInitials(this.getAuthor());
   }
 
   getAuthorName(): string {
-    return this.data.submitterName || this.data.authorName || 'Anonymous';
+    return this.getAuthor().name;
+  }
+
+  getAuthorProfileUrl(): string {
+    return AuthorUtils.getProfileUrl(this.getAuthor());
+  }
+
+  hasAuthorProfileImage(): boolean {
+    return AuthorUtils.hasProfileImage(this.getAuthor());
   }
 
 

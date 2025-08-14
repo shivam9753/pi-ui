@@ -3,68 +3,13 @@ import { HttpClient, HttpHeaders, HttpParams, HttpErrorResponse } from '@angular
 import { Observable, throwError } from 'rxjs';
 import { tap, catchError, timeout, retry } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
-
-export interface UpdateStatusPayload {
-  status: 'accepted' | 'rejected';
-  reviewerId?: string;
-  reviewNotes?: string;
-}
-
-export interface UserProfile {
-  _id: string;
-  username: string;
-  name?: string;
-  email: string;
-  bio?: string;
-  profileImage?: string;
-  role: 'user' | 'reviewer' | 'admin';
-  socialLinks?: {
-    website?: string;
-    twitter?: string;
-    instagram?: string;
-    linkedin?: string;
-  };
-  stats: {
-    totalPublished: number;
-    totalViews: number;
-    totalLikes: number;
-    followers: number;
-    following: number;
-  };
-  preferences: {
-    showEmail: boolean;
-    showStats: boolean;
-    allowMessages: boolean;
-  };
-  createdAt: string;
-  updatedAt: string;
-  // Additional computed fields from aggregation
-  totalSubmissions?: number;
-  acceptedSubmissions?: number;
-  pendingSubmissions?: number;
-  rejectedSubmissions?: number;
-}
-
-export interface PublishedWork {
-  _id: string;
-  title: string;
-  submissionType: string;
-  publishedAt: string;
-  viewCount: number;
-  likeCount: number;
-  commentCount: number;
-  excerpt: string;
-  readingTime: number;
-  tags: string[];
-  imageUrl?: string;
-  content?: string;
-  slug?: string;
-  seo?: {
-    slug: string;
-    metaTitle?: string;
-    metaDescription?: string;
-  };
-}
+import {
+  UpdateStatusPayload,
+  UserProfile,
+  PublishedWork,
+  UploadResponse,
+  ApiResponse
+} from '../models';
 
 
 @Injectable({
@@ -282,7 +227,6 @@ export class BackendService {
     formData.append('image', imageFile);
     
     return this.http.post(`${this.API_URL}/submissions/${submissionId}/upload-image`, formData, { headers }).pipe(
-      tap(response => console.log('✅ Image uploaded successfully:', response)),
       catchError(this.handleError)
     );
   }
@@ -293,11 +237,8 @@ export class BackendService {
       'Authorization': `Bearer ${jwtToken}`
     });
     
-    console.log('🗑️ Deleting image for submission:', submissionId);
-    console.log('📤 URL:', `${this.API_URL}/submissions/${submissionId}/image`);
     
     return this.http.delete(`${this.API_URL}/submissions/${submissionId}/image`, { headers }).pipe(
-      tap(response => console.log('✅ Image deleted successfully:', response)),
       catchError(this.handleError)
     );
   }
@@ -491,9 +432,6 @@ export class BackendService {
       'Content-Type': 'application/json'
     });
     
-    console.log('🔄 Updating status to:', status);
-    console.log('📤 URL:', `${this.API_URL}/submissions/${submissionId}/status`);
-    console.log('🔑 Auth header:', headers.get('Authorization'));
     
     return this.http.patch(
       `${this.API_URL}/submissions/${submissionId}/status`, 
@@ -516,15 +454,12 @@ export class BackendService {
   }): Observable<any> {
     const headers = this.getAuthHeaders();
     
-    console.log('🔄 Publishing with SEO config:', seoData);
-    console.log('📤 URL:', `${this.API_URL}/submissions/${submissionId}/publish-with-seo`);
     
     return this.http.post(
       `${this.API_URL}/submissions/${submissionId}/publish-with-seo`, 
       seoData, 
       { headers }
     ).pipe(
-      tap(response => console.log('✅ Published successfully:', response)),
       catchError(this.handleError)
     );
   }
@@ -544,11 +479,8 @@ export class BackendService {
 
   // Get submission by SEO slug
   getSubmissionBySlug(slug: string): Observable<any> {
-    console.log('🔍 Fetching submission by slug:', slug);
-    console.log('📤 URL:', `${this.API_URL}/submissions/by-slug/${slug}`);
     
     return this.http.get(`${this.API_URL}/submissions/by-slug/${slug}`).pipe(
-      tap(response => console.log('✅ Submission loaded by slug:', response)),
       catchError(this.handleError)
     );
   }
@@ -817,10 +749,8 @@ approveUserProfileImage(userId: string): Observable<any> {
 // Get user's submissions with status tracking
 getUserSubmissions(): Observable<any> {
   const headers = this.getAuthHeaders();
-  console.log('Getting user submissions with headers:', headers.keys());
   return this.http.get<any>(`${this.API_URL}/submissions/user/me`, { headers }).pipe(
     catchError(error => {
-      console.error('getUserSubmissions error:', error);
       return throwError(() => error);
     })
   );

@@ -1,73 +1,35 @@
 <!-- Manage Prompts Tab Content -->
 <div class="w-full">
 
-  <div class="flex justify-between items-start mb-4 header-section">
-    <div>
-      <h1 class="text-2xl font-bold text-gray-900 mb-2">Manage Prompts</h1>
-      <p class="text-gray-600" >Create, edit, and manage writing prompts</p>
-    </div>
-    <button
-      (click)="createPrompt()"
-      class="btn-primary">
-      <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-      </svg>
-      Create Prompt
-    </button>
-  </div>
-
-  <!-- Filters -->
-  <div class="bg-white border border-gray-200 rounded-lg p-4">
-    <h3 class="text-lg font-semibold text-gray-900 mb-4">Filters</h3>
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-
-      <!-- Search -->
-      <div>
-        <label class="block text-sm font-medium text-gray-900-secondary mb-2">Search</label>
-        <input
-          type="text"
-          [(ngModel)]="manageSearch"
-          (ngModelChange)="onFilterChange()"
-          placeholder="Search title or description..."
-          class="form-input"
-          />
+  <!-- Standardized Header with Create Button -->
+  <div class="border-b border-gray-200 pb-6 mb-8">
+    <div class="flex items-center justify-between mb-4">
+      <div class="flex-1">
+        <h1 class="text-2xl md:text-3xl font-bold text-gray-900 mb-2">
+          Manage Prompts
+        </h1>
+        <p class="text-gray-900-secondary">
+          Create, edit, and manage writing prompts
+        </p>
       </div>
-
-      <!-- Type Filter -->
-      <div>
-        <label class="block text-sm font-medium text-gray-900-secondary mb-2">Type</label>
-        <select
-          [(ngModel)]="manageType"
-          (ngModelChange)="onFilterChange()"
-          class="form-input"
-          >
-          <option value="">All Types</option>
-          <option value="poem">Poem</option>
-          <option value="prose">Prose</option>
-          <option value="article">Article</option>
-          <option value="cinema_essay">Cinema Essay</option>
-        </select>
-      </div>
-
-      <!-- Status Filter -->
-      <div>
-        <label class="block text-sm font-medium text-gray-900-secondary mb-2">Status</label>
-        <select
-          [(ngModel)]="manageStatus"
-          (ngModelChange)="onFilterChange()"
-          class="form-input"
-          >
-          <option value="all">All</option>
-          <option value="active">Active</option>
-          <option value="inactive">Inactive</option>
-        </select>
-      </div>
-
-      <!-- Results Count -->
-      <div class="flex items-end">
-        <div class="text-sm text-gray-900-secondary">
-          Showing {{ paginatedPrompts.length }} of {{ totalItems }} prompts
-        </div>
+      <div class="flex items-center gap-3">
+        <button
+          (click)="refreshPrompts()"
+          class="btn-secondary flex items-center gap-2"
+          [disabled]="loading">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+          </svg>
+          Refresh
+        </button>
+        <button
+          (click)="createPrompt()"
+          class="btn-primary flex items-center gap-2">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+          </svg>
+          Create Prompt
+        </button>
       </div>
     </div>
   </div>

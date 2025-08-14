@@ -4,9 +4,6 @@ import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
 import { HeaderComponent } from './header/header.component';
 import { FooterComponent } from './footer/footer.component';
 import { AuthService } from './services/auth.service';
-import { LoaderComponent } from './shared/loader/loader.component';
-import { ModernLoaderComponent } from './shared/loader/modern-loader.component';
-import { WaveLoaderComponent } from './shared/loader/wave-loader.component';
 import { BreathingLoaderComponent } from './shared/loader/breathing-loader.component';
 
 @Component({

@@ -50,7 +50,6 @@ export class CategoryComponent implements OnInit {
         this.loading = false;
       },
       error: (error) => {
-        console.error('Error loading category content:', error);
         this.submissions = [];
         this.loading = false;
       }

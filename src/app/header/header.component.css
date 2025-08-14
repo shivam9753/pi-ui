@@ -7,3 +7,29 @@
     display: none !important;
   }
 }
+
+/* Ensure navigation items use proper themed colors and no unwanted backgrounds */
+nav button, nav a {
+  background: transparent !important;
+}
+
+nav button:hover, nav a:hover {
+  background: transparent !important;
+}
+
+/* Ensure no default button styling interferes */
+button {
+  background: none;
+  border: none;
+}
+
+/* Remove any focus outlines that might interfere */
+button:focus, a:focus {
+  outline: none;
+  box-shadow: none;
+}
+
+/* Ensure active states don't have unwanted backgrounds */
+button:active, a:active {
+  background: transparent !important;
+}

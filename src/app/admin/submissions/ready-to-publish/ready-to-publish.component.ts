@@ -36,8 +36,6 @@ export class ReadyToPublishComponent {
     
     // Check if we have a valid JWT token
     const jwtToken = localStorage.getItem('jwt_token');
-    console.log('JWT Token exists:', !!jwtToken);
-    console.log('JWT Token length:', jwtToken?.length || 0);
     
 
     
@@ -49,14 +47,11 @@ export class ReadyToPublishComponent {
       order: 'desc'
     }).subscribe({
       next: (data) => {
-        console.log('API Response:', data);
         // Handle optimized response structure
         this.acceptedSubmissions = data.submissions || [];
-        console.log('Accepted submissions loaded:', this.acceptedSubmissions.length);
         this.loading = false;
       },
       error: (err) => {
-        console.error('Error loading submissions:', err);
         this.showError('Failed to load submissions');
         this.loading = false;
       }
@@ -100,8 +95,9 @@ export class ReadyToPublishComponent {
       description: submission.description || submission.excerpt,
       excerpt: submission.excerpt,
       author: submission.userId ? { 
-        name: submission.userId.name || submission.userId.username || 'Unknown', 
-        username: submission.userId.username || ''
+        id: submission.userId._id || submission.userId.id || 'unknown',
+        name: submission.userId.name || submission.userId.username || 'Unknown',
+        profileImage: submission.userId.profileImage
       } : undefined,
       submissionType: submission.submissionType,
       status: submission.status,

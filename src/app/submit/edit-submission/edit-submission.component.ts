@@ -130,16 +130,12 @@ export class EditSubmissionComponent implements OnInit {
   }
 
   loadSubmission() {
-    console.log('Loading submission with ID:', this.submissionId);
     this.backendService.getSubmissionWithContents(this.submissionId).subscribe({
       next: (data: any) => {
-        console.log('Received submission data:', data);
         this.submission = data;
         this.populateForm(data);
       },
       error: (error: any) => {
-        console.error('Error loading submission:', error);
-        console.error('Full error object:', error);
         let errorMessage = 'Error loading submission. Please try again.';
         
         if (error.status === 404) {
@@ -157,8 +153,6 @@ export class EditSubmissionComponent implements OnInit {
   }
 
   populateForm(submission: EditableSubmission) {
-    console.log('Populating form with submission:', submission);
-    console.log('Submission contents:', submission.contents);
     
     this.form.patchValue({
       title: submission.title,
@@ -171,9 +165,7 @@ export class EditSubmissionComponent implements OnInit {
     contentsArray.clear();
 
     if (submission.contents && submission.contents.length > 0) {
-      console.log('Adding', submission.contents.length, 'contents to form');
       submission.contents.forEach((content, index) => {
-        console.log(`Content ${index}:`, content);
         contentsArray.push(this.fb.group({
           title: [content.title || '', [Validators.required]],
           body: [content.body || '', [Validators.required]],
@@ -181,12 +173,10 @@ export class EditSubmissionComponent implements OnInit {
         }));
       });
     } else {
-      console.log('No contents found, adding default content');
       // Add at least one content item
       this.addContent();
     }
 
-    console.log('Form after population:', this.form.value);
     this.hasChanges = false;
   }
 
@@ -244,7 +234,6 @@ export class EditSubmissionComponent implements OnInit {
         this.loadSubmission();
       },
       error: (error: any) => {
-        console.error('Error saving changes:', error);
         this.showToast('Error saving changes. Please try again.', 'error');
         this.isSaving = false;
       }
@@ -277,7 +266,6 @@ export class EditSubmissionComponent implements OnInit {
           }, 2000);
         },
         error: (error: any) => {
-          console.error('Error resubmitting:', error);
           this.showToast('Error resubmitting. Please try again.', 'error');
           this.isSubmitting = false;
         }
@@ -293,7 +281,6 @@ export class EditSubmissionComponent implements OnInit {
           }, 2000);
         },
         error: (error: any) => {
-          console.error('Error submitting:', error);
           this.showToast('Error submitting for review. Please try again.', 'error');
           this.isSubmitting = false;
         }

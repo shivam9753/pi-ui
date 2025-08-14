@@ -53,7 +53,6 @@ export class TagComponent implements OnInit {
         this.loading = false;
       },
       error: (error) => {
-        console.error('Error loading tag content:', error);
         this.submissions = [];
         this.loading = false;
       }

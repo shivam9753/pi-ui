@@ -1,8 +1,10 @@
 import { Component, OnInit } from '@angular/core';
-
+import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { BackendService } from '../../../services/backend.service';
 import { AuthService } from '../../../services/auth.service';
+import { AdminPageHeaderComponent, AdminPageStat } from '../../../shared/components/admin-page-header/admin-page-header.component';
+
 
 interface Prompt {
   _id: string;
@@ -23,7 +25,7 @@ interface Prompt {
 @Component({
   selector: 'app-prompt-management',
   standalone: true,
-  imports: [FormsModule, ReactiveFormsModule],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, AdminPageHeaderComponent],
   templateUrl: './prompt-management.component.html',
   styleUrl: './prompt-management.component.css'
 })
@@ -32,7 +34,6 @@ export class PromptManagementComponent implements OnInit {
   allPrompts: Prompt[] = [];
   filteredPrompts: Prompt[] = [];
   
-  
   // Filters
   manageType = '';
   manageSearch = '';
@@ -40,6 +41,7 @@ export class PromptManagementComponent implements OnInit {
   
   // Loading states
   isLoading = true;
+  loading = true; // Alias for isLoading for template compatibility
   isSaving = false;
   
   // Form
@@ -90,7 +92,6 @@ export class PromptManagementComponent implements OnInit {
         this.isLoading = false;
       },
       error: (error: any) => {
-        console.error('Error loading prompts:', error);
         this.isLoading = false;
       }
     });
@@ -183,18 +184,14 @@ export class PromptManagementComponent implements OnInit {
     
     request.subscribe({
       next: (response: any) => {
-        console.log('Save prompt response:', response);
         // Handle both success field and direct response
         if (response.success !== false) {
           this.showCreateForm = false;
           this.loadAllPrompts();
-        } else {
-          console.error('Error saving prompt:', response.message || response);
         }
         this.isSaving = false;
       },
       error: (error: any) => {
-        console.error('Error saving prompt:', error);
         this.isSaving = false;
       }
     });
@@ -207,12 +204,10 @@ export class PromptManagementComponent implements OnInit {
       next: (response: any) => {
         if (response.success) {
           this.loadAllPrompts();
-        } else {
-          console.error('Error deleting prompt:', response.message);
         }
       },
       error: (error: any) => {
-        console.error('Error deleting prompt:', error);
+        // Error deleting prompt
       }
     });
   }
@@ -224,12 +219,10 @@ export class PromptManagementComponent implements OnInit {
       next: (response: any) => {
         if (response.success) {
           prompt.isActive = !prompt.isActive;
-        } else {
-          console.error('Error updating prompt status:', response.message);
         }
       },
       error: (error: any) => {
-        console.error('Error updating prompt status:', error);
+        // Error updating prompt status
       }
     });
   }
@@ -241,12 +234,10 @@ export class PromptManagementComponent implements OnInit {
       next: (response: any) => {
         if (response.success) {
           prompt.featured = !prompt.featured;
-        } else {
-          console.error('Error updating prompt featured status:', response.message);
         }
       },
       error: (error: any) => {
-        console.error('Error updating prompt featured status:', error);
+        // Error updating prompt featured status
       }
     });
   }
@@ -275,5 +266,14 @@ export class PromptManagementComponent implements OnInit {
 
   getDifficultyLabel(difficulty: string): string {
     return difficulty.charAt(0).toUpperCase() + difficulty.slice(1);
+  }
+
+  // New methods for mobile-optimized filters
+  refreshPrompts(): void {
+    this.loadAllPrompts();
+  }
+
+  loadPrompts(): void {
+    this.loadAllPrompts();
   }
 }

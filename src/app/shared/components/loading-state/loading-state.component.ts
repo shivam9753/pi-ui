@@ -36,10 +36,10 @@ import { CommonModule } from '@angular/common';
       <!-- Pulse Variant -->
       @if (type === 'pulse') {
         <div class="flex flex-col items-center space-y-4">
-          <div class="animate-pulse bg-orange-200 rounded-lg" [ngClass]="getPulseSizeClass()"></div>
-          <div class="animate-pulse bg-orange-200 rounded-lg" [ngClass]="getPulseSizeClass()"
+          <div class="animate-pulse bg-orange-100 rounded-lg" [ngClass]="getPulseSizeClass()"></div>
+          <div class="animate-pulse bg-orange-100 rounded-lg" [ngClass]="getPulseSizeClass()"
           style="animation-delay: 200ms; width: 80%;"></div>
-          <div class="animate-pulse bg-orange-200 rounded-lg" [ngClass]="getPulseSizeClass()"
+          <div class="animate-pulse bg-orange-100 rounded-lg" [ngClass]="getPulseSizeClass()"
           style="animation-delay: 400ms; width: 60%;"></div>
         </div>
       }

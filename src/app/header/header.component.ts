@@ -2,14 +2,15 @@
 import { Component, inject, signal, OnInit, OnDestroy, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule, NavigationEnd } from '@angular/router';
-import { ThemeService } from '../services/theming.service';
+import { ThemeService } from '../services/theme.service';
 import { AuthService, GoogleUser } from '../services/auth.service'; // Import your AuthService
 import { Subscription } from 'rxjs';
 import { filter } from 'rxjs/operators';
+import { ThemeToggleComponent } from '../utilities/theme-toggle/theme-toggle.component';
 
 @Component({
   selector: 'app-header',
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, ThemeToggleComponent],
   templateUrl: './header.component.html',
   styleUrl: './header.component.css'
 })
@@ -25,6 +26,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   showWhatsNewDropdown = signal(false);
   userId = '';
   currentRoute = signal('');
+  isDark = signal(false);
 
   // App features/updates (for header dropdown)
   appFeatures = [
@@ -66,6 +68,11 @@ export class HeaderComponent implements OnInit, OnDestroy {
       this.userId = user?.id || '';
     });
     
+    // Subscribe to theme changes
+    const themeSubscription = this.themeService.isDark$.subscribe(isDark => {
+      this.isDark.set(isDark);
+    });
+    
     // Subscribe to router events to track current route
     const routeSubscription = this.router.events
       .pipe(filter(event => event instanceof NavigationEnd))
@@ -76,7 +83,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
     // Set initial route
     this.currentRoute.set(this.router.url);
     
-    this.subscriptions.push(userSubscription, routeSubscription);
+    this.subscriptions.push(userSubscription, themeSubscription, routeSubscription);
   }
 
   isDesktop() {

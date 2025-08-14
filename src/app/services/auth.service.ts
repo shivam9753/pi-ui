@@ -68,7 +68,7 @@ export class AuthService {
         include_granted_scopes: true // Include previously granted scopes
       });
     } catch (error) {
-      console.error('Error initializing Google Auth:', error);
+      // Google Auth initialization failed silently
     }
   }
 
@@ -93,7 +93,6 @@ export class AuthService {
   private handleCredentialResponse(response: any): void {
     try {
       const payload = this.decodeJWT(response.credential);
-      console.log('Google credential payload:', payload);
   
       const baseUser: GoogleUser = {
         id: payload.sub,
@@ -112,13 +111,12 @@ export class AuthService {
   
       this.processUserLogin(baseUser);
     } catch (error) {
-      console.error('Error handling credential response:', error);
+      // Error handling credential response
     }
   }
 
   private handleOAuthResponse(response: any): void {
     if (response.error) {
-      console.error('OAuth error:', response.error);
       return;
     }
 
@@ -155,7 +153,7 @@ export class AuthService {
         this.processUserLogin(baseUser);
       }
     } catch (error) {
-      console.error('Error getting user info from token:', error);
+      // Error getting user info from token
     }
   }
 
@@ -176,31 +174,26 @@ export class AuthService {
             
             // If JWT is still valid (not expired), use existing session
             if (tokenPayload && tokenPayload.exp && tokenPayload.exp > currentTime) {
-              console.log('✅ Using existing valid session for:', existingUser.email);
               this.userSubject.next(existingUser);
               this.isLoggedInSubject.next(true);
               this.navigateAfterLogin();
               
               // Optionally refresh role in background (less frequently)
               if (Math.random() < 0.1) { // Only 10% of the time to reduce API calls
-                console.log('🔄 Background role refresh...');
                 this.refreshUserRole(existingUser);
               }
               return;
             }
           }
         } catch (error) {
-          console.warn('Error parsing stored user session:', error);
+          // Error parsing stored user session
         }
       }
     }
 
     // If no valid existing session, authenticate with backend
-    console.log('🔑 Authenticating with backend for:', baseUser.email);
     this.authenticateGoogleUser(baseUser).subscribe({
       next: (res) => {
-        console.log('Backend response:', res);
-        
         const fullUser: GoogleUser = {
           ...baseUser,
           id: res.user?._id || res.user?.id || baseUser.id,
@@ -210,14 +203,6 @@ export class AuthService {
           profileCompleted: res.user?.profileCompleted,
           bio: res.user?.bio || baseUser.bio
         };
-        
-        console.log('👤 Full user object created:', fullUser);
-        console.log('📡 Backend response data:', {
-          needsProfileCompletion: res.needsProfileCompletion,
-          profileCompleted: res.user?.profileCompleted,
-          bio: res.user?.bio,
-          name: res.user?.name
-        });
         
         // Save user and token to localStorage
         if (isPlatformBrowser(this.platformId)) {
@@ -233,15 +218,12 @@ export class AuthService {
         this.userSubject.next(fullUser);
         this.isLoggedInSubject.next(true);
         
-        console.log('User logged in successfully:', fullUser);
-        
         // Check and fix profile completion status if needed
         this.checkAndFixProfileCompletion(fullUser);
         
         this.navigateAfterLogin();
       },
       error: (err) => {
-        console.error('Error authenticating Google user:', err);
         
         // Fallback: use base user even if backend fails
         if (isPlatformBrowser(this.platformId)) {
@@ -280,7 +262,6 @@ export class AuthService {
       );
       return JSON.parse(jsonPayload);
     } catch (error) {
-      console.error('Error decoding JWT:', error);
       return null;
     }
   }
@@ -291,7 +272,7 @@ export class AuthService {
       try {
         google.accounts.id.prompt();
       } catch (error) {
-        console.error('Error showing Google sign-in prompt:', error);
+        // Error showing Google sign-in prompt
       }
     }
   }
@@ -302,11 +283,9 @@ export class AuthService {
       try {
         if (this.tokenClient) {
           this.tokenClient.requestAccessToken();
-        } else {
-          console.error('Token client not initialized');
         }
       } catch (error) {
-        console.error('Error with Google sign-in popup:', error);
+        // Error with Google sign-in popup
       }
     }
   }
@@ -387,10 +366,8 @@ export class AuthService {
         
         // Navigate to login
         this.router.navigate(['/login']);
-        
-        console.log('User signed out successfully');
       } catch (error) {
-        console.error('Error during sign out:', error);
+        // Error during sign out
       }
     }
   }
@@ -404,11 +381,6 @@ export class AuthService {
     const storedToken = localStorage.getItem('google_token');
     const storedJwtToken = localStorage.getItem('jwt_token');
 
-    console.log('🔍 Checking existing session...', { 
-      hasUser: !!storedUser, 
-      hasToken: !!storedToken, 
-      hasJwt: !!storedJwtToken 
-    });
 
     if (storedUser) {
       try {
@@ -422,13 +394,10 @@ export class AuthService {
           if (tokenPayload && tokenPayload.exp && tokenPayload.exp > currentTime) {
             this.userSubject.next(user);
             this.isLoggedInSubject.next(true);
-            console.log('✅ Session restored from JWT:', user.email);
             
             // Refresh user role from backend to ensure it's up to date
             this.refreshUserRole(user);
             return;
-          } else {
-            console.log('⚠️ JWT token expired');
           }
         }
         
@@ -440,20 +409,16 @@ export class AuthService {
           if (googleTokenPayload && googleTokenPayload.exp && googleTokenPayload.exp > currentTime) {
             this.userSubject.next(user);
             this.isLoggedInSubject.next(true);
-            console.log('✅ Session restored from Google token:', user.email);
             
             // Refresh user role from backend to ensure it's up to date
             this.refreshUserRole(user);
             return;
-          } else {
-            console.log('⚠️ Google token expired');
           }
         }
         
         // DEVELOPMENT FALLBACK: If we have user data, keep session during hot reloads
         // This prevents constant logout during development
         if (user.email && user.name) {
-          console.log('🚧 DEV MODE: Restoring session without token validation');
           this.userSubject.next(user);
           this.isLoggedInSubject.next(true);
           
@@ -463,12 +428,9 @@ export class AuthService {
         }
         
       } catch (error) {
-        console.error('❌ Error parsing stored user:', error);
         this.clearSession();
       }
     }
-    
-    console.log('❌ No valid session found');
   }
 
   private clearSession(): void {
@@ -505,21 +467,17 @@ export class AuthService {
   }
 
   private needsProfileCompletion(user: any): boolean {
-    console.log('🔍 Checking profile completion for user:', {
-      name: user.name,
-      bio: user.bio,
-      needsProfileCompletion: user.needsProfileCompletion,
-      profileCompleted: user.profileCompleted,
-      picture: user.picture
-    });
+    
+    // If this is a completely new user (email doesn't exist in system), require profile completion
+    if (user.isNewUser) {
+      return true;
+    }
     
     // Check if user needs profile completion based on backend response
     if (user.needsProfileCompletion) {
-      console.log('❌ Backend says needsProfileCompletion = true');
       return true;
     }
     if (user.profileCompleted === false) {
-      console.log('❌ profileCompleted = false');
       return true;
     }
     
@@ -530,12 +488,6 @@ export class AuthService {
            !user.bio || 
            user.bio.trim() === '' || 
            user.bio === 'Google authenticated user';
-           
-    if (hasIncompleteProfile) {
-      console.log('❌ Profile has incomplete data');
-    } else {
-      console.log('✅ Profile appears complete');
-    }
     
     return hasIncompleteProfile;
   }
@@ -547,7 +499,6 @@ export class AuthService {
 
   // Method to force session restoration (useful during development)
   public forceRestoreSession(): void {
-    console.log('🔄 Force restoring session...');
     this.checkExistingSession();
   }
 
@@ -599,8 +550,6 @@ export class AuthService {
     this.authenticateGoogleUser(user).subscribe({
       next: (res) => {
         if (res.user?.role && res.user.role !== user.role) {
-          console.log(`🔄 User role updated: ${user.role} → ${res.user.role}`);
-          
           // Update the user object with new role
           const updatedUser: GoogleUser = {
             ...user,
@@ -619,7 +568,6 @@ export class AuthService {
         }
       },
       error: (err) => {
-        console.log('ℹ️ Could not refresh user role:', err.message);
         // Don't disrupt the user session if role refresh fails
       }
     });
@@ -645,8 +593,6 @@ export class AuthService {
         user.name.trim() !== '' && user.bio.trim() !== '' &&
         user.name !== 'Google authenticated user' && user.bio !== 'Google authenticated user') {
       
-      console.log('🔧 Attempting to fix profile completion status...');
-      
       const jwtToken = localStorage.getItem('jwt_token');
       if (!jwtToken) return;
 
@@ -660,8 +606,6 @@ export class AuthService {
       .then(response => response.json())
       .then(result => {
         if (result.fixed) {
-          console.log('✅ Profile completion status fixed!');
-          
           // Update the current user object
           const updatedUser = { ...user, profileCompleted: true, needsProfileCompletion: false };
           localStorage.setItem('google_user', JSON.stringify(updatedUser));
@@ -669,7 +613,7 @@ export class AuthService {
         }
       })
       .catch(error => {
-        console.error('❌ Failed to fix profile completion:', error);
+        // Failed to fix profile completion
       });
     }
   }

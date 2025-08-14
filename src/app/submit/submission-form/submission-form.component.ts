@@ -128,14 +128,10 @@ export class SubmissionFormComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.loggedInUser = this.authService.getCurrentUser();
-    console.log('Logged in user:', this.loggedInUser);
-    console.log('User ID being used:', this.loggedInUser?.id);
-    console.log('User ID type:', typeof this.loggedInUser?.id);
     
     // Check what's in localStorage
     if (typeof window !== 'undefined') {
       const storedUser = localStorage.getItem('google_user');
-      console.log('Stored user in localStorage:', storedUser);
     }
     
     this.loadDrafts();
@@ -231,11 +227,8 @@ export class SubmissionFormComponent implements OnInit, OnDestroy {
           lastModified: new Date(draft.lastEditedAt || draft.updatedAt || draft.createdAt),
           wordCount: draft.wordCount || 0
         }));
-        console.log('Drafts loaded and transformed:', this.drafts.length);
-        console.log('Sample draft:', this.drafts[0]);
       },
       error: (error) => {
-        console.error('Error loading drafts:', error);
         this.drafts = [];
       }
     });
@@ -265,7 +258,6 @@ export class SubmissionFormComponent implements OnInit, OnDestroy {
       draftId: this.currentDraftId // Include if updating existing draft
     };
 
-    console.log('Saving draft with payload:', draftPayload);
     
     this.backendService.saveDraft(draftPayload).subscribe({
       next: (response) => {
@@ -276,7 +268,6 @@ export class SubmissionFormComponent implements OnInit, OnDestroy {
         this.loadDrafts(); // Refresh drafts list
       },
       error: (error) => {
-        console.error('Error saving draft:', error);
         this.isSavingDraft = false;
         this.showToast('Failed to save draft. Please try again.', 'error');
       }
@@ -309,7 +300,6 @@ export class SubmissionFormComponent implements OnInit, OnDestroy {
           }
         },
         error: (error) => {
-          console.error('Error loading specific draft:', error);
           this.showToast('Draft not found', 'error');
         }
       });
@@ -317,7 +307,6 @@ export class SubmissionFormComponent implements OnInit, OnDestroy {
   }
 
   loadDraft(draft: Draft): void {
-    console.log('Loading draft:', draft);
     this.currentDraft = draft;
     this.selectedType = draft.submissionType;
     this.currentDraftId = draft.id; // Set the draft ID to enable updates
@@ -336,7 +325,6 @@ export class SubmissionFormComponent implements OnInit, OnDestroy {
     try {
       if (draft.contents && draft.contents.length > 0) {
         draft.contents.forEach((content, index) => {
-          console.log(`Processing content ${index}:`, content);
           const group = this.createContentGroup();
           group.patchValue({
             title: content.title || '',
@@ -346,12 +334,10 @@ export class SubmissionFormComponent implements OnInit, OnDestroy {
           contentsArray.push(group);
         });
       } else {
-        console.log('No contents found, adding empty group');
         // If no contents, add an empty content group
         contentsArray.push(this.createContentGroup());
       }
     } catch (error) {
-      console.error('Error populating contents:', error);
       // Fallback: add empty content group
       contentsArray.push(this.createContentGroup());
     }
@@ -366,7 +352,6 @@ export class SubmissionFormComponent implements OnInit, OnDestroy {
       
       // Force change detection by emitting the form array changes
       const formArrayValue = contentsArray.value;
-      console.log('Form array value after loading:', formArrayValue);
       
       // Manually trigger content changed to update UI
       this.onContentChanged(formArrayValue);
@@ -391,7 +376,6 @@ export class SubmissionFormComponent implements OnInit, OnDestroy {
         this.loadDrafts(); // Refresh drafts list
       },
       error: (error) => {
-        console.error('Error deleting draft:', error);
         this.showToast('Failed to delete draft. Please try again.', 'error');
       }
     });
@@ -455,8 +439,6 @@ export class SubmissionFormComponent implements OnInit, OnDestroy {
       submittedAt: new Date().toISOString()
     };
 
-    console.log('Submitting form with payload:', submissionPayload);
-    console.log('Current logged in user:', this.loggedInUser);
     
     this.backendService.submitNewSubmission(submissionPayload).subscribe({
       next: (result) => {
@@ -465,10 +447,6 @@ export class SubmissionFormComponent implements OnInit, OnDestroy {
         this.handleSuccessfulSubmission();
       },
       error: (error) => {
-        console.error('Submission error:', error);
-        console.error('Error details:', error.error);
-        console.error('Error status:', error.status);
-        console.error('Error message:', error.message);
         
         // Show more specific error message
         let errorMessage = 'There was an error submitting your work. Please try again.';

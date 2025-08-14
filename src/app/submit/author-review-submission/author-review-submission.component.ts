@@ -92,7 +92,6 @@ export class AuthorReviewSubmissionComponent {
 
   saveAsDraft(): void {
     // This would be handled by parent component
-    console.log('Save as draft');
   }
 
   submitWork(): void {

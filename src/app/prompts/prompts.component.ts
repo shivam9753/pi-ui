@@ -94,7 +94,6 @@ showGuidelinesOverlay = false;
         this.isLoading = false;
       },
       error: (error: any) => {
-        console.error('Error loading prompts:', error);
         this.isLoading = false;
       }
     });
@@ -208,7 +207,6 @@ showGuidelinesOverlay = false;
         }
       },
       error: (error: any) => {
-        console.error('Error updating usage count:', error);
       }
     });
 

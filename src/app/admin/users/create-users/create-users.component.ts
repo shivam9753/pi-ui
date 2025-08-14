@@ -4,10 +4,11 @@ import { FormsModule } from '@angular/forms';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { environment } from '../../../../environments/environment';
 import { compressImageToAVIF } from '../../../shared/utils/image-compression.util';
+import { AdminPageHeaderComponent } from '../../../shared/components/admin-page-header/admin-page-header.component';
 
 @Component({
   selector: 'app-create-users',
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, AdminPageHeaderComponent],
   templateUrl: './create-users.component.html',
   styleUrl: './create-users.component.css'
 })
@@ -77,7 +78,6 @@ export class CreateUsersComponent {
       
       await this.http.post(`${environment.apiBaseUrl}/admin/users/${userId}/upload-profile-image`, formData, { headers }).toPromise();
     } catch (error) {
-      console.error('Error uploading profile image:', error);
       this.showMessage('User created but profile image upload failed', 'error');
     } finally {
       this.uploadingImage = false;
@@ -125,7 +125,6 @@ export class CreateUsersComponent {
           'success'
         );
       } catch (error) {
-        console.error('Error compressing image:', error);
         this.showMessage('Failed to compress image. Using original.', 'error');
         
         // Fallback to original file

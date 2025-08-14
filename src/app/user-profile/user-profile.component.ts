@@ -3,7 +3,8 @@ import { Component, OnInit, Input, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule, ActivatedRoute, Router } from '@angular/router';
-import { BackendService, UserProfile, PublishedWork } from '../services/backend.service';
+import { BackendService } from '../services/backend.service';
+import { UserProfile, PublishedWork } from '../models';
 import { TypeBadgePipe } from '../pipes/type-badge.pipe';
 import { PrettyLabelPipe } from '../pipes/pretty-label.pipe';
 import { EmptyStateComponent } from '../shared/components/empty-state/empty-state.component';
@@ -231,7 +232,6 @@ export class UserProfileComponent implements OnInit {
           this.isLoading.set(false);
         },
         error: (error: any) => {
-          console.error('Error loading current user profile:', error);
           
           // Fallback: try to get from localStorage
           const currentUser = this.backendService.getCurrentUserProfile();
@@ -252,7 +252,6 @@ export class UserProfileComponent implements OnInit {
         }
       });
     } catch (error) {
-      console.error('Error in loadCurrentUserProfile:', error);
       this.error.set('Failed to load your profile');
       this.isLoading.set(false);
     }
@@ -271,7 +270,6 @@ export class UserProfileComponent implements OnInit {
           this.isLoading.set(false);
         },
         error: (error: any) => {
-          console.error('Error loading user profile:', error);
           this.error.set('Failed to load user profile');
           this.isLoading.set(false);
           
@@ -282,7 +280,6 @@ export class UserProfileComponent implements OnInit {
               this.isLoading.set(false);
             },
             error: (fallbackError: any) => {
-              console.error('Fallback error:', fallbackError);
               this.error.set('User not found');
               this.isLoading.set(false);
             }
@@ -290,7 +287,6 @@ export class UserProfileComponent implements OnInit {
         }
       });
     } catch (error) {
-      console.error('Error in loadUserProfile:', error);
       this.error.set('Failed to load user profile');
       this.isLoading.set(false);
     }
@@ -312,13 +308,11 @@ export class UserProfileComponent implements OnInit {
           this.worksLoading.set(false);
         },
         error: (error: any) => {
-          console.error('Error loading published works:', error);
           this.publishedWorks.set([]);
           this.worksLoading.set(false);
         }
       });
     } catch (error) {
-      console.error('Error in loadPublishedWorks:', error);
       this.publishedWorks.set([]);
       this.worksLoading.set(false);
     }
@@ -337,13 +331,11 @@ export class UserProfileComponent implements OnInit {
           this.submissionsLoading.set(false);
         },
         error: (error: any) => {
-          console.error('Error loading submissions:', error);
           this.submissions.set([]);
           this.submissionsLoading.set(false);
         }
       });
     } catch (error) {
-      console.error('Error in loadSubmissions:', error);
       this.submissions.set([]);
       this.submissionsLoading.set(false);
     }
@@ -372,13 +364,11 @@ export class UserProfileComponent implements OnInit {
           this.draftsLoading.set(false);
         },
         error: (error: any) => {
-          console.error('Error loading drafts:', error);
           this.drafts.set([]);
           this.draftsLoading.set(false);
         }
       });
     } catch (error) {
-      console.error('Error in loadDrafts:', error);
       this.drafts.set([]);
       this.draftsLoading.set(false);
     }
@@ -416,7 +406,6 @@ export class UserProfileComponent implements OnInit {
           this.isFollowing.set(response.isFollowing);
         },
         error: (error: any) => {
-          console.error('Error checking follow status:', error);
           this.isFollowing.set(false);
         }
       });
@@ -460,7 +449,6 @@ export class UserProfileComponent implements OnInit {
           this.worksLoading.set(false);
         },
         error: (error: any) => {
-          console.error('Error filtering works:', error);
           this.worksLoading.set(false);
         }
       });
@@ -587,7 +575,6 @@ export class UserProfileComponent implements OnInit {
     } else {
       // For non-published submissions, show details in a modal or navigate to review page
       // TODO: Implement submission details modal
-      console.log('View submission details:', submission);
     }
   }
 
@@ -603,10 +590,8 @@ export class UserProfileComponent implements OnInit {
           // Remove from local state
           const updatedSubmissions = this.submissions().filter(s => s._id !== submission._id);
           this.submissions.set(updatedSubmissions);
-          console.log('Submission deleted successfully');
         },
         error: (error) => {
-          console.error('Error deleting submission:', error);
           alert('Failed to delete submission. Please try again.');
         }
       });
@@ -687,7 +672,6 @@ export class UserProfileComponent implements OnInit {
         this.deleteSubmission(submission);
         break;
       default:
-        console.log('Unknown action:', action);
     }
   }
 
@@ -742,10 +726,8 @@ export class UserProfileComponent implements OnInit {
           // Remove from local state
           const updatedDrafts = this.drafts().filter(d => d.id !== draft.id);
           this.drafts.set(updatedDrafts);
-          console.log('Draft deleted successfully');
         },
         error: (error) => {
-          console.error('Error deleting draft:', error);
           alert('Failed to delete draft. Please try again.');
         }
       });
@@ -806,12 +788,10 @@ export class UserProfileComponent implements OnInit {
           }
         },
         error: (error: any) => {
-          console.error('Error updating profile:', error);
           this.error.set('Failed to update profile');
         }
       });
     } catch (error) {
-      console.error('Error in saveProfile:', error);
       this.error.set('Failed to update profile');
     }
   }
@@ -845,7 +825,6 @@ export class UserProfileComponent implements OnInit {
         }
       },
       error: (error: any) => {
-        console.error('Error toggling follow:', error);
         this.error.set(`Failed to ${action} user`);
       }
     });

@@ -26,7 +26,7 @@ import { FormsModule, ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/f
               <button
                 type="button"
                 (click)="removeTag(i)"
-                class="flex items-center justify-center w-4 h-4 ml-1 text-orange-600 hover:text-orange-800 hover:bg-orange-200 rounded-full transition-colors"
+                class="flex items-center justify-center w-4 h-4 ml-1 text-orange-600 hover:text-orange-800 hover:bg-orange-100 rounded-full transition-colors"
                 [attr.aria-label]="'Remove tag ' + tag"
                 >
                 <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">

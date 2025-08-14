@@ -1,0 +1,28 @@
+<header 
+  class="relative z-50 transition-all duration-300"
+  [class.bg-white]="!isDark()"
+  [class.bg-gray-900]="isDark()"
+  [class.border-b]="true"
+  [class.border-gray-200]="!isDark()"
+  [class.border-gray-700]="isDark()">
+  <div class="px-4 mx-auto sm:px-6 lg:px-8 xl:px-12">
+    <div class="flex items-center justify-between h-12 sm:h-14 lg:h-16">
+      <!-- Logo -->
+      <div class="flex items-center flex-shrink-0 ml-2">
+        <a routerLink="/" class="inline-flex items-center">
+          <span class="font-bold text-2xl text-orange-600">pi</span>
+        </a>
+      </div>
+      
+      <!-- Mobile Menu Button -->
+      <div class="mobile-hamburger-container flex items-center lg:hidden">
+        <button (click)="toggleMobileMenu()" class="mobile-hamburger-button p-2 text-gray-600">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M4 6h16M4 12h16M4 18h16" />
+          </svg>
+        </button>
+      </div>
+    </div>
+  </div>
+</header>

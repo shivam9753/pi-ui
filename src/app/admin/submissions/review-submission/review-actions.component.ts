@@ -32,7 +32,7 @@ import { FormsModule } from '@angular/forms';
         <button
           (click)="setAction('revision')"
           [disabled]="isSubmitting"
-          class="w-full sm:w-auto px-6 py-3 text-sm font-semibold text-orange-800 bg-orange-100 rounded-lg hover:bg-orange-200 transition-colors duration-200 disabled:opacity-50 flex items-center gap-2 shadow-sm hover:shadow-md">
+          class="w-full sm:w-auto px-6 py-3 text-sm font-semibold text-orange-800 bg-orange-100 rounded-lg hover:bg-orange-100 transition-colors duration-200 disabled:opacity-50 flex items-center gap-2 shadow-sm hover:shadow-md">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
           </svg>

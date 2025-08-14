@@ -42,8 +42,6 @@ export class JsonConverterComponent {
             const firstItem = this.originalData[0];
             const bodyField = firstItem['body'] || firstItem['Plain Content'] || firstItem['Rich Content'] || 'NO BODY FIELD FOUND';
             this.debugInfo = `First item body preview: ${bodyField.substring(0, 200)}...`;
-            console.log('CSV parsed first item:', firstItem);
-            console.log('Body field content:', bodyField);
           }
         } else {
           this.originalData = JSON.parse(reader.result as string);
@@ -52,8 +50,6 @@ export class JsonConverterComponent {
             const firstItem = this.originalData[0];
             const bodyField = firstItem['body'] || firstItem['Plain Content'] || firstItem['Rich Content'] || 'NO BODY FIELD FOUND';
             this.debugInfo = `First item body preview: ${bodyField.substring(0, 200)}...`;
-            console.log('JSON parsed first item:', firstItem);
-            console.log('Body field content:', bodyField);
           }
         }
         this.applyFilter();

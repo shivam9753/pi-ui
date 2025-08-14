@@ -66,7 +66,6 @@ export class UserLoginComponent implements OnInit, OnDestroy, AfterViewInit {
       // Use the popup method instead of prompt
       this.authService.signInWithPopup();
     } catch (error) {
-      console.error('Error triggering Google sign-in:', error);
       this.isLoading = false;
     }
   }
@@ -77,7 +76,6 @@ export class UserLoginComponent implements OnInit, OnDestroy, AfterViewInit {
     try {
       this.authService.signIn();
     } catch (error) {
-      console.error('Error triggering Google sign-in prompt:', error);
       this.isLoading = false;
     }
   }

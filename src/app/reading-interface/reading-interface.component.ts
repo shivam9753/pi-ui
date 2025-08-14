@@ -8,14 +8,17 @@ import { ThemeService } from '../services/theming.service';
 import { HtmlSanitizerService } from '../services/html-sanitizer.service';
 import { BadgeLabelComponent } from '../utilities/badge-label/badge-label.component';
 import { RelatedContentComponent } from '../utilities/related-content/related-content.component';
+import { Author } from '../models';
+import { AuthorUtils } from '../models/author.model';
+import { AuthorService } from '../services/author.service';
+import { ViewTrackerService } from '../services/view-tracker.service';
 
 interface PublishedContent {
   _id: string;
   title: string;
   description: string;
   submissionType: string;
-  authorName: string;
-  authorId: string;
+  author: Author;
   publishedAt: Date;
   readingTime: number;
   viewCount: number;
@@ -63,6 +66,7 @@ content = signal<PublishedContent | null>(null);
   lineHeight = signal(1.6);
   isReaderMode = signal(false);
   readingProgress = signal(0);
+  focusMode = signal(false);
   
   // Enhanced reading controls
   layoutMode = signal<'compact' | 'spacious'>('compact');
@@ -97,7 +101,8 @@ content = signal<PublishedContent | null>(null);
     private backendService: BackendService,
     private titleService: Title,
     private metaService: Meta,
-    private htmlSanitizer: HtmlSanitizerService
+    private htmlSanitizer: HtmlSanitizerService,
+    private viewTracker: ViewTrackerService
   ) {}
 
   ngOnInit() {
@@ -114,7 +119,6 @@ content = signal<PublishedContent | null>(null);
 
     // Track reading progress
     window.addEventListener('scroll', () => this.updateReadingProgress());
-    this.loadMockRelatedContent();
   }
 
   async loadContent(contentId: string) {
@@ -123,7 +127,6 @@ content = signal<PublishedContent | null>(null);
     
     this.backendService.getSubmissionWithContents(contentId).subscribe({
       next: (data: any) => {
-        console.log('Loaded content:', data);
         
         // Handle different possible content structures
         let contentItems: ContentItem[] = [];
@@ -188,8 +191,7 @@ content = signal<PublishedContent | null>(null);
           title: data.title,
           description: data.description,
           submissionType: data.submissionType,
-          authorName: data.userId?.name || data.userId?.username || 'Unknown Author',
-          authorId: data.userId?._id || data.author?._id || 'unknown',
+          author: AuthorUtils.normalizeAuthor(data),
           publishedAt: new Date(data.publishedAt || data.createdAt),
           readingTime: data.readingTime || Math.ceil(contentItems.reduce((acc, item) => acc + item.wordCount, 0) / 200),
           viewCount: data.viewCount || 0,
@@ -203,12 +205,30 @@ content = signal<PublishedContent | null>(null);
           isBookmarked: false // Default value
         };
         
-        console.log('Transformed content:', transformedContent);
         this.content.set(transformedContent);
         this.loading.set(false);
+        
+        // Track view for this content
+        // this.viewTracker.logView(data._id).subscribe({
+        //   next: (viewResponse) => {
+        //     if (viewResponse.success) {
+        //       // Update the content with latest view counts
+        //       const currentContent = this.content();
+        //       if (currentContent) {
+        //         const updatedContent = {
+        //           ...currentContent,
+        //           viewCount: viewResponse.viewCount
+        //         };
+        //         this.content.set(updatedContent);
+        //       }
+        //     }
+        //   },
+        //   error: (err) => {
+        //     console.warn('Failed to log view:', err);
+        //   }
+        // });
       },
       error: (err: any) => {
-        console.error('Error loading content:', err);
         this.error.set('Failed to load content');
         this.loading.set(false);
       }
@@ -221,7 +241,6 @@ content = signal<PublishedContent | null>(null);
     
     this.backendService.getSubmissionBySlug(slug).subscribe({
       next: (data: any) => {
-        console.log('Loaded content by slug:', data);
         
         // Handle different possible content structures
         let contentItems: ContentItem[] = [];
@@ -253,8 +272,7 @@ content = signal<PublishedContent | null>(null);
           title: data.title,
           description: data.description,
           submissionType: data.submissionType,
-          authorName: data.authorName || 'Unknown Author',
-          authorId: data.authorId,
+          author: AuthorUtils.normalizeAuthor(data),
           publishedAt: new Date(data.publishedAt),
           readingTime: data.readingTime,
           viewCount: data.viewCount || 0,
@@ -273,9 +291,28 @@ content = signal<PublishedContent | null>(null);
         
         // Update page title and meta tags for SEO
         this.updatePageMeta(transformedContent);
+        
+        // Track view for this content
+        // this.viewTracker.logView(data._id).subscribe({
+        //   next: (viewResponse) => {
+        //     if (viewResponse.success) {
+        //       // Update the content with latest view counts
+        //       const currentContent = this.content();
+        //       if (currentContent) {
+        //         const updatedContent = {
+        //           ...currentContent,
+        //           viewCount: viewResponse.viewCount
+        //         };
+        //         this.content.set(updatedContent);
+        //       }
+        //     }
+        //   },
+        //   error: (err) => {
+        //     console.warn('Failed to log view:', err);
+        //   }
+        // });
       },
       error: (err: any) => {
-        console.error('Error loading content by slug:', err);
         this.error.set('Failed to load content. Please try again.');
         this.loading.set(false);
       }
@@ -341,7 +378,7 @@ content = signal<PublishedContent | null>(null);
     const content = this.content();
     if (!content) return;
     
-    const text = `${content.title} by ${content.authorName} - ${window.location.href}`;
+    const text = `${content.title} by ${content.author.name} - ${window.location.href}`;
     const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(text)}`;
     window.open(whatsappUrl, '_blank');
   }
@@ -361,7 +398,6 @@ content = signal<PublishedContent | null>(null);
       event.preventDefault();
     }
     // Navigate to tag page
-    console.log('Tag clicked:', tag); // Debug log
     this.router.navigate(['/tag', tag]);
   }
 
@@ -473,12 +509,10 @@ content = signal<PublishedContent | null>(null);
 
   replyToComment(comment: Comment) {
     // TODO: Implement reply functionality
-    console.log('Reply to comment:', comment._id);
   }
 
   loadMoreComments() {
     // TODO: Implement pagination
-    console.log('Load more comments');
   }
 
   hasMoreComments(): boolean {
@@ -491,52 +525,6 @@ content = signal<PublishedContent | null>(null);
       this.error.set(null);
       this.loadContent(contentId);
     }
-  }
-
-  private loadMockRelatedContent() {
-    // Mock related content for demo purposes
-    const mockRelated: PublishedContent[] = [
-      {
-        _id: 'related-1',
-        title: 'Understanding Modern Web Development',
-        description: 'A comprehensive guide to current web technologies',
-        submissionType: 'article',
-        authorName: 'Jane Developer',
-        authorId: 'author-2',
-        publishedAt: new Date('2024-01-15'),
-        readingTime: 8,
-        viewCount: 1250,
-        likeCount: 89,
-        commentCount: 23,
-        tags: ['web', 'development', 'javascript'],
-        imageUrl: 'https://via.placeholder.com/400x200?text=Web+Dev',
-        excerpt: 'Explore the latest trends and best practices in modern web development...',
-        contents: [],
-        isLiked: false,
-        isBookmarked: false
-      },
-      {
-        _id: 'related-2',
-        title: 'The Future of AI in Software',
-        description: 'How artificial intelligence is reshaping software development',
-        submissionType: 'research',
-        authorName: 'Dr. Tech Expert',
-        authorId: 'author-3',
-        publishedAt: new Date('2024-01-10'),
-        readingTime: 12,
-        viewCount: 2100,
-        likeCount: 156,
-        commentCount: 45,
-        tags: ['ai', 'software', 'future'],
-        imageUrl: 'https://via.placeholder.com/400x200?text=AI+Future',
-        excerpt: 'An in-depth analysis of AI\'s impact on the software development industry...',
-        contents: [],
-        isLiked: false,
-        isBookmarked: false
-      }
-    ];
-    
-    this.relatedContent.set(mockRelated);
   }
 
   private calculateReadingTime(contentItems: ContentItem[]): number {

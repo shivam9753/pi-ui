@@ -1,8 +1,21 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ApiService } from './api.service';
+import {
+  User,
+  UserProfile,
+  UserListItem,
+  CreateUserPayload,
+  UpdateUserPayload,
+  UsersResponse,
+  SearchUsersResponse,
+  UserProfileResponse,
+  UserPublishedWorksResponse,
+  UserStats
+} from '../models';
 
-export interface User {
+// Legacy User interface for backward compatibility
+export interface LegacyUser {
   _id: string;
   id: string; // Alias for _id for backward compatibility (always present)
   username: string;
@@ -21,45 +34,19 @@ export interface User {
   };
 }
 
-export interface UserStats {
+// Legacy interfaces - keeping for backward compatibility
+export interface LegacyUserStats {
   users: number;
   reviewers: number;
   admins: number;
   total: number;
 }
 
-export interface PaginationInfo {
+export interface LegacyPaginationInfo {
   limit: number;
   skip: number;
   hasMore: boolean;
   total?: number;
-}
-
-export interface UsersResponse {
-  users: User[];
-  total: number;
-  stats?: UserStats;
-  pagination: PaginationInfo;
-}
-
-export interface SearchUsersResponse {
-  users: User[];
-}
-
-export interface UserProfileResponse {
-  profile: User & {
-    submissionStats?: {
-      total: number;
-      accepted: number;
-      pending: number;
-      rejected: number;
-    };
-  };
-}
-
-export interface UserPublishedWorksResponse {
-  works: any[];
-  pagination: PaginationInfo;
 }
 
 @Injectable({

@@ -489,7 +489,6 @@ export class PurgeManagementComponent implements OnInit {
       const response = await this.apiService.get<PurgeStats>('/purge/stats').toPromise();
       this.stats = response || null;
     } catch (error) {
-      console.error('Error loading purge stats:', error);
       this.stats = null;
     } finally {
       this.loading = false;
@@ -517,7 +516,6 @@ export class PurgeManagementComponent implements OnInit {
       this.selectedSubmissions = [];
       this.preview = null;
     } catch (error) {
-      console.error('Error loading purgeable submissions:', error);
       this.purgeableSubmissions = [];
       this.pagination = null;
     } finally {
@@ -553,7 +551,6 @@ export class PurgeManagementComponent implements OnInit {
       }).toPromise();
       this.preview = response?.preview || null;
     } catch (error) {
-      console.error('Error generating purge preview:', error);
       this.preview = null;
     } finally {
       this.previewing = false;
@@ -592,7 +589,6 @@ export class PurgeManagementComponent implements OnInit {
         alert('Purge failed: ' + (response?.message || 'Unknown error'));
       }
     } catch (error) {
-      console.error('Error executing purge:', error);
       alert('Error executing purge: ' + (error as any)?.error?.message || 'Unknown error');
     } finally {
       this.purging = false;

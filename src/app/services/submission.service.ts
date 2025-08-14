@@ -1,52 +1,22 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ApiService } from './api.service';
+import {
+  Submission,
+  Content,
+  SubmissionsResponse,
+  CreateSubmissionPayload,
+  UpdateSubmissionPayload,
+  UpdateStatusPayload,
+  SubmissionFilters,
+  SubmissionQueryOptions,
+  SubmissionStats,
+  PublishedContent,
+  PublishedContentResponse
+} from '../models';
 
-export interface Submission {
-  _id: string;
-  userId: string;
-  title: string;
-  description?: string;
-  contentIds: string[];
-  contents?: Content[];
-  submissionType: 'poem' | 'story' | 'article' | 'quote' | 'cinema_essay';
-  status: 'pending_review' | 'accepted' | 'rejected' | 'published';
-  imageUrl?: string;
-  excerpt?: string;
-  readingTime?: number;
-  isFeatured: boolean;
-  reviewedAt?: string;
-  reviewedBy?: string;
-  createdAt: string;
-  updatedAt: string;
-  seo?: {
-    slug?: string;
-    metaTitle?: string;
-    metaDescription?: string;
-    keywords?: string[];
-    ogImage?: string;
-    canonical?: string;
-    publishSettings?: {
-      allowComments: boolean;
-      enableSocialSharing: boolean;
-      featuredOnHomepage: boolean;
-    };
-  };
-}
-
-export interface Content {
-  _id: string;
-  userId: string;
-  title: string;
-  body: string;
-  type: string;
-  tags: string[];
-  metadata?: any;
-  images?: any[];
-  hasInlineImages: boolean;
-}
-
-export interface SubmissionsResponse {
+// Keep legacy interfaces for backward compatibility if needed
+export interface LegacySubmissionsResponse {
   submissions: Submission[];
   total: number;
   pagination: {
