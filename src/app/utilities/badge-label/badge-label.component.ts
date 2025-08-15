@@ -48,14 +48,14 @@ export class BadgeLabelComponent {
 
   getBadgeClasses(): string {
     const baseClasses = 'inline-flex items-center px-2 py-1 rounded-full text-xs font-medium transition-colors';
-    const clickableClasses = this.clickable ? ' hover:bg-opacity-80 cursor-pointer' : '';
+    const clickableClasses = this.clickable ? ' hover:bg-orange-600 cursor-pointer' : '';
     
     // Special styling for Opinion type (expedited)
     if (this.type === 'opinion') {
-      return `${baseClasses} bg-orange-600 text-white${clickableClasses}`;
+      return `${baseClasses} bg-orange-500 text-white${clickableClasses}`;
     }
     
     // Default styling for other types  
-    return `${baseClasses} bg-orange-600 text-white${clickableClasses}`;
+    return `${baseClasses} bg-orange-500 text-white${clickableClasses}`;
   }
 }

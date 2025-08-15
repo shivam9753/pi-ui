@@ -106,50 +106,18 @@
           
           <!-- Sidebar layout - compact list -->
           @if (layout === 'sidebar') {
-            <article class="flex cursor-pointer group hover:bg-gray-50 transition-all duration-200 mb-8 last:mb-0"
+            <article class="cursor-pointer group hover:bg-gray-50 dark:hover:bg-gray-800 transition-all duration-200 mb-6 last:mb-0 p-3 rounded-lg"
               (click)="navigateToPost(post)">
               
-              <!-- Content Section -->
-              <div class="flex-1 pr-4">
-                <!-- Content Type Badge -->
-                <span class="inline-block px-2 py-1 text-xs font-semibold tracking-wider uppercase mb-2"
-                  [ngClass]="{
-                    'bg-orange-100 text-orange-600': post.submissionType === 'article',
-                    'bg-blue-100 text-blue-600': post.submissionType === 'poem',
-                    'bg-green-100 text-green-600': post.submissionType === 'story',
-                    'bg-purple-100 text-purple-600': post.submissionType === 'cinema_essay',
-                    'bg-yellow-100 text-yellow-600': post.submissionType === 'quote'
-                  }">
-                  {{ getContentTypeLabel(post.submissionType) }}
-                </span>
+              <!-- Post Title -->
+              <h4 class="font-bold text-gray-900 dark:text-white group-hover:text-gray-900 dark:group-hover:text-white transition-colors mb-2 text-base leading-tight line-clamp-2">
+                {{ post.title }}
+              </h4>
 
-                <!-- Post Title -->
-                <h4 class="font-bold text-gray-900 group-hover:text-gray-700 transition-colors mb-2 text-lg leading-tight line-clamp-2">
-                  {{ post.title }}
-                </h4>
-
-                <!-- Post Excerpt -->
-                <p class="text-gray-600 text-sm leading-relaxed mb-3 line-clamp-3">
-                  {{ truncateExcerpt(post.excerpt, 120) }}
-                </p>
-
-                <!-- Author -->
-                <p class="text-gray-600 text-sm">
-                  By {{ post.authorName }}
-                </p>
-              </div>
-
-              <!-- Image Section -->
-              @if (post.imageUrl) {
-                <div class="flex-shrink-0 ml-4">
-                  <div class="w-20 h-16 rounded overflow-hidden bg-gray-200">
-                    <img [src]="post.imageUrl"
-                         [alt]="post.title"
-                         class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                         loading="lazy">
-                  </div>
-                </div>
-              }
+              <!-- Post Description -->
+              <p class="text-gray-600 dark:text-gray-300 text-sm leading-relaxed line-clamp-3">
+                {{ truncateExcerpt(post.excerpt, 120) }}
+              </p>
             </article>
           }
         }

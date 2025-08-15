@@ -4,6 +4,7 @@ import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { routes } from './app.routes';
 import { LoaderService } from './services/loader.service';
 import { finalize } from 'rxjs/operators';
+import { provideClientHydration, withEventReplay } from '@angular/platform-browser';
 
 // Functional interceptor for Angular 17+
 function loaderInterceptor(req: any, next: any) {
@@ -20,6 +21,6 @@ export const appConfig: ApplicationConfig = {
   providers: [
     provideZoneChangeDetection({ eventCoalescing: true }), 
     provideRouter(routes, withInMemoryScrolling({ scrollPositionRestoration: 'disabled' })), 
-    provideHttpClient(withInterceptors([loaderInterceptor]))
+    provideHttpClient(withInterceptors([loaderInterceptor])), provideClientHydration(withEventReplay())
   ]
 };

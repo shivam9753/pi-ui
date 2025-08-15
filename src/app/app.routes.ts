@@ -22,6 +22,7 @@ import { PoemParserComponent } from './admin/poem-parser/poem-parser.component';
 import { CategoryComponent } from './category/category.component';
 import { TagComponent } from './tag/tag.component';
 import { JsonConverterComponent } from './admin/json-converter/json-converter.component';
+import { postSSRResolver } from './resolvers/post-ssr.resolver';
 
 export const routes: Routes = [
   // Public routes - Use explore as homepage for now
@@ -67,8 +68,15 @@ export const routes: Routes = [
     canActivate: [AuthGuard],
     title: 'My Profile - pi'
   },
-  { path: 'read/:id', component: ReadingInterfaceComponent },
-  { path: 'post/:slug', component: ReadingInterfaceComponent },
+  // SSR-enabled reading interface route (primary)
+  { 
+    path: 'post/:slug', 
+    component: ReadingInterfaceComponent,
+    resolve: {
+      postData: postSSRResolver
+    },
+    title: 'Post - pi'
+  },
   { 
     path: 'submit', 
     component: SubmissionFormComponent, 
@@ -156,6 +164,29 @@ export const routes: Routes = [
     title: 'JOSNß Parser - pi'
   },
 
-  // Fallback
+  // Legacy route handler - redirect /:slug to /post/:slug
+  { 
+    path: ':slug', 
+    redirectTo: (route) => {
+      const slug = route.paramMap.get('slug');
+      
+      // Skip known application routes that aren't post slugs
+      const knownRoutes = [
+        'login', 'explore', 'submit', 'admin', 'profile', 'prompts',
+        'faqs', 'contact-us', 'privacy-policy', 'terms-of-use',
+        'complete-profile', 'review', 'publish', 'users', 'poem-parser', 'json-parser'
+      ];
+      
+      if (slug && !knownRoutes.includes(slug)) {
+        // This is likely a legacy post URL, redirect to new format
+        return `/post/${slug}`;
+      }
+      
+      // For known routes or invalid slugs, redirect to home
+      return '/explore';
+    }
+  },
+
+  // Fallback for unmatched routes
   { path: '**', redirectTo: '' }
 ];

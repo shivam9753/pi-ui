@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { RichTextEditorComponent } from '../../../submit/rich-text-editor/rich-text-editor.component';
 import { BadgeLabelComponent } from '../../../utilities/badge-label/badge-label.component';
+import { TagInputComponent } from '../../../utilities/tag-input/tag-input.component';
 import { BackendService } from '../../../services/backend.service';
 
 interface SEOConfig {
@@ -19,7 +20,7 @@ interface SEOConfig {
 
 @Component({
   selector: 'app-publish-submission',
-  imports: [CommonModule, FormsModule, RichTextEditorComponent, BadgeLabelComponent],
+  imports: [CommonModule, FormsModule, RichTextEditorComponent, BadgeLabelComponent, TagInputComponent],
   templateUrl: './publish-submission.component.html',
   styleUrl: './publish-submission.component.css'
 })
@@ -56,7 +57,6 @@ export class PublishSubmissionComponent implements OnInit {
   keywordsInput = '';
   slugError = '';
   baseUrl = window.location.origin + '/post/';
-  contentTagsInput: string[] = [];
   
   // User profile approval properties
   userProfile: any = null;
@@ -121,9 +121,28 @@ export class PublishSubmissionComponent implements OnInit {
       this.seoConfig.metaTitle = this.submission.title;
       this.seoConfig.metaDescription = this.submission.description || '';
       
-      // Initialize keywords from submission tags if available
+      // Initialize keywords from submission tags if available, otherwise from content tags
       if (this.submission.tags && this.submission.tags.length > 0) {
-        this.seoConfig.keywords = [...this.submission.tags];
+        // Filter out empty tags
+        const cleanTags = this.submission.tags.filter((tag: string) => tag?.trim().length > 0);
+        this.seoConfig.keywords = [...cleanTags];
+        this.keywordsInput = this.seoConfig.keywords.join(', ');
+      } else {
+        // Collect tags from content items if no submission-level tags exist
+        const allContentTags = new Set<string>();
+        if (this.submission.contents) {
+          this.submission.contents.forEach((content: any) => {
+            if (content.tags && Array.isArray(content.tags)) {
+              content.tags.forEach((tag: string) => {
+                const cleanTag = tag?.trim();
+                if (cleanTag && cleanTag.length > 0) {
+                  allContentTags.add(cleanTag);
+                }
+              });
+            }
+          });
+        }
+        this.seoConfig.keywords = Array.from(allContentTags);
         this.keywordsInput = this.seoConfig.keywords.join(', ');
       }
 
@@ -196,6 +215,27 @@ export class PublishSubmissionComponent implements OnInit {
     this.seoConfig.keywords = keywords;
   }
 
+  // Sync SEO keywords with content tags automatically
+  syncSEOKeywordsWithContentTags() {
+    const allContentTags = new Set<string>();
+    if (this.submission?.contents) {
+      this.submission.contents.forEach((content: any) => {
+        if (content.tags && Array.isArray(content.tags)) {
+          content.tags.forEach((tag: string) => {
+            const cleanTag = tag?.trim();
+            if (cleanTag && cleanTag.length > 0) {
+              allContentTags.add(cleanTag);
+            }
+          });
+        }
+      });
+    }
+    
+    // Update SEO keywords to match content tags
+    this.seoConfig.keywords = Array.from(allContentTags);
+    this.keywordsInput = this.seoConfig.keywords.join(', ');
+  }
+
   // Add keyword as chip when Enter or comma is pressed
   addKeywordFromInput(event: any) {
     if (event.key === 'Enter' || event.key === ',') {
@@ -216,37 +256,6 @@ export class PublishSubmissionComponent implements OnInit {
     this.seoConfig.keywords.splice(index, 1);
   }
 
-  // Add content tag as chip when Enter or comma is pressed
-  addContentTag(contentIndex: number, event: any) {
-    if (event.key === 'Enter' || event.key === ',') {
-      event.preventDefault();
-      const input = event.target as HTMLInputElement;
-      const tag = input.value.trim().toLowerCase();
-      
-      if (tag && this.submission.contents[contentIndex]) {
-        if (!this.submission.contents[contentIndex].tags) {
-          this.submission.contents[contentIndex].tags = [];
-        }
-        
-        const existingTags = this.submission.contents[contentIndex].tags;
-        if (!existingTags.includes(tag) && existingTags.length < 10) {
-          existingTags.push(tag);
-          input.value = '';
-          // Update the contentTagsInput array if needed
-          if (!this.contentTagsInput[contentIndex]) {
-            this.contentTagsInput[contentIndex] = '';
-          }
-        }
-      }
-    }
-  }
-
-  // Remove content tag chip by index
-  removeContentTag(contentIndex: number, tagIndex: number) {
-    if (this.submission.contents[contentIndex] && this.submission.contents[contentIndex].tags) {
-      this.submission.contents[contentIndex].tags.splice(tagIndex, 1);
-    }
-  }
 
   // Content expansion methods
   toggleContentExpanded(index: number) {
@@ -569,18 +578,32 @@ export class PublishSubmissionComponent implements OnInit {
   saveChanges() {
     if (!this.submission) return;
 
+    // Collect all tags from content items to create submission-level tags
+    const allContentTags = new Set<string>();
+    this.submission.contents.forEach((content: any) => {
+      if (content.tags && Array.isArray(content.tags)) {
+        content.tags.forEach((tag: string) => {
+          // Filter out empty strings and whitespace-only tags
+          const cleanTag = tag?.trim();
+          if (cleanTag && cleanTag.length > 0) {
+            allContentTags.add(cleanTag);
+          }
+        });
+      }
+    });
+
     const updateData = {
       title: this.submission.title,
       description: this.submission.description,
       excerpt: this.submission.excerpt,
       imageUrl: this.submission.imageUrl,
-      tags: this.seoConfig.keywords, // Save keywords as tags
+      tags: Array.from(allContentTags), // Use actual content tags, not SEO keywords
       contents: this.submission.contents.map((content: any) => ({
         _id: content._id,
         title: content.title,
         body: this.prepareContentForSaving(content.body),
         wordCount: this.calculateWordCount(content.body),
-        tags: content.tags || []
+        tags: (content.tags || []).filter((tag: string) => tag?.trim().length > 0)
       }))
     };
 

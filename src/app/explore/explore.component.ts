@@ -50,7 +50,8 @@ export class ExploreComponent implements OnInit {
     { label: 'Reading Time', value: 'readingTime' }
   ];
 
-  trendingTags = ['nature', 'love', 'identity', 'urban-life', 'memory', 'dreams', 'relationships', 'travel'];
+  trendingTags: string[] = [];
+  popularTags: string[] = [];
   
   // Writing/Content related announcements (for sidebar)
   writingAnnouncements = [
@@ -113,6 +114,26 @@ export class ExploreComponent implements OnInit {
 
   ngOnInit() {
     this.getPublishedSubmissions();
+    this.loadPopularTags();
+  }
+
+  // Load popular tags from dedicated API endpoint
+  loadPopularTags() {
+    this.backendService.getPopularTags({ limit: 8 }).subscribe({
+      next: (data) => {
+        // Extract tag names from the API response
+        this.trendingTags = data.tags?.map(tagObj => tagObj.tag) || [];
+        
+        // Fallback to meaningful topics if no popular tags found
+        if (this.trendingTags.length === 0) {
+          this.trendingTags = ['love poetry', 'urban life', 'nature writing', 'climate change', 'identity', 'memory', 'relationships', 'social justice'];
+        }
+      },
+      error: () => {
+        // Fallback to meaningful topics if API fails
+        this.trendingTags = ['love poetry', 'urban life', 'nature writing', 'climate change', 'identity', 'memory', 'relationships', 'social justice'];
+      }
+    });
   }
 
   getPublishedSubmissions(type: string = '') {

@@ -1,5 +1,5 @@
-import { Component, OnInit, signal, computed, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, OnInit, signal, computed, inject, PLATFORM_ID, Inject } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { Title, Meta } from '@angular/platform-browser';
@@ -12,6 +12,7 @@ import { Author } from '../models';
 import { AuthorUtils } from '../models/author.model';
 import { AuthorService } from '../services/author.service';
 import { ViewTrackerService } from '../services/view-tracker.service';
+import { SsrDataService, PostSSRData } from '../services/ssr-data.service';
 
 interface PublishedContent {
   _id: string;
@@ -102,23 +103,144 @@ content = signal<PublishedContent | null>(null);
     private titleService: Title,
     private metaService: Meta,
     private htmlSanitizer: HtmlSanitizerService,
-    private viewTracker: ViewTrackerService
+    private viewTracker: ViewTrackerService,
+    private ssrDataService: SsrDataService,
+    @Inject(PLATFORM_ID) private platformId: Object
   ) {}
 
   ngOnInit() {
-    this.route.params.subscribe(params => {
-      const contentId = params['id'];
-      const slug = params['slug'];
-      
-      if (contentId) {
-        this.loadContent(contentId);
-      } else if (slug) {
-        this.loadContentBySlug(slug);
-      }
-    });
+    // Check for SSR resolved data first
+    const ssrData = this.route.snapshot.data['postData'] as PostSSRData;
+    
+    if (ssrData && ssrData.post) {
+      console.log('[SSR] Using pre-resolved data');
+      this.handleSSRData(ssrData);
+    } else {
+      // Fallback to regular data fetching for client-side navigation
+      this.route.params.subscribe(params => {
+        const contentId = params['id'];
+        const slug = params['slug'];
+        
+        if (contentId) {
+          this.loadContent(contentId);
+        } else if (slug) {
+          this.loadContentBySlug(slug);
+        }
+      });
+    }
 
-    // Track reading progress
-    window.addEventListener('scroll', () => this.updateReadingProgress());
+    // Track reading progress (only in browser)
+    if (isPlatformBrowser(this.platformId)) {
+      window.addEventListener('scroll', () => this.updateReadingProgress());
+    }
+  }
+
+  private handleSSRData(ssrData: PostSSRData) {
+    try {
+      const data = ssrData.post;
+      
+      // Handle different possible content structures (same as loadContentBySlug)
+      let contentItems: ContentItem[] = [];
+      
+      if (data.contents && data.contents.length > 0) {
+        contentItems = data.contents;
+      } else if (data.contentIds && data.contentIds.length > 0) {
+        contentItems = data.contentIds.map((id: string, index: number) => ({
+          title: `Content ${index + 1}`,
+          body: `Content with ID: ${id}`,
+          wordCount: 0,
+          tags: []
+        }));
+      } else {
+        // Handle single content structures
+        if (data.content) {
+          contentItems = [{
+            title: data.title || 'Content',
+            body: data.content,
+            wordCount: data.content ? data.content.split(/\s+/).length : 0,
+            tags: data.tags || []
+          }];
+        } else if (data.body) {
+          contentItems = [{
+            title: data.title || 'Content',
+            body: data.body,
+            wordCount: data.body ? data.body.split(/\s+/).length : 0,
+            tags: data.tags || []
+          }];
+        } else if (data.text) {
+          contentItems = [{
+            title: data.title || 'Content',
+            body: data.text,
+            wordCount: data.text ? data.text.split(/\s+/).length : 0,
+            tags: data.tags || []
+          }];
+        } else if (data.excerpt) {
+          contentItems = [{
+            title: data.title || 'Content Preview',
+            body: `${data.excerpt}\n\n[Note: This appears to be a preview/excerpt. The full content may not be available through the current API endpoint.]`,
+            wordCount: data.excerpt ? data.excerpt.split(/\s+/).length : 0,
+            tags: data.tags || []
+          }];
+        } else {
+          contentItems = [{
+            title: data.title || 'Content',
+            body: data.description || 'Content is not available at this time.',
+            wordCount: data.description ? data.description.split(/\s+/).length : 0,
+            tags: data.tags || []
+          }];
+        }
+      }
+      
+      // Transform the API response to match our interface
+      const transformedContent: PublishedContent = {
+        _id: data._id,
+        title: data.title,
+        description: data.description,
+        submissionType: data.submissionType,
+        author: AuthorUtils.normalizeAuthor(data),
+        publishedAt: new Date(data.publishedAt || data.createdAt),
+        readingTime: data.readingTime || Math.ceil(contentItems.reduce((acc, item) => acc + item.wordCount, 0) / 200),
+        viewCount: data.viewCount || 0,
+        likeCount: data.likeCount || 0,
+        commentCount: data.commentCount || 0,
+        tags: data.tags || [],
+        imageUrl: data.imageUrl,
+        excerpt: data.excerpt,
+        contents: contentItems,
+        isLiked: false,
+        isBookmarked: false
+      };
+
+      this.content.set(transformedContent);
+      this.loading.set(false);
+      this.updatePageMeta(transformedContent);
+
+      // Only track views in browser
+      if (isPlatformBrowser(this.platformId)) {
+        this.viewTracker.logView(data._id).subscribe({
+          next: (viewResponse) => {
+            if (viewResponse.success) {
+              const currentContent = this.content();
+              if (currentContent) {
+                const updatedContent = {
+                  ...currentContent,
+                  viewCount: viewResponse.viewCount
+                };
+                this.content.set(updatedContent);
+              }
+            }
+          },
+          error: (err) => {
+            console.warn('Failed to log view:', err);
+          }
+        });
+      }
+      
+    } catch (error) {
+      console.error('[SSR] Error processing SSR data:', error);
+      this.error.set('Failed to load content');
+      this.loading.set(false);
+    }
   }
 
   async loadContent(contentId: string) {

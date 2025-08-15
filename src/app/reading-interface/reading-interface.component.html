@@ -18,13 +18,13 @@
 
               <!-- Mobile Controls - Moved to bottom -->
               <div class="md:hidden"></div>
-              <!-- Subtle category badge -->
+              <!-- Category badge -->
               <div class="mb-4">
                 <app-badge-label
                   [type]="content()!.submissionType"
                   [clickable]="true"
                   (badgeClick)="navigateToCategory($event)"
-                  class="inline-block opacity-60 hover:opacity-100 transition-opacity">
+                  class="inline-block">
                 </app-badge-label>
               </div>
               <h1 class="text-2xl sm:text-4xl lg:text-5xl xl:text-6xl font-serif font-bold text-gray-900 leading-tight mb-2 sm:mb-4">

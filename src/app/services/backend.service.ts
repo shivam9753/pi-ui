@@ -1,7 +1,8 @@
-import { Injectable } from '@angular/core';
+import { Injectable, Inject, PLATFORM_ID } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams, HttpErrorResponse } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { tap, catchError, timeout, retry } from 'rxjs/operators';
+import { isPlatformServer } from '@angular/common';
 import { environment } from '../../environments/environment';
 import {
   UpdateStatusPayload,
@@ -16,12 +17,17 @@ import {
   providedIn: 'root'
 })
 export class BackendService {
-  private readonly API_URL = environment.apiBaseUrl;
+  // Make API_URL public for SSR service access
+  readonly API_URL = environment.apiBaseUrl;
   private readonly REQUEST_TIMEOUT = 10000; // 10 seconds
 
   constructor(
-    private http: HttpClient
-  ) {}
+    private http: HttpClient,
+    @Inject(PLATFORM_ID) private platformId: Object
+  ) {
+    const platform = isPlatformServer(this.platformId) ? 'Server' : 'Browser';
+    console.log(`🔧 Backend Service initialized with API URL: ${this.API_URL} (${platform})`);
+  }
 
   private handleApiCall<T>(url: string, method: string = 'GET'): (source: Observable<T>) => Observable<T> {
     return (source: Observable<T>) => {
@@ -796,6 +802,23 @@ deleteDraft(draftId: string): Observable<any> {
     { headers }
   ).pipe(
     catchError(this.handleError)
+  );
+}
+
+// Get popular tags from published content
+getPopularTags(options: { limit?: number } = {}): Observable<{
+  tags: { tag: string; count: number }[];
+  total: number;
+}> {
+  let params = new HttpParams();
+  
+  if (options.limit) {
+    params = params.set('limit', options.limit.toString());
+  }
+
+  const url = `${this.API_URL}/submissions/popular-tags`;
+  return this.http.get<any>(url, { params }).pipe(
+    this.handleApiCall(url, 'GET')
   );
 }
 
