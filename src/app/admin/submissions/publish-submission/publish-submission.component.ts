@@ -56,6 +56,7 @@ export class PublishSubmissionComponent implements OnInit {
   keywordsInput = '';
   slugError = '';
   baseUrl = window.location.origin + '/post/';
+  contentTagsInput: string[] = [];
   
   // User profile approval properties
   userProfile: any = null;
@@ -193,6 +194,58 @@ export class PublishSubmissionComponent implements OnInit {
       .slice(0, 10); // Limit to 10 keywords
     
     this.seoConfig.keywords = keywords;
+  }
+
+  // Add keyword as chip when Enter or comma is pressed
+  addKeywordFromInput(event: any) {
+    if (event.key === 'Enter' || event.key === ',') {
+      event.preventDefault();
+      const input = event.target as HTMLInputElement;
+      const keyword = input.value.trim().toLowerCase();
+      
+      if (keyword && !this.seoConfig.keywords.includes(keyword) && this.seoConfig.keywords.length < 10) {
+        this.seoConfig.keywords.push(keyword);
+        input.value = '';
+        this.keywordsInput = '';
+      }
+    }
+  }
+
+  // Remove keyword chip by index
+  removeKeyword(index: number) {
+    this.seoConfig.keywords.splice(index, 1);
+  }
+
+  // Add content tag as chip when Enter or comma is pressed
+  addContentTag(contentIndex: number, event: any) {
+    if (event.key === 'Enter' || event.key === ',') {
+      event.preventDefault();
+      const input = event.target as HTMLInputElement;
+      const tag = input.value.trim().toLowerCase();
+      
+      if (tag && this.submission.contents[contentIndex]) {
+        if (!this.submission.contents[contentIndex].tags) {
+          this.submission.contents[contentIndex].tags = [];
+        }
+        
+        const existingTags = this.submission.contents[contentIndex].tags;
+        if (!existingTags.includes(tag) && existingTags.length < 10) {
+          existingTags.push(tag);
+          input.value = '';
+          // Update the contentTagsInput array if needed
+          if (!this.contentTagsInput[contentIndex]) {
+            this.contentTagsInput[contentIndex] = '';
+          }
+        }
+      }
+    }
+  }
+
+  // Remove content tag chip by index
+  removeContentTag(contentIndex: number, tagIndex: number) {
+    if (this.submission.contents[contentIndex] && this.submission.contents[contentIndex].tags) {
+      this.submission.contents[contentIndex].tags.splice(tagIndex, 1);
+    }
   }
 
   // Content expansion methods

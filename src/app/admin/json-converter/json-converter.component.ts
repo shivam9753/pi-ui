@@ -22,7 +22,12 @@ export class JsonConverterComponent {
     { id: '', label: 'All Categories' },
     { id: '62395b790be154c672de7b2d', label: 'Articles' },
     { id: '62395b7a65a28761d8f8f29f', label: 'Cinema Essay' },
-    { id: '62395b7abca8b2ad944dcd07', label: 'Poetry' }
+    { id: '62395b7abca8b2ad944dcd07', label: 'Poetry' },
+    {id: '62395b7dafada4c891b8db51', label: 'Interview'},
+    {id: '6249d4f53b0f3780a67181cc', label: 'NaPoWriMo'},
+    {id: '62395b79e193232376c72f3e', label: 'Book Review'},
+    {id: '67e7ba096c47518498d79395', label: 'Prose'}
+
   ];
 
   onFileUpload(event: any) {

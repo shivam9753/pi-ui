@@ -6,10 +6,16 @@
     [loading]="loading">
   </app-admin-page-header>
 
+  <!-- Filter Component -->
+  <app-simple-submission-filter 
+    [availableStatuses]="['accepted']"
+    (filterChange)="onFilterChange($event)">
+  </app-simple-submission-filter>
+
   <!-- Data Table -->
   <app-data-table
     [columns]="columns"
-    [data]="acceptedSubmissions"
+    [data]="filteredSubmissions"
     [actions]="actions"
     [loading]="loading"
     loadingText="Loading accepted submissions..."

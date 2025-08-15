@@ -66,10 +66,10 @@ export class SubmissionMobileCardComponent {
 
   getActionButtonClass(color?: string): string {
     const colorClasses: Record<string, string> = {
-      'primary': 'text-blue-600 bg-blue-50 border border-blue-200',
-      'warning': 'text-orange-600 bg-orange-50 border border-orange-200',
-      'danger': 'text-red-600 bg-red-50 border border-red-200',
-      'success': 'text-green-600 bg-green-50 border border-green-200'
+      'primary': 'action-btn-primary',
+      'warning': 'action-btn-warning', 
+      'danger': 'action-btn-danger',
+      'success': 'action-btn-success'
     };
     return colorClasses[color || 'primary'] || colorClasses['primary'];
   }

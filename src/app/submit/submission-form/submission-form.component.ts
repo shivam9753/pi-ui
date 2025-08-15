@@ -269,7 +269,22 @@ export class SubmissionFormComponent implements OnInit, OnDestroy {
       },
       error: (error) => {
         this.isSavingDraft = false;
-        this.showToast('Failed to save draft. Please try again.', 'error');
+        
+        let errorMessage = 'Failed to save draft. Please try again.';
+        
+        if (error.status === 0) {
+          errorMessage = 'Network error. Please check your connection and try again.';
+        } else if (error.status === 401) {
+          errorMessage = 'Please log in again to save your draft.';
+        } else if (error.status === 413) {
+          errorMessage = 'Draft is too large. Please reduce the content size.';
+        } else if (error.status >= 500) {
+          errorMessage = 'Server error. Please try again in a few minutes.';
+        } else if (error.error?.message) {
+          errorMessage = error.error.message;
+        }
+        
+        this.showToast(errorMessage, 'error');
       }
     });
   }
@@ -376,7 +391,21 @@ export class SubmissionFormComponent implements OnInit, OnDestroy {
         this.loadDrafts(); // Refresh drafts list
       },
       error: (error) => {
-        this.showToast('Failed to delete draft. Please try again.', 'error');
+        let errorMessage = 'Failed to delete draft. Please try again.';
+        
+        if (error.status === 0) {
+          errorMessage = 'Network error. Please check your connection and try again.';
+        } else if (error.status === 401) {
+          errorMessage = 'Please log in again to delete your draft.';
+        } else if (error.status === 404) {
+          errorMessage = 'Draft not found. It may have already been deleted.';
+        } else if (error.status >= 500) {
+          errorMessage = 'Server error. Please try again in a few minutes.';
+        } else if (error.error?.message) {
+          errorMessage = error.error.message;
+        }
+        
+        this.showToast(errorMessage, 'error');
       }
     });
   }
@@ -441,23 +470,47 @@ export class SubmissionFormComponent implements OnInit, OnDestroy {
 
     
     this.backendService.submitNewSubmission(submissionPayload).subscribe({
-      next: (result) => {
+      next: () => {
         this.hasUnsavedChanges = false; // Reset unsaved changes
         this.showToast('Submission successful! Thank you for sharing your creative work.', 'success');
         this.handleSuccessfulSubmission();
       },
       error: (error) => {
+        this.isSubmitting = false;
         
-        // Show more specific error message
+        // Handle different types of errors with specific messages
         let errorMessage = 'There was an error submitting your work. Please try again.';
-        if (error.error && error.error.message) {
-          errorMessage = error.error.message;
-        } else if (error.error && typeof error.error === 'string') {
-          errorMessage = error.error;
+        
+        if (error.status === 0) {
+          // Network error
+          errorMessage = 'Network error. Please check your connection and try again.';
+        } else if (error.status === 400) {
+          // Validation error
+          errorMessage = error.error?.message || 'Please check your submission and try again.';
+        } else if (error.status === 401) {
+          // Authentication error
+          errorMessage = 'Please log in again to submit your work.';
+        } else if (error.status === 413) {
+          // Payload too large
+          errorMessage = 'Your submission is too large. Please reduce the content size.';
+        } else if (error.status === 429) {
+          // Rate limiting
+          errorMessage = 'Too many submissions. Please wait a moment and try again.';
+        } else if (error.status >= 500) {
+          // Server error
+          errorMessage = 'Server error. Please try again in a few minutes.';
+        } else if (error.error) {
+          // Try to extract specific error message from response
+          if (typeof error.error === 'string') {
+            errorMessage = error.error;
+          } else if (error.error.message) {
+            errorMessage = error.error.message;
+          } else if (error.error.error) {
+            errorMessage = error.error.error;
+          }
         }
         
         this.showToast(errorMessage, 'error');
-        this.isSubmitting = false;
       }
     });
   }

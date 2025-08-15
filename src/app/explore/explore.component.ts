@@ -35,11 +35,12 @@ export class ExploreComponent implements OnInit {
   // Updated filter options with better labels
   filterOptions: any = [
     { label: 'All', value: '' },
+    { label: 'Popular This Week', value: 'popular' },
     { label: 'Poems', value: 'poem' },
     { label: 'Prose', value: 'prose' },
     { label: 'Cinema Essays', value: 'cinema_essay' },
     { label: 'Articles', value: 'article' },
-    { label: 'Popular This Week', value: 'popular' }
+    { label: 'Books', value: 'book_review' }
   ];
 
   // Sort options

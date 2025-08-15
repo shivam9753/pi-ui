@@ -6,6 +6,12 @@
     [loading]="loading">
   </app-admin-page-header>
 
+  <!-- Filter Component -->
+  <app-simple-submission-filter 
+    [availableStatuses]="['published', 'accepted']"
+    (filterChange)="onFilterChange($event)">
+  </app-simple-submission-filter>
+
   <!-- Data Table -->
   <app-data-table
     [columns]="columns"

@@ -277,7 +277,7 @@ export class DataTableComponent<T = any> implements OnInit {
   }
 
   getBadgeClass(value: string): string {
-    const defaultClass = 'px-2 py-1 text-xs font-medium rounded-full bg-gray-50 text-gray-700';
+    const defaultClass = 'px-2 py-1 text-xs font-medium rounded-full tag tag-gray';
     return this.badgeConfig[value?.toLowerCase()] || defaultClass;
   }
 
@@ -285,9 +285,9 @@ export class DataTableComponent<T = any> implements OnInit {
     const baseClass = 'inline-flex items-center px-3 py-1 border border-transparent text-xs font-medium rounded-md focus:outline-none focus:ring-2 transition-all duration-150';
     switch (color) {
       case 'primary': return `${baseClass} text-white bg-themed-accent hover:bg-themed-accent-hover focus:ring-orange-500`;
-      case 'danger': return `${baseClass} text-red-700 bg-red-50 hover:bg-red-100 focus:ring-red-500 dark:text-red-400 dark:bg-red-950 dark:hover:bg-red-900`;
-      case 'warning': return `${baseClass} text-yellow-700 bg-yellow-50 hover:bg-yellow-100 focus:ring-yellow-500 dark:text-yellow-400 dark:bg-yellow-950 dark:hover:bg-yellow-900`;
-      case 'success': return `${baseClass} text-green-700 bg-green-50 hover:bg-green-100 focus:ring-green-500 dark:text-green-400 dark:bg-green-950 dark:hover:bg-green-900`;
+      case 'danger': return `${baseClass} action-btn-danger`;
+      case 'warning': return `${baseClass} action-btn-warning`;
+      case 'success': return `${baseClass} action-btn-success`;
       default: return `${baseClass} text-themed-secondary bg-themed-tertiary hover:bg-themed-hover focus:ring-gray-500`;
     }
   }

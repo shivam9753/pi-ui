@@ -17,11 +17,12 @@ import {
   createPublishedPostActions,
   SUBMISSION_BADGE_CONFIG
 } from '../../../shared/components';
+import { SimpleSubmissionFilterComponent, SimpleFilterOptions } from '../../../shared/components/simple-submission-filter/simple-submission-filter.component';
 
 
 @Component({
   selector: 'app-published-posts',
-  imports: [CommonModule, DatePipe, TitleCasePipe, FormsModule, PrettyLabelPipe, TypeBadgePipe, AdminPageHeaderComponent, DataTableComponent],
+  imports: [CommonModule, DatePipe, TitleCasePipe, FormsModule, PrettyLabelPipe, TypeBadgePipe, AdminPageHeaderComponent, DataTableComponent, SimpleSubmissionFilterComponent],
   templateUrl: './published-posts.component.html',
   styleUrl: './published-posts.component.css'
 })
@@ -37,9 +38,13 @@ export class PublishedPostsComponent implements OnInit {
     totalItems: 0
   };
   publishedSubmissions: any[] = [];
+  filteredSubmissions: any[] = [];
   loading = true;
   searchTerm = '';
   selectedType = '';
+  
+  // Filter properties
+  currentFilters: SimpleFilterOptions = {};
 
   // Pagination properties
   currentPage = 1;
@@ -90,6 +95,7 @@ export class PublishedPostsComponent implements OnInit {
         this.totalCount = data.total || 0;
         this.totalPages = Math.ceil(this.totalCount / this.itemsPerPage);
         this.hasMore = data.pagination?.hasMore || false;
+        this.applyClientSideFilters();
         this.updatePaginationConfig();
         this.loading = false;
       },
@@ -174,7 +180,7 @@ export class PublishedPostsComponent implements OnInit {
 
   // Note: Since we're doing server-side pagination, filtering is handled server-side
   // For client-side filtering within the current page:
-  get filteredSubmissions() {
+  get legacyFilteredSubmissions() {
     let filtered = this.publishedSubmissions;
 
     if (this.searchTerm.trim()) {
@@ -355,6 +361,29 @@ export class PublishedPostsComponent implements OnInit {
 
   getBadgeClass(key: string): string {
     return (this.badgeConfig as any)[key] || 'px-2 py-1 text-xs font-medium rounded-full bg-gray-50 text-gray-700';
+  }
+
+  // Filter methods
+  onFilterChange(filters: SimpleFilterOptions) {
+    this.currentFilters = filters;
+    this.applyClientSideFilters();
+  }
+
+  applyClientSideFilters() {
+    this.filteredSubmissions = this.publishedSubmissions.filter(submission => {
+      let matchesStatus = true;
+      let matchesType = true;
+
+      if (this.currentFilters.status) {
+        matchesStatus = submission.status === this.currentFilters.status;
+      }
+
+      if (this.currentFilters.type) {
+        matchesType = submission.submissionType === this.currentFilters.type;
+      }
+
+      return matchesStatus && matchesType;
+    });
   }
 
 }

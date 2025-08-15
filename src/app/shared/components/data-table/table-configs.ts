@@ -281,31 +281,31 @@ export const createReadyToPublishActions = (
   }
 ];
 
-// Badge configurations
+// Badge configurations - Using CSS custom properties for consistent theming
 export const SUBMISSION_BADGE_CONFIG = {
-  'pending': 'px-2 py-1 text-xs font-medium rounded-full bg-yellow-50 text-yellow-700',
-  'pending_review': 'px-2 py-1 text-xs font-medium rounded-full bg-orange-50 text-orange-700',
-  'in_progress': 'px-2 py-1 text-xs font-medium rounded-full bg-blue-50 text-blue-700',
-  'needs_revision': 'px-2 py-1 text-xs font-medium rounded-full bg-purple-50 text-purple-700',
-  'resubmitted': 'px-2 py-1 text-xs font-medium rounded-full bg-cyan-50 text-cyan-700',
-  'under_review': 'px-2 py-1 text-xs font-medium rounded-full bg-blue-50 text-blue-700',
-  'accepted': 'px-2 py-1 text-xs font-medium rounded-full bg-emerald-50 text-emerald-700',
-  'ready_to_publish': 'px-2 py-1 text-xs font-medium rounded-full bg-green-50 text-green-700',
-  'published': 'px-2 py-1 text-xs font-medium rounded-full bg-green-50 text-green-700',
-  'rejected': 'px-2 py-1 text-xs font-medium rounded-full bg-red-50 text-red-700',
-  'draft': 'px-2 py-1 text-xs font-medium rounded-full bg-gray-50 text-gray-700',
-  'poem': 'px-2 py-1 text-xs font-medium rounded-full bg-purple-50 text-purple-700',
-  'prose': 'px-2 py-1 text-xs font-medium rounded-full bg-blue-50 text-blue-700',
-  'story': 'px-2 py-1 text-xs font-medium rounded-full bg-blue-50 text-blue-700',
-  'article': 'px-2 py-1 text-xs font-medium rounded-full bg-indigo-50 text-indigo-700',
-  'opinion': 'px-2 py-1 text-xs font-medium rounded-full bg-red-50 text-red-700',
-  'book_review': 'px-2 py-1 text-xs font-medium rounded-full bg-green-50 text-green-700',
-  'cinema_essay': 'px-2 py-1 text-xs font-medium rounded-full bg-pink-50 text-pink-700',
-  'other': 'px-2 py-1 text-xs font-medium rounded-full bg-gray-50 text-gray-700'
+  'pending': 'px-2 py-1 text-xs font-medium rounded-full tag tag-yellow',
+  'pending_review': 'px-2 py-1 text-xs font-medium rounded-full tag tag-orange',
+  'in_progress': 'px-2 py-1 text-xs font-medium rounded-full tag tag-blue',
+  'needs_revision': 'px-2 py-1 text-xs font-medium rounded-full tag tag-purple',
+  'resubmitted': 'px-2 py-1 text-xs font-medium rounded-full tag tag-blue',
+  'under_review': 'px-2 py-1 text-xs font-medium rounded-full tag tag-blue',
+  'accepted': 'px-2 py-1 text-xs font-medium rounded-full tag tag-emerald',
+  'ready_to_publish': 'px-2 py-1 text-xs font-medium rounded-full tag tag-green',
+  'published': 'px-2 py-1 text-xs font-medium rounded-full tag tag-green',
+  'rejected': 'px-2 py-1 text-xs font-medium rounded-full tag tag-red',
+  'draft': 'px-2 py-1 text-xs font-medium rounded-full tag tag-gray',
+  'poem': 'px-2 py-1 text-xs font-medium rounded-full tag tag-purple',
+  'prose': 'px-2 py-1 text-xs font-medium rounded-full tag tag-blue',
+  'story': 'px-2 py-1 text-xs font-medium rounded-full tag tag-blue',
+  'article': 'px-2 py-1 text-xs font-medium rounded-full tag tag-blue',
+  'opinion': 'px-2 py-1 text-xs font-medium rounded-full tag tag-red',
+  'book_review': 'px-2 py-1 text-xs font-medium rounded-full tag tag-green',
+  'cinema_essay': 'px-2 py-1 text-xs font-medium rounded-full tag tag-purple',
+  'other': 'px-2 py-1 text-xs font-medium rounded-full tag tag-gray'
 };
 
 export const USER_BADGE_CONFIG = {
-  'admin': 'px-2 py-1 text-xs font-medium rounded-full bg-red-50 text-red-700',
-  'reviewer': 'px-2 py-1 text-xs font-medium rounded-full bg-blue-50 text-blue-700',
-  'user': 'px-2 py-1 text-xs font-medium rounded-full bg-gray-50 text-gray-700'
+  'admin': 'px-2 py-1 text-xs font-medium rounded-full tag tag-red',
+  'reviewer': 'px-2 py-1 text-xs font-medium rounded-full tag tag-blue',
+  'user': 'px-2 py-1 text-xs font-medium rounded-full tag tag-gray'
 };

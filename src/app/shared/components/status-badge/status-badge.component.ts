@@ -11,7 +11,16 @@ export type StatusType =
   | 'draft'
   | 'active'
   | 'inactive'
-  | 'featured';
+  | 'featured'
+  | 'poem'
+  | 'prose'
+  | 'story'
+  | 'article'
+  | 'opinion'
+  | 'book_review'
+  | 'cinema_essay'
+  | 'interview'
+  | 'other';
 
 @Component({
   selector: 'app-status-badge',
@@ -63,6 +72,24 @@ export class StatusBadgeComponent {
         return 'Inactive';
       case 'featured':
         return 'Featured';
+      case 'poem':
+        return 'Poem';
+      case 'prose':
+        return 'Prose';
+      case 'story':
+        return 'Story';
+      case 'article':
+        return 'Article';
+      case 'opinion':
+        return 'Opinion';
+      case 'book_review':
+        return 'Book Review';
+      case 'cinema_essay':
+        return 'Cinema Essay';
+      case 'interview':
+        return 'Interview';
+      case 'other':
+        return 'Other';
       default:
         return typeof this.status === 'string' ? this.status : '';
     }
@@ -82,24 +109,30 @@ export class StatusBadgeComponent {
   }
 
   private getColorClasses(): string {
-    const colorMap: Record<StatusType, { light: string; dark: string }> = {
-      pending_review: { light: 'bg-yellow-100 text-yellow-800', dark: 'dark:bg-yellow-500/20 dark:text-yellow-300' },
-      in_progress: { light: 'bg-blue-100 text-blue-800', dark: 'dark:bg-blue-500/20 dark:text-blue-300' },
-      accepted: { light: 'bg-green-100 text-green-800', dark: 'dark:bg-green-500/20 dark:text-green-300' },
-      rejected: { light: 'bg-red-100 text-red-800', dark: 'dark:bg-red-500/20 dark:text-red-300' },
-      needs_revision: { light: 'bg-orange-100 text-orange-800', dark: 'dark:bg-orange-500/20 dark:text-orange-300' },
-      published: { light: 'bg-emerald-100 text-emerald-800', dark: 'dark:bg-emerald-500/20 dark:text-emerald-300' },
-      draft: { light: 'bg-gray-100 text-gray-800', dark: 'dark:bg-gray-500/20 dark:text-gray-300' },
-      active: { light: 'bg-green-100 text-green-800', dark: 'dark:bg-green-500/20 dark:text-green-300' },
-      inactive: { light: 'bg-gray-100 text-gray-800', dark: 'dark:bg-gray-500/20 dark:text-gray-300' },
-      featured: { light: 'bg-purple-100 text-purple-800', dark: 'dark:bg-purple-500/20 dark:text-purple-300' }
+    const colorMap: Record<StatusType, string> = {
+      pending_review: 'tag-yellow',
+      in_progress: 'tag-blue',
+      accepted: 'tag-emerald',
+      rejected: 'tag-red',
+      needs_revision: 'tag-orange',
+      published: 'tag-green',
+      draft: 'tag-gray',
+      active: 'tag-green',
+      inactive: 'tag-gray',
+      featured: 'tag-purple',
+      poem: 'tag-purple',
+      prose: 'tag-blue',
+      story: 'tag-blue',
+      article: 'tag-blue',
+      opinion: 'tag-red',
+      book_review: 'tag-green',
+      cinema_essay: 'tag-purple',
+      interview: 'tag-blue',
+      other: 'tag-gray'
     };
 
-    const colors =
-      colorMap[this.status as StatusType] ||
-      { light: 'bg-gray-100 text-gray-800', dark: 'dark:bg-gray-500/20 dark:text-gray-300' };
-
-    return `${colors.light} ${colors.dark}`;
+    const colorClass = colorMap[this.status as StatusType] || 'tag-gray';
+    return colorClass;
   }
 
   getIconPath(): string {

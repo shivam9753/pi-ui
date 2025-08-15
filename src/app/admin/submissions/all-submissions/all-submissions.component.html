@@ -7,6 +7,12 @@
     (onRefresh)="refreshData()">
   </app-admin-page-header>
 
+  <!-- Filter Component -->
+  <app-simple-submission-filter 
+    [availableStatuses]="['pending_review', 'in_progress', 'needs_revision', 'accepted', 'published', 'rejected', 'draft']"
+    (filterChange)="onFilterChange($event)">
+  </app-simple-submission-filter>
+
   <!-- Selection Info -->
   @if (selectedSubmissions.size > 0) {
     <div class="mb-4 text-sm text-gray-600 bg-orange-50 p-3 rounded-lg">
@@ -70,7 +76,7 @@
   <!-- Data Table -->
   <app-data-table
     [columns]="columns"
-    [data]="submissions"
+    [data]="filteredSubmissions"
     [loading]="loading"
     loadingText="Loading submissions..."
     [selectable]="true"

@@ -14,11 +14,12 @@ import {
   SUBMISSION_BADGE_CONFIG
 } from '../../../shared/components';
 import { PrettyLabelPipe } from '../../../pipes/pretty-label.pipe';
+import { SimpleSubmissionFilterComponent, SimpleFilterOptions } from '../../../shared/components/simple-submission-filter/simple-submission-filter.component';
 
 
 @Component({
   selector: 'app-all-submissions',
-  imports: [CommonModule, FormsModule, AdminPageHeaderComponent, DataTableComponent, PrettyLabelPipe],
+  imports: [CommonModule, FormsModule, AdminPageHeaderComponent, DataTableComponent, PrettyLabelPipe, SimpleSubmissionFilterComponent],
   templateUrl: './all-submissions.component.html',
   styleUrl: './all-submissions.component.css'
 })
@@ -41,10 +42,14 @@ export class AllSubmissionsComponent implements OnInit {
     totalItems: 0
   };
   submissions: any[] = [];
+  filteredSubmissions: any[] = [];
   users: any[] = [];
   loading = false;
   message = '';
   messageType: 'success' | 'error' | 'info' = 'info';
+  
+  // Filter properties
+  currentFilters: SimpleFilterOptions = {};
   
   // Edit mode
   editingSubmission: any = null;
@@ -89,7 +94,7 @@ export class AllSubmissionsComponent implements OnInit {
     this.http.get(`${environment.apiBaseUrl}/admin/submissions/all`, { headers }).subscribe({
       next: (res: any) => {
         this.submissions = res.submissions || [];
-        this.updatePaginationConfig();
+        this.applyFilters();
         this.loading = false;
       },
       error: (err) => {
@@ -102,9 +107,9 @@ export class AllSubmissionsComponent implements OnInit {
   updatePaginationConfig() {
     this.paginationConfig = {
       currentPage: 1,
-      totalPages: Math.ceil(this.submissions.length / 20),
+      totalPages: Math.ceil(this.filteredSubmissions.length / 20),
       pageSize: 20,
-      totalItems: this.submissions.length
+      totalItems: this.filteredSubmissions.length
     };
   }
 
@@ -158,13 +163,13 @@ export class AllSubmissionsComponent implements OnInit {
 
   getStatusColor(status: string): string {
     switch (status) {
-      case 'pending_review': return 'bg-yellow-100 text-yellow-800';
-      case 'in_progress': return 'bg-blue-100 text-blue-800';
-      case 'accepted': return 'bg-green-100 text-green-800';
-      case 'rejected': return 'bg-red-100 text-red-800';
-      case 'published': return 'bg-purple-100 text-purple-800';
-      case 'needs_revision': return 'bg-orange-100 text-orange-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case 'pending_review': return 'tag tag-yellow';
+      case 'in_progress': return 'tag tag-blue';
+      case 'accepted': return 'tag tag-emerald';
+      case 'rejected': return 'tag tag-red';
+      case 'published': return 'tag tag-green';
+      case 'needs_revision': return 'tag tag-orange';
+      default: return 'tag tag-gray';
     }
   }
   
@@ -260,6 +265,31 @@ export class AllSubmissionsComponent implements OnInit {
 
   getBadgeClass(key: string): string {
     return (this.badgeConfig as any)[key] || 'px-2 py-1 text-xs font-medium rounded-full bg-gray-50 text-gray-700';
+  }
+
+  // Filter methods
+  onFilterChange(filters: SimpleFilterOptions) {
+    this.currentFilters = filters;
+    this.applyFilters();
+  }
+
+  applyFilters() {
+    this.filteredSubmissions = this.submissions.filter(submission => {
+      let matchesStatus = true;
+      let matchesType = true;
+
+      if (this.currentFilters.status) {
+        matchesStatus = submission.status === this.currentFilters.status;
+      }
+
+      if (this.currentFilters.type) {
+        matchesType = submission.submissionType === this.currentFilters.type;
+      }
+
+      return matchesStatus && matchesType;
+    });
+
+    this.updatePaginationConfig();
   }
 
 }

@@ -15,10 +15,11 @@ import {
   createReadyToPublishActions,
   SUBMISSION_BADGE_CONFIG
 } from '../../../shared/components';
+import { SimpleSubmissionFilterComponent, SimpleFilterOptions } from '../../../shared/components/simple-submission-filter/simple-submission-filter.component';
 
 @Component({
   selector: 'app-ready-to-publish',
-  imports: [CommonModule, FormsModule, AdminPageHeaderComponent, DataTableComponent],
+  imports: [CommonModule, FormsModule, AdminPageHeaderComponent, DataTableComponent, SimpleSubmissionFilterComponent],
   templateUrl: './ready-to-publish.component.html',
   styleUrl: './ready-to-publish.component.css'
 })
@@ -35,7 +36,11 @@ export class ReadyToPublishComponent implements OnInit {
   };
 
   acceptedSubmissions: any[] = [];
+  filteredSubmissions: any[] = [];
   loading = true;
+  
+  // Filter properties
+  currentFilters: SimpleFilterOptions = {};
 
   // Toast notification properties
   toastMessage = '';
@@ -77,7 +82,7 @@ export class ReadyToPublishComponent implements OnInit {
       next: (data) => {
         // Handle optimized response structure
         this.acceptedSubmissions = data.submissions || [];
-        this.updatePaginationConfig(data.total || 0);
+        this.applyFilters();
         this.loading = false;
       },
       error: (err) => {
@@ -204,11 +209,12 @@ export class ReadyToPublishComponent implements OnInit {
   }
 
   // Table management methods
-  updatePaginationConfig(totalItems: number) {
+  updatePaginationConfig(totalItems?: number) {
+    const items = totalItems ?? this.filteredSubmissions.length;
     this.paginationConfig = {
       ...this.paginationConfig,
-      totalItems,
-      totalPages: Math.ceil(totalItems / this.paginationConfig.pageSize)
+      totalItems: items,
+      totalPages: Math.ceil(items / this.paginationConfig.pageSize)
     };
   }
 
@@ -246,5 +252,30 @@ export class ReadyToPublishComponent implements OnInit {
 
   getBadgeClass(key: string): string {
     return (this.badgeConfig as any)[key] || 'px-2 py-1 text-xs font-medium rounded-full bg-gray-50 text-gray-700';
+  }
+
+  // Filter methods
+  onFilterChange(filters: SimpleFilterOptions) {
+    this.currentFilters = filters;
+    this.applyFilters();
+  }
+
+  applyFilters() {
+    this.filteredSubmissions = this.acceptedSubmissions.filter(submission => {
+      let matchesStatus = true;
+      let matchesType = true;
+
+      if (this.currentFilters.status) {
+        matchesStatus = submission.status === this.currentFilters.status;
+      }
+
+      if (this.currentFilters.type) {
+        matchesType = submission.submissionType === this.currentFilters.type;
+      }
+
+      return matchesStatus && matchesType;
+    });
+
+    this.updatePaginationConfig();
   }
 }

@@ -9,6 +9,13 @@
     (onRefresh)="onRefresh()">
   </app-admin-page-header>
 
+  <!-- Advanced Filter Component -->
+  <app-advanced-submission-filter 
+    [initialFilters]="filters"
+    (filterChange)="onFiltersChange($event)"
+    (quickFilterToggle)="onQuickFilterToggle($event)">
+  </app-advanced-submission-filter>
+
   <!-- Data Table -->
   <app-data-table
     [columns]="columns"

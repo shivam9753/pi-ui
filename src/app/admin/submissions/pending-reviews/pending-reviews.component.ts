@@ -14,13 +14,16 @@ import {
   PaginationConfig,
   PENDING_REVIEWS_TABLE_COLUMNS,
   createPendingReviewActions,
-  SUBMISSION_BADGE_CONFIG
+  SUBMISSION_BADGE_CONFIG,
+  AdvancedSubmissionFilterComponent,
+  AdvancedFilterOptions,
+  QuickFilterEvent
 } from '../../../shared/components';
 import { PrettyLabelPipe } from '../../../pipes/pretty-label.pipe';
 
 @Component({
   selector: 'app-pending-reviews',
-  imports: [CommonModule, FormsModule, AdminPageHeaderComponent, DataTableComponent, PrettyLabelPipe],
+  imports: [CommonModule, FormsModule, AdminPageHeaderComponent, DataTableComponent, PrettyLabelPipe, AdvancedSubmissionFilterComponent],
   templateUrl: './pending-reviews.component.html',
   styleUrl: './pending-reviews.component.css'
 })
@@ -270,21 +273,14 @@ export class PendingReviewsComponent implements OnInit {
     this.loadSubmissions(1); // Reset to first page when filtering
   }
 
-  // Handle filter changes from FilterBarComponent
-  onFiltersChange(newFilters: any) {
+  // Handle filter changes from AdvancedSubmissionFilterComponent
+  onFiltersChange(newFilters: AdvancedFilterOptions) {
     this.filters = { ...this.filters, ...newFilters };
     this.loadSubmissions(1);
   }
 
-  // Handle search from FilterBarComponent
-  onSearchChange(searchTerm: string) {
-    this.filters['search'] = searchTerm;
-    this.loadSubmissions(1);
-  }
-
-  // Handle quick filter toggle from FilterBarComponent
-  onQuickFilterToggle(event: {key: string, active: boolean}) {
-    
+  // Handle quick filter toggle from AdvancedSubmissionFilterComponent
+  onQuickFilterToggle(event: QuickFilterEvent) {
     // Update active quick filters array
     if (event.active) {
       if (!this.activeQuickFilters.includes(event.key)) {
