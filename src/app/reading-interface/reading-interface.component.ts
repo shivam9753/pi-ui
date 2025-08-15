@@ -671,39 +671,116 @@ content = signal<PublishedContent | null>(null);
 
   private updatePageMeta(content: PublishedContent) {
     // Update page title
-    this.titleService.setTitle(`${content.title} - pi`);
+    this.titleService.setTitle(`${content.title} — Poems by ${content.author.name} - pi`);
+    
+    // Create a proper description
+    const metaDescription = content.description || content.excerpt || `Read "${content.title}" by ${content.author.name} on Poems in India - a curated collection of poetry and literature.`;
     
     // Update meta description
     this.metaService.updateTag({ 
       name: 'description', 
-      content: content.description || content.excerpt 
+      content: metaDescription 
     });
     
     // Update meta keywords if available
     if (content.tags && content.tags.length > 0) {
       this.metaService.updateTag({ 
         name: 'keywords', 
-        content: content.tags.join(', ') 
+        content: `${content.tags.join(', ')}, poetry, literature, ${content.author.name}, Poems in India` 
       });
+    } else {
+      this.metaService.updateTag({ 
+        name: 'keywords', 
+        content: `poetry, literature, ${content.author.name}, Poems in India, ${content.submissionType}` 
+      });
+    }
+    
+    // Construct canonical URL safely for SSR
+    let canonicalUrl = '';
+    if (isPlatformBrowser(this.platformId)) {
+      canonicalUrl = window.location.href;
+    } else {
+      // During SSR, construct URL from route params
+      const currentRoute = this.route.snapshot;
+      const slug = currentRoute.params['slug'];
+      canonicalUrl = `https://poemsindia.in/post/${slug}`;
     }
     
     // Update Open Graph tags for social media
     this.metaService.updateTag({ property: 'og:title', content: content.title });
-    this.metaService.updateTag({ property: 'og:description', content: content.description || content.excerpt });
+    this.metaService.updateTag({ property: 'og:description', content: metaDescription });
     this.metaService.updateTag({ property: 'og:type', content: 'article' });
-    this.metaService.updateTag({ property: 'og:url', content: window.location.href });
+    this.metaService.updateTag({ property: 'og:url', content: canonicalUrl });
+    this.metaService.updateTag({ property: 'og:site_name', content: 'Poems in India' });
+    
+    // Add author and publication info
+    this.metaService.updateTag({ property: 'article:author', content: content.author.name });
+    this.metaService.updateTag({ property: 'article:published_time', content: content.publishedAt.toISOString() });
+    if (content.tags && content.tags.length > 0) {
+      content.tags.forEach(tag => {
+        this.metaService.addTag({ property: 'article:tag', content: tag });
+      });
+    }
     
     if (content.imageUrl) {
       this.metaService.updateTag({ property: 'og:image', content: content.imageUrl });
+      this.metaService.updateTag({ property: 'og:image:alt', content: `Cover image for ${content.title}` });
     }
     
     // Update Twitter Card tags
     this.metaService.updateTag({ name: 'twitter:card', content: 'summary_large_image' });
     this.metaService.updateTag({ name: 'twitter:title', content: content.title });
-    this.metaService.updateTag({ name: 'twitter:description', content: content.description || content.excerpt });
+    this.metaService.updateTag({ name: 'twitter:description', content: metaDescription });
+    this.metaService.updateTag({ name: 'twitter:site', content: '@poemsindia' });
+    this.metaService.updateTag({ name: 'twitter:creator', content: `@${content.author.name}` });
     
     if (content.imageUrl) {
       this.metaService.updateTag({ name: 'twitter:image', content: content.imageUrl });
+      this.metaService.updateTag({ name: 'twitter:image:alt', content: `Cover image for ${content.title}` });
     }
+    
+    // Add structured data for search engines
+    this.addStructuredData(content, canonicalUrl);
+  }
+
+  private addStructuredData(content: PublishedContent, canonicalUrl: string) {
+    // Add structured data during SSR and browser
+    const structuredData: any = {
+      "@context": "https://schema.org",
+      "@type": "Article",
+      "headline": content.title,
+      "description": content.description || content.excerpt,
+      "author": {
+        "@type": "Person",
+        "name": content.author.name
+      },
+      "publisher": {
+        "@type": "Organization",
+        "name": "Poems in India",
+        "url": "https://poemsindia.in"
+      },
+      "url": canonicalUrl,
+      "datePublished": content.publishedAt.toISOString(),
+      "articleSection": content.submissionType,
+      "keywords": content.tags ? content.tags.join(', ') : content.submissionType,
+      "wordCount": content.contents.reduce((acc, item) => acc + item.wordCount, 0)
+    };
+
+    if (content.imageUrl) {
+      structuredData.image = content.imageUrl;
+    }
+
+    // Remove existing structured data script if it exists
+    const existingScript = document.getElementById('structured-data');
+    if (existingScript) {
+      existingScript.remove();
+    }
+
+    // Add new structured data script
+    const script = document.createElement('script');
+    script.id = 'structured-data';
+    script.type = 'application/ld+json';
+    script.text = JSON.stringify(structuredData);
+    document.head.appendChild(script);
   }
 }
