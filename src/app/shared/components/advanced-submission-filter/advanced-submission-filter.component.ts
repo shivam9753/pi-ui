@@ -315,7 +315,7 @@ export class AdvancedSubmissionFilterComponent implements OnInit {
         case 'green':
           return 'border-green-200 bg-green-50 text-green-700 hover:bg-green-100';
         case 'yellow':
-          return 'border-yellow-200 bg-yellow-50 text-yellow-700 hover:bg-yellow-100';
+          return 'border-yellow-200 bg-yellow-50 text-orange-700 hover:bg-orange-100';
         default:
           return 'border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100';
       }

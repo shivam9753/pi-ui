@@ -2,7 +2,7 @@
 
 /* Ensure proper tag highlighting */
 .tag-highlight {
-  @apply bg-yellow-100 text-orange-800;
+  @apply bg-orange-100 text-orange-800;
 }
 
 /* Custom scrollbar for tag lists if needed */

@@ -1,6 +1,6 @@
 // theming.service.ts
-import { Injectable, signal, Inject } from '@angular/core';
-import { DOCUMENT } from '@angular/common';
+import { Injectable, signal, Inject, PLATFORM_ID } from '@angular/core';
+import { DOCUMENT, isPlatformBrowser } from '@angular/common';
 import { BehaviorSubject } from 'rxjs';
 
 export type ThemeMode = 'light' | 'dark';
@@ -35,11 +35,22 @@ export class ThemingService {
     return this._theme() === 'dark';
   }
 
-  constructor(@Inject(DOCUMENT) private document: Document) {
+  constructor(
+    @Inject(DOCUMENT) private document: Document,
+    @Inject(PLATFORM_ID) private platformId: Object
+  ) {
     this.initializeTheme();
   }
 
   private initializeTheme() {
+    // Only access localStorage and window in browser environment
+    if (!isPlatformBrowser(this.platformId)) {
+      // Set default theme for server-side rendering
+      this._theme.set('light');
+      this.isDarkSubject.next(false);
+      return;
+    }
+    
     // Check localStorage for saved theme, default to light
     const savedTheme = localStorage.getItem(this.THEME_KEY) as ThemeMode;
     
@@ -54,7 +65,12 @@ export class ThemingService {
 
   setTheme(theme: ThemeMode) {
     this._theme.set(theme);
-    localStorage.setItem(this.THEME_KEY, theme);
+    
+    // Only access localStorage in browser environment
+    if (isPlatformBrowser(this.platformId)) {
+      localStorage.setItem(this.THEME_KEY, theme);
+    }
+    
     this.applyTheme(theme);
     
     // Update BehaviorSubject for compatibility

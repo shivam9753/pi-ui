@@ -337,7 +337,7 @@ export class EditSubmissionComponent implements OnInit {
       case 'draft':
         return 'bg-gray-100 text-gray-800 border border-gray-200';
       case 'pending_review':
-        return 'bg-yellow-100 text-yellow-800 border border-yellow-200';
+        return 'bg-orange-100 text-orange-800 border border-yellow-200';
       default:
         return 'bg-gray-100 text-gray-800 border border-gray-200';
     }

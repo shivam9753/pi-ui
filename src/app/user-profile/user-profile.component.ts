@@ -493,7 +493,7 @@ export class UserProfileComponent implements OnInit {
       case 'accepted':
         return `${baseClasses} bg-blue-100 text-blue-800 border border-blue-200`;
       case 'pending_review':
-        return `${baseClasses} bg-yellow-100 text-yellow-800 border border-yellow-200`;
+        return `${baseClasses} bg-orange-100 text-orange-800 border border-yellow-200`;
       case 'in_progress':
         return `${baseClasses} bg-blue-100 text-blue-800 border border-blue-200`;
       case 'needs_revision':

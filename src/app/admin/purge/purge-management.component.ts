@@ -103,7 +103,7 @@ interface PurgePreview {
                     <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
                       [ngClass]="{
                         'bg-red-100 text-red-800': statusStat._id === 'rejected',
-                        'bg-yellow-100 text-yellow-800': statusStat._id === 'spam',
+                        'bg-orange-100 text-orange-800': statusStat._id === 'spam',
                         'bg-gray-100 text-gray-800': statusStat._id !== 'rejected' && statusStat._id !== 'spam'
                       }">
                       {{ statusStat._id | titlecase }}
@@ -298,7 +298,7 @@ interface PurgePreview {
                       <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
                         [ngClass]="{
                           'bg-red-100 text-red-800': submission.status === 'rejected',
-                          'bg-yellow-100 text-yellow-800': submission.status === 'spam',
+                          'bg-orange-100 text-orange-800': submission.status === 'spam',
                           'bg-gray-100 text-gray-800': submission.status !== 'rejected' && submission.status !== 'spam'
                         }">
                         {{ submission.status | titlecase }}

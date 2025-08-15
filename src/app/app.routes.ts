@@ -168,7 +168,7 @@ export const routes: Routes = [
   { 
     path: ':slug', 
     redirectTo: (route) => {
-      const slug = route.paramMap.get('slug');
+      const slug = route.params['slug'];
       
       // Skip known application routes that aren't post slugs
       const knownRoutes = [

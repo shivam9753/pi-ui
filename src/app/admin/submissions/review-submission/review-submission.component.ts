@@ -489,7 +489,7 @@ export class ReviewSubmissionComponent {
     
     switch (this.submission.status) {
       case 'pending_review':
-        return 'bg-yellow-100 text-yellow-800';
+        return 'bg-orange-100 text-orange-800';
       case 'in_progress':
         return 'bg-blue-100 text-blue-800';
       case 'accepted':
