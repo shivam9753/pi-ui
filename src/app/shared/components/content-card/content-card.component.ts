@@ -1,6 +1,7 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Author } from '../../../models';
+import { StatusBadgeComponent } from '../status-badge/status-badge.component';
 
 export interface ContentCardData {
   id: string;
@@ -26,9 +27,9 @@ export interface ContentCardData {
 @Component({
   selector: 'app-content-card',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, StatusBadgeComponent],
   template: `
-    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 border border-gray-200 dark:border-gray-700 overflow-hidden group"
+    <div class="bg-white rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 border border-gray-200 dark:border-gray-700 overflow-hidden group"
       [ngClass]="{ 'ring-2 ring-orange-400 shadow-orange-100': isFeatured }"
       style="min-height: 320px;">
     
@@ -56,25 +57,24 @@ export interface ContentCardData {
               </span>
             }
             
-            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold"
+            <span class="tag"
               [ngClass]="getTypeClasses()">
               {{ getTypeLabel() }}
             </span>
             
             <!-- Word Count for Opinion pieces -->
             @if (isOpinionPiece() && content.wordCount) {
-              <span class="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-amber-100 text-amber-800 border border-amber-200 dark:bg-amber-900/30 dark:text-amber-300 dark:border-amber-700">
+              <span class="tag tag-yellow">
                 {{ content.wordCount }} words
               </span>
             }
           </div>
     
           @if (showStatus && content.status) {
-            <span
-              class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold"
-              [ngClass]="getStatusClasses()">
-              {{ getStatusLabel() }}
-            </span>
+            <app-status-badge 
+              [status]="content.status" 
+              size="sm">
+            </app-status-badge>
           }
         </div>
     
@@ -110,14 +110,12 @@ export interface ContentCardData {
         @if (content.tags && content.tags.length > 0) {
           <div class="flex flex-wrap gap-1 mb-4">
             @for (tag of content.tags.slice(0, 2); track tag) {
-              <span
-                class="inline-flex items-center px-2 py-1 rounded-md text-xs bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600 transition-colors">
+              <span class="tag content-tag">
                 #{{ tag }}
               </span>
             }
             @if (content.tags.length > 2) {
-              <span
-                class="text-xs text-gray-400 dark:text-gray-500 px-2 py-1">
+              <span class="text-xs text-gray-400 dark:text-gray-500 px-2 py-1">
                 +{{ content.tags.length - 2 }} more
               </span>
             }
@@ -233,52 +231,20 @@ export class ContentCardComponent {
   getTypeClasses(): string {
     switch (this.content.submissionType) {
       case 'poem':
-        return 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300';
+        return 'tag-purple';
       case 'story':
-        return 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300';
+        return 'tag-green';
       case 'article':
-        return 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300';
+        return 'tag-blue';
       case 'quote':
-        return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300';
+        return 'tag-yellow';
       case 'cinema_essay':
-        return 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300';
+        return 'tag-red';
       default:
-        return 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200';
+        return 'tag-gray';
     }
   }
 
-  getStatusLabel(): string {
-    if (!this.content.status) return '';
-    
-    switch (this.content.status) {
-      case 'pending_review': return 'Pending Review';
-      case 'in_progress': return 'In Review';
-      case 'accepted': return 'Accepted';
-      case 'rejected': return 'Rejected';
-      case 'needs_revision': return 'Needs Revision';
-      case 'published': return 'Published';
-      default: return this.content.status;
-    }
-  }
-
-  getStatusClasses(): string {
-    switch (this.content.status) {
-      case 'pending_review':
-        return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300';
-      case 'in_progress':
-        return 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300';
-      case 'accepted':
-        return 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300';
-      case 'rejected':
-        return 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300';
-      case 'needs_revision':
-        return 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300';
-      case 'published':
-        return 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300';
-      default:
-        return 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200';
-    }
-  }
 
   getDisplayDate(): string {
     const date = this.content.publishedAt || this.content.createdAt;

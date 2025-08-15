@@ -5,14 +5,35 @@ import { Router } from '@angular/router';
 import { BadgeLabelComponent } from '../../../utilities/badge-label/badge-label.component';
 import { ContentCardComponent, ContentCardData } from '../../../shared/components/content-card/content-card.component';
 import { BackendService } from '../../../services/backend.service';
+import { AdminPageHeaderComponent } from '../../../shared/components/admin-page-header/admin-page-header.component';
+import {
+  DataTableComponent,
+  TableColumn,
+  TableAction,
+  PaginationConfig,
+  READY_TO_PUBLISH_TABLE_COLUMNS,
+  createReadyToPublishActions,
+  SUBMISSION_BADGE_CONFIG
+} from '../../../shared/components';
 
 @Component({
   selector: 'app-ready-to-publish',
-  imports: [CommonModule, FormsModule, ContentCardComponent],
+  imports: [CommonModule, FormsModule, AdminPageHeaderComponent, DataTableComponent],
   templateUrl: './ready-to-publish.component.html',
   styleUrl: './ready-to-publish.component.css'
 })
-export class ReadyToPublishComponent {
+export class ReadyToPublishComponent implements OnInit {
+  // Table configuration
+  columns: TableColumn[] = READY_TO_PUBLISH_TABLE_COLUMNS;
+  actions: TableAction[] = [];
+  badgeConfig = SUBMISSION_BADGE_CONFIG;
+  paginationConfig: PaginationConfig = {
+    currentPage: 1,
+    totalPages: 1,
+    pageSize: 50,
+    totalItems: 0
+  };
+
   acceptedSubmissions: any[] = [];
   loading = true;
 
@@ -27,7 +48,14 @@ export class ReadyToPublishComponent {
   ) {}
 
   ngOnInit() {
+    this.setupTableActions();
     this.loadAcceptedSubmissions();
+  }
+
+  setupTableActions() {
+    this.actions = createReadyToPublishActions(
+      (submission) => this.configurePublishing(submission._id || submission.id)
+    );
   }
 
   // Load accepted submissions
@@ -41,14 +69,15 @@ export class ReadyToPublishComponent {
     
     // Use the new consolidated endpoint with pagination
     this.backendService.getSubmissions("", "accepted", {
-      limit: 50,
-      skip: 0,
+      limit: this.paginationConfig.pageSize,
+      skip: (this.paginationConfig.currentPage - 1) * this.paginationConfig.pageSize,
       sortBy: 'reviewedAt',
       order: 'desc'
     }).subscribe({
       next: (data) => {
         // Handle optimized response structure
         this.acceptedSubmissions = data.submissions || [];
+        this.updatePaginationConfig(data.total || 0);
         this.loading = false;
       },
       error: (err) => {
@@ -172,5 +201,50 @@ export class ReadyToPublishComponent {
     }
     const years = Math.floor(diffDays / 365);
     return years === 1 ? '1 year ago' : `${years} years ago`;
+  }
+
+  // Table management methods
+  updatePaginationConfig(totalItems: number) {
+    this.paginationConfig = {
+      ...this.paginationConfig,
+      totalItems,
+      totalPages: Math.ceil(totalItems / this.paginationConfig.pageSize)
+    };
+  }
+
+  onTablePageChange(page: number) {
+    this.paginationConfig.currentPage = page;
+    this.loadAcceptedSubmissions();
+  }
+
+  onTableSort(event: {column: string, direction: 'asc' | 'desc'}) {
+    // Update sorting if needed - could implement sorting here
+    this.loadAcceptedSubmissions();
+  }
+
+  // Helper methods for table display
+  getAuthorName(submission: any): string {
+    return submission.userId?.name ||
+           submission.userId?.username ||
+           submission.username || 
+           submission.authorName || 
+           submission.author?.username || 
+           submission.author?.name || 
+           submission.submitterName || 
+           'Unknown Author';
+  }
+
+  getTruncatedDescription(submission: any, maxLength: number = 100): string {
+    const desc = submission.description || submission.excerpt || '';
+    if (!desc) return 'No description available';
+    return desc.length > maxLength ? desc.substring(0, maxLength) + '...' : desc;
+  }
+
+  trackBySubmissionId(index: number, submission: any): string {
+    return submission._id || submission.id;
+  }
+
+  getBadgeClass(key: string): string {
+    return (this.badgeConfig as any)[key] || 'px-2 py-1 text-xs font-medium rounded-full bg-gray-50 text-gray-700';
   }
 }

@@ -4,15 +4,42 @@ import { FormsModule } from '@angular/forms';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { environment } from '../../../../environments/environment';
 import { AdminPageHeaderComponent, AdminPageStat } from '../../../shared/components/admin-page-header/admin-page-header.component';
+import {
+  DataTableComponent,
+  TableColumn,
+  TableAction,
+  PaginationConfig,
+  SUBMISSIONS_TABLE_COLUMNS,
+  createSubmissionActions,
+  SUBMISSION_BADGE_CONFIG
+} from '../../../shared/components';
+import { PrettyLabelPipe } from '../../../pipes/pretty-label.pipe';
 
 
 @Component({
   selector: 'app-all-submissions',
-  imports: [CommonModule, FormsModule, AdminPageHeaderComponent],
+  imports: [CommonModule, FormsModule, AdminPageHeaderComponent, DataTableComponent, PrettyLabelPipe],
   templateUrl: './all-submissions.component.html',
   styleUrl: './all-submissions.component.css'
 })
 export class AllSubmissionsComponent implements OnInit {
+  // Table configuration
+  columns: TableColumn[] = [...SUBMISSIONS_TABLE_COLUMNS, {
+    key: 'actions',
+    label: 'Actions',
+    type: 'custom',
+    width: '15%',
+    sortable: false
+  }];
+  actions: TableAction[] = [];
+  badgeConfig = SUBMISSION_BADGE_CONFIG;
+  selectedSubmissionsArray: any[] = [];
+  paginationConfig: PaginationConfig = {
+    currentPage: 1,
+    totalPages: 1,
+    pageSize: 20,
+    totalItems: 0
+  };
   submissions: any[] = [];
   users: any[] = [];
   loading = false;
@@ -41,8 +68,19 @@ export class AllSubmissionsComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.setupTableActions();
     this.loadSubmissions();
     this.loadUsers();
+  }
+
+  setupTableActions() {
+    this.actions = [
+      {
+        label: 'Change Author',
+        color: 'warning' as const,
+        handler: (submission: any) => this.startEdit(submission)
+      }
+    ];
   }
 
   loadSubmissions() {
@@ -51,6 +89,7 @@ export class AllSubmissionsComponent implements OnInit {
     this.http.get(`${environment.apiBaseUrl}/admin/submissions/all`, { headers }).subscribe({
       next: (res: any) => {
         this.submissions = res.submissions || [];
+        this.updatePaginationConfig();
         this.loading = false;
       },
       error: (err) => {
@@ -58,6 +97,15 @@ export class AllSubmissionsComponent implements OnInit {
         this.loading = false;
       }
     });
+  }
+
+  updatePaginationConfig() {
+    this.paginationConfig = {
+      currentPage: 1,
+      totalPages: Math.ceil(this.submissions.length / 20),
+      pageSize: 20,
+      totalItems: this.submissions.length
+    };
   }
 
   loadUsers() {
@@ -120,6 +168,13 @@ export class AllSubmissionsComponent implements OnInit {
     }
   }
   
+  onSelectionChange(selectedSubmissions: any[]) {
+    this.selectedSubmissionsArray = selectedSubmissions;
+    this.selectedSubmissions.clear();
+    selectedSubmissions.forEach(sub => this.selectedSubmissions.add(sub._id));
+    this.updateBulkActionsVisibility();
+  }
+
   toggleSubmissionSelection(submissionId: string) {
     if (this.selectedSubmissions.has(submissionId)) {
       this.selectedSubmissions.delete(submissionId);
@@ -184,10 +239,27 @@ export class AllSubmissionsComponent implements OnInit {
     });
   }
 
+  onTablePageChange(page: number) {
+    this.paginationConfig.currentPage = page;
+    // Implement pagination if backend supports it
+  }
+
+  onTableSort(event: {column: string, direction: 'asc' | 'desc'}) {
+    // Implement sorting if needed
+  }
+
+  trackBySubmissionId(index: number, submission: any): string {
+    return submission._id;
+  }
+
   // New methods for mobile-optimized filters
   refreshData(): void {
     this.loadSubmissions();
     this.loadUsers();
+  }
+
+  getBadgeClass(key: string): string {
+    return (this.badgeConfig as any)[key] || 'px-2 py-1 text-xs font-medium rounded-full bg-gray-50 text-gray-700';
   }
 
 }

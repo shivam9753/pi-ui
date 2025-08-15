@@ -4,6 +4,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { BackendService } from '../services/backend.service';
+import { ViewTrackerService } from '../services/view-tracker.service';
 import { Router } from '@angular/router';
 import { PublishedContent } from '../utilities/published-content-card/published-content-card.component';
 import { PrettyLabelPipe } from '../pipes/pretty-label.pipe';
@@ -56,7 +57,7 @@ export class ExploreComponent implements OnInit {
       title: 'Kommune x PoemsIndia Writing Program',
       description: 'Submit your poems on the theme of "Incomplete Freedom" by August 25th=. Featured submissions will be published in our special edition.',
       type: 'THEME',
-      color: '#d1872cff',
+      colorClass: 'theme-color',
       link: '/submit',
       linkText: 'Submit Now'
     },
@@ -64,7 +65,7 @@ export class ExploreComponent implements OnInit {
       title: 'Pitches for Climate Change',
       description: 'Share your thoughts on climate change. Best essays will be featured on our homepage and shared across our social channels.',
       type: 'CONTEST',
-      color: '#8b5cf6',
+      colorClass: 'contest-color',
       link: '/submit',
       linkText: 'Participate'
     }
@@ -103,7 +104,11 @@ export class ExploreComponent implements OnInit {
   }
 
 
-  constructor(private backendService: BackendService, private router: Router) {}
+  constructor(
+    private backendService: BackendService, 
+    private viewTrackerService: ViewTrackerService,
+    private router: Router
+  ) {}
 
   ngOnInit() {
     this.getPublishedSubmissions();
@@ -131,17 +136,25 @@ export class ExploreComponent implements OnInit {
     }
     
     if (type === 'popular') {
-      // Get popular content (you can modify this to use view counts, likes, etc.)
-      this.backendService.getPublishedContent('', params).subscribe(
+      // Get trending posts for "Popular This Week" tab
+      this.viewTrackerService.getTrendingPosts(this.itemsPerPage, skip).subscribe(
         (data) => {
-          
-          // For the first page, replace submissions; for subsequent pages, you could append for "load more" style
           this.submissions = data.submissions || [];
           this.totalItems = data.total || 0;
           this.totalPages = Math.ceil(this.totalItems / this.itemsPerPage);
-          
         },
-        (error) => {}
+        (error) => {
+          console.error('Error loading trending posts:', error);
+          // Fallback to regular content if trending fails
+          this.backendService.getPublishedContent('', params).subscribe(
+            (data) => {
+              this.submissions = data.submissions || [];
+              this.totalItems = data.total || 0;
+              this.totalPages = Math.ceil(this.totalItems / this.itemsPerPage);
+            },
+            (fallbackError) => {}
+          );
+        }
       );
     } else {
       this.backendService.getPublishedContent(type, params).subscribe(

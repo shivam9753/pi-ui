@@ -180,6 +180,33 @@ export class JsonConverterComponent {
           }
         }
         html += '</p>';
+      } else if (node.type === 'HEADING' && node.headingData) {
+        // Handle headings (h1, h2, h3, etc.) - Add poem title markers for migration script
+        const level = node.headingData.level || 1;
+        html += `<!--POEM_TITLE_START--><h${level}>`;
+        if (node.nodes) {
+          for (const textNode of node.nodes) {
+            if (textNode.type === 'TEXT' && textNode.textData) {
+              let text = textNode.textData.text;
+              
+              // Handle decorations (bold, italic, etc.)
+              if (textNode.textData.decorations) {
+                for (const decoration of textNode.textData.decorations) {
+                  if (decoration.type === 'BOLD') {
+                    text = `<strong>${text}</strong>`;
+                  } else if (decoration.type === 'ITALIC') {
+                    text = `<em>${text}</em>`;
+                  } else if (decoration.type === 'UNDERLINE') {
+                    text = `<u>${text}</u>`;
+                  }
+                }
+              }
+              
+              html += text;
+            }
+          }
+        }
+        html += `</h${level}><!--POEM_TITLE_END-->`;
       } else if (node.type === 'IMAGE' && node.imageData) {
         // Handle images (optional - you can skip if you don't want images)
         const imageId = node.imageData.image?.src?.id || '';
@@ -187,7 +214,7 @@ export class JsonConverterComponent {
           html += `<img src="wix:image://v1/${imageId}" alt="${node.imageData.altText || ''}" />`;
         }
       }
-      // Add more node types as needed (HEADING, LIST, etc.)
+      // Add more node types as needed (LIST, etc.)
     }
     
     html += '</div>';

@@ -145,10 +145,10 @@
         <!-- Status and Meta Info -->
         <div class="flex flex-wrap items-center gap-2 mb-3 mt-2">
           <span class="px-2 py-1 rounded text-xs font-medium bg-gray-50 text-gray-700">
-            {{ submission.submissionType | prettyLabel }}
+            {{ submission.submissionType }}
           </span>
-          <span [ngClass]="getBadgeClass(submission.status)">
-            {{ submission.status | prettyLabel }}
+          <span [ngClass]="badgeConfig[submission.status] || 'px-2 py-1 text-xs font-medium rounded-full bg-gray-50 text-gray-700'">
+            {{ submission.status }}
           </span>
           <span class="text-xs text-gray-500">
             {{ submission.createdAt | date:'MMM d, y' }}

@@ -294,8 +294,8 @@
                     <div
                       class="bg-white dark:bg-gray-800 rounded-lg p-2.5 border border-gray-100 dark:border-gray-700">
                       <div class="flex items-start gap-2">
-                        <div class="flex-shrink-0 w-5 h-5 rounded-full flex items-center justify-center" [style.background-color]="announcement.color + '20'">
-                          <svg class="w-2.5 h-2.5" [style.color]="announcement.color" fill="currentColor" viewBox="0 0 24 24">
+                        <div class="flex-shrink-0 w-5 h-5 rounded-full flex items-center justify-center announcement-bg" [class]="announcement.colorClass + '-bg'">
+                          <svg class="w-2.5 h-2.5" [class]="announcement.colorClass" fill="currentColor" viewBox="0 0 24 24">
                             @if (announcement.type === 'THEME') {
                               <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                             }
@@ -307,7 +307,7 @@
                         <div class="flex-1 min-w-0">
                           <div class="flex items-center gap-2 mb-1">
                             <h4 class="text-xs font-semibold text-gray-900">{{ announcement.title }}</h4>
-                            <span class="text-xs px-1.5 py-0.5 rounded-full text-white font-medium" [style.background-color]="announcement.color">
+                            <span class="text-xs px-1.5 py-0.5 rounded-full text-white font-medium announcement-badge" [class]="announcement.colorClass + '-badge'">
                               {{ announcement.type | prettyLabel}}
                             </span>
                           </div>
@@ -319,7 +319,7 @@
                             <button
                               (click)="handleAnnouncementAction(announcement)"
                               class="inline-flex items-center gap-1 text-xs font-medium hover:underline"
-                              [style.color]="announcement.color">
+                              [class]="announcement.colorClass">
                               {{ announcement.linkText }}
                               <svg class="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
@@ -396,7 +396,7 @@
                 <div class="space-y-2">
                   <!-- Challenge header with dot -->
                   <div class="flex items-start gap-2">
-                    <div class="w-2 h-2 rounded-full mt-2" [style.background-color]="announcement.color"></div>
+                    <div class="w-2 h-2 rounded-full mt-2" [class]="announcement.colorClass + '-dot'"></div>
                     <div class="flex-1">
                       <h4 class="text-sm font-semibold text-gray-900 mb-1">{{ announcement.title }}</h4>
                       <p class="text-sm text-gray-600 leading-relaxed mb-2">
@@ -406,7 +406,7 @@
                         <button
                           (click)="handleAnnouncementAction(announcement)"
                           class="text-sm font-medium hover:underline"
-                          [style.color]="announcement.color">
+                          [class]="announcement.colorClass">
                           {{ announcement.linkText }}
                         </button>
                       }

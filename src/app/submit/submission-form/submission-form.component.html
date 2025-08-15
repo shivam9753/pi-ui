@@ -45,12 +45,12 @@
                     class="sr-only" />
                   <div class="p-4 rounded-lg border transition-all duration-200 cursor-pointer"
                      [class]="selectedType === type.value ? 
-                             'border-orange-500 bg-orange-50 dark:bg-orange-950 dark:border-orange-400 shadow-md' : 
+                             'border-themed-accent bg-themed-accent-light shadow-md' : 
                              'border-gray-200 bg-white hover:bg-themed-hover hover:border-gray-300'">
                     <div class="flex items-center space-x-3">
                       <!-- Icon -->
                       <div class="w-8 h-8 flex items-center justify-center"
-                        [class]="selectedType === type.value ? 'text-orange-600 dark:text-orange-400' : 'text-gray-600 dark:text-gray-300'">
+                        [class]="selectedType === type.value ? 'text-themed-accent' : 'text-gray-600 dark:text-gray-300'">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" [attr.d]="getIconForType(type.value)"></path>
                         </svg>
@@ -59,7 +59,7 @@
                         <div class="font-medium text-gray-900">
                           {{ type.label }}
                           @if (type.fastTrack) {
-                            <span class="ml-2 text-xs text-orange-600 font-medium">Quick Review & Publishing</span>
+                            <span class="ml-2 text-xs text-themed-accent font-medium">Quick Review & Publishing</span>
                           }
                         </div>
                         <div class="text-sm text-gray-600">{{ type.description }}</div>
@@ -268,10 +268,10 @@
                       (change)="onTypeSelected(type.value)"
                       class="sr-only" />
                     <div class="p-6 rounded-xl border transition-all duration-200 text-center h-full flex flex-col justify-center"
-                      [class]="selectedType === type.value ? 'border-orange-500 bg-orange-50 dark:bg-orange-950 dark:border-orange-400 shadow-lg' : 'border-gray-200 bg-white hover:bg-themed-hover hover:border-gray-300'">
+                      [class]="selectedType === type.value ? 'border-themed-accent bg-themed-accent-light shadow-lg' : 'border-gray-200 bg-white hover:bg-themed-hover hover:border-gray-300'">
                       <!-- Icon -->
                       <div class="w-12 h-12 mx-auto mb-4 flex items-center justify-center"
-                        [class]="selectedType === type.value ? 'text-orange-600 dark:text-orange-400' : 'text-gray-600 dark:text-gray-300'">
+                        [class]="selectedType === type.value ? 'text-themed-accent' : 'text-gray-600 dark:text-gray-300'">
                         <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" [attr.d]="getIconForType(type.value)"></path>
                         </svg>
@@ -281,7 +281,7 @@
                       </div>
                       <div class="text-sm text-gray-600 mb-1">{{ type.description }}</div>
                       @if (type.fastTrack) {
-                        <div class="text-xs text-orange-600 font-medium">Quick Review & Publishing</div>
+                        <div class="text-xs text-themed-accent font-medium">Quick Review & Publishing</div>
                       }
                     </div>
                   </label>

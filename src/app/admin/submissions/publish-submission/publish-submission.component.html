@@ -1,7 +1,7 @@
 
-<div class="admin-container bg-white">
+<div class="admin-container bg-white dark:bg-gray-900">
   <!-- Header -->
-  <div class="border-b border-gray-200 pb-6 mb-8 mobile-header-section">
+  <div class="border-b border-gray-200 dark:border-gray-700 pb-6 mb-8 mobile-header-section">
     <div class="flex items-center gap-4 mb-4">
       <button
         (click)="goBack()"
@@ -11,7 +11,7 @@
         </svg>
       </button>
       <div class="flex-1">
-        <h1 class="text-2xl md:text-3xl font-bold text-gray-900">
+        <h1 class="text-2xl md:text-3xl font-bold text-gray-900 dark:text-gray-100">
           Publishing Interface
         </h1>
         <p class="text-gray-900-secondary">
@@ -37,10 +37,10 @@
         <div class="space-y-6">
           <!-- Basic Information Card -->
           <div class="card p-6">
-            <h2 class="text-xl font-semibold text-gray-900 mb-4">Basic Information</h2>
+            <h2 class="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-4">Basic Information</h2>
             <div class="space-y-4">
               <div>
-                <label class="block text-sm font-medium text-gray-900 mb-2">Title</label>
+                <label class="block text-sm font-medium text-gray-900 dark:text-gray-100 mb-2">Title</label>
                 <input
                   [(ngModel)]="submission.title"
                   class="form-input"
@@ -131,7 +131,7 @@
               <div class="space-y-6">
                 <!-- Bio Approval -->
                 @if (profileApprovalData.tempBio) {
-                  <div class="bg-white-tertiary rounded-lg p-6 border border-gray-200">
+                  <div class="bg-white-tertiary dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700">
                     <div class="flex items-center justify-between mb-4">
                       <h3 class="text-lg font-medium text-gray-900">Author Bio</h3>
                       <div class="flex gap-2">
@@ -153,7 +153,7 @@
                         </button>
                       </div>
                     </div>
-                    <div class="bg-white border border-gray-200 rounded-lg p-4">
+                    <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4">
                       <p class="text-gray-900 whitespace-pre-wrap">{{ profileApprovalData.tempBio }}</p>
                     </div>
                     <div class="mt-3 text-xs text-gray-900-secondary">
@@ -163,7 +163,7 @@
                 }
                 <!-- Profile Image Approval -->
                 @if (profileApprovalData.tempProfileImage) {
-                  <div class="bg-white-tertiary rounded-lg p-6 border border-gray-200">
+                  <div class="bg-white-tertiary dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700">
                     <div class="flex items-center justify-between mb-4">
                       <h3 class="text-lg font-medium text-gray-900">Profile Picture</h3>
                       <button
@@ -179,7 +179,7 @@
                       <!-- New Image -->
                       <div class="flex-1">
                         <p class="text-sm font-medium text-gray-900 mb-2">Submitted Image:</p>
-                        <div class="w-32 h-32 rounded-lg overflow-hidden border-2 border-gray-200 bg-white-tertiary">
+                        <div class="w-32 h-32 rounded-lg overflow-hidden border-2 border-gray-200 dark:border-gray-700 bg-white-tertiary dark:bg-gray-800">
                           <img
                             [src]="getProfileImageUrl(profileApprovalData.tempProfileImage)"
                             [alt]="userProfile?.username + ' profile picture'"
@@ -190,7 +190,7 @@
                       @if (profileApprovalData.approvedImage) {
                         <div class="flex-1">
                           <p class="text-sm font-medium text-gray-900 mb-2">Current Image:</p>
-                          <div class="w-32 h-32 rounded-lg overflow-hidden border-2 border-gray-200 bg-white-tertiary">
+                          <div class="w-32 h-32 rounded-lg overflow-hidden border-2 border-gray-200 dark:border-gray-700 bg-white-tertiary dark:bg-gray-800">
                             <img
                               [src]="getProfileImageUrl(userProfile?.profileImage)"
                               [alt]="userProfile?.username + ' current profile picture'"
@@ -201,7 +201,7 @@
                       @if (!profileApprovalData.approvedImage) {
                         <div class="flex-1">
                           <p class="text-sm font-medium text-gray-900 mb-2">Current Image:</p>
-                          <div class="w-32 h-32 rounded-lg border-2 border-dashed border-gray-200 bg-white-tertiary flex items-center justify-center">
+                          <div class="w-32 h-32 rounded-lg border-2 border-dashed border-gray-200 dark:border-gray-700 bg-white-tertiary dark:bg-gray-800 flex items-center justify-center">
                             <p class="text-gray-900-secondary text-xs text-center">No image set</p>
                           </div>
                         </div>
@@ -218,7 +218,7 @@
             <div class="space-y-6">
               <!-- SEO Slug -->
               <div>
-                <label class="block text-sm font-medium text-gray-900 mb-2">
+                <label class="block text-sm font-medium text-gray-900 dark:text-gray-100 mb-2">
                   SEO Slug <span class="text-red-600">*</span>
                 </label>
                 <div class="flex items-center gap-2 mb-2">
@@ -244,7 +244,7 @@
               </div>
               <!-- Meta Title -->
               <div>
-                <label class="block text-sm font-medium text-gray-900 mb-2">
+                <label class="block text-sm font-medium text-gray-900 dark:text-gray-100 mb-2">
                   Meta Title <span class="text-red-600">*</span>
                 </label>
                 <input
@@ -287,7 +287,7 @@
               </div>
               <!-- Keywords -->
               <div>
-                <label class="block text-sm font-medium text-gray-900 mb-2">
+                <label class="block text-sm font-medium text-gray-900 dark:text-gray-100 mb-2">
                   SEO Keywords
                 </label>
                 <input
@@ -311,7 +311,7 @@
               </div>
               <!-- Cover Image Section -->
               <div>
-                <label class="block text-sm font-medium text-gray-900 mb-2">
+                <label class="block text-sm font-medium text-gray-900 dark:text-gray-100 mb-2">
                   Cover Image
                 </label>
                 <p class="text-xs text-gray-900-tertiary mb-3">
@@ -385,7 +385,7 @@
               </div>
               <!-- Social Media Image Section -->
               <div>
-                <label class="block text-sm font-medium text-gray-900 mb-2">
+                <label class="block text-sm font-medium text-gray-900 dark:text-gray-100 mb-2">
                   Social Media Image (Open Graph)
                 </label>
                 <p class="text-xs text-gray-900-tertiary mb-3">
@@ -475,7 +475,7 @@
               </div>
               <!-- Publication Settings -->
               <div>
-                <label class="block text-sm font-medium text-gray-900 mb-2">
+                <label class="block text-sm font-medium text-gray-900 dark:text-gray-100 mb-2">
                   Publication Settings
                 </label>
                 <div class="space-y-3">
@@ -505,9 +505,9 @@
             </div>
             <!-- SEO Preview Section -->
             <div class="card p-6">
-              <h2 class="text-xl font-semibold text-gray-900 mb-4">SEO Preview</h2>
+              <h2 class="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-4">SEO Preview</h2>
               <!-- Google Search Preview -->
-              <div class="bg-white p-4 rounded-lg border border-gray-200 mb-4">
+              <div class="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700 mb-4">
                 <div class="text-blue-600 text-lg hover:underline cursor-pointer">
                   {{ seoConfig.metaTitle || submission.title }}
                 </div>
@@ -521,7 +521,7 @@
               <!-- Social Media Preview -->
               <div class="bg-gray-100 p-4 rounded-lg border border-gray-200">
                 <div class="text-sm text-gray-600 mb-2">Social Media Preview:</div>
-                <div class="bg-white border border-gray-200 rounded-lg overflow-hidden max-w-md">
+                <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden max-w-md">
                   @if (seoConfig.ogImage || submission.imageUrl) {
                     <div class="h-32 bg-gray-200">
                       <img [src]="seoConfig.ogImage || submission.imageUrl" [alt]="submission.title" class="w-full h-full object-cover">
@@ -669,7 +669,7 @@
                             <div class="space-y-4 mt-4">
                               <!-- Content Title -->
                               <div>
-                                <label class="block text-sm font-medium text-gray-900 mb-2">Content Title</label>
+                                <label class="block text-sm font-medium text-gray-900 dark:text-gray-100 mb-2">Content Title</label>
                                 <input
                                   [(ngModel)]="content.title"
                                   class="form-input"
@@ -677,7 +677,7 @@
                               </div>
                               <!-- Content Body -->
                               <div>
-                                <label class="block text-sm font-medium text-gray-900 mb-2">Content Body</label>
+                                <label class="block text-sm font-medium text-gray-900 dark:text-gray-100 mb-2">Content Body</label>
                                 <app-rich-text-editor
                                   [(ngModel)]="content.body"
                                   [placeholder]="'Enter your content here...'"
@@ -692,7 +692,7 @@
                               <!-- Content Tags -->
                               @if (content.tags && content.tags.length > 0) {
                                 <div>
-                                  <label class="block text-sm font-medium text-gray-900 mb-2">Tags</label>
+                                  <label class="block text-sm font-medium text-gray-900 dark:text-gray-100 mb-2">Tags</label>
                                   <div class="flex flex-wrap gap-2">
                                     @for (tag of content.tags; track tag) {
                                       <span
@@ -717,7 +717,7 @@
               <div class="animate-fade-in">
                 <h2 class="text-xl font-semibold text-gray-900 mb-6">Live Preview</h2>
                 <!-- Publication Preview -->
-                <div class="bg-white border border-gray-200 rounded-lg overflow-hidden">
+                <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
                   <!-- Article Header -->
                   <div class="p-6 border-b border-gray-200">
                     <h1 class="text-3xl font-bold text-gray-900 mb-4">{{ submission.title }}</h1>

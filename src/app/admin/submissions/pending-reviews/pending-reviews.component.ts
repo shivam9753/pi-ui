@@ -7,14 +7,35 @@ import { ContentCardComponent, ContentCardData } from '../../../shared/component
 import { AdminPageHeaderComponent, AdminPageStat } from '../../../shared/components/admin-page-header/admin-page-header.component';
 import { BackendService } from '../../../services/backend.service';
 import { AuthorService } from '../../../services/author.service';
+import {
+  DataTableComponent,
+  TableColumn,
+  TableAction,
+  PaginationConfig,
+  PENDING_REVIEWS_TABLE_COLUMNS,
+  createPendingReviewActions,
+  SUBMISSION_BADGE_CONFIG
+} from '../../../shared/components';
+import { PrettyLabelPipe } from '../../../pipes/pretty-label.pipe';
 
 @Component({
   selector: 'app-pending-reviews',
-  imports: [ContentCardComponent, CommonModule, FormsModule, AdminPageHeaderComponent],
+  imports: [CommonModule, FormsModule, AdminPageHeaderComponent, DataTableComponent, PrettyLabelPipe],
   templateUrl: './pending-reviews.component.html',
   styleUrl: './pending-reviews.component.css'
 })
 export class PendingReviewsComponent implements OnInit {
+  // Table configuration
+  columns: TableColumn[] = PENDING_REVIEWS_TABLE_COLUMNS;
+  actions: TableAction[] = [];
+  badgeConfig = SUBMISSION_BADGE_CONFIG;
+  paginationConfig: PaginationConfig = {
+    currentPage: 1,
+    totalPages: 1,
+    pageSize: 12,
+    totalItems: 0
+  };
+
   submissions: any[] = [];
   currentPage: number = 1;
   pageSize: number = 12;
@@ -185,7 +206,18 @@ export class PendingReviewsComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.setupTableActions();
     this.loadSubmissions();
+  }
+
+  setupTableActions() {
+    this.actions = createPendingReviewActions(
+      (submission) => this.reviewSubmission(submission)
+    );
+  }
+
+  reviewSubmission(submission: any) {
+    this.router.navigate(['/review-submission', submission._id || submission.id]);
   }
 
   loadSubmissions(page: number = 1) {
@@ -201,6 +233,7 @@ export class PendingReviewsComponent implements OnInit {
         this.totalSubmissions = data.total || 0;
         this.hasMore = data.pagination?.hasMore || false;
         this.totalPages = Math.ceil(this.totalSubmissions / this.pageSize);
+        this.updatePaginationConfig();
         this.loading = false;
       },
       (error) => {
@@ -423,5 +456,51 @@ export class PendingReviewsComponent implements OnInit {
   // New methods for mobile-optimized filters
   onRefresh(): void {
     this.loadSubmissions(this.currentPage);
+  }
+
+  // Table management methods
+  updatePaginationConfig() {
+    this.paginationConfig = {
+      currentPage: this.currentPage,
+      totalPages: this.totalPages,
+      pageSize: this.pageSize,
+      totalItems: this.totalSubmissions
+    };
+  }
+
+  onTablePageChange(page: number) {
+    this.currentPage = page;
+    this.loadSubmissions(page);
+  }
+
+  onTableSort(event: {column: string, direction: 'asc' | 'desc'}) {
+    // Update sorting if needed
+    this.filters.sortBy = event.column;
+    this.filters.sortOrder = event.direction;
+    this.loadSubmissions(1);
+  }
+
+  // Helper methods for table display
+  getAuthorName(submission: any): string {
+    return submission.username || 
+           submission.authorName || 
+           submission.author?.username || 
+           submission.author?.name || 
+           submission.submitterName || 
+           'Unknown Author';
+  }
+
+  getTruncatedDescription(submission: any, maxLength: number = 100): string {
+    const desc = submission.description || submission.excerpt || '';
+    if (!desc) return 'No description available';
+    return desc.length > maxLength ? desc.substring(0, maxLength) + '...' : desc;
+  }
+
+  trackBySubmissionId(index: number, submission: any): string {
+    return submission._id || submission.id;
+  }
+
+  getBadgeClass(key: string): string {
+    return (this.badgeConfig as any)[key] || 'px-2 py-1 text-xs font-medium rounded-full bg-gray-50 text-gray-700';
   }
 }

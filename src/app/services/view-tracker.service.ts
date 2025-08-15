@@ -47,18 +47,22 @@ export class ViewTrackerService {
   }
 
   /**
-   * Get trending posts (sorted by recent views)
+   * Get trending posts (sorted by recent views) with pagination
    */
-  getTrendingPosts(limit: number = 10): Observable<any[]> {
+  getTrendingPosts(limit: number = 10, skip: number = 0): Observable<{submissions: any[], total: number}> {
     const params = {
       sortBy: 'trending',
       limit: limit.toString(),
+      skip: skip.toString(),
       windowDays: this.TRENDING_WINDOW_DAYS.toString()
     };
 
     return this.apiService.get('/submissions/trending', params).pipe(
-      map((response: any) => response.submissions || []),
-      catchError(() => of([]))
+      map((response: any) => ({
+        submissions: response.submissions || [],
+        total: response.total || 0
+      })),
+      catchError(() => of({ submissions: [], total: 0 }))
     );
   }
 

@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { Title, Meta } from '@angular/platform-browser';
 import { BackendService } from '../services/backend.service';
-import { ThemeService } from '../services/theming.service';
+import { ThemingService } from '../services/theming.service';
 import { HtmlSanitizerService } from '../services/html-sanitizer.service';
 import { BadgeLabelComponent } from '../utilities/badge-label/badge-label.component';
 import { RelatedContentComponent } from '../utilities/related-content/related-content.component';
@@ -93,7 +93,7 @@ content = signal<PublishedContent | null>(null);
     });
   });
 
-  themeService = inject(ThemeService);
+  themeService = inject(ThemingService);
   router = inject(Router); // Make router public for template access
 
   constructor(
@@ -209,24 +209,24 @@ content = signal<PublishedContent | null>(null);
         this.loading.set(false);
         
         // Track view for this content
-        // this.viewTracker.logView(data._id).subscribe({
-        //   next: (viewResponse) => {
-        //     if (viewResponse.success) {
-        //       // Update the content with latest view counts
-        //       const currentContent = this.content();
-        //       if (currentContent) {
-        //         const updatedContent = {
-        //           ...currentContent,
-        //           viewCount: viewResponse.viewCount
-        //         };
-        //         this.content.set(updatedContent);
-        //       }
-        //     }
-        //   },
-        //   error: (err) => {
-        //     console.warn('Failed to log view:', err);
-        //   }
-        // });
+        this.viewTracker.logView(data._id).subscribe({
+          next: (viewResponse) => {
+            if (viewResponse.success) {
+              // Update the content with latest view counts
+              const currentContent = this.content();
+              if (currentContent) {
+                const updatedContent = {
+                  ...currentContent,
+                  viewCount: viewResponse.viewCount
+                };
+                this.content.set(updatedContent);
+              }
+            }
+          },
+          error: (err) => {
+            console.warn('Failed to log view:', err);
+          }
+        });
       },
       error: (err: any) => {
         this.error.set('Failed to load content');
@@ -293,24 +293,24 @@ content = signal<PublishedContent | null>(null);
         this.updatePageMeta(transformedContent);
         
         // Track view for this content
-        // this.viewTracker.logView(data._id).subscribe({
-        //   next: (viewResponse) => {
-        //     if (viewResponse.success) {
-        //       // Update the content with latest view counts
-        //       const currentContent = this.content();
-        //       if (currentContent) {
-        //         const updatedContent = {
-        //           ...currentContent,
-        //           viewCount: viewResponse.viewCount
-        //         };
-        //         this.content.set(updatedContent);
-        //       }
-        //     }
-        //   },
-        //   error: (err) => {
-        //     console.warn('Failed to log view:', err);
-        //   }
-        // });
+        this.viewTracker.logView(data._id).subscribe({
+          next: (viewResponse) => {
+            if (viewResponse.success) {
+              // Update the content with latest view counts
+              const currentContent = this.content();
+              if (currentContent) {
+                const updatedContent = {
+                  ...currentContent,
+                  viewCount: viewResponse.viewCount
+                };
+                this.content.set(updatedContent);
+              }
+            }
+          },
+          error: (err) => {
+            console.warn('Failed to log view:', err);
+          }
+        });
       },
       error: (err: any) => {
         this.error.set('Failed to load content. Please try again.');

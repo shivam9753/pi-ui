@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { LoaderService } from '../../services/loader.service';
-import { ThemeService } from '../../services/theme.service';
+import { ThemingService } from '../../services/theming.service';
 import { Subject, takeUntil } from 'rxjs';
 
 @Component({
@@ -179,7 +179,7 @@ export class BreathingLoaderComponent implements OnInit, OnDestroy {
 
   constructor(
     public loaderService: LoaderService,
-    private themeService: ThemeService
+    private themeService: ThemingService
   ) {}
 
   ngOnInit() {

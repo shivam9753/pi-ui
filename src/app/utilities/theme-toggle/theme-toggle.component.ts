@@ -1,7 +1,7 @@
 // src/app/components/theme-toggle/theme-toggle.component.ts
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ThemeService } from '../../services/theme.service';
+import { ThemingService } from '../../services/theming.service';
 
 @Component({
   selector: 'app-theme-toggle',
@@ -89,9 +89,9 @@ import { ThemeService } from '../../services/theme.service';
 export class ThemeToggleComponent {
   isDark = false;
 
-  constructor(private themeService: ThemeService) {
+  constructor(private themeService: ThemingService) {
     // Subscribe to theme changes
-    this.themeService.isDark$.subscribe(isDark => {
+    this.themeService.isDark$.subscribe((isDark: boolean) => {
       this.isDark = isDark;
     });
   }

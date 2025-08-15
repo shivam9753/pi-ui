@@ -1,4 +1,6 @@
 import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 
 
 export interface PaginationInfo {
@@ -13,7 +15,7 @@ export interface PaginationInfo {
 @Component({
   selector: 'app-pagination',
   standalone: true,
-  imports: [],
+  imports: [CommonModule, FormsModule],
   template: `
     @if (totalPages > 1) {
       <div class="flex items-center justify-between border-t border-gray-200 bg-white px-4 py-3 sm:px-6">
@@ -61,8 +63,8 @@ export interface PaginationInfo {
                 <!-- Regular Page Number -->
                 @if (page !== '...') {
                   <button
-                    (click)="goToPage(page as number)"
-                    [class]="getPageButtonClass(page as number)"
+                    (click)="goToPage(+page)"
+                    [class]="getPageButtonClass(+page)"
                     class="relative inline-flex items-center px-4 py-2 text-sm font-semibold focus:z-20 focus:outline-offset-0">
                     {{ page }}
                   </button>
@@ -95,7 +97,7 @@ export interface PaginationInfo {
             </label>
             <select id="items-per-page"
               [ngModel]="itemsPerPage"
-              (ngModelChange)="changeItemsPerPage($event)"
+              (ngModelChange)="changeItemsPerPage(+$event)"
               class="mt-1 block w-full rounded-md border-gray-300 py-2 pl-3 pr-10 text-base focus:border-orange-500 focus:outline-none focus:ring-orange-500 sm:mt-0 sm:ml-2 sm:w-auto sm:text-sm">
               @for (size of itemsPerPageOptions; track size) {
                 <option [value]="size">{{ size }}</option>

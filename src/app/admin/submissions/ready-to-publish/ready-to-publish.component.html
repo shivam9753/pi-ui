@@ -1,107 +1,162 @@
 <div class="w-full">
-  <!-- Header -->
-  <div class="pb-6 mb-8">
-    <h1 class="text-2xl md:text-3xl font-bold text-gray-900 mb-2">
-      Accepted Submissions
-    </h1>
-    <p class="text-gray-900-secondary">
-      Review accepted submissions and publish them.
-    </p>
-  </div>
+  <!-- Standardized Header -->
+  <app-admin-page-header
+    title="Ready to Publish"
+    subtitle="Review accepted submissions and configure publishing settings."
+    [loading]="loading">
+  </app-admin-page-header>
 
-  <!-- Loading -->
-  @if (loading) {
-    <div class="text-center py-12">
-      <div class="spinner mx-auto"></div>
-      <p class="text-gray-900-secondary mt-4">Loading accepted submissions...</p>
-    </div>
-  }
+  <!-- Data Table -->
+  <app-data-table
+    [columns]="columns"
+    [data]="acceptedSubmissions"
+    [actions]="actions"
+    [loading]="loading"
+    loadingText="Loading accepted submissions..."
+    [selectable]="false"
+    [pagination]="paginationConfig"
+    itemLabel="submissions"
+    [trackByFn]="trackBySubmissionId"
+    [badgeConfig]="badgeConfig"
+    (onPageChange)="onTablePageChange($event)"
+    (onSort)="onTableSort($event)">
+    
+    <!-- Custom Cell Template -->
+    <ng-template #customCell let-item let-column="column">
+      @switch (column.key) {
+        @case ('title') {
+          <div class="max-w-xs">
+            <div class="text-sm font-semibold text-gray-900 mb-1">
+              {{ item.title }}
+            </div>
+            <div class="text-xs text-gray-600 mb-1">
+              By {{ getAuthorName(item) }}
+            </div>
+            <div class="text-xs text-gray-500 leading-relaxed line-clamp-2">
+              {{ getTruncatedDescription(item, 80) }}
+            </div>
+          </div>
+        }
+        @case ('readingTime') {
+          <div class="text-xs text-gray-500">
+            @if (item.readingTime) {
+              <div class="flex items-center gap-1">
+                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                {{ item.readingTime }}m read
+              </div>
+            }
+            @if (!item.readingTime && item.wordCount) {
+              <div class="text-xs text-gray-400 mt-0.5">
+                {{ item.wordCount }} words
+              </div>
+            }
+          </div>
+        }
+      }
+    </ng-template>
 
-  <!-- Submissions Cards Grid -->
-  @if (!loading) {
-    <div class="space-y-4 py-1">
-      <!-- Desktop: Show as grid, Mobile: Show as single column -->
-      <div class="submissions-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mb-8 px-2 md:px-0">
-        @for (submission of acceptedSubmissions; track submission) {
-          <app-content-card
-            [content]="convertToContentCardData(submission)"
-            [showStatus]="true"
-            [showActions]="true"
-            [actions]="getCardActions()">
-          </app-content-card>
+    <!-- Mobile Card Template -->
+    <ng-template #mobileCard let-submission let-actions="actions">
+      <div class="mb-3">
+        <h3 class="font-semibold text-gray-900 mb-1">{{ submission.title }}</h3>
+        <p class="text-sm text-gray-600">by {{ getAuthorName(submission) }}</p>
+        <p class="text-xs text-gray-500 mt-1">{{ getTruncatedDescription(submission, 80) }}</p>
+      </div>
+      
+      <!-- Meta Info -->
+      <div class="flex flex-wrap items-center gap-2 mb-3">
+        <span [ngClass]="getBadgeClass(submission.submissionType)">
+          {{ submission.submissionType }}
+        </span>
+        <span [ngClass]="getBadgeClass('accepted')">
+          Ready to Publish
+        </span>
+        <span class="text-xs text-gray-500">
+          {{ submission.reviewedAt | date:'MMM d' }}
+        </span>
+      </div>
+      
+      <!-- Mobile Action Buttons -->
+      <div class="flex flex-wrap gap-2">
+        @for (action of actions; track action.label) {
+          @if (!action.condition || action.condition(submission)) {
+            <button
+              (click)="action.handler(submission)"
+              [class]="'flex-1 px-3 py-2 text-xs font-medium rounded ' + 
+                (action.color === 'primary' ? 'text-blue-600 bg-blue-50 border border-blue-200' :
+                 action.color === 'warning' ? 'text-orange-600 bg-orange-50 border border-orange-200' :
+                 action.color === 'success' ? 'text-green-600 bg-green-50 border border-green-200' :
+                 action.color === 'danger' ? 'text-red-600 bg-red-50 border border-red-200' :
+                 'text-gray-600 bg-gray-50 border border-gray-200')">
+              {{ action.label }}
+            </button>
+          }
         }
       </div>
-    </div>
-  }
+    </ng-template>
 
-  <!-- Empty State -->
-  @if (acceptedSubmissions.length === 0) {
-    <div class="text-center py-12">
-      <svg class="w-16 h-16 text-gray-900-tertiary mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-          d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-      </svg>
+    <!-- Empty State Template -->
+    <ng-template #emptyState>
+      <div class="w-16 h-16 mx-auto bg-gray-50 rounded-full flex items-center justify-center mb-4">
+        <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+        </svg>
+      </div>
       <h3 class="text-lg font-medium text-gray-900 mb-2">No accepted submissions</h3>
-      <p class="text-gray-900-secondary">There are no accepted submissions ready for publishing.</p>
+      <p class="text-gray-500 mb-4">There are no accepted submissions ready for publishing.</p>
+    </ng-template>
+  </app-data-table>
+
+  <!-- Toast Notification -->
+  @if (showToastFlag) {
+    <div class="fixed top-4 right-4 z-50 max-w-sm w-full transition-all duration-300 ease-in-out transform animate-slideInDown">
+      <div class="bg-white border border-gray-200 rounded-lg shadow-lg p-4" [ngClass]="{
+             'border-green-300 bg-green-50': toastType === 'success',
+             'border-red-300 bg-red-50': toastType === 'error',
+             'border-blue-300 bg-blue-50': toastType === 'info'
+           }">
+        <div class="flex items-start">
+          <div class="flex-shrink-0">
+            <!-- Success Icon -->
+            @if (toastType === 'success') {
+              <svg class="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              </svg>
+            }
+            <!-- Error Icon -->
+            @if (toastType === 'error') {
+              <svg class="w-5 h-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              </svg>
+            }
+            <!-- Info Icon -->
+            @if (toastType === 'info') {
+              <svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              </svg>
+            }
+          </div>
+          <div class="ml-3 flex-1">
+            <p class="text-sm font-medium" [ngClass]="{
+                   'text-green-800': toastType === 'success',
+                   'text-red-800': toastType === 'error',
+                   'text-blue-800': toastType === 'info'
+                 }">
+              {{ toastMessage }}
+            </p>
+          </div>
+          <div class="ml-4 flex-shrink-0">
+            <button (click)="hideToast()"
+              class="inline-flex text-gray-400 hover:text-gray-600 focus:outline-none focus:text-gray-600 transition ease-in-out duration-150">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
   }
 </div>
-
-<!-- Toast Notification -->
-@if (showToastFlag) {
-  <div
-    class="fixed top-4 right-4 z-50 max-w-sm w-full transition-all duration-300 ease-in-out transform animate-slideInDown">
-  <div class="bg-white border border-gray-200 rounded-lg shadow-lg p-4" [ngClass]="{
-           'border-green-300 bg-green-50': toastType === 'success',
-           'border-red-300 bg-red-50': toastType === 'error',
-           'border-blue-300 bg-blue-50': toastType === 'info'
-         }">
-      <div class="flex items-start">
-        <div class="flex-shrink-0">
-          <!-- Success Icon -->
-          @if (toastType === 'success') {
-            <svg class="w-5 h-5 text-green-500" fill="none" stroke="currentColor"
-              viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-            </svg>
-          }
-          <!-- Error Icon -->
-          @if (toastType === 'error') {
-            <svg class="w-5 h-5 text-red-500" fill="none" stroke="currentColor"
-              viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-            </svg>
-          }
-          <!-- Info Icon -->
-          @if (toastType === 'info') {
-            <svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor"
-              viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-            </svg>
-          }
-        </div>
-        <div class="ml-3 flex-1">
-        <p class="text-sm font-medium" [ngClass]="{
-               'text-green-800': toastType === 'success',
-               'text-red-800': toastType === 'error',
-               'text-blue-800': toastType === 'info'
-             }">
-            {{ toastMessage }}
-          </p>
-        </div>
-        <div class="ml-4 flex-shrink-0">
-          <button (click)="hideToast()"
-            class="inline-flex text-gray-900-tertiary hover:text-gray-900-secondary focus:outline-none focus:text-gray-900-secondary transition ease-in-out duration-150">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-            </svg>
-          </button>
-        </div>
-      </div>
-    </div>
-  </div>
-}
-

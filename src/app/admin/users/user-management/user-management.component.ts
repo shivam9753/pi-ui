@@ -1,5 +1,5 @@
 // admin-user-management.component.ts
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
 import { CommonModule, DatePipe, TitleCasePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -7,6 +7,15 @@ import { UserService } from '../../../services/user.service';
 import { UserListItem, User } from '../../../models';
 import { compressImageToAVIF } from '../../../shared/utils/image-compression.util';
 import { AdminPageHeaderComponent, AdminPageStat } from '../../../shared/components/admin-page-header/admin-page-header.component';
+import { 
+  DataTableComponent, 
+  TableColumn, 
+  TableAction, 
+  PaginationConfig,
+  USER_TABLE_COLUMNS,
+  createUserActions,
+  USER_BADGE_CONFIG
+} from '../../../shared/components';
 
 
 interface Message {
@@ -16,11 +25,29 @@ interface Message {
 
 @Component({
   selector: 'app-user-management',
-  imports: [DatePipe, TitleCasePipe, CommonModule, FormsModule, AdminPageHeaderComponent],
+  imports: [
+    DatePipe, 
+    TitleCasePipe, 
+    CommonModule, 
+    FormsModule, 
+    AdminPageHeaderComponent,
+    DataTableComponent
+  ],
   templateUrl: './user-management.component.html',
   styleUrls: ['./user-management.component.css']
 })
-export class UserManagementComponent implements OnInit {
+export class UserManagementComponent implements OnInit, OnDestroy {
+  // Table configuration
+  columns: TableColumn[] = USER_TABLE_COLUMNS;
+  actions: TableAction[] = [];
+  badgeConfig = USER_BADGE_CONFIG;
+  selectedUsers: UserListItem[] = [];
+  paginationConfig: PaginationConfig = {
+    currentPage: 1,
+    totalPages: 1,
+    pageSize: 20,
+    totalItems: 0
+  };
   users: UserListItem[] = [];
   totalUsers = 0;
   userStats = { users: 0, reviewers: 0, admins: 0, total: 0 };
@@ -62,7 +89,15 @@ export class UserManagementComponent implements OnInit {
   ) {}
 
   ngOnInit() {
+    this.setupTableActions();
     this.loadUsers();
+  }
+
+  setupTableActions() {
+    this.actions = createUserActions(
+      (user) => this.openEditModal(user),
+      (user) => this.viewUserProfile(user)
+    );
   }
 
   min(a: number, b: number): number {
@@ -108,6 +143,9 @@ export class UserManagementComponent implements OnInit {
           this.users = response.users || [];
           this.totalUsers = response.pagination?.total || 0;
           this.totalPages = Math.ceil(this.totalUsers / this.pageSize);
+          
+          // Update pagination config
+          this.updatePaginationConfig();
           
           // Update stats if included in response
           if (response.stats) {
@@ -356,6 +394,33 @@ export class UserManagementComponent implements OnInit {
     } finally {
       this.uploadingImage = false;
     }
+  }
+
+  updatePaginationConfig() {
+    this.paginationConfig = {
+      currentPage: this.currentPage,
+      totalPages: this.totalPages,
+      pageSize: this.pageSize,
+      totalItems: this.totalUsers
+    };
+  }
+
+  onTablePageChange(page: number) {
+    this.currentPage = page;
+    this.loadUsers();
+  }
+
+  onTableSort(event: {column: string, direction: 'asc' | 'desc'}) {
+    this.sortBy = event.column;
+    this.loadUsers();
+  }
+
+  onSelectionChange(selectedUsers: UserListItem[]) {
+    this.selectedUsers = selectedUsers;
+  }
+
+  onRoleChange(data: {user: UserListItem, event: any}) {
+    this.changeUserRole(data.user, data.event);
   }
 
   ngOnDestroy() {

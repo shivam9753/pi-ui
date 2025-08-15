@@ -113,10 +113,16 @@ export class RichTextEditorComponent implements ControlValueAccessor, AfterViewI
     let content = clipboardData.getData('text/html');
     
     if (!content) {
-      // If no HTML, get plain text and convert line breaks
-      content = clipboardData.getData('text/plain')
-        .replace(/\n/g, '<br>')
-        .replace(/\r/g, '');
+      // If no HTML, get plain text and handle line breaks properly for poetry
+      const plainText = clipboardData.getData('text/plain');
+      
+      // Handle different line break patterns
+      content = plainText
+        .replace(/\r\n/g, '\n') // Normalize Windows line breaks
+        .replace(/\r/g, '\n')   // Normalize Mac line breaks
+        .split('\n')            // Split into lines
+        .map(line => line.trim() === '' ? '<br>' : this.escapeHtml(line)) // Empty lines become <br>, content lines are escaped
+        .join('<br>');          // Join with single <br> tags
     } else {
       // Clean up HTML content - remove unwanted tags and attributes
       content = this.sanitizeClipboardHTML(content);
@@ -155,6 +161,12 @@ export class RichTextEditorComponent implements ControlValueAccessor, AfterViewI
     this.onContentChange({ target: this.editor.nativeElement } as any);
   }
   
+  private escapeHtml(text: string): string {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  }
+
   private sanitizeClipboardHTML(html: string): string {
     // Create a temporary div to parse HTML safely
     const tempDiv = document.createElement('div');
@@ -205,16 +217,15 @@ export class RichTextEditorComponent implements ControlValueAccessor, AfterViewI
   setAlignment(alignment: string): void {
     this.currentAlignment = alignment;
     
-    // Apply alignment using CSS class
-    const editor = this.editor.nativeElement;
-    editor.className = editor.className.replace(/text-(left|center|right|justify)/g, '');
-    editor.classList.add(`text-${alignment}`);
-    
-    // Also apply justify alignment command for better compatibility
-    if (alignment === 'justify') {
-      document.execCommand('justifyFull', false);
-    } else {
-      document.execCommand(`justify${alignment.charAt(0).toUpperCase() + alignment.slice(1)}`, false);
+    // Use document.execCommand for line-specific alignment
+    try {
+      if (alignment === 'justify') {
+        document.execCommand('justifyFull', false);
+      } else {
+        document.execCommand(`justify${alignment.charAt(0).toUpperCase() + alignment.slice(1)}`, false);
+      }
+    } catch (error) {
+      console.warn('Alignment command failed:', error);
     }
     
     this.onContentChange({ target: this.editor.nativeElement } as any);
@@ -224,11 +235,6 @@ export class RichTextEditorComponent implements ControlValueAccessor, AfterViewI
     // Remove all formatting
     document.execCommand('removeFormat', false);
     this.currentAlignment = 'left';
-    
-    // Reset editor classes
-    const editor = this.editor.nativeElement;
-    editor.className = editor.className.replace(/text-(left|center|right|justify)/g, '');
-    editor.classList.add('text-left');
     
     this.onContentChange({ target: this.editor.nativeElement } as any);
   }

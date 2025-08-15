@@ -8,15 +8,34 @@ import { PublishedContent } from '../../../utilities/published-content-card/publ
 import { PrettyLabelPipe } from '../../../pipes/pretty-label.pipe';
 import { TypeBadgePipe } from '../../../pipes/type-badge.pipe';
 import { AdminPageHeaderComponent, AdminPageStat } from '../../../shared/components/admin-page-header/admin-page-header.component';
+import {
+  DataTableComponent,
+  TableColumn,
+  TableAction,
+  PaginationConfig,
+  PUBLISHED_POSTS_TABLE_COLUMNS,
+  createPublishedPostActions,
+  SUBMISSION_BADGE_CONFIG
+} from '../../../shared/components';
 
 
 @Component({
   selector: 'app-published-posts',
-  imports: [CommonModule, DatePipe, TitleCasePipe, FormsModule, PrettyLabelPipe, TypeBadgePipe, AdminPageHeaderComponent],
+  imports: [CommonModule, DatePipe, TitleCasePipe, FormsModule, PrettyLabelPipe, TypeBadgePipe, AdminPageHeaderComponent, DataTableComponent],
   templateUrl: './published-posts.component.html',
   styleUrl: './published-posts.component.css'
 })
 export class PublishedPostsComponent implements OnInit {
+  // Table configuration
+  columns: TableColumn[] = PUBLISHED_POSTS_TABLE_COLUMNS;
+  actions: TableAction[] = [];
+  badgeConfig = SUBMISSION_BADGE_CONFIG;
+  paginationConfig: PaginationConfig = {
+    currentPage: 1,
+    totalPages: 1,
+    pageSize: 20,
+    totalItems: 0
+  };
   publishedSubmissions: any[] = [];
   loading = true;
   searchTerm = '';
@@ -41,7 +60,17 @@ export class PublishedPostsComponent implements OnInit {
   ) {}
 
   ngOnInit() {
+    this.setupTableActions();
     this.loadPublishedSubmissions();
+  }
+
+  setupTableActions() {
+    this.actions = createPublishedPostActions(
+      (post) => this.editPublishedPost(post._id),
+      (post) => this.unpublishSubmission(post._id, post.title),
+      (post) => this.configureAndPublish(post._id),
+      (post) => this.deleteSubmission(post._id, post.title)
+    );
   }
 
   loadPublishedSubmissions() {
@@ -61,6 +90,7 @@ export class PublishedPostsComponent implements OnInit {
         this.totalCount = data.total || 0;
         this.totalPages = Math.ceil(this.totalCount / this.itemsPerPage);
         this.hasMore = data.pagination?.hasMore || false;
+        this.updatePaginationConfig();
         this.loading = false;
       },
       error: (err) => {
@@ -171,7 +201,8 @@ export class PublishedPostsComponent implements OnInit {
 
   // Get unique submission types for filter
   get submissionTypes() {
-    const types = [...new Set(this.publishedSubmissions.map(sub => sub.submissionType))];
+    const typesSet = new Set(this.publishedSubmissions.map(sub => sub.submissionType));
+    const types = Array.from(typesSet);
     return types.sort();
   }
 
@@ -297,6 +328,33 @@ export class PublishedPostsComponent implements OnInit {
   getTruncatedDescription(submission: any, maxLength: number = 100): string {
     const cleanDesc = this.getCleanDescription(submission);
     return this.htmlSanitizer.truncateText(cleanDesc, maxLength);
+  }
+
+  // Table management methods
+  updatePaginationConfig() {
+    this.paginationConfig = {
+      currentPage: this.currentPage,
+      totalPages: this.totalPages,
+      pageSize: this.itemsPerPage,
+      totalItems: this.totalCount
+    };
+  }
+
+  onTablePageChange(page: number) {
+    this.currentPage = page;
+    this.loadPublishedSubmissions();
+  }
+
+  onTableSort(event: {column: string, direction: 'asc' | 'desc'}) {
+    // Implement sorting if needed
+  }
+
+  trackBySubmissionId(index: number, submission: any): string {
+    return submission._id;
+  }
+
+  getBadgeClass(key: string): string {
+    return (this.badgeConfig as any)[key] || 'px-2 py-1 text-xs font-medium rounded-full bg-gray-50 text-gray-700';
   }
 
 }

@@ -2,7 +2,7 @@
 import { Component, inject, signal, OnInit, OnDestroy, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule, NavigationEnd } from '@angular/router';
-import { ThemeService } from '../services/theme.service';
+import { ThemingService } from '../services/theming.service';
 import { AuthService, GoogleUser } from '../services/auth.service'; // Import your AuthService
 import { Subscription } from 'rxjs';
 import { filter } from 'rxjs/operators';
@@ -15,7 +15,7 @@ import { ThemeToggleComponent } from '../utilities/theme-toggle/theme-toggle.com
   styleUrl: './header.component.css'
 })
 export class HeaderComponent implements OnInit, OnDestroy {
-  themeService = inject(ThemeService);
+  themeService = inject(ThemingService);
   router = inject(Router);
   authService = inject(AuthService); // Inject AuthService
   
@@ -34,7 +34,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
       title: 'Enhanced Review System',
       description: 'We\'ve upgraded our submission review process! Faster feedback and more detailed reviewer comments are now available.',
       type: 'FEATURE',
-      color: '#10b981', 
+      colorClass: 'feature-color', 
       link: '/admin/submissions',
       linkText: 'Learn More',
       isNew: true
@@ -43,7 +43,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
       title: 'Mobile App Coming Soon',
       description: 'Read and submit your favorite literary works on the go. Our mobile app will launch early next year with offline reading support.',
       type: 'UPCOMING',
-      color: '#f59e0b',
+      colorClass: 'upcoming-color',
       link: null,
       linkText: 'Stay Tuned',
       isNew: false
@@ -52,7 +52,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
       title: 'Improved Search',
       description: 'Search through content more effectively with our enhanced search algorithms and filtering options.',
       type: 'FEATURE',
-      color: '#3b82f6',
+      colorClass: 'info-color',
       link: null,
       linkText: 'Try Now',
       isNew: true

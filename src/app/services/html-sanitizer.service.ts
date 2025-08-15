@@ -56,9 +56,66 @@ export class HtmlSanitizerService {
   cleanContentPreservingBreaks(content: string): string {
     if (!content) return '';
     
-    return content
-      .replace(/<div>/g, '')           // Remove opening div tags
-      .replace(/<\/div>/g, '<br>')     // Convert closing div tags to line breaks
+    // Create a temporary DOM element to properly parse the HTML
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = content;
+    
+    // Get the text content while preserving line breaks
+    let result = '';
+    
+    const processNode = (node: Node) => {
+      if (node.nodeType === Node.TEXT_NODE) {
+        // Add text content
+        result += node.textContent || '';
+      } else if (node.nodeType === Node.ELEMENT_NODE) {
+        const element = node as Element;
+        const tagName = element.tagName.toLowerCase();
+        
+        // Handle block elements and line break elements
+        if (tagName === 'div' || tagName === 'p' || tagName === 'br') {
+          // Process children first
+          for (let child of Array.from(element.childNodes)) {
+            processNode(child);
+          }
+          // Add line break after block elements (but not for empty divs following br)
+          if (tagName === 'br' || (element.textContent && element.textContent.trim())) {
+            result += '\n';
+          }
+        } else if (tagName === 'strong' || tagName === 'b') {
+          result += '<strong>';
+          for (let child of Array.from(element.childNodes)) {
+            processNode(child);
+          }
+          result += '</strong>';
+        } else if (tagName === 'em' || tagName === 'i') {
+          result += '<em>';
+          for (let child of Array.from(element.childNodes)) {
+            processNode(child);
+          }
+          result += '</em>';
+        } else if (tagName === 'u') {
+          result += '<u>';
+          for (let child of Array.from(element.childNodes)) {
+            processNode(child);
+          }
+          result += '</u>';
+        } else {
+          // For other elements, just process children
+          for (let child of Array.from(element.childNodes)) {
+            processNode(child);
+          }
+        }
+      }
+    };
+    
+    // Process all child nodes
+    for (let child of Array.from(tempDiv.childNodes)) {
+      processNode(child);
+    }
+    
+    // Clean up the result
+    return result
+      .replace(/\n+/g, '<br>')         // Convert multiple newlines to single <br>
       .replace(/<br\s*\/?>/g, '<br>')  // Normalize br tags
       .replace(/&nbsp;/g, ' ')         // Convert non-breaking spaces
       .replace(/&amp;/g, '&')          // Convert HTML entities
@@ -67,6 +124,7 @@ export class HtmlSanitizerService {
       .replace(/&quot;/g, '"')
       .replace(/&apos;/g, "'")
       .replace(/&#39;/g, "'")
+      .replace(/<br>$/, '')            // Remove trailing <br>
       .trim();                         // Remove leading/trailing whitespace
   }
 

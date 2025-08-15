@@ -101,7 +101,7 @@
         <span [class]="submission.submissionType | typeBadge">
           {{ submission.submissionType | prettyLabel }}
         </span>
-        <span [ngClass]="getBadgeClass(submission.status)">
+        <span [ngClass]="badgeConfig[submission.status] || 'px-2 py-1 text-xs font-medium rounded-full bg-gray-50 text-gray-700'">
           {{ submission.status | titlecase }}
         </span>
         <span class="text-xs text-gray-500">

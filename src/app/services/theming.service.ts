@@ -1,16 +1,22 @@
-// theme.service.ts
-import { Injectable, signal } from '@angular/core';
+// theming.service.ts
+import { Injectable, signal, Inject } from '@angular/core';
+import { DOCUMENT } from '@angular/common';
+import { BehaviorSubject } from 'rxjs';
 
 export type ThemeMode = 'light' | 'dark';
 
 @Injectable({
   providedIn: 'root'
 })
-export class ThemeService {
+export class ThemingService {
   private readonly THEME_KEY = 'app-theme';
   
   // Signal for reactive theme state
   private _theme = signal<ThemeMode>('light');
+  
+  // BehaviorSubject for compatibility with existing components
+  private isDarkSubject = new BehaviorSubject<boolean>(false);
+  public isDark$ = this.isDarkSubject.asObservable();
   
   theme() {
     return this._theme();
@@ -24,28 +30,44 @@ export class ThemeService {
     return this._theme() === 'dark';
   }
 
-  constructor() {
+  // Legacy compatibility getter
+  get isDarkMode(): boolean {
+    return this._theme() === 'dark';
+  }
+
+  constructor(@Inject(DOCUMENT) private document: Document) {
     this.initializeTheme();
   }
 
   private initializeTheme() {
-    // Always use light theme - no user preference or system detection
-    this.setTheme('light');
+    // Check localStorage for saved theme, default to light
+    const savedTheme = localStorage.getItem(this.THEME_KEY) as ThemeMode;
+    
+    // If no saved theme, check system preference
+    if (!savedTheme) {
+      const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      this.setTheme(prefersDark ? 'dark' : 'light');
+    } else {
+      this.setTheme(savedTheme);
+    }
   }
 
   setTheme(theme: ThemeMode) {
     this._theme.set(theme);
     localStorage.setItem(this.THEME_KEY, theme);
     this.applyTheme(theme);
+    
+    // Update BehaviorSubject for compatibility
+    this.isDarkSubject.next(theme === 'dark');
   }
 
   toggleTheme() {
-    // Theme switching disabled - always stay in light mode
-    this.setTheme('light');
+    const currentTheme = this._theme();
+    this.setTheme(currentTheme === 'light' ? 'dark' : 'light');
   }
 
   private applyTheme(theme: ThemeMode) {
-    const root = document.documentElement;
+    const root = this.document.documentElement;
     
     if (theme === 'dark') {
       root.classList.add('dark');
