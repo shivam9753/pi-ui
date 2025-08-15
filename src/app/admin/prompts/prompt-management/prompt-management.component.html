@@ -199,8 +199,8 @@
               <span class="px-2 py-1 text-xs font-medium rounded-md"
                 [class.bg-green-100]="prompt.difficulty === 'beginner'"
                 [class.text-green-800]="prompt.difficulty === 'beginner'"
-                [class.bg-orange-100]="prompt.difficulty === 'intermediate'"
-                [class.text-orange-800]="prompt.difficulty === 'intermediate'"
+                [class.bg-amber-100]="prompt.difficulty === 'intermediate'"
+                [class.text-amber-800]="prompt.difficulty === 'intermediate'"
                 [class.bg-red-100]="prompt.difficulty === 'advanced'"
                 [class.text-red-800]="prompt.difficulty === 'advanced'">
                 {{ getDifficultyLabel(prompt.difficulty) }}
@@ -214,7 +214,7 @@
                 </span>
               </div>
               @if (prompt.featured) {
-                <span class="px-1.5 py-0.5 text-xs font-medium bg-orange-100 text-orange-800 rounded">
+                <span class="px-1.5 py-0.5 text-xs font-medium bg-amber-100 text-amber-800 rounded">
                   Featured
                 </span>
               }
@@ -242,7 +242,7 @@
                 [title]="prompt.featured ? 'Remove from featured' : 'Mark as featured'"
                 class="flex-1 px-3 py-2 text-xs font-medium rounded border transition-colors duration-200"
                 [class.bg-orange-50]="prompt.featured"
-                [class.text-orange-700]="prompt.featured"
+                [class.text-amber-700]="prompt.featured"
                 [class.border-orange-300]="prompt.featured"
                 [class.bg-gray-100]="!prompt.featured"
                 [class.text-gray-700]="!prompt.featured"
@@ -300,8 +300,8 @@
                   <span class="px-2 py-1 text-xs font-medium rounded-md"
                     [class.bg-green-100]="prompt.difficulty === 'beginner'"
                     [class.text-green-800]="prompt.difficulty === 'beginner'"
-                    [class.bg-orange-100]="prompt.difficulty === 'intermediate'"
-                    [class.text-orange-800]="prompt.difficulty === 'intermediate'"
+                    [class.bg-amber-100]="prompt.difficulty === 'intermediate'"
+                    [class.text-amber-800]="prompt.difficulty === 'intermediate'"
                     [class.bg-red-100]="prompt.difficulty === 'advanced'"
                     [class.text-red-800]="prompt.difficulty === 'advanced'">
                     {{ getDifficultyLabel(prompt.difficulty) }}
@@ -317,7 +317,7 @@
                       {{ prompt.isActive ? 'Active' : 'Inactive' }}
                     </span>
                     @if (prompt.featured) {
-                      <span class="px-1.5 py-0.5 text-xs font-medium bg-orange-100 text-orange-800 rounded">
+                      <span class="px-1.5 py-0.5 text-xs font-medium bg-amber-100 text-amber-800 rounded">
                         Featured
                       </span>
                     }

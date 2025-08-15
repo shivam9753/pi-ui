@@ -1,4 +1,4 @@
-<div class="card group overflow-hidden hover:shadow-xl transition-all duration-300 cursor-pointer transform hover:scale-[1.02] hover:border-orange-200"
+<div class="card group overflow-hidden hover:shadow-xl transition-all duration-300 cursor-pointer transform hover:scale-[1.02] hover:border-amber-200"
   (click)="onCardClick()">
 
   <!-- Image Section -->
@@ -112,7 +112,7 @@
         @for (tag of getDisplayTags(); track tag) {
           <button
             (click)="onTagClick($event, tag)"
-            class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-orange-50 text-orange-700 border border-orange-200 hover:bg-orange-100 hover:border-orange-300 transition-colors duration-200">
+            class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-orange-50 text-amber-700 border border-amber-200 hover:bg-amber-100 hover:border-orange-300 transition-colors duration-200">
             #{{ tag }}
           </button>
         }
@@ -174,7 +174,7 @@
           Edit
         </button>
         <button (click)="onUnpublishClick($event)"
-          class="flex-1 inline-flex items-center justify-center px-3 py-2 text-xs font-medium text-orange-700 bg-orange-50 border border-orange-300 rounded-lg hover:bg-orange-100 transition-colors duration-200">
+          class="flex-1 inline-flex items-center justify-center px-3 py-2 text-xs font-medium text-amber-700 bg-orange-50 border border-orange-300 rounded-lg hover:bg-amber-100 transition-colors duration-200">
           <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"/>
           </svg>

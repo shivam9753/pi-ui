@@ -493,11 +493,11 @@ export class UserProfileComponent implements OnInit {
       case 'accepted':
         return `${baseClasses} bg-blue-100 text-blue-800 border border-blue-200`;
       case 'pending_review':
-        return `${baseClasses} bg-orange-100 text-orange-800 border border-yellow-200`;
+        return `${baseClasses} bg-amber-100 text-amber-800 border border-yellow-200`;
       case 'in_progress':
         return `${baseClasses} bg-blue-100 text-blue-800 border border-blue-200`;
       case 'needs_revision':
-        return `${baseClasses} bg-orange-100 text-orange-800 border border-orange-200`;
+        return `${baseClasses} bg-amber-100 text-amber-800 border border-amber-200`;
       case 'rejected':
         return `${baseClasses} bg-red-100 text-red-800 border border-red-200`;
       case 'draft':
@@ -682,7 +682,7 @@ export class UserProfileComponent implements OnInit {
       case 'edit':
         return 'text-green-700 hover:text-white hover:bg-green-600 border-green-300 bg-green-50';
       case 'resubmit':
-        return 'text-orange-700 hover:text-white hover:bg-orange-600 border-orange-300 bg-orange-50';
+        return 'text-amber-700 hover:text-white hover:bg-orange-600 border-orange-300 bg-orange-50';
       case 'delete':
         return 'text-red-700 hover:text-white hover:bg-red-600 border-red-300 bg-red-50';
       default:
@@ -919,7 +919,7 @@ export class UserProfileComponent implements OnInit {
       case 'cinema_essay':
         return `${baseClasses} bg-red-100 text-red-800 border border-red-200`;
       case 'opinion':
-        return `${baseClasses} bg-orange-100 text-orange-800 border border-orange-200`;
+        return `${baseClasses} bg-amber-100 text-amber-800 border border-amber-200`;
       default:
         return `${baseClasses} bg-gray-100 text-gray-800 border border-gray-200`;
     }

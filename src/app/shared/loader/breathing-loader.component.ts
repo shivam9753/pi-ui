@@ -38,7 +38,7 @@ import { Subject, takeUntil } from 'rxjs';
             <div 
               class="absolute w-24 h-24 border-2 rounded-full breathing-ring transition-colors duration-300"
               [ngClass]="{
-                'border-orange-200': !isDark,
+                'border-amber-200': !isDark,
                 'border-orange-300': isDark
               }"></div>
             

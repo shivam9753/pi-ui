@@ -105,7 +105,7 @@ import { Observable, of } from 'rxjs';
       <!-- View All Link -->
       @if (!loading && trendingPosts.length > 0 && showViewAll) {
         <div class="mt-6 text-center">
-          <button class="text-sm font-medium text-orange-600 dark:text-orange-400 hover:text-orange-700 dark:hover:text-orange-300 transition-colors">
+          <button class="text-sm font-medium text-orange-600 dark:text-orange-400 hover:text-amber-700 dark:hover:text-orange-300 transition-colors">
             View All Trending →
           </button>
         </div>

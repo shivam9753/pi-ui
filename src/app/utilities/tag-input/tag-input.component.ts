@@ -20,13 +20,13 @@ import { FormsModule, ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/f
         <div class="flex flex-wrap gap-2 mb-3">
           @for (tag of tags; track trackByTag(i, tag); let i = $index) {
             <span
-              class="inline-flex items-center gap-1 px-3 py-1 bg-orange-100 text-orange-800 text-sm font-medium rounded-full"
+              class="inline-flex items-center gap-1 px-3 py-1 bg-amber-100 text-amber-800 text-sm font-medium rounded-full"
               >
               {{ tag }}
               <button
                 type="button"
                 (click)="removeTag(i)"
-                class="flex items-center justify-center w-4 h-4 ml-1 text-orange-600 hover:text-orange-800 hover:bg-orange-100 rounded-full transition-colors"
+                class="flex items-center justify-center w-4 h-4 ml-1 text-orange-600 hover:text-amber-800 hover:bg-amber-100 rounded-full transition-colors"
                 [attr.aria-label]="'Remove tag ' + tag"
                 >
                 <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">

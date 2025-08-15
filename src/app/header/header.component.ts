@@ -1,6 +1,6 @@
 // header.component.ts
-import { Component, inject, signal, OnInit, OnDestroy, HostListener } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, inject, signal, OnInit, OnDestroy, HostListener, Inject, PLATFORM_ID } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { Router, RouterModule, NavigationEnd } from '@angular/router';
 import { ThemingService } from '../services/theming.service';
 import { AuthService, GoogleUser } from '../services/auth.service'; // Import your AuthService
@@ -18,6 +18,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   themeService = inject(ThemingService);
   router = inject(Router);
   authService = inject(AuthService); // Inject AuthService
+  platformId = inject(PLATFORM_ID);
   
   // Replace mock signals with actual auth-connected signals
   loggedInUser = signal<GoogleUser | null>(null);
@@ -87,8 +88,11 @@ export class HeaderComponent implements OnInit, OnDestroy {
   }
 
   isDesktop() {
-  return window.innerWidth >= 1024;
-}
+    if (!isPlatformBrowser(this.platformId)) {
+      return true; // Default to desktop for SSR
+    }
+    return window.innerWidth >= 1024;
+  }
   ngOnDestroy() {
     // Clean up subscriptions
     this.subscriptions.forEach(sub => sub.unsubscribe());

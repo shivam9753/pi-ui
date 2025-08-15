@@ -68,7 +68,7 @@ export class EmptyStateComponent {
       case 'heart':
         return 'bg-red-100';
       case 'star':
-        return 'bg-orange-100';
+        return 'bg-amber-100';
       case 'user':
         return 'bg-purple-100';
       case 'pencil':

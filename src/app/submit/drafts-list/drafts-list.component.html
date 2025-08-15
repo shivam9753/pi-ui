@@ -36,7 +36,7 @@
                 </svg>
               </div>
               <div class="ml-3">
-                <p class="text-sm text-orange-700">
+                <p class="text-sm text-amber-700">
                   <strong>Auto-deletion:</strong> These drafts will be automatically deleted after 7 days of inactivity to free up storage space.
                 </p>
               </div>
@@ -72,8 +72,8 @@
                           [class.text-green-800]="draft.submissionType === 'article'"
                           [class.bg-purple-100]="draft.submissionType === 'cinema_essay'"
                           [class.text-purple-800]="draft.submissionType === 'cinema_essay'"
-                          [class.bg-orange-100]="draft.submissionType === 'prose'"
-                          [class.text-orange-800]="draft.submissionType === 'prose'">
+                          [class.bg-amber-100]="draft.submissionType === 'prose'"
+                          [class.text-amber-800]="draft.submissionType === 'prose'">
                           {{ getTypeDisplayName(draft.submissionType) }}
                         </span>
                         <!-- Content Count -->
@@ -166,7 +166,7 @@
             </svg>
           </div>
           <div class="ml-3">
-            <p class="text-sm text-orange-700">
+            <p class="text-sm text-amber-700">
               <strong>Auto-deletion:</strong> These drafts will be automatically deleted after 7 days of inactivity to free up storage space.
             </p>
           </div>
@@ -201,8 +201,8 @@
                     [class.text-green-800]="draft.submissionType === 'article'"
                     [class.bg-purple-100]="draft.submissionType === 'cinema_essay'"
                     [class.text-purple-800]="draft.submissionType === 'cinema_essay'"
-                    [class.bg-orange-100]="draft.submissionType === 'prose'"
-                    [class.text-orange-800]="draft.submissionType === 'prose'">
+                    [class.bg-amber-100]="draft.submissionType === 'prose'"
+                    [class.text-amber-800]="draft.submissionType === 'prose'">
                     {{ getTypeDisplayName(draft.submissionType) }}
                   </span>
                   <!-- Content Count -->

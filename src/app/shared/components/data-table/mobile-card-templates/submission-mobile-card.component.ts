@@ -54,7 +54,7 @@ export class SubmissionMobileCardComponent {
 
   getStatusClass(status: string): string {
     const statusClasses: Record<string, string> = {
-      'pending': 'bg-yellow-50 text-orange-700',
+      'pending': 'bg-yellow-50 text-amber-700',
       'under_review': 'bg-blue-50 text-blue-700',
       'ready_to_publish': 'bg-green-50 text-green-700',
       'published': 'bg-green-50 text-green-700',

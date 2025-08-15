@@ -257,7 +257,7 @@ export class DataTableComponent<T = any> implements OnInit {
     if (Object.keys(this.badgeConfig).length === 0) {
       this.badgeConfig = {
         'published': 'px-2 py-1 text-xs font-medium rounded-full bg-green-50 text-green-700',
-        'draft': 'px-2 py-1 text-xs font-medium rounded-full bg-yellow-50 text-orange-700',
+        'draft': 'px-2 py-1 text-xs font-medium rounded-full bg-yellow-50 text-amber-700',
         'pending': 'px-2 py-1 text-xs font-medium rounded-full bg-blue-50 text-blue-700',
         'rejected': 'px-2 py-1 text-xs font-medium rounded-full bg-red-50 text-red-700',
         'admin': 'px-2 py-1 text-xs font-medium rounded-full bg-red-50 text-red-700',

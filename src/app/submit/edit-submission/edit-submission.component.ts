@@ -333,11 +333,11 @@ export class EditSubmissionComponent implements OnInit {
   getStatusBadgeClass(status: string): string {
     switch (status) {
       case 'needs_revision':
-        return 'bg-orange-100 text-orange-800 border border-orange-200';
+        return 'bg-amber-100 text-amber-800 border border-amber-200';
       case 'draft':
         return 'bg-gray-100 text-gray-800 border border-gray-200';
       case 'pending_review':
-        return 'bg-orange-100 text-orange-800 border border-yellow-200';
+        return 'bg-amber-100 text-amber-800 border border-yellow-200';
       default:
         return 'bg-gray-100 text-gray-800 border border-gray-200';
     }

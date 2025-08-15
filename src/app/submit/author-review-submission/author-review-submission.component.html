@@ -19,7 +19,7 @@
           <button
             type="button"
             (click)="editContent.emit()"
-            class="underline font-medium text-orange-600 hover:text-orange-700"
+            class="underline font-medium text-orange-600 hover:text-amber-700"
             >
             go back and edit your content
           </button>
@@ -73,7 +73,7 @@
               <button
                 type="button"
                 (click)="editContent.emit()"
-                class="text-orange-600 hover:text-orange-700 font-medium"
+                class="text-orange-600 hover:text-amber-700 font-medium"
                 >
                 Edit
               </button>
@@ -85,7 +85,7 @@
               <div class="flex flex-wrap gap-2">
                 @for (tag of parseTags(content.get('tags')?.value); track tag) {
                   <span
-                    class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
+                    class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-800">
                     {{ tag }}
                   </span>
                 }

@@ -65,11 +65,11 @@
                 <div class="flex items-center justify-between mb-2">
                   <span class="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium"
                     [ngClass]="{
-                      'bg-orange-100 text-orange-600': post.submissionType === 'article',
+                      'bg-amber-100 text-amber-600': post.submissionType === 'article',
                       'bg-blue-100 text-blue-600': post.submissionType === 'poem',
                       'bg-green-100 text-green-600': post.submissionType === 'story',
                       'bg-purple-100 text-purple-600': post.submissionType === 'cinema_essay',
-                      'bg-orange-100 text-orange-600': post.submissionType === 'quote'
+                      'bg-yellow-100 text-yellow-600': post.submissionType === 'quote'
                     }">
                     {{ getContentTypeLabel(post.submissionType) }}
                   </span>

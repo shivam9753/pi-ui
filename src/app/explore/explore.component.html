@@ -130,7 +130,7 @@
                       <!-- Type category -->
                       <button
                         (click)="navigateToCategory(submission.submissionType); $event.stopPropagation()"
-                        class="text-orange-600 text-xs font-bold uppercase tracking-widest hover:text-orange-700 transition-colors cursor-pointer mb-2 block">
+                        class="text-orange-600 text-xs font-bold uppercase tracking-widest hover:text-amber-700 transition-colors cursor-pointer mb-2 block">
                         {{ submission.submissionType | prettyLabel }}
                       </button>
                       
@@ -200,7 +200,7 @@
                   <div class="space-y-2">
                     <button
                       (click)="navigateToCategory(submission.submissionType); $event.stopPropagation()"
-                      class="text-orange-500 text-xs font-medium hover:text-orange-700 transition-colors cursor-pointer text-left">
+                      class="text-orange-500 text-xs font-medium hover:text-amber-700 transition-colors cursor-pointer text-left">
                       {{ submission.submissionType | prettyLabel }}
                     </button>
                     <h3 class="font-bold text-gray-900 text-base leading-tight group-hover:text-gray-700 transition-colors"
@@ -275,7 +275,7 @@
                   @for (tag of trendingTags.slice(0, 8); track tag) {
                     <button
                       (click)="onTagClick(tag, $event)"
-                      class="px-2 py-0.5 bg-gray-100 text-gray-600 text-xs rounded-full hover:bg-orange-100 hover:text-orange-700 transition-colors cursor-pointer">
+                      class="px-2 py-0.5 bg-gray-100 text-gray-600 text-xs rounded-full hover:bg-amber-100 hover:text-amber-700 transition-colors cursor-pointer">
                       #{{ tag }}
                     </button>
                   }
