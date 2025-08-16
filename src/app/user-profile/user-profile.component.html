@@ -573,9 +573,9 @@
                                 </div>
                               }
                               <!-- Show excerpt if available -->
-                              @if (submission.excerpt) {
+                              @if (submission?.excerpt) {
                                 <div class="text-xs text-gray-600 leading-relaxed line-clamp-2">
-                                  {{ submission.excerpt }}
+                                  {{ submission?.excerpt }}
                                 </div>
                               }
                             </div>
@@ -664,10 +664,10 @@
                     </div>
 
                     <!-- Content Preview -->
-                    @if (submission.excerpt) {
+                    @if (submission?.excerpt) {
                       <div class="mb-4">
                         <p class="text-sm text-gray-600 leading-relaxed line-clamp-3">
-                          {{ submission.excerpt }}
+                          {{ submission?.excerpt }}
                         </p>
                       </div>
                     }

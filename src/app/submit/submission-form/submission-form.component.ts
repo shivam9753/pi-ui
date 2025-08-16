@@ -102,7 +102,8 @@ export class SubmissionFormComponent implements OnInit, OnDestroy {
       'book_review': 'M12 6.253v13C10.832 18.477 9.246 18 7.5 18S4.168 18.477 3 19.253V6.253C4.168 5.477 5.754 5 7.5 5s3.332.477 4.5 1.253zm0 0C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253z',
       'cinema_essay': 'M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z'
     };
-    return icons[type] || '';
+    // Return a default valid path if type is not found
+    return icons[type] || 'M12 2l3.09 6.26L22 9l-5 4.87L18.18 20 12 16.77 5.82 20 7 13.87 2 9l6.91-.74L12 2z';
   }
 
   // Toast state
@@ -131,7 +132,7 @@ export class SubmissionFormComponent implements OnInit, OnDestroy {
     
     // Check what's in localStorage
     if (typeof window !== 'undefined') {
-      const storedUser = localStorage.getItem('google_user');
+      localStorage.getItem('google_user');
     }
     
     this.loadDrafts();
@@ -228,7 +229,7 @@ export class SubmissionFormComponent implements OnInit, OnDestroy {
           wordCount: draft.wordCount || 0
         }));
       },
-      error: (error) => {
+      error: () => {
         this.drafts = [];
       }
     });
@@ -314,7 +315,7 @@ export class SubmissionFormComponent implements OnInit, OnDestroy {
             this.activeTab = 'submit';
           }
         },
-        error: (error) => {
+        error: () => {
           this.showToast('Draft not found', 'error');
         }
       });
@@ -339,7 +340,7 @@ export class SubmissionFormComponent implements OnInit, OnDestroy {
     
     try {
       if (draft.contents && draft.contents.length > 0) {
-        draft.contents.forEach((content, index) => {
+        draft.contents.forEach((content) => {
           const group = this.createContentGroup();
           group.patchValue({
             title: content.title || '',

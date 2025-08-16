@@ -309,7 +309,7 @@ export class ExploreComponent implements OnInit {
 
   // Excerpt truncation method
   getTruncatedExcerpt(submission: any, maxLength: number = 100): string {
-    const content = submission.excerpt || submission.description || '';
+    const content = submission?.excerpt || submission?.description || '';
     if (!content) return '';
     
     // Clean HTML and get plain text

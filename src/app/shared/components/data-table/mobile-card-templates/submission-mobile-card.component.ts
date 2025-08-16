@@ -10,8 +10,8 @@ import { TableAction } from '../data-table.component';
     <div class="mb-3">
       <h3 class="font-semibold text-gray-900 mb-1">{{ submission.title }}</h3>
       <p class="text-sm text-gray-600">by {{ getAuthorName(submission) }}</p>
-      @if (submission.description) {
-        <p class="text-xs text-gray-500 mt-1 line-clamp-2">{{ submission.description }}</p>
+      @if (submission?.description) {
+        <p class="text-xs text-gray-500 mt-1 line-clamp-2">{{ submission?.description }}</p>
       }
     </div>
     

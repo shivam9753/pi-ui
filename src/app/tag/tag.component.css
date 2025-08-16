@@ -2,7 +2,8 @@
 
 /* Ensure proper tag highlighting */
 .tag-highlight {
-  @apply bg-orange-100 text-orange-800;
+  background-color: #fed7aa;
+  color: #ea580c;
 }
 
 /* Custom scrollbar for tag lists if needed */

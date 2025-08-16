@@ -81,8 +81,8 @@ export class TagComponent implements OnInit {
         this.submissions = matchingSubmissions.map((submission: any) => ({
           _id: submission._id,
           title: submission.title,
-          description: submission.description,
-          excerpt: submission.excerpt,
+          description: submission?.description,
+          excerpt: submission?.excerpt,
           submissionType: submission.submissionType,
           tags: this.getAllTagsFromSubmission(submission),
           createdAt: submission.reviewedAt || submission.createdAt,

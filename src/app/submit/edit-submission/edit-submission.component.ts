@@ -156,7 +156,7 @@ export class EditSubmissionComponent implements OnInit {
     
     this.form.patchValue({
       title: submission.title,
-      description: submission.description,
+      description: submission?.description,
       submissionType: submission.submissionType
     });
 

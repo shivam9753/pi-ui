@@ -126,8 +126,8 @@ export class ReadyToPublishComponent implements OnInit {
     return {
       id: submission._id || submission.id,
       title: submission.title,
-      description: submission.description || submission.excerpt,
-      excerpt: submission.excerpt,
+      description: submission?.description || submission?.excerpt,
+      excerpt: submission?.excerpt,
       author: submission.userId ? { 
         id: submission.userId._id || submission.userId.id || 'unknown',
         name: submission.userId.name || submission.userId.username || 'Unknown',
@@ -241,7 +241,7 @@ export class ReadyToPublishComponent implements OnInit {
   }
 
   getTruncatedDescription(submission: any, maxLength: number = 100): string {
-    const desc = submission.description || submission.excerpt || '';
+    const desc = submission?.description || submission?.excerpt || '';
     if (!desc) return 'No description available';
     return desc.length > maxLength ? desc.substring(0, maxLength) + '...' : desc;
   }

@@ -141,10 +141,10 @@
                       </h2>
                       
                       <!-- Description - exactly 2 lines, wider -->
-                      @if (submission.excerpt || submission.description) {
+                      @if (submission?.excerpt || submission?.description) {
                         <p class="text-gray-700 text-base leading-relaxed mb-3 font-light"
                           style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;"
-                          [innerHTML]="cleanContent(submission.excerpt || submission.description || '')"
+                          [innerHTML]="cleanContent(submission?.excerpt || submission?.description || '')"
                           >
                         </p>
                       }
@@ -207,10 +207,10 @@
                       style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
                       {{ submission.title }}
                     </h3>
-                    @if (submission.excerpt || submission.description) {
+                    @if (submission?.excerpt || submission?.description) {
                       <p class="text-gray-600 text-sm mb-3 leading-relaxed"
                         style="display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden;"
-                        [innerHTML]="cleanContent(submission.excerpt || submission.description || '')"
+                        [innerHTML]="cleanContent(submission?.excerpt || submission?.description || '')"
                         >
                       </p>
                     }

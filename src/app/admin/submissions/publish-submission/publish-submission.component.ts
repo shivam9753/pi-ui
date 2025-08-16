@@ -119,7 +119,7 @@ export class PublishSubmissionComponent implements OnInit {
       // Generate initial slug from title
       this.seoConfig.slug = this.generateSlugFromTitle(this.submission.title);
       this.seoConfig.metaTitle = this.submission.title;
-      this.seoConfig.metaDescription = this.submission.description || '';
+      this.seoConfig.metaDescription = this.submission?.description || '';
       
       // Initialize keywords from submission tags if available, otherwise from content tags
       if (this.submission.tags && this.submission.tags.length > 0) {
@@ -535,8 +535,8 @@ export class PublishSubmissionComponent implements OnInit {
     let sourceText = '';
     
     // Use existing description if available, otherwise use content
-    if (this.submission.description && this.submission.description.trim()) {
-      sourceText = this.submission.description;
+    if (this.submission?.description && this.submission?.description.trim()) {
+      sourceText = this.submission?.description;
     } else if (this.submission.contents && this.submission.contents.length > 0) {
       const firstContent = this.submission.contents[0];
       sourceText = this.extractPlainText(firstContent.body);
@@ -593,8 +593,8 @@ export class PublishSubmissionComponent implements OnInit {
 
     const updateData: any = {
       title: this.submission.title,
-      description: this.submission.description,
-      excerpt: this.submission.excerpt,
+      description: this.submission?.description,
+      excerpt: this.submission?.excerpt,
       tags: Array.from(allContentTags), // Use actual content tags, not SEO keywords
       contents: this.submission.contents.map((content: any) => ({
         _id: content._id,
@@ -639,8 +639,8 @@ export class PublishSubmissionComponent implements OnInit {
 
     const updateData: any = {
       title: this.submission.title,
-      description: this.submission.description,
-      excerpt: this.submission.excerpt,
+      description: this.submission?.description,
+      excerpt: this.submission?.excerpt,
       tags: Array.from(allContentTags), // Use actual content tags, not SEO keywords
       contents: this.submission.contents.map((content: any) => ({
         _id: content._id,

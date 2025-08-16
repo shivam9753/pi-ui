@@ -314,8 +314,8 @@ export class PublishedPostsComponent implements OnInit {
   // Clean HTML from description
   getCleanDescription(submission: any): string {
     return this.htmlSanitizer.getCleanDescription(
-      submission.excerpt, 
-      submission.description, 
+      submission?.excerpt, 
+      submission?.description, 
       'No description available'
     );
   }

@@ -93,7 +93,7 @@
                 </textarea>
                 <div class="flex justify-between text-xs text-gray-900-tertiary mt-1">
                   <span>Used in content cards and previews</span>
-                  <span>{{ (submission.excerpt || '').length }}/200</span>
+                  <span>{{ (submission?.excerpt || '').length }}/200</span>
                 </div>
               </div>
 
@@ -275,7 +275,7 @@
                 </div>
                 <textarea
                   [(ngModel)]="seoConfig.metaDescription"
-                  [placeholder]="submission.description || 'A compelling description of your content...'"
+                  [placeholder]="submission?.description || 'A compelling description of your content...'"
                   maxlength="160"
                   rows="3"
                   class="form-input resize-vertical">
@@ -536,7 +536,7 @@
                   {{ baseUrl }}{{ seoConfig.slug || 'your-seo-slug' }}
                 </div>
                 <div class="text-gray-600 dark:text-gray-400 text-sm mt-1">
-                  {{ seoConfig.metaDescription || submission.description || 'Meta description will appear here...' }}
+                  {{ seoConfig.metaDescription || submission?.description || 'Meta description will appear here...' }}
                 </div>
               </div>
               <!-- Social Media Preview -->
@@ -556,7 +556,7 @@
                   <div class="p-3">
                     <div class="font-medium text-sm">{{ seoConfig.metaTitle || submission.title }}</div>
                     <div class="text-gray-600 text-xs mt-1">
-                      {{ (seoConfig.metaDescription || submission.description || 'Description...') | slice:0:100 }}{{ (seoConfig.metaDescription || submission.description || '').length > 100 ? '...' : '' }}
+                      {{ (seoConfig.metaDescription || submission?.description || 'Description...') | slice:0:100 }}{{ (seoConfig.metaDescription || submission?.description || '').length > 100 ? '...' : '' }}
                     </div>
                     <div class="text-gray-500 text-xs mt-1">{{ baseUrl }}</div>
                   </div>
@@ -747,8 +747,8 @@
                         <span>{{ submission.readingTime }} min read</span>
                       }
                     </div>
-                    @if (submission.description) {
-                      <p class="text-gray-900-secondary italic">{{ submission.description }}</p>
+                    @if (submission?.description) {
+                      <p class="text-gray-900-secondary italic">{{ submission?.description }}</p>
                     }
                   </div>
                   <!-- Article Content -->

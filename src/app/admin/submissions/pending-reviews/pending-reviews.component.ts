@@ -349,8 +349,8 @@ export class PendingReviewsComponent implements OnInit {
     return {
       id: submission._id || submission.id,
       title: submission.title,
-      description: submission.description || submission.excerpt,
-      excerpt: submission.excerpt,
+      description: submission?.description || submission?.excerpt,
+      excerpt: submission?.excerpt,
       author: this.authorService.normalizeAuthor(submission),
       submissionType: submission.submissionType,
       status: submission.status,
@@ -360,7 +360,7 @@ export class PendingReviewsComponent implements OnInit {
       tags: submission.tags,
       readingTime: submission.readingTime,
       isFeatured: submission.isFeatured,
-      wordCount: submission.wordCount || this.calculateWordCount(submission.description || submission.excerpt || '')
+      wordCount: submission.wordCount || this.calculateWordCount(submission?.description || submission?.excerpt || '')
     };
   }
 
@@ -487,7 +487,7 @@ export class PendingReviewsComponent implements OnInit {
   }
 
   getTruncatedDescription(submission: any, maxLength: number = 100): string {
-    const desc = submission.description || submission.excerpt || '';
+    const desc = submission?.description || submission?.excerpt || '';
     if (!desc) return 'No description available';
     return desc.length > maxLength ? desc.substring(0, maxLength) + '...' : desc;
   }
