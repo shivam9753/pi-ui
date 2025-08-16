@@ -373,6 +373,7 @@ export class PublishedPostsComponent implements OnInit {
     this.filteredSubmissions = this.publishedSubmissions.filter(submission => {
       let matchesStatus = true;
       let matchesType = true;
+      let matchesSearch = true;
 
       if (this.currentFilters.status) {
         matchesStatus = submission.status === this.currentFilters.status;
@@ -382,7 +383,20 @@ export class PublishedPostsComponent implements OnInit {
         matchesType = submission.submissionType === this.currentFilters.type;
       }
 
-      return matchesStatus && matchesType;
+      if (this.currentFilters.search && this.currentFilters.search.trim()) {
+        const searchTerm = this.currentFilters.search.toLowerCase().trim();
+        matchesSearch = 
+          submission.title?.toLowerCase().includes(searchTerm) ||
+          submission.username?.toLowerCase().includes(searchTerm) ||
+          submission.authorName?.toLowerCase().includes(searchTerm) ||
+          submission.author?.username?.toLowerCase().includes(searchTerm) ||
+          submission.author?.name?.toLowerCase().includes(searchTerm) ||
+          submission.submitterName?.toLowerCase().includes(searchTerm) ||
+          submission.description?.toLowerCase().includes(searchTerm) ||
+          submission.excerpt?.toLowerCase().includes(searchTerm);
+      }
+
+      return matchesStatus && matchesType && matchesSearch;
     });
   }
 

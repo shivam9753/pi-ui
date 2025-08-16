@@ -277,6 +277,7 @@ export class AllSubmissionsComponent implements OnInit {
     this.filteredSubmissions = this.submissions.filter(submission => {
       let matchesStatus = true;
       let matchesType = true;
+      let matchesSearch = true;
 
       if (this.currentFilters.status) {
         matchesStatus = submission.status === this.currentFilters.status;
@@ -286,7 +287,16 @@ export class AllSubmissionsComponent implements OnInit {
         matchesType = submission.submissionType === this.currentFilters.type;
       }
 
-      return matchesStatus && matchesType;
+      if (this.currentFilters.search?.trim()) {
+        const searchLower = this.currentFilters.search.toLowerCase().trim();
+        matchesSearch = 
+          submission.title?.toLowerCase().includes(searchLower) ||
+          submission.description?.toLowerCase().includes(searchLower) ||
+          submission.userId?.name?.toLowerCase().includes(searchLower) ||
+          submission.userId?.email?.toLowerCase().includes(searchLower);
+      }
+
+      return matchesStatus && matchesType && matchesSearch;
     });
 
     this.updatePaginationConfig();

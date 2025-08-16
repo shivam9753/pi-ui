@@ -170,7 +170,60 @@ export interface PaginationConfig {
         <div class="md:hidden space-y-4 p-1">
           @for (item of data; track trackByFn ? trackByFn($index, item) : $index) {
             <div class="bg-themed-card border-themed rounded-lg p-5 shadow-sm mx-2">
-              <ng-container *ngTemplateOutlet="mobileCardTemplate; context: { $implicit: item, actions: getVisibleActions(item) }"></ng-container>
+              @if (mobileCardTemplate) {
+                <ng-container *ngTemplateOutlet="mobileCardTemplate; context: { $implicit: item, actions: getVisibleActions(item) }"></ng-container>
+              } @else {
+                <!-- Default Mobile Card Template -->
+                <div class="mb-3">
+                  @for (column of columns; track column.key) {
+                    @if (!column.mobileHidden) {
+                      <div class="mb-2">
+                        <span class="text-xs font-medium text-gray-500 uppercase">{{ column.label }}:</span>
+                        <div class="mt-1">
+                          @switch (column.type) {
+                            @case ('image') {
+                              <div class="w-8 h-8 rounded-full bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center">
+                                @if (getNestedValue(item, column.key)) {
+                                  <img [src]="getNestedValue(item, column.key)" alt="Image" class="w-8 h-8 rounded-full object-cover" />
+                                } @else {
+                                  <span class="text-white font-medium text-xs">{{ getInitials(item) }}</span>
+                                }
+                              </div>
+                            }
+                            @case ('badge') {
+                              <span [class]="getBadgeClass(getNestedValue(item, column.key))">
+                                {{ getNestedValue(item, column.key) | prettyLabel }}
+                              </span>
+                            }
+                            @case ('date') {
+                              <span class="text-sm text-gray-700">{{ getNestedValue(item, column.key) | date:'MMM d, y' }}</span>
+                            }
+                            @case ('custom') {
+                              <ng-container *ngTemplateOutlet="customCellTemplate; context: { $implicit: item, column: column }"></ng-container>
+                            }
+                            @default {
+                              <div class="text-sm text-gray-900">{{ getNestedValue(item, column.key) }}</div>
+                            }
+                          }
+                        </div>
+                      </div>
+                    }
+                  }
+                </div>
+                
+                <!-- Mobile Action Buttons -->
+                @if (actions && actions.length > 0) {
+                  <div class="flex flex-wrap gap-2">
+                    @for (action of getVisibleActions(item); track action.label) {
+                      <button
+                        (click)="action.handler(item)"
+                        [class]="'flex-1 px-3 py-2 text-xs font-medium rounded ' + getActionButtonClass(action.color)">
+                        {{ action.label }}
+                      </button>
+                    }
+                  </div>
+                }
+              }
             </div>
           }
         </div>

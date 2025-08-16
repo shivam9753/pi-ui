@@ -1,15 +1,20 @@
-<div class="min-h-screen bg-themed flex items-center justify-center p-4">
-  <div class="max-w-2xl w-full bg-themed rounded-xl shadow-lg p-8 border border-themed">
-    <!-- Header -->
-    <div class="text-center mb-8">
-      <h1 class="text-3xl font-bold text-themed mb-2">
-        {{ isEditMode ? 'Edit Your Profile' : 'Complete Your Profile' }}
-      </h1>
-      <p class="text-themed leading-relaxed">
-        {{ isEditMode ? 'Update your author profile information.' : 'Help us create your author profile.' }}
-        This information will be displayed when your content is featured on our platform.
-      </p>
-    </div>
+<!-- Container wrapper - conditionally show based on showContainer -->
+<div [ngClass]="showContainer ? 'min-h-screen bg-themed flex items-center justify-center p-4' : ''">
+  <div [ngClass]="showContainer ? 'max-w-2xl w-full bg-themed rounded-xl shadow-lg p-8 border border-themed' : 'w-full'">
+    <!-- Header - conditionally show based on showHeader -->
+    @if (showHeader) {
+      <div class="text-center mb-8">
+        <h1 class="text-3xl font-bold text-themed mb-2">
+          {{ customTitle || (isEditMode || mode === 'edit' ? 'Edit Your Profile' : 'Complete Your Profile') }}
+        </h1>
+        <p class="text-themed leading-relaxed">
+          {{ customSubtitle || (isEditMode || mode === 'edit' ? 'Update your author profile information.' : 'Help us create your author profile.') }}
+          @if (!customSubtitle) {
+            This information will be displayed when your content is featured on our platform.
+          }
+        </p>
+      </div>
+    }
 
     <!-- Information Notice -->
     <div class="bg-orange-50 border border-amber-200 rounded-lg p-4 mb-8">
@@ -164,10 +169,10 @@
               <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
             </svg>
           }
-          {{ isSubmitting ? (isEditMode ? 'Updating Profile...' : 'Completing Profile...') : (isEditMode ? 'Update Profile' : 'Complete Profile') }}
+          {{ isSubmitting ? (isEditMode || mode === 'edit' ? 'Updating Profile...' : 'Completing Profile...') : (isEditMode || mode === 'edit' ? 'Update Profile' : 'Complete Profile') }}
         </button>
 
-        @if (!isEditMode) {
+        @if (!isEditMode && mode === 'completion' && showSkipButton) {
           <button
             type="button"
             (click)="skipForNow()"
@@ -178,7 +183,7 @@
           </button>
         }
 
-        @if (isEditMode) {
+        @if (isEditMode || mode === 'edit') {
           <button
             type="button"
             (click)="cancel()"

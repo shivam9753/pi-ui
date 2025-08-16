@@ -21,11 +21,11 @@ import { CommonModule } from '@angular/common';
         }
       </div>
 
+      @if (isAnalysisEnabled) {
       <button
         (click)="analyze.emit()"
-        [disabled]="isAnalyzing || !isAnalysisEnabled"
-        [ngClass]="isAnalysisEnabled ? 'bg-green-600 hover:bg-green-700' : 'bg-gray-400 cursor-not-allowed'"
-        class="w-full py-3 px-4 text-white rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium shadow-sm">
+        [disabled]="isAnalyzing"
+        class="w-full py-3 px-4 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium shadow-sm">
         @if (!isAnalyzing) {
           <span class="flex items-center justify-center gap-2">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -44,6 +44,7 @@ import { CommonModule } from '@angular/common';
           </span>
         }
       </button>
+      }
 
       @if (!isAnalysisEnabled) {
         <div class="bg-blue-50 border border-blue-200 rounded-lg p-3">

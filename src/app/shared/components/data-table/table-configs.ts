@@ -251,7 +251,7 @@ export const createPublishedPostActions = (
   {
     label: 'Configure & Publish',
     color: 'primary',
-    condition: (post) => post.status === 'draft',
+    condition: (post) => post.status === 'draft' || post.status === 'accepted',
     handler: publishHandler
   },
   {

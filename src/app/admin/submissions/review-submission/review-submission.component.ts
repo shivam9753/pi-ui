@@ -66,7 +66,7 @@ export class ReviewSubmissionComponent {
       this.getSubmissionWithContents(this.id);
     }
     if(!environment.production)
-      this,this.isAnalysisEnabled = true;
+      this.isAnalysisEnabled = true;
     }
 
   ngOnInit() {
@@ -161,7 +161,8 @@ export class ReviewSubmissionComponent {
       return;
     }
 
-    if (!this.loggedInUser?.id) {
+    const currentUser = this.authService.getCurrentUser();
+    if (!this.loggedInUser?.id && !currentUser?.id) {
       this.showToast('You must be logged in to review submissions.', 'error');
       return;
     }
@@ -199,7 +200,7 @@ export class ReviewSubmissionComponent {
     this.currentAnalysisIndex = 0;
     
     // Get all content pieces that have text
-    const contentPieces = this.submission.contents.filter((content: any) => content.body && content.body.trim());
+    const contentPieces = this.submission?.contents?.filter((content: any) => content.body && content.body.trim()) || [];
     
     if (contentPieces.length === 0) {
       this.showToast('No content found to analyze.', 'error');
@@ -222,7 +223,7 @@ export class ReviewSubmissionComponent {
     this.currentAnalysisIndex = index;
     const content = contentPieces[index];
     
-    this.http.post(`${environment.apiBaseUrl}/submissions/${this.submission._id}/analyze`, {
+    this.http.post(`${environment.apiBaseUrl}/submissions/${this.submission?._id}/analyze`, {
       submissionText: content.body
     }).subscribe({
       next: (res: any) => {
@@ -231,7 +232,7 @@ export class ReviewSubmissionComponent {
           ...res,
           contentIndex: index,
           contentTitle: content.title || `Content ${index + 1}`,
-          contentType: content.type || this.submission.submissionType,
+          contentType: content.type || this.submission?.submissionType,
           originalContent: content.body
         };
         
@@ -245,7 +246,7 @@ export class ReviewSubmissionComponent {
         this.analysisData.push({
           contentIndex: index,
           contentTitle: content.title || `Content ${index + 1}`,
-          contentType: content.type || this.submission.submissionType,
+          contentType: content.type || this.submission?.submissionType,
           error: true,
           errorMessage: 'Analysis failed for this content piece'
         });
@@ -416,13 +417,27 @@ export class ReviewSubmissionComponent {
 
   // Direct method to start review process without showing form
   startReviewProcess() {
-    if (!this.loggedInUser?.id) {
+    // Check if user is logged in by getting current user from auth service
+    const currentUser = this.authService.getCurrentUser();
+    
+    // Debug logging
+    console.log('loggedInUser:', this.loggedInUser);
+    console.log('currentUser:', currentUser);
+    
+    // Check for user existence using multiple possible properties
+    const isLoggedIn = (this.loggedInUser?.id || this.loggedInUser?.email) || 
+                      (currentUser?.id || currentUser?.email);
+    
+    if (!isLoggedIn) {
       this.showToast('You must be logged in to review submissions.', 'error');
       return;
     }
 
+    // Use current user if loggedInUser is not available
+    const user = this.loggedInUser || currentUser;
+
     this.isSubmitting = true;
-    const notes = 'Review started by ' + (this.loggedInUser.username || 'reviewer');
+    const notes = 'Review started by ' + (user?.username || user?.name || user?.email || 'reviewer');
 
     this.backendService.moveSubmissionToProgress(this.id, notes).subscribe({
       next: (res: any) => {
@@ -468,10 +483,11 @@ export class ReviewSubmissionComponent {
 
   // Helper method to check if user can review
   canReview(): boolean {
+    const user = this.loggedInUser || this.authService.getCurrentUser();
     return this.submission?.status && 
-           ['pending_review', 'in_progress', 'resubmitted'].includes(this.submission.status) &&
-           this.loggedInUser?.role && 
-           ['admin', 'reviewer', 'curator'].includes(this.loggedInUser.role);
+           ['pending_review', 'in_progress', 'resubmitted'].includes(this.submission?.status) &&
+           user?.role && 
+           ['admin', 'reviewer', 'curator'].includes(user.role);
   }
 
   // Helper methods for status checks
@@ -506,66 +522,73 @@ export class ReviewSubmissionComponent {
 
   // Check if "Start Review" button should show (only for never-reviewed submissions)
   canStartReview(): boolean {
+    const user = this.loggedInUser || this.authService.getCurrentUser();
+    const isLoggedIn = user?.id || user?.email;
     return this.submission?.status === 'pending_review' && 
-           this.loggedInUser?.role && 
-           ['admin', 'reviewer', 'curator'].includes(this.loggedInUser.role);
+           isLoggedIn &&
+           user?.role && 
+           ['admin', 'reviewer', 'curator'].includes(user.role);
   }
 
   // Check if action buttons should show (only after review is started)
   canShowActionButtons(): boolean {
+    const user = this.loggedInUser || this.authService.getCurrentUser();
     return this.submission?.status === 'in_progress' && 
-           this.loggedInUser?.role && 
-           ['admin', 'reviewer', 'curator'].includes(this.loggedInUser.role);
+           user?.role && 
+           ['admin', 'reviewer', 'curator'].includes(user.role);
   }
 
   // Check if user can approve submissions (accept only)
   canApproveSubmissions(): boolean {
-    return this.loggedInUser?.role && 
-           ['admin', 'reviewer'].includes(this.loggedInUser.role);
+    const user = this.loggedInUser || this.authService.getCurrentUser();
+    return user?.role && 
+           ['admin', 'reviewer'].includes(user.role);
   }
 
   // Check if user can perform curation actions (reject/revision/shortlist)
   canPerformCurationActions(): boolean {
-    return this.loggedInUser?.role && 
-           ['admin', 'reviewer', 'curator'].includes(this.loggedInUser.role);
+    const user = this.loggedInUser || this.authService.getCurrentUser();
+    return user?.role && 
+           ['admin', 'reviewer', 'curator'].includes(user.role);
   }
 
   // Check if user can only curate (shortlist only)
   isCuratorOnly(): boolean {
-    return this.loggedInUser?.role === 'curator';
+    const user = this.loggedInUser || this.authService.getCurrentUser();
+    return user?.role === 'curator';
   }
 
   getStatusBadgeClass(): string {
-    if (!this.submission?.status) return 'bg-gray-100 text-gray-800';
+    if (!this.submission?.status) return 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300';
     
-    switch (this.submission.status) {
+    switch (this.submission?.status) {
       case 'pending_review':
-        return 'bg-amber-100 text-amber-800';
+        return 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300';
       case 'in_progress':
-        return 'bg-blue-100 text-blue-800';
+        return 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300';
       case 'shortlisted':
-        return 'bg-yellow-100 text-yellow-800';
+        return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300';
       case 'accepted':
       case 'approved':
-        return 'bg-green-100 text-green-800';
+        return 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300';
       case 'rejected':
-        return 'bg-red-100 text-red-800';
+        return 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300';
       case 'needs_revision':
       case 'needs_changes':
-        return 'bg-amber-100 text-amber-800';
+        return 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300';
       case 'published':
-        return 'bg-purple-100 text-purple-800';
+        return 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300';
       case 'draft':
-        return 'bg-gray-100 text-gray-800';
+        return 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300';
       default:
-        return 'bg-gray-100 text-gray-800';
+        return 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300';
     }
   }
 
   getStatusDisplayName(): string {
     if (!this.submission?.status) return 'Unknown';
     
-    switch (this.submission.status) {
+    switch (this.submission?.status) {
       case 'pending_review':
         return 'Pending Review';
       case 'in_progress':
@@ -579,7 +602,7 @@ export class ReviewSubmissionComponent {
       case 'approved':
         return 'Approved';
       default:
-        return this.submission.status.charAt(0).toUpperCase() + this.submission.status.slice(1);
+        return this.submission?.status?.charAt(0).toUpperCase() + this.submission?.status?.slice(1) || '';
     }
   }
 

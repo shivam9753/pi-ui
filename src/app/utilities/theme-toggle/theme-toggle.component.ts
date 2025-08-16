@@ -10,22 +10,13 @@ import { ThemingService } from '../../services/theming.service';
   template: `
     <button 
       (click)="toggleTheme()"
-      class="relative inline-flex items-center justify-center w-9 h-9 rounded-lg transition-all duration-200 
-             hover:bg-gray-100 dark:hover:bg-gray-800/50 
-             focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:bg-gray-100 dark:focus:bg-gray-800/50
-             group"
+      class="flex items-center gap-1.5 px-2 py-1 text-sm text-themed-secondary hover:text-themed transition-colors duration-200 rounded"
       [attr.aria-label]="isDark ? 'Switch to light mode' : 'Switch to dark mode'"
-      [attr.title]="isDark ? 'Switch to light mode' : 'Switch to dark mode'"
     >
-      <!-- Sun icon -->
+      <!-- Sun icon for light mode -->
       <svg 
-        class="absolute w-4 h-4 text-orange-500 transition-all duration-300 transform"
-        [class.opacity-100]="!isDark"
-        [class.opacity-0]="isDark"
-        [class.scale-100]="!isDark"
-        [class.scale-0]="isDark"
-        [class.rotate-0]="!isDark"
-        [class.rotate-180]="isDark"
+        *ngIf="!isDark"
+        class="w-4 h-4 text-orange-500" 
         fill="none" 
         viewBox="0 0 24 24" 
         stroke="currentColor" 
@@ -42,15 +33,10 @@ import { ThemingService } from '../../services/theming.service';
         <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
       </svg>
       
-      <!-- Moon icon -->
+      <!-- Moon icon for dark mode -->
       <svg 
-        class="absolute w-4 h-4 text-slate-600 dark:text-slate-300 transition-all duration-300 transform"
-        [class.opacity-0]="!isDark"
-        [class.opacity-100]="isDark"
-        [class.scale-0]="!isDark"
-        [class.scale-100]="isDark"
-        [class.rotate-180]="!isDark"
-        [class.rotate-0]="isDark"
+        *ngIf="isDark"
+        class="w-4 h-4 text-slate-400" 
         fill="none" 
         viewBox="0 0 24 24" 
         stroke="currentColor" 
@@ -59,30 +45,12 @@ import { ThemingService } from '../../services/theming.service';
         <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/>
       </svg>
       
-      <!-- Subtle glow effect on hover -->
-      <div class="absolute inset-0 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200
-                  bg-gradient-to-br from-orange-50 to-orange-100 dark:from-gray-700/20 dark:to-gray-800/20"></div>
+      <span>{{ isDark ? 'Dark' : 'Light' }}</span>
     </button>
   `,
   styles: [`
     :host {
       display: inline-block;
-    }
-    
-    button:active {
-      transform: scale(0.95);
-    }
-    
-    @media (max-width: 640px) {
-      button {
-        width: 2.25rem;
-        height: 2.25rem;
-      }
-      
-      svg {
-        width: 1rem;
-        height: 1rem;
-      }
     }
   `]
 })

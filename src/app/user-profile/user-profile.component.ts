@@ -10,6 +10,7 @@ import { PrettyLabelPipe } from '../pipes/pretty-label.pipe';
 import { EmptyStateComponent } from '../shared/components/empty-state/empty-state.component';
 import { LoadingStateComponent } from '../shared/components/loading-state/loading-state.component';
 import { StatusBadgeComponent } from '../shared/components/status-badge/status-badge.component';
+import { ProfileCompletionComponent } from '../profile-completion/profile-completion.component';
 
 // Add interfaces for new data types
 interface Submission {
@@ -50,7 +51,7 @@ interface Draft {
 
 @Component({
   selector: 'app-user-profile',
-  imports: [CommonModule, FormsModule, RouterModule, TypeBadgePipe, PrettyLabelPipe, EmptyStateComponent, LoadingStateComponent, StatusBadgeComponent],
+  imports: [CommonModule, FormsModule, RouterModule, TypeBadgePipe, PrettyLabelPipe, EmptyStateComponent, LoadingStateComponent, StatusBadgeComponent, ProfileCompletionComponent],
   templateUrl: './user-profile.component.html',
   styleUrl: './user-profile.component.css'
 })
@@ -64,6 +65,7 @@ export class UserProfileComponent implements OnInit {
   
   isEditMode = signal(false);
   isFollowing = signal(false);
+  showProfileEditor = signal(false);
   
   // Tab management
   activeTab = signal<'published' | 'submissions' | 'drafts'>('published');
@@ -428,7 +430,31 @@ export class UserProfileComponent implements OnInit {
     const profile = this.userProfile();
     if (!profile) return false;
     
-    return this.backendService.isOwnProfile(profile._id);
+    // Multiple ways to check if this is the user's own profile
+    const currentUser = this.backendService.getCurrentUserProfile();
+    
+    // Method 1: Check if IDs match
+    if (currentUser && currentUser._id === profile._id) {
+      return true;
+    }
+    
+    // Method 2: Check if no userId is provided in route (means current user)
+    if (!this.userId) {
+      return true;
+    }
+    
+    // Method 3: Use the backend service method
+    const isOwn = this.backendService.isOwnProfile(profile._id);
+    
+    console.log('Profile ownership check:', {
+      profileId: profile._id,
+      currentUserId: currentUser?._id,
+      routeUserId: this.userId,
+      backendCheck: isOwn,
+      finalResult: isOwn
+    });
+    
+    return isOwn;
   }
 
   // Filter and sort methods
@@ -802,8 +828,32 @@ export class UserProfileComponent implements OnInit {
   }
 
   editProfileAdvanced() {
-    // Navigate to the profile completion component for advanced editing
-    this.router.navigate(['/complete-profile']);
+    // Show the inline profile editor instead of navigating
+    this.showProfileEditor.set(true);
+  }
+
+  onProfileSaved(updatedProfile: any) {
+    // Update the local profile data
+    const currentProfile = this.userProfile();
+    if (currentProfile) {
+      const mergedProfile = {
+        ...currentProfile,
+        name: updatedProfile.name,
+        bio: updatedProfile.bio,
+        profileImage: updatedProfile.profileImage
+      };
+      this.userProfile.set(mergedProfile);
+    }
+    
+    // Hide the profile editor
+    this.showProfileEditor.set(false);
+    
+    // Show success message or handle as needed
+  }
+
+  onProfileCancelled() {
+    // Hide the profile editor
+    this.showProfileEditor.set(false);
   }
 
   toggleFollow() {
