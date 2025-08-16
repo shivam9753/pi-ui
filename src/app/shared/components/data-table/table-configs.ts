@@ -307,5 +307,6 @@ export const SUBMISSION_BADGE_CONFIG = {
 export const USER_BADGE_CONFIG = {
   'admin': 'px-2 py-1 text-xs font-medium rounded-full tag tag-red',
   'reviewer': 'px-2 py-1 text-xs font-medium rounded-full tag tag-blue',
+  'curator': 'px-2 py-1 text-xs font-medium rounded-full tag tag-purple',
   'user': 'px-2 py-1 text-xs font-medium rounded-full tag tag-gray'
 };

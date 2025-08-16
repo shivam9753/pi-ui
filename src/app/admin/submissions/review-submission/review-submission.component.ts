@@ -26,7 +26,7 @@ export class ReviewSubmissionComponent {
   
   // Review form state
   reviewNotes: string = '';
-  reviewAction: 'approve' | 'reject' | 'revision' | 'move_to_progress' | null = null;
+  reviewAction: 'approve' | 'reject' | 'revision' | 'move_to_progress' | 'shortlist' | null = null;
   showReviewForm: boolean = false;
   isSubmitting: boolean = false;
   
@@ -130,7 +130,7 @@ export class ReviewSubmissionComponent {
     }
   }
 
-  setReviewAction(action: 'approve' | 'reject' | 'revision' | 'move_to_progress') {
+  setReviewAction(action: 'approve' | 'reject' | 'revision' | 'move_to_progress' | 'shortlist') {
     this.reviewAction = action;
     this.showReviewForm = true;
     
@@ -143,6 +143,8 @@ export class ReviewSubmissionComponent {
       this.reviewNotes = 'Please revise the following:';
     } else if (action === 'move_to_progress') {
       this.reviewNotes = 'Moving to in progress for detailed review';
+    } else if (action === 'shortlist') {
+      this.reviewNotes = 'Shortlisted for further review';
     }
   }
 
@@ -178,6 +180,9 @@ export class ReviewSubmissionComponent {
         break;
       case 'move_to_progress':
         this.moveToProgress();
+        break;
+      case 'shortlist':
+        this.shortlistSubmission();
         break;
     }
   }
@@ -387,6 +392,28 @@ export class ReviewSubmissionComponent {
     });
   }
 
+  shortlistSubmission() {
+    const reviewData = {
+      reviewNotes: this.reviewNotes.trim() || 'Shortlisted for further review'
+    };
+
+    this.backendService.updateSubmissionStatus(this.id, 'shortlisted').subscribe({
+      next: (res: any) => {
+        this.showSuccessMessage('Submission shortlisted successfully!');
+        
+        // Refresh the submission data and history
+        this.getSubmissionWithContents(this.id);
+        this.loadSubmissionHistory(this.id);
+        this.resetReviewForm();
+        this.isSubmitting = false;
+      },
+      error: (err: any) => {
+        this.showErrorMessage('Error shortlisting submission. Please try again.');
+        this.isSubmitting = false;
+      }
+    });
+  }
+
   // Direct method to start review process without showing form
   startReviewProcess() {
     if (!this.loggedInUser?.id) {
@@ -444,7 +471,7 @@ export class ReviewSubmissionComponent {
     return this.submission?.status && 
            ['pending_review', 'in_progress', 'resubmitted'].includes(this.submission.status) &&
            this.loggedInUser?.role && 
-           ['admin', 'reviewer'].includes(this.loggedInUser.role);
+           ['admin', 'reviewer', 'curator'].includes(this.loggedInUser.role);
   }
 
   // Helper methods for status checks
@@ -481,7 +508,31 @@ export class ReviewSubmissionComponent {
   canStartReview(): boolean {
     return this.submission?.status === 'pending_review' && 
            this.loggedInUser?.role && 
+           ['admin', 'reviewer', 'curator'].includes(this.loggedInUser.role);
+  }
+
+  // Check if action buttons should show (only after review is started)
+  canShowActionButtons(): boolean {
+    return this.submission?.status === 'in_progress' && 
+           this.loggedInUser?.role && 
+           ['admin', 'reviewer', 'curator'].includes(this.loggedInUser.role);
+  }
+
+  // Check if user can approve submissions (accept only)
+  canApproveSubmissions(): boolean {
+    return this.loggedInUser?.role && 
            ['admin', 'reviewer'].includes(this.loggedInUser.role);
+  }
+
+  // Check if user can perform curation actions (reject/revision/shortlist)
+  canPerformCurationActions(): boolean {
+    return this.loggedInUser?.role && 
+           ['admin', 'reviewer', 'curator'].includes(this.loggedInUser.role);
+  }
+
+  // Check if user can only curate (shortlist only)
+  isCuratorOnly(): boolean {
+    return this.loggedInUser?.role === 'curator';
   }
 
   getStatusBadgeClass(): string {
@@ -492,11 +543,15 @@ export class ReviewSubmissionComponent {
         return 'bg-amber-100 text-amber-800';
       case 'in_progress':
         return 'bg-blue-100 text-blue-800';
+      case 'shortlisted':
+        return 'bg-yellow-100 text-yellow-800';
       case 'accepted':
+      case 'approved':
         return 'bg-green-100 text-green-800';
       case 'rejected':
         return 'bg-red-100 text-red-800';
       case 'needs_revision':
+      case 'needs_changes':
         return 'bg-amber-100 text-amber-800';
       case 'published':
         return 'bg-purple-100 text-purple-800';
@@ -515,8 +570,14 @@ export class ReviewSubmissionComponent {
         return 'Pending Review';
       case 'in_progress':
         return 'In Progress';
+      case 'shortlisted':
+        return 'Shortlisted';
       case 'needs_revision':
         return 'Needs Revision';
+      case 'needs_changes':
+        return 'Needs Changes';
+      case 'approved':
+        return 'Approved';
       default:
         return this.submission.status.charAt(0).toUpperCase() + this.submission.status.slice(1);
     }

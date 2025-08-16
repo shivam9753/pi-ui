@@ -94,6 +94,29 @@ content = signal<PublishedContent | null>(null);
     });
   });
 
+  allTags = computed(() => {
+    const current = this.content();
+    if (!current) return [];
+    
+    const tags = new Set<string>();
+    
+    // Add main content tags
+    if (current.tags) {
+      current.tags.forEach(tag => tags.add(tag));
+    }
+    
+    // Add individual content item tags
+    if (current.contents) {
+      current.contents.forEach(item => {
+        if (item.tags) {
+          item.tags.forEach(tag => tags.add(tag));
+        }
+      });
+    }
+    
+    return Array.from(tags);
+  });
+
   themeService = inject(ThemingService);
   router = inject(Router); // Make router public for template access
 
@@ -712,20 +735,29 @@ content = signal<PublishedContent | null>(null);
     this.metaService.updateTag({ property: 'og:type', content: 'article' });
     this.metaService.updateTag({ property: 'og:url', content: canonicalUrl });
     this.metaService.updateTag({ property: 'og:site_name', content: 'Poems in India' });
+    this.metaService.updateTag({ property: 'og:locale', content: 'en_US' });
     
-    // Add author and publication info
-    this.metaService.updateTag({ property: 'article:author', content: content.author.name });
+    // Additional meta tags for better social sharing
+    this.metaService.updateTag({ name: 'robots', content: 'index,follow' });
+    this.metaService.updateTag({ name: 'author', content: content.author.name });
+    this.metaService.updateTag({ property: 'article:section', content: content.submissionType });
     this.metaService.updateTag({ property: 'article:published_time', content: content.publishedAt.toISOString() });
+    
+    // Canonical URL
+    this.metaService.updateTag({ rel: 'canonical', href: canonicalUrl } as any);
     if (content.tags && content.tags.length > 0) {
       content.tags.forEach(tag => {
         this.metaService.addTag({ property: 'article:tag', content: tag });
       });
     }
     
-    if (content.imageUrl) {
-      this.metaService.updateTag({ property: 'og:image', content: content.imageUrl });
-      this.metaService.updateTag({ property: 'og:image:alt', content: `Cover image for ${content.title}` });
-    }
+    // Set Open Graph image with fallback
+    const imageUrl = this.getAbsoluteImageUrl(content.imageUrl) || this.getDefaultSocialImage();
+    this.metaService.updateTag({ property: 'og:image', content: imageUrl });
+    this.metaService.updateTag({ property: 'og:image:alt', content: content.imageUrl ? `Cover image for ${content.title}` : 'Poems in India - Poetry & Literature' });
+    this.metaService.updateTag({ property: 'og:image:width', content: '1200' });
+    this.metaService.updateTag({ property: 'og:image:height', content: '630' });
+    this.metaService.updateTag({ property: 'og:image:type', content: 'image/jpeg' });
     
     // Update Twitter Card tags
     this.metaService.updateTag({ name: 'twitter:card', content: 'summary_large_image' });
@@ -734,10 +766,9 @@ content = signal<PublishedContent | null>(null);
     this.metaService.updateTag({ name: 'twitter:site', content: '@poemsindia' });
     this.metaService.updateTag({ name: 'twitter:creator', content: `@${content.author.name}` });
     
-    if (content.imageUrl) {
-      this.metaService.updateTag({ name: 'twitter:image', content: content.imageUrl });
-      this.metaService.updateTag({ name: 'twitter:image:alt', content: `Cover image for ${content.title}` });
-    }
+    // Set Twitter image (same as og:image)
+    this.metaService.updateTag({ name: 'twitter:image', content: imageUrl });
+    this.metaService.updateTag({ name: 'twitter:image:alt', content: content.imageUrl ? `Cover image for ${content.title}` : 'Poems in India - Poetry & Literature' });
     
     // Add structured data for search engines
     this.addStructuredData(content, canonicalUrl);
@@ -766,9 +797,14 @@ content = signal<PublishedContent | null>(null);
       "wordCount": content.contents.reduce((acc, item) => acc + item.wordCount, 0)
     };
 
-    if (content.imageUrl) {
-      structuredData.image = content.imageUrl;
-    }
+    // Always include an image in structured data
+    const imageUrl = this.getAbsoluteImageUrl(content.imageUrl) || this.getDefaultSocialImage();
+    structuredData.image = {
+      "@type": "ImageObject",
+      "url": imageUrl,
+      "width": 1200,
+      "height": 630
+    };
 
     // Remove existing structured data script if it exists
     const existingScript = document.getElementById('structured-data');
@@ -782,5 +818,28 @@ content = signal<PublishedContent | null>(null);
     script.type = 'application/ld+json';
     script.text = JSON.stringify(structuredData);
     document.head.appendChild(script);
+  }
+
+  private getAbsoluteImageUrl(imageUrl?: string): string | null {
+    if (!imageUrl) return null;
+    
+    // If already absolute URL, return as is
+    if (imageUrl.startsWith('http://') || imageUrl.startsWith('https://')) {
+      return imageUrl;
+    }
+    
+    // If relative URL, make it absolute
+    if (imageUrl.startsWith('/')) {
+      return `https://poemsindia.in${imageUrl}`;
+    }
+    
+    // If no leading slash, assume it's relative to root
+    return `https://poemsindia.in/${imageUrl}`;
+  }
+
+  private getDefaultSocialImage(): string {
+    // Return a default social sharing image for posts without custom images
+    // Use the existing login image as a temporary fallback
+    return 'https://poemsindia.in/assets/loginimage.jpeg';
   }
 }

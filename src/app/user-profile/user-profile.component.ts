@@ -693,12 +693,12 @@ export class UserProfileComponent implements OnInit {
   // Action methods for drafts
   editDraft(draft: Draft) {
     // Navigate to submit page with draft data populated
-    this.router.navigate(['/submit'], { queryParams: { draft: draft.id } });
+    this.router.navigate(['/submission'], { queryParams: { draft: draft.id } });
   }
 
   submitDraft(draft: Draft) {
     // Navigate to submit page with draft data populated and ready for submission
-    this.router.navigate(['/submit'], { queryParams: { draft: draft.id, submit: true } });
+    this.router.navigate(['/submission'], { queryParams: { draft: draft.id, submit: true } });
   }
 
   toggleDraftMenu(draftId: string) {
@@ -889,6 +889,15 @@ export class UserProfileComponent implements OnInit {
     this.error.set(null);
   }
 
+  onImageError(event: any) {
+    // Hide the broken image and show the initials instead
+    const profile = this.userProfile();
+    if (profile) {
+      profile.profileImage = '';
+      this.userProfile.set(profile);
+    }
+  }
+
   // Utility method to clean HTML from text content
   cleanHtml(text: string): string {
     if (!text) return '';
@@ -935,7 +944,7 @@ export class UserProfileComponent implements OnInit {
 
   // Empty state action methods
   goToSubmit(): void {
-    this.router.navigate(['/submit']);
+    this.router.navigate(['/submission']);
   }
 
   // Stats methods for the new profile header

@@ -19,7 +19,7 @@ export class ReviewerGuard implements CanActivate {
           return false;
         }
   
-        if (user.role === 'reviewer' || user.role === 'admin') {
+        if (user.role === 'reviewer' || user.role === 'admin' || user.role === 'curator') {
           return true;
         } else {
           this.router.navigate(['/explore']);

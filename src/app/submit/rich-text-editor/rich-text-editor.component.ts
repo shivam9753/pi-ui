@@ -84,6 +84,21 @@ export class RichTextEditorComponent implements ControlValueAccessor, AfterViewI
   }
 
   onKeyDown(event: KeyboardEvent): void {
+    // Handle Enter key for proper line break insertion
+    if (event.key === 'Enter' && !event.shiftKey) {
+      event.preventDefault();
+      // Insert a line break instead of creating new div/p elements
+      document.execCommand('insertHTML', false, '<br><br>');
+      return;
+    }
+    
+    // Handle Shift+Enter for single line break
+    if (event.key === 'Enter' && event.shiftKey) {
+      event.preventDefault();
+      document.execCommand('insertHTML', false, '<br>');
+      return;
+    }
+    
     // Handle keyboard shortcuts
     if (event.ctrlKey || event.metaKey) {
       switch (event.key.toLowerCase()) {

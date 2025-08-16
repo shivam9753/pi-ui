@@ -280,7 +280,7 @@ export class PublishSubmissionComponent implements OnInit {
     }
   }
 
-  // Clean content for editing (remove empty divs, normalize line breaks)
+  // Clean content for editing (remove empty divs, preserve line breaks)
   cleanContentForEditing(content: string): string {
     if (!content) return '';
     return content
@@ -288,7 +288,6 @@ export class PublishSubmissionComponent implements OnInit {
       .replace(/<div>\s*<\/div>/g, '')           // Remove div tags with only whitespace
       .replace(/<div>/g, '')                     // Remove opening div tags
       .replace(/<\/div>/g, '<br>')               // Convert closing div tags to line breaks
-      .replace(/<br\s*\/?>\s*<br\s*\/?>/g, '<br><br>') // Normalize multiple br tags
       .replace(/(<br\s*\/?>\s*){3,}/g, '<br><br>')     // Limit consecutive br tags to max 2
       .replace(/&nbsp;/g, ' ')                   // Convert non-breaking spaces
       .replace(/&amp;/g, '&')                    // Convert HTML entities
@@ -308,7 +307,7 @@ export class PublishSubmissionComponent implements OnInit {
       .replace(/\r/g, '');             // Remove carriage returns
   }
 
-  // Prepare content for saving (clean up rich text editor output)
+  // Prepare content for saving (clean up rich text editor output while preserving line breaks)
   prepareContentForSaving(content: string): string {
     if (!content) return '';
     return content
@@ -317,8 +316,8 @@ export class PublishSubmissionComponent implements OnInit {
       .replace(/(<br\s*\/?>\s*){3,}/g, '<br><br>')     // Limit consecutive br tags to max 2
       .replace(/^\s*(<br\s*\/?>\s*)+/g, '')            // Remove leading br tags
       .replace(/(\s*<br\s*\/?>\s*)+$/g, '')            // Remove trailing br tags
-      .replace(/\s+/g, ' ')                            // Normalize whitespace
-      .trim();                                         // Remove leading/trailing whitespace
+      // DO NOT normalize whitespace - preserve line structure for poetry and formatted text
+      .trim();                                         // Remove leading/trailing whitespace only
   }
 
   // Calculate word count for content
@@ -592,11 +591,10 @@ export class PublishSubmissionComponent implements OnInit {
       }
     });
 
-    const updateData = {
+    const updateData: any = {
       title: this.submission.title,
       description: this.submission.description,
       excerpt: this.submission.excerpt,
-      imageUrl: this.submission.imageUrl,
       tags: Array.from(allContentTags), // Use actual content tags, not SEO keywords
       contents: this.submission.contents.map((content: any) => ({
         _id: content._id,
@@ -606,6 +604,11 @@ export class PublishSubmissionComponent implements OnInit {
         tags: (content.tags || []).filter((tag: string) => tag?.trim().length > 0)
       }))
     };
+
+    // Only include imageUrl if it's not empty/null to avoid validation errors
+    if (this.submission.imageUrl && this.submission.imageUrl.trim()) {
+      updateData.imageUrl = this.submission.imageUrl;
+    }
 
     this.backendService.updateSubmission(this.submission._id, updateData).subscribe({
       next: (response) => {
@@ -617,6 +620,45 @@ export class PublishSubmissionComponent implements OnInit {
     });
   }
 
+  private saveChangesForPublish() {
+    if (!this.submission) return;
+
+    // Collect all tags from content items to create submission-level tags
+    const allContentTags = new Set<string>();
+    this.submission.contents.forEach((content: any) => {
+      if (content.tags && Array.isArray(content.tags)) {
+        content.tags.forEach((tag: string) => {
+          // Filter out empty strings and whitespace-only tags
+          const cleanTag = tag?.trim();
+          if (cleanTag && cleanTag.length > 0) {
+            allContentTags.add(cleanTag);
+          }
+        });
+      }
+    });
+
+    const updateData: any = {
+      title: this.submission.title,
+      description: this.submission.description,
+      excerpt: this.submission.excerpt,
+      tags: Array.from(allContentTags), // Use actual content tags, not SEO keywords
+      contents: this.submission.contents.map((content: any) => ({
+        _id: content._id,
+        title: content.title,
+        body: this.prepareContentForSaving(content.body),
+        wordCount: this.calculateWordCount(content.body),
+        tags: (content.tags || []).filter((tag: string) => tag?.trim().length > 0)
+      }))
+    };
+
+    // Only include imageUrl if it's not empty/null to avoid validation errors
+    if (this.submission.imageUrl && this.submission.imageUrl.trim()) {
+      updateData.imageUrl = this.submission.imageUrl;
+    }
+
+    return this.backendService.updateSubmission(this.submission._id, updateData);
+  }
+
   saveAndPublish() {
     if (!this.isFormValid() || !this.submission) {
       return;
@@ -624,9 +666,37 @@ export class PublishSubmissionComponent implements OnInit {
 
     this.isPublishing = true;
 
-    // First save any content changes
-    this.saveChanges();
+    // Check if submission is already published
+    // For already published posts, we should only update content, not republish
+    const isAlreadyPublished = this.submission.status === 'published' || 
+                               this.submission.publishedAt || 
+                               this.submission.isPublished;
 
+    if (isAlreadyPublished) {
+      // For already published content, only save content changes via PATCH
+      this.saveChangesForPublish()?.subscribe({
+        next: (response) => {
+          // Content updated successfully - no need to call publish API
+          this.showSuccess(`"${this.submission.title}" has been updated successfully!`);
+          this.isPublishing = false;
+          
+          // Redirect back to admin publication page
+          setTimeout(() => {
+            this.router.navigate(['/admin'], { fragment: 'publish' });
+          }, 2000);
+        },
+        error: (err) => {
+          this.showError('Failed to save content changes. Please try again.');
+          this.isPublishing = false;
+        }
+      });
+    } else {
+      // For first-time publishing, use the publish endpoint
+      this.publishWithSEO();
+    }
+  }
+
+  private publishWithSEO() {
     // Prepare SEO configuration data
     const seoData = {
       slug: this.seoConfig.slug.trim(),
@@ -670,6 +740,20 @@ export class PublishSubmissionComponent implements OnInit {
 
   goBack() {
     this.router.navigate(['/admin'], { fragment: 'publish' });
+  }
+
+  getPublishButtonText(): string {
+    const isAlreadyPublished = this.submission?.status === 'published' || 
+                               this.submission?.publishedAt || 
+                               this.submission?.isPublished;
+    return isAlreadyPublished ? 'Save & Update' : 'Save & Publish';
+  }
+
+  getPublishingText(): string {
+    const isAlreadyPublished = this.submission?.status === 'published' || 
+                               this.submission?.publishedAt || 
+                               this.submission?.isPublished;
+    return isAlreadyPublished ? 'Updating...' : 'Publishing...';
   }
 
   // Toast notification methods

@@ -64,7 +64,7 @@ export class SubmissionFormComponent implements OnInit, OnDestroy {
     { 
       label: 'Poem', 
       value: 'poem', 
-      description: 'OMeaning, minus the excess (min 3 poems required)',
+      description: 'Meaning, minus the excess (min 3 poems required)',
       expedited: false
     },
     { 
@@ -147,8 +147,8 @@ export class SubmissionFormComponent implements OnInit, OnDestroy {
 
   createContentGroup(): FormGroup {
     return this.fb.group({
-      title: ['', Validators.required],
-      body: ['', Validators.required],
+      title: [''],
+      body: [''],
       tags: ['']
     });
   }
@@ -478,36 +478,43 @@ export class SubmissionFormComponent implements OnInit, OnDestroy {
       error: (error) => {
         this.isSubmitting = false;
         
-        // Handle different types of errors with specific messages
         let errorMessage = 'There was an error submitting your work. Please try again.';
         
-        if (error.status === 0) {
-          // Network error
-          errorMessage = 'Network error. Please check your connection and try again.';
-        } else if (error.status === 400) {
-          // Validation error
-          errorMessage = error.error?.message || 'Please check your submission and try again.';
-        } else if (error.status === 401) {
-          // Authentication error
-          errorMessage = 'Please log in again to submit your work.';
-        } else if (error.status === 413) {
-          // Payload too large
-          errorMessage = 'Your submission is too large. Please reduce the content size.';
-        } else if (error.status === 429) {
-          // Rate limiting
-          errorMessage = 'Too many submissions. Please wait a moment and try again.';
-        } else if (error.status >= 500) {
-          // Server error
-          errorMessage = 'Server error. Please try again in a few minutes.';
-        } else if (error.error) {
-          // Try to extract specific error message from response
-          if (typeof error.error === 'string') {
-            errorMessage = error.error;
-          } else if (error.error.message) {
-            errorMessage = error.error.message;
-          } else if (error.error.error) {
-            errorMessage = error.error.error;
+        // Check for validation errors first
+        if (error.error?.errors && Array.isArray(error.error.errors)) {
+          const validationErrors = error.error.errors;
+          const errorMessages = validationErrors.map((err: any) => {
+            // Format field path to be more user-friendly
+            let fieldName = err.path || 'Field';
+            if (fieldName.startsWith('contents[') && fieldName.includes('].title')) {
+              const match = fieldName.match(/contents\[(\d+)\]\.title/);
+              if (match) {
+                const index = parseInt(match[1]) + 1;
+                fieldName = `Content ${index} title`;
+              }
+            } else if (fieldName.startsWith('contents[') && fieldName.includes('].body')) {
+              const match = fieldName.match(/contents\[(\d+)\]\.body/);
+              if (match) {
+                const index = parseInt(match[1]) + 1;
+                fieldName = `Content ${index} body`;
+              }
+            } else if (fieldName === 'title') {
+              fieldName = 'Main title';
+            }
+            
+            return `${fieldName}: ${err.msg}`;
+          });
+          
+          // Show first few errors to avoid overwhelming the user
+          const maxErrors = 5;
+          const displayErrors = errorMessages.slice(0, maxErrors);
+          errorMessage = displayErrors.join('\n');
+          
+          if (errorMessages.length > maxErrors) {
+            errorMessage += `\n... and ${errorMessages.length - maxErrors} more validation errors`;
           }
+        } else if (error.error?.message) {
+          errorMessage = error.error.message;
         }
         
         this.showToast(errorMessage, 'error');

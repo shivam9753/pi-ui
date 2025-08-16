@@ -71,14 +71,20 @@ export class HtmlSanitizerService {
         const element = node as Element;
         const tagName = element.tagName.toLowerCase();
         
-        // Handle block elements and line break elements
-        if (tagName === 'div' || tagName === 'p' || tagName === 'br') {
+        // Handle line break elements first (most important for poetry)
+        if (tagName === 'br') {
+          result += '\n';
+          return; // Don't process children for br tags
+        }
+        
+        // Handle block elements
+        if (tagName === 'div' || tagName === 'p') {
           // Process children first
           for (let child of Array.from(element.childNodes)) {
             processNode(child);
           }
-          // Add line break after block elements (but not for empty divs following br)
-          if (tagName === 'br' || (element.textContent && element.textContent.trim())) {
+          // Add line break after block elements if they have content
+          if (element.textContent && element.textContent.trim()) {
             result += '\n';
           }
         } else if (tagName === 'strong' || tagName === 'b') {
@@ -113,9 +119,9 @@ export class HtmlSanitizerService {
       processNode(child);
     }
     
-    // Clean up the result
+    // Clean up the result and convert newlines to br tags for HTML display
     return result
-      .replace(/\n+/g, '<br>')         // Convert multiple newlines to single <br>
+      .replace(/\n/g, '<br>')          // Convert each newline to <br> (preserve line breaks)
       .replace(/<br\s*\/?>/g, '<br>')  // Normalize br tags
       .replace(/&nbsp;/g, ' ')         // Convert non-breaking spaces
       .replace(/&amp;/g, '&')          // Convert HTML entities
@@ -124,6 +130,8 @@ export class HtmlSanitizerService {
       .replace(/&quot;/g, '"')
       .replace(/&apos;/g, "'")
       .replace(/&#39;/g, "'")
+      .replace(/(<br>\s*){3,}/g, '<br><br>')  // Limit consecutive br tags to max 2
+      .replace(/^<br>/, '')            // Remove leading <br>
       .replace(/<br>$/, '')            // Remove trailing <br>
       .trim();                         // Remove leading/trailing whitespace
   }

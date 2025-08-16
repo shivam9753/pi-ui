@@ -42,6 +42,7 @@
   line-height: 1.7;
   word-wrap: break-word;
   overflow-wrap: break-word;
+  white-space: pre-wrap; /* Preserve whitespace and line breaks */
 }
 
 .editor-content:focus {
@@ -55,6 +56,21 @@
 
 .editor-content p:last-child {
   margin-bottom: 0;
+}
+
+/* Line break handling */
+.editor-content br {
+  line-height: 1.7;
+}
+
+/* Ensure proper spacing for content with line breaks */
+.editor-content div {
+  margin: 0;
+}
+
+/* Preserve formatting for poetry and formatted text */
+.editor-content {
+  white-space: pre-wrap;
 }
 
 .editor-content strong,

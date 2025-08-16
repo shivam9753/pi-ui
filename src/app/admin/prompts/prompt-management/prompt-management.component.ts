@@ -4,6 +4,7 @@ import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } 
 import { BackendService } from '../../../services/backend.service';
 import { AuthService } from '../../../services/auth.service';
 import { AdminPageHeaderComponent, AdminPageStat } from '../../../shared/components/admin-page-header/admin-page-header.component';
+import { CommonUtils } from '../../../shared/utils';
 
 
 interface Prompt {
@@ -265,7 +266,7 @@ export class PromptManagementComponent implements OnInit {
   }
 
   getDifficultyLabel(difficulty: string): string {
-    return difficulty.charAt(0).toUpperCase() + difficulty.slice(1);
+    return CommonUtils.capitalizeFirstOnly(difficulty);
   }
 
   // New methods for mobile-optimized filters

@@ -2,6 +2,7 @@ import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Author } from '../../../models';
 import { StatusBadgeComponent } from '../status-badge/status-badge.component';
+import { CommonUtils, StringUtils } from '../../utils';
 
 export interface ContentCardData {
   id: string;
@@ -222,7 +223,7 @@ export class ContentCardComponent {
       case 'poem': return 'Poetry';
       case 'story': return 'Story';
       case 'article': return 'Article';
-      case 'quote': return 'Quote';
+      case 'opinion': return 'Opinion';
       case 'cinema_essay': return 'Cinema';
       default: return this.content.submissionType;
     }
@@ -236,7 +237,7 @@ export class ContentCardComponent {
         return 'tag-green';
       case 'article':
         return 'tag-blue';
-      case 'quote':
+      case 'opinion':
         return 'tag-yellow';
       case 'cinema_essay':
         return 'tag-red';
@@ -248,40 +249,18 @@ export class ContentCardComponent {
 
   getDisplayDate(): string {
     const date = this.content.publishedAt || this.content.createdAt;
-    return new Date(date).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
-    });
+    return CommonUtils.formatDate(date);
   }
 
   sanitizeHtml(html: string | undefined): string {
     if (!html) return '';
-    // Remove HTML tags, decode common entities, and clean up extra whitespace
-    return html
-      .replace(/<[^>]*>/g, '') // Remove all HTML tags
-      .replace(/&nbsp;/g, ' ') // Replace non-breaking spaces
-      .replace(/&amp;/g, '&')  // Decode ampersands
-      .replace(/&lt;/g, '<')   // Decode less than
-      .replace(/&gt;/g, '>')   // Decode greater than
-      .replace(/&quot;/g, '"') // Decode quotes
-      .replace(/&#39;/g, "'")  // Decode apostrophes
-      .replace(/&[^;]+;/g, ' ') // Replace any other entities with space
-      .replace(/\s+/g, ' ')     // Collapse multiple whitespace to single space
-      .trim();
+    return StringUtils.stripHtml(html);
   }
 
   getAuthorInitials(): string {
     if (!this.content.author) return '?';
-    
     const name = this.content.author.name || 'Anonymous';
-    const words = name.split(' ');
-    
-    if (words.length === 1) {
-      return words[0].charAt(0).toUpperCase();
-    }
-    
-    return words.slice(0, 2).map((word: string) => word.charAt(0).toUpperCase()).join('');
+    return StringUtils.getInitialsWithFallback(name, '?');
   }
 
   isOpinionPiece(): boolean {

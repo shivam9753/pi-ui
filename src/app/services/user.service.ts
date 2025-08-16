@@ -139,7 +139,7 @@ export class UserService {
   /**
    * Update user role (admin only)
    */
-  updateUserRole(userId: string, role: 'user' | 'reviewer' | 'admin'): Observable<{ message: string; user: User }> {
+  updateUserRole(userId: string, role: 'user' | 'reviewer' | 'admin' | 'curator'): Observable<{ message: string; user: User }> {
     return this.apiService.patch<{ message: string; user: User }>(`/users/${userId}/role`, { role });
   }
 

@@ -117,7 +117,7 @@ export class RelatedContentComponent implements OnInit {
       case 'story': return 'Story';
       case 'article': return 'Article';
       case 'cinema_essay': return 'Cinema Essay';
-      case 'quote': return 'Quote';
+      case 'opinion': return 'Opinion';
       default: return 'Content';
     }
   }

@@ -1,0 +1,179 @@
+import { Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
+import { AdminPageHeaderComponent, AdminPageStat } from '../../../shared/components/admin-page-header/admin-page-header.component';
+import { BackendService } from '../../../services/backend.service';
+import {
+  DataTableComponent,
+  TableColumn,
+  TableAction,
+  PaginationConfig,
+  PENDING_REVIEWS_TABLE_COLUMNS,
+  createPendingReviewActions,
+  SUBMISSION_BADGE_CONFIG
+} from '../../../shared/components';
+
+@Component({
+  selector: 'app-shortlisted-submissions',
+  standalone: true,
+  imports: [CommonModule, FormsModule, AdminPageHeaderComponent, DataTableComponent],
+  template: `
+    <div class="space-y-6">
+      <!-- Page Header -->
+      <app-admin-page-header
+        title="Shortlisted Submissions"
+        [subtitle]="'Submissions that have been shortlisted for further review'"
+        [stats]="headerStats">
+      </app-admin-page-header>
+
+      <!-- Submissions Table -->
+      <app-data-table
+        [data]="submissions"
+        [columns]="columns"
+        [actions]="actions"
+        [badgeConfig]="badgeConfig"
+        [loading]="loading"
+        [pagination]="paginationConfig"
+        (actionClick)="handleAction($event)"
+        (pageChange)="onPageChange($event)"
+        emptyStateMessage="No shortlisted submissions found"
+        emptyStateIcon="star">
+      </app-data-table>
+    </div>
+  `,
+  styles: [`
+    .space-y-6 > * + * {
+      margin-top: 1.5rem;
+    }
+  `]
+})
+export class ShortlistedSubmissionsComponent implements OnInit {
+  // Table configuration
+  columns: TableColumn[] = PENDING_REVIEWS_TABLE_COLUMNS;
+  actions: TableAction[] = [];
+  badgeConfig = SUBMISSION_BADGE_CONFIG;
+  paginationConfig: PaginationConfig = {
+    currentPage: 1,
+    totalPages: 1,
+    pageSize: 12,
+    totalItems: 0
+  };
+
+  submissions: any[] = [];
+  loading: boolean = false;
+
+  // Header stats
+  headerStats: AdminPageStat[] = [
+    {
+      label: 'Total Shortlisted',
+      value: '0',
+      color: 'blue'
+    },
+    {
+      label: 'This Week',
+      value: '0',
+      color: 'green'
+    },
+    {
+      label: 'Avg. Review Time',
+      value: '0d',
+      color: 'purple'
+    }
+  ];
+
+  constructor(
+    private backendService: BackendService,
+    private router: Router
+  ) {}
+
+  ngOnInit() {
+    this.setupTableActions();
+    this.loadShortlistedSubmissions();
+  }
+
+  setupTableActions() {
+    this.actions = createPendingReviewActions((submission: any) => {
+      this.router.navigate(['/review-submission', submission._id]);
+    });
+  }
+
+  loadShortlistedSubmissions() {
+    this.loading = true;
+    
+    const params = {
+      status: 'shortlisted',
+      limit: this.paginationConfig.pageSize,
+      skip: (this.paginationConfig.currentPage - 1) * this.paginationConfig.pageSize
+    };
+
+    this.backendService.getSubmissions('', 'shortlisted', params).subscribe({
+      next: (response: any) => {
+        this.submissions = response.submissions || [];
+        this.paginationConfig.totalItems = response.total || 0;
+        this.paginationConfig.totalPages = Math.ceil(this.paginationConfig.totalItems / this.paginationConfig.pageSize);
+        
+        // Update header stats
+        this.updateHeaderStats(response);
+        
+        this.loading = false;
+      },
+      error: (error: any) => {
+        console.error('Error loading shortlisted submissions:', error);
+        this.loading = false;
+      }
+    });
+  }
+
+  updateHeaderStats(response: any) {
+    this.headerStats[0].value = (response.total || 0).toString();
+    
+    // Calculate submissions from this week
+    const thisWeekCount = this.submissions.filter(sub => {
+      const submissionDate = new Date(sub.createdAt);
+      const weekAgo = new Date();
+      weekAgo.setDate(weekAgo.getDate() - 7);
+      return submissionDate >= weekAgo;
+    }).length;
+    
+    this.headerStats[1].value = thisWeekCount.toString();
+  }
+
+  handleAction(event: any) {
+    const { action, item } = event;
+    
+    switch (action.id) {
+      case 'review':
+        this.router.navigate(['/review-submission', item._id]);
+        break;
+      case 'approve':
+        this.updateSubmissionStatus(item._id, 'approved');
+        break;
+      case 'reject':
+        this.updateSubmissionStatus(item._id, 'rejected');
+        break;
+      case 'needs_changes':
+        this.updateSubmissionStatus(item._id, 'needs_changes');
+        break;
+      default:
+        console.log('Unknown action:', action);
+    }
+  }
+
+  updateSubmissionStatus(submissionId: string, newStatus: string) {
+    this.backendService.updateSubmissionStatus(submissionId, newStatus).subscribe({
+      next: (response) => {
+        console.log('Submission status updated:', response);
+        this.loadShortlistedSubmissions(); // Reload data
+      },
+      error: (error) => {
+        console.error('Error updating submission status:', error);
+      }
+    });
+  }
+
+  onPageChange(event: any) {
+    this.paginationConfig.currentPage = typeof event === 'number' ? event : event.target?.value || 1;
+    this.loadShortlistedSubmissions();
+  }
+}

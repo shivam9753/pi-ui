@@ -335,9 +335,33 @@
   letter-spacing: -0.025em;
 }
 
-/* Content spacing improvements */
+/* Content spacing improvements and line break handling */
 .content-body br {
-  line-height: 2;
+  line-height: 1.8;
+  margin: 0.5rem 0;
+}
+
+/* Ensure proper line break display for poetry and formatted content */
+.content-body {
+  white-space: pre-line; /* Preserve line breaks but collapse other whitespace */
+}
+
+/* Specific poetry formatting for better line break preservation */
+.content-body[data-submission-type="poem"] {
+  white-space: pre-line;
+  line-height: 1.6;
+}
+
+.content-body[data-submission-type="poem"] br {
+  display: block;
+  margin: 0.25rem 0;
+  line-height: 1.6;
+}
+
+/* Ensure line breaks are visible in all content types */
+.reading-text br {
+  display: block;
+  margin: 0.5rem 0;
 }
 
 .content-body em {

@@ -2,6 +2,7 @@ import { Component, Input, Output, EventEmitter, TemplateRef, ContentChild, OnIn
 import { CommonModule } from '@angular/common';
 import { PrettyLabelPipe } from '../../../pipes/pretty-label.pipe';
 import { StatusBadgeComponent } from '../status-badge/status-badge.component';
+import { StringUtils, CommonUtils } from '../../utils';
 
 export interface TableColumn {
   key: string;
@@ -268,12 +269,12 @@ export class DataTableComponent<T = any> implements OnInit {
   }
 
   getNestedValue(obj: any, path: string): any {
-    return path.split('.').reduce((current, key) => current?.[key], obj);
+    return CommonUtils.getNestedProperty(obj, path);
   }
 
   getInitials(item: any): string {
     const name = item.name || item.username || item.title || '';
-    return name.charAt(0).toUpperCase();
+    return StringUtils.getInitialsWithFallback(name);
   }
 
   getBadgeClass(value: string): string {

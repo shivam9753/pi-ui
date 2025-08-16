@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule, DatePipe, TitleCasePipe } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { BackendService } from '../services/backend.service';
+import { CommonUtils } from '../shared/utils';
 
 @Component({
   selector: 'app-category',
@@ -21,7 +22,6 @@ export class CategoryComponent implements OnInit {
     'poem': 'Poems',
     'story': 'Stories',
     'article': 'Articles',
-    'quote': 'Quotes',
     'cinema_essay': 'Cinema Essays'
   };
 
@@ -57,7 +57,7 @@ export class CategoryComponent implements OnInit {
   }
 
   getCategoryDisplayName(): string {
-    return this.categoryLabels[this.category] || this.category.charAt(0).toUpperCase() + this.category.slice(1);
+    return this.categoryLabels[this.category] || CommonUtils.capitalizeFirstOnly(this.category);
   }
 
   openSubmission(submission: any) {

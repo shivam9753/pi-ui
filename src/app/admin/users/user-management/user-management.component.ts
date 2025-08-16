@@ -169,7 +169,7 @@ export class UserManagementComponent implements OnInit, OnDestroy {
 
 
   changeUserRole(user: UserListItem, event: any) {
-    const newRole = event.target.value as 'user' | 'reviewer' | 'admin';
+    const newRole = event.target.value as 'user' | 'curator' | 'reviewer' | 'admin';
     
     if (newRole === user.role) {
       return; // No change needed
@@ -284,6 +284,9 @@ export class UserManagementComponent implements OnInit, OnDestroy {
     this.selectedFile = null;
     this.previewUrl = null;
     this.showEditModal = true;
+    
+    // Prevent body scrolling when modal is open
+    document.body.style.overflow = 'hidden';
   }
 
   closeEditModal() {
@@ -291,6 +294,9 @@ export class UserManagementComponent implements OnInit, OnDestroy {
     this.editingUser = null;
     this.selectedFile = null;
     this.previewUrl = null;
+    
+    // Restore body scrolling when modal is closed
+    document.body.style.overflow = '';
   }
 
   async onFileSelected(event: any) {
@@ -427,6 +433,9 @@ export class UserManagementComponent implements OnInit, OnDestroy {
     if (this.searchTimeout) {
       clearTimeout(this.searchTimeout);
     }
+    
+    // Restore body scrolling if component is destroyed while modal is open
+    document.body.style.overflow = '';
   }
 
   // New methods for mobile-optimized filters

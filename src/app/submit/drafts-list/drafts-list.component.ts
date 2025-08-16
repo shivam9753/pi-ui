@@ -1,6 +1,7 @@
 
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
+import { CommonUtils, StringUtils } from '../../shared/utils';
 
 export interface Draft {
   id: string;
@@ -45,22 +46,11 @@ export class DraftsListComponent {
 
   getContentPreview(content: string): string {
     if (!content) return 'No content';
-    return content.length > 100 ? content.substring(0, 100) + '...' : content;
+    return CommonUtils.truncateText(content, 100);
   }
 
   formatDate(date: Date): string {
-    const now = new Date();
-    const diffInHours = (now.getTime() - new Date(date).getTime()) / (1000 * 60 * 60);
-    
-    if (diffInHours < 1) {
-      return 'Just now';
-    } else if (diffInHours < 24) {
-      return `${Math.floor(diffInHours)} hours ago`;
-    } else if (diffInHours < 48) {
-      return 'Yesterday';
-    } else {
-      return new Date(date).toLocaleDateString();
-    }
+    return CommonUtils.formatDateWithRelativeTime(date);
   }
 
   confirmDelete(draft: Draft): void {

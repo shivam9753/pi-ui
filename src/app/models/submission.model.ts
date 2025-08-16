@@ -7,8 +7,8 @@ export interface Submission {
   description?: string;
   contentIds: string[];
   contents?: Content[];
-  submissionType: 'poem' | 'story' | 'article' | 'quote' | 'cinema_essay';
-  status: 'pending_review' | 'in_progress' | 'accepted' | 'rejected' | 'needs_revision' | 'published';
+  submissionType: 'poem' | 'story' | 'article' | 'cinema_essay' | 'opinion';
+  status: 'draft' | 'submitted' | 'in_progress' | 'shortlisted' | 'needs_changes' | 'approved' | 'rejected' | 'published' | 'archived';
   imageUrl?: string;
   excerpt?: string;
   readingTime?: number;
@@ -16,6 +16,10 @@ export interface Submission {
   reviewedAt?: string;
   reviewedBy?: string;
   publishedAt?: string;
+  
+  // Workflow fields
+  assignedTo?: string;
+  assignedAt?: string;
   eligibleForPurge?: boolean;
   purgeEligibleSince?: string;
   markedForDeletion?: boolean;
@@ -88,11 +92,19 @@ export interface ContentImage {
 }
 
 export interface SubmissionHistoryEntry {
-  action: 'submitted' | 'reviewed' | 'revised' | 'accepted' | 'rejected' | 'published';
+  action: 'submitted' | 'moved_to_in_progress' | 'shortlisted' | 'needs_changes' | 'approved' | 'rejected' | 'published' | 'archived' | 'moved_to_draft';
   timestamp: string;
   userId: string;
   username?: string;
+  userRole: 'user' | 'curator' | 'reviewer' | 'admin';
   notes?: string;
+}
+
+export interface WorkflowAction {
+  action: string;
+  label: string;
+  targetStatus: string;
+  requiresNotes?: boolean;
 }
 
 export interface SubmissionStats {
@@ -107,7 +119,7 @@ export interface SubmissionStats {
     poem: number;
     story: number;
     article: number;
-    quote: number;
+    opinion: number;
     cinema_essay: number;
   };
 }
@@ -139,7 +151,7 @@ export interface SubmissionQueryOptions {
 export interface CreateSubmissionPayload {
   title: string;
   description?: string;
-  submissionType: 'poem' | 'story' | 'article' | 'quote' | 'cinema_essay';
+  submissionType: 'poem' | 'story' | 'article' | 'opinion' | 'cinema_essay';
   contents: CreateContentPayload[];
   imageUrl?: string;
 }
@@ -155,7 +167,7 @@ export interface CreateContentPayload {
 export interface UpdateSubmissionPayload {
   title?: string;
   description?: string;
-  submissionType?: 'poem' | 'story' | 'article' | 'quote' | 'cinema_essay';
+  submissionType?: 'poem' | 'story' | 'article' | 'opinion' | 'cinema_essay';
   imageUrl?: string;
   seo?: {
     metaTitle?: string;

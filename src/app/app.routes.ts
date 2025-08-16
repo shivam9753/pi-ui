@@ -3,13 +3,13 @@ import { ExploreComponent } from './explore/explore.component';
 import { AdminGuard } from './guards/admin.guard';
 import { AuthGuard } from './guards/authguard';
 import { ReviewerGuard } from './guards/reviewer.guard';
-import { CanDeactivateGuard } from './guards/can-deactivate.guard';
 import { SubmissionFormComponent } from './submit/submission-form/submission-form.component';
 import { UserLoginComponent } from './user-login/user-login.component';
 import { UserProfileComponent } from './user-profile/user-profile.component';
 import { ReadingInterfaceComponent } from './reading-interface/reading-interface.component';
 import { PromptsComponent } from './prompts/prompts.component';
 import { AdminComponent } from './admin/admin.component';
+import { WorkspaceComponent } from './workspace/workspace.component';
 import { PublishSubmissionComponent } from './admin/submissions/publish-submission/publish-submission.component';
 import { ReviewSubmissionComponent } from './admin/submissions/review-submission/review-submission.component';
 import { ProfileCompletionComponent } from './profile-completion/profile-completion.component';
@@ -78,7 +78,7 @@ export const routes: Routes = [
     title: 'Post - pi'
   },
   { 
-    path: 'submit', 
+    path: 'submission', 
     component: SubmissionFormComponent, 
     canActivate: [AuthGuard],
     title: 'Submit Work - pi'
@@ -94,19 +94,25 @@ export const routes: Routes = [
   { 
     path: 'admin', 
     component: AdminComponent, 
-    canActivate: [ReviewerGuard],
+    canActivate: [AdminGuard],
     title: 'Admin Dashboard'
   },
+  { 
+    path: 'workspace', 
+    component: WorkspaceComponent, 
+    canActivate: [ReviewerGuard],
+    title: 'Editorial Workspace'
+  },
   
-  // Legacy routes for backwards compatibility (redirect to admin with hash)
+  // Legacy routes for backwards compatibility (redirect to workspace/admin with hash)
   { 
     path: 'review', 
-    redirectTo: '/admin#review',
+    redirectTo: '/workspace#review',
     pathMatch: 'full'
   },
   { 
     path: 'publish', 
-    redirectTo: '/admin#publish',
+    redirectTo: '/workspace#publish',
     pathMatch: 'full'
   },
   { 
@@ -172,7 +178,7 @@ export const routes: Routes = [
       
       // Skip known application routes that aren't post slugs
       const knownRoutes = [
-        'login', 'explore', 'submit', 'admin', 'profile', 'prompts',
+        'login', 'explore', 'submit', 'admin', 'workspace', 'profile', 'prompts',
         'faqs', 'contact-us', 'privacy-policy', 'terms-of-use',
         'complete-profile', 'review', 'publish', 'users', 'poem-parser', 'json-parser'
       ];

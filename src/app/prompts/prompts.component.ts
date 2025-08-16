@@ -6,6 +6,7 @@ import { BackendService } from '../services/backend.service';
 import { AuthService } from '../services/auth.service';
 import { Router } from '@angular/router';
 import { GuidelinesOverlayComponent } from '../submit/guidelines-overlay/guidelines-overlay.component';
+import { CommonUtils } from '../shared/utils';
 
 interface Prompt {
   _id: string;
@@ -211,7 +212,7 @@ showGuidelinesOverlay = false;
     });
 
     // Navigate to submission form
-    this.router.navigate(['/submit'], { 
+    this.router.navigate(['/submission'], { 
       queryParams: { 
         promptId: prompt._id,
         type: prompt.type 
@@ -250,12 +251,7 @@ showGuidelinesOverlay = false;
   }
 
   formatDate(dateString?: string): string {
-    if (!dateString) return '';
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
-    });
+    return CommonUtils.formatDate(dateString);
   }
 
   setActiveTab(tab: 'discover' | 'gamified' | 'guidelines') {

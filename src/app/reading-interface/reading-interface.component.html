@@ -86,19 +86,6 @@
                         [class.spacious-spacing]="layoutMode() === 'spacious'"
                         [innerHTML]="cleanContent(item.body)">
                       </div>
-                      <!-- Content Tags -->
-                      @if (item.tags && item.tags.length > 0) {
-                        <div class="flex flex-wrap gap-2 mt-8 pt-6 border-t border-gray-200">
-                          <span class="text-sm text-gray-900-tertiary mr-2">Tags:</span>
-                          @for (tag of item.tags; track tag) {
-                            <span
-                              (click)="onTagClick(tag, $event)"
-                              class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-white-secondary text-gray-900-tertiary border border-gray-200 hover:bg-white-accent hover:text-white transition-colors cursor-pointer">
-                              #{{ tag }}
-                            </span>
-                          }
-                        </div>
-                      }
                     </article>
                   }
                 </div>
@@ -125,16 +112,16 @@
               }
               <!-- No Content Message -->
             </div>
-            <!-- Overall Tags -->
-            @if (content()!.tags && content()!.tags.length > 0) {
+            <!-- All Tags -->
+            @if (allTags() && allTags().length > 0) {
               <div class="mt-16 pt-8 border-t border-gray-200">
                 <div class="flex flex-wrap items-center gap-3">
-                  <span class="text-sm font-medium text-gray-900-tertiary">Related Topics:</span>
-                  @for (tag of content()!.tags; track tag) {
+                  <span class="text-sm font-medium text-gray-900-tertiary">Tags:</span>
+                  @for (tag of allTags(); track tag) {
                     <span
                       (click)="onTagClick(tag, $event)"
                       class="inline-flex items-center px-4 py-2 rounded-full text-sm font-medium bg-orange-500/10 text-orange-400 border border-orange-500/30 hover:bg-orange-500/20 transition-colors duration-200 cursor-pointer">
-                      {{ tag }}
+                      #{{ tag }}
                     </span>
                   }
                 </div>

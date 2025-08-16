@@ -4,7 +4,7 @@ export interface WritingPrompt {
   _id: string;
   title: string;
   description: string;
-  category: 'poem' | 'story' | 'article' | 'quote' | 'cinema_essay' | 'general';
+  category: 'poem' | 'story' | 'article' | 'cinema_essay' | 'general';
   difficulty: 'beginner' | 'intermediate' | 'advanced';
   tags: string[];
   isActive: boolean;
@@ -24,7 +24,7 @@ export interface WritingPrompt {
 export interface CreatePromptPayload {
   title: string;
   description: string;
-  category: 'poem' | 'story' | 'article' | 'quote' | 'cinema_essay' | 'general';
+  category: 'poem' | 'story' | 'article' | 'cinema_essay' | 'general';
   difficulty: 'beginner' | 'intermediate' | 'advanced';
   tags: string[];
   isActive?: boolean;
@@ -33,7 +33,7 @@ export interface CreatePromptPayload {
 export interface UpdatePromptPayload {
   title?: string;
   description?: string;
-  category?: 'poem' | 'story' | 'article' | 'quote' | 'cinema_essay' | 'general';
+  category?: 'poem' | 'story' | 'article' | 'cinema_essay' | 'general';
   difficulty?: 'beginner' | 'intermediate' | 'advanced';
   tags?: string[];
   isActive?: boolean;
@@ -61,7 +61,6 @@ export interface PromptStats {
     poem: number;
     story: number;
     article: number;
-    quote: number;
     cinema_essay: number;
     general: number;
   };

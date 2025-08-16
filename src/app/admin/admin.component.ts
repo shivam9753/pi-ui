@@ -4,11 +4,8 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { AuthService } from '../services/auth.service';
 
 // Import individual admin tab components
-import { ReadyToPublishComponent } from "./submissions/ready-to-publish/ready-to-publish.component";
-import { PendingReviewsComponent } from "./submissions/pending-reviews/pending-reviews.component";
 import { PublishedPostsComponent } from "./content/published-posts/published-posts.component";
 import { UserManagementComponent } from './users/user-management/user-management.component';
-import { PromptManagementComponent } from './prompts/prompt-management/prompt-management.component';
 import { PurgeManagementComponent } from './purge/purge-management.component';
 import { CreateUsersComponent } from './users/create-users/create-users.component';
 import { AllSubmissionsComponent } from './submissions/all-submissions/all-submissions.component';
@@ -17,9 +14,6 @@ import { AllSubmissionsComponent } from './submissions/all-submissions/all-submi
   selector: 'app-admin',
   standalone: true,
   imports: [
-    PromptManagementComponent,
-    ReadyToPublishComponent,
-    PendingReviewsComponent,
     PublishedPostsComponent,
     UserManagementComponent,
     PurgeManagementComponent,
@@ -30,7 +24,7 @@ import { AllSubmissionsComponent } from './submissions/all-submissions/all-submi
   styleUrl: './admin.component.css'
 })
 export class AdminComponent implements OnInit {
-  activeTab: 'publish' | 'published' | 'users' | 'review' | 'prompts' | 'purge' | 'users_create' | 'submissions_all' = 'review';
+  activeTab: 'published' | 'users' | 'purge' | 'users_create' | 'submissions_all' = 'users';
   isAdmin = false;
   isReviewer = false;
   currentUser: any = null;
@@ -47,8 +41,8 @@ export class AdminComponent implements OnInit {
     
     // Handle URL fragments for direct tab navigation
     this.route.fragment.subscribe(fragment => {
-      if (fragment && ['publish', 'published', 'users', 'review', 'prompts', 'purge', 'users_create', 'submissions_all'].includes(fragment)) {
-        const tab = fragment as 'publish' | 'published' | 'users' | 'review' | 'prompts' | 'purge' | 'users_create' | 'submissions_all';
+      if (fragment && ['published', 'users', 'purge', 'users_create', 'submissions_all'].includes(fragment)) {
+        const tab = fragment as 'published' | 'users' | 'purge' | 'users_create' | 'submissions_all';
         // Only set tab if user has permission to access it
         if (this.canAccessTab(tab)) {
           this.activeTab = tab;
@@ -67,21 +61,21 @@ export class AdminComponent implements OnInit {
 
     this.currentUser = user;
     
-    // Distinguish between admin and reviewer roles
+    // Distinguish between admin, reviewer, and curator roles
     this.isAdmin = user.role === 'admin';
-    this.isReviewer = user.role === 'reviewer';
+    this.isReviewer = user.role === 'reviewer' || user.role === 'curator';
     
-    // Both admins and reviewers can access this component
+    // Admins, reviewers, and curators can access this component
     if (!this.isAdmin && !this.isReviewer) {
       this.router.navigate(['/']);
       return;
     }
     
-    this.activeTab = 'review';
+    this.activeTab = 'users';
     this.loading = false;
   }
 
-  setActiveTab(tab: 'publish' | 'published' | 'users' | 'review' | 'prompts' | 'purge' | 'users_create' | 'submissions_all') {
+  setActiveTab(tab: 'published' | 'users' | 'purge' | 'users_create' | 'submissions_all') {
     // Check if user has permission to access this tab
     if (!this.canAccessTab(tab)) {
       return; // Prevent access to unauthorized tabs
@@ -98,14 +92,10 @@ export class AdminComponent implements OnInit {
   // Check if current user can access a specific tab
   canAccessTab(tab: string): boolean {
     if (this.isAdmin) {
-      return true; // Admins can access all tabs
+      return true; // Admins can access all admin tabs
     }
     
-    if (this.isReviewer) {
-      // Reviewers can only access the review tab
-      return tab === 'review';
-    }
-    
+    // Only admins can access administrative functions
     return false;
   }
 }

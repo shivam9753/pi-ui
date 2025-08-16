@@ -29,6 +29,17 @@
         </button>
         @if (canReview()) {
           <a
+            routerLink="/workspace"
+            routerLinkActive="text-orange-600 font-semibold"
+            [routerLinkActiveOptions]="{exact: false}"
+            class="text-base font-medium text-themed hover:text-orange-600 transition-colors duration-200 relative group">
+            Workspace
+            <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-orange-600 transition-all duration-200 group-hover:w-full"
+            [class.w-full]="router.url.includes('/workspace')"></span>
+          </a>
+        }
+        @if (isAdmin()) {
+          <a
             routerLink="/admin"
             routerLinkActive="text-orange-600 font-semibold"
             [routerLinkActiveOptions]="{exact: false}"
@@ -48,9 +59,11 @@
       </nav>
 
       <!-- Desktop User Section -->
-      <div class="hidden lg:flex lg:items-center lg:space-x-4">
-
-        <app-theme-toggle></app-theme-toggle>
+      <div class="hidden lg:flex lg:items-center lg:space-x-3">
+        <!-- Theme Toggle -->
+        <div class="flex items-center">
+          <app-theme-toggle></app-theme-toggle>
+        </div>
 
         @if (!loggedInUser() && !isOnLoginPage()) {
           <a routerLink="/login" class="btn-primary">Login</a>
@@ -69,7 +82,6 @@
             @if (showDropdown()) {
               <div class="absolute right-0 mt-2 w-48 bg-themed-card border border-themed rounded-lg shadow-lg overflow-hidden transition-all duration-200">
                 <a [routerLink]="['/user-profile', userId]" (click)="closeDropdown()" class="block px-4 py-2 text-sm text-themed hover:bg-themed-hover">My Profile</a>
-                <a routerLink="/dashboard" (click)="closeDropdown()" class="block px-4 py-2 text-sm text-themed hover:bg-themed-hover">Explore</a>
                 <div class="border-t border-themed my-1"></div>
                 <a (click)="logout()" class="block px-4 py-2 text-sm text-red-600 hover:bg-themed-hover hover:text-red-500">Logout</a>
               </div>
@@ -116,7 +128,7 @@
     @if (loggedInUser()) {
       <div class="p-6 bg-themed-secondary border-b border-themed">
         <div class="flex items-center">
-          <div class="w-12 h-12 bg-white-accent rounded-full flex items-center justify-center text-white font-medium text-lg">
+          <div class="w-12 h-12 rounded-full bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center text-white font-medium text-lg">
             {{ getUserInitials(loggedInUser()!.name) }}
           </div>
           <div class="ml-4">
@@ -150,6 +162,18 @@
       }
 
       @if (canReview()) {
+        <a
+          routerLink="/workspace"
+          (click)="closeMobileMenu()"
+          class="flex items-center px-4 py-3 text-themed hover:bg-themed-hover hover:text-themed rounded-lg transition-colors duration-200 group">
+          <svg class="w-5 h-5 mr-3 text-themed-secondary group-hover:text-themed" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
+          </svg>
+          <span class="text-base font-medium">Workspace</span>
+        </a>
+      }
+
+      @if (isAdmin()) {
         <a
           routerLink="/admin"
           (click)="closeMobileMenu()"
@@ -206,7 +230,33 @@
     
     <!-- Theme Toggle Section -->
     <div class="px-6 pt-4 pb-32">
-      <div class="flex items-center">
+      <div class="flex items-center justify-between p-4 bg-themed-hover rounded-lg">
+        <div class="flex items-center">
+          <!-- Dynamic icon based on current theme -->
+          @if (themeService.isDark()) {
+            <!-- Moon icon for dark mode -->
+            <svg class="w-5 h-5 mr-3 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/>
+            </svg>
+          } @else {
+            <!-- Sun icon for light mode -->
+            <svg class="w-5 h-5 mr-3 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <circle cx="12" cy="12" r="5"/>
+              <line x1="12" y1="1" x2="12" y2="3"/>
+              <line x1="12" y1="21" x2="12" y2="23"/>
+              <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
+              <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+              <line x1="1" y1="12" x2="3" y2="12"/>
+              <line x1="21" y1="12" x2="23" y2="12"/>
+              <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
+              <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+            </svg>
+          }
+          <div>
+            <p class="text-sm font-medium text-themed">Appearance</p>
+            <p class="text-xs text-themed-secondary">{{ getCurrentThemeName() }}</p>
+          </div>
+        </div>
         <app-theme-toggle></app-theme-toggle>
       </div>
     </div>

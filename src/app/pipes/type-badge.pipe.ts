@@ -21,7 +21,6 @@ export class TypeBadgePipe implements PipeTransform {
       'review': 'bg-red-500 dark:bg-red-600',
       'book_review': 'bg-teal-500 dark:bg-teal-600',
       'opinion': 'bg-yellow-500 dark:bg-yellow-600',
-      'quote': 'bg-pink-500 dark:bg-pink-600',
       'story': 'bg-indigo-500 dark:bg-indigo-600'
     };
     

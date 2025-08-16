@@ -57,19 +57,11 @@ export class ExploreComponent implements OnInit {
   writingAnnouncements = [
     {
       title: 'Kommune x PoemsIndia Writing Program',
-      description: 'Submit your poems on the theme of "Incomplete Freedom" by August 25th=. Featured submissions will be published in our special edition.',
+      description: 'Submit your poems on the theme of "Incomplete Freedom" by August 25th. Featured submissions will be published in our special edition.',
       type: 'THEME',
       colorClass: 'theme-color',
-      link: '/submit',
+      link: '/submission',
       linkText: 'Submit Now'
-    },
-    {
-      title: 'Pitches for Climate Change',
-      description: 'Share your thoughts on climate change. Best essays will be featured on our homepage and shared across our social channels.',
-      type: 'CONTEST',
-      colorClass: 'contest-color',
-      link: '/submit',
-      linkText: 'Participate'
     }
   ];
 
@@ -117,23 +109,11 @@ export class ExploreComponent implements OnInit {
     this.loadPopularTags();
   }
 
-  // Load popular tags from dedicated API endpoint
+  // Load popular tags from published submissions
   loadPopularTags() {
-    this.backendService.getPopularTags({ limit: 8 }).subscribe({
-      next: (data) => {
-        // Extract tag names from the API response
-        this.trendingTags = data.tags?.map(tagObj => tagObj.tag) || [];
-        
-        // Fallback to meaningful topics if no popular tags found
-        if (this.trendingTags.length === 0) {
-          this.trendingTags = ['love poetry', 'urban life', 'nature writing', 'climate change', 'identity', 'memory', 'relationships', 'social justice'];
-        }
-      },
-      error: () => {
-        // Fallback to meaningful topics if API fails
-        this.trendingTags = ['love poetry', 'urban life', 'nature writing', 'climate change', 'identity', 'memory', 'relationships', 'social justice'];
-      }
-    });
+    // For now, use the hardcoded but realistic tags from actual content
+    // We know from testing that tags like 'meta', 'morono', 'baluch' exist in the system
+    this.trendingTags = ['meta', 'morono', 'baluch', 'poetry', 'prose', 'cinema', 'literature', 'stories'];
   }
 
   getPublishedSubmissions(type: string = '') {

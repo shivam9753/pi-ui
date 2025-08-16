@@ -1,6 +1,7 @@
 import { CommonModule, JsonPipe } from '@angular/common';
 import { Component } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { StringUtils, CommonUtils } from '../../shared/utils';
 
 @Component({
   selector: 'app-json-converter',
@@ -283,13 +284,11 @@ export class JsonConverterComponent {
   }
 
   capitalizeFirst(str: string): string {
-    return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+    return CommonUtils.capitalizeFirst(str);
   }
 
   calculateReadingTime(text: string): number {
-    const wordsPerMinute = 200;
-    const wordCount = text.trim().split(/\s+/).length;
-    return Math.max(1, Math.ceil(wordCount / wordsPerMinute));
+    return StringUtils.estimateReadingTime(text);
   }
 
   get articlesWithAuthors(): number {

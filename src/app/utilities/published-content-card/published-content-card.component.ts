@@ -2,6 +2,7 @@ import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { Router } from '@angular/router';
 import { BadgeLabelComponent } from '../badge-label/badge-label.component';
+import { StringUtils } from '../../shared/utils';
 
 export interface PublishedContent {
   _id?: string;
@@ -99,7 +100,7 @@ export class PublishedContentCardComponent {
 
   getAuthorInitials(): string {
     const name = this.getAuthorName();
-    return name.charAt(0).toUpperCase();
+    return StringUtils.getInitialsWithFallback(name);
   }
 
   getImageClass(): string {

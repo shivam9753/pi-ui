@@ -42,6 +42,12 @@ export class BackendService {
   }
 
   private handleError(error: HttpErrorResponse): Observable<never> {
+    // For validation errors and other API errors, preserve the original error structure
+    if (error.status === 400 && error.error) {
+      // Preserve the original error structure for validation errors
+      return throwError(() => error);
+    }
+    
     let errorMessage = 'An unknown error occurred';
     
     if (error.error instanceof ErrorEvent) {

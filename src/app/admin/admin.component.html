@@ -19,42 +19,6 @@
         <div class="max-w-screen-xl mx-auto px-0 sm:px-6 md:px-10">
           <div class="mobile-tab-nav sm:mobile-tab-nav-disabled">
             <nav class="flex justify-center sm:justify-center space-x-2 sm:space-x-8 overflow-x-auto scrollbar-hide px-4 sm:px-0" aria-label="Admin Tabs">
-              <!-- Review Submissions - Available to both admins and reviewers -->
-              @if (canAccessTab('review')) {
-                <button
-                  (click)="setActiveTab('review')"
-                  [class.border-orange-500]="activeTab === 'review'"
-                  [class.text-orange-600]="activeTab === 'review'"
-                  [class.border-transparent]="activeTab !== 'review'"
-                  [class.text-gray-600]="activeTab !== 'review'"
-                  [class.hover:text-gray-900]="activeTab !== 'review'"
-                  [class.hover:border-gray-300]="activeTab !== 'review'"
-                  class="whitespace-nowrap py-3 px-3 sm:py-4 sm:px-6 border-b-2 font-medium text-xs sm:text-sm transition-all duration-200 flex items-center gap-1 sm:gap-2 min-w-max"
-                  >
-                  <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path>
-                  </svg>
-                  Review
-                </button>
-              }
-              <!-- Publish - Admin only -->
-              @if (canAccessTab('publish')) {
-                <button
-                  (click)="setActiveTab('publish')"
-                  [class.border-orange-500]="activeTab === 'publish'"
-                  [class.text-orange-600]="activeTab === 'publish'"
-                  [class.border-transparent]="activeTab !== 'publish'"
-                  [class.text-gray-600]="activeTab !== 'publish'"
-                  [class.hover:text-gray-900]="activeTab !== 'publish'"
-                  [class.hover:border-gray-300]="activeTab !== 'publish'"
-                  class="whitespace-nowrap py-3 px-3 sm:py-4 sm:px-6 border-b-2 font-medium text-xs sm:text-sm transition-all duration-200 flex items-center gap-1 sm:gap-2 min-w-max"
-                  >
-                  <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
-                  </svg>
-                  Publish
-                </button>
-              }
               <!-- Manage Published - Admin only -->
               @if (canAccessTab('published')) {
                 <button
@@ -89,24 +53,6 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"></path>
                   </svg>
                   Users
-                </button>
-              }
-              <!-- Manage Prompts - Admin only -->
-              @if (canAccessTab('prompts')) {
-                <button
-                  (click)="setActiveTab('prompts')"
-                  [class.border-orange-500]="activeTab === 'prompts'"
-                  [class.text-orange-600]="activeTab === 'prompts'"
-                  [class.border-transparent]="activeTab !== 'prompts'"
-                  [class.text-gray-600]="activeTab !== 'prompts'"
-                  [class.hover:text-gray-900]="activeTab !== 'prompts'"
-                  [class.hover:border-gray-300]="activeTab !== 'prompts'"
-                  class="whitespace-nowrap py-3 px-3 sm:py-4 sm:px-6 border-b-2 font-medium text-xs sm:text-sm transition-all duration-200 flex items-center gap-1 sm:gap-2 min-w-max"
-                  >
-                  <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
-                  </svg>
-                  Prompts
                 </button>
               }
               <!-- Data Purge - Admin only -->
@@ -172,11 +118,6 @@
       <div class="bg-white w-full">
         <!-- Centered inner content -->
         <div class="pt-6 max-w-screen-xl mx-auto px-4 sm:px-6 md:px-10">
-          @if (activeTab === 'publish') {
-            <div class="animate-fade-in">
-              <app-ready-to-publish></app-ready-to-publish>
-            </div>
-          }
           @if (activeTab === 'published') {
             <div class="animate-fade-in">
               <app-published-posts></app-published-posts>
@@ -185,16 +126,6 @@
           @if (activeTab === 'users') {
             <div class="animate-fade-in">
               <app-user-management></app-user-management>
-            </div>
-          }
-          @if (activeTab === 'review') {
-            <div class="animate-fade-in">
-              <app-pending-reviews></app-pending-reviews>
-            </div>
-          }
-          @if (activeTab === 'prompts') {
-            <div class="animate-fade-in">
-              <app-prompt-management></app-prompt-management>
             </div>
           }
           @if (activeTab === 'purge') {
@@ -218,7 +149,7 @@
   }
 
   <!-- Access Denied -->
-  @if (!loading && !isAdmin) {
+  @if (!loading && !isAdmin && !isReviewer) {
     <div class="flex items-center justify-center min-h-screen bg-white">
       <div class="text-center max-w-md mx-auto p-8">
         <div class="w-16 h-16 mx-auto mb-4 bg-red-100 rounded-full flex items-center justify-center">

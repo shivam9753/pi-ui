@@ -1,5 +1,5 @@
 // header.component.ts
-import { Component, inject, signal, OnInit, OnDestroy, HostListener, Inject, PLATFORM_ID } from '@angular/core';
+import { Component, inject, signal, OnInit, OnDestroy, HostListener, PLATFORM_ID } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { Router, RouterModule, NavigationEnd } from '@angular/router';
 import { ThemingService } from '../services/theming.service';
@@ -7,6 +7,7 @@ import { AuthService, GoogleUser } from '../services/auth.service'; // Import yo
 import { Subscription } from 'rxjs';
 import { filter } from 'rxjs/operators';
 import { ThemeToggleComponent } from '../utilities/theme-toggle/theme-toggle.component';
+import { StringUtils } from '../shared/utils';
 
 @Component({
   selector: 'app-header',
@@ -117,12 +118,17 @@ export class HeaderComponent implements OnInit, OnDestroy {
   }
 
   getUserInitials(name: string): string {
-    return name.split(' ').map(n => n[0]).join('').toUpperCase();
+    return StringUtils.getInitialsWithFallback(name);
+  }
+
+  getCurrentThemeName(): string {
+    return this.themeService.theme() === 'dark' ? 'Dark' : 'Light';
   }
 
   canReview(): any {
-    return this.authService.canReview();
+    return this.authService.canAccessAdmin();
   }
+
 
   isAdmin(): boolean {
     return this.authService.isAdmin();
@@ -140,18 +146,18 @@ export class HeaderComponent implements OnInit, OnDestroy {
     // Check if user is logged in using AuthService
     if (this.authService.isAuthenticated()) {
       // User is logged in, navigate to submit page
-      this.router.navigate(['/submit']);
+      this.router.navigate(['/submission']);
     } else {
       // User not logged in, store return URL and redirect to login
       if (typeof localStorage !== 'undefined') {
-        localStorage.setItem('returnUrl', '/submit');
+        localStorage.setItem('returnUrl', '/submission');
       }
       this.router.navigate(['/login']);
     }
   }
 
   isSubmitActive(): boolean {
-    return this.currentRoute().startsWith('/submit');
+    return this.currentRoute().startsWith('/submission');
   }
 
   isOnLoginPage(): boolean {
