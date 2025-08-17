@@ -24,6 +24,7 @@ export class ExploreComponent implements OnInit {
   isSearching: boolean = false;
   showSearchResults: boolean = false;
   sortBy: string = 'latest';
+  loading: boolean = false;
   
   // Pagination properties
   currentPage: number = 1;
@@ -142,6 +143,7 @@ export class ExploreComponent implements OnInit {
   }
 
   loadPublishedSubmissions(type: string = '') {
+    this.loading = true;
     const skip = (this.currentPage - 1) * this.itemsPerPage;
     const params: any = {
       limit: this.itemsPerPage,
@@ -156,36 +158,50 @@ export class ExploreComponent implements OnInit {
     
     if (type === 'popular') {
       // Get trending posts for "Popular This Week" tab
-      this.viewTrackerService.getTrendingPosts(this.itemsPerPage, skip).subscribe(
-        (data) => {
+      this.viewTrackerService.getTrendingPosts(this.itemsPerPage, skip).subscribe({
+        next: (data) => {
           this.submissions = data.submissions || [];
           this.totalItems = data.total || 0;
           this.totalPages = Math.ceil(this.totalItems / this.itemsPerPage);
+          this.loading = false;
         },
-        (error) => {
+        error: (error) => {
           console.error('Error loading trending posts:', error);
           // Fallback to regular content if trending fails
-          this.backendService.getPublishedContent('', params).subscribe(
-            (data) => {
+          this.backendService.getPublishedContent('', params).subscribe({
+            next: (data) => {
               this.submissions = data.submissions || [];
               this.totalItems = data.total || 0;
               this.totalPages = Math.ceil(this.totalItems / this.itemsPerPage);
             },
-            (fallbackError) => {}
-          );
+            error: (fallbackError) => {
+              console.error('Fallback also failed:', fallbackError);
+              // Set empty state
+              this.submissions = [];
+              this.totalItems = 0;
+              this.totalPages = 0;
+              this.loading = false;
+            }
+          });
         }
-      );
+      });
     } else {
-      this.backendService.getPublishedContent(type, params).subscribe(
-        (data) => {
-          
+      this.backendService.getPublishedContent(type, params).subscribe({
+        next: (data) => {
           this.submissions = data.submissions || [];
           this.totalItems = data.total || 0;
           this.totalPages = Math.ceil(this.totalItems / this.itemsPerPage);
-          
+          this.loading = false;
         },
-        (error) => {}
-      );
+        error: (error) => {
+          console.error('Error loading published content:', error);
+          // Set empty state
+          this.submissions = [];
+          this.totalItems = 0;
+          this.totalPages = 0;
+          this.loading = false;
+        }
+      });
     }
   }
 
@@ -193,17 +209,19 @@ export class ExploreComponent implements OnInit {
 
   performSearch(query: string) {
     this.isSearching = true;
-    this.backendService.searchSubmissions(query, { limit: 20 }).subscribe(
-      (data) => {
+    this.backendService.searchSubmissions(query, { limit: 20 }).subscribe({
+      next: (data) => {
         this.searchResults = data.submissions || [];
         this.showSearchResults = true;
         this.isSearching = false;
       },
-      (error) => {
+      error: (error) => {
+        console.error('Search failed:', error);
+        this.searchResults = [];
         this.isSearching = false;
         this.showSearchResults = false;
       }
-    );
+    });
   }
 
   clearSearch() {

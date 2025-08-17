@@ -115,8 +115,18 @@
         </div>
 
 
+        <!-- Loading State -->
+        @if (loading) {
+          <div class="flex justify-center items-center py-12">
+            <div class="flex flex-col items-center space-y-4">
+              <div class="w-8 h-8 border-4 border-orange-500 border-t-transparent rounded-full animate-spin"></div>
+              <p class="text-gray-600 text-sm">Loading content...</p>
+            </div>
+          </div>
+        }
+
         <!-- Stories List -->
-        @if ((showSearchResults && searchResults.length > 0) || (!showSearchResults && submissions && submissions.length > 0)) {
+        @if (!loading && ((showSearchResults && searchResults.length > 0) || (!showSearchResults && submissions && submissions.length > 0))) {
           <div class="space-y-6">
             <!-- Mobile: Magazine-style layout -->
             <div class="block md:hidden space-y-6 pl-4">
@@ -345,7 +355,7 @@
         }
 
         <!-- Empty State -->
-        @if ((showSearchResults && searchResults.length === 0) || (!showSearchResults && (!submissions || submissions.length === 0))) {
+        @if (!loading && ((showSearchResults && searchResults.length === 0) || (!showSearchResults && (!submissions || submissions.length === 0)))) {
           <div>
             @if (!showSearchResults) {
               <div class="text-center py-12">

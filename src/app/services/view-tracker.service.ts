@@ -57,7 +57,7 @@ export class ViewTrackerService {
       windowDays: this.TRENDING_WINDOW_DAYS.toString()
     };
 
-    return this.apiService.get('/submissions/trending', params).pipe(
+    return this.apiService.get('/submissions/trending', params, false).pipe(
       map((response: any) => ({
         submissions: response.submissions || [],
         total: response.total || 0
@@ -70,7 +70,7 @@ export class ViewTrackerService {
    * Get view statistics for a post
    */
   getPostStats(postId: string): Observable<{viewCount: number, recentViews: number, trendingScore: number}> {
-    return this.apiService.get(`/submissions/${postId}/stats`).pipe(
+    return this.apiService.get(`/submissions/${postId}/stats`, undefined, false).pipe(
       map((response: any) => ({
         viewCount: response.viewCount || 0,
         recentViews: response.recentViews || 0,
