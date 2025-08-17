@@ -89,6 +89,59 @@ sudo systemctl reload nginx
 echo "📊 Checking service status..."
 pm2 list
 
+# Validation checks to ensure deployment integrity
+echo "🔍 Validating deployment integrity..."
+
+# Check if main files exist in both locations
+MAIN_FILE=$(ls /var/www/html/main-*.js 2>/dev/null | head -1 | xargs basename)
+CSS_FILE=$(ls /var/www/html/styles-*.css 2>/dev/null | head -1 | xargs basename)
+
+if [ -z "$MAIN_FILE" ] || [ -z "$CSS_FILE" ]; then
+    echo "❌ ERROR: Missing main files in nginx directory!"
+    exit 1
+fi
+
+# Check if SSR directory has the same files
+if [ ! -f "/home/ubuntu/pi-ui/dist/pi/browser/$MAIN_FILE" ]; then
+    echo "❌ ERROR: $MAIN_FILE missing from SSR directory!"
+    exit 1
+fi
+
+if [ ! -f "/home/ubuntu/pi-ui/dist/pi/browser/$CSS_FILE" ]; then
+    echo "❌ ERROR: $CSS_FILE missing from SSR directory!"
+    exit 1
+fi
+
+# Check if index.html references the correct files
+if ! grep -q "$MAIN_FILE" /var/www/html/index.html; then
+    echo "❌ ERROR: nginx index.html doesn't reference $MAIN_FILE!"
+    exit 1
+fi
+
+if ! grep -q "$MAIN_FILE" /home/ubuntu/pi-ui/dist/pi/browser/index.html; then
+    echo "❌ ERROR: SSR index.html doesn't reference $MAIN_FILE!"
+    exit 1
+fi
+
+# Test if files are accessible via HTTP
+HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" "https://app.poemsindia.in/$MAIN_FILE")
+if [ "$HTTP_STATUS" != "200" ]; then
+    echo "❌ ERROR: $MAIN_FILE not accessible via HTTP (status: $HTTP_STATUS)!"
+    exit 1
+fi
+
+HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" "https://app.poemsindia.in/$CSS_FILE")
+if [ "$HTTP_STATUS" != "200" ]; then
+    echo "❌ ERROR: $CSS_FILE not accessible via HTTP (status: $HTTP_STATUS)!"
+    exit 1
+fi
+
+echo "✅ All validation checks passed!"
+echo "   - Main file: $MAIN_FILE"
+echo "   - CSS file: $CSS_FILE"
+echo "   - Both locations synchronized"
+echo "   - Files accessible via HTTP"
+
 # Clean up uploaded tar file
 echo "🧹 Cleaning up remote files..."
 rm -f /home/ubuntu/dist.tar.gz
