@@ -83,8 +83,9 @@ export class PublishedPostsComponent implements OnInit {
     
     const skip = (this.currentPage - 1) * this.itemsPerPage;
     
-    // Load both published and draft submissions with pagination
-    this.backendService.getSubmissions("", "published_and_draft", {
+    // Load only published submissions with pagination
+    this.backendService.getSubmissions({
+      status: "published",
       limit: this.itemsPerPage,
       skip: skip,
       sortBy: 'reviewedAt',

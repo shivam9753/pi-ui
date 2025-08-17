@@ -52,6 +52,7 @@ export class ExploreComponent implements OnInit {
 
   trendingTags: string[] = [];
   popularTags: string[] = [];
+  loadingTags: boolean = false;
   
   // Writing/Content related announcements (for sidebar)
   writingAnnouncements = [
@@ -111,9 +112,25 @@ export class ExploreComponent implements OnInit {
 
   // Load popular tags from published submissions
   loadPopularTags() {
-    // For now, use the hardcoded but realistic tags from actual content
-    // We know from testing that tags like 'meta', 'morono', 'baluch' exist in the system
-    this.trendingTags = ['meta', 'morono', 'baluch', 'poetry', 'prose', 'cinema', 'literature', 'stories'];
+    this.loadingTags = true;
+    this.backendService.getPopularTags({ limit: 10 }).subscribe({
+      next: (data) => {
+        // Extract tag names from the response - now it's a simple array
+        this.trendingTags = data.tags || [];
+        
+        // Fallback to hardcoded tags if API returns empty
+        if (this.trendingTags.length === 0) {
+          this.trendingTags = ['poetry', 'prose', 'literature', 'stories', 'cinema', 'articles'];
+        }
+        this.loadingTags = false;
+      },
+      error: (error) => {
+        console.error('Error loading popular tags:', error);
+        // Fallback to hardcoded tags on error
+        this.trendingTags = ['poetry', 'prose', 'literature', 'stories', 'cinema', 'articles'];
+        this.loadingTags = false;
+      }
+    });
   }
 
   getPublishedSubmissions(type: string = '') {

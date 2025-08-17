@@ -1,11 +1,12 @@
 import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TableAction } from '../data-table.component';
+import { SubmissionTagComponent } from '../../submission-tag/submission-tag.component';
 
 @Component({
   selector: 'app-submission-mobile-card',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, SubmissionTagComponent],
   template: `
     <div class="mb-3">
       <h3 class="font-semibold text-gray-900 mb-1">{{ submission.title }}</h3>
@@ -17,13 +18,18 @@ import { TableAction } from '../data-table.component';
     
     <!-- Status and Meta Info -->
     <div class="flex flex-wrap items-center gap-2 mb-3">
-      <span class="px-2 py-1 rounded text-xs font-medium bg-gray-100 text-gray-800">
-        {{ submission.submissionType }}
-      </span>
-      <span class="px-2 py-1 rounded text-xs font-medium"
-        [ngClass]="getStatusClass(submission.status)">
-        {{ submission.status }}
-      </span>
+      <app-submission-tag 
+        [value]="submission.submissionType" 
+        tagType="type"
+        [showIcon]="true"
+        size="xs">
+      </app-submission-tag>
+      <app-submission-tag 
+        [value]="submission.status" 
+        tagType="status"
+        [showIcon]="false"
+        size="xs">
+      </app-submission-tag>
       <span class="text-xs text-gray-500">
         {{ submission.createdAt | date:'MMM d, y' }}
       </span>

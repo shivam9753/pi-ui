@@ -6,6 +6,9 @@ import { Pipe, PipeTransform } from '@angular/core';
 })
 export class PrettyLabelPipe implements PipeTransform {
   transform(value: string): string {
+    if (!value || typeof value !== 'string') {
+      return '';
+    }
     return value
       .replace(/_/g, ' ')
       .toLowerCase()

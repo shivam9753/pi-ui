@@ -1,21 +1,28 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 
-import { PrettyLabelPipe } from '../../pipes/pretty-label.pipe';
+import { getSubmissionTypeMapping } from '../../shared/constants/submission-mappings';
 
 @Component({
   selector: 'app-badge-label',
   standalone: true,
-  imports: [PrettyLabelPipe],
+  imports: [],
   template: `
     <button
       (click)="onClick()"
       [class]="getBadgeClasses()"
       [disabled]="!clickable"
       >
-      @if (type === 'opinion') {
-        <span class="mr-1">⚡</span>
-        }{{ type | prettyLabel }}
-      </button>
+      @if (showIcon && getTypeIcon()) {
+        <svg
+          class="w-3 h-3 mr-1"
+          fill="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path [attr.d]="getTypeIcon()"></path>
+        </svg>
+      }
+      {{ getDisplayName() }}
+    </button>
     `,
   styles: [`
     :host {
@@ -38,6 +45,7 @@ import { PrettyLabelPipe } from '../../pipes/pretty-label.pipe';
 export class BadgeLabelComponent {
   @Input() type = '';
   @Input() clickable = false;
+  @Input() showIcon = true;
   @Output() badgeClick = new EventEmitter<string>();
 
   onClick() {
@@ -46,16 +54,21 @@ export class BadgeLabelComponent {
     }
   }
 
+  getDisplayName(): string {
+    const mapping = getSubmissionTypeMapping(this.type);
+    return mapping.displayName;
+  }
+
+  getTypeIcon(): string {
+    const mapping = getSubmissionTypeMapping(this.type);
+    return mapping.icon;
+  }
+
   getBadgeClasses(): string {
+    const mapping = getSubmissionTypeMapping(this.type);
     const baseClasses = 'inline-flex items-center px-2 py-1 rounded-full text-xs font-medium transition-colors';
-    const clickableClasses = this.clickable ? ' hover:bg-orange-600 cursor-pointer' : '';
+    const clickableClasses = this.clickable ? ' hover:opacity-80 cursor-pointer' : '';
     
-    // Special styling for Opinion type (expedited)
-    if (this.type === 'opinion') {
-      return `${baseClasses} bg-orange-500 text-white${clickableClasses}`;
-    }
-    
-    // Default styling for other types  
-    return `${baseClasses} bg-orange-500 text-white${clickableClasses}`;
+    return `${baseClasses} ${mapping.color}${clickableClasses}`;
   }
 }

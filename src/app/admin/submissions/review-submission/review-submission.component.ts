@@ -5,7 +5,6 @@ import { CommonModule, DatePipe, TitleCasePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { BackendService } from '../../../services/backend.service';
 import { AuthService } from '../../../services/auth.service';
-import { BadgeLabelComponent } from '../../../utilities/badge-label/badge-label.component';
 import { ToastNotificationComponent } from '../../../shared/components/toast-notification/toast-notification.component';
 import { StatusBadgeComponent } from '../../../shared/components/status-badge/status-badge.component';
 import { environment } from '../../../../environments/environment';
@@ -13,7 +12,7 @@ import { AnalysisPanelComponent } from './analysis-panel.component';
 
 @Component({
   selector: 'app-review-submission',
-  imports: [DatePipe, TitleCasePipe, CommonModule, FormsModule, BadgeLabelComponent, ToastNotificationComponent, StatusBadgeComponent, AnalysisPanelComponent],
+  imports: [DatePipe, TitleCasePipe, CommonModule, FormsModule, ToastNotificationComponent, StatusBadgeComponent, AnalysisPanelComponent],
   templateUrl: './review-submission.component.html',
   styleUrl: './review-submission.component.css'
 })

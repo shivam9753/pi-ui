@@ -100,21 +100,6 @@
             }
           </div>
         }
-        @case ('userId.name') {
-          @if (editingSubmission?._id === item._id) {
-            <select [(ngModel)]="selectedUserId" class="text-sm border border-gray-300 rounded px-2 py-1">
-              <option value="">Select User</option>
-              @for (user of users; track user._id) {
-                <option [value]="user._id">{{ user.name }} ({{ user.email }})</option>
-              }
-            </select>
-          } @else {
-            <div>
-              <div class="text-sm text-gray-900">{{ item.userId?.name || 'Unknown' }}</div>
-              <div class="text-sm text-gray-500">{{ item.userId?.email || 'No email' }}</div>
-            </div>
-          }
-        }
         @case ('actions') {
           @if (editingSubmission?._id === item._id) {
             <div class="flex gap-2">
@@ -136,7 +121,7 @@
         <div class="flex items-start justify-between">
           <div class="flex-1">
             <h3 class="font-semibold text-gray-900 mb-1">{{ submission.title }}</h3>
-            <p class="text-sm text-gray-600">by {{ submission.userId?.name || 'Unknown' }}</p>
+            <p class="text-sm text-gray-600">by {{ submission.authorName || 'Unknown' }}</p>
             @if (submission?.description) {
               <p class="text-xs text-gray-500 mt-1 line-clamp-2">{{ submission?.description }}</p>
             }

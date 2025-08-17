@@ -107,7 +107,7 @@ export class ShortlistedSubmissionsComponent implements OnInit {
       skip: (this.paginationConfig.currentPage - 1) * this.paginationConfig.pageSize
     };
 
-    this.backendService.getSubmissions('', 'shortlisted', params).subscribe({
+    this.backendService.getSubmissions(params).subscribe({
       next: (response: any) => {
         this.submissions = response.submissions || [];
         this.paginationConfig.totalItems = response.total || 0;

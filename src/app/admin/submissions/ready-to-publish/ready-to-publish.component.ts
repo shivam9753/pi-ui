@@ -73,7 +73,8 @@ export class ReadyToPublishComponent implements OnInit {
 
     
     // Use the new consolidated endpoint with pagination
-    this.backendService.getSubmissions("", "accepted", {
+    this.backendService.getSubmissions({
+      status: "accepted",
       limit: this.paginationConfig.pageSize,
       skip: (this.paginationConfig.currentPage - 1) * this.paginationConfig.pageSize,
       sortBy: 'reviewedAt',

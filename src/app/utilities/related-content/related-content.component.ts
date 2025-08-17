@@ -53,7 +53,8 @@ export class RelatedContentComponent implements OnInit {
     this.error = null;
 
     // Get posts of the same type, excluding current post
-    this.backendService.getSubmissions('', 'published', {
+    this.backendService.getSubmissions({
+      status: 'published',
       limit: 10, // Get more posts in case we need to filter out current post
       skip: 0,
       sortBy: 'reviewedAt',

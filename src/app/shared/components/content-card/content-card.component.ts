@@ -1,14 +1,15 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Author } from '../../../models';
 import { StatusBadgeComponent } from '../status-badge/status-badge.component';
 import { CommonUtils, StringUtils } from '../../utils';
+import { Author } from '../../../models/author.model';
 
 export interface ContentCardData {
   id: string;
   title: string;
   description?: string;
   excerpt?: string;
+  authorName?: string;
   author?: Author;
   submissionType: string;
   status?: string;
@@ -94,7 +95,7 @@ export interface ContentCardData {
             </div>
             <div>
               <div class="text-sm font-medium text-gray-900 dark:text-gray-100">
-                {{ content.author.name || 'Anonymous' }}
+                {{ content.author?.name || content.authorName || 'Anonymous' }}
               </div>
             </div>
           </div>
@@ -102,7 +103,7 @@ export interface ContentCardData {
     
         <!-- Description/Excerpt -->
         @if (content.description || content.excerpt) {
-          <p class="text-gray-600 dark:text-gray-300 text-sm mb-4 leading-relaxed line-clamp-3 min-h-[4.875rem]">
+          <p class="text-gray-600 dark:text-gray-300 text-sm mb-4 leading-normal line-clamp-3">
             {{ sanitizeHtml(content.description || content.excerpt) }}
           </p>
         }
@@ -258,8 +259,7 @@ export class ContentCardComponent {
   }
 
   getAuthorInitials(): string {
-    if (!this.content.author) return '?';
-    const name = this.content.author.name || 'Anonymous';
+    const name = this.content.author?.name || this.content.authorName || 'Anonymous';
     return StringUtils.getInitialsWithFallback(name, '?');
   }
 

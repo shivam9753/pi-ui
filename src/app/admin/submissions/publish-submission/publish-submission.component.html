@@ -476,7 +476,7 @@
                   </div>
                 }
                 <!-- Quick Actions -->
-                <div class="mt-4 p-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
+                <div class="mt-4 p-3 bg-white-tertiary dark:bg-gray-800/50 rounded-lg">
                   <p class="text-sm font-medium text-gray-900 dark:text-gray-100 mb-2">Quick Actions:</p>
                   <div class="flex flex-wrap gap-2">
                     @if (submission.imageUrl && !seoConfig.ogImage) {
@@ -528,7 +528,7 @@
             <div class="card p-4 sm:p-6">
               <h2 class="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-4">SEO Preview</h2>
               <!-- Google Search Preview -->
-              <div class="bg-gray-50 dark:bg-gray-800/50 p-4 rounded-lg mb-4">
+              <div class="bg-white-tertiary dark:bg-gray-800/50 p-4 rounded-lg mb-4">
                 <div class="text-blue-600 dark:text-blue-400 text-lg hover:underline cursor-pointer">
                   {{ seoConfig.metaTitle || submission.title }}
                 </div>
@@ -540,16 +540,16 @@
                 </div>
               </div>
               <!-- Social Media Preview -->
-              <div class="bg-gray-50 dark:bg-gray-800/50 p-4 rounded-lg">
+              <div class="bg-white-tertiary dark:bg-gray-800/50 p-4 rounded-lg">
                 <div class="text-sm text-gray-600 dark:text-gray-400 mb-2">Social Media Preview:</div>
                 <div class="bg-white dark:bg-gray-700 shadow-sm rounded-lg overflow-hidden max-w-md">
                   @if (seoConfig.ogImage || submission.imageUrl) {
-                    <div class="h-32 bg-gray-200">
+                    <div class="h-32 bg-white-secondary dark:bg-gray-700">
                       <img [src]="seoConfig.ogImage || submission.imageUrl" [alt]="submission.title" class="w-full h-full object-cover">
                     </div>
                   }
                   @if (!seoConfig.ogImage && !submission.imageUrl) {
-                    <div class="h-32 bg-gray-200 flex items-center justify-center">
+                    <div class="h-32 bg-white-secondary dark:bg-gray-700 flex items-center justify-center">
                       <span class="text-gray-500 text-sm">No image set</span>
                     </div>
                   }

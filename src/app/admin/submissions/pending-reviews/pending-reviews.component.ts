@@ -229,10 +229,10 @@ export class PendingReviewsComponent implements OnInit {
     
     const params = this.buildQueryParams(page);
     
-    // Use the enhanced backend API for pending reviews with advanced filtering
-    this.backendService.getPendingReviews(params).subscribe(
+    // Use the unified submissions API for pending reviews with advanced filtering
+    this.backendService.getSubmissions({ status: 'pending_review', ...params }).subscribe(
       (data) => {
-        this.submissions = data.pendingSubmissions || [];
+        this.submissions = data.submissions || [];  // Fixed: using 'submissions' instead of 'pendingSubmissions'
         this.totalSubmissions = data.total || 0;
         this.hasMore = data.pagination?.hasMore || false;
         this.totalPages = Math.ceil(this.totalSubmissions / this.pageSize);

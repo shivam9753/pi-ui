@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { environment } from '../../../../environments/environment';
+import { BackendService } from '../../../services/backend.service';
 import { AdminPageHeaderComponent, AdminPageStat } from '../../../shared/components/admin-page-header/admin-page-header.component';
 import {
   DataTableComponent,
@@ -62,7 +63,10 @@ export class AllSubmissionsComponent implements OnInit {
   bulkSelectedUserId = '';
   bulkActionLoading = false;
 
-  constructor(private http: HttpClient) {}
+  constructor(
+    private http: HttpClient,
+    private backendService: BackendService
+  ) {}
 
   private getAuthHeaders(): HttpHeaders {
     const jwtToken = localStorage.getItem('jwt_token');
@@ -91,9 +95,13 @@ export class AllSubmissionsComponent implements OnInit {
   loadSubmissions() {
     this.loading = true;
     const headers = this.getAuthHeaders();
-    this.http.get(`${environment.apiBaseUrl}/admin/submissions/all`, { headers }).subscribe({
+    this.backendService.getSubmissions().subscribe({
       next: (res: any) => {
         this.submissions = res.submissions || [];
+        // Debug: Log the first submission to understand the structure
+        if (this.submissions.length > 0) {
+          console.log('First submission structure:', this.submissions[0]);
+        }
         this.applyFilters();
         this.loading = false;
       },
@@ -292,14 +300,22 @@ export class AllSubmissionsComponent implements OnInit {
         matchesSearch = 
           submission.title?.toLowerCase().includes(searchLower) ||
           submission.description?.toLowerCase().includes(searchLower) ||
-          submission.userId?.name?.toLowerCase().includes(searchLower) ||
-          submission.userId?.email?.toLowerCase().includes(searchLower);
+          submission.authorName?.toLowerCase().includes(searchLower);
       }
 
       return matchesStatus && matchesType && matchesSearch;
     });
 
     this.updatePaginationConfig();
+  }
+
+  // Helper methods to handle different API response structures
+  getAuthorName(item: any): string {
+    return item.authorName || 'Unknown';
+  }
+
+  getAuthorEmail(item: any): string {
+    return 'No email';  // Email not provided in simplified response
   }
 
 }

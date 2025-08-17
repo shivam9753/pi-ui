@@ -77,32 +77,32 @@ export class BackendService {
   }
 
 
-  // Get submissions - use new consolidated endpoint
-  getSubmissions(type?: string, status?: string, options: {
+  // UNIFIED SUBMISSIONS API - Single endpoint for all submission queries
+  getSubmissions(options: {
+    type?: string;
+    status?: string;
     limit?: number;
     skip?: number;
     sortBy?: string;
     order?: string;
+    search?: string;
+    authorType?: string;
+    wordLength?: string;
+    dateFrom?: string;
+    dateTo?: string;
   } = {}): Observable<any> {
     let params = new HttpParams();
     
-    // Add status filter
-    if (status) params = params.set('status', status);
+    // Add all filter options
+    Object.keys(options).forEach(key => {
+      const value = (options as any)[key];
+      if (value !== undefined && value !== null && value !== '') {
+        params = params.set(key, value.toString());
+      }
+    });
     
-    // Add type filter
-    if (type) params = params.set('type', type);
-    
-    // Add pagination and sorting options
-    if (options.limit) params = params.set('limit', options.limit.toString());
-    if (options.skip) params = params.set('skip', options.skip.toString());
-    if (options.sortBy) params = params.set('sortBy', options.sortBy);
-    if (options.order) params = params.set('order', options.order);
-    
-    // Use authenticated headers for admin-only status filters
-    let headers;
-    if (status === 'pending_review' || status === 'accepted') {
-      headers = this.getAuthHeaders();
-    }
+    // Always use authenticated headers for admin access
+    const headers = this.getAuthHeaders();
     
     const url = `${this.API_URL}/submissions`;
     return this.http.get(url, { headers, params }).pipe(
@@ -110,71 +110,13 @@ export class BackendService {
     );
   }
 
-  getPendingSubmissions(params?: any): Observable<any> {
-    const headers = this.getAuthHeaders();
-    let httpParams = new HttpParams();
-    if (params) {
-      Object.keys(params).forEach(key => {
-        if (params[key] !== undefined && params[key] !== null) {
-          httpParams = httpParams.set(key, params[key]);
-        }
-      });
-    }
-    const url = `${this.API_URL}/reviews/pending`;
-    return this.http.get(url, { headers, params: httpParams }).pipe(
-      this.handleApiCall(url, 'GET')
-    );
-  }
-
-  getApprovedSubmissions(params?: any): Observable<any> {
-    // Get accepted submissions ready for publication
-    const url = `${this.API_URL}/reviews/accepted`;
-    let httpParams = new HttpParams();
-    
-    // Add any query parameters
-    Object.keys(params || {}).forEach(key => {
-      if (params[key]) {
-        httpParams = httpParams.set(key, params[key]);
-      }
-    });
-
-    const jwtToken = localStorage.getItem('jwt_token');
-    const headers = new HttpHeaders({
-      'Authorization': `Bearer ${jwtToken}`
-    });
-
-    return this.http.get(url, { headers, params: httpParams }).pipe(
-      this.handleApiCall(url, 'GET')
-    );
-  }
-  // Get published content (accepted submissions)
+  // DEPRECATED: Use getSubmissions with status: 'published'
   getPublishedContent(type?: string, options: { limit?: number; skip?: number; sortBy?: string; order?: 'asc' | 'desc' } = {}): Observable<any> {
-    let params = new HttpParams();
-    
-    if (type) {
-      params = params.set('type', type);
-    }
-    
-    if (options.limit) {
-      params = params.set('limit', options.limit.toString());
-    }
-    
-    if (options.skip) {
-      params = params.set('skip', options.skip.toString());
-    }
-    
-    if (options.sortBy) {
-      params = params.set('sortBy', options.sortBy);
-    }
-    
-    if (options.order) {
-      params = params.set('order', options.order);
-    }
-
-    const url = `${this.API_URL}/submissions/published`;
-    return this.http.get<any>(url, { params }).pipe(
-      this.handleApiCall(url, 'GET')
-    );
+    return this.getSubmissions({
+      status: 'published',
+      type,
+      ...options
+    });
   }
 
   // Get featured content
@@ -188,22 +130,17 @@ export class BackendService {
     );
   }
 
-  // Search submissions
+  // DEPRECATED: Use getSubmissions with search parameter
   searchSubmissions(query: string, options: {
     limit?: number;
     skip?: number;
     sortBy?: string;
     order?: string;
   } = {}): Observable<any> {
-    const params: { [key: string]: string } = {};
-    if (options.limit) params['limit'] = options.limit.toString();
-    if (options.skip) params['skip'] = options.skip.toString();
-    if (options.sortBy) params['sortBy'] = options.sortBy;
-    if (options.order) params['order'] = options.order;
-
-    return this.http.get<any>(`${this.API_URL}/submissions/search/${encodeURIComponent(query)}`, { params }).pipe(
-      this.handleApiCall(`/submissions/search/${query}`, 'GET')
-    );
+    return this.getSubmissions({
+      search: query,
+      ...options
+    });
   }
 
   // Get submission with contents
@@ -341,25 +278,6 @@ export class BackendService {
     );
   }
 
-  // Get pending reviews with enhanced filtering
-  getPendingReviews(params: any = {}): Observable<any> {
-    const headers = this.getAuthHeaders();
-    let httpParams = new HttpParams();
-    
-    // Add all filter parameters
-    Object.keys(params).forEach(key => {
-      if (params[key] !== null && params[key] !== undefined && params[key] !== '') {
-        httpParams = httpParams.set(key, params[key]);
-      }
-    });
-    
-    return this.http.get(
-      `${this.API_URL}/reviews/pending`,
-      { headers, params: httpParams }
-    ).pipe(
-      catchError(this.handleError)
-    );
-  }
 
   // Move submission to in_progress status
   moveSubmissionToProgress(submissionId: string, notes: string = ''): Observable<any> {
@@ -523,7 +441,8 @@ export class BackendService {
 
   // Get current user's profile (authenticated)
   getCurrentUserProfileFromAPI(): Observable<UserProfile> {
-    return this.http.get<any>(`${this.API_URL}/users/profile`);
+    const headers = this.getAuthHeaders();
+    return this.http.get<any>(`${this.API_URL}/users/profile`, { headers });
   }
 
   // Get user profile with enhanced stats
@@ -656,6 +575,7 @@ export class BackendService {
     return currentUser ? currentUser._id === profileUserId : false;
   }
 
+  // DEPRECATED: Use getSubmissions with status: 'published' and type parameter
   getPublishedContentByType(type: string, options: {
     limit?: number;
     skip?: number;
@@ -666,14 +586,11 @@ export class BackendService {
     total: number;
     pagination: any;
   }> {
-    let params = new HttpParams();
-    
-    if (options.limit) params = params.set('limit', options.limit.toString());
-    if (options.skip) params = params.set('skip', options.skip.toString());
-    if (options.sortBy) params = params.set('sortBy', options.sortBy);
-    if (options.order) params = params.set('order', options.order);
-  
-    return this.http.get<any>(`${this.API_URL}/submissions/published?type=${type}`, { params });
+    return this.getSubmissions({
+      status: 'published',
+      type,
+      ...options
+    });
   }
 
   // Get published content by tag
@@ -813,8 +730,7 @@ deleteDraft(draftId: string): Observable<any> {
 
 // Get popular tags from published content
 getPopularTags(options: { limit?: number } = {}): Observable<{
-  tags: { tag: string; count: number }[];
-  total: number;
+  tags: string[];
 }> {
   let params = new HttpParams();
   
@@ -822,7 +738,7 @@ getPopularTags(options: { limit?: number } = {}): Observable<{
     params = params.set('limit', options.limit.toString());
   }
 
-  const url = `${this.API_URL}/submissions/popular-tags`;
+  const url = `${this.API_URL}/content/tags/popular`;
   return this.http.get<any>(url, { params }).pipe(
     this.handleApiCall(url, 'GET')
   );

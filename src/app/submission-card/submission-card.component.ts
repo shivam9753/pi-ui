@@ -6,6 +6,7 @@ import { PrettyLabelPipe } from '../pipes/pretty-label.pipe';
 import { TypeBadgePipe } from '../pipes/type-badge.pipe';
 import { HtmlSanitizerService } from '../services/html-sanitizer.service';
 import { Author, AuthorUtils } from '../models';
+import { SubmissionTagComponent } from '../shared/components/submission-tag/submission-tag.component';
 
 export interface CardData {
   _id?: string;
@@ -38,7 +39,7 @@ export interface CardAction {
 
 @Component({
   selector: 'app-submission-card',
-  imports: [CommonModule, RouterModule, DatePipe, PrettyLabelPipe, TypeBadgePipe],
+  imports: [CommonModule, RouterModule, DatePipe, PrettyLabelPipe, TypeBadgePipe, SubmissionTagComponent],
   templateUrl: './submission-card.component.html',
   styleUrls: ['./submission-card.component.css']
 })

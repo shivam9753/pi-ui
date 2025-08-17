@@ -43,9 +43,9 @@ export const SUBMISSIONS_TABLE_COLUMNS: TableColumn[] = [
     sortable: true
   },
   {
-    key: 'userId.name',
+    key: 'authorName',
     label: 'Author',
-    type: 'custom',
+    type: 'text',
     width: '20%',
     sortable: true
   },
@@ -239,7 +239,6 @@ export const createPublishedPostActions = (
   {
     label: 'Edit',
     color: 'primary',
-    condition: (post) => post.status === 'published',
     handler: editHandler
   },
   {
@@ -289,6 +288,7 @@ export const SUBMISSION_BADGE_CONFIG = {
   'needs_revision': 'px-2 py-1 text-xs font-medium rounded-full tag tag-purple',
   'resubmitted': 'px-2 py-1 text-xs font-medium rounded-full tag tag-blue',
   'under_review': 'px-2 py-1 text-xs font-medium rounded-full tag tag-blue',
+  'shortlisted': 'px-2 py-1 text-xs font-medium rounded-full tag tag-indigo',
   'accepted': 'px-2 py-1 text-xs font-medium rounded-full tag tag-emerald',
   'ready_to_publish': 'px-2 py-1 text-xs font-medium rounded-full tag tag-green',
   'published': 'px-2 py-1 text-xs font-medium rounded-full tag tag-green',

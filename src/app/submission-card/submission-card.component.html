@@ -10,9 +10,12 @@
   <div class="flex items-start justify-between mb-4">
     <div class="flex flex-col gap-2">
       <div class="flex items-center gap-2">
-        <span [class]="data.submissionType | typeBadge : customBadgeColor" class="shadow">
-          {{ data.submissionType | prettyLabel }}
-        </span>
+        <app-submission-tag 
+          [value]="data.submissionType" 
+          tagType="type"
+          [showIcon]="true"
+          size="sm">
+        </app-submission-tag>
         <!-- Quick Review Indicator for expedited types -->
         @if (isQuickReviewType()) {
           <span
@@ -27,9 +30,14 @@
     </div>
 
     <div class="flex items-center gap-2">
-      <span class="inline-block bg-gray-100 text-gray-500 text-xs rounded-full px-2 py-1 font-medium">
-        {{ getStatusText() }}
-      </span>
+      @if (data.status) {
+        <app-submission-tag 
+          [value]="data.status" 
+          tagType="status"
+          [showIcon]="false"
+          size="xs">
+        </app-submission-tag>
+      }
       <span class="inline-block bg-gray-100 text-gray-700 text-xs rounded-full px-2 py-1 font-bold tracking-wide">
         {{ data.createdAt | date:'MMM d' }}
       </span>
