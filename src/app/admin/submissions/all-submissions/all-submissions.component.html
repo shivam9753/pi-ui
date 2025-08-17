@@ -102,9 +102,19 @@
         }
         @case ('actions') {
           @if (editingSubmission?._id === item._id) {
-            <div class="flex gap-2">
-              <button (click)="saveChanges()" class="text-green-600 hover:text-green-900 text-sm">Save</button>
-              <button (click)="cancelEdit()" class="text-gray-600 hover:text-gray-900 text-sm">Cancel</button>
+            <div class="space-y-2">
+              <select 
+                [(ngModel)]="selectedUserId" 
+                class="w-full text-sm border border-gray-300 rounded px-2 py-1 bg-white">
+                <option value="">Select New Author</option>
+                @for (user of users; track user._id) {
+                  <option [value]="user._id">{{ user.name }} ({{ user.email }})</option>
+                }
+              </select>
+              <div class="flex gap-2">
+                <button (click)="saveChanges()" class="text-green-600 hover:text-green-900 text-sm">Save</button>
+                <button (click)="cancelEdit()" class="text-gray-600 hover:text-gray-900 text-sm">Cancel</button>
+              </div>
             </div>
           } @else {
             <button (click)="startEdit(item)" class="text-orange-600 hover:text-orange-900 text-sm">
@@ -148,9 +158,19 @@
         
         <!-- Action Buttons -->
         @if (editingSubmission?._id === submission._id) {
-          <div class="flex gap-2">
-            <button (click)="saveChanges()" class="flex-1 px-3 py-2 text-xs font-medium text-green-600 bg-green-50 border border-green-200 rounded">Save</button>
-            <button (click)="cancelEdit()" class="flex-1 px-3 py-2 text-xs font-medium text-gray-600 bg-gray-50 border border-gray-200 rounded">Cancel</button>
+          <div class="space-y-2">
+            <select 
+              [(ngModel)]="selectedUserId" 
+              class="w-full text-sm border border-gray-300 rounded px-3 py-2 bg-white">
+              <option value="">Select New Author</option>
+              @for (user of users; track user._id) {
+                <option [value]="user._id">{{ user.name }} ({{ user.email }})</option>
+              }
+            </select>
+            <div class="flex gap-2">
+              <button (click)="saveChanges()" class="flex-1 px-3 py-2 text-xs font-medium text-green-600 bg-green-50 border border-green-200 rounded">Save</button>
+              <button (click)="cancelEdit()" class="flex-1 px-3 py-2 text-xs font-medium text-gray-600 bg-gray-50 border border-gray-200 rounded">Cancel</button>
+            </div>
           </div>
         } @else {
           <div class="flex flex-wrap gap-2">

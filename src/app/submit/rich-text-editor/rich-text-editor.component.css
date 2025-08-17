@@ -43,6 +43,24 @@
   word-wrap: break-word;
   overflow-wrap: break-word;
   white-space: pre-wrap; /* Preserve whitespace and line breaks */
+  color: var(--text-primary) !important; /* Force theme text color */
+}
+
+/* Ensure all text elements inherit the theme color */
+.editor-content *:not(strong):not(b):not(em):not(i) {
+  color: inherit !important;
+}
+
+.editor-content span {
+  color: inherit !important;
+}
+
+.editor-content div {
+  color: inherit !important;
+}
+
+.editor-content p {
+  color: inherit !important;
 }
 
 .editor-content:focus {

@@ -433,7 +433,14 @@ export class SubmissionFormComponent implements OnInit, OnDestroy {
   }
 
   private countWords(text: string): number {
-    return text.trim().split(/\s+/).filter(word => word.length > 0).length;
+    if (!text) return 0;
+    
+    // Convert HTML to plain text first
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = text;
+    const plainText = tempDiv.textContent || tempDiv.innerText || '';
+    
+    return plainText.trim().split(/\s+/).filter(word => word.length > 0).length;
   }
 
   // Form submission
@@ -469,6 +476,8 @@ export class SubmissionFormComponent implements OnInit, OnDestroy {
       submittedAt: new Date().toISOString()
     };
 
+    // Debug: Log the payload being sent (status should be set by backend)
+    console.log('🚀 Submitting payload (backend should set status to pending_review):', submissionPayload);
     
     this.backendService.submitNewSubmission(submissionPayload).subscribe({
       next: () => {

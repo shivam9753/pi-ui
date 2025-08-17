@@ -134,7 +134,8 @@ export class AllSubmissionsComponent implements OnInit {
 
   startEdit(submission: any) {
     this.editingSubmission = { ...submission };
-    this.selectedUserId = submission.userId._id;
+    // Handle different possible data structures for userId
+    this.selectedUserId = submission.userId?._id || submission.userId || submission.authorId || '';
   }
 
   cancelEdit() {

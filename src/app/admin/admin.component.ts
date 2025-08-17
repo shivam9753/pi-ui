@@ -24,7 +24,7 @@ import { AllSubmissionsComponent } from './submissions/all-submissions/all-submi
   styleUrl: './admin.component.css'
 })
 export class AdminComponent implements OnInit {
-  activeTab: 'published' | 'users' | 'purge' | 'users_create' | 'submissions_all' = 'users';
+  activeTab: 'published' | 'users' | 'purge' | 'users_create' | 'submissions_all' = 'published';
   isAdmin = false;
   isReviewer = false;
   currentUser: any = null;
@@ -71,7 +71,7 @@ export class AdminComponent implements OnInit {
       return;
     }
     
-    this.activeTab = 'users';
+    this.activeTab = 'published';
     this.loading = false;
   }
 

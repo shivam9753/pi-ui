@@ -96,8 +96,8 @@ export class EditSubmissionComponent implements OnInit {
     private backendService: BackendService
   ) {
     this.form = this.fb.group({
-      title: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(100)]],
-      description: ['', [Validators.maxLength(500)]],
+      title: ['', Validators.required],
+      description: [''],
       submissionType: ['', Validators.required],
       contents: this.fb.array([])
     });

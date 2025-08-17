@@ -523,7 +523,7 @@ content = signal<PublishedContent | null>(null);
     const content = this.content();
     if (!content) return;
     
-    const text = `${content.title} by ${content.author.name} - ${window.location.href}`;
+    const text = `${content.title} by ${content.author?.name || 'Anonymous'} - ${window.location.href}`;
     const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(text)}`;
     window.open(whatsappUrl, '_blank');
   }
@@ -694,10 +694,10 @@ content = signal<PublishedContent | null>(null);
 
   private updatePageMeta(content: PublishedContent) {
     // Update page title
-    this.titleService.setTitle(`${content.title} — Poems by ${content.author.name} - pi`);
+    this.titleService.setTitle(`${content.title} — Poems by ${content.author?.name || 'Anonymous'} - pi`);
     
     // Create a proper description
-    const metaDescription = content.description || content.excerpt || `Read "${content.title}" by ${content.author.name} on Poems in India - a curated collection of poetry and literature.`;
+    const metaDescription = content.description || content.excerpt || `Read "${content.title}" by ${content.author?.name || 'Anonymous'} on Poems in India - a curated collection of poetry and literature.`;
     
     // Update meta description
     this.metaService.updateTag({ 
@@ -709,12 +709,12 @@ content = signal<PublishedContent | null>(null);
     if (content.tags && content.tags.length > 0) {
       this.metaService.updateTag({ 
         name: 'keywords', 
-        content: `${content.tags.join(', ')}, poetry, literature, ${content.author.name}, Poems in India` 
+        content: `${content.tags.join(', ')}, poetry, literature, ${content.author?.name || 'Anonymous'}, Poems in India` 
       });
     } else {
       this.metaService.updateTag({ 
         name: 'keywords', 
-        content: `poetry, literature, ${content.author.name}, Poems in India, ${content.submissionType}` 
+        content: `poetry, literature, ${content.author?.name || 'Anonymous'}, Poems in India, ${content.submissionType}` 
       });
     }
     
@@ -739,7 +739,7 @@ content = signal<PublishedContent | null>(null);
     
     // Additional meta tags for better social sharing
     this.metaService.updateTag({ name: 'robots', content: 'index,follow' });
-    this.metaService.updateTag({ name: 'author', content: content.author.name });
+    this.metaService.updateTag({ name: 'author', content: content.author?.name || 'Anonymous' });
     this.metaService.updateTag({ property: 'article:section', content: content.submissionType });
     this.metaService.updateTag({ property: 'article:published_time', content: content.publishedAt.toISOString() });
     
@@ -764,7 +764,7 @@ content = signal<PublishedContent | null>(null);
     this.metaService.updateTag({ name: 'twitter:title', content: content.title });
     this.metaService.updateTag({ name: 'twitter:description', content: metaDescription });
     this.metaService.updateTag({ name: 'twitter:site', content: '@poemsindia' });
-    this.metaService.updateTag({ name: 'twitter:creator', content: `@${content.author.name}` });
+    this.metaService.updateTag({ name: 'twitter:creator', content: `@${content.author?.name || 'Anonymous'}` });
     
     // Set Twitter image (same as og:image)
     this.metaService.updateTag({ name: 'twitter:image', content: imageUrl });
@@ -783,7 +783,7 @@ content = signal<PublishedContent | null>(null);
       "description": content.description || content.excerpt,
       "author": {
         "@type": "Person",
-        "name": content.author.name
+        "name": content.author?.name || 'Anonymous'
       },
       "publisher": {
         "@type": "Organization",

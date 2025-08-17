@@ -143,6 +143,9 @@ export class RichTextEditorComponent implements ControlValueAccessor, AfterViewI
       content = this.sanitizeClipboardHTML(content);
     }
     
+    // Additional step: Remove any remaining color-related inline styles
+    content = this.removeColorStyles(content);
+    
     if (!content) return;
     
     // Insert content at cursor position using modern approach
@@ -182,6 +185,21 @@ export class RichTextEditorComponent implements ControlValueAccessor, AfterViewI
     return div.innerHTML;
   }
 
+  private removeColorStyles(html: string): string {
+    // Remove color-related CSS properties from style attributes
+    return html
+      .replace(/style\s*=\s*"[^"]*color[^"]*"/gi, '') // Remove style attributes containing 'color'
+      .replace(/style\s*=\s*'[^']*color[^']*'/gi, '') // Handle single quotes
+      .replace(/color\s*:\s*[^;]+;?/gi, '') // Remove color: declarations
+      .replace(/background-color\s*:\s*[^;]+;?/gi, '') // Remove background-color: declarations
+      .replace(/background\s*:\s*[^;]+;?/gi, '') // Remove background: declarations
+      .replace(/style\s*=\s*["'][^"']*["']/gi, (match) => {
+        // Clean up empty or whitespace-only style attributes
+        const styleContent = match.replace(/style\s*=\s*["']([^"']*)["']/i, '$1').trim();
+        return styleContent ? match : '';
+      });
+  }
+
   private sanitizeClipboardHTML(html: string): string {
     // Create a temporary div to parse HTML safely
     const tempDiv = document.createElement('div');
@@ -189,7 +207,7 @@ export class RichTextEditorComponent implements ControlValueAccessor, AfterViewI
     
     // Allow only basic formatting tags
     const allowedTags = ['p', 'div', 'br', 'strong', 'b', 'em', 'i', 'u', 'span'];
-    const allowedAttributes = ['class', 'style'];
+    const allowedAttributes = ['class']; // Remove 'style' to strip color and other inline styles
     
     this.cleanElement(tempDiv, allowedTags, allowedAttributes);
     
@@ -218,8 +236,19 @@ export class RichTextEditorComponent implements ControlValueAccessor, AfterViewI
           }
         });
         
+        // Remove any style attributes that might contain color information
+        child.removeAttribute('style');
+        
         // Recursively clean child elements
         this.cleanElement(child, allowedTags, allowedAttributes);
+      }
+    });
+    
+    // Also clean text nodes to remove any color spans that might have been converted
+    const textNodes = Array.from(element.childNodes).filter(node => node.nodeType === Node.TEXT_NODE);
+    textNodes.forEach(textNode => {
+      if (textNode.parentElement?.style) {
+        textNode.parentElement.removeAttribute('style');
       }
     });
   }

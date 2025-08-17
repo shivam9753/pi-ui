@@ -33,9 +33,11 @@
               <!-- Author and Metadata -->
               <div class="flex items-start justify-between mb-4 pb-4 sm:mb-8 sm:pb-8 border-b border-gray-200">
                 <div>
-                  <a [routerLink]="['/profile', content()!.author.id]"
-                    class="text-lg font-medium text-gray-900 hover:text-gray-900-accent transition-colors duration-200">
-                    {{ content()!.author.name }}
+                  <a [routerLink]="content()!.author?.id ? ['/profile', content()!.author.id] : null"
+                    class="text-lg font-medium text-gray-900 hover:text-gray-900-accent transition-colors duration-200"
+                    [class.cursor-pointer]="content()!.author?.id"
+                    [class.cursor-default]="!content()!.author?.id">
+                    {{ content()!.author?.name || 'Anonymous' }}
                   </a>
                   <div class="text-sm text-gray-900-tertiary mt-1">
                     {{ content()!.publishedAt | date:'MMMM d, y' }}

@@ -230,7 +230,7 @@ export class PendingReviewsComponent implements OnInit {
     const params = this.buildQueryParams(page);
     
     // Use the unified submissions API for pending reviews with advanced filtering
-    this.backendService.getSubmissions({ status: 'pending_review', ...params }).subscribe(
+    this.backendService.getSubmissions(params).subscribe(
       (data) => {
         this.submissions = data.submissions || [];  // Fixed: using 'submissions' instead of 'pendingSubmissions'
         this.totalSubmissions = data.total || 0;
@@ -257,9 +257,19 @@ export class PendingReviewsComponent implements OnInit {
       order
     };
 
-    // Add filters only if they have values
+    // Always filter for pending_review status as this is the pending reviews page
+    // If user has applied additional status filters through quick filters, combine them
+    if (this.filters['status']) {
+      // For quick filters that set specific statuses, we want to show those specific statuses
+      // instead of pending_review (e.g., 'resubmitted', 'in_progress')
+      params.status = this.filters['status'];
+    } else {
+      // Default to pending_review when no specific status filter is applied
+      params.status = 'pending_review';
+    }
+
+    // Add other filters only if they have values
     if (this.filters['type']) params.type = this.filters['type'];
-    if (this.filters['status']) params.status = this.filters['status'];
     if (this.filters['search']) params.search = this.filters['search'];
     if (this.filters['authorType']) params.authorType = this.filters['authorType'];
     if (this.filters['wordLength']) params.wordLength = this.filters['wordLength'];

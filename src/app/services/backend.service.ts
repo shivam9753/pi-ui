@@ -101,8 +101,9 @@ export class BackendService {
       }
     });
     
-    // Always use authenticated headers for admin access
-    const headers = this.getAuthHeaders();
+    // Use safe headers - public for published content, auth for admin operations
+    const isPublicRequest = options.status === 'published';
+    const headers = isPublicRequest ? this.getSafeAuthHeaders() : this.getAuthHeaders();
     
     const url = `${this.API_URL}/submissions`;
     return this.http.get(url, { headers, params }).pipe(
@@ -110,13 +111,31 @@ export class BackendService {
     );
   }
 
-  // DEPRECATED: Use getSubmissions with status: 'published'
+  // Public API for published content - no auth required, works in incognito mode
   getPublishedContent(type?: string, options: { limit?: number; skip?: number; sortBy?: string; order?: 'asc' | 'desc' } = {}): Observable<any> {
-    return this.getSubmissions({
+    let params = new HttpParams();
+    
+    // Add all filter options
+    const allOptions = {
       status: 'published',
       type,
       ...options
+    };
+    
+    Object.keys(allOptions).forEach(key => {
+      const value = (allOptions as any)[key];
+      if (value !== undefined && value !== null && value !== '') {
+        params = params.set(key, value.toString());
+      }
     });
+    
+    // Use public headers - no auth required for published content
+    const headers = this.getPublicHeaders();
+    
+    const url = `${this.API_URL}/submissions`;
+    return this.http.get(url, { headers, params }).pipe(
+      this.handleApiCall(url, 'GET')
+    );
   }
 
   // Get featured content
@@ -160,8 +179,15 @@ export class BackendService {
       'Content-Type': 'application/json'
     });
     
+    // Debug: Backend should set status to pending_review automatically
+    console.log('📤 Backend service sending submission (no status - backend should default to pending_review)');
+    
     const url = `${this.API_URL}/submissions`;
     return this.http.post<any>(url, submission, { headers }).pipe(
+      tap((response) => {
+        console.log('✅ Backend response:', response);
+        console.log('📋 Response status field:', response?.status);
+      }),
       this.handleApiCall(url, 'POST')
     );
   }
@@ -209,7 +235,7 @@ export class BackendService {
   // Get authentication headers with proper JWT token
   private getAuthHeaders(): HttpHeaders {
     // Try to get the JWT token from backend auth
-    const jwtToken = localStorage.getItem('jwt_token');
+    const jwtToken = this.safeGetLocalStorage('jwt_token');
     
     if (jwtToken) {
       return new HttpHeaders({
@@ -219,7 +245,7 @@ export class BackendService {
     }
     
     // Fallback: try Google token (though backend may not accept it)
-    const googleToken = localStorage.getItem('google_token');
+    const googleToken = this.safeGetLocalStorage('google_token');
     if (googleToken) {
       return new HttpHeaders({
         'Authorization': `Bearer ${googleToken}`,
@@ -228,6 +254,39 @@ export class BackendService {
     }
     
     throw new Error('No valid authentication token found. Please log in again.');
+  }
+
+  // Safe localStorage access that works in incognito mode and SSR
+  private safeGetLocalStorage(key: string): string | null {
+    try {
+      // Check if we're in browser environment
+      if (typeof window === 'undefined' || typeof localStorage === 'undefined') {
+        return null;
+      }
+      return localStorage.getItem(key);
+    } catch (error) {
+      // localStorage access can fail in incognito mode
+      console.warn(`localStorage access failed for key '${key}':`, error);
+      return null;
+    }
+  }
+
+  // Get headers for public API calls (no auth required)
+  private getPublicHeaders(): HttpHeaders {
+    return new HttpHeaders({
+      'Content-Type': 'application/json'
+    });
+  }
+
+  // Safe method to get auth headers without throwing errors
+  private getSafeAuthHeaders(): HttpHeaders {
+    try {
+      return this.getAuthHeaders();
+    } catch (error) {
+      // If auth fails, return public headers
+      console.warn('Auth headers not available, using public headers:', error);
+      return this.getPublicHeaders();
+    }
   }
 
   
