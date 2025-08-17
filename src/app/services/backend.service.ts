@@ -103,7 +103,7 @@ export class BackendService {
     
     // Use safe headers - public for published content, auth for admin operations
     const isPublicRequest = options.status === 'published';
-    const headers = isPublicRequest ? this.getSafeAuthHeaders() : this.getAuthHeaders();
+    const headers = isPublicRequest ? this.getPublicHeaders() : this.getAuthHeaders();
     
     const url = `${this.API_URL}/submissions`;
     return this.http.get(url, { headers, params }).pipe(
@@ -158,6 +158,7 @@ export class BackendService {
   } = {}): Observable<any> {
     return this.getSubmissions({
       search: query,
+      status: 'published', // Search only published content for public users
       ...options
     });
   }
@@ -671,7 +672,8 @@ export class BackendService {
     if (options.sortBy) params = params.set('sortBy', options.sortBy);
     if (options.order) params = params.set('order', options.order);
 
-    return this.http.get<any>(`${this.API_URL}/content/by-tag/${encodeURIComponent(tag)}`, { params });
+    const headers = this.getPublicHeaders();
+    return this.http.get<any>(`${this.API_URL}/content/by-tag/${encodeURIComponent(tag)}`, { headers, params });
   }
 
   getAllPrompts(): Observable<any> {
@@ -797,8 +799,9 @@ getPopularTags(options: { limit?: number } = {}): Observable<{
     params = params.set('limit', options.limit.toString());
   }
 
+  const headers = this.getPublicHeaders();
   const url = `${this.API_URL}/content/tags/popular`;
-  return this.http.get<any>(url, { params }).pipe(
+  return this.http.get<any>(url, { headers, params }).pipe(
     this.handleApiCall(url, 'GET')
   );
 }
