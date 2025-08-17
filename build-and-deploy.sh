@@ -59,6 +59,10 @@ sudo tar -xzf dist.tar.gz --strip-components=1 -C /home/ubuntu/pi-ui/ --exclude=
 echo "   - Extracting browser files to nginx directory..."
 sudo tar -xzf dist.tar.gz dist/pi/browser/ --exclude='**/._*'
 sudo cp -r dist/pi/browser/* /var/www/html/
+
+# Also copy all browser files to SSR directory to ensure consistency
+echo "   - Syncing browser files to SSR directory..."
+sudo cp -r dist/pi/browser/* /home/ubuntu/pi-ui/dist/pi/browser/
 sudo rm -rf dist/
 
 # Set proper permissions
