@@ -84,8 +84,7 @@ export class PublishedPostsComponent implements OnInit {
     const skip = (this.currentPage - 1) * this.itemsPerPage;
     
     // Load only published submissions with pagination
-    this.backendService.getSubmissions({
-      status: "published",
+    this.backendService.getPublishedContent('', {
       limit: this.itemsPerPage,
       skip: skip,
       sortBy: 'reviewedAt',
@@ -376,15 +375,18 @@ export class PublishedPostsComponent implements OnInit {
       let matchesType = true;
       let matchesSearch = true;
 
-      if (this.currentFilters.status) {
+      // Check status filter (only apply if filter is set and not empty)
+      if (this.currentFilters.status && this.currentFilters.status.trim() !== '') {
         matchesStatus = submission.status === this.currentFilters.status;
       }
 
-      if (this.currentFilters.type) {
+      // Check type filter (only apply if filter is set and not empty)
+      if (this.currentFilters.type && this.currentFilters.type.trim() !== '') {
         matchesType = submission.submissionType === this.currentFilters.type;
       }
 
-      if (this.currentFilters.search && this.currentFilters.search.trim()) {
+      // Check search filter
+      if (this.currentFilters.search && this.currentFilters.search.trim() !== '') {
         const searchTerm = this.currentFilters.search.toLowerCase().trim();
         matchesSearch = 
           submission.title?.toLowerCase().includes(searchTerm) ||

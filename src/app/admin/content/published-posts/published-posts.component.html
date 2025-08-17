@@ -9,6 +9,7 @@
   <!-- Filter Component -->
   <app-simple-submission-filter 
     [availableStatuses]="['published', 'accepted']"
+    [availableTypes]="['opinion', 'poem', 'prose', 'article', 'book_review', 'cinema_essay']"
     (filterChange)="onFilterChange($event)">
   </app-simple-submission-filter>
 
