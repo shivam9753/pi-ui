@@ -220,7 +220,7 @@ export class PendingReviewsComponent implements OnInit {
   }
 
   reviewSubmission(submission: any) {
-    this.router.navigate(['/review-submission', submission._id || submission.id]);
+    this.router.navigate(['/review-submission', submission._id]);
   }
 
   loadSubmissions(page: number = 1) {
@@ -257,15 +257,13 @@ export class PendingReviewsComponent implements OnInit {
       order
     };
 
-    // Always filter for pending_review status as this is the pending reviews page
-    // If user has applied additional status filters through quick filters, combine them
-    if (this.filters['status']) {
-      // For quick filters that set specific statuses, we want to show those specific statuses
-      // instead of pending_review (e.g., 'resubmitted', 'in_progress')
+    // Show all reviewable statuses when no specific status filter is applied
+    if (this.filters['status'] && this.filters['status'].trim()) {
+      // For specific status filters (e.g., from quick filters)
       params.status = this.filters['status'];
     } else {
-      // Default to pending_review when no specific status filter is applied
-      params.status = 'pending_review';
+      // Default to show pending_review, shortlisted, and in_progress submissions
+      params.status = 'pending_review,shortlisted,in_progress';
     }
 
     // Add other filters only if they have values
@@ -357,7 +355,7 @@ export class PendingReviewsComponent implements OnInit {
   // Convert submission to ContentCardData format
   convertToContentCardData(submission: any): ContentCardData {
     return {
-      id: submission._id || submission.id,
+      id: submission._id,
       title: submission.title,
       description: submission?.description || submission?.excerpt,
       excerpt: submission?.excerpt,
@@ -503,7 +501,7 @@ export class PendingReviewsComponent implements OnInit {
   }
 
   trackBySubmissionId(index: number, submission: any): string {
-    return submission._id || submission.id;
+    return submission._id;
   }
 
   getBadgeClass(key: string): string {

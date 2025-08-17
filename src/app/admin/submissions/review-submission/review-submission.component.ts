@@ -83,17 +83,15 @@ export class ReviewSubmissionComponent {
         }
         
         this.submission = data;
-        this.buildTimelineSteps();
         
         // Check if submission has been reviewed
         if (data.status !== 'pending_review') {
           this.loadExistingReview(id);
         }
         
-        // Load submission history
-        this.loadSubmissionHistory(id);
+        // Don't prefetch history - load only when user expands it
       },
-      error: (err: any) => {
+      error: () => {
         // Error fetching submission
       }
     });
@@ -105,29 +103,12 @@ export class ReviewSubmissionComponent {
       next: (data: any) => {
         this.existingReview = data.submission?.review;
       },
-      error: (err: any) => {
+      error: () => {
         // Error fetching review details
       }
     });
   }
 
-  timelineSteps: any;
-
-  buildTimelineSteps() {
-    this.timelineSteps = [];
-    this.timelineSteps.push( { label: 'Submitted', color: 'blue', tooltip: `The submission was recieved on ${this.submission?.createdAt}` });
-
-    if(this.submission?.reviewedAt) {
-      this.timelineSteps.push( { label: 'In Review', color: 'yellow', tooltip: `Review started on ${this.submission?.reviewedAt}` });
-    }
-
-    if(this.submission?.revisionNotes) {
-      this.timelineSteps.push( { label: 'Needs Revision', color: 'red', tooltip: `Marked for Revision` });
-    }
-    if(this.submission?.publishedAt) {
-      this.timelineSteps.push( { label: 'Published', color: 'green', tooltip: `The submission was accepted and published` });
-    }
-  }
 
   setReviewAction(action: 'approve' | 'reject' | 'revision' | 'move_to_progress' | 'shortlist') {
     this.reviewAction = action;
@@ -161,7 +142,13 @@ export class ReviewSubmissionComponent {
     }
 
     const currentUser = this.authService.getCurrentUser();
-    if (!this.loggedInUser?.id && !currentUser?.id) {
+    const user = this.loggedInUser || currentUser;
+    
+    console.log('Debug confirmReview - loggedInUser:', this.loggedInUser);
+    console.log('Debug confirmReview - currentUser:', currentUser);
+    console.log('Debug confirmReview - user:', user);
+    
+    if (!user || (!user.id && !user.email)) {
       this.showToast('You must be logged in to review submissions.', 'error');
       return;
     }
@@ -266,27 +253,41 @@ export class ReviewSubmissionComponent {
       reviewNotes: this.reviewNotes.trim() || 'Approved without specific comments.'
     };
 
+    // Try the standard approval endpoint first
     this.backendService.approveSubmission(this.id, reviewData).subscribe({
-      next: (res: any) => {
-        this.showSuccessMessage('Submission approved successfully!');
-        
-        // Refresh the submission data and history
-        this.getSubmissionWithContents(this.id);
-        this.loadSubmissionHistory(this.id);
-        this.resetReviewForm();
-        this.isSubmitting = false;
+      next: () => {
+        this.handleReviewSuccess('Submission approved successfully!');
       },
-      error: (err: any) => {
-        // Check if it's actually a success response (status 200 or success flag)
-        if (err.status === 200 || (err.error && err.error.success === true)) {
-          this.showSuccessMessage('Submission approved successfully!');
-          this.getSubmissionWithContents(this.id);
-          this.loadSubmissionHistory(this.id);
-          this.resetReviewForm();
+      error: (err) => {
+        // Check if it's the "accepted" status mapping error
+        if (err.status === 500 && err.error?.message === 'Error approving submission' && 
+            err.error?.error === 'No action mapping defined for status: accepted') {
+          
+          // Fallback: Try using direct status update with "approved" status
+          this.showToast('Using alternative approval method due to backend configuration issue...', 'info');
+          this.backendService.updateSubmissionStatus(this.id, 'approved').subscribe({
+            next: () => {
+              this.handleReviewSuccess('Submission approved successfully!');
+            },
+            error: () => {
+              // If that also fails, try "accepted" status
+              this.backendService.updateSubmissionStatus(this.id, 'accepted').subscribe({
+                next: () => {
+                  this.handleReviewSuccess('Submission approved successfully!');
+                },
+                error: () => {
+                  this.showErrorMessage('Error approving submission. Both approval methods failed. Please contact support.');
+                  this.isSubmitting = false;
+                }
+              });
+            }
+          });
+        } else if (err.status === 200 || (err.error && err.error.success === true)) {
+          this.handleReviewSuccess('Submission approved successfully!');
         } else {
           this.showErrorMessage('Error approving submission. Please try again.');
+          this.isSubmitting = false;
         }
-        this.isSubmitting = false;
       }
     });
   }
@@ -298,7 +299,7 @@ export class ReviewSubmissionComponent {
         this.submissionHistory = data.history || [];
         this.loadingHistory = false;
       },
-      error: (err: any) => {
+      error: () => {
         this.submissionHistory = [];
         this.loadingHistory = false;
       }
@@ -307,6 +308,10 @@ export class ReviewSubmissionComponent {
 
   toggleHistory() {
     this.showHistory = !this.showHistory;
+    // Load history only when expanding for the first time
+    if (this.showHistory && this.submissionHistory.length === 0) {
+      this.loadSubmissionHistory(this.id);
+    }
   }
 
   toggleMobileAnalysis() {
@@ -319,22 +324,13 @@ export class ReviewSubmissionComponent {
     };
 
     this.backendService.rejectSubmission(this.id, reviewData).subscribe({
-      next: (res: any) => {
-        this.showSuccessMessage('Submission rejected.');
-        
-        // Refresh the submission data and history
-        this.getSubmissionWithContents(this.id);
-        this.loadSubmissionHistory(this.id);
-        this.resetReviewForm();
-        this.isSubmitting = false;
+      next: () => {
+        this.handleReviewSuccess('Submission rejected.');
       },
-      error: (err: any) => {
+      error: (err) => {
         // Check if it's actually a success response with error status
         if (err.status === 200 || err.error?.success) {
-          this.showSuccessMessage('Submission rejected.');
-          this.getSubmissionWithContents(this.id);
-          this.loadSubmissionHistory(this.id);
-          this.resetReviewForm();
+          this.handleReviewSuccess('Submission rejected.');
         } else {
           this.showErrorMessage('Error rejecting submission. Please try again.');
         }
@@ -349,22 +345,13 @@ export class ReviewSubmissionComponent {
     };
 
     this.backendService.requestRevision(this.id, reviewData).subscribe({
-      next: (res: any) => {
-        this.showSuccessMessage('Revision requested. Author has been notified.');
-        
-        // Refresh the submission data and history
-        this.getSubmissionWithContents(this.id);
-        this.loadSubmissionHistory(this.id);
-        this.resetReviewForm();
-        this.isSubmitting = false;
+      next: () => {
+        this.handleReviewSuccess('Revision requested. Author has been notified.');
       },
-      error: (err: any) => {
+      error: (err) => {
         // Check if it's actually a success response with error status
         if (err.status === 200 || err.error?.success) {
-          this.showSuccessMessage('Revision requested. Author has been notified.');
-          this.getSubmissionWithContents(this.id);
-          this.loadSubmissionHistory(this.id);
-          this.resetReviewForm();
+          this.handleReviewSuccess('Revision requested. Author has been notified.');
         } else {
           this.showErrorMessage('Error requesting revision. Please try again.');
         }
@@ -377,15 +364,10 @@ export class ReviewSubmissionComponent {
     const notes = this.reviewNotes.trim() || 'Moved to in progress for detailed review';
 
     this.backendService.moveSubmissionToProgress(this.id, notes).subscribe({
-      next: (res: any) => {
-        this.showSuccessMessage('Submission moved to in progress.');
-        
-        // Refresh the submission data and history
-        this.getSubmissionWithContents(this.id);
-        this.loadSubmissionHistory(this.id);
-        this.resetReviewForm();
+      next: () => {
+        this.handleReviewSuccess('Submission moved to in progress.');
       },
-      error: (err: any) => {
+      error: () => {
         this.showErrorMessage('Error moving submission to progress. Please try again.');
         this.isSubmitting = false;
       }
@@ -393,21 +375,11 @@ export class ReviewSubmissionComponent {
   }
 
   shortlistSubmission() {
-    const reviewData = {
-      reviewNotes: this.reviewNotes.trim() || 'Shortlisted for further review'
-    };
-
     this.backendService.updateSubmissionStatus(this.id, 'shortlisted').subscribe({
-      next: (res: any) => {
-        this.showSuccessMessage('Submission shortlisted successfully!');
-        
-        // Refresh the submission data and history
-        this.getSubmissionWithContents(this.id);
-        this.loadSubmissionHistory(this.id);
-        this.resetReviewForm();
-        this.isSubmitting = false;
+      next: () => {
+        this.handleReviewSuccess('Submission shortlisted successfully!');
       },
-      error: (err: any) => {
+      error: () => {
         this.showErrorMessage('Error shortlisting submission. Please try again.');
         this.isSubmitting = false;
       }
@@ -416,14 +388,7 @@ export class ReviewSubmissionComponent {
 
   // Direct method to start review process without showing form
   startReviewProcess() {
-    // Check if user is logged in by getting current user from auth service
     const currentUser = this.authService.getCurrentUser();
-    
-    // Debug logging
-    console.log('loggedInUser:', this.loggedInUser);
-    console.log('currentUser:', currentUser);
-    
-    // Check for user existence using multiple possible properties
     const isLoggedIn = (this.loggedInUser?.id || this.loggedInUser?.email) || 
                       (currentUser?.id || currentUser?.email);
     
@@ -432,22 +397,15 @@ export class ReviewSubmissionComponent {
       return;
     }
 
-    // Use current user if loggedInUser is not available
     const user = this.loggedInUser || currentUser;
-
     this.isSubmitting = true;
     const notes = 'Review started by ' + (user?.username || user?.name || user?.email || 'reviewer');
 
     this.backendService.moveSubmissionToProgress(this.id, notes).subscribe({
-      next: (res: any) => {
-        this.showSuccessMessage('Review process started successfully!');
-        
-        // Refresh the submission data and history
-        this.getSubmissionWithContents(this.id);
-        this.loadSubmissionHistory(this.id);
-        this.isSubmitting = false;
+      next: () => {
+        this.handleReviewSuccess('Review process started successfully!');
       },
-      error: (err: any) => {
+      error: () => {
         this.showErrorMessage('Error starting review process. Please try again.');
         this.isSubmitting = false;
       }
@@ -458,6 +416,14 @@ export class ReviewSubmissionComponent {
     this.reviewAction = null;
     this.showReviewForm = false;
     this.reviewNotes = '';
+    this.isSubmitting = false;
+  }
+
+  // Consolidated success handler for all review actions
+  private handleReviewSuccess(message: string) {
+    this.showSuccessMessage(message);
+    this.getSubmissionWithContents(this.id);
+    this.resetReviewForm();
     this.isSubmitting = false;
   }
 
@@ -483,8 +449,10 @@ export class ReviewSubmissionComponent {
   // Helper method to check if user can review
   canReview(): boolean {
     const user = this.loggedInUser || this.authService.getCurrentUser();
+    const isLoggedIn = user && (user.id || user.email);
     return this.submission?.status && 
-           ['pending_review', 'in_progress', 'resubmitted'].includes(this.submission?.status) &&
+           ['pending_review', 'in_progress', 'resubmitted', 'shortlisted'].includes(this.submission?.status) &&
+           isLoggedIn &&
            user?.role && 
            ['admin', 'reviewer', 'curator'].includes(user.role);
   }
@@ -515,7 +483,7 @@ export class ReviewSubmissionComponent {
   }
 
   canReviewSubmission(): boolean {
-    const reviewableStatuses = ['pending_review', 'in_progress', 'resubmitted'];
+    const reviewableStatuses = ['pending_review', 'in_progress', 'resubmitted', 'shortlisted'];
     return reviewableStatuses.includes(this.submission?.status);
   }
 
@@ -529,10 +497,12 @@ export class ReviewSubmissionComponent {
            ['admin', 'reviewer', 'curator'].includes(user.role);
   }
 
-  // Check if action buttons should show (only after review is started)
+  // Check if action buttons should show (for in_progress and shortlisted submissions)
   canShowActionButtons(): boolean {
     const user = this.loggedInUser || this.authService.getCurrentUser();
-    return this.submission?.status === 'in_progress' && 
+    const isLoggedIn = user && (user.id || user.email);
+    return ['in_progress', 'shortlisted'].includes(this.submission?.status) && 
+           isLoggedIn &&
            user?.role && 
            ['admin', 'reviewer', 'curator'].includes(user.role);
   }
@@ -540,14 +510,18 @@ export class ReviewSubmissionComponent {
   // Check if user can approve submissions (accept only)
   canApproveSubmissions(): boolean {
     const user = this.loggedInUser || this.authService.getCurrentUser();
-    return user?.role && 
+    const isLoggedIn = user && (user.id || user.email);
+    return isLoggedIn &&
+           user?.role && 
            ['admin', 'reviewer'].includes(user.role);
   }
 
   // Check if user can perform curation actions (reject/revision/shortlist)
   canPerformCurationActions(): boolean {
     const user = this.loggedInUser || this.authService.getCurrentUser();
-    return user?.role && 
+    const isLoggedIn = user && (user.id || user.email);
+    return isLoggedIn &&
+           user?.role && 
            ['admin', 'reviewer', 'curator'].includes(user.role);
   }
 
