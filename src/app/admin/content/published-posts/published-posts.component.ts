@@ -83,19 +83,33 @@ export class PublishedPostsComponent implements OnInit {
     
     const skip = (this.currentPage - 1) * this.itemsPerPage;
     
-    // Load only published submissions with pagination
-    this.backendService.getPublishedContent('', {
+    // Build parameters including filters
+    const params: any = {
       limit: this.itemsPerPage,
       skip: skip,
       sortBy: 'reviewedAt',
       order: 'desc'
-    }).subscribe({
+    };
+
+    // Add type filter if selected
+    let typeFilter = '';
+    if (this.currentFilters.type && this.currentFilters.type.trim() !== '') {
+      typeFilter = this.currentFilters.type;
+    }
+
+    // Add search parameter if provided
+    if (this.currentFilters.search && this.currentFilters.search.trim() !== '') {
+      params.search = this.currentFilters.search.trim();
+    }
+    
+    // Load published submissions with server-side filtering
+    this.backendService.getPublishedContent(typeFilter, params).subscribe({
       next: (data) => {
         this.publishedSubmissions = data.submissions || [];
+        this.filteredSubmissions = data.submissions || []; // Use server-filtered data directly
         this.totalCount = data.total || 0;
         this.totalPages = Math.ceil(this.totalCount / this.itemsPerPage);
         this.hasMore = data.pagination?.hasMore || false;
-        this.applyClientSideFilters();
         this.updatePaginationConfig();
         this.loading = false;
       },
@@ -366,41 +380,9 @@ export class PublishedPostsComponent implements OnInit {
   // Filter methods
   onFilterChange(filters: SimpleFilterOptions) {
     this.currentFilters = filters;
-    this.applyClientSideFilters();
+    this.currentPage = 1; // Reset to first page when filtering
+    this.loadPublishedSubmissions(); // Reload data with server-side filtering
   }
 
-  applyClientSideFilters() {
-    this.filteredSubmissions = this.publishedSubmissions.filter(submission => {
-      let matchesStatus = true;
-      let matchesType = true;
-      let matchesSearch = true;
-
-      // Check status filter (only apply if filter is set and not empty)
-      if (this.currentFilters.status && this.currentFilters.status.trim() !== '') {
-        matchesStatus = submission.status === this.currentFilters.status;
-      }
-
-      // Check type filter (only apply if filter is set and not empty)
-      if (this.currentFilters.type && this.currentFilters.type.trim() !== '') {
-        matchesType = submission.submissionType === this.currentFilters.type;
-      }
-
-      // Check search filter
-      if (this.currentFilters.search && this.currentFilters.search.trim() !== '') {
-        const searchTerm = this.currentFilters.search.toLowerCase().trim();
-        matchesSearch = 
-          submission.title?.toLowerCase().includes(searchTerm) ||
-          submission.username?.toLowerCase().includes(searchTerm) ||
-          submission.authorName?.toLowerCase().includes(searchTerm) ||
-          submission.author?.username?.toLowerCase().includes(searchTerm) ||
-          submission.author?.name?.toLowerCase().includes(searchTerm) ||
-          submission.submitterName?.toLowerCase().includes(searchTerm) ||
-          submission.description?.toLowerCase().includes(searchTerm) ||
-          submission.excerpt?.toLowerCase().includes(searchTerm);
-      }
-
-      return matchesStatus && matchesType && matchesSearch;
-    });
-  }
 
 }
