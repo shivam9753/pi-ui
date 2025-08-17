@@ -88,6 +88,11 @@ export class AllSubmissionsComponent implements OnInit {
         label: 'Change Author',
         color: 'warning' as const,
         handler: (submission: any) => this.startEdit(submission)
+      },
+      {
+        label: 'Delete',
+        color: 'danger' as const,
+        handler: (submission: any) => this.deleteSubmission(submission)
       }
     ];
   }
@@ -160,6 +165,36 @@ export class AllSubmissionsComponent implements OnInit {
       },
       error: (err) => {
         this.showMessage(err.error?.message || 'Failed to reassign submission', 'error');
+      }
+    });
+  }
+
+  deleteSubmission(submission: any) {
+    const confirmMsg = `Are you sure you want to permanently delete the submission "${submission.title}"?\n\nThis action cannot be undone and will remove all associated data.`;
+    
+    if (!confirm(confirmMsg)) {
+      return;
+    }
+
+    // Double confirmation for delete action
+    const doubleConfirmMsg = `FINAL CONFIRMATION:\n\nYou are about to permanently delete:\n"${submission.title}"\n\nThis will remove all content, reviews, and history. This action is irreversible.\n\nType "DELETE" to confirm.`;
+    
+    const userInput = prompt(doubleConfirmMsg);
+    if (userInput !== 'DELETE') {
+      this.showMessage('Delete operation cancelled', 'info');
+      return;
+    }
+
+    this.loading = true;
+    this.backendService.deleteSubmission(submission._id).subscribe({
+      next: () => {
+        this.showMessage(`Submission "${submission.title}" has been permanently deleted`, 'success');
+        this.loadSubmissions(); // Refresh the list
+        this.loading = false;
+      },
+      error: (err) => {
+        this.showMessage(err.error?.message || 'Failed to delete submission', 'error');
+        this.loading = false;
       }
     });
   }

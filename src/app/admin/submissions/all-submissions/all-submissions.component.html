@@ -117,9 +117,14 @@
               </div>
             </div>
           } @else {
-            <button (click)="startEdit(item)" class="text-orange-600 hover:text-orange-900 text-sm">
-              Change Author
-            </button>
+            <div class="flex gap-2">
+              <button (click)="startEdit(item)" class="text-orange-600 hover:text-orange-900 text-sm">
+                Change Author
+              </button>
+              <button (click)="deleteSubmission(item)" class="text-red-600 hover:text-red-900 text-sm font-medium">
+                Delete
+              </button>
+            </div>
           }
         }
       }
@@ -174,13 +179,16 @@
           </div>
         } @else {
           <div class="flex flex-wrap gap-2">
-            @for (action of actions; track action.label) {
-              <button
-                (click)="action.handler(submission)"
-                class="flex-1 px-3 py-2 text-xs font-medium text-orange-600 bg-orange-50 border border-amber-200 rounded">
-                {{ action.label }}
-              </button>
-            }
+            <button
+              (click)="startEdit(submission)"
+              class="flex-1 px-3 py-2 text-xs font-medium text-orange-600 bg-orange-50 border border-amber-200 rounded">
+              Change Author
+            </button>
+            <button
+              (click)="deleteSubmission(submission)"
+              class="flex-1 px-3 py-2 text-xs font-medium text-red-600 bg-red-50 border border-red-200 rounded">
+              Delete
+            </button>
           </div>
         }
       </div>
