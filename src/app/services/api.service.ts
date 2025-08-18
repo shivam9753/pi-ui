@@ -3,6 +3,7 @@ import { HttpClient, HttpHeaders, HttpErrorResponse } from '@angular/common/http
 import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
+import { HTTP_STATUS } from '../shared/constants/api.constants';
 
 export interface ApiResponse<T = any> {
   success?: boolean;
@@ -55,12 +56,12 @@ export class ApiService {
       errorMessage = error.error.message;
     } else {
       // Server-side error
-      if (error.status === 401) {
+      if (error.status === HTTP_STATUS.UNAUTHORIZED) {
         errorMessage = 'Unauthorized - Please login again';
         // Optionally redirect to login
-      } else if (error.status === 403) {
+      } else if (error.status === HTTP_STATUS.FORBIDDEN) {
         errorMessage = 'Access denied - Insufficient permissions';
-      } else if (error.status === 404) {
+      } else if (error.status === HTTP_STATUS.NOT_FOUND) {
         errorMessage = 'Resource not found';
       } else if (error.error?.message) {
         errorMessage = error.error.message;

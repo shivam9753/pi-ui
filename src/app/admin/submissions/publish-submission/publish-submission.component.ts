@@ -6,6 +6,7 @@ import { RichTextEditorComponent } from '../../../submit/rich-text-editor/rich-t
 import { BadgeLabelComponent } from '../../../utilities/badge-label/badge-label.component';
 import { TagInputComponent } from '../../../utilities/tag-input/tag-input.component';
 import { BackendService } from '../../../services/backend.service';
+import { SUBMISSION_STATUS } from '../../../shared/constants/api.constants';
 
 interface SEOConfig {
   slug: string;
@@ -668,7 +669,7 @@ export class PublishSubmissionComponent implements OnInit {
 
     // Check if submission is already published
     // For already published posts, we should only update content, not republish
-    const isAlreadyPublished = this.submission.status === 'published' || 
+    const isAlreadyPublished = this.submission.status === SUBMISSION_STATUS.PUBLISHED || 
                                this.submission.publishedAt || 
                                this.submission.isPublished;
 
@@ -743,14 +744,14 @@ export class PublishSubmissionComponent implements OnInit {
   }
 
   getPublishButtonText(): string {
-    const isAlreadyPublished = this.submission?.status === 'published' || 
+    const isAlreadyPublished = this.submission?.status === SUBMISSION_STATUS.PUBLISHED || 
                                this.submission?.publishedAt || 
                                this.submission?.isPublished;
     return isAlreadyPublished ? 'Save & Update' : 'Save & Publish';
   }
 
   getPublishingText(): string {
-    const isAlreadyPublished = this.submission?.status === 'published' || 
+    const isAlreadyPublished = this.submission?.status === SUBMISSION_STATUS.PUBLISHED || 
                                this.submission?.publishedAt || 
                                this.submission?.isPublished;
     return isAlreadyPublished ? 'Updating...' : 'Publishing...';

@@ -536,7 +536,7 @@
 
 /* Optimal line length for reading */
 .reading-text {
-  max-width: 42rem; /* ~65 characters - optimal for reading */
+  max-width: none; /* Remove width constraint to match image width */
   margin: 0 auto;
 }
 
@@ -572,7 +572,7 @@
 
 /* Typography Enhancement */
 .reading-text p {
-  max-width: 75ch; /* 60-75 character limit for optimal readability */
+  max-width: none; /* Remove character limit to match parent width */
   hyphens: auto;
   text-align: justify;
   text-justify: inter-word;
@@ -669,13 +669,13 @@ body.focus-mode {
 
 .content-body[data-submission-type="cinema_essay"] .reading-text p,
 .content-body[data-submission-type="article"] .reading-text p {
-  max-width: 70ch; /* Slightly wider for analytical content */
+  max-width: none; /* Use full available width */
 }
 
 /* Poetry specific formatting */
 .content-body[data-submission-type="poem"] .reading-text {
   text-align: left;
-  max-width: 32rem;
+  max-width: none;
 }
 
 .content-body[data-submission-type="poem"] .reading-text p {

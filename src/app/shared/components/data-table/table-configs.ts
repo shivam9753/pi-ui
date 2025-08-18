@@ -1,4 +1,5 @@
 import { TableColumn, TableAction } from './data-table.component';
+import { SUBMISSION_STATUS } from '../../constants/api.constants';
 
 // User Management Table Configuration
 export const USER_TABLE_COLUMNS: TableColumn[] = [
@@ -283,17 +284,17 @@ export const createReadyToPublishActions = (
 // Badge configurations - Using CSS custom properties for consistent theming
 export const SUBMISSION_BADGE_CONFIG = {
   'pending': 'px-2 py-1 text-xs font-medium rounded-full tag tag-yellow',
-  'pending_review': 'px-2 py-1 text-xs font-medium rounded-full tag tag-orange',
-  'in_progress': 'px-2 py-1 text-xs font-medium rounded-full tag tag-blue',
-  'needs_revision': 'px-2 py-1 text-xs font-medium rounded-full tag tag-purple',
-  'resubmitted': 'px-2 py-1 text-xs font-medium rounded-full tag tag-blue',
+  [SUBMISSION_STATUS.PENDING_REVIEW]: 'px-2 py-1 text-xs font-medium rounded-full tag tag-orange',
+  [SUBMISSION_STATUS.IN_PROGRESS]: 'px-2 py-1 text-xs font-medium rounded-full tag tag-blue',
+  [SUBMISSION_STATUS.NEEDS_REVISION]: 'px-2 py-1 text-xs font-medium rounded-full tag tag-purple',
+  [SUBMISSION_STATUS.RESUBMITTED]: 'px-2 py-1 text-xs font-medium rounded-full tag tag-blue',
   'under_review': 'px-2 py-1 text-xs font-medium rounded-full tag tag-blue',
-  'shortlisted': 'px-2 py-1 text-xs font-medium rounded-full tag tag-indigo',
-  'accepted': 'px-2 py-1 text-xs font-medium rounded-full tag tag-emerald',
+  [SUBMISSION_STATUS.SHORTLISTED]: 'px-2 py-1 text-xs font-medium rounded-full tag tag-indigo',
+  [SUBMISSION_STATUS.ACCEPTED]: 'px-2 py-1 text-xs font-medium rounded-full tag tag-emerald',
   'ready_to_publish': 'px-2 py-1 text-xs font-medium rounded-full tag tag-green',
-  'published': 'px-2 py-1 text-xs font-medium rounded-full tag tag-green',
-  'rejected': 'px-2 py-1 text-xs font-medium rounded-full tag tag-red',
-  'draft': 'px-2 py-1 text-xs font-medium rounded-full tag tag-gray',
+  [SUBMISSION_STATUS.PUBLISHED]: 'px-2 py-1 text-xs font-medium rounded-full tag tag-green',
+  [SUBMISSION_STATUS.REJECTED]: 'px-2 py-1 text-xs font-medium rounded-full tag tag-red',
+  [SUBMISSION_STATUS.DRAFT]: 'px-2 py-1 text-xs font-medium rounded-full tag tag-gray',
   'poem': 'px-2 py-1 text-xs font-medium rounded-full tag tag-purple',
   'prose': 'px-2 py-1 text-xs font-medium rounded-full tag tag-blue',
   'story': 'px-2 py-1 text-xs font-medium rounded-full tag tag-blue',

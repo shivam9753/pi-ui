@@ -50,9 +50,9 @@ export interface PaginationConfig {
       @if (!loading) {
         
         <!-- Desktop Table -->
-        <div class="hidden md:block bg-themed-card border-themed rounded-lg overflow-hidden">
+        <div class="hidden md:block border-gray-200 rounded-lg overflow-hidden">
           <table class="w-full">
-            <thead class="bg-themed-secondary border-b border-themed">
+            <thead class="border-b border-gray-200">
               <tr>
                 @if (selectable) {
                   <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -89,7 +89,7 @@ export interface PaginationConfig {
                 }
               </tr>
             </thead>
-            <tbody class="divide-y divide-themed">
+            <tbody class="divide-y divide-gray-200">
               @for (item of data; track trackByFn ? trackByFn($index, item) : $index) {
                 <tr class="hover:bg-themed-hover" [class.bg-themed-accent-light]="isItemSelected(item)">
                   @if (selectable) {
@@ -169,7 +169,7 @@ export interface PaginationConfig {
         <!-- Mobile Cards -->
         <div class="md:hidden space-y-4 p-1">
           @for (item of data; track trackByFn ? trackByFn($index, item) : $index) {
-            <div class="bg-themed-card border-themed rounded-lg p-5 shadow-sm mx-2">
+            <div class="border-gray-200 rounded-lg p-5 shadow-sm mx-2">
               @if (mobileCardTemplate) {
                 <ng-container *ngTemplateOutlet="mobileCardTemplate; context: { $implicit: item, actions: getVisibleActions(item) }"></ng-container>
               } @else {
@@ -238,7 +238,7 @@ export interface PaginationConfig {
 
       <!-- Pagination -->
       @if (!loading && pagination && data.length > 0) {
-        <div class="mt-6 flex flex-col sm:flex-row items-center justify-between">
+        <div class="mt-6 mb-8 flex flex-col sm:flex-row items-center justify-between">
           <div class="text-sm text-themed-secondary mb-4 sm:mb-0">
             Showing {{ (pagination.currentPage - 1) * pagination.pageSize + 1 }} 
             to {{ Math.min(pagination.currentPage * pagination.pageSize, pagination.totalItems) }} 
@@ -248,7 +248,7 @@ export interface PaginationConfig {
             <button
               (click)="onPageChange.emit(pagination.currentPage - 1)"
               [disabled]="pagination.currentPage === 1"
-              class="px-4 py-2 text-sm border border-themed rounded-md bg-themed-card text-themed hover:bg-themed-hover disabled:opacity-50 disabled:cursor-not-allowed">
+              class="px-4 py-2 text-sm border border-gray-300 rounded-md bg-white text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
               Previous
             </button>
             <span class="px-3 py-2 text-sm text-themed-secondary">
@@ -257,7 +257,7 @@ export interface PaginationConfig {
             <button
               (click)="onPageChange.emit(pagination.currentPage + 1)"
               [disabled]="pagination.currentPage === pagination.totalPages"
-              class="px-4 py-2 text-sm border border-themed rounded-md bg-themed-card text-themed hover:bg-themed-hover disabled:opacity-50 disabled:cursor-not-allowed">
+              class="px-4 py-2 text-sm border border-gray-300 rounded-md bg-white text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
               Next
             </button>
           </div>

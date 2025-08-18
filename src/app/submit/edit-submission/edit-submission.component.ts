@@ -5,6 +5,7 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { AuthService, GoogleUser } from '../../services/auth.service';
 import { BackendService } from '../../services/backend.service';
 import { ContentEditorComponent } from '../content-editor/content-editor.component';
+import { SUBMISSION_STATUS, SubmissionStatus, HTTP_STATUS } from '../../shared/constants/api.constants';
 
 export interface EditableSubmission {
   _id: string;
@@ -12,7 +13,7 @@ export interface EditableSubmission {
   description: string;
   submissionType: string;
   contents: any[];
-  status: 'draft' | 'pending_review' | 'in_progress' | 'needs_revision' | 'accepted' | 'published' | 'rejected' | 'resubmitted';
+  status: SubmissionStatus;
   revisionNotes?: string;
   reviewFeedback?: string;
   submittedAt: string;
@@ -138,11 +139,11 @@ export class EditSubmissionComponent implements OnInit {
       error: (error: any) => {
         let errorMessage = 'Error loading submission. Please try again.';
         
-        if (error.status === 404) {
+        if (error.status === HTTP_STATUS.NOT_FOUND) {
           errorMessage = 'Submission not found. You may not have permission to edit this submission.';
-        } else if (error.status === 401) {
+        } else if (error.status === HTTP_STATUS.UNAUTHORIZED) {
           errorMessage = 'You need to be logged in to edit this submission.';
-        } else if (error.status === 403) {
+        } else if (error.status === HTTP_STATUS.FORBIDDEN) {
           errorMessage = 'You do not have permission to edit this submission.';
         }
         
@@ -272,7 +273,7 @@ export class EditSubmissionComponent implements OnInit {
       });
     } else {
       // Update and change status to pending_review
-      cleanedData.status = 'pending_review';
+      cleanedData.status = SUBMISSION_STATUS.PENDING_REVIEW;
       this.backendService.updateSubmission(this.submissionId, cleanedData).subscribe({
         next: (response: any) => {
           this.showToast('Submission updated and sent for review!', 'success');
@@ -332,11 +333,11 @@ export class EditSubmissionComponent implements OnInit {
 
   getStatusBadgeClass(status: string): string {
     switch (status) {
-      case 'needs_revision':
+      case SUBMISSION_STATUS.NEEDS_REVISION:
         return 'bg-amber-100 text-amber-800 border border-amber-200';
-      case 'draft':
+      case SUBMISSION_STATUS.DRAFT:
         return 'bg-gray-100 text-gray-800 border border-gray-200';
-      case 'pending_review':
+      case SUBMISSION_STATUS.PENDING_REVIEW:
         return 'bg-amber-100 text-amber-800 border border-yellow-200';
       default:
         return 'bg-gray-100 text-gray-800 border border-gray-200';
@@ -345,11 +346,11 @@ export class EditSubmissionComponent implements OnInit {
 
   getStatusText(status: string): string {
     switch (status) {
-      case 'needs_revision':
+      case SUBMISSION_STATUS.NEEDS_REVISION:
         return 'Needs Revision';
-      case 'draft':
+      case SUBMISSION_STATUS.DRAFT:
         return 'Draft';
-      case 'pending_review':
+      case SUBMISSION_STATUS.PENDING_REVIEW:
         return 'Pending Review';
       default:
         return status.charAt(0).toUpperCase() + status.slice(1);

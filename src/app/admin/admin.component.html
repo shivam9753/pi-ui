@@ -13,15 +13,16 @@
 
   <!-- Main Admin Dashboard -->
   @if (!loading && (isAdmin || isReviewer)) {
-    <div class="bg-gray-100 pb-10">
+    <div class="bg-white pb-10">
       <!-- Tab Navigation (Enhanced Modern Style) -->
       <div class="border-b border-gray-200 bg-white shadow-sm">
         <div class="max-w-screen-xl mx-auto px-0 sm:px-6 md:px-10">
           <div class="mobile-tab-nav sm:mobile-tab-nav-disabled">
-            <nav class="flex justify-center sm:justify-center space-x-2 sm:space-x-8 overflow-x-auto scrollbar-hide px-4 sm:px-0" aria-label="Admin Tabs">
+            <nav #tabNavigation class="flex justify-center sm:justify-center space-x-2 sm:space-x-8 overflow-x-auto scrollbar-hide px-4 sm:px-0" aria-label="Admin Tabs">
               <!-- Manage Published - Admin only -->
               @if (canAccessTab('published')) {
                 <button
+                  data-tab="published"
                   (click)="setActiveTab('published')"
                   [class.border-orange-500]="activeTab === 'published'"
                   [class.text-orange-600]="activeTab === 'published'"
@@ -40,6 +41,7 @@
               <!-- Manage Users - Admin only -->
               @if (canAccessTab('users')) {
                 <button
+                  data-tab="users"
                   (click)="setActiveTab('users')"
                   [class.border-orange-500]="activeTab === 'users'"
                   [class.text-orange-600]="activeTab === 'users'"
@@ -58,6 +60,7 @@
               <!-- Data Purge - Admin only -->
               @if (canAccessTab('purge')) {
                 <button
+                  data-tab="purge"
                   (click)="setActiveTab('purge')"
                   [class.border-orange-500]="activeTab === 'purge'"
                   [class.text-orange-600]="activeTab === 'purge'"
@@ -77,6 +80,7 @@
               <!-- Create Users Tab -->
               @if (canAccessTab('users_create')) {
                 <button
+                  data-tab="users_create"
                   (click)="setActiveTab('users_create')"
                   [class.border-orange-500]="activeTab === 'users_create'"
                   [class.text-orange-600]="activeTab === 'users_create'"
@@ -95,6 +99,7 @@
               <!-- All Submissions Tab -->
               @if (canAccessTab('submissions_all')) {
                 <button
+                  data-tab="submissions_all"
                   (click)="setActiveTab('submissions_all')"
                   [class.border-orange-500]="activeTab === 'submissions_all'"
                   [class.text-orange-600]="activeTab === 'submissions_all'"

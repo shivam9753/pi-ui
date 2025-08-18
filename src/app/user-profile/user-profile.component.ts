@@ -11,13 +11,14 @@ import { EmptyStateComponent } from '../shared/components/empty-state/empty-stat
 import { LoadingStateComponent } from '../shared/components/loading-state/loading-state.component';
 import { StatusBadgeComponent } from '../shared/components/status-badge/status-badge.component';
 import { ProfileCompletionComponent } from '../profile-completion/profile-completion.component';
+import { SUBMISSION_STATUS, SubmissionStatus } from '../shared/constants/api.constants';
 
 // Add interfaces for new data types
 interface Submission {
   _id: string;
   title: string;
   submissionType: string;
-  status: 'pending_review' | 'in_progress' | 'needs_revision' | 'accepted' | 'published' | 'rejected' | 'draft';
+  status: SubmissionStatus;
   submittedAt: string;
   reviewedAt?: string;
   publishedWorkId?: string;
@@ -77,6 +78,9 @@ export class UserProfileComponent implements OnInit {
   submissionsSort = signal('newest');
   draftsFilter = signal('');
   draftsSort = signal('newest');
+  
+  // Constants for template usage
+  readonly SUBMISSION_STATUS = SUBMISSION_STATUS;
   
   // Loading states
   isLoading = signal(true);
@@ -146,13 +150,13 @@ export class UserProfileComponent implements OnInit {
           return new Date(a.submittedAt).getTime() - new Date(b.submittedAt).getTime();
         case 'status':
           const statusOrder: { [key: string]: number } = { 
-            'pending_review': 0, 
-            'in_progress': 1,
-            'needs_revision': 2,
-            'accepted': 3, 
-            'published': 4, 
-            'rejected': 5,
-            'draft': 6
+            [SUBMISSION_STATUS.PENDING_REVIEW]: 0, 
+            [SUBMISSION_STATUS.IN_PROGRESS]: 1,
+            [SUBMISSION_STATUS.NEEDS_REVISION]: 2,
+            [SUBMISSION_STATUS.ACCEPTED]: 3, 
+            [SUBMISSION_STATUS.PUBLISHED]: 4, 
+            [SUBMISSION_STATUS.REJECTED]: 5,
+            [SUBMISSION_STATUS.DRAFT]: 6
           };
           return (statusOrder[a.status] || 0) - (statusOrder[b.status] || 0);
         case 'title':
@@ -514,19 +518,19 @@ export class UserProfileComponent implements OnInit {
   getStatusClass(status: string): string {
     const baseClasses = 'inline-flex items-center px-3 py-1 rounded-full text-sm font-medium';
     switch (status) {
-      case 'published':
+      case SUBMISSION_STATUS.PUBLISHED:
         return `${baseClasses} bg-green-100 text-green-800 border border-green-200`;
-      case 'accepted':
+      case SUBMISSION_STATUS.ACCEPTED:
         return `${baseClasses} bg-blue-100 text-blue-800 border border-blue-200`;
-      case 'pending_review':
+      case SUBMISSION_STATUS.PENDING_REVIEW:
         return `${baseClasses} bg-amber-100 text-amber-800 border border-yellow-200`;
-      case 'in_progress':
+      case SUBMISSION_STATUS.IN_PROGRESS:
         return `${baseClasses} bg-blue-100 text-blue-800 border border-blue-200`;
-      case 'needs_revision':
+      case SUBMISSION_STATUS.NEEDS_REVISION:
         return `${baseClasses} bg-amber-100 text-amber-800 border border-amber-200`;
-      case 'rejected':
+      case SUBMISSION_STATUS.REJECTED:
         return `${baseClasses} bg-red-100 text-red-800 border border-red-200`;
-      case 'draft':
+      case SUBMISSION_STATUS.DRAFT:
         return `${baseClasses} bg-gray-100 text-gray-800 border border-gray-200`;
       default:
         return `${baseClasses} bg-gray-100 text-gray-800 border border-gray-200`;
@@ -535,19 +539,19 @@ export class UserProfileComponent implements OnInit {
 
   getStatusDotClass(status: string): string {
     switch (status) {
-      case 'published':
+      case SUBMISSION_STATUS.PUBLISHED:
         return 'bg-green-500';
-      case 'accepted':
+      case SUBMISSION_STATUS.ACCEPTED:
         return 'bg-blue-500';
-      case 'pending_review':
+      case SUBMISSION_STATUS.PENDING_REVIEW:
         return 'bg-yellow-500';
-      case 'in_progress':
+      case SUBMISSION_STATUS.IN_PROGRESS:
         return 'bg-blue-500';
-      case 'needs_revision':
+      case SUBMISSION_STATUS.NEEDS_REVISION:
         return 'bg-orange-500';
-      case 'rejected':
+      case SUBMISSION_STATUS.REJECTED:
         return 'bg-red-500';
-      case 'draft':
+      case SUBMISSION_STATUS.DRAFT:
         return 'bg-gray-500';
       default:
         return 'bg-gray-500';
@@ -556,19 +560,19 @@ export class UserProfileComponent implements OnInit {
 
   getStatusText(status: string): string {
     switch (status) {
-      case 'published':
+      case SUBMISSION_STATUS.PUBLISHED:
         return 'Published';
-      case 'accepted':
+      case SUBMISSION_STATUS.ACCEPTED:
         return 'Accepted';
-      case 'pending_review':
+      case SUBMISSION_STATUS.PENDING_REVIEW:
         return 'Pending Review';
-      case 'in_progress':
+      case SUBMISSION_STATUS.IN_PROGRESS:
         return 'In Progress';
-      case 'needs_revision':
+      case SUBMISSION_STATUS.NEEDS_REVISION:
         return 'Needs Revision';
-      case 'rejected':
+      case SUBMISSION_STATUS.REJECTED:
         return 'Rejected';
-      case 'draft':
+      case SUBMISSION_STATUS.DRAFT:
         return 'Draft';
       default:
         return 'Unknown';
@@ -588,7 +592,7 @@ export class UserProfileComponent implements OnInit {
 
   viewSubmissionDetails(submission: Submission) {
     // Navigate to read interface or admin review page
-    if (submission.status === 'published' && submission.publishedWorkId) {
+    if (submission.status === SUBMISSION_STATUS.PUBLISHED && submission.publishedWorkId) {
       // Check if submission has slug for SEO-friendly URL
       if (submission.slug) {
         this.router.navigate(['/post', submission.slug]);
@@ -605,7 +609,7 @@ export class UserProfileComponent implements OnInit {
   }
 
   deleteSubmission(submission: Submission) {
-    if (submission.status !== 'draft' && submission.status !== 'needs_revision') {
+    if (submission.status !== SUBMISSION_STATUS.DRAFT && submission.status !== SUBMISSION_STATUS.NEEDS_REVISION) {
       alert('Only draft and revision submissions can be deleted.');
       return;
     }
@@ -627,22 +631,24 @@ export class UserProfileComponent implements OnInit {
   // Helper methods to check submission status and available actions based on user requirements
   canEdit(submission: Submission): boolean {
     // Edit for pending review or needs revision
-    return ['pending_review', 'needs_revision'].includes(submission.status);
+    const editableStatuses: SubmissionStatus[] = [SUBMISSION_STATUS.PENDING_REVIEW, SUBMISSION_STATUS.NEEDS_REVISION];
+    return editableStatuses.includes(submission.status);
   }
 
   canResubmit(submission: Submission): boolean {
     // Allow resubmit for needs_revision (this is separate from edit)
-    return submission.status === 'needs_revision';
+    return submission.status === SUBMISSION_STATUS.NEEDS_REVISION;
   }
 
   canDelete(submission: Submission): boolean {
     // Delete only for rejected submissions
-    return submission.status === 'rejected';
+    return submission.status === SUBMISSION_STATUS.REJECTED;
   }
 
   canView(submission: Submission): boolean {
     // View for published, draft, accepted, in_progress
-    return ['published', 'draft', 'accepted', 'in_progress'].includes(submission.status);
+    const viewableStatuses: SubmissionStatus[] = [SUBMISSION_STATUS.PUBLISHED, SUBMISSION_STATUS.DRAFT, SUBMISSION_STATUS.ACCEPTED, SUBMISSION_STATUS.IN_PROGRESS];
+    return viewableStatuses.includes(submission.status);
   }
 
   getActionButtons(submission: Submission): Array<{label: string, action: string, class: string}> {

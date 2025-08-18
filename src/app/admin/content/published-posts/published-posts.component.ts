@@ -18,6 +18,7 @@ import {
   SUBMISSION_BADGE_CONFIG
 } from '../../../shared/components';
 import { SimpleSubmissionFilterComponent, SimpleFilterOptions } from '../../../shared/components/simple-submission-filter/simple-submission-filter.component';
+import { SUBMISSION_STATUS } from '../../../shared/constants/api.constants';
 
 
 @Component({
@@ -45,6 +46,9 @@ export class PublishedPostsComponent implements OnInit {
   
   // Filter properties
   currentFilters: SimpleFilterOptions = {};
+
+  // Constants for template usage
+  readonly SUBMISSION_STATUS = SUBMISSION_STATUS;
 
   // Pagination properties
   currentPage = 1;
@@ -147,7 +151,7 @@ export class PublishedPostsComponent implements OnInit {
         // Update the local state instead of refreshing the entire list
         const submission = this.publishedSubmissions.find(sub => sub._id === submissionId);
         if (submission) {
-          submission.status = 'accepted'; // Change status to show different buttons
+          submission.status = SUBMISSION_STATUS.ACCEPTED; // Change status to show different buttons
         }
       },
       error: (err) => {

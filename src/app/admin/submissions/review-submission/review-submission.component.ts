@@ -9,6 +9,7 @@ import { ToastNotificationComponent } from '../../../shared/components/toast-not
 import { StatusBadgeComponent } from '../../../shared/components/status-badge/status-badge.component';
 import { environment } from '../../../../environments/environment';
 import { AnalysisPanelComponent } from './analysis-panel.component';
+import { REVIEW_ACTIONS, ReviewAction } from '../../../shared/constants/api.constants';
 
 @Component({
   selector: 'app-review-submission',
@@ -253,36 +254,12 @@ export class ReviewSubmissionComponent {
       reviewNotes: this.reviewNotes.trim() || 'Approved without specific comments.'
     };
 
-    // Try the standard approval endpoint first
-    this.backendService.approveSubmission(this.id, reviewData).subscribe({
+    this.backendService.submitReviewAction(this.id, REVIEW_ACTIONS.APPROVE as ReviewAction, reviewData).subscribe({
       next: () => {
         this.handleReviewSuccess('Submission approved successfully!');
       },
       error: (err) => {
-        // Check if it's the "accepted" status mapping error
-        if (err.status === 500 && err.error?.message === 'Error approving submission' && 
-            err.error?.error === 'No action mapping defined for status: accepted') {
-          
-          // Fallback: Try using direct status update with "approved" status
-          this.showToast('Using alternative approval method due to backend configuration issue...', 'info');
-          this.backendService.updateSubmissionStatus(this.id, 'approved').subscribe({
-            next: () => {
-              this.handleReviewSuccess('Submission approved successfully!');
-            },
-            error: () => {
-              // If that also fails, try "accepted" status
-              this.backendService.updateSubmissionStatus(this.id, 'accepted').subscribe({
-                next: () => {
-                  this.handleReviewSuccess('Submission approved successfully!');
-                },
-                error: () => {
-                  this.showErrorMessage('Error approving submission. Both approval methods failed. Please contact support.');
-                  this.isSubmitting = false;
-                }
-              });
-            }
-          });
-        } else if (err.status === 200 || (err.error && err.error.success === true)) {
+        if (err.status === 200 || (err.error && err.error.success === true)) {
           this.handleReviewSuccess('Submission approved successfully!');
         } else {
           this.showErrorMessage('Error approving submission. Please try again.');
@@ -323,12 +300,11 @@ export class ReviewSubmissionComponent {
       reviewNotes: this.reviewNotes.trim()
     };
 
-    this.backendService.rejectSubmission(this.id, reviewData).subscribe({
+    this.backendService.submitReviewAction(this.id, REVIEW_ACTIONS.REJECT as ReviewAction, reviewData).subscribe({
       next: () => {
         this.handleReviewSuccess('Submission rejected.');
       },
       error: (err) => {
-        // Check if it's actually a success response with error status
         if (err.status === 200 || err.error?.success) {
           this.handleReviewSuccess('Submission rejected.');
         } else {
@@ -344,12 +320,11 @@ export class ReviewSubmissionComponent {
       reviewNotes: this.reviewNotes.trim()
     };
 
-    this.backendService.requestRevision(this.id, reviewData).subscribe({
+    this.backendService.submitReviewAction(this.id, REVIEW_ACTIONS.REVISION as ReviewAction, reviewData).subscribe({
       next: () => {
         this.handleReviewSuccess('Revision requested. Author has been notified.');
       },
       error: (err) => {
-        // Check if it's actually a success response with error status
         if (err.status === 200 || err.error?.success) {
           this.handleReviewSuccess('Revision requested. Author has been notified.');
         } else {

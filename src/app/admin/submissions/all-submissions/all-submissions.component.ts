@@ -5,6 +5,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { environment } from '../../../../environments/environment';
 import { BackendService } from '../../../services/backend.service';
 import { AdminPageHeaderComponent, AdminPageStat } from '../../../shared/components/admin-page-header/admin-page-header.component';
+import { SUBMISSION_STATUS, SubmissionStatus } from '../../../shared/constants/api.constants';
 import {
   DataTableComponent,
   TableColumn,
@@ -207,12 +208,12 @@ export class AllSubmissionsComponent implements OnInit {
 
   getStatusColor(status: string): string {
     switch (status) {
-      case 'pending_review': return 'tag tag-yellow';
-      case 'in_progress': return 'tag tag-blue';
-      case 'accepted': return 'tag tag-emerald';
-      case 'rejected': return 'tag tag-red';
-      case 'published': return 'tag tag-green';
-      case 'needs_revision': return 'tag tag-orange';
+      case SUBMISSION_STATUS.PENDING_REVIEW: return 'tag tag-yellow';
+      case SUBMISSION_STATUS.IN_PROGRESS: return 'tag tag-blue';
+      case SUBMISSION_STATUS.ACCEPTED: return 'tag tag-emerald';
+      case SUBMISSION_STATUS.REJECTED: return 'tag tag-red';
+      case SUBMISSION_STATUS.PUBLISHED: return 'tag tag-green';
+      case SUBMISSION_STATUS.NEEDS_REVISION: return 'tag tag-orange';
       default: return 'tag tag-gray';
     }
   }

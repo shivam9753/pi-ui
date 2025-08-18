@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, AfterViewInit, ElementRef, ViewChild } from '@angular/core';
 
 import { Router, ActivatedRoute } from '@angular/router';
 import { AuthService } from '../services/auth.service';
@@ -23,7 +23,9 @@ import { AllSubmissionsComponent } from './submissions/all-submissions/all-submi
   templateUrl: './admin.component.html',
   styleUrl: './admin.component.css'
 })
-export class AdminComponent implements OnInit {
+export class AdminComponent implements OnInit, AfterViewInit {
+  @ViewChild('tabNavigation') tabNavigation!: ElementRef;
+  
   activeTab: 'published' | 'users' | 'purge' | 'users_create' | 'submissions_all' = 'published';
   isAdmin = false;
   isReviewer = false;
@@ -75,6 +77,13 @@ export class AdminComponent implements OnInit {
     this.loading = false;
   }
 
+  ngAfterViewInit() {
+    // Scroll to active tab after view is initialized
+    setTimeout(() => {
+      this.scrollToActiveTab();
+    }, 100);
+  }
+
   setActiveTab(tab: 'published' | 'users' | 'purge' | 'users_create' | 'submissions_all') {
     // Check if user has permission to access this tab
     if (!this.canAccessTab(tab)) {
@@ -87,6 +96,24 @@ export class AdminComponent implements OnInit {
       fragment: tab,
       replaceUrl: true 
     });
+    
+    // Scroll to active tab
+    setTimeout(() => {
+      this.scrollToActiveTab();
+    }, 50);
+  }
+
+  private scrollToActiveTab() {
+    if (this.tabNavigation) {
+      const activeButton = this.tabNavigation.nativeElement.querySelector(`button[data-tab="${this.activeTab}"]`);
+      if (activeButton) {
+        activeButton.scrollIntoView({
+          behavior: 'smooth',
+          block: 'nearest',
+          inline: 'center'
+        });
+      }
+    }
   }
 
   // Check if current user can access a specific tab
@@ -95,7 +122,11 @@ export class AdminComponent implements OnInit {
       return true; // Admins can access all admin tabs
     }
     
-    // Only admins can access administrative functions
+    if (this.isReviewer) {
+      // Reviewers and curators can access published content management
+      return tab === 'published';
+    }
+    
     return false;
   }
 }

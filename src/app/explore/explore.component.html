@@ -305,12 +305,12 @@
                   <svg class="w-3.5 h-3.5 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
                   </svg>
-                  <h3 class="font-bold text-gray-900 text-sm">Events & Challenges</h3>
+                  <h3 class="font-bold text-gray-900 text-sm">Live</h3>
                 </div>
                 <div class="space-y-2">
                   @for (announcement of getWritingAnnouncements().slice(0, 2); track announcement) {
                     <div
-                      class="bg-white dark:bg-gray-800 rounded-lg p-2.5 border border-gray-100 dark:border-gray-700">
+                      class="bg-white rounded-lg p-2.5 border border-gray-100 dark:border-gray-700">
                       <div class="flex items-start gap-2">
                         <div class="flex-shrink-0 w-5 h-5 rounded-full flex items-center justify-center announcement-bg" [class]="announcement.colorClass + '-bg'">
                           <svg class="w-2.5 h-2.5" [class]="announcement.colorClass" fill="currentColor" viewBox="0 0 24 24">
@@ -355,7 +355,7 @@
         }
 
         <!-- Empty State -->
-        @if (!loading && ((showSearchResults && searchResults.length === 0) || (!showSearchResults && (!submissions || submissions.length === 0)))) {
+        @if ((showSearchResults && searchResults.length === 0) || (!showSearchResults && (!submissions || submissions.length === 0))) {
           <div>
             @if (!showSearchResults) {
               <div class="text-center py-12">

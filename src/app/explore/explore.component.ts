@@ -326,8 +326,15 @@ export class ExploreComponent implements OnInit {
     if (page >= 1 && page <= this.totalPages) {
       this.currentPage = page;
       this.loadPublishedSubmissions(this.selectedType);
-      // Scroll to top of content
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      // Scroll to top of main content area
+      setTimeout(() => {
+        const contentElement = document.querySelector('.min-h-screen') || document.querySelector('.max-w-7xl');
+        if (contentElement) {
+          contentElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        } else {
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+      }, 100);
     }
   }
 

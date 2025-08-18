@@ -11,6 +11,16 @@ import {
   UploadResponse,
   ApiResponse
 } from '../models';
+import { 
+  API_ENDPOINTS, 
+  SUBMISSION_STATUS, 
+  REVIEW_ACTIONS, 
+  API_CONFIG,
+  HTTP_STATUS,
+  SubmissionStatus,
+  ReviewAction,
+  API_UTILS 
+} from '../shared/constants/api.constants';
 
 
 @Injectable({
@@ -19,7 +29,7 @@ import {
 export class BackendService {
   // Make API_URL public for SSR service access
   readonly API_URL = environment.apiBaseUrl;
-  private readonly REQUEST_TIMEOUT = 10000; // 10 seconds
+  private readonly REQUEST_TIMEOUT = API_CONFIG.REQUEST_TIMEOUT;
 
   constructor(
     private http: HttpClient,
@@ -43,7 +53,7 @@ export class BackendService {
 
   private handleError(error: HttpErrorResponse): Observable<never> {
     // For validation errors and other API errors, preserve the original error structure
-    if (error.status === 400 && error.error) {
+    if (error.status === HTTP_STATUS.BAD_REQUEST && error.error) {
       // Preserve the original error structure for validation errors
       return throwError(() => error);
     }
@@ -59,13 +69,13 @@ export class BackendService {
         case 0:
           errorMessage = 'Cannot connect to server. Check your internet connection.';
           break;
-        case 404:
+        case HTTP_STATUS.NOT_FOUND:
           errorMessage = 'API endpoint not found';
           break;
-        case 500:
+        case HTTP_STATUS.INTERNAL_SERVER_ERROR:
           errorMessage = 'Server internal error';
           break;
-        case 503:
+        case HTTP_STATUS.SERVICE_UNAVAILABLE:
           errorMessage = 'Service temporarily unavailable';
           break;
         default:
@@ -102,7 +112,7 @@ export class BackendService {
     });
     
     // Use safe headers - public for published content, auth for admin operations
-    const isPublicRequest = options.status === 'published';
+    const isPublicRequest = options.status === SUBMISSION_STATUS.PUBLISHED;
     const headers = isPublicRequest ? this.getPublicHeaders() : this.getAuthHeaders();
     
     const url = `${this.API_URL}/submissions`;
@@ -117,7 +127,7 @@ export class BackendService {
     
     // Add all filter options
     const allOptions = {
-      status: 'published',
+      status: SUBMISSION_STATUS.PUBLISHED,
       type,
       ...options
     };
@@ -158,7 +168,7 @@ export class BackendService {
   } = {}): Observable<any> {
     return this.getSubmissions({
       search: query,
-      status: 'published', // Search only published content for public users
+      status: SUBMISSION_STATUS.PUBLISHED, // Search only published content for public users
       ...options
     });
   }
@@ -292,41 +302,39 @@ export class BackendService {
 
   
 
+  /**
+   * Unified review action method - replaces individual approve/reject/revision methods
+   * @param submissionId - The submission ID
+   * @param action - The review action (approve, reject, revision)
+   * @param reviewData - Review data including notes and optional rating
+   */
+  submitReviewAction(submissionId: string, action: ReviewAction, reviewData: { reviewNotes: string; rating?: number }) {
+    const headers = this.getAuthHeaders();
+    const url = API_ENDPOINTS.REVIEWS_NESTED.ACTION(submissionId);
+    
+    return this.http.post(
+      `${this.API_URL}${url}`,
+      {
+        action,
+        ...reviewData
+      },
+      { headers }
+    ).pipe(this.handleApiCall(url, 'POST'));
+  }
+
+  // DEPRECATED: Use submitReviewAction instead
   approveSubmission(submissionId: string, reviewData: { reviewNotes: string }) {
-    const headers = this.getAuthHeaders();
-    return this.http.post(
-      `${this.API_URL}/reviews/${submissionId}/approve`,
-      reviewData,
-      { headers }
-    );
+    return this.submitReviewAction(submissionId, REVIEW_ACTIONS.APPROVE as ReviewAction, reviewData);
   }
 
-  // Alternative: If you want to explicitly pass user info in the request body
-  approveSubmissionWithUserInfo(submissionId: string, reviewData: { reviewNotes: string }) {
-    const user = JSON.parse(localStorage.getItem('user') || '{}');
-    const headers = this.getAuthHeaders();
-
-    const requestBody = {
-      ...reviewData,
-      reviewerId: user._id,
-      reviewerName: user.username
-    };
-
-    return this.http.post(
-      `${this.API_URL}/reviews/${submissionId}/approve`,
-      requestBody,
-      { headers }
-    );
-  }
-
-  // Reject submission
+  // DEPRECATED: Use submitReviewAction instead  
   rejectSubmission(submissionId: string, reviewData: { reviewNotes: string }) {
-    const headers = this.getAuthHeaders();
-    return this.http.post(
-      `${this.API_URL}/reviews/${submissionId}/reject`,
-      reviewData,
-      { headers }
-    );
+    return this.submitReviewAction(submissionId, REVIEW_ACTIONS.REJECT as ReviewAction, reviewData);
+  }
+
+  // DEPRECATED: Use submitReviewAction instead
+  requestRevision(submissionId: string, reviewData: { reviewNotes: string }) {
+    return this.submitReviewAction(submissionId, REVIEW_ACTIONS.REVISION as ReviewAction, reviewData);
   }
 
   // Get review details for a submission
@@ -351,17 +359,7 @@ export class BackendService {
     );
   }
 
-  // Request revision for submission
-  requestRevision(submissionId: string, reviewData: { reviewNotes: string, rating?: number }): Observable<any> {
-    const headers = this.getAuthHeaders();
-    return this.http.post(
-      `${this.API_URL}/reviews/${submissionId}/revision`,
-      reviewData,
-      { headers }
-    ).pipe(
-      catchError(this.handleError)
-    );
-  }
+  // REMOVED: This method is now handled by submitReviewAction
 
   // Get submission history
   getSubmissionHistory(submissionId: string): Observable<any> {
@@ -647,7 +645,7 @@ export class BackendService {
     pagination: any;
   }> {
     return this.getSubmissions({
-      status: 'published',
+      status: SUBMISSION_STATUS.PUBLISHED,
       type,
       ...options
     });

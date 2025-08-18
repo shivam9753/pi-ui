@@ -56,6 +56,9 @@ echo "   - Extracting to pi-ui directory..."
 sudo tar -xzf dist.tar.gz --strip-components=1 -C /home/ubuntu/pi-ui/ --exclude='**/._*'
 
 # Extract browser files to nginx directory  
+echo "   - Cleaning old files from nginx directory..."
+sudo rm -f /var/www/html/main-*.js /var/www/html/polyfills-*.js /var/www/html/styles-*.css
+
 echo "   - Extracting browser files to nginx directory..."
 sudo tar -xzf dist.tar.gz dist/pi/browser/ --exclude='**/._*'
 sudo cp -r dist/pi/browser/* /var/www/html/
@@ -91,6 +94,14 @@ pm2 list
 
 # Validation checks to ensure deployment integrity
 echo "🔍 Validating deployment integrity..."
+
+# Debug: List all main files in nginx directory
+echo "🔍 Debug: All main files in nginx directory:"
+ls -la /var/www/html/main-*.js 2>/dev/null || echo "No main files found"
+
+# Debug: Check what main file is referenced in index.html
+echo "🔍 Debug: Main file referenced in nginx index.html:"
+grep -o 'main-[^"]*\.js' /var/www/html/index.html || echo "No main file reference found"
 
 # Check if main files exist in both locations
 MAIN_FILE=$(ls /var/www/html/main-*.js 2>/dev/null | head -1 | xargs basename)

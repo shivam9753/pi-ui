@@ -7,6 +7,7 @@ import { ContentCardComponent, ContentCardData } from '../../../shared/component
 import { AdminPageHeaderComponent, AdminPageStat } from '../../../shared/components/admin-page-header/admin-page-header.component';
 import { BackendService } from '../../../services/backend.service';
 import { AuthorService } from '../../../services/author.service';
+import { SUBMISSION_STATUS, SubmissionStatus } from '../../../shared/constants/api.constants';
 import {
   DataTableComponent,
   TableColumn,
@@ -85,10 +86,10 @@ export class PendingReviewsComponent implements OnInit {
       type: 'select',
       options: [
         { value: '', label: 'All Statuses' },
-        { value: 'pending_review', label: 'Pending Review' },
-        { value: 'in_progress', label: 'In Progress' },
-        { value: 'needs_revision', label: 'Needs Revision' },
-        { value: 'resubmitted', label: 'Resubmitted' }
+        { value: SUBMISSION_STATUS.PENDING_REVIEW, label: 'Pending Review' },
+        { value: SUBMISSION_STATUS.IN_PROGRESS, label: 'In Progress' },
+        { value: SUBMISSION_STATUS.NEEDS_REVISION, label: 'Needs Revision' },
+        { value: SUBMISSION_STATUS.RESUBMITTED, label: 'Resubmitted' }
       ]
     },
     {
@@ -263,7 +264,7 @@ export class PendingReviewsComponent implements OnInit {
       params.status = this.filters['status'];
     } else {
       // Default to show pending_review, shortlisted, and in_progress submissions
-      params.status = 'pending_review,shortlisted,in_progress';
+      params.status = `${SUBMISSION_STATUS.PENDING_REVIEW},${SUBMISSION_STATUS.SHORTLISTED},${SUBMISSION_STATUS.IN_PROGRESS}`;
     }
 
     // Add other filters only if they have values
@@ -411,11 +412,11 @@ export class PendingReviewsComponent implements OnInit {
         break;
       
       case 'resubmitted':
-        this.filters['status'] = isActive ? 'resubmitted' : '';
+        this.filters['status'] = isActive ? SUBMISSION_STATUS.RESUBMITTED : '';
         break;
       
       case 'myReviews':
-        this.filters['status'] = isActive ? 'in_progress' : '';
+        this.filters['status'] = isActive ? SUBMISSION_STATUS.IN_PROGRESS : '';
         break;
       
       case 'newAuthors':
