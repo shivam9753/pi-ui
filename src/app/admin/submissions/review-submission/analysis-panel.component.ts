@@ -61,23 +61,12 @@ import { CommonModule } from '@angular/common';
       }
 
       @if (!analysisData || analysisData.length === 0) {
-        <div class="space-y-3">
-          <div class="grid grid-cols-2 gap-3">
-            <div class="text-center bg-gray-50 rounded-lg p-3">
-              <div class="text-sm font-medium text-gray-900">{{ submission?.submissionType | titlecase }}</div>
-              <div class="text-xs text-gray-600">Type</div>
-            </div>
-            <div class="text-center bg-gray-50 rounded-lg p-3">
-              <div class="text-sm font-medium text-gray-900">{{ submission?.userId?.name || 'Anonymous' }}</div>
-              <div class="text-xs text-gray-600">Author</div>
-            </div>
-          </div>
-          <div class="text-center py-6 text-gray-500">
-            <svg class="w-8 h-8 mx-auto mb-2 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2H9a2 2 0 01-2-2z"/>
-            </svg>
-            <p class="text-sm">Run analysis for detailed insights</p>
-          </div>
+        <div class="text-center py-8 text-gray-500">
+          <svg class="w-8 h-8 mx-auto mb-3 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2H9a2 2 0 01-2-2z"/>
+          </svg>
+          <p class="text-sm font-medium text-gray-700 mb-1">Ready for Analysis</p>
+          <p class="text-xs text-gray-500">Run AI analysis to get detailed insights</p>
         </div>
       }
 

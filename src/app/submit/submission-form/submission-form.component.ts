@@ -460,6 +460,12 @@ export class SubmissionFormComponent implements OnInit, OnDestroy {
       }
     }
 
+    // Show confirmation dialog before submission
+    const confirmSubmission = confirm('Are you ready to submit your work for review? Once submitted, it cannot be edited.');
+    if (!confirmSubmission) {
+      return;
+    }
+
     this.isSubmitting = true;
     this.autoPopulateTitle();
     

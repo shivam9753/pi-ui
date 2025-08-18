@@ -296,6 +296,31 @@
 .dark .border-orange-500 { border-color: var(--border-accent) !important; }
 .dark .border-orange-400 { border-color: #fb923c !important; }
 
+/* Dark mode button background overrides with reduced opacity */
+.dark .bg-green-50 { background-color: rgba(34, 197, 94, 0.1) !important; }
+.dark .bg-green-100 { background-color: rgba(34, 197, 94, 0.15) !important; }
+.dark .text-green-700 { color: #86efac !important; }
+.dark .border-green-200 { border-color: rgba(34, 197, 94, 0.25) !important; }
+.dark .hover\:bg-green-100:hover { background-color: rgba(34, 197, 94, 0.2) !important; }
+
+.dark .bg-red-50 { background-color: rgba(239, 68, 68, 0.1) !important; }
+.dark .bg-red-100 { background-color: rgba(239, 68, 68, 0.15) !important; }
+.dark .text-red-700 { color: #fca5a5 !important; }
+.dark .border-red-200 { border-color: rgba(239, 68, 68, 0.25) !important; }
+.dark .hover\:bg-red-100:hover { background-color: rgba(239, 68, 68, 0.2) !important; }
+
+.dark .bg-amber-50 { background-color: rgba(245, 158, 11, 0.1) !important; }
+.dark .bg-amber-100 { background-color: rgba(245, 158, 11, 0.15) !important; }
+.dark .text-amber-700 { color: #fcd34d !important; }
+.dark .border-amber-200 { border-color: rgba(245, 158, 11, 0.25) !important; }
+.dark .hover\:bg-amber-100:hover { background-color: rgba(245, 158, 11, 0.2) !important; }
+
+.dark .bg-blue-50 { background-color: rgba(59, 130, 246, 0.1) !important; }
+.dark .bg-blue-100 { background-color: rgba(59, 130, 246, 0.15) !important; }
+.dark .text-blue-700 { color: #93c5fd !important; }
+.dark .border-blue-200 { border-color: rgba(59, 130, 246, 0.25) !important; }
+.dark .hover\:bg-blue-100:hover { background-color: rgba(59, 130, 246, 0.2) !important; }
+
 /* Base styles */
 * {
   box-sizing: border-box;

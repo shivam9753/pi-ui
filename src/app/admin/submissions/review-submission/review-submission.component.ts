@@ -350,13 +350,26 @@ export class ReviewSubmissionComponent {
   }
 
   shortlistSubmission() {
-    this.backendService.updateSubmissionStatus(this.id, 'shortlisted').subscribe({
+    const currentUser = this.authService.getCurrentUser();
+    const user = this.loggedInUser || currentUser;
+    
+    const reviewData = {
+      reviewNotes: this.reviewNotes.trim() || 'Shortlisted for further consideration',
+      reviewerName: user?.name || user?.username || user?.email || 'Unknown Reviewer',
+      reviewerId: user?.id || user?.email
+    };
+
+    this.backendService.submitReviewAction(this.id, REVIEW_ACTIONS.SHORTLIST as ReviewAction, reviewData).subscribe({
       next: () => {
         this.handleReviewSuccess('Submission shortlisted successfully!');
       },
-      error: () => {
-        this.showErrorMessage('Error shortlisting submission. Please try again.');
-        this.isSubmitting = false;
+      error: (err) => {
+        if (err.status === 200 || (err.error && err.error.success === true)) {
+          this.handleReviewSuccess('Submission shortlisted successfully!');
+        } else {
+          this.showErrorMessage('Error shortlisting submission. Please try again.');
+          this.isSubmitting = false;
+        }
       }
     });
   }
@@ -506,51 +519,81 @@ export class ReviewSubmissionComponent {
     return user?.role === 'curator';
   }
 
-  getStatusBadgeClass(): string {
-    if (!this.submission?.status) return 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300';
+  // Check if shortlist button should be disabled/hidden
+  canShortlist(): boolean {
+    return this.canPerformCurationActions() && this.submission?.status !== 'shortlisted' && this.submission?.status !== 'accepted' && this.submission?.status !== 'approved';
+  }
+
+  // Check if accept button should be disabled/hidden
+  canAccept(): boolean {
+    return this.canApproveSubmissions() && this.submission?.status !== 'accepted' && this.submission?.status !== 'approved';
+  }
+
+  // Check if specific action is allowed based on current status
+  isActionAllowed(action: string): boolean {
+    const status = this.submission?.status;
     
-    switch (this.submission?.status) {
-      case 'pending_review':
-        return 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300';
-      case 'in_progress':
-        return 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300';
-      case 'shortlisted':
-        return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300';
-      case 'accepted':
-      case 'approved':
-        return 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300';
-      case 'rejected':
-        return 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300';
-      case 'needs_revision':
-      case 'needs_changes':
-        return 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300';
-      case 'published':
-        return 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300';
-      case 'draft':
-        return 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300';
+    switch (action) {
+      case 'approve':
+      case 'accept':
+        return this.canAccept();
+      case 'shortlist':
+        return this.canShortlist();
+      case 'reject':
+      case 'revision':
+        return this.canPerformCurationActions() && !['accepted', 'approved', 'rejected'].includes(status);
       default:
-        return 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300';
+        return true;
     }
   }
 
-  getStatusDisplayName(): string {
-    if (!this.submission?.status) return 'Unknown';
-    
-    switch (this.submission?.status) {
-      case 'pending_review':
-        return 'Pending Review';
+
+  // Get action badge class for history entries
+  getActionBadgeClass(action: string): string {
+    switch (action) {
+      case 'approved':
+      case 'accepted':
+        return 'bg-green-100 text-green-800';
+      case 'rejected':
+        return 'bg-red-100 text-red-800';
+      case 'revision_requested':
+      case 'needs_revision':
+        return 'bg-amber-100 text-amber-800';
+      case 'moved_to_progress':
       case 'in_progress':
-        return 'In Progress';
+        return 'bg-blue-100 text-blue-800';
       case 'shortlisted':
-        return 'Shortlisted';
+        return 'bg-yellow-100 text-yellow-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
+    }
+  }
+
+  // Format action names for display
+  getActionDisplayName(action: string): string {
+    switch (action) {
+      case 'moved_to_progress':
+        return 'Under Review';
+      case 'in_progress':
+        return 'Under Review';
+      case 'revision_requested':
+        return 'Revision Requested';
       case 'needs_revision':
         return 'Needs Revision';
-      case 'needs_changes':
-        return 'Needs Changes';
+      case 'submitted':
+        return 'Submitted';
       case 'approved':
         return 'Approved';
+      case 'accepted':
+        return 'Accepted';
+      case 'rejected':
+        return 'Rejected';
+      case 'shortlisted':
+      case 'shortlist':
+        return 'Shortlisted';
       default:
-        return this.submission?.status?.charAt(0).toUpperCase() + this.submission?.status?.slice(1) || '';
+        // Fallback: replace all underscores and title case
+        return action.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
     }
   }
 
@@ -607,5 +650,19 @@ export class ReviewSubmissionComponent {
       { key: 'layers_of_meaning', label: 'Layers of Meaning', shortLabel: 'Depth' },
       { key: 'memorable_lines', label: 'Memorable Lines', shortLabel: 'Impact' }
     ];
+  }
+
+  // Get action button color using CSS variables
+  getActionButtonColor(action: string | null): string {
+    if (!action) return 'var(--bg-accent)';
+    
+    switch (action) {
+      case 'approve': return 'var(--bg-success)';
+      case 'reject': return 'var(--bg-error)';
+      case 'revision': return 'var(--bg-accent-hover)';
+      case 'shortlist': return 'var(--bg-accent)';
+      case 'move_to_progress': return 'var(--bg-accent)';
+      default: return 'var(--bg-accent)';
+    }
   }
 }
