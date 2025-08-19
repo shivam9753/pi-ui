@@ -1,6 +1,6 @@
-<header class="bg-themed border-b border-themed relative z-50 transition-all duration-300">
+<header class="bg-themed border-b border-themed relative z-50">
   <div class="px-6 mx-auto sm:px-8 lg:px-12 xl:px-16">
-    <div class="flex items-center justify-between h-12 sm:h-14 lg:h-16">
+    <div class="flex items-center justify-between h-14 lg:h-16">
 
       <!-- Logo -->
       <div class="flex items-center flex-shrink-0 ml-2">
@@ -10,32 +10,26 @@
       </div>
 
       <!-- Desktop Navigation -->
-      <nav class="hidden lg:flex lg:ml-16 lg:space-x-8 xl:space-x-14">
+      <nav class="hidden lg:flex lg:ml-16 lg:space-x-10 xl:space-x-14">
         <a routerLink="/explore"
           routerLinkActive="text-orange-600 font-semibold"
           [routerLinkActiveOptions]="{exact: false}"
-          class="text-base font-medium text-themed hover:text-orange-600 transition-colors duration-200 relative group">
+          class="text-base font-medium text-themed hover:text-orange-600 transition-colors duration-200">
           Explore
-          <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-orange-600 transition-all duration-200 group-hover:w-full"
-          [class.w-full]="router.url.includes('/explore')"></span>
         </a>
         <button (click)="handleSubmitClick()"
           [class.text-orange-600]="isSubmitActive()"
           [class.font-semibold]="isSubmitActive()"
-          class="text-base font-medium text-themed hover:text-orange-600 transition-colors duration-200 relative group">
+          class="text-base font-medium text-themed hover:text-orange-600 transition-colors duration-200">
           Submit
-          <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-orange-600 transition-all duration-200 group-hover:w-full"
-          [class.w-full]="isSubmitActive()"></span>
         </button>
         @if (canReview()) {
           <a
             routerLink="/workspace"
             routerLinkActive="text-orange-600 font-semibold"
             [routerLinkActiveOptions]="{exact: false}"
-            class="text-base font-medium text-themed hover:text-orange-600 transition-colors duration-200 relative group">
+            class="text-base font-medium text-themed hover:text-orange-600 transition-colors duration-200">
             Workspace
-            <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-orange-600 transition-all duration-200 group-hover:w-full"
-            [class.w-full]="router.url.includes('/workspace')"></span>
           </a>
         }
         @if (isAdmin()) {
@@ -43,18 +37,14 @@
             routerLink="/admin"
             routerLinkActive="text-orange-600 font-semibold"
             [routerLinkActiveOptions]="{exact: false}"
-            class="text-base font-medium text-themed hover:text-orange-600 transition-colors duration-200 relative group">
+            class="text-base font-medium text-themed hover:text-orange-600 transition-colors duration-200">
             Admin
-            <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-orange-600 transition-all duration-200 group-hover:w-full"
-            [class.w-full]="router.url.includes('/admin')"></span>
           </a>
         }
         <a routerLink="/prompts"
           routerLinkActive="text-orange-600 font-semibold"
-          class="text-base font-medium text-themed hover:text-orange-600 transition-colors duration-200 relative group">
+          class="text-base font-medium text-themed hover:text-orange-600 transition-colors duration-200">
           Prompts
-          <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-orange-600 transition-all duration-200 group-hover:w-full"
-          [class.w-full]="router.url.includes('/prompts')"></span>
         </a>
       </nav>
 

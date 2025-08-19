@@ -88,6 +88,14 @@
                         [class.spacious-spacing]="layoutMode() === 'spacious'"
                         [innerHTML]="cleanContent(item.body)">
                       </div>
+                      
+                      <!-- Footnotes -->
+                      @if (item.footnotes) {
+                        <div class="mt-8 pt-6 border-t border-gray-200">
+                          <h4 class="text-xs font-medium text-gray-500 mb-3 uppercase tracking-wide">Footnotes</h4>
+                          <p class="text-sm text-gray-600 leading-relaxed font-serif italic whitespace-pre-wrap">{{ item.footnotes }}</p>
+                        </div>
+                      }
                     </article>
                   }
                 </div>

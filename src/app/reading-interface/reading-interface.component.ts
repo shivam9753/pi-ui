@@ -40,6 +40,7 @@ interface ContentItem {
   body: string;
   wordCount: number;
   tags: string[];
+  footnotes?: string;
 }
 
 interface Comment {

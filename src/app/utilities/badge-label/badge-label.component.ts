@@ -12,15 +12,6 @@ import { getSubmissionTypeMapping } from '../../shared/constants/submission-mapp
       [class]="getBadgeClasses()"
       [disabled]="!clickable"
       >
-      @if (showIcon && getTypeIcon()) {
-        <svg
-          class="w-3 h-3 mr-1"
-          fill="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path [attr.d]="getTypeIcon()"></path>
-        </svg>
-      }
       {{ getDisplayName() }}
     </button>
     `,
@@ -45,7 +36,6 @@ import { getSubmissionTypeMapping } from '../../shared/constants/submission-mapp
 export class BadgeLabelComponent {
   @Input() type = '';
   @Input() clickable = false;
-  @Input() showIcon = true;
   @Output() badgeClick = new EventEmitter<string>();
 
   onClick() {
@@ -59,10 +49,6 @@ export class BadgeLabelComponent {
     return mapping.displayName;
   }
 
-  getTypeIcon(): string {
-    const mapping = getSubmissionTypeMapping(this.type);
-    return mapping.icon;
-  }
 
   getBadgeClasses(): string {
     const mapping = getSubmissionTypeMapping(this.type);

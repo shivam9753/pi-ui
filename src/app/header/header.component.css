@@ -8,6 +8,31 @@
   }
 }
 
+/* Remove all underlines from navigation links */
+nav a,
+nav button,
+header a {
+  text-decoration: none !important;
+}
+
+nav a:hover,
+nav button:hover,
+header a:hover {
+  text-decoration: none !important;
+}
+
+nav a:focus,
+nav button:focus,
+header a:focus {
+  text-decoration: none !important;
+}
+
+nav a:active,
+nav button:active,
+header a:active {
+  text-decoration: none !important;
+}
+
 /* Ensure navigation items use proper themed colors and no unwanted backgrounds */
 nav button, nav a {
   background: transparent !important;

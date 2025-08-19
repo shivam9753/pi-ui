@@ -14,8 +14,12 @@ export class TagComponent implements OnInit {
   tag: string = '';
   submissions: any[] = [];
   loading: boolean = true;
-  visibleItemsCount: number = 12;
-  loadMoreIncrement: number = 12;
+  
+  // Pagination properties
+  currentPage: number = 1;
+  itemsPerPage: number = 9;
+  totalItems: number = 0;
+  totalPages: number = 0;
 
   constructor(
     private route: ActivatedRoute,
@@ -32,100 +36,29 @@ export class TagComponent implements OnInit {
 
   loadTagContent() {
     this.loading = true;
+    this.currentPage = 1; // Reset to first page
+    const skip = (this.currentPage - 1) * this.itemsPerPage;
     
-    // Get all published submissions and filter by tag on the frontend
-    // This ensures we catch tags in all locations (SEO keywords, content tags, submission tags)
-    this.backendService.getPublishedContent('', { 
-      limit: 100, // Get a larger set to filter from
-      skip: 0,
-      sortBy: 'reviewedAt', 
-      order: 'desc' 
+    this.backendService.getPublishedContentByTag(this.tag, {
+      limit: this.itemsPerPage,
+      skip: skip,
+      sortBy: 'createdAt',
+      order: 'desc'
     }).subscribe({
       next: (data) => {
-        const allSubmissions = data.submissions || [];
-        
-        // Filter submissions that have the tag in any location
-        const matchingSubmissions = allSubmissions.filter((submission: any) => {
-          const lowerTag = this.tag.toLowerCase();
-          
-          // Check SEO keywords
-          if (submission.seo?.keywords) {
-            const hasInKeywords = submission.seo.keywords.some((keyword: string) => 
-              keyword.toLowerCase() === lowerTag
-            );
-            if (hasInKeywords) return true;
-          }
-          
-          // Check content tags
-          if (submission.contents) {
-            const hasInContentTags = submission.contents.some((content: any) => 
-              content.tags && content.tags.some((tag: string) => 
-                tag.toLowerCase() === lowerTag
-              )
-            );
-            if (hasInContentTags) return true;
-          }
-          
-          // Check main submission tags
-          if (submission.tags) {
-            const hasInSubmissionTags = submission.tags.some((tag: string) => 
-              tag.toLowerCase() === lowerTag
-            );
-            if (hasInSubmissionTags) return true;
-          }
-          
-          return false;
-        });
-        
-        // Transform to expected format
-        this.submissions = matchingSubmissions.map((submission: any) => ({
-          _id: submission._id,
-          title: submission.title,
-          description: submission?.description,
-          excerpt: submission?.excerpt,
-          submissionType: submission.submissionType,
-          tags: this.getAllTagsFromSubmission(submission),
-          createdAt: submission.reviewedAt || submission.createdAt,
-          imageUrl: submission.imageUrl,
-          readingTime: submission.readingTime || 5,
-          author: submission.author || { name: 'Anonymous' },
-          slug: submission.seo?.slug || submission.slug
-        }));
-        
+        this.submissions = data.contents || [];
+        this.totalItems = data.total || 0;
+        this.totalPages = Math.ceil(this.totalItems / this.itemsPerPage);
         this.loading = false;
       },
       error: (error) => {
         console.error('Error loading tagged content:', error);
         this.submissions = [];
+        this.totalItems = 0;
+        this.totalPages = 0;
         this.loading = false;
       }
     });
-  }
-  
-  // Helper method to get all tags from a submission
-  private getAllTagsFromSubmission(submission: any): string[] {
-    const allTags = new Set<string>();
-    
-    // Add SEO keywords
-    if (submission.seo?.keywords) {
-      submission.seo.keywords.forEach((tag: string) => allTags.add(tag));
-    }
-    
-    // Add content tags
-    if (submission.contents) {
-      submission.contents.forEach((content: any) => {
-        if (content.tags) {
-          content.tags.forEach((tag: string) => allTags.add(tag));
-        }
-      });
-    }
-    
-    // Add main submission tags
-    if (submission.tags) {
-      submission.tags.forEach((tag: string) => allTags.add(tag));
-    }
-    
-    return Array.from(allTags);
   }
 
   getTagDisplayName(): string {
@@ -142,19 +75,60 @@ export class TagComponent implements OnInit {
     }
   }
 
-  // Get submissions for display with pagination
-  getDisplaySubmissions() {
-    return this.submissions.slice(0, this.visibleItemsCount);
+  // Load specific page
+  loadPage(page: number) {
+    this.loading = true;
+    this.currentPage = page;
+    const skip = (this.currentPage - 1) * this.itemsPerPage;
+    
+    this.backendService.getPublishedContentByTag(this.tag, {
+      limit: this.itemsPerPage,
+      skip: skip,
+      sortBy: 'createdAt',
+      order: 'desc'
+    }).subscribe({
+      next: (data) => {
+        this.submissions = data.contents || [];
+        this.totalItems = data.total || 0;
+        this.totalPages = Math.ceil(this.totalItems / this.itemsPerPage);
+        this.loading = false;
+      },
+      error: (error) => {
+        console.error('Error loading tagged content:', error);
+        this.submissions = [];
+        this.totalItems = 0;
+        this.totalPages = 0;
+        this.loading = false;
+      }
+    });
   }
 
-  // Load more submissions
-  loadMore() {
-    this.visibleItemsCount += this.loadMoreIncrement;
+  // Navigate to specific page
+  goToPage(page: number) {
+    if (page >= 1 && page <= this.totalPages) {
+      this.loadPage(page);
+      // Scroll to top of main content area
+      setTimeout(() => {
+        const contentElement = document.querySelector('.min-h-screen') || document.querySelector('.max-w-7xl');
+        if (contentElement) {
+          contentElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        } else {
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+      }, 100);
+    }
   }
 
-  // Check if there are more items to load
-  hasMoreItems(): boolean {
-    return this.visibleItemsCount < this.submissions.length;
+  // Get page numbers for pagination
+  getPageNumbers(): number[] {
+    const pages = [];
+    const start = Math.max(1, this.currentPage - 2);
+    const end = Math.min(this.totalPages, this.currentPage + 2);
+    
+    for (let i = start; i <= end; i++) {
+      pages.push(i);
+    }
+    return pages;
   }
 
   // Clean content for display (same as explore component)
@@ -176,4 +150,7 @@ export class TagComponent implements OnInit {
   goBackToExplore() {
     this.router.navigate(['/explore']);
   }
+
+  // Make Math available in template
+  Math = Math;
 }

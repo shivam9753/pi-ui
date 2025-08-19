@@ -14,8 +14,12 @@ export class CategoryComponent implements OnInit {
   category: string = '';
   submissions: any[] = [];
   loading: boolean = true;
-  visibleItemsCount: number = 12;
-  loadMoreIncrement: number = 12;
+  
+  // Pagination properties
+  currentPage: number = 1;
+  itemsPerPage: number = 9;
+  totalItems: number = 0;
+  totalPages: number = 0;
 
   // Category display labels
   categoryLabels: { [key: string]: string } = {
@@ -40,17 +44,25 @@ export class CategoryComponent implements OnInit {
 
   loadCategoryContent() {
     this.loading = true;
+    this.currentPage = 1; // Reset to first page
+    const skip = (this.currentPage - 1) * this.itemsPerPage;
+    
     this.backendService.getPublishedContentByType(this.category, {
-      limit: 50, // Load more initially
+      limit: this.itemsPerPage,
+      skip: skip,
       sortBy: 'createdAt',
       order: 'desc'
     }).subscribe({
       next: (data) => {
         this.submissions = data.submissions || [];
+        this.totalItems = data.total || 0;
+        this.totalPages = Math.ceil(this.totalItems / this.itemsPerPage);
         this.loading = false;
       },
       error: (error) => {
         this.submissions = [];
+        this.totalItems = 0;
+        this.totalPages = 0;
         this.loading = false;
       }
     });
@@ -72,19 +84,59 @@ export class CategoryComponent implements OnInit {
     }
   }
 
-  // Get submissions for display with pagination
-  getDisplaySubmissions() {
-    return this.submissions.slice(0, this.visibleItemsCount);
+  // Load specific page
+  loadPage(page: number) {
+    this.loading = true;
+    this.currentPage = page;
+    const skip = (this.currentPage - 1) * this.itemsPerPage;
+    
+    this.backendService.getPublishedContentByType(this.category, {
+      limit: this.itemsPerPage,
+      skip: skip,
+      sortBy: 'createdAt',
+      order: 'desc'
+    }).subscribe({
+      next: (data) => {
+        this.submissions = data.submissions || [];
+        this.totalItems = data.total || 0;
+        this.totalPages = Math.ceil(this.totalItems / this.itemsPerPage);
+        this.loading = false;
+      },
+      error: (error) => {
+        this.submissions = [];
+        this.totalItems = 0;
+        this.totalPages = 0;
+        this.loading = false;
+      }
+    });
   }
 
-  // Load more submissions
-  loadMore() {
-    this.visibleItemsCount += this.loadMoreIncrement;
+  // Navigate to specific page
+  goToPage(page: number) {
+    if (page >= 1 && page <= this.totalPages) {
+      this.loadPage(page);
+      // Scroll to top of main content area
+      setTimeout(() => {
+        const contentElement = document.querySelector('.min-h-screen') || document.querySelector('.max-w-7xl');
+        if (contentElement) {
+          contentElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        } else {
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+      }, 100);
+    }
   }
 
-  // Check if there are more items to load
-  hasMoreItems(): boolean {
-    return this.visibleItemsCount < this.submissions.length;
+  // Get page numbers for pagination
+  getPageNumbers(): number[] {
+    const pages = [];
+    const start = Math.max(1, this.currentPage - 2);
+    const end = Math.min(this.totalPages, this.currentPage + 2);
+    
+    for (let i = start; i <= end; i++) {
+      pages.push(i);
+    }
+    return pages;
   }
 
   // Clean content for display (same as explore component)
@@ -106,4 +158,7 @@ export class CategoryComponent implements OnInit {
   goBackToExplore() {
     this.router.navigate(['/explore']);
   }
+
+  // Make Math available in template
+  Math = Math;
 }

@@ -259,6 +259,13 @@ export class SubmissionFormComponent implements OnInit, OnDestroy {
       contents: contentsWithType,
       draftId: this.currentDraftId // Include if updating existing draft
     };
+    
+    // Debug: Log footnotes in draft payload
+    console.log('💾 Draft payload footnotes:', draftPayload.contents.map((c: any, i: number) => ({
+      contentIndex: i,
+      hasFootnotes: !!c.footnotes,
+      footnotes: c.footnotes
+    })));
 
     
     this.backendService.saveDraft(draftPayload).subscribe({
@@ -486,6 +493,13 @@ export class SubmissionFormComponent implements OnInit, OnDestroy {
 
     // Debug: Log the payload being sent (status should be set by backend)
     console.log('🚀 Submitting payload (backend should set status to pending_review):', submissionPayload);
+    
+    // Debug: Specifically log footnotes to verify they're included
+    console.log('📝 Footnotes check:', submissionPayload.contents.map((c: any, i: number) => ({
+      contentIndex: i,
+      hasFootnotes: !!c.footnotes,
+      footnotes: c.footnotes
+    })));
     
     this.backendService.submitNewSubmission(submissionPayload).subscribe({
       next: () => {

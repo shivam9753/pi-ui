@@ -170,9 +170,9 @@
   --tag-gray-text: #374151; /* gray-700 */
   --tag-gray-border: #e5e7eb; /* gray-200 */
 
-  --tag-orange-bg: #fed7aa; /* orange-100 */
-  --tag-orange-text: #c2410c; /* orange-800 */
-  --tag-orange-border: #fdba74; /* orange-200 */
+  --tag-orange-bg: rgba(255, 97, 0, 0.1); /* Accent orange with transparency */
+  --tag-orange-text: #cc4e00; /* Darker accent orange */
+  --tag-orange-border: rgba(255, 97, 0, 0.2); /* Subtle accent orange border */
 
   --tag-emerald-bg: #d1fae5; /* emerald-100 */
   --tag-emerald-text: #065f46; /* emerald-800 */
@@ -239,9 +239,9 @@
   --tag-gray-text: #d1d5db;
   --tag-gray-border: rgba(107, 114, 128, 0.3);
 
-  --tag-orange-bg: rgba(249, 115, 22, 0.15);
-  --tag-orange-text: #fed7aa;
-  --tag-orange-border: rgba(249, 115, 22, 0.3);
+  --tag-orange-bg: rgba(255, 97, 0, 0.15);
+  --tag-orange-text: #ff8c42;
+  --tag-orange-border: rgba(255, 97, 0, 0.3);
 
   --tag-emerald-bg: rgba(16, 185, 129, 0.15);
   --tag-emerald-text: #a7f3d0;
