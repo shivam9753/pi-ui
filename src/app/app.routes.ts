@@ -85,6 +85,12 @@ export const routes: Routes = [
     },
     title: 'Post - pi'
   },
+  // Legacy reading interface route (fallback for ID-based navigation)
+  { 
+    path: 'read/:id', 
+    component: ReadingInterfaceComponent,
+    title: 'Post - pi'
+  },
   { 
     path: 'submission', 
     component: SubmissionFormComponent, 

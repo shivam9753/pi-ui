@@ -1,7 +1,7 @@
 import { Injectable, Inject, PLATFORM_ID } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams, HttpErrorResponse } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
-import { tap, catchError, timeout, retry } from 'rxjs/operators';
+import { tap, catchError, timeout, retry, map } from 'rxjs/operators';
 import { isPlatformServer } from '@angular/common';
 import { environment } from '../../environments/environment';
 import {
@@ -177,6 +177,15 @@ export class BackendService {
   getSubmissionWithContents(id: string): Observable<any> {
     const headers = this.getAuthHeaders();
     const url = `${this.API_URL}${API_ENDPOINTS.SUBMISSIONS_NESTED.CONTENTS(id)}`;
+    return this.http.get(url, { headers }).pipe(
+      this.handleApiCall(url, 'GET')
+    );
+  }
+
+  // Get submission optimized for review (minimal data)
+  getSubmissionForReview(id: string): Observable<any> {
+    const headers = this.getAuthHeaders();
+    const url = `${this.API_URL}${API_ENDPOINTS.SUBMISSIONS_NESTED.REVIEW(id)}`;
     return this.http.get(url, { headers }).pipe(
       this.handleApiCall(url, 'GET')
     );
@@ -662,13 +671,25 @@ export class BackendService {
   }> {
     let params = new HttpParams();
     
+    // Add tag and status parameters for new submissions endpoint
+    params = params.set('status', SUBMISSION_STATUS.PUBLISHED);
+    params = params.set('tag', tag);
+    
     if (options.limit) params = params.set('limit', options.limit.toString());
     if (options.skip) params = params.set('skip', options.skip.toString());
     if (options.sortBy) params = params.set('sortBy', options.sortBy);
     if (options.order) params = params.set('order', options.order);
 
     const headers = this.getPublicHeaders();
-    return this.http.get<any>(`${this.API_URL}${API_ENDPOINTS.CONTENT_NESTED.BY_TAG(tag)}`, { headers, params });
+    
+    return this.http.get<any>(`${this.API_URL}${API_ENDPOINTS.SUBMISSIONS}`, { headers, params }).pipe(
+      map((response: any) => ({
+        tag: tag,
+        contents: response.submissions || [],
+        total: response.total || 0,
+        pagination: response.pagination || {}
+      }))
+    );
   }
 
   getAllPrompts(): Observable<any> {

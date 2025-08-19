@@ -80,7 +80,7 @@ export class ReviewSubmissionComponent {
   }
 
   getSubmissionWithContents(id: string) {
-    this.backendService.getSubmissionWithContents(id).subscribe({
+    this.backendService.getSubmissionForReview(id).subscribe({
       next: (data: any) => {
         // Handle different possible content structures - ensure contents field exists
         if (data.contentIds && !data.contents) {

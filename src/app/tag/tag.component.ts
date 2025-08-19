@@ -69,6 +69,8 @@ export class TagComponent implements OnInit {
     // Navigate to the reading interface with SEO slug or fallback to ID
     if (submission.slug) {
       this.router.navigate(['/post', submission.slug]);
+    } else if (submission.seo?.slug) {
+      this.router.navigate(['/post', submission.seo.slug]);
     } else {
       // Fallback to ID if no slug available
       this.router.navigate(['/read', submission._id]);

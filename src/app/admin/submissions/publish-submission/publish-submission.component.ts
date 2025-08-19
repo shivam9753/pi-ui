@@ -647,7 +647,16 @@ export class PublishSubmissionComponent implements OnInit {
         wordCount: this.calculateWordCount(content.body),
         tags: (content.tags || []).filter((tag: string) => tag?.trim().length > 0),
         footnotes: content.footnotes || ''
-      }))
+      })),
+      // Include SEO data in the main update request
+      seo: {
+        slug: this.seoConfig.slug.trim(),
+        metaTitle: this.seoConfig.metaTitle,
+        metaDescription: this.seoConfig.metaDescription,
+        keywords: this.seoConfig.keywords,
+        ogImage: this.seoConfig.ogImage,
+        featuredOnHomepage: this.seoConfig.featuredPost
+      }
     };
 
     // Only include imageUrl if it's not empty/null to avoid validation errors

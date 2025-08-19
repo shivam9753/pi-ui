@@ -169,6 +169,17 @@ export interface QuickFilterEvent {
           </button>
         </div>
 
+        <!-- Sort Dropdown -->
+        <div class="flex items-center gap-2">
+          <label class="text-sm font-medium text-gray-700 whitespace-nowrap">Sort:</label>
+          <select [(ngModel)]="currentSort" (ngModelChange)="onSortChange()"
+                  class="text-sm border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+            <option *ngFor="let option of filterOptions.sortOptions" [value]="option.value">
+              {{ option.label }}
+            </option>
+          </select>
+        </div>
+
         <!-- More Filters Dropdown -->
         <div class="relative">
           <button
@@ -229,17 +240,6 @@ export interface QuickFilterEvent {
                 <select [(ngModel)]="currentFilters.wordLength" (ngModelChange)="onFilterChange()"
                         class="flex-1 text-sm border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                   <option *ngFor="let option of filterOptions.wordLengths" [value]="option.value">
-                    {{ option.label }}
-                  </option>
-                </select>
-              </div>
-
-              <!-- Sort -->
-              <div class="flex items-center gap-3">
-                <label class="text-sm font-medium text-gray-700 w-16">Sort:</label>
-                <select [(ngModel)]="currentSort" (ngModelChange)="onSortChange()"
-                        class="flex-1 text-sm border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                  <option *ngFor="let option of filterOptions.sortOptions" [value]="option.value">
                     {{ option.label }}
                   </option>
                 </select>
@@ -417,7 +417,7 @@ export class AdvancedSubmissionFilterComponent implements OnInit {
   getAdvancedFilterCount(): number {
     let count = 0;
     
-    // Count only dropdown filters (not search or quick filters)
+    // Count only dropdown filters (not search, sort, or quick filters)
     if (this.currentFilters.status) count++;
     if (this.currentFilters.type) count++;
     if (this.currentFilters.authorType) count++;

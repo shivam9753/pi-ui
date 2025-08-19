@@ -41,6 +41,7 @@ export const API_ENDPOINTS = {
   // Nested endpoints
   SUBMISSIONS_NESTED: {
     CONTENTS: (id: string) => `/submissions/${id}/contents`,
+    REVIEW: (id: string) => `/submissions/${id}/review`,
     HISTORY: (id: string) => `/submissions/${id}/history`,
     STATUS: (id: string) => `/submissions/${id}/status`,
     PUBLISH_SEO: (id: string) => `/submissions/${id}/publish-with-seo`,
