@@ -13,6 +13,8 @@ import { AuthorUtils } from '../models/author.model';
 import { AuthorService } from '../services/author.service';
 import { ViewTrackerService } from '../services/view-tracker.service';
 import { SsrDataService, PostSSRData } from '../services/ssr-data.service';
+import { UserService } from '../services/user.service';
+import { User } from '../models/user.model';
 
 interface PublishedContent {
   _id: string;
@@ -61,6 +63,7 @@ export class ReadingInterfaceComponent {
 content = signal<PublishedContent | null>(null);
   comments = signal<Comment[]>([]);
   relatedContent = signal<PublishedContent[]>([]);
+  authorDetails = signal<User | null>(null);
   
   // Reading settings
   fontSize = signal(16);
@@ -128,6 +131,7 @@ content = signal<PublishedContent | null>(null);
     private htmlSanitizer: HtmlSanitizerService,
     private viewTracker: ViewTrackerService,
     private ssrDataService: SsrDataService,
+    private userService: UserService,
     @Inject(PLATFORM_ID) private platformId: Object
   ) {}
 
@@ -215,12 +219,25 @@ content = signal<PublishedContent | null>(null);
       }
       
       // Transform the API response to match our interface
+      console.log('Raw content data for author normalization (handleSSRData):', {
+        _id: data._id,
+        userId: data.userId,
+        author: data.author,
+        submitterId: data.submitterId,
+        submitterName: data.submitterName,
+        authorId: data.authorId,
+        authorName: data.authorName
+      });
+      
+      const normalizedAuthor = AuthorUtils.normalizeAuthor(data);
+      console.log('Normalized author result (handleSSRData):', normalizedAuthor);
+      
       const transformedContent: PublishedContent = {
         _id: data._id,
         title: data.title,
         description: data.description,
         submissionType: data.submissionType,
-        author: AuthorUtils.normalizeAuthor(data),
+        author: normalizedAuthor,
         publishedAt: new Date(data.publishedAt || data.createdAt),
         readingTime: data.readingTime || Math.ceil(contentItems.reduce((acc, item) => acc + item.wordCount, 0) / 200),
         viewCount: data.viewCount || 0,
@@ -237,6 +254,12 @@ content = signal<PublishedContent | null>(null);
       this.content.set(transformedContent);
       this.loading.set(false);
       this.updatePageMeta(transformedContent);
+
+      // Load author details
+      if (transformedContent.author?.id) {
+        console.log('Loading author details from handleSSRData. Author:', transformedContent.author);
+        this.loadAuthorDetails(transformedContent.author.id);
+      }
 
       // Only track views in browser
       if (isPlatformBrowser(this.platformId)) {
@@ -331,12 +354,25 @@ content = signal<PublishedContent | null>(null);
         }
         
         // Transform the API response to match our interface
+        console.log('Raw content data for author normalization:', {
+          _id: data._id,
+          userId: data.userId,
+          author: data.author,
+          submitterId: data.submitterId,
+          submitterName: data.submitterName,
+          authorId: data.authorId,
+          authorName: data.authorName
+        });
+        
+        const normalizedAuthor = AuthorUtils.normalizeAuthor(data);
+        console.log('Normalized author result:', normalizedAuthor);
+        
         const transformedContent: PublishedContent = {
           _id: data._id,
           title: data.title,
           description: data.description,
           submissionType: data.submissionType,
-          author: AuthorUtils.normalizeAuthor(data),
+          author: normalizedAuthor,
           publishedAt: new Date(data.publishedAt || data.createdAt),
           readingTime: data.readingTime || Math.ceil(contentItems.reduce((acc, item) => acc + item.wordCount, 0) / 200),
           viewCount: data.viewCount || 0,
@@ -352,6 +388,12 @@ content = signal<PublishedContent | null>(null);
         
         this.content.set(transformedContent);
         this.loading.set(false);
+        
+        // Load author details
+        if (transformedContent.author?.id) {
+          console.log('Loading author details from loadContent. Author:', transformedContent.author);
+          this.loadAuthorDetails(transformedContent.author.id);
+        }
         
         // Track view for this content
         this.viewTracker.logView(data._id).subscribe({
@@ -412,12 +454,25 @@ content = signal<PublishedContent | null>(null);
         }
         
         // API now returns clean data, minimal transformation needed
+        console.log('Raw content data for author normalization (loadContentBySlug):', {
+          _id: data._id,
+          userId: data.userId,
+          author: data.author,
+          submitterId: data.submitterId,
+          submitterName: data.submitterName,
+          authorId: data.authorId,
+          authorName: data.authorName
+        });
+        
+        const normalizedAuthor = AuthorUtils.normalizeAuthor(data);
+        console.log('Normalized author result (loadContentBySlug):', normalizedAuthor);
+        
         const transformedContent: PublishedContent = {
           _id: data._id,
           title: data.title,
           description: data.description,
           submissionType: data.submissionType,
-          author: AuthorUtils.normalizeAuthor(data),
+          author: normalizedAuthor,
           publishedAt: new Date(data.publishedAt),
           readingTime: data.readingTime,
           viewCount: data.viewCount || 0,
@@ -433,6 +488,12 @@ content = signal<PublishedContent | null>(null);
         
         this.content.set(transformedContent);
         this.loading.set(false);
+        
+        // Load author details
+        if (transformedContent.author?.id) {
+          console.log('Loading author details from loadContentBySlug. Author:', transformedContent.author);
+          this.loadAuthorDetails(transformedContent.author.id);
+        }
         
         // Update page title and meta tags for SEO
         this.updatePageMeta(transformedContent);
@@ -522,6 +583,9 @@ content = signal<PublishedContent | null>(null);
   shareOnWhatsApp() {
     const content = this.content();
     if (!content) return;
+    
+    // Debug meta tags before sharing
+    this.debugMetaTags();
     
     const text = `${content.title} by ${content.author?.name || 'Anonymous'} - ${window.location.href}`;
     const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(text)}`;
@@ -737,6 +801,10 @@ content = signal<PublishedContent | null>(null);
     this.metaService.updateTag({ property: 'og:site_name', content: 'Poems in India' });
     this.metaService.updateTag({ property: 'og:locale', content: 'en_US' });
     
+    // WhatsApp-specific meta tags
+    this.metaService.updateTag({ name: 'title', content: content.title });
+    this.metaService.updateTag({ property: 'og:determiner', content: 'the' });
+    
     // Additional meta tags for better social sharing
     this.metaService.updateTag({ name: 'robots', content: 'index,follow' });
     this.metaService.updateTag({ name: 'author', content: content.author?.name || 'Anonymous' });
@@ -754,10 +822,22 @@ content = signal<PublishedContent | null>(null);
     // Set Open Graph image with fallback
     const imageUrl = this.getAbsoluteImageUrl(content.imageUrl) || this.getDefaultSocialImage();
     this.metaService.updateTag({ property: 'og:image', content: imageUrl });
+    this.metaService.updateTag({ property: 'og:image:secure_url', content: imageUrl });
     this.metaService.updateTag({ property: 'og:image:alt', content: content.imageUrl ? `Cover image for ${content.title}` : 'Poems in India - Poetry & Literature' });
     this.metaService.updateTag({ property: 'og:image:width', content: '1200' });
     this.metaService.updateTag({ property: 'og:image:height', content: '630' });
     this.metaService.updateTag({ property: 'og:image:type', content: 'image/jpeg' });
+    
+    // Debug logging for development
+    if (!isPlatformBrowser(this.platformId) || window.location.hostname === 'localhost') {
+      console.log('🔍 Meta Tags Debug Info:', {
+        title: content.title,
+        description: metaDescription,
+        imageUrl: imageUrl,
+        canonicalUrl: canonicalUrl,
+        slug: this.route.snapshot.params['slug']
+      });
+    }
     
     // Update Twitter Card tags
     this.metaService.updateTag({ name: 'twitter:card', content: 'summary_large_image' });
@@ -841,5 +921,57 @@ content = signal<PublishedContent | null>(null);
     // Return a default social sharing image for posts without custom images
     // Use the existing login image as a temporary fallback
     return 'https://poemsindia.in/assets/loginimage.jpeg';
+  }
+
+  // Method to test meta tags - call this in development
+  debugMetaTags() {
+    if (!isPlatformBrowser(this.platformId)) return;
+    
+    const metaTags = document.querySelectorAll('meta[property^="og:"], meta[name^="twitter:"], meta[name="description"]');
+    console.log('🔍 Current Meta Tags:');
+    metaTags.forEach(tag => {
+      const attr = tag.getAttribute('property') || tag.getAttribute('name');
+      const content = tag.getAttribute('content');
+      console.log(`  ${attr}: ${content}`);
+    });
+    
+    // Test URLs for debugging
+    console.log('🔗 Debug URLs:');
+    console.log('Facebook Debugger: https://developers.facebook.com/tools/debug/?q=' + encodeURIComponent(window.location.href));
+    console.log('LinkedIn Inspector: https://www.linkedin.com/post-inspector/inspect/' + encodeURIComponent(window.location.href));
+  }
+
+  loadAuthorDetails(authorId: string) {
+    if (!authorId || authorId === 'unknown') {
+      return;
+    }
+
+    console.log('Loading author details for ID:', authorId);
+    console.log('Current content author object:', this.content()?.author);
+
+    // Try getUserProfile first, then fallback to getUserById
+    this.userService.getUserProfile(authorId).subscribe({
+      next: (response: any) => {
+        // Handle different response structures - API returns profile instead of user
+        const user = response.user || (response as any).profile || response;
+        this.authorDetails.set(user);
+        console.log('Successfully loaded author profile:', user);
+      },
+      error: (error) => {
+        console.warn('Failed to load author profile, trying getUserById:', error);
+        
+        // Fallback to getUserById
+        this.userService.getUserById(authorId).subscribe({
+          next: (response) => {
+            this.authorDetails.set(response.user);
+            console.log('Successfully loaded author via getUserById:', response.user);
+          },
+          error: (fallbackError) => {
+            console.warn('Failed to load author details with both methods:', fallbackError);
+            // Don't set error state, just silently fail since author details are optional
+          }
+        });
+      }
+    });
   }
 }

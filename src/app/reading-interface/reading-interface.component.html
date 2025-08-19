@@ -186,6 +186,31 @@
                 </div>
               </div>
             </div>
+
+            <!-- Author Info Section -->
+            @if (content()!.author?.name && content()!.author?.name !== 'Anonymous') {
+              <div class="mt-16 pt-8 border-t border-gray-200">
+                <div class="bg-white">
+                  <h3 class="text-lg font-serif font-semibold text-gray-900 mb-4">
+                    About {{ authorDetails()?.name || authorDetails()?.username || content()!.author?.name }}
+                  </h3>
+                  
+                  @if (authorDetails()?.bio) {
+                    <p class="text-gray-700 text-base leading-relaxed font-serif">
+                      {{ authorDetails()!.bio }}
+                    </p>
+                  } @else {
+                    <p class="text-gray-500 text-base italic font-serif">
+                      @if (authorDetails()) {
+                        This author hasn't added a bio yet.
+                      } @else {
+                        Author profile details are not available.
+                      }
+                    </p>
+                  }
+                </div>
+              </div>
+            }
           </main>
           <!-- Sidebar -->
             <aside class="col-span-12 lg:col-span-4 xl:col-span-4">

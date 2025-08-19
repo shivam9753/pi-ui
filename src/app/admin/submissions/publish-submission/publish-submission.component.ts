@@ -14,9 +14,7 @@ interface SEOConfig {
   metaDescription: string;
   keywords: string[];
   ogImage: string;
-  allowComments: boolean;
   featuredPost: boolean;
-  enableSocialSharing: boolean;
 }
 
 @Component({
@@ -50,9 +48,7 @@ export class PublishSubmissionComponent implements OnInit {
     metaDescription: '',
     keywords: [],
     ogImage: '',
-    allowComments: true,
-    featuredPost: false,
-    enableSocialSharing: true
+    featuredPost: false
   };
 
   keywordsInput = '';
@@ -602,7 +598,8 @@ export class PublishSubmissionComponent implements OnInit {
         title: content.title,
         body: this.prepareContentForSaving(content.body),
         wordCount: this.calculateWordCount(content.body),
-        tags: (content.tags || []).filter((tag: string) => tag?.trim().length > 0)
+        tags: (content.tags || []).filter((tag: string) => tag?.trim().length > 0),
+        footnotes: content.footnotes || ''
       }))
     };
 
@@ -648,7 +645,8 @@ export class PublishSubmissionComponent implements OnInit {
         title: content.title,
         body: this.prepareContentForSaving(content.body),
         wordCount: this.calculateWordCount(content.body),
-        tags: (content.tags || []).filter((tag: string) => tag?.trim().length > 0)
+        tags: (content.tags || []).filter((tag: string) => tag?.trim().length > 0),
+        footnotes: content.footnotes || ''
       }))
     };
 
@@ -705,9 +703,7 @@ export class PublishSubmissionComponent implements OnInit {
       metaDescription: this.seoConfig.metaDescription,
       keywords: this.seoConfig.keywords,
       ogImage: this.seoConfig.ogImage,
-      allowComments: this.seoConfig.allowComments,
-      featuredOnHomepage: this.seoConfig.featuredPost,
-      enableSocialSharing: this.seoConfig.enableSocialSharing
+      featuredOnHomepage: this.seoConfig.featuredPost
     };
 
     // Use the new SEO-enabled publishing endpoint

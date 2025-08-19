@@ -40,7 +40,8 @@ export class ContentEditorComponent {
     return this.fb.group({
       title: ['', Validators.required],
       body: ['', Validators.required],
-      tags: ['']
+      tags: [''],
+      footnotes: ['']
     });
   }
 

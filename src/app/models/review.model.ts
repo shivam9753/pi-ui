@@ -4,7 +4,6 @@ export interface Review {
   _id: string;
   submissionId: string;
   reviewerId: string;
-  reviewerName: string;
   status: 'pending' | 'accepted' | 'rejected' | 'needs_revision';
   reviewNotes?: string;
   rating?: number;
@@ -78,7 +77,6 @@ export interface PendingSubmission {
 
 export interface ReviewerWorkload {
   reviewerId: string;
-  reviewerName: string;
   pendingReviews: number;
   completedThisWeek: number;
   averageReviewTime: number; // in hours

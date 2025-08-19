@@ -150,7 +150,8 @@ export class SubmissionFormComponent implements OnInit, OnDestroy {
     return this.fb.group({
       title: [''],
       body: [''],
-      tags: ['']
+      tags: [''],
+      footnotes: ['']
     });
   }
 
@@ -345,7 +346,8 @@ export class SubmissionFormComponent implements OnInit, OnDestroy {
           group.patchValue({
             title: content.title || '',
             body: content.body || '',
-            tags: Array.isArray(content.tags) ? content.tags.join(', ') : (content.tags || '')
+            tags: Array.isArray(content.tags) ? content.tags.join(', ') : (content.tags || ''),
+            footnotes: content.footnotes || ''
           });
           contentsArray.push(group);
         });

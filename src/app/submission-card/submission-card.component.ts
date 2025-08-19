@@ -19,7 +19,6 @@ export interface CardData {
   // Legacy fields for backward compatibility
   submitterName?: string;
   authorName?: string;
-  reviewerName?: string;
   createdAt?: Date | string;
   reviewedAt?: Date | string;
   imageUrl?: string;
@@ -108,10 +107,6 @@ export class SubmissionCardComponent {
   }
 
   getStatusText(): string {
-    if (this.showReviewer && this.data.reviewerName) {
-      return 'Reviewed by';
-    }
-    
     switch (this.data.status) {
       case 'pending': return 'Pending Review';
       case 'accepted': return 'Accepted';
@@ -122,10 +117,6 @@ export class SubmissionCardComponent {
   }
 
   getStatusValue(): string {
-    if (this.showReviewer && this.data.reviewerName) {
-      return this.data.reviewerName;
-    }
-    
     return this.data.createdAt ? 
       new Date(this.data.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : 
       '';

@@ -20,9 +20,6 @@ export interface Submission {
   // Workflow fields
   assignedTo?: string;
   assignedAt?: string;
-  eligibleForPurge?: boolean;
-  purgeEligibleSince?: string;
-  markedForDeletion?: boolean;
   createdAt: string;
   updatedAt: string;
   
@@ -38,11 +35,6 @@ export interface Submission {
     keywords?: string[];
     ogImage?: string;
     canonical?: string;
-    publishSettings?: {
-      allowComments: boolean;
-      enableSocialSharing: boolean;
-      featuredOnHomepage: boolean;
-    };
   };
   
   // Author info (standardized)
@@ -64,6 +56,7 @@ export interface Content {
   body: string;
   type: string;
   tags: string[];
+  footnotes?: string;
   metadata?: any;
   images?: ContentImage[];
   hasInlineImages: boolean;
@@ -161,6 +154,7 @@ export interface CreateContentPayload {
   body: string;
   type: string;
   tags: string[];
+  footnotes?: string;
   metadata?: any;
 }
 
@@ -173,11 +167,6 @@ export interface UpdateSubmissionPayload {
     metaTitle?: string;
     metaDescription?: string;
     keywords?: string[];
-    publishSettings?: {
-      allowComments?: boolean;
-      enableSocialSharing?: boolean;
-      featuredOnHomepage?: boolean;
-    };
   };
 }
 

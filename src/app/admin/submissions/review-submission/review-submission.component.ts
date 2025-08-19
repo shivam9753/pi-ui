@@ -368,7 +368,6 @@ export class ReviewSubmissionComponent {
     
     const reviewData = {
       reviewNotes: this.reviewNotes.trim() || 'Shortlisted for further consideration',
-      reviewerName: user?.name || user?.username || user?.email || 'Unknown Reviewer',
       reviewerId: user?.id || user?.email
     };
 

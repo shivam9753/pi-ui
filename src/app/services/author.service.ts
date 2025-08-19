@@ -48,16 +48,7 @@ export class AuthorService {
       };
     }
 
-    // Pattern 3: Direct fields on data object
-    if (data._id || data.id) {
-      return {
-        id: data._id || data.id,
-        name: data.name || data.username || 'Anonymous',
-        profileImage: data.profileImage
-      };
-    }
-
-    // Pattern 4: Legacy string fields (submitterName, authorName)
+    // Pattern 3: Legacy string fields (submitterName, authorName) - check these first
     if (data.submitterName) {
       return {
         id: data.submitterId || 'unknown',
@@ -71,6 +62,15 @@ export class AuthorService {
         id: data.authorId || 'unknown', 
         name: data.authorName,
         profileImage: data.authorImage
+      };
+    }
+
+    // Pattern 4: Direct fields on data object (fallback for user objects)
+    if ((data._id || data.id) && (data.name || data.username)) {
+      return {
+        id: data._id || data.id,
+        name: data.name || data.username || 'Anonymous',
+        profileImage: data.profileImage
       };
     }
 

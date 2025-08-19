@@ -436,9 +436,6 @@ export class BackendService {
     keywords?: string[];
     ogImage?: string;
     canonical?: string;
-    allowComments?: boolean;
-    enableSocialSharing?: boolean;
-    featuredOnHomepage?: boolean;
   }): Observable<any> {
     const headers = this.getAuthHeaders();
     
