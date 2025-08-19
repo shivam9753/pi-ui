@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ApiService } from './api.service';
+import { API_ENDPOINTS } from '../shared/constants/api.constants';
 import {
   User,
   UserProfile,
@@ -76,7 +77,7 @@ export class UserService {
     if (params.order) queryParams.order = params.order;
     if (params.includeStats) queryParams.includeStats = 'true';
 
-    return this.apiService.get<UsersResponse>('/users', queryParams);
+    return this.apiService.get<UsersResponse>(API_ENDPOINTS.USERS, queryParams);
   }
 
   /**
@@ -98,28 +99,28 @@ export class UserService {
     if (params.sortBy) queryParams.sortBy = params.sortBy;
     if (params.order) queryParams.order = params.order;
 
-    return this.apiService.get<SearchUsersResponse>('/users/search', queryParams);
+    return this.apiService.get<SearchUsersResponse>(API_ENDPOINTS.USERS_NESTED.SEARCH, queryParams);
   }
 
   /**
    * Get user by ID
    */
   getUserById(userId: string): Observable<{ user: User }> {
-    return this.apiService.get<{ user: User }>(`/users/${userId}`);
+    return this.apiService.get<{ user: User }>(API_ENDPOINTS.USERS_NESTED.BY_ID(userId));
   }
 
   /**
    * Get user profile with stats
    */
   getUserProfile(userId: string): Observable<UserProfileResponse> {
-    return this.apiService.get<UserProfileResponse>(`/users/${userId}/profile`);
+    return this.apiService.get<UserProfileResponse>(API_ENDPOINTS.USERS_NESTED.PROFILE_BY_ID(userId));
   }
 
   /**
    * Update user profile
    */
   updateUserProfile(userId: string, userData: Partial<User>): Observable<{ message: string; user: User }> {
-    return this.apiService.put<{ message: string; user: User }>(`/users/${userId}`, userData);
+    return this.apiService.put<{ message: string; user: User }>(API_ENDPOINTS.USERS_NESTED.UPDATE(userId), userData);
   }
 
   /**
@@ -133,21 +134,21 @@ export class UserService {
    * Upload user profile image (admin only)
    */
   uploadUserProfileImage(userId: string, formData: FormData): Observable<{ success: boolean; message: string; imageUrl: string; user: User }> {
-    return this.apiService.post<{ success: boolean; message: string; imageUrl: string; user: User }>(`/admin/users/${userId}/upload-profile-image`, formData);
+    return this.apiService.post<{ success: boolean; message: string; imageUrl: string; user: User }>(API_ENDPOINTS.ADMIN.UPLOAD_PROFILE_IMAGE(userId), formData);
   }
 
   /**
    * Update user role (admin only)
    */
   updateUserRole(userId: string, role: 'user' | 'reviewer' | 'admin' | 'curator'): Observable<{ message: string; user: User }> {
-    return this.apiService.patch<{ message: string; user: User }>(`/users/${userId}/role`, { role });
+    return this.apiService.patch<{ message: string; user: User }>(API_ENDPOINTS.USERS_NESTED.UPDATE_ROLE(userId), { role });
   }
 
   /**
    * Change user password
    */
   changePassword(userId: string, currentPassword: string, newPassword: string): Observable<{ message: string }> {
-    return this.apiService.post<{ message: string }>(`/users/${userId}/change-password`, {
+    return this.apiService.post<{ message: string }>(API_ENDPOINTS.USERS_NESTED.CHANGE_PASSWORD(userId), {
       currentPassword,
       newPassword
     });
@@ -157,14 +158,14 @@ export class UserService {
    * Delete user (admin only)
    */
   deleteUser(userId: string): Observable<{ message: string; deletedSubmissions: number; deletedContent: number }> {
-    return this.apiService.delete<{ message: string; deletedSubmissions: number; deletedContent: number }>(`/users/${userId}`);
+    return this.apiService.delete<{ message: string; deletedSubmissions: number; deletedContent: number }>(API_ENDPOINTS.USERS_NESTED.DELETE(userId));
   }
 
   /**
    * Check if user is first-time submitter
    */
   checkFirstTimeSubmitter(userId: string): Observable<{ isFirstTime: boolean }> {
-    return this.apiService.get<{ isFirstTime: boolean }>(`/users/${userId}/submission-history`);
+    return this.apiService.get<{ isFirstTime: boolean }>(API_ENDPOINTS.USERS_NESTED.SUBMISSION_HISTORY(userId));
   }
 
   /**
@@ -185,20 +186,20 @@ export class UserService {
     if (params.sortBy) queryParams.sortBy = params.sortBy;
     if (params.order) queryParams.order = params.order;
 
-    return this.apiService.get<UserPublishedWorksResponse>(`/users/${userId}/published-works`, queryParams);
+    return this.apiService.get<UserPublishedWorksResponse>(API_ENDPOINTS.USERS_NESTED.PUBLISHED_WORKS(userId), queryParams);
   }
 
   /**
    * Approve user bio (admin only)
    */
   approveUserBio(userId: string, approvedBio: string): Observable<{ message: string; user: User }> {
-    return this.apiService.post<{ message: string; user: User }>(`/users/${userId}/approve-bio`, { approvedBio });
+    return this.apiService.post<{ message: string; user: User }>(API_ENDPOINTS.USERS_NESTED.APPROVE_BIO(userId), { approvedBio });
   }
 
   /**
    * Approve user profile image (admin only)
    */
   approveUserProfileImage(userId: string): Observable<{ message: string; user: User }> {
-    return this.apiService.post<{ message: string; user: User }>(`/users/${userId}/approve-profile-image`, {});
+    return this.apiService.post<{ message: string; user: User }>(API_ENDPOINTS.USERS_NESTED.APPROVE_PROFILE_IMAGE(userId), {});
   }
 }

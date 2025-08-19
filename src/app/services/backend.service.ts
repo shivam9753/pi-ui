@@ -115,7 +115,7 @@ export class BackendService {
     const isPublicRequest = options.status === SUBMISSION_STATUS.PUBLISHED;
     const headers = isPublicRequest ? this.getPublicHeaders() : this.getAuthHeaders();
     
-    const url = `${this.API_URL}/submissions`;
+    const url = `${this.API_URL}${API_ENDPOINTS.SUBMISSIONS}`;
     return this.http.get(url, { headers, params }).pipe(
       this.handleApiCall(url, 'GET')
     );
@@ -142,7 +142,7 @@ export class BackendService {
     // Use public headers - no auth required for published content
     const headers = this.getPublicHeaders();
     
-    const url = `${this.API_URL}/submissions`;
+    const url = `${this.API_URL}${API_ENDPOINTS.SUBMISSIONS}`;
     return this.http.get(url, { headers, params }).pipe(
       this.handleApiCall(url, 'GET')
     );
@@ -150,7 +150,7 @@ export class BackendService {
 
   // Get featured content
   getFeaturedContent(type?: string): Observable<any> {
-    let url = `${this.API_URL}/submissions/featured`;
+    let url = `${this.API_URL}${API_ENDPOINTS.SUBMISSIONS_NESTED.FEATURED}`;
     if (type) {
       url += `?type=${type}`;
     }
@@ -176,7 +176,7 @@ export class BackendService {
   // Get submission with contents
   getSubmissionWithContents(id: string): Observable<any> {
     const headers = this.getAuthHeaders();
-    const url = `${this.API_URL}/submissions/${id}/contents`;
+    const url = `${this.API_URL}${API_ENDPOINTS.SUBMISSIONS_NESTED.CONTENTS(id)}`;
     return this.http.get(url, { headers }).pipe(
       this.handleApiCall(url, 'GET')
     );
@@ -193,7 +193,7 @@ export class BackendService {
     // Debug: Backend should set status to pending_review automatically
     console.log('📤 Backend service sending submission (no status - backend should default to pending_review)');
     
-    const url = `${this.API_URL}/submissions`;
+    const url = `${this.API_URL}${API_ENDPOINTS.SUBMISSIONS}`;
     return this.http.post<any>(url, submission, { headers }).pipe(
       tap((response) => {
         console.log('✅ Backend response:', response);
@@ -212,7 +212,7 @@ export class BackendService {
     const formData = new FormData();
     formData.append('image', imageFile);
     
-    return this.http.post(`${this.API_URL}/submissions/${submissionId}/upload-image`, formData, { headers }).pipe(
+    return this.http.post(`${this.API_URL}${API_ENDPOINTS.SUBMISSIONS_NESTED.UPLOAD_IMAGE(submissionId)}`, formData, { headers }).pipe(
       catchError(this.handleError)
     );
   }
@@ -224,13 +224,13 @@ export class BackendService {
     });
     
     
-    return this.http.delete(`${this.API_URL}/submissions/${submissionId}/image`, { headers }).pipe(
+    return this.http.delete(`${this.API_URL}${API_ENDPOINTS.SUBMISSIONS_NESTED.IMAGE(submissionId)}`, { headers }).pipe(
       catchError(this.handleError)
     );
   }
 
   getPublishedContentById(id: string): Observable<any> {
-    const url = `${this.API_URL}/submissions/published/${id}`;
+    const url = `${this.API_URL}${API_ENDPOINTS.SUBMISSIONS_NESTED.PUBLISHED(id)}`;
     return this.http.get<any>(url).pipe(
       this.handleApiCall(url, 'GET')
     );
@@ -238,7 +238,7 @@ export class BackendService {
 
   // Get all content
   getContent(): Observable<any> {
-    return this.http.get<any>(`${this.API_URL}/content`);
+    return this.http.get<any>(`${this.API_URL}${API_ENDPOINTS.CONTENT}`);
   }
 
 
@@ -341,7 +341,7 @@ export class BackendService {
   getReviewDetails(submissionId: string) {
     const headers = this.getAuthHeaders();
     return this.http.get(
-      `${this.API_URL}/reviews/submission/${submissionId}`,
+      `${this.API_URL}${API_ENDPOINTS.REVIEWS_NESTED.SUBMISSION(submissionId)}`,
       { headers }
     );
   }
@@ -351,7 +351,7 @@ export class BackendService {
   moveSubmissionToProgress(submissionId: string, notes: string = ''): Observable<any> {
     const headers = this.getAuthHeaders();
     return this.http.post(
-      `${this.API_URL}/reviews/${submissionId}/move-to-progress`,
+      `${this.API_URL}${API_ENDPOINTS.REVIEWS_NESTED.MOVE_TO_PROGRESS(submissionId)}`,
       { notes },
       { headers }
     ).pipe(
@@ -365,7 +365,7 @@ export class BackendService {
   getSubmissionHistory(submissionId: string): Observable<any> {
     const headers = this.getAuthHeaders();
     return this.http.get(
-      `${this.API_URL}/submissions/${submissionId}/history`,
+      `${this.API_URL}${API_ENDPOINTS.SUBMISSIONS_NESTED.HISTORY(submissionId)}`,
       { headers }
     ).pipe(
       catchError(this.handleError)
@@ -376,7 +376,7 @@ export class BackendService {
   unpublishSubmission(submissionId: string, notes: string = ''): Observable<any> {
     const headers = this.getAuthHeaders();
     return this.http.patch(
-      `${this.API_URL}/submissions/${submissionId}/unpublish`,
+      `${this.API_URL}${API_ENDPOINTS.SUBMISSIONS_NESTED.UNPUBLISH(submissionId)}`,
       { notes },
       { headers }
     ).pipe(
@@ -388,7 +388,7 @@ export class BackendService {
   deleteSubmission(submissionId: string): Observable<any> {
     const headers = this.getAuthHeaders();
     return this.http.delete(
-      `${this.API_URL}/submissions/${submissionId}`,
+      `${this.API_URL}${API_ENDPOINTS.SUBMISSIONS}/${submissionId}`,
       { headers }
     ).pipe(
       catchError(this.handleError)
@@ -399,7 +399,7 @@ export class BackendService {
   resubmitSubmission(submissionId: string, submissionData: any): Observable<any> {
     const headers = this.getAuthHeaders();
     return this.http.put(
-      `${this.API_URL}/submissions/${submissionId}/resubmit`,
+      `${this.API_URL}${API_ENDPOINTS.SUBMISSIONS_NESTED.RESUBMIT(submissionId)}`,
       submissionData,
       { headers }
     ).pipe(
@@ -409,7 +409,7 @@ export class BackendService {
 
   updateSubmission(submissionId: string, updateData: any): Observable<any> {
     const headers = this.getAuthHeaders();
-    return this.http.put(`${this.API_URL}/submissions/${submissionId}`, updateData, { headers });
+    return this.http.put(`${this.API_URL}${API_ENDPOINTS.SUBMISSIONS}/${submissionId}`, updateData, { headers });
   }
   
   // 2. Update submission status (for publishing)
@@ -422,7 +422,7 @@ export class BackendService {
     
     
     return this.http.patch(
-      `${this.API_URL}/submissions/${submissionId}/status`, 
+      `${this.API_URL}${API_ENDPOINTS.SUBMISSIONS_NESTED.STATUS(submissionId)}`, 
       { status }, 
       { headers }
     );
@@ -444,7 +444,7 @@ export class BackendService {
     
     
     return this.http.post(
-      `${this.API_URL}/submissions/${submissionId}/publish-with-seo`, 
+      `${this.API_URL}${API_ENDPOINTS.SUBMISSIONS_NESTED.PUBLISH_SEO(submissionId)}`, 
       seoData, 
       { headers }
     ).pipe(
@@ -457,7 +457,7 @@ export class BackendService {
     const headers = this.getAuthHeaders();
     
     return this.http.patch(
-      `${this.API_URL}/submissions/${submissionId}/seo`,
+      `${this.API_URL}${API_ENDPOINTS.SUBMISSIONS_NESTED.SEO(submissionId)}`,
       seoData,
       { headers }
     ).pipe(
@@ -468,7 +468,7 @@ export class BackendService {
   // Get submission by SEO slug
   getSubmissionBySlug(slug: string): Observable<any> {
     
-    return this.http.get(`${this.API_URL}/submissions/by-slug/${slug}`).pipe(
+    return this.http.get(`${this.API_URL}${API_ENDPOINTS.SUBMISSIONS_NESTED.BY_SLUG(slug)}`).pipe(
       catchError(this.handleError)
     );
   }
@@ -489,23 +489,23 @@ export class BackendService {
     if (options.skip) params = params.set('skip', options.skip.toString());
     if (options.role) params = params.set('role', options.role);
 
-    return this.http.get<any>(`${this.API_URL}/users`, { params, headers });
+    return this.http.get<any>(`${this.API_URL}${API_ENDPOINTS.USERS}`, { params, headers });
   }
 
   // Get user by ID
   getUserById(id: string): Observable<UserProfile> {
-    return this.http.get<any>(`${this.API_URL}/users/${id}`);
+    return this.http.get<any>(`${this.API_URL}${API_ENDPOINTS.USERS_NESTED.BY_ID(id)}`);
   }
 
   // Get current user's profile (authenticated)
   getCurrentUserProfileFromAPI(): Observable<UserProfile> {
     const headers = this.getAuthHeaders();
-    return this.http.get<any>(`${this.API_URL}/users/profile`, { headers });
+    return this.http.get<any>(`${this.API_URL}${API_ENDPOINTS.USERS_NESTED.PROFILE}`, { headers });
   }
 
   // Get user profile with enhanced stats
   getUserProfile(id: string): Observable<UserProfile> {
-    return this.http.get<any>(`${this.API_URL}/users/${id}/profile`);
+    return this.http.get<any>(`${this.API_URL}${API_ENDPOINTS.USERS_NESTED.PROFILE_BY_ID(id)}`);
   }
 
   // Get user's published works
@@ -527,7 +527,7 @@ export class BackendService {
     if (options.sortBy) params = params.set('sortBy', options.sortBy);
     if (options.order) params = params.set('order', options.order);
 
-    return this.http.get<any>(`${this.API_URL}/users/${userId}/published-works`, { params });
+    return this.http.get<any>(`${this.API_URL}${API_ENDPOINTS.USERS_NESTED.PUBLISHED_WORKS(userId)}`, { params });
   }
 
   // Create new user
@@ -538,7 +538,7 @@ export class BackendService {
     role?: string;
     bio?: string;
   }): Observable<{ message: string; user: UserProfile }> {
-    return this.http.post<any>(`${this.API_URL}/users`, userData);
+    return this.http.post<any>(`${this.API_URL}${API_ENDPOINTS.USERS}`, userData);
   }
 
   // Update user profile
@@ -559,7 +559,7 @@ export class BackendService {
     };
   }): Observable<{ message: string; user: UserProfile }> {
     const headers = this.getAuthHeaders();
-    return this.http.put<any>(`${this.API_URL}/users/${userId}`, updateData, { headers });
+    return this.http.put<any>(`${this.API_URL}${API_ENDPOINTS.USERS_NESTED.UPDATE(userId)}`, updateData, { headers });
   }
 
   // Update user stats
@@ -570,7 +570,7 @@ export class BackendService {
     followers?: number;
     following?: number;
   }): Observable<{ message: string }> {
-    return this.http.patch<any>(`${this.API_URL}/users/${userId}/stats`, stats);
+    return this.http.patch<any>(`${this.API_URL}${API_ENDPOINTS.USERS_NESTED.STATS(userId)}`, stats);
   }
 
   // Search users
@@ -587,7 +587,7 @@ export class BackendService {
     if (options.sortBy) params = params.set('sortBy', options.sortBy);
     if (options.order) params = params.set('order', options.order);
 
-    return this.http.get<any>(`${this.API_URL}/users/search`, { params });
+    return this.http.get<any>(`${this.API_URL}${API_ENDPOINTS.USERS_NESTED.SEARCH}`, { params });
   }
 
   // Follow/Unfollow user
@@ -601,13 +601,13 @@ export class BackendService {
       action: action
     };
 
-    return this.http.patch<any>(`${this.API_URL}/users/${targetUserId}/follow`, followData);
+    return this.http.patch<any>(`${this.API_URL}${API_ENDPOINTS.USERS_NESTED.FOLLOW(targetUserId)}`, followData);
   }
 
   // Delete user (admin only)
   deleteUser(userId: string): Observable<{ message: string }> {
     const headers = this.getAuthHeaders();
-    return this.http.delete<any>(`${this.API_URL}/users/${userId}`, { headers });
+    return this.http.delete<any>(`${this.API_URL}${API_ENDPOINTS.USERS_NESTED.DELETE(userId)}`, { headers });
   }
 
   // Check if user is following another user
@@ -671,53 +671,53 @@ export class BackendService {
     if (options.order) params = params.set('order', options.order);
 
     const headers = this.getPublicHeaders();
-    return this.http.get<any>(`${this.API_URL}/content/by-tag/${encodeURIComponent(tag)}`, { headers, params });
+    return this.http.get<any>(`${this.API_URL}${API_ENDPOINTS.CONTENT_NESTED.BY_TAG(tag)}`, { headers, params });
   }
 
   getAllPrompts(): Observable<any> {
-  return this.http.get<any>(`${this.API_URL}/prompts/all`);
+  return this.http.get<any>(`${this.API_URL}${API_ENDPOINTS.PROMPTS_NESTED.ALL}`);
 }
 
 // Create new prompt (admin only)
 createPrompt(promptData: any): Observable<any> {
   const headers = this.getAuthHeaders(); 
-  return this.http.post<any>(`${this.API_URL}/prompts`, promptData, {headers});
+  return this.http.post<any>(`${this.API_URL}${API_ENDPOINTS.PROMPTS_NESTED.CREATE}`, promptData, {headers});
 }
 
 // Update existing prompt (admin only)
 updatePrompt(promptId: string, promptData: any): Observable<any> {
-  return this.http.put<any>(`${this.API_URL}/prompts/${promptId}`, promptData);
+  return this.http.put<any>(`${this.API_URL}${API_ENDPOINTS.PROMPTS_NESTED.UPDATE(promptId)}`, promptData);
 }
 
 // Delete prompt (admin only)
 deletePrompt(promptId: string): Observable<any> {
   const headers = this.getAuthHeaders(); 
-  return this.http.delete<any>(`${this.API_URL}/prompts/${promptId}`, {headers});
+  return this.http.delete<any>(`${this.API_URL}${API_ENDPOINTS.PROMPTS_NESTED.DELETE(promptId)}`, {headers});
 }
 
 // Toggle prompt active status (admin only)
 togglePromptStatus(promptId: string): Observable<any> {
-  return this.http.patch<any>(`${this.API_URL}/prompts/${promptId}/toggle-status`, {});
+  return this.http.patch<any>(`${this.API_URL}${API_ENDPOINTS.PROMPTS_NESTED.TOGGLE_STATUS(promptId)}`, {});
 }
 
 // Increment prompt usage count
 usePrompt(promptId: string): Observable<any> {
-  return this.http.post<any>(`${this.API_URL}/prompts/${promptId}/use`, {});
+  return this.http.post<any>(`${this.API_URL}${API_ENDPOINTS.PROMPTS_NESTED.USE(promptId)}`, {});
 }
 
 // Get single prompt by ID
 getPromptById(promptId: string): Observable<any> {
-  return this.http.get<any>(`${this.API_URL}/prompts/${promptId}`);
+  return this.http.get<any>(`${this.API_URL}${API_ENDPOINTS.PROMPTS_NESTED.BY_ID(promptId)}`);
 }
 
 // Get prompt statistics (admin only)
 getPromptStats(): Observable<any> {
-  return this.http.get<any>(`${this.API_URL}/prompts/stats/overview`);
+  return this.http.get<any>(`${this.API_URL}${API_ENDPOINTS.PROMPTS_NESTED.STATS}`);
 }
 
 // Check if user is first-time submitter
 checkUserSubmissionHistory(userId: string): Observable<any> {
-  return this.http.get<any>(`${this.API_URL}/users/${userId}/submission-history`);
+  return this.http.get<any>(`${this.API_URL}${API_ENDPOINTS.USERS_NESTED.SUBMISSION_HISTORY(userId)}`);
 }
 
 // Profile image upload is handled separately in user profile management
@@ -725,19 +725,19 @@ checkUserSubmissionHistory(userId: string): Observable<any> {
 // Approve user bio (admin only)
 approveUserBio(userId: string, approvedBio: string): Observable<any> {
   const headers = this.getAuthHeaders();
-  return this.http.post<any>(`${this.API_URL}/users/${userId}/approve-bio`, { approvedBio }, { headers });
+  return this.http.post<any>(`${this.API_URL}${API_ENDPOINTS.USERS_NESTED.APPROVE_BIO(userId)}`, { approvedBio }, { headers });
 }
 
 // Approve user profile image (admin only)
 approveUserProfileImage(userId: string): Observable<any> {
   const headers = this.getAuthHeaders();
-  return this.http.post<any>(`${this.API_URL}/users/${userId}/approve-profile-image`, {}, { headers });
+  return this.http.post<any>(`${this.API_URL}${API_ENDPOINTS.USERS_NESTED.APPROVE_PROFILE_IMAGE(userId)}`, {}, { headers });
 }
 
 // Get user's submissions with status tracking
 getUserSubmissions(): Observable<any> {
   const headers = this.getAuthHeaders();
-  return this.http.get<any>(`${this.API_URL}/submissions/user/me`, { headers }).pipe(
+  return this.http.get<any>(`${this.API_URL}${API_ENDPOINTS.SUBMISSIONS_NESTED.USER_SUBMISSIONS}`, { headers }).pipe(
     catchError(error => {
       return throwError(() => error);
     })
@@ -748,7 +748,7 @@ getUserSubmissions(): Observable<any> {
 getUserDrafts(): Observable<any> {
   const headers = this.getAuthHeaders();
   return this.http.get(
-    `${this.API_URL}/submissions/drafts/my`,
+    `${this.API_URL}${API_ENDPOINTS.SUBMISSIONS_NESTED.MY_DRAFTS}`,
     { headers }
   ).pipe(
     catchError(this.handleError)
@@ -758,7 +758,7 @@ getUserDrafts(): Observable<any> {
 saveDraft(draftData: any): Observable<any> {
   const headers = this.getAuthHeaders();
   return this.http.post(
-    `${this.API_URL}/submissions/drafts`,
+    `${this.API_URL}${API_ENDPOINTS.SUBMISSIONS_NESTED.DRAFTS}`,
     draftData,
     { headers }
   ).pipe(
@@ -769,7 +769,7 @@ saveDraft(draftData: any): Observable<any> {
 submitDraft(draftId: string): Observable<any> {
   const headers = this.getAuthHeaders();
   return this.http.post(
-    `${this.API_URL}/submissions/drafts/${draftId}/submit`,
+    `${this.API_URL}${API_ENDPOINTS.SUBMISSIONS_NESTED.DRAFT_SUBMIT(draftId)}`,
     {},
     { headers }
   ).pipe(
@@ -780,7 +780,7 @@ submitDraft(draftId: string): Observable<any> {
 deleteDraft(draftId: string): Observable<any> {
   const headers = this.getAuthHeaders();
   return this.http.delete(
-    `${this.API_URL}/submissions/drafts/${draftId}`,
+    `${this.API_URL}${API_ENDPOINTS.SUBMISSIONS_NESTED.DRAFT_DELETE(draftId)}`,
     { headers }
   ).pipe(
     catchError(this.handleError)
@@ -798,7 +798,7 @@ getPopularTags(options: { limit?: number } = {}): Observable<{
   }
 
   const headers = this.getPublicHeaders();
-  const url = `${this.API_URL}/content/tags/popular`;
+  const url = `${this.API_URL}${API_ENDPOINTS.CONTENT_NESTED.TAGS_POPULAR}`;
   return this.http.get<any>(url, { headers, params }).pipe(
     this.handleApiCall(url, 'GET')
   );

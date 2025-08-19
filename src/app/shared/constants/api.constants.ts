@@ -13,6 +13,31 @@ export const API_ENDPOINTS = {
   PROMPTS: '/prompts',
   CONTENT: '/content',
   
+  // Auth endpoints
+  AUTH: {
+    LOGIN: '/auth/login',
+    LOGOUT: '/auth/logout',
+    REGISTER: '/auth/register',
+    REFRESH: '/auth/refresh',
+    VERIFY_TOKEN: '/auth/verify-token',
+    RESET_PASSWORD: '/auth/reset-password',
+    CHANGE_PASSWORD: '/auth/change-password',
+    GOOGLE_LOGIN: '/auth/google',
+    PROFILE: '/auth/profile'
+  },
+  
+  // Admin endpoints
+  ADMIN: {
+    PURGE: '/admin/purge',
+    USERS: '/admin/users',
+    CREATE_USER: '/admin/users',
+    UPLOAD_PROFILE_IMAGE: (userId: string) => `/admin/users/${userId}/upload-profile-image`,
+    SUBMISSIONS: {
+      REASSIGN: (submissionId: string) => `/admin/submissions/${submissionId}/reassign`,
+      BULK_REASSIGN: '/admin/submissions/bulk-reassign'
+    }
+  },
+  
   // Nested endpoints
   SUBMISSIONS_NESTED: {
     CONTENTS: (id: string) => `/submissions/${id}/contents`,
@@ -28,7 +53,14 @@ export const API_ENDPOINTS = {
     PUBLISHED: (id: string) => `/submissions/published/${id}`,
     FEATURED: '/submissions/featured',
     DRAFTS: '/submissions/drafts',
-    USER_SUBMISSIONS: '/submissions/user/me'
+    MY_DRAFTS: '/submissions/drafts/my',
+    DRAFT_SUBMIT: (id: string) => `/submissions/drafts/${id}/submit`,
+    DRAFT_DELETE: (id: string) => `/submissions/drafts/${id}`,
+    USER_SUBMISSIONS: '/submissions/user/me',
+    USER_BY_ID: (userId: string) => `/submissions/user/${userId}`,
+    RESUBMIT: (id: string) => `/submissions/${id}/resubmit`,
+    VIEW: (id: string) => `/submissions/${id}/view`,
+    STATS: (id: string) => `/submissions/${id}/stats`
   },
   
   REVIEWS_NESTED: {
@@ -38,6 +70,8 @@ export const API_ENDPOINTS = {
     REVISION: (id: string) => `/reviews/${id}/revision`, // DEPRECATED
     MOVE_TO_PROGRESS: (id: string) => `/reviews/${id}/move-to-progress`,
     SUBMISSION: (id: string) => `/reviews/submission/${id}`,
+    BY_REVIEWER: (reviewerId: string) => `/reviews/reviewer/${reviewerId}`,
+    DELETE: (id: string) => `/reviews/${id}`,
     PENDING: '/reviews/pending',
     ACCEPTED: '/reviews/accepted',
     MY_REVIEWS: '/reviews/my-reviews',
@@ -46,16 +80,27 @@ export const API_ENDPOINTS = {
   
   USERS_NESTED: {
     PROFILE: '/users/profile',
+    BY_ID: (id: string) => `/users/${id}`,
+    PROFILE_BY_ID: (id: string) => `/users/${id}/profile`,
+    UPDATE: (id: string) => `/users/${id}`,
+    DELETE: (id: string) => `/users/${id}`,
+    STATS: (id: string) => `/users/${id}/stats`,
     PUBLISHED_WORKS: (id: string) => `/users/${id}/published-works`,
     SUBMISSION_HISTORY: (id: string) => `/users/${id}/submission-history`,
     APPROVE_BIO: (id: string) => `/users/${id}/approve-bio`,
     APPROVE_PROFILE_IMAGE: (id: string) => `/users/${id}/approve-profile-image`,
     FOLLOW: (id: string) => `/users/${id}/follow`,
+    CHANGE_PASSWORD: (id: string) => `/users/${id}/change-password`,
+    UPDATE_ROLE: (id: string) => `/users/${id}/role`,
     SEARCH: '/users/search'
   },
   
   PROMPTS_NESTED: {
     ALL: '/prompts/all',
+    BY_ID: (id: string) => `/prompts/${id}`,
+    CREATE: '/prompts',
+    UPDATE: (id: string) => `/prompts/${id}`,
+    DELETE: (id: string) => `/prompts/${id}`,
     USE: (id: string) => `/prompts/${id}/use`,
     TOGGLE_STATUS: (id: string) => `/prompts/${id}/toggle-status`,
     STATS: '/prompts/stats/overview'
@@ -64,6 +109,14 @@ export const API_ENDPOINTS = {
   CONTENT_NESTED: {
     BY_TAG: (tag: string) => `/content/by-tag/${encodeURIComponent(tag)}`,
     TAGS_POPULAR: '/content/tags/popular'
+  },
+  
+  
+  // File Upload endpoints
+  UPLOADS: {
+    IMAGE: '/uploads/image',
+    PROFILE_IMAGE: '/uploads/profile-image',
+    SUBMISSION_IMAGE: (id: string) => `/submissions/${id}/upload-image`
   }
 } as const;
 

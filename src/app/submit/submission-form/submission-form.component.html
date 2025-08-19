@@ -32,25 +32,32 @@
       <div class="px-6 py-6 pb-32">
         <form [formGroup]="form" (ngSubmit)="submitForm()" class="space-y-8">
           <!-- Step 1: Type Selection -->
-          <div class="space-y-4">
-            <h2 class="text-lg text-gray-900">What would you like to share?</h2>
-            <div class="space-y-3">
-              @for (type of submissionTypes; track type) {
-                <label class="block">
+          <fieldset class="space-y-4">
+            <legend class="text-lg text-gray-900 font-medium">What would you like to share?</legend>
+            <div class="space-y-3" role="radiogroup" aria-labelledby="submission-type-legend">
+              @for (type of submissionTypes; track type; let i = $index) {
+                <label class="block" [for]="'submission-type-' + type.value">
                   <input type="radio"
+                    [id]="'submission-type-' + type.value"
                     name="submissionType"
                     [value]="type.value"
                     [checked]="selectedType === type.value"
                     (change)="onTypeSelected(type.value)"
+                    [attr.aria-describedby]="'submission-type-desc-' + type.value"
                     class="sr-only" />
                   <div class="p-4 rounded-lg border transition-all duration-200 cursor-pointer"
                      [class]="selectedType === type.value ? 
                              'border-themed-accent bg-themed-accent-light shadow-md' : 
-                             'border-gray-200 bg-white hover:bg-themed-hover hover:border-gray-300'">
+                             'border-gray-200 bg-white hover:bg-themed-hover hover:border-gray-300'"
+                     [attr.aria-selected]="selectedType === type.value"
+                     role="radio"
+                     [attr.aria-checked]="selectedType === type.value"
+                     [attr.tabindex]="selectedType === type.value ? 0 : -1">
                     <div class="flex items-center space-x-3">
                       <!-- Icon -->
                       <div class="w-8 h-8 flex items-center justify-center"
-                        [class]="selectedType === type.value ? 'text-themed-accent' : 'text-gray-600 dark:text-gray-300'">
+                        [class]="selectedType === type.value ? 'text-themed-accent' : 'text-gray-600 dark:text-gray-300'"
+                        aria-hidden="true">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" [attr.d]="getIconForType(type.value)"></path>
                         </svg>
@@ -62,10 +69,10 @@
                             <span class="ml-2 text-xs text-themed-accent font-medium">Quick Review & Publishing</span>
                           }
                         </div>
-                        <div class="text-sm text-gray-600">{{ type.description }}</div>
+                        <div class="text-sm text-gray-600" [id]="'submission-type-desc-' + type.value">{{ type.description }}</div>
                       </div>
                       @if (selectedType === type.value) {
-                        <div class="w-5 h-5 text-gray-900-accent">
+                        <div class="w-5 h-5 text-gray-900-accent" aria-hidden="true">
                           <svg fill="currentColor" viewBox="0 0 20 20">
                             <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
                           </svg>
@@ -76,7 +83,7 @@
                 </label>
               }
             </div>
-          </div>
+          </fieldset>
           <!-- Step 2: Writing -->
           @if (selectedType) {
             <div class="space-y-4" data-section="content">

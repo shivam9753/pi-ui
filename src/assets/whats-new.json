@@ -1,0 +1,50 @@
+[
+  {
+    "id": "1",
+    "title": "Track Your Submissions",
+    "description": "Submit original content across multiple formats including poem, prose, articles, and newly introduced Opinion pieces. Track review progress through an integrated dashboard in your profile section that provides status updates from initial receipt through acceptance, non-acceptance, revision request to published.",
+    "type": "Feature",
+    "link": "/user-profile",
+    "dateAdded": "2025-08-15"
+  },
+  {
+    "id": "2", 
+    "title": "Opinion Pieces Now Accepted",
+    "description": "We now invite Opinion pieces on trending global topics and current events. Submit your perspective on what's happening in the world and receive a review decision within 48 hours. Minimum 500 words required for comprehensive commentary.",
+    "type": "Feature",
+    "link": "/submission",
+    "dateAdded": "2025-01-10"
+  },
+  {
+    "id": "3",
+    "title": "Manage Your Private Profile", 
+    "description": "Access your private profile dashboard to track all your submissions and monitor their review status. Update your personal information including bio and contact details that will be displayed when your pieces are published. Your profile remains private and is not visible to other users.",
+    "type": "Feature",
+    "link": "/user-profile",
+    "dateAdded": "2025-01-08"
+  },
+  {
+    "id": "4",
+    "title": "Save Drafts",
+    "description": "Your submissions are automatically saved as drafts while you write. Return anytime to continue editing and perfecting your pieces before submission.",
+    "type": "Feature", 
+    "link": "/submission",
+    "dateAdded": "2025-01-05"
+  },
+  {
+    "id": "5",
+    "title": "Popular This Week",
+    "description": "See the popular posts in 'Popular This Week' - discover content that's getting the most traction and engagement from our community of readers. Stay updated with what's resonating right now.",
+    "type": "Feature",
+    "link": "/explore",
+    "dateAdded": "2025-01-03"
+  },
+  {
+    "id": "6",
+    "title": "See Trending Tags",
+    "description": "Explore trending topics and tags to discover what themes and subjects are currently popular. Use these insights to connect your work with trending conversations and reach more readers.",
+    "type": "Feature",
+    "link": "/explore", 
+    "dateAdded": "2025-01-01"
+  }
+]

@@ -70,20 +70,44 @@
         }
         @if (loggedInUser()) {
           <div class="relative" data-dropdown="user">
-            <button type="button" (click)="toggleDropdown()" class="flex items-center px-3 py-2 text-base font-medium text-themed hover:text-themed transition-colors duration-200 rounded-lg hover:bg-themed-hover">
-              <div class="w-8 h-8 bg-white-accent rounded-full flex items-center justify-center text-white text-sm font-medium mr-3">
+            <button type="button" 
+                    (click)="toggleDropdown()" 
+                    [attr.aria-expanded]="showDropdown()"
+                    aria-haspopup="true"
+                    aria-controls="user-dropdown-menu"
+                    [attr.aria-label]="'User menu for ' + loggedInUser()!.name"
+                    class="flex items-center px-3 py-2 text-base font-medium text-themed hover:text-themed transition-colors duration-200 rounded-lg hover:bg-themed-hover">
+              <div class="w-8 h-8 bg-white-accent rounded-full flex items-center justify-center text-white text-sm font-medium mr-3" aria-hidden="true">
                 {{ getUserInitials(loggedInUser()!.name) }}
               </div>
               <span>{{ loggedInUser()!.name }}</span>
-              <svg class="w-4 h-4 ml-2 transition-transform duration-200" [ngClass]="{ 'rotate-180': showDropdown() }" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg class="w-4 h-4 ml-2 transition-transform duration-200" [ngClass]="{ 'rotate-180': showDropdown() }" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
               </svg>
             </button>
             @if (showDropdown()) {
-              <div class="absolute right-0 mt-2 w-48 bg-themed-card border border-themed rounded-lg shadow-lg overflow-hidden transition-all duration-200">
-                <a [routerLink]="['/user-profile', userId]" (click)="closeDropdown()" class="block px-4 py-2 text-sm text-themed hover:bg-themed-hover">My Profile</a>
-                <div class="border-t border-themed my-1"></div>
-                <a (click)="logout()" class="block px-4 py-2 text-sm text-red-600 hover:bg-themed-hover hover:text-red-500">Logout</a>
+              <div id="user-dropdown-menu" 
+                   role="menu" 
+                   aria-labelledby="user-menu-button"
+                   class="absolute right-0 mt-2 w-48 bg-themed-card border border-themed rounded-lg shadow-lg overflow-hidden transition-all duration-200">
+                <a [routerLink]="['/user-profile', userId]" 
+                   (click)="closeDropdown()" 
+                   role="menuitem"
+                   class="block px-4 py-2 text-sm text-themed hover:bg-themed-hover focus:bg-themed-hover focus:outline-none">
+                  My Profile
+                </a>
+                <a routerLink="/whats-new" 
+                   (click)="closeDropdown()" 
+                   role="menuitem"
+                   class="block px-4 py-2 text-sm text-themed hover:bg-themed-hover focus:bg-themed-hover focus:outline-none">
+                  What's New
+                </a>
+                <div class="border-t border-themed my-1" aria-hidden="true"></div>
+                <button (click)="logout()" 
+                        role="menuitem"
+                        class="w-full text-left block px-4 py-2 text-sm text-red-600 hover:bg-themed-hover hover:text-red-500 focus:bg-themed-hover focus:outline-none">
+                  Logout
+                </button>
               </div>
             }
           </div>
@@ -92,8 +116,12 @@
 
       <!-- Mobile Menu Button (VISIBLE ONLY BELOW LG) -->
       <div class="mobile-hamburger-container flex items-center lg:hidden">
-        <button (click)="toggleMobileMenu()" class="mobile-hamburger-button p-2 text-themed-secondary hover:text-themed hover:bg-themed-hover rounded-lg transition-all duration-200 lg:hidden">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <button (click)="toggleMobileMenu()" 
+                [attr.aria-expanded]="isMobileMenuOpen()"
+                aria-controls="mobile-navigation-menu"
+                aria-label="Toggle navigation menu"
+                class="mobile-hamburger-button p-2 text-themed-secondary hover:text-themed hover:bg-themed-hover rounded-lg transition-all duration-200 lg:hidden">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
               d="M4 6h16M4 12h16M4 18h16" />
           </svg>
@@ -192,6 +220,15 @@
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
         </svg>
         <span class="text-base font-medium">Prompts</span>
+      </a>
+
+      <a routerLink="/whats-new"
+        (click)="closeMobileMenu()"
+        class="flex items-center px-4 py-3 text-themed hover:bg-themed-hover hover:text-themed rounded-lg transition-colors duration-200 group">
+        <svg class="w-5 h-5 mr-3 text-themed-secondary group-hover:text-themed" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+        </svg>
+        <span class="text-base font-medium">What's New</span>
       </a>
 
       <!-- Submit button for non-logged users -->

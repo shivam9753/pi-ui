@@ -1,0 +1,44 @@
+/* Accessibility Fixes for Tab Navigation */
+
+/* Ensure all interactive elements remain focusable */
+button, a, input, select, textarea, [tabindex]:not([tabindex="-1"]) {
+  outline: none !important;
+}
+
+/* Add visible focus indicators for keyboard users */
+body.keyboard-navigation button:focus,
+body.keyboard-navigation a:focus,
+body.keyboard-navigation input:focus,
+body.keyboard-navigation select:focus,
+body.keyboard-navigation textarea:focus,
+body.keyboard-navigation [tabindex]:not([tabindex="-1"]):focus {
+  outline: 2px solid var(--border-focus, #ff6100) !important;
+  outline-offset: 2px !important;
+}
+
+/* Override TailwindCSS focus:outline-none when keyboard navigation is active */
+body.keyboard-navigation .focus\:outline-none:focus {
+  outline: 2px solid var(--border-focus, #ff6100) !important;
+  outline-offset: 2px !important;
+}
+
+/* Ensure skip links work properly */
+.sr-only:focus {
+  position: static !important;
+  width: auto !important;
+  height: auto !important;
+  margin: 0 !important;
+  overflow: visible !important;
+  clip: auto !important;
+  white-space: normal !important;
+}
+
+/* Fix for any elements that might prevent tab navigation */
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Ensure proper focus flow */
+[tabindex="-1"]:focus {
+  outline: none !important;
+}

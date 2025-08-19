@@ -65,7 +65,7 @@ export interface PaginationConfig {
                 }
                 @for (column of columns; track column.key) {
                   <th 
-                    class="px-6 py-3 text-xs font-medium text-themed-secondary uppercase tracking-wider"
+                    class="px-6 py-3 text-xs font-semibold text-themed-secondary uppercase tracking-wider"
                     [class.text-left]="column.align === 'left' || !column.align"
                     [class.text-center]="column.align === 'center'"
                     [class.text-right]="column.align === 'right'"
@@ -85,7 +85,7 @@ export interface PaginationConfig {
                   </th>
                 }
                 @if (actions && actions.length > 0) {
-                  <th class="px-6 py-3 text-left text-xs font-medium text-themed-secondary uppercase tracking-wider">Actions</th>
+                  <th class="px-6 py-3 text-left text-xs font-semibold text-themed-secondary uppercase tracking-wider">Actions</th>
                 }
               </tr>
             </thead>
@@ -135,7 +135,7 @@ export interface PaginationConfig {
                           <ng-container *ngTemplateOutlet="customCellTemplate; context: { $implicit: item, column: column }"></ng-container>
                         }
                         @default {
-                          <div class="text-sm text-themed">
+                          <div class="text-sm text-themed leading-normal">
                             {{ getNestedValue(item, column.key) }}
                           </div>
                         }
@@ -178,7 +178,7 @@ export interface PaginationConfig {
                   @for (column of columns; track column.key) {
                     @if (!column.mobileHidden) {
                       <div class="mb-2">
-                        <span class="text-xs font-medium text-gray-500 uppercase">{{ column.label }}:</span>
+                        <span class="text-xs font-semibold text-themed-secondary uppercase tracking-wide">{{ column.label }}:</span>
                         <div class="mt-1">
                           @switch (column.type) {
                             @case ('image') {
@@ -202,7 +202,7 @@ export interface PaginationConfig {
                               <ng-container *ngTemplateOutlet="customCellTemplate; context: { $implicit: item, column: column }"></ng-container>
                             }
                             @default {
-                              <div class="text-sm text-gray-900">{{ getNestedValue(item, column.key) }}</div>
+                              <div class="text-sm text-themed leading-normal">{{ getNestedValue(item, column.key) }}</div>
                             }
                           }
                         </div>
@@ -310,13 +310,13 @@ export class DataTableComponent<T = any> implements OnInit {
   ngOnInit() {
     if (Object.keys(this.badgeConfig).length === 0) {
       this.badgeConfig = {
-        'published': 'px-2 py-1 text-xs font-medium rounded-full bg-green-50 text-green-700',
-        'draft': 'px-2 py-1 text-xs font-medium rounded-full bg-yellow-50 text-amber-700',
-        'pending': 'px-2 py-1 text-xs font-medium rounded-full bg-blue-50 text-blue-700',
-        'rejected': 'px-2 py-1 text-xs font-medium rounded-full bg-red-50 text-red-700',
-        'admin': 'px-2 py-1 text-xs font-medium rounded-full bg-red-50 text-red-700',
-        'reviewer': 'px-2 py-1 text-xs font-medium rounded-full bg-blue-50 text-blue-700',
-        'user': 'px-2 py-1 text-xs font-medium rounded-full bg-gray-50 text-gray-700'
+        'published': 'tag tag-green',
+        'draft': 'tag tag-yellow',
+        'pending': 'tag tag-blue',
+        'rejected': 'tag tag-red',
+        'admin': 'tag tag-red',
+        'reviewer': 'tag tag-blue',
+        'user': 'tag tag-gray'
       };
     }
   }
@@ -331,18 +331,18 @@ export class DataTableComponent<T = any> implements OnInit {
   }
 
   getBadgeClass(value: string): string {
-    const defaultClass = 'px-2 py-1 text-xs font-medium rounded-full tag tag-gray';
+    const defaultClass = 'tag tag-gray';
     return this.badgeConfig[value?.toLowerCase()] || defaultClass;
   }
 
   getActionButtonClass(color?: string): string {
     const baseClass = 'inline-flex items-center px-3 py-1 border border-transparent text-xs font-medium rounded-md focus:outline-none focus:ring-2 transition-all duration-150';
     switch (color) {
-      case 'primary': return `${baseClass} text-white bg-themed-accent hover:bg-themed-accent-hover focus:ring-orange-500`;
+      case 'primary': return `${baseClass} text-white bg-themed-accent hover:bg-themed-accent-hover shadow-sm font-semibold focus:ring-orange-500`;
       case 'danger': return `${baseClass} action-btn-danger`;
       case 'warning': return `${baseClass} action-btn-warning`;
       case 'success': return `${baseClass} action-btn-success`;
-      default: return `${baseClass} text-themed-secondary bg-themed-tertiary hover:bg-themed-hover focus:ring-gray-500`;
+      default: return `${baseClass} text-themed-secondary bg-themed-tertiary hover:bg-themed-hover font-medium focus:ring-gray-500`;
     }
   }
 

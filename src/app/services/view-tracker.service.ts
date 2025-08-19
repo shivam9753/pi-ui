@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { ApiService } from './api.service';
 import { Observable, of } from 'rxjs';
 import { catchError, tap, map } from 'rxjs/operators';
+import { API_ENDPOINTS } from '../shared/constants/api.constants';
 
 export interface ViewResponse {
   success: boolean;
@@ -34,7 +35,7 @@ export class ViewTrackerService {
       windowDays: this.TRENDING_WINDOW_DAYS
     };
 
-    return this.apiService.post(`/submissions/${postId}/view`, payload, false).pipe(
+    return this.apiService.post(API_ENDPOINTS.SUBMISSIONS_NESTED.VIEW(postId), payload, false).pipe(
       map((response: any) => ({
         success: true,
         viewCount: response.viewCount || 0,
@@ -57,7 +58,7 @@ export class ViewTrackerService {
       windowDays: this.TRENDING_WINDOW_DAYS.toString()
     };
 
-    return this.apiService.get('/submissions/trending', params, false).pipe(
+    return this.apiService.get(API_ENDPOINTS.SUBMISSIONS + '/trending', params, false).pipe(
       map((response: any) => ({
         submissions: response.submissions || [],
         total: response.total || 0
@@ -70,7 +71,7 @@ export class ViewTrackerService {
    * Get view statistics for a post
    */
   getPostStats(postId: string): Observable<{viewCount: number, recentViews: number, trendingScore: number}> {
-    return this.apiService.get(`/submissions/${postId}/stats`, undefined, false).pipe(
+    return this.apiService.get(API_ENDPOINTS.SUBMISSIONS_NESTED.STATS(postId), undefined, false).pipe(
       map((response: any) => ({
         viewCount: response.viewCount || 0,
         recentViews: response.recentViews || 0,

@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, OnInit, OnDestroy } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit, OnDestroy, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { trigger, state, style, transition, animate } from '@angular/animations';
 
@@ -54,7 +54,7 @@ import { trigger, state, style, transition, animate } from '@angular/animations'
     ])
   ]
 })
-export class ToastNotificationComponent implements OnInit, OnDestroy {
+export class ToastNotificationComponent implements OnInit, OnDestroy, OnChanges {
   @Input() message = '';
   @Input() type: 'success' | 'error' | 'info' | 'warning' = 'info';
   @Input() isVisible = false;
@@ -66,6 +66,12 @@ export class ToastNotificationComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     if (this.autoClose && this.isVisible) {
+      this.startAutoCloseTimer();
+    }
+  }
+
+  ngOnChanges(changes: SimpleChanges) {
+    if (changes['isVisible'] && this.isVisible && this.autoClose) {
       this.startAutoCloseTimer();
     }
   }

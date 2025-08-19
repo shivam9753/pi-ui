@@ -9,10 +9,10 @@ import { SubmissionTagComponent } from '../../submission-tag/submission-tag.comp
   imports: [CommonModule, SubmissionTagComponent],
   template: `
     <div class="mb-3">
-      <h3 class="font-semibold text-gray-900 mb-1">{{ submission.title }}</h3>
-      <p class="text-sm text-gray-600">by {{ getAuthorName(submission) }}</p>
+      <h3 class="font-semibold text-themed leading-tight mb-1">{{ submission.title }}</h3>
+      <p class="text-sm text-themed-secondary leading-normal">by {{ getAuthorName(submission) }}</p>
       @if (submission?.description) {
-        <p class="text-xs text-gray-500 mt-1 line-clamp-2">{{ submission?.description }}</p>
+        <p class="text-xs text-themed-tertiary mt-1 line-clamp-2 leading-relaxed">{{ submission?.description }}</p>
       }
     </div>
     
@@ -30,7 +30,7 @@ import { SubmissionTagComponent } from '../../submission-tag/submission-tag.comp
         [showIcon]="false"
         size="xs">
       </app-submission-tag>
-      <span class="text-xs text-gray-500">
+      <span class="text-xs text-themed-tertiary">
         {{ submission.createdAt | date:'MMM d, y' }}
       </span>
     </div>

@@ -18,30 +18,7 @@ import {
   selector: 'app-shortlisted-submissions',
   standalone: true,
   imports: [CommonModule, FormsModule, AdminPageHeaderComponent, DataTableComponent],
-  template: `
-    <div class="space-y-6">
-      <!-- Page Header -->
-      <app-admin-page-header
-        title="Shortlisted Submissions"
-        [subtitle]="'Submissions that have been shortlisted for further review'"
-        [stats]="headerStats">
-      </app-admin-page-header>
-
-      <!-- Submissions Table -->
-      <app-data-table
-        [data]="submissions"
-        [columns]="columns"
-        [actions]="actions"
-        [badgeConfig]="badgeConfig"
-        [loading]="loading"
-        [pagination]="paginationConfig"
-        (actionClick)="handleAction($event)"
-        (pageChange)="onPageChange($event)"
-        emptyStateMessage="No shortlisted submissions found"
-        emptyStateIcon="star">
-      </app-data-table>
-    </div>
-  `,
+  templateUrl: './shortlisted-submissions.component.html',
   styles: [`
     .space-y-6 > * + * {
       margin-top: 1.5rem;
@@ -175,5 +152,26 @@ export class ShortlistedSubmissionsComponent implements OnInit {
   onPageChange(event: any) {
     this.paginationConfig.currentPage = typeof event === 'number' ? event : event.target?.value || 1;
     this.loadShortlistedSubmissions();
+  }
+
+  getAuthorName(submission: any): string {
+    return submission.authorName || submission.user?.name || submission.user?.username || 'Unknown Author';
+  }
+
+  getTruncatedDescription(submission: any, maxLength: number = 80): string {
+    const description = submission.description || submission.content || '';
+    if (description.length <= maxLength) {
+      return description;
+    }
+    return description.substring(0, maxLength).trim() + '...';
+  }
+
+  getBadgeClass(value: string): string {
+    const key = value?.toLowerCase() || '';
+    return (this.badgeConfig as any)[key] || 'tag tag-gray';
+  }
+
+  trackBySubmissionId(index: number, submission: any): string {
+    return submission._id || submission.id || index.toString();
   }
 }

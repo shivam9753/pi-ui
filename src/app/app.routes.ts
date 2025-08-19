@@ -22,6 +22,7 @@ import { PoemParserComponent } from './admin/poem-parser/poem-parser.component';
 import { CategoryComponent } from './category/category.component';
 import { TagComponent } from './tag/tag.component';
 import { JsonConverterComponent } from './admin/json-converter/json-converter.component';
+import { WhatsNewComponent } from './whats-new/whats-new.component';
 import { postSSRResolver } from './resolvers/post-ssr.resolver';
 
 export const routes: Routes = [
@@ -60,7 +61,14 @@ export const routes: Routes = [
   { 
     path: 'user-profile/:id', 
     component: UserProfileComponent, 
-    canActivate: [AuthGuard]
+    canActivate: [AuthGuard],
+    title: 'User Profile - pi'
+  },
+  { 
+    path: 'user-profile', 
+    component: UserProfileComponent, 
+    canActivate: [AuthGuard],
+    title: 'My Profile - pi'
   },
   { 
     path: 'profile', 
@@ -126,6 +134,11 @@ export const routes: Routes = [
     title: 'Writing Prompts'
   },
   { 
+    path: 'whats-new', 
+    component: WhatsNewComponent, 
+    title: 'What\'s New - pi'
+  },
+  { 
     path: 'review-submission/:id', 
     component: ReviewSubmissionComponent, 
     canActivate: [ReviewerGuard],
@@ -179,8 +192,9 @@ export const routes: Routes = [
       // Skip known application routes that aren't post slugs
       const knownRoutes = [
         'login', 'explore', 'submit', 'admin', 'workspace', 'profile', 'prompts',
-        'faqs', 'contact-us', 'privacy-policy', 'terms-of-use',
-        'complete-profile', 'review', 'publish', 'users', 'poem-parser', 'json-parser'
+        'faqs', 'contact-us', 'privacy-policy', 'terms-of-use', 'whats-new',
+        'complete-profile', 'review', 'publish', 'users', 'poem-parser', 'json-parser',
+        'user-profile'
       ];
       
       if (slug && !knownRoutes.includes(slug)) {

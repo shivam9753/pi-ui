@@ -76,38 +76,31 @@ export const SUBMISSIONS_TABLE_COLUMNS: TableColumn[] = [
 // Published Posts Table Configuration
 export const PUBLISHED_POSTS_TABLE_COLUMNS: TableColumn[] = [
   {
-    key: 'imageUrl',
-    label: 'Image',
-    type: 'image',
-    width: '10%',
-    sortable: false
-  },
-  {
     key: 'title',
     label: 'Title & Author',
     type: 'custom',
-    width: '35%',
+    width: '40%',
     sortable: true
   },
   {
     key: 'submissionType',
     label: 'Type',
     type: 'custom',
-    width: '15%',
+    width: '18%',
     sortable: true
   },
   {
     key: 'status',
     label: 'Status',
     type: 'badge',
-    width: '12%',
+    width: '15%',
     sortable: true
   },
   {
     key: 'stats',
     label: 'Stats',
     type: 'custom',
-    width: '13%',
+    width: '12%',
     sortable: false
   },
   {
@@ -283,31 +276,31 @@ export const createReadyToPublishActions = (
 
 // Badge configurations - Using CSS custom properties for consistent theming
 export const SUBMISSION_BADGE_CONFIG = {
-  'pending': 'px-2 py-1 text-xs font-medium rounded-full tag tag-yellow',
-  [SUBMISSION_STATUS.PENDING_REVIEW]: 'px-2 py-1 text-xs font-medium rounded-full tag tag-orange',
-  [SUBMISSION_STATUS.IN_PROGRESS]: 'px-2 py-1 text-xs font-medium rounded-full tag tag-blue',
-  [SUBMISSION_STATUS.NEEDS_REVISION]: 'px-2 py-1 text-xs font-medium rounded-full tag tag-purple',
-  [SUBMISSION_STATUS.RESUBMITTED]: 'px-2 py-1 text-xs font-medium rounded-full tag tag-blue',
-  'under_review': 'px-2 py-1 text-xs font-medium rounded-full tag tag-blue',
-  [SUBMISSION_STATUS.SHORTLISTED]: 'px-2 py-1 text-xs font-medium rounded-full tag tag-indigo',
-  [SUBMISSION_STATUS.ACCEPTED]: 'px-2 py-1 text-xs font-medium rounded-full tag tag-emerald',
-  'ready_to_publish': 'px-2 py-1 text-xs font-medium rounded-full tag tag-green',
-  [SUBMISSION_STATUS.PUBLISHED]: 'px-2 py-1 text-xs font-medium rounded-full tag tag-green',
-  [SUBMISSION_STATUS.REJECTED]: 'px-2 py-1 text-xs font-medium rounded-full tag tag-red',
-  [SUBMISSION_STATUS.DRAFT]: 'px-2 py-1 text-xs font-medium rounded-full tag tag-gray',
-  'poem': 'px-2 py-1 text-xs font-medium rounded-full tag tag-purple',
-  'prose': 'px-2 py-1 text-xs font-medium rounded-full tag tag-blue',
-  'story': 'px-2 py-1 text-xs font-medium rounded-full tag tag-blue',
-  'article': 'px-2 py-1 text-xs font-medium rounded-full tag tag-blue',
-  'opinion': 'px-2 py-1 text-xs font-medium rounded-full tag tag-red',
-  'book_review': 'px-2 py-1 text-xs font-medium rounded-full tag tag-green',
-  'cinema_essay': 'px-2 py-1 text-xs font-medium rounded-full tag tag-purple',
-  'other': 'px-2 py-1 text-xs font-medium rounded-full tag tag-gray'
+  'pending': 'tag tag-yellow',
+  [SUBMISSION_STATUS.PENDING_REVIEW]: 'tag tag-orange',
+  [SUBMISSION_STATUS.IN_PROGRESS]: 'tag tag-blue',
+  [SUBMISSION_STATUS.NEEDS_REVISION]: 'tag tag-purple',
+  [SUBMISSION_STATUS.RESUBMITTED]: 'tag tag-blue',
+  'under_review': 'tag tag-blue',
+  [SUBMISSION_STATUS.SHORTLISTED]: 'tag tag-purple',
+  [SUBMISSION_STATUS.ACCEPTED]: 'tag tag-emerald',
+  'ready_to_publish': 'tag tag-green',
+  [SUBMISSION_STATUS.PUBLISHED]: 'tag tag-green',
+  [SUBMISSION_STATUS.REJECTED]: 'tag tag-red',
+  [SUBMISSION_STATUS.DRAFT]: 'tag tag-gray',
+  'poem': 'tag tag-purple',
+  'prose': 'tag tag-blue',
+  'story': 'tag tag-blue',
+  'article': 'tag tag-blue',
+  'opinion': 'tag tag-red',
+  'book_review': 'tag tag-green',
+  'cinema_essay': 'tag tag-purple',
+  'other': 'tag tag-gray'
 };
 
 export const USER_BADGE_CONFIG = {
-  'admin': 'px-2 py-1 text-xs font-medium rounded-full tag tag-red',
-  'reviewer': 'px-2 py-1 text-xs font-medium rounded-full tag tag-blue',
-  'curator': 'px-2 py-1 text-xs font-medium rounded-full tag tag-purple',
-  'user': 'px-2 py-1 text-xs font-medium rounded-full tag tag-gray'
+  'admin': 'tag tag-red',
+  'reviewer': 'tag tag-blue',
+  'curator': 'tag tag-purple',
+  'user': 'tag tag-gray'
 };

@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ApiService } from './api.service';
+import { API_ENDPOINTS } from '../shared/constants/api.constants';
 import {
   Submission,
   Content,
@@ -58,42 +59,42 @@ export class SubmissionService {
     if (params.sortBy) queryParams.sortBy = params.sortBy;
     if (params.order) queryParams.order = params.order;
 
-    return this.apiService.get<SubmissionsResponse>('/submissions', queryParams);
+    return this.apiService.get<SubmissionsResponse>(API_ENDPOINTS.SUBMISSIONS, queryParams);
   }
 
   /**
    * Get submission by ID with contents
    */
   getSubmissionById(id: string): Observable<{ submission: Submission }> {
-    return this.apiService.get<{ submission: Submission }>(`/submissions/${id}`);
+    return this.apiService.get<{ submission: Submission }>(API_ENDPOINTS.SUBMISSIONS + `/${id}`);
   }
 
   /**
    * Get submission with contents by ID
    */
   getSubmissionWithContents(id: string): Observable<SubmissionWithContentsResponse> {
-    return this.apiService.get<SubmissionWithContentsResponse>(`/submissions/${id}/contents`);
+    return this.apiService.get<SubmissionWithContentsResponse>(API_ENDPOINTS.SUBMISSIONS_NESTED.CONTENTS(id));
   }
 
   /**
    * Create new submission
    */
   createSubmission(submissionData: Partial<Submission>): Observable<{ message: string; submission: Submission }> {
-    return this.apiService.post<{ message: string; submission: Submission }>('/submissions', submissionData);
+    return this.apiService.post<{ message: string; submission: Submission }>(API_ENDPOINTS.SUBMISSIONS, submissionData);
   }
 
   /**
    * Update submission
    */
   updateSubmission(id: string, submissionData: Partial<Submission>): Observable<{ message: string; submission: Submission }> {
-    return this.apiService.put<{ message: string; submission: Submission }>(`/submissions/${id}`, submissionData);
+    return this.apiService.put<{ message: string; submission: Submission }>(API_ENDPOINTS.SUBMISSIONS + `/${id}`, submissionData);
   }
 
   /**
    * Delete submission
    */
   deleteSubmission(id: string): Observable<{ message: string }> {
-    return this.apiService.delete<{ message: string }>(`/submissions/${id}`);
+    return this.apiService.delete<{ message: string }>(API_ENDPOINTS.SUBMISSIONS + `/${id}`);
   }
 
   /**
@@ -116,7 +117,7 @@ export class SubmissionService {
     if (params.sortBy) queryParams.sortBy = params.sortBy;
     if (params.order) queryParams.order = params.order;
 
-    return this.apiService.get<SubmissionsResponse>('/submissions/published', queryParams);
+    return this.apiService.get<SubmissionsResponse>(API_ENDPOINTS.SUBMISSIONS + '/published', queryParams);
   }
 
   /**
@@ -135,27 +136,27 @@ export class SubmissionService {
     if (params.status) queryParams.status = params.status;
     if (params.type) queryParams.type = params.type;
 
-    return this.apiService.get<SubmissionsResponse>(`/submissions/user/${userId}`, queryParams);
+    return this.apiService.get<SubmissionsResponse>(API_ENDPOINTS.SUBMISSIONS_NESTED.USER_BY_ID(userId), queryParams);
   }
 
   /**
    * Publish submission with SEO data
    */
   publishSubmissionWithSEO(id: string, seoData: any): Observable<{ message: string; submission: Submission }> {
-    return this.apiService.post<{ message: string; submission: Submission }>(`/submissions/${id}/publish-with-seo`, seoData);
+    return this.apiService.post<{ message: string; submission: Submission }>(API_ENDPOINTS.SUBMISSIONS_NESTED.PUBLISH_SEO(id), seoData);
   }
 
   /**
    * Get submission by slug
    */
   getSubmissionBySlug(slug: string): Observable<{ submission: Submission }> {
-    return this.apiService.get<{ submission: Submission }>(`/submissions/by-slug/${slug}`);
+    return this.apiService.get<{ submission: Submission }>(API_ENDPOINTS.SUBMISSIONS_NESTED.BY_SLUG(slug));
   }
 
   /**
    * Upload submission image
    */
   uploadSubmissionImage(formData: FormData): Observable<{ imageUrl: string; message: string }> {
-    return this.apiService.upload<{ imageUrl: string; message: string }>('/images/upload', formData);
+    return this.apiService.upload<{ imageUrl: string; message: string }>(API_ENDPOINTS.UPLOADS.IMAGE, formData);
   }
 }

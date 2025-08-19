@@ -10,8 +10,10 @@ import { PrettyLabelPipe } from '../pipes/pretty-label.pipe';
 import { EmptyStateComponent } from '../shared/components/empty-state/empty-state.component';
 import { LoadingStateComponent } from '../shared/components/loading-state/loading-state.component';
 import { StatusBadgeComponent } from '../shared/components/status-badge/status-badge.component';
+import { DataTableComponent } from '../shared/components/data-table/data-table.component';
 import { ProfileCompletionComponent } from '../profile-completion/profile-completion.component';
 import { SUBMISSION_STATUS, SubmissionStatus } from '../shared/constants/api.constants';
+import { SUBMISSION_BADGE_CONFIG } from '../shared/components/data-table/table-configs';
 
 // Add interfaces for new data types
 interface Submission {
@@ -52,7 +54,7 @@ interface Draft {
 
 @Component({
   selector: 'app-user-profile',
-  imports: [CommonModule, FormsModule, RouterModule, TypeBadgePipe, PrettyLabelPipe, EmptyStateComponent, LoadingStateComponent, StatusBadgeComponent, ProfileCompletionComponent],
+  imports: [CommonModule, FormsModule, RouterModule, TypeBadgePipe, PrettyLabelPipe, EmptyStateComponent, LoadingStateComponent, StatusBadgeComponent, DataTableComponent, ProfileCompletionComponent],
   templateUrl: './user-profile.component.html',
   styleUrl: './user-profile.component.css'
 })
@@ -69,7 +71,7 @@ export class UserProfileComponent implements OnInit {
   showProfileEditor = signal(false);
   
   // Tab management
-  activeTab = signal<'published' | 'submissions' | 'drafts'>('published');
+  activeTab = signal<'published' | 'submissions' | 'drafts' | ''>('');
   
   // Filters and sorts
   worksFilter = signal('');
@@ -81,6 +83,7 @@ export class UserProfileComponent implements OnInit {
   
   // Constants for template usage
   readonly SUBMISSION_STATUS = SUBMISSION_STATUS;
+  readonly badgeConfig = SUBMISSION_BADGE_CONFIG;
   
   // Loading states
   isLoading = signal(true);
@@ -152,11 +155,12 @@ export class UserProfileComponent implements OnInit {
           const statusOrder: { [key: string]: number } = { 
             [SUBMISSION_STATUS.PENDING_REVIEW]: 0, 
             [SUBMISSION_STATUS.IN_PROGRESS]: 1,
-            [SUBMISSION_STATUS.NEEDS_REVISION]: 2,
-            [SUBMISSION_STATUS.ACCEPTED]: 3, 
-            [SUBMISSION_STATUS.PUBLISHED]: 4, 
-            [SUBMISSION_STATUS.REJECTED]: 5,
-            [SUBMISSION_STATUS.DRAFT]: 6
+            [SUBMISSION_STATUS.RESUBMITTED]: 2,
+            [SUBMISSION_STATUS.NEEDS_REVISION]: 3,
+            [SUBMISSION_STATUS.ACCEPTED]: 4, 
+            [SUBMISSION_STATUS.PUBLISHED]: 5, 
+            [SUBMISSION_STATUS.REJECTED]: 6,
+            [SUBMISSION_STATUS.DRAFT]: 7
           };
           return (statusOrder[a.status] || 0) - (statusOrder[b.status] || 0);
         case 'title':
@@ -528,6 +532,8 @@ export class UserProfileComponent implements OnInit {
         return `${baseClasses} bg-blue-100 text-blue-800 border border-blue-200`;
       case SUBMISSION_STATUS.NEEDS_REVISION:
         return `${baseClasses} bg-amber-100 text-amber-800 border border-amber-200`;
+      case SUBMISSION_STATUS.RESUBMITTED:
+        return `${baseClasses} bg-purple-100 text-purple-800 border border-purple-200`;
       case SUBMISSION_STATUS.REJECTED:
         return `${baseClasses} bg-red-100 text-red-800 border border-red-200`;
       case SUBMISSION_STATUS.DRAFT:
@@ -549,6 +555,8 @@ export class UserProfileComponent implements OnInit {
         return 'bg-blue-500';
       case SUBMISSION_STATUS.NEEDS_REVISION:
         return 'bg-orange-500';
+      case SUBMISSION_STATUS.RESUBMITTED:
+        return 'bg-purple-500';
       case SUBMISSION_STATUS.REJECTED:
         return 'bg-red-500';
       case SUBMISSION_STATUS.DRAFT:
@@ -570,6 +578,8 @@ export class UserProfileComponent implements OnInit {
         return 'In Progress';
       case SUBMISSION_STATUS.NEEDS_REVISION:
         return 'Needs Revision';
+      case SUBMISSION_STATUS.RESUBMITTED:
+        return 'Resubmitted';
       case SUBMISSION_STATUS.REJECTED:
         return 'Rejected';
       case SUBMISSION_STATUS.DRAFT:
@@ -1024,5 +1034,158 @@ export class UserProfileComponent implements OnInit {
     if (num >= 1000000) return (num / 1000000).toFixed(1).replace('.0', '') + 'M';
     if (num >= 1000) return (num / 1000).toFixed(1).replace('.0', '') + 'K';
     return num.toString();
+  }
+
+  // Dashboard-specific methods
+  getPendingCount(): number {
+    return this.submissions().filter(sub => sub.status === SUBMISSION_STATUS.PENDING_REVIEW).length;
+  }
+
+  getInReviewCount(): number {
+    return this.submissions().filter(sub => sub.status === SUBMISSION_STATUS.IN_PROGRESS).length;
+  }
+
+  getAcceptedCount(): number {
+    return this.submissions().filter(sub => sub.status === SUBMISSION_STATUS.ACCEPTED).length;
+  }
+
+  getNeedsRevisionCount(): number {
+    return this.submissions().filter(sub => sub.status === SUBMISSION_STATUS.NEEDS_REVISION).length;
+  }
+
+  getRecentActivity(): any[] {
+    const activities: any[] = [];
+    
+    // Add recent submissions
+    this.submissions().slice(0, 5).forEach(submission => {
+      activities.push({
+        id: submission._id + '_submitted',
+        type: 'submitted',
+        message: 'You submitted a new work',
+        submissionTitle: submission.title,
+        timestamp: submission.submittedAt
+      });
+      
+      if (submission.reviewedAt) {
+        activities.push({
+          id: submission._id + '_reviewed',
+          type: 'reviewed',
+          message: submission.status === SUBMISSION_STATUS.ACCEPTED ? 'Your work was accepted' : 
+                   submission.status === SUBMISSION_STATUS.REJECTED ? 'Your work needs revision' :
+                   'Your work was reviewed',
+          submissionTitle: submission.title,
+          timestamp: submission.reviewedAt
+        });
+      }
+    });
+
+    // Add recent publications
+    this.publishedWorks().slice(0, 3).forEach(work => {
+      activities.push({
+        id: work._id + '_published',
+        type: 'published',
+        message: 'Your work was published',
+        submissionTitle: work.title,
+        timestamp: work.publishedAt
+      });
+    });
+
+    // Sort by timestamp, most recent first
+    return activities
+      .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
+      .slice(0, 10);
+  }
+
+  getActivityIconClass(type: string): string {
+    switch (type) {
+      case 'submitted':
+        return 'flex h-8 w-8 items-center justify-center rounded-full bg-blue-500';
+      case 'reviewed':
+        return 'flex h-8 w-8 items-center justify-center rounded-full bg-purple-500';
+      case 'published':
+        return 'flex h-8 w-8 items-center justify-center rounded-full bg-green-500';
+      case 'revision':
+        return 'flex h-8 w-8 items-center justify-center rounded-full bg-yellow-500';
+      default:
+        return 'flex h-8 w-8 items-center justify-center rounded-full bg-gray-500';
+    }
+  }
+
+  getRecentSubmissions(): Submission[] {
+    return this.submissions()
+      .sort((a, b) => new Date(b.submittedAt).getTime() - new Date(a.submittedAt).getTime())
+      .slice(0, 5);
+  }
+
+  getActionItems(): any[] {
+    const items: any[] = [];
+    
+    // Add items that need revision
+    const needsRevision = this.submissions().filter(sub => sub.status === SUBMISSION_STATUS.NEEDS_REVISION);
+    if (needsRevision.length > 0) {
+      items.push({
+        type: 'revision',
+        count: needsRevision.length,
+        message: `${needsRevision.length} submission(s) need revision`,
+        action: () => this.viewNeedsRevision()
+      });
+    }
+
+    return items;
+  }
+
+  viewNeedsRevision(): void {
+    this.submissionsFilter.set(SUBMISSION_STATUS.NEEDS_REVISION);
+    this.activeTab.set('submissions');
+  }
+
+  // Recent Submissions Table Configuration
+  getRecentSubmissionsColumns(): any[] {
+    return [
+      {
+        key: 'title',
+        label: 'Title',
+        type: 'text',
+        width: '35%',
+        sortable: false
+      },
+      {
+        key: 'status',
+        label: 'Status',
+        type: 'badge',
+        width: '20%',
+        sortable: false
+      },
+      {
+        key: 'submissionType',
+        label: 'Type',
+        type: 'badge',
+        width: '20%',
+        sortable: false
+      },
+      {
+        key: 'submittedAt',
+        label: 'Date',
+        type: 'date',
+        width: '15%',
+        sortable: false
+      }
+    ];
+  }
+
+  getRecentSubmissionsActions(): any[] {
+    return [
+      {
+        label: 'Edit',
+        color: 'warning',
+        condition: (submission: any) => submission.status === SUBMISSION_STATUS.NEEDS_REVISION,
+        handler: (submission: any) => this.editSubmissionForRevision(submission)
+      }
+    ];
+  }
+
+  editSubmissionForRevision(submission: any): void {
+    // Navigate to edit-submission component
+    this.router.navigate(['/edit-submission', submission._id]);
   }
 }

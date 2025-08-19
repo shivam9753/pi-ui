@@ -5,7 +5,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { environment } from '../../../../environments/environment';
 import { BackendService } from '../../../services/backend.service';
 import { AdminPageHeaderComponent, AdminPageStat } from '../../../shared/components/admin-page-header/admin-page-header.component';
-import { SUBMISSION_STATUS, SubmissionStatus } from '../../../shared/constants/api.constants';
+import { SUBMISSION_STATUS, SubmissionStatus, API_ENDPOINTS } from '../../../shared/constants/api.constants';
 import {
   DataTableComponent,
   TableColumn,
@@ -52,6 +52,12 @@ export class AllSubmissionsComponent implements OnInit {
   
   // Filter properties
   currentFilters: SimpleFilterOptions = {};
+  
+  // Sorting properties
+  currentSort = {
+    sortBy: 'reviewedAt',
+    order: 'desc' as 'asc' | 'desc'
+  };
   
   // Edit mode
   editingSubmission: any = null;
@@ -100,15 +106,31 @@ export class AllSubmissionsComponent implements OnInit {
 
   loadSubmissions() {
     this.loading = true;
-    const headers = this.getAuthHeaders();
-    this.backendService.getSubmissions().subscribe({
+    
+    // Build API parameters from current filters, pagination, and sorting
+    const apiParams = {
+      limit: this.paginationConfig.pageSize,
+      skip: (this.paginationConfig.currentPage - 1) * this.paginationConfig.pageSize,
+      sortBy: this.currentSort.sortBy,
+      order: this.currentSort.order,
+      ...this.getApiFilters()
+    };
+    
+    this.backendService.getSubmissions(apiParams).subscribe({
       next: (res: any) => {
         this.submissions = res.submissions || [];
-        // Debug: Log the first submission to understand the structure
-        if (this.submissions.length > 0) {
-          console.log('First submission structure:', this.submissions[0]);
+        this.filteredSubmissions = this.submissions; // Use API response directly
+        
+        // Update pagination from API response
+        if (res.pagination) {
+          this.paginationConfig = {
+            currentPage: res.pagination.currentPage || 1,
+            totalPages: res.pagination.totalPages || 1,
+            pageSize: res.pagination.limit || 20,
+            totalItems: res.total || 0
+          };
         }
-        this.applyFilters();
+        
         this.loading = false;
       },
       error: (err) => {
@@ -118,18 +140,27 @@ export class AllSubmissionsComponent implements OnInit {
     });
   }
 
-  updatePaginationConfig() {
-    this.paginationConfig = {
-      currentPage: 1,
-      totalPages: Math.ceil(this.filteredSubmissions.length / 20),
-      pageSize: 20,
-      totalItems: this.filteredSubmissions.length
-    };
+  getApiFilters() {
+    const apiFilters: any = {};
+    
+    if (this.currentFilters.status) {
+      apiFilters.status = this.currentFilters.status;
+    }
+    
+    if (this.currentFilters.type) {
+      apiFilters.type = this.currentFilters.type;
+    }
+    
+    if (this.currentFilters.search?.trim()) {
+      apiFilters.search = this.currentFilters.search.trim();
+    }
+    
+    return apiFilters;
   }
 
   loadUsers() {
     const headers = this.getAuthHeaders();
-    this.http.get(`${environment.apiBaseUrl}/admin/users`, { headers }).subscribe({
+    this.http.get(`${environment.apiBaseUrl}${API_ENDPOINTS.ADMIN.USERS}`, { headers }).subscribe({
       next: (res: any) => {
         this.users = res.users || [];
       },
@@ -156,7 +187,7 @@ export class AllSubmissionsComponent implements OnInit {
     }
 
     const headers = this.getAuthHeaders();
-    this.http.put(`${environment.apiBaseUrl}/admin/submissions/${this.editingSubmission._id}/reassign`, {
+    this.http.put(`${environment.apiBaseUrl}${API_ENDPOINTS.ADMIN.SUBMISSIONS.REASSIGN(this.editingSubmission._id)}`, {
       newUserId: this.selectedUserId
     }, { headers }).subscribe({
       next: (res: any) => {
@@ -272,7 +303,7 @@ export class AllSubmissionsComponent implements OnInit {
     const submissionIds = Array.from(this.selectedSubmissions);
     const headers = this.getAuthHeaders();
     
-    this.http.put(`${environment.apiBaseUrl}/admin/submissions/bulk-reassign`, {
+    this.http.put(`${environment.apiBaseUrl}${API_ENDPOINTS.ADMIN.SUBMISSIONS.BULK_REASSIGN}`, {
       submissionIds,
       newUserId: this.bulkSelectedUserId
     }, { headers }).subscribe({
@@ -291,11 +322,16 @@ export class AllSubmissionsComponent implements OnInit {
 
   onTablePageChange(page: number) {
     this.paginationConfig.currentPage = page;
-    // Implement pagination if backend supports it
+    this.loadSubmissions(); // Reload data for new page
   }
 
   onTableSort(event: {column: string, direction: 'asc' | 'desc'}) {
-    // Implement sorting if needed
+    this.currentSort = {
+      sortBy: event.column,
+      order: event.direction
+    };
+    this.paginationConfig.currentPage = 1; // Reset to first page when sorting
+    this.loadSubmissions(); // Reload data with new sorting
   }
 
   trackBySubmissionId(index: number, submission: any): string {
@@ -315,35 +351,14 @@ export class AllSubmissionsComponent implements OnInit {
   // Filter methods
   onFilterChange(filters: SimpleFilterOptions) {
     this.currentFilters = filters;
-    this.applyFilters();
+    this.paginationConfig.currentPage = 1; // Reset to first page when filtering
+    this.loadSubmissions(); // Reload data with new filters
   }
 
+  // Legacy method - no longer needed since we use API-based filtering
+  // Keeping it simple in case any other part of the code calls it
   applyFilters() {
-    this.filteredSubmissions = this.submissions.filter(submission => {
-      let matchesStatus = true;
-      let matchesType = true;
-      let matchesSearch = true;
-
-      if (this.currentFilters.status) {
-        matchesStatus = submission.status === this.currentFilters.status;
-      }
-
-      if (this.currentFilters.type) {
-        matchesType = submission.submissionType === this.currentFilters.type;
-      }
-
-      if (this.currentFilters.search?.trim()) {
-        const searchLower = this.currentFilters.search.toLowerCase().trim();
-        matchesSearch = 
-          submission.title?.toLowerCase().includes(searchLower) ||
-          submission.description?.toLowerCase().includes(searchLower) ||
-          submission.authorName?.toLowerCase().includes(searchLower);
-      }
-
-      return matchesStatus && matchesType && matchesSearch;
-    });
-
-    this.updatePaginationConfig();
+    this.filteredSubmissions = this.submissions;
   }
 
   // Helper methods to handle different API response structures

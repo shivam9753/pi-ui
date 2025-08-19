@@ -5,6 +5,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { environment } from '../../../../environments/environment';
 import { compressImageToAVIF } from '../../../shared/utils/image-compression.util';
 import { AdminPageHeaderComponent } from '../../../shared/components/admin-page-header/admin-page-header.component';
+import { API_ENDPOINTS } from '../../../shared/constants/api.constants';
 
 @Component({
   selector: 'app-create-users',
@@ -46,7 +47,7 @@ export class CreateUsersComponent {
       });
       
       // Create user first
-      const createResponse: any = await this.http.post(`${environment.apiBaseUrl}/admin/users`, this.newUser, { headers }).toPromise();
+      const createResponse: any = await this.http.post(`${environment.apiBaseUrl}${API_ENDPOINTS.ADMIN.CREATE_USER}`, this.newUser, { headers }).toPromise();
       
       // If there's a profile image, upload it
       if (this.selectedFile && createResponse.user) {
@@ -76,7 +77,7 @@ export class CreateUsersComponent {
         'Authorization': `Bearer ${jwtToken}`
       });
       
-      await this.http.post(`${environment.apiBaseUrl}/admin/users/${userId}/upload-profile-image`, formData, { headers }).toPromise();
+      await this.http.post(`${environment.apiBaseUrl}${API_ENDPOINTS.ADMIN.UPLOAD_PROFILE_IMAGE(userId)}`, formData, { headers }).toPromise();
     } catch (error) {
       this.showMessage('User created but profile image upload failed', 'error');
     } finally {

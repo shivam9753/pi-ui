@@ -9,7 +9,7 @@ import { ToastNotificationComponent } from '../../../shared/components/toast-not
 import { StatusBadgeComponent } from '../../../shared/components/status-badge/status-badge.component';
 import { environment } from '../../../../environments/environment';
 import { AnalysisPanelComponent } from './analysis-panel.component';
-import { REVIEW_ACTIONS, ReviewAction } from '../../../shared/constants/api.constants';
+import { REVIEW_ACTIONS, ReviewAction, API_ENDPOINTS } from '../../../shared/constants/api.constants';
 
 @Component({
   selector: 'app-review-submission',
@@ -54,6 +54,8 @@ export class ReviewSubmissionComponent {
   
   // Quality breakdown display
   showFullBreakdown = false;
+  
+  // Simplified - no navigation for now
 
   constructor(
     private http: HttpClient, 
@@ -62,6 +64,8 @@ export class ReviewSubmissionComponent {
     private router: Router
   ) {
     this.id = this.activatedRoute.snapshot.paramMap.get('id')!;
+    // Simplified initialization
+    
     if (this.id) {
       this.getSubmissionWithContents(this.id);
     }
@@ -154,6 +158,13 @@ export class ReviewSubmissionComponent {
       return;
     }
 
+    // Check if submission can be reviewed based on its current status
+    if (!this.canReviewSubmission()) {
+      const currentStatus = this.submission?.status || 'unknown';
+      this.showToast(`This submission cannot be reviewed. Current status: ${currentStatus}. Only submissions with status pending_review, in_progress, resubmitted, or shortlisted can be reviewed.`, 'error');
+      return;
+    }
+
     this.isSubmitting = true;
 
     switch (this.reviewAction) {
@@ -210,7 +221,7 @@ export class ReviewSubmissionComponent {
     this.currentAnalysisIndex = index;
     const content = contentPieces[index];
     
-    this.http.post(`${environment.apiBaseUrl}/submissions/${this.submission?._id}/analyze`, {
+    this.http.post(`${environment.apiBaseUrl}${API_ENDPOINTS.SUBMISSIONS_NESTED.ANALYZE(this.submission?._id)}`, {
       submissionText: content.body
     }).subscribe({
       next: (res: any) => {
@@ -308,7 +319,8 @@ export class ReviewSubmissionComponent {
         if (err.status === 200 || err.error?.success) {
           this.handleReviewSuccess('Submission rejected.');
         } else {
-          this.showErrorMessage('Error rejecting submission. Please try again.');
+          const errorMessage = err.error?.message || err.message || 'Error rejecting submission. Please try again.';
+          this.showErrorMessage(errorMessage);
         }
         this.isSubmitting = false;
       }
@@ -328,7 +340,8 @@ export class ReviewSubmissionComponent {
         if (err.status === 200 || err.error?.success) {
           this.handleReviewSuccess('Revision requested. Author has been notified.');
         } else {
-          this.showErrorMessage('Error requesting revision. Please try again.');
+          const errorMessage = err.error?.message || err.message || 'Error requesting revision. Please try again.';
+          this.showErrorMessage(errorMessage);
         }
         this.isSubmitting = false;
       }
@@ -665,4 +678,7 @@ export class ReviewSubmissionComponent {
       default: return 'var(--bg-accent)';
     }
   }
+
+  // Navigation methods removed for now due to API issues
+  // The core review functionality works fine without navigation
 }

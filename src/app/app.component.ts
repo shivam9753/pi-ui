@@ -6,6 +6,7 @@ import { HeaderComponent } from './header/header.component';
 import { FooterComponent } from './footer/footer.component';
 import { AuthService } from './services/auth.service';
 import { BreathingLoaderComponent } from './shared/loader/breathing-loader.component';
+import { AccessibilityService } from './shared/services/accessibility.service';
 
 @Component({
   selector: 'app-root',
@@ -19,6 +20,7 @@ export class AppComponent implements OnInit {
   constructor(
     private authService: AuthService, 
     private router: Router,
+    private accessibilityService: AccessibilityService,
     @Inject(PLATFORM_ID) private platformId: Object
   ) {
     this.router.events.subscribe(event => {
@@ -33,5 +35,10 @@ export class AppComponent implements OnInit {
     setTimeout(() => {
       this.authService.forceRestoreSession();
     }, 500);
+
+    // Initialize accessibility features if in browser
+    if (isPlatformBrowser(this.platformId)) {
+      this.accessibilityService.initKeyboardDetection();
+    }
   }
 }

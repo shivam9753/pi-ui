@@ -1,0 +1,99 @@
+<div class="whats-new-container">
+  <div class="header">
+    <h1>What's New</h1>
+    <p class="subtitle">Latest features and improvements to enhance your experience</p>
+    
+    <div *ngIf="isAdmin" class="admin-controls">
+      <button 
+        class="add-item-btn"
+        (click)="showAddForm = !showAddForm">
+        {{ showAddForm ? 'Cancel' : '+ Add New Item' }}
+      </button>
+    </div>
+  </div>
+
+  <!-- Admin Add Form -->
+  <div *ngIf="isAdmin && showAddForm" class="add-form">
+    <h3>Add New Item</h3>
+    <form (ngSubmit)="addNewItem()">
+      <div class="form-group">
+        <label for="title">Title:</label>
+        <input 
+          type="text" 
+          id="title" 
+          [(ngModel)]="newItem.title" 
+          name="title"
+          required 
+          class="form-input">
+      </div>
+      
+      <div class="form-group">
+        <label for="description">Description:</label>
+        <textarea 
+          id="description" 
+          [(ngModel)]="newItem.description" 
+          name="description"
+          rows="3" 
+          required 
+          class="form-input"></textarea>
+      </div>
+      
+      <div class="form-group">
+        <label for="type">Type:</label>
+        <select 
+          id="type" 
+          [(ngModel)]="newItem.type" 
+          name="type"
+          class="form-input">
+          <option value="Feature">Feature</option>
+          <option value="Defect">Defect</option>
+        </select>
+      </div>
+      
+      <div class="form-group">
+        <label for="link">Link (optional):</label>
+        <input 
+          type="text" 
+          id="link" 
+          [(ngModel)]="newItem.link" 
+          name="link"
+          placeholder="/submission"
+          class="form-input">
+      </div>
+      
+      <div class="form-actions">
+        <button type="submit" class="submit-btn">Add Item</button>
+        <button type="button" class="cancel-btn" (click)="showAddForm = false">Cancel</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Items List -->
+  <div class="items-list">
+    <div *ngIf="items.length === 0" class="empty-state">
+      <p>No updates yet. Check back soon for new features and improvements!</p>
+    </div>
+    
+    <div *ngFor="let item of items" class="item-card">
+      <div class="item-header">
+        <h3 class="item-title">{{ item.title }}</h3>
+        <div class="item-meta">
+          <span class="item-type" [class]="getTypeClass(item.type)">
+            {{ item.type }}
+          </span>
+          <span class="item-date">{{ formatDate(item.dateAdded) }}</span>
+        </div>
+      </div>
+      
+      <p class="item-description">{{ item.description }}</p>
+      
+      <div *ngIf="item.link && item.link !== '#'" class="item-actions">
+        <button 
+          class="learn-more-btn"
+          (click)="navigateToLink(item.link)">
+          Learn More →
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

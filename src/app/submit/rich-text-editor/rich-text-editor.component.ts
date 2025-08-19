@@ -4,6 +4,7 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { ImageCompressionUtil, CompressedImage } from '../../shared/utils/image-compression.util';
 import { environment } from '../../../environments/environment';
+import { API_ENDPOINTS } from '../../shared/constants/api.constants';
 
 @Component({
   selector: 'app-rich-text-editor',
@@ -406,7 +407,7 @@ export class RichTextEditorComponent implements ControlValueAccessor, AfterViewI
     formData.append('alt', '');
     formData.append('caption', '');
 
-    return this.http.post(`${environment.apiBaseUrl}/images/upload`, formData, { headers }).toPromise();
+    return this.http.post(`${environment.apiBaseUrl}${API_ENDPOINTS.UPLOADS.IMAGE}`, formData, { headers }).toPromise();
   }
 
   private insertS3ImageIntoEditor(imageData: any): void {

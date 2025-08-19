@@ -3,6 +3,9 @@
 
 @import "tailwindcss";
 
+/* Accessibility fixes for tab navigation */
+@import "./app/shared/styles/accessibility-fixes.css";
+
 @theme {
   --color-orange-50: #fff7ed;
   --color-orange-100: #ffedd5;

@@ -1,12 +1,11 @@
-<!-- Add this to the beginning of your existing template, before the profile header -->
-<div class="min-h-screen bg-white">
+<div class="min-h-screen bg-gray-50">
 
   <!-- Loading State -->
   @if (isLoading()) {
-    <div class="flex items-center justify-center min-h-screen bg-white">
+    <div class="flex items-center justify-center min-h-screen bg-gray-50">
       <div class="text-center">
         <div class="w-8 h-8 border-4 border-orange-200 border-t-orange-500 rounded-full animate-spin mx-auto mb-4"></div>
-        <p class="text-gray-600">Loading profile...</p>
+        <p class="text-gray-600">Loading dashboard...</p>
       </div>
     </div>
   }
@@ -31,29 +30,17 @@
     </div>
   }
 
-  <!-- Profile Content - Only show when not loading and no error -->
+  <!-- Dashboard Content - Only show when not loading and no error -->
   @if (!isLoading() && !error() && userProfile()) {
     <div>
-      <!-- Private Profile Banner -->
-      <div class="border-b border-gray-100">
-        <div class="max-w-screen-xl mx-auto px-4 sm:px-6 md:px-10 py-2">
-          <div class="flex items-center justify-center gap-2 text-xs text-gray-500">
-            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
-            </svg>
-            <span>Private Profile</span>
-          </div>
-        </div>
-      </div>
-      <!-- Profile Header - New Design -->
-      <div class="bg-white">
-        <!-- Mobile Profile Header -->
-        <div class="block md:hidden">
-          <div class="px-4 py-6">
-            <!-- Profile Image and Name -->
-            <div class="flex items-center justify-center gap-3 mb-6">
+      <!-- Compact Profile Header -->
+      <div class="bg-white border-b border-gray-200 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div class="flex items-center justify-between py-4">
+            <!-- Left: Profile Info -->
+            <div class="flex items-center gap-4">
               <div class="relative">
-                <div class="w-14 h-14 rounded-full bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center overflow-hidden">
+                <div class="w-12 h-12 rounded-full bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center overflow-hidden">
                   @if (userProfile()?.profileImage) {
                     <img
                       [src]="userProfile()!.profileImage"
@@ -67,242 +54,344 @@
                     </span>
                   }
                 </div>
-                <!-- Edit Icon - Mobile -->
+              </div>
+              <div>
+                <h1 class="text-lg font-semibold text-gray-900">
+                  {{ userProfile()?.name || userProfile()?.username }}
+                </h1>
+                <p class="text-sm text-gray-500">
+                  {{ '@' + userProfile()?.username }}
+                </p>
+              </div>
+            </div>
+            
+            <!-- Right: Quick Stats -->
+            <div class="flex items-center gap-3 sm:gap-6">
+              <div class="text-center">
+                <div class="text-lg font-bold text-gray-900">{{ publishedWorks().length }}</div>
+                <div class="text-xs text-gray-500">Published</div>
+              </div>
+              <div class="text-center">
+                <div class="text-lg font-bold text-gray-900">{{ submissions().length }}</div>
+                <div class="text-xs text-gray-500">Submissions</div>
+              </div>
+              <div class="text-center hidden sm:block">
+                <div class="text-lg font-bold text-gray-900">{{ getReadingScore() }}</div>
+                <div class="text-xs text-gray-500">Score</div>
+              </div>
+              
+              <!-- Edit Profile Button - Desktop Only -->
+              @if (isOwnProfile()) {
+                <button
+                  (click)="editProfileAdvanced()"
+                  class="hidden sm:inline-flex items-center px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2">
+                  <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002 2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                  </svg>
+                  Edit Profile
+                </button>
+              }
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Dashboard Main Content -->
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <div class="lg:grid lg:grid-cols-4 lg:gap-6">
+          
+          <!-- Main Content Area -->
+          <div class="lg:col-span-3 space-y-6">
+            
+            <!-- Mobile Quick Actions -->
+            <div class="lg:hidden bg-white rounded-lg border border-gray-200 p-4">
+              <div class="flex gap-2 overflow-x-auto">
+                <button 
+                  (click)="goToSubmit()"
+                  class="flex-shrink-0 inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-orange-600 hover:bg-orange-700 rounded-md">
+                  <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                  </svg>
+                  Submit
+                </button>
+                
+                <button 
+                  (click)="activeTab.set('submissions')"
+                  class="flex-shrink-0 inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 rounded-md">
+                  View All
+                </button>
+                
+                <button 
+                  (click)="activeTab.set('published')"
+                  class="flex-shrink-0 inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 rounded-md">
+                  Published
+                </button>
+                
+                <!-- Mobile Edit Profile Button -->
                 @if (isOwnProfile()) {
                   <button
                     (click)="editProfileAdvanced()"
-                    class="absolute -bottom-1 -right-1 w-6 h-6 bg-orange-600 text-white rounded-full flex items-center justify-center hover:bg-orange-700 transition-colors shadow-lg border-2 border-white">
-                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    class="flex-shrink-0 inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 rounded-md">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
                     </svg>
+                    Edit
                   </button>
                 }
               </div>
+            </div>
+            
+            <!-- Mobile Action Items -->
+            <div class="lg:hidden">
+              @if (getNeedsRevisionCount() > 0) {
+                <div class="bg-white rounded-lg border border-gray-200 p-4 mb-4 shadow-sm">
+                  <div class="flex items-center p-3 border border-yellow-200 rounded-lg">
+                    <svg class="w-5 h-5 text-yellow-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"/>
+                    </svg>
+                    <div class="flex-1">
+                      <p class="text-sm font-medium text-yellow-800">{{ getNeedsRevisionCount() }} submission(s) need revision</p>
+                      <button 
+                        (click)="viewNeedsRevision()"
+                        class="text-xs text-yellow-700 hover:text-yellow-900 underline">
+                        Review now
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              }
+            </div>
+            
+            <!-- Quick Status Overview -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div class="bg-white rounded-lg border border-gray-200 p-4">
+                <div class="flex items-center">
+                  <div class="flex-shrink-0">
+                    <div class="w-8 h-8 bg-yellow-100 rounded-lg flex items-center justify-center">
+                      <svg class="w-5 h-5 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                      </svg>
+                    </div>
+                  </div>
+                  <div class="ml-3">
+                    <p class="text-sm font-medium text-gray-500">Pending Review</p>
+                    <p class="text-lg font-semibold text-gray-900">{{ getPendingCount() }}</p>
+                  </div>
+                </div>
+              </div>
               
-              <div class="text-left">
-                <h1 class="text-xl font-bold text-gray-900 mb-1">
-                  {{ userProfile()?.name || userProfile()?.username }}
-                </h1>
+              <div class="bg-white rounded-lg border border-gray-200 p-4">
+                <div class="flex items-center">
+                  <div class="flex-shrink-0">
+                    <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+                      <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                      </svg>
+                    </div>
+                  </div>
+                  <div class="ml-3">
+                    <p class="text-sm font-medium text-gray-500">In Review</p>
+                    <p class="text-lg font-semibold text-gray-900">{{ getInReviewCount() }}</p>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="bg-white rounded-lg border border-gray-200 p-4">
+                <div class="flex items-center">
+                  <div class="flex-shrink-0">
+                    <div class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
+                      <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                      </svg>
+                    </div>
+                  </div>
+                  <div class="ml-3">
+                    <p class="text-sm font-medium text-gray-500">Accepted</p>
+                    <p class="text-lg font-semibold text-gray-900">{{ getAcceptedCount() }}</p>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="bg-white rounded-lg border border-gray-200 p-4">
+                <div class="flex items-center">
+                  <div class="flex-shrink-0">
+                    <div class="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
+                      <svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                      </svg>
+                    </div>
+                  </div>
+                  <div class="ml-3">
+                    <p class="text-sm font-medium text-gray-500">Published</p>
+                    <p class="text-lg font-semibold text-gray-900">{{ publishedWorks().length }}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            
+            <!-- Recent Activity Feed -->
+            <div class="bg-white rounded-lg border border-gray-200">
+              <div class="px-6 py-4 border-b border-gray-200">
+                <h2 class="text-lg font-semibold text-gray-900">Recent Activity</h2>
+              </div>
+              <div class="p-6">
+                <div class="flow-root">
+                  <ul class="-mb-8">
+                    @for (activity of getRecentActivity(); track activity.id; let isLast = $last) {
+                      <li>
+                        <div class="relative pb-8" [class.pb-0]="isLast">
+                          @if (!isLast) {
+                            <span class="absolute top-4 left-4 -ml-px h-full w-0.5 bg-gray-200" aria-hidden="true"></span>
+                          }
+                          <div class="relative flex space-x-3">
+                            <div>
+                              <span [class]="getActivityIconClass(activity.type)">
+                                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  @switch (activity.type) {
+                                    @case ('submitted') {
+                                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                                    }
+                                    @case ('reviewed') {
+                                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
+                                    }
+                                    @case ('published') {
+                                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                                    }
+                                    @case ('revision') {
+                                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                                    }
+                                  }
+                                </svg>
+                              </span>
+                            </div>
+                            <div class="flex min-w-0 flex-1 justify-between space-x-4 pt-1.5">
+                              <div>
+                                <p class="text-sm text-gray-900">{{ activity.message }}</p>
+                                <p class="text-xs text-gray-500">{{ activity.submissionTitle }}</p>
+                              </div>
+                              <div class="whitespace-nowrap text-right text-sm text-gray-500">
+                                <time>{{ activity.timestamp | date:'MMM d, h:mm a' }}</time>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </li>
+                    }
+                  </ul>
+                </div>
                 
-                @if (userProfile()?.name && userProfile()?.username !== userProfile()?.name) {
-                  <p class="text-sm text-gray-500">
-                    {{ '@' + userProfile()?.username }}
-                  </p>
+                @if (getRecentActivity().length === 0) {
+                  <div class="text-center py-6">
+                    <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/>
+                    </svg>
+                    <h3 class="mt-2 text-sm font-medium text-gray-900">No recent activity</h3>
+                    <p class="mt-1 text-sm text-gray-500">Get started by submitting your first work.</p>
+                  </div>
                 }
               </div>
             </div>
-
-            <!-- Stats Row -->
-            <div class="flex justify-center items-center gap-6 mb-6">
-              <!-- Post Views -->
-              <div class="text-center">
-                <div class="flex items-center justify-center mx-auto mb-1">
-                  <svg class="w-5 h-5 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                  </svg>
+            
+            <!-- Recent Submissions Table -->
+            <div class="bg-white rounded-lg border border-gray-200">
+              <div class="px-6 py-4 border-b border-gray-200">
+                <div class="flex items-center justify-between">
+                  <h2 class="text-lg font-semibold text-gray-900">Recent Submissions</h2>
+                  <button 
+                    (click)="activeTab.set('submissions')"
+                    class="text-sm text-orange-600 hover:text-orange-700 font-medium">
+                    View all
+                  </button>
                 </div>
-                <div class="text-lg font-bold text-gray-900">{{ getPostViews() }}</div>
-                <div class="text-xs font-medium text-gray-500">Post Views</div>
               </div>
-
-              <!-- Publications -->
-              <div class="text-center">
-                <div class="flex items-center justify-center mx-auto mb-1">
-                  <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                  </svg>
-                </div>
-                <div class="text-lg font-bold text-gray-900">{{ publishedWorks().length }}</div>
-                <div class="text-xs font-medium text-gray-500">Publications</div>
-              </div>
-
-              <!-- Reading Score -->
-              <div class="text-center">
-                <div class="flex items-center justify-center mx-auto mb-1">
-                  <svg class="w-5 h-5 text-pink-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                  </svg>
-                </div>
-                <div class="text-lg font-bold text-gray-900">{{ getReadingScore() }}</div>
-                <div class="text-xs font-medium text-gray-500">Reading Score</div>
-              </div>
+              
+              <app-data-table
+                [columns]="getRecentSubmissionsColumns()"
+                [data]="getRecentSubmissions()"
+                [actions]="getRecentSubmissionsActions()"
+                [loading]="false"
+                [selectable]="false"
+                [pagination]="undefined"
+                itemLabel="submissions"
+                [trackByFn]="trackBySubmissionId"
+                [badgeConfig]="badgeConfig">
+                
+                <!-- Empty State Template -->
+                <ng-template #emptyState>
+                  <div class="text-center py-6">
+                    <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/>
+                    </svg>
+                    <h3 class="mt-2 text-sm font-medium text-gray-900">No submissions yet</h3>
+                    <p class="mt-1 text-sm text-gray-500">Start by submitting your first work for review.</p>
+                  </div>
+                </ng-template>
+              </app-data-table>
             </div>
-
-            <!-- Edit Profile Button - Mobile -->
-            @if (isOwnProfile()) {
-              <div class="text-center">
-                <button
-                  (click)="editProfileAdvanced()"
-                  class="inline-flex items-center justify-center px-6 py-2.5 bg-white text-gray-900 rounded-full border-2 border-gray-200 hover:border-orange-300 hover:bg-orange-50 transition-all duration-200 font-medium text-sm min-w-[120px]">
-                  Edit Profile
+          </div>
+          
+          <!-- Sidebar -->
+          <div class="hidden lg:block lg:col-span-1">
+            
+            <!-- Quick Actions -->
+            <div class="bg-white rounded-lg border border-gray-200 p-6 mb-6">
+              <h3 class="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h3>
+              <div class="space-y-3">
+                <button 
+                  (click)="goToSubmit()"
+                  class="w-full inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-orange-600 hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500">
+                  <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                  </svg>
+                  Submit New Work
+                </button>
+                
+                <button 
+                  (click)="activeTab.set('submissions')"
+                  class="w-full inline-flex items-center justify-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500">
+                  <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
+                  </svg>
+                  View All Submissions
+                </button>
+                
+                <button 
+                  (click)="activeTab.set('published')"
+                  class="w-full inline-flex items-center justify-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500">
+                  <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                  </svg>
+                  My Published Works
                 </button>
               </div>
-            }
-          </div>
-        </div>
-
-        <!-- Desktop Profile Header -->
-        <div class="hidden md:block">
-          <div class="max-w-screen-xl mx-auto px-4 sm:px-6 md:px-10 py-12">
-            <div class="px-8 py-12 text-center">
-              <!-- Profile Info -->
-              <div class="flex flex-col items-center">
-                <!-- Profile Image -->
-                <div class="mb-6">
-                  <div class="relative">
-                    <div class="w-36 h-36 rounded-full bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center overflow-hidden">
-                      @if (userProfile()?.profileImage) {
-                        <img
-                          [src]="userProfile()!.profileImage"
-                          [alt]="userProfile()!.username"
-                          (error)="onImageError($event)"
-                          class="w-full h-full object-cover" />
-                      }
-                      @if (!userProfile()?.profileImage) {
-                        <span class="text-white text-4xl font-bold">
-                          {{ userProfile()?.username?.[0]?.toUpperCase() || '?' }}
-                        </span>
-                      }
-                    </div>
-                    <!-- Edit Icon - Desktop -->
-                    @if (isOwnProfile()) {
-                      <button
-                        (click)="editProfileAdvanced()"
-                        class="absolute -bottom-2 -right-2 w-10 h-10 bg-orange-600 text-white rounded-full flex items-center justify-center hover:bg-orange-700 transition-colors shadow-lg border-4 border-white">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
-                        </svg>
+            </div>
+            
+            <!-- Action Items -->
+            <div class="bg-white rounded-lg border border-gray-200 p-6 shadow-sm">
+              <h3 class="text-lg font-semibold text-gray-900 mb-4">Action Items</h3>
+              <div class="space-y-3">
+                @if (getNeedsRevisionCount() > 0) {
+                  <div class="flex items-center p-3 border border-yellow-200 rounded-lg">
+                    <svg class="w-5 h-5 text-yellow-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"/>
+                    </svg>
+                    <div class="flex-1">
+                      <p class="text-sm font-medium text-yellow-800">{{ getNeedsRevisionCount() }} submission(s) need revision</p>
+                      <button 
+                        (click)="viewNeedsRevision()"
+                        class="text-xs text-yellow-700 hover:text-yellow-900 underline">
+                        Review now
                       </button>
-                    }
-                  </div>
-                </div>
-                
-                <!-- Profile Details -->
-                <div class="mb-8">
-                  <h1 class="text-4xl font-bold text-gray-900 mb-3">
-                    {{ userProfile()?.name || userProfile()?.username }}
-                  </h1>
-                  @if (userProfile()?.name && userProfile()?.username !== userProfile()?.name) {
-                    <p class="text-lg text-gray-500 mb-4 mt-3">
-                      {{ '@' + userProfile()?.username }}
-                    </p>
-                  }
-                  
-                  <!-- Role Badge (only for admin/reviewer) -->
-                  @if (userProfile()?.role === 'admin' || userProfile()?.role === 'reviewer') {
-                    <div class="mb-4">
-                      <span class="inline-flex items-center px-4 py-2 text-sm font-medium rounded-full border"
-                        [class]="userProfile()?.role === 'admin' ? 'bg-red-50 text-red-700 border-red-200' : 'bg-blue-50 text-blue-700 border-blue-200'">
-                        {{ userProfile()?.role | titlecase }}
-                      </span>
                     </div>
-                  }
-                </div>
-
-                <!-- Stats Row - Desktop -->
-                <div class="flex justify-center items-center gap-12 mb-8">
-                  <!-- Post Views -->
-                  <div class="flex items-center gap-4">
-                    <div class="flex items-center justify-center">
-                      <svg class="w-7 h-7 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                      </svg>
-                    </div>
-                    <div>
-                      <div class="text-3xl font-bold text-gray-900">{{ getPostViews() }}</div>
-                      <div class="text-sm font-medium text-gray-500">Post Views</div>
-                    </div>
-                  </div>
-
-                  <!-- Publications -->
-                  <div class="flex items-center gap-4">
-                    <div class="flex items-center justify-center">
-                      <svg class="w-7 h-7 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                      </svg>
-                    </div>
-                    <div>
-                      <div class="text-3xl font-bold text-gray-900">{{ publishedWorks().length }}</div>
-                      <div class="text-sm font-medium text-gray-500">Publications</div>
-                    </div>
-                  </div>
-
-                  <!-- Reading Score -->
-                  <div class="flex items-center gap-4">
-                    <div class="flex items-center justify-center">
-                      <svg class="w-7 h-7 text-pink-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                      </svg>
-                    </div>
-                    <div>
-                      <div class="text-3xl font-bold text-gray-900">{{ getReadingScore() }}</div>
-                      <div class="text-sm font-medium text-gray-500">Reading Score</div>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- Bio -->
-                @if (!isEditMode() && userProfile()?.bio) {
-                  <div class="mb-8">
-                    <p class="text-gray-600 leading-relaxed text-lg max-w-2xl mx-auto">
-                      {{ userProfile()!.bio }}
-                    </p>
                   </div>
                 }
-
-
-                <!-- Edit Form -->
-                @if (isEditMode()) {
-                  <div class="space-y-6 max-w-2xl mx-auto">
-                    <div>
-                      <label class="block text-sm font-medium text-gray-700 mb-2">
-                        Display Name
-                      </label>
-                      <input
-                        type="text"
-                        [(ngModel)]="editForm.name"
-                        placeholder="Your display name"
-                        maxlength="100"
-                        class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent">
-                    </div>
-                    <div>
-                      <label class="block text-sm font-medium text-gray-700 mb-2">
-                        Profile Image URL
-                      </label>
-                      <input
-                        type="url"
-                        [(ngModel)]="editForm.profileImage"
-                        placeholder="https://example.com/image.jpg"
-                        class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent">
-                    </div>
-                    <div>
-                      <label class="block text-sm font-medium text-gray-700 mb-2">
-                        Bio
-                      </label>
-                      <textarea
-                        [(ngModel)]="editForm.bio"
-                        rows="4"
-                        maxlength="500"
-                        placeholder="Tell us about yourself..."
-                        class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent resize-none">
-                      </textarea>
-                      <p class="text-xs text-gray-500 mt-2">{{ editForm.bio?.length || 0 }}/500 characters</p>
-                    </div>
-                    <!-- Edit Actions -->
-                    <div class="flex gap-4 justify-center">
-                      <button
-                        (click)="saveProfile()"
-                        class="px-6 py-3 bg-orange-600 text-white rounded-xl hover:bg-orange-700 transition-colors duration-200 font-medium">
-                        Save Changes
-                      </button>
-                      <button
-                        (click)="cancelEdit()"
-                        class="px-6 py-3 bg-gray-200 text-gray-800 rounded-xl hover:bg-gray-300 transition-colors duration-200 font-medium">
-                        Cancel
-                      </button>
-                    </div>
+                
+                @if (getActionItems().length === 0) {
+                  <div class="text-center py-4">
+                    <svg class="mx-auto h-8 w-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    <p class="mt-2 text-sm text-gray-500">No action items</p>
                   </div>
                 }
               </div>
@@ -310,46 +399,22 @@
           </div>
         </div>
       </div>
-      <!-- Tab Navigation (Admin Style) -->
-      <div class="border-b border-gray-200 bg-white shadow-sm">
-        <div class="max-w-screen-xl mx-auto px-4 sm:px-6 md:px-10">
-          <nav class="flex justify-center space-x-1 sm:space-x-8 overflow-x-auto scrollbar-hide" aria-label="Profile Tabs">
-            <button
-              (click)="activeTab.set('published')"
-              [ngClass]="{
-                'border-orange-500 text-orange-600': activeTab() === 'published',
-                'border-transparent text-gray-600 hover:text-gray-900  hover:border-gray-300': activeTab() !== 'published'
-              }"
-              class="whitespace-nowrap py-2 px-2 sm:py-4 sm:px-6 border-b-2 font-medium text-xs sm:text-sm transition-all duration-200 flex items-center gap-1 sm:gap-2 min-w-max">
-              <svg class="w-3 h-3 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"/>
-              </svg>
-              <span class="hidden xs:inline sm:inline">Published Works</span>
-              <span class="xs:hidden sm:hidden">Published</span>
-              <span class="hidden sm:inline ml-1 px-2 py-1 text-xs rounded-full bg-amber-100 text-amber-800">{{ publishedWorks().length }}</span>
-            </button>
-            <button
-              (click)="activeTab.set('submissions')"
-              [ngClass]="{
-                'border-orange-500 text-orange-600': activeTab() === 'submissions',
-                'border-transparent text-gray-600 hover:text-gray-900  hover:border-gray-300': activeTab() !== 'submissions'
-              }"
-              class="whitespace-nowrap py-2 px-2 sm:py-4 sm:px-6 border-b-2 font-medium text-xs sm:text-sm transition-all duration-200 flex items-center gap-1 sm:gap-2 min-w-max">
-              <svg class="w-3 h-3 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
-              </svg>
-              <span class="hidden xs:inline sm:inline">My Submissions</span>
-              <span class="xs:hidden sm:hidden">Submissions</span>
-              <span class="hidden sm:inline ml-1 px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-800">{{ submissions().length }}</span>
-            </button>
-          </nav>
-        </div>
-      </div>
-      <!-- Main Content Tabs -->
-      <div class="max-w-screen-xl mx-auto px-4 sm:px-6 md:px-10 py-6 bg-white">
-        <!-- Tab Content -->
-        <!-- Published Works Tab -->
-        @if (activeTab() === 'published') {
+      
+      <!-- Tab Content Modals/Overlays -->
+      @if (activeTab() === 'published') {
+        <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div class="bg-white rounded-xl max-w-6xl w-full max-h-[90vh] overflow-y-auto mx-4 sm:mx-0">
+            <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
+              <h2 class="text-xl font-semibold text-gray-900">Published Works</h2>
+              <button 
+                (click)="activeTab.set('')"
+                class="text-gray-400 hover:text-gray-600">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+              </button>
+            </div>
+            <div class="p-6">
           <div class="w-full">
             <!-- Published Works Content -->
             @if (worksLoading()) {
@@ -435,9 +500,25 @@
               </app-empty-state>
             }
           </div>
-        }
-        <!-- Submissions Tab -->
-        @if (activeTab() === 'submissions') {
+            </div>
+          </div>
+        </div>
+      }
+      
+      @if (activeTab() === 'submissions') {
+        <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div class="bg-white rounded-xl max-w-6xl w-full max-h-[90vh] overflow-y-auto mx-4 sm:mx-0">
+            <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
+              <h2 class="text-xl font-semibold text-gray-900">My Submissions</h2>
+              <button 
+                (click)="activeTab.set('')"
+                class="text-gray-400 hover:text-gray-600">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+              </button>
+            </div>
+            <div class="p-6">
           <div class="w-full">
             <!-- Filter Bar -->
             <div class="flex flex-wrap items-center justify-center md:justify-start gap-4 mb-6">
@@ -452,6 +533,7 @@
                   <option value="">All Status</option>
                   <option [value]="SUBMISSION_STATUS.PENDING_REVIEW">Pending Review</option>
                   <option [value]="SUBMISSION_STATUS.IN_PROGRESS">In Progress</option>
+                  <option [value]="SUBMISSION_STATUS.RESUBMITTED">Resubmitted</option>
                   <option [value]="SUBMISSION_STATUS.NEEDS_REVISION">Needs Revision</option>
                   <option [value]="SUBMISSION_STATUS.ACCEPTED">Accepted</option>
                   <option [value]="SUBMISSION_STATUS.PUBLISHED">Published</option>
@@ -692,8 +774,10 @@
               </app-empty-state>
             }
           </div>
-        }
-      </div>
+            </div>
+          </div>
+        </div>
+      }
     </div>
   }
 

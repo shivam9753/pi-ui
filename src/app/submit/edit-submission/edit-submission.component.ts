@@ -258,7 +258,8 @@ export class EditSubmissionComponent implements OnInit {
     }
 
     if (this.isResubmitting) {
-      // Resubmit after revision
+      // Resubmit after revision - set status to RESUBMITTED
+      cleanedData.status = SUBMISSION_STATUS.RESUBMITTED;
       this.backendService.resubmitSubmission(this.submissionId, cleanedData).subscribe({
         next: (response: any) => {
           this.showToast('Submission resubmitted successfully! It will be reviewed again.', 'success');
@@ -335,6 +336,8 @@ export class EditSubmissionComponent implements OnInit {
     switch (status) {
       case SUBMISSION_STATUS.NEEDS_REVISION:
         return 'bg-amber-100 text-amber-800 border border-amber-200';
+      case SUBMISSION_STATUS.RESUBMITTED:
+        return 'bg-purple-100 text-purple-800 border border-purple-200';
       case SUBMISSION_STATUS.DRAFT:
         return 'bg-gray-100 text-gray-800 border border-gray-200';
       case SUBMISSION_STATUS.PENDING_REVIEW:
@@ -348,6 +351,8 @@ export class EditSubmissionComponent implements OnInit {
     switch (status) {
       case SUBMISSION_STATUS.NEEDS_REVISION:
         return 'Needs Revision';
+      case SUBMISSION_STATUS.RESUBMITTED:
+        return 'Resubmitted';
       case SUBMISSION_STATUS.DRAFT:
         return 'Draft';
       case SUBMISSION_STATUS.PENDING_REVIEW:

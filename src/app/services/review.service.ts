@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ApiService } from './api.service';
 import { Submission } from './submission.service';
+import { API_ENDPOINTS } from '../shared/constants/api.constants';
 import {
   Review,
   CreateReviewPayload,
@@ -69,7 +70,7 @@ export class ReviewService {
     if (params.sortBy) queryParams.sortBy = params.sortBy;
     if (params.order) queryParams.order = params.order;
 
-    return this.apiService.get<ReviewsResponse>('/reviews', queryParams);
+    return this.apiService.get<ReviewsResponse>(API_ENDPOINTS.REVIEWS, queryParams);
   }
 
   /**
@@ -90,7 +91,7 @@ export class ReviewService {
     if (params.sortBy) queryParams.sortBy = params.sortBy;
     if (params.order) queryParams.order = params.order;
 
-    return this.apiService.get<PendingReviewsResponse>('/reviews/pending', queryParams);
+    return this.apiService.get<PendingReviewsResponse>(API_ENDPOINTS.REVIEWS_NESTED.PENDING, queryParams);
   }
 
   /**
@@ -111,7 +112,7 @@ export class ReviewService {
     if (params.sortBy) queryParams.sortBy = params.sortBy;
     if (params.order) queryParams.order = params.order;
 
-    return this.apiService.get<PendingReviewsResponse>('/reviews/accepted', queryParams);
+    return this.apiService.get<PendingReviewsResponse>(API_ENDPOINTS.REVIEWS_NESTED.ACCEPTED, queryParams);
   }
 
   /**
@@ -121,21 +122,21 @@ export class ReviewService {
     status: 'approved' | 'rejected';
     feedback?: string;
   }): Observable<{ message: string; review: Review }> {
-    return this.apiService.post<{ message: string; review: Review }>(`/reviews/${submissionId}`, reviewData);
+    return this.apiService.post<{ message: string; review: Review }>(API_ENDPOINTS.REVIEWS + `/${submissionId}`, reviewData);
   }
 
   /**
    * Get review by submission ID
    */
   getReviewBySubmissionId(submissionId: string): Observable<{ review: Review }> {
-    return this.apiService.get<{ review: Review }>(`/reviews/submission/${submissionId}`);
+    return this.apiService.get<{ review: Review }>(API_ENDPOINTS.REVIEWS_NESTED.SUBMISSION(submissionId));
   }
 
   /**
    * Delete review
    */
   deleteReview(reviewId: string): Observable<{ message: string }> {
-    return this.apiService.delete<{ message: string }>(`/reviews/${reviewId}`);
+    return this.apiService.delete<{ message: string }>(API_ENDPOINTS.REVIEWS_NESTED.DELETE(reviewId));
   }
 
   /**
@@ -152,6 +153,6 @@ export class ReviewService {
     if (params.skip !== undefined) queryParams.skip = params.skip.toString();
     if (params.status) queryParams.status = params.status;
 
-    return this.apiService.get<ReviewsResponse>(`/reviews/reviewer/${reviewerId}`, queryParams);
+    return this.apiService.get<ReviewsResponse>(API_ENDPOINTS.REVIEWS_NESTED.BY_REVIEWER(reviewerId), queryParams);
   }
 }

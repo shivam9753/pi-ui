@@ -24,9 +24,10 @@ export interface QuickFilterEvent {
   standalone: true,
   imports: [CommonModule, FormsModule],
   template: `
-    <div class="bg-white border border-gray-200 rounded-lg mb-4">
+    <!-- Mobile: Collapsible Filter Container -->
+    <div class="bg-white border border-gray-200 rounded-lg mb-4 lg:hidden">
       <!-- Mobile: Collapsible header -->
-      <div class="flex items-center justify-between p-4 lg:hidden">
+      <div class="flex items-center justify-between p-4">
         <h3 class="text-sm font-medium text-gray-900">Filters</h3>
         <button 
           (click)="toggleMobileFilters()"
@@ -40,10 +41,9 @@ export interface QuickFilterEvent {
         </button>
       </div>
 
-      <!-- Filter Content -->
+      <!-- Mobile Filter Content -->
       <div class="transition-all duration-200 ease-in-out"
-           [class.hidden]="!mobileFiltersOpen"
-           [class.lg:block]="true">
+           [class.hidden]="!mobileFiltersOpen">
         
         <!-- Quick Filter Chips -->
         <div class="px-4 py-3 border-b border-gray-100">
@@ -81,10 +81,9 @@ export interface QuickFilterEvent {
           </div>
         </div>
 
-        <!-- Filter Controls -->
+        <!-- Mobile: Stacked layout -->
         <div class="px-4 py-3">
-          <!-- Mobile: Stacked layout -->
-          <div class="space-y-3 lg:hidden">
+          <div class="space-y-3">
             <!-- Status -->
             <div>
               <label class="block text-xs font-medium text-gray-700 mb-1">Status</label>
@@ -128,81 +127,150 @@ export interface QuickFilterEvent {
                 </option>
               </select>
             </div>
-          </div>
 
-          <!-- Desktop: Horizontal layout -->
-          <div class="hidden lg:flex lg:flex-wrap lg:items-center lg:gap-4">
-            <!-- Status -->
-            <div class="flex items-center gap-2">
-              <label class="text-sm font-medium text-gray-700 whitespace-nowrap">Status:</label>
-              <select [(ngModel)]="currentFilters.status" (ngModelChange)="onFilterChange()"
-                      class="text-sm border border-gray-300 rounded-md px-3 py-1 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                <option *ngFor="let option of filterOptions.statuses" [value]="option.value">
-                  {{ option.label }}
-                </option>
-              </select>
+            <!-- Active Filter Count -->
+            <div *ngIf="getActiveFilterCount() > 0" class="mt-3">
+              <span class="text-xs text-blue-600 font-medium">
+                {{ getActiveFilterCount() }} filter{{ getActiveFilterCount() > 1 ? 's' : '' }} active
+              </span>
             </div>
-
-            <!-- Type -->
-            <div class="flex items-center gap-2">
-              <label class="text-sm font-medium text-gray-700 whitespace-nowrap">Type:</label>
-              <select [(ngModel)]="currentFilters.type" (ngModelChange)="onFilterChange()"
-                      class="text-sm border border-gray-300 rounded-md px-3 py-1 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                <option *ngFor="let option of filterOptions.types" [value]="option.value">
-                  {{ option.label }}
-                </option>
-              </select>
-            </div>
-
-            <!-- Author Type -->
-            <div class="flex items-center gap-2">
-              <label class="text-sm font-medium text-gray-700 whitespace-nowrap">Author:</label>
-              <select [(ngModel)]="currentFilters.authorType" (ngModelChange)="onFilterChange()"
-                      class="text-sm border border-gray-300 rounded-md px-3 py-1 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                <option *ngFor="let option of filterOptions.authorTypes" [value]="option.value">
-                  {{ option.label }}
-                </option>
-              </select>
-            </div>
-
-            <!-- Length -->
-            <div class="flex items-center gap-2">
-              <label class="text-sm font-medium text-gray-700 whitespace-nowrap">Length:</label>
-              <select [(ngModel)]="currentFilters.wordLength" (ngModelChange)="onFilterChange()"
-                      class="text-sm border border-gray-300 rounded-md px-3 py-1 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                <option *ngFor="let option of filterOptions.wordLengths" [value]="option.value">
-                  {{ option.label }}
-                </option>
-              </select>
-            </div>
-
-            <!-- Sort -->
-            <div class="flex items-center gap-2">
-              <label class="text-sm font-medium text-gray-700 whitespace-nowrap">Sort:</label>
-              <select [(ngModel)]="currentSort" (ngModelChange)="onSortChange()"
-                      class="text-sm border border-gray-300 rounded-md px-3 py-1 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                <option *ngFor="let option of filterOptions.sortOptions" [value]="option.value">
-                  {{ option.label }}
-                </option>
-              </select>
-            </div>
-
-            <!-- Clear Filters -->
-            <button
-              *ngIf="hasActiveFilters()"
-              (click)="clearAllFilters()"
-              class="text-sm text-gray-600 hover:text-gray-800 underline whitespace-nowrap">
-              Clear All Filters
-            </button>
-          </div>
-
-          <!-- Active Filter Count -->
-          <div *ngIf="getActiveFilterCount() > 0" class="mt-3 lg:mt-2">
-            <span class="text-xs text-blue-600 font-medium">
-              {{ getActiveFilterCount() }} filter{{ getActiveFilterCount() > 1 ? 's' : '' }} active
-            </span>
           </div>
         </div>
+      </div>
+    </div>
+
+    <!-- Desktop: Clean Single Row Layout (No Container) -->
+    <div class="hidden lg:block mb-4">
+      <!-- Main Row: Search + Quick Filters + Advanced Filters Dropdown -->
+      <div class="flex items-center gap-4">
+        <!-- Search Bar -->
+        <div class="flex-1 max-w-md relative">
+          <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <svg class="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+            </svg>
+          </div>
+          <input
+            [(ngModel)]="currentFilters.search"
+            (ngModelChange)="onFilterChange()"
+            type="text"
+            placeholder="Search submissions..."
+            class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md text-sm leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-blue-500 focus:border-blue-500">
+        </div>
+
+        <!-- Quick Filter Chips -->
+        <div class="flex items-center gap-2">
+          <button
+            *ngFor="let filter of quickFilters"
+            (click)="toggleQuickFilter(filter)"
+            [class]="getQuickFilterClass(filter)"
+            class="px-3 py-2 text-xs font-medium rounded-lg border transition-colors whitespace-nowrap">
+            {{ filter.label }}
+          </button>
+        </div>
+
+        <!-- More Filters Dropdown -->
+        <div class="relative">
+          <button
+            (click)="showAdvancedFilters = !showAdvancedFilters"
+            class="flex items-center gap-1 px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+            More Filters
+            <svg class="w-4 h-4 transition-transform" 
+                 [class.rotate-180]="showAdvancedFilters"
+                 fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+            </svg>
+            <span *ngIf="getAdvancedFilterCount() > 0" 
+                  class="ml-1 inline-flex items-center justify-center w-5 h-5 text-xs font-bold text-white bg-blue-600 rounded-full">
+              {{ getAdvancedFilterCount() }}
+            </span>
+          </button>
+
+          <!-- Dropdown Panel -->
+          <div *ngIf="showAdvancedFilters" 
+               class="absolute right-0 mt-1 w-80 bg-white border border-gray-200 rounded-lg shadow-lg z-50">
+            <div class="p-4 space-y-4">
+              <!-- Status -->
+              <div class="flex items-center gap-3">
+                <label class="text-sm font-medium text-gray-700 w-16">Status:</label>
+                <select [(ngModel)]="currentFilters.status" (ngModelChange)="onFilterChange()"
+                        class="flex-1 text-sm border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                  <option *ngFor="let option of filterOptions.statuses" [value]="option.value">
+                    {{ option.label }}
+                  </option>
+                </select>
+              </div>
+
+              <!-- Type -->
+              <div class="flex items-center gap-3">
+                <label class="text-sm font-medium text-gray-700 w-16">Type:</label>
+                <select [(ngModel)]="currentFilters.type" (ngModelChange)="onFilterChange()"
+                        class="flex-1 text-sm border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                  <option *ngFor="let option of filterOptions.types" [value]="option.value">
+                    {{ option.label }}
+                  </option>
+                </select>
+              </div>
+
+              <!-- Author Type -->
+              <div class="flex items-center gap-3">
+                <label class="text-sm font-medium text-gray-700 w-16">Author:</label>
+                <select [(ngModel)]="currentFilters.authorType" (ngModelChange)="onFilterChange()"
+                        class="flex-1 text-sm border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                  <option *ngFor="let option of filterOptions.authorTypes" [value]="option.value">
+                    {{ option.label }}
+                  </option>
+                </select>
+              </div>
+
+              <!-- Length -->
+              <div class="flex items-center gap-3">
+                <label class="text-sm font-medium text-gray-700 w-16">Length:</label>
+                <select [(ngModel)]="currentFilters.wordLength" (ngModelChange)="onFilterChange()"
+                        class="flex-1 text-sm border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                  <option *ngFor="let option of filterOptions.wordLengths" [value]="option.value">
+                    {{ option.label }}
+                  </option>
+                </select>
+              </div>
+
+              <!-- Sort -->
+              <div class="flex items-center gap-3">
+                <label class="text-sm font-medium text-gray-700 w-16">Sort:</label>
+                <select [(ngModel)]="currentSort" (ngModelChange)="onSortChange()"
+                        class="flex-1 text-sm border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                  <option *ngFor="let option of filterOptions.sortOptions" [value]="option.value">
+                    {{ option.label }}
+                  </option>
+                </select>
+              </div>
+
+              <!-- Clear All Filters -->
+              <div class="pt-3 border-t border-gray-200">
+                <button
+                  (click)="clearAllFilters()"
+                  class="text-sm text-gray-600 hover:text-gray-800 underline">
+                  Clear All Filters
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Clear Quick Filters -->
+        <button
+          *ngIf="hasActiveQuickFilters()"
+          (click)="clearQuickFilters()"
+          class="text-sm text-gray-500 hover:text-gray-700 underline whitespace-nowrap">
+          Clear All
+        </button>
+      </div>
+
+      <!-- Active Filter Count -->
+      <div *ngIf="getActiveFilterCount() > 0" class="mt-2">
+        <span class="text-xs text-blue-600 font-medium">
+          {{ getActiveFilterCount() }} filter{{ getActiveFilterCount() > 1 ? 's' : '' }} active
+        </span>
       </div>
     </div>
   `
@@ -213,6 +281,7 @@ export class AdvancedSubmissionFilterComponent implements OnInit {
   @Output() quickFilterToggle = new EventEmitter<QuickFilterEvent>();
 
   mobileFiltersOpen = false;
+  showAdvancedFilters = false;
   currentFilters: AdvancedFilterOptions = {};
   currentSort = 'createdAt-desc';
   activeQuickFilters: Set<string> = new Set();
@@ -345,6 +414,18 @@ export class AdvancedSubmissionFilterComponent implements OnInit {
     return count;
   }
 
+  getAdvancedFilterCount(): number {
+    let count = 0;
+    
+    // Count only dropdown filters (not search or quick filters)
+    if (this.currentFilters.status) count++;
+    if (this.currentFilters.type) count++;
+    if (this.currentFilters.authorType) count++;
+    if (this.currentFilters.wordLength) count++;
+    
+    return count;
+  }
+
   clearQuickFilters() {
     this.activeQuickFilters.clear();
     
@@ -360,6 +441,7 @@ export class AdvancedSubmissionFilterComponent implements OnInit {
   clearAllFilters() {
     this.currentFilters = {};
     this.currentSort = 'createdAt-desc';
+    this.showAdvancedFilters = false;
     this.clearQuickFilters();
     this.onFilterChange();
   }
