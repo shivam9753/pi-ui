@@ -357,6 +357,15 @@ export class AllSubmissionsComponent implements OnInit {
   // Filter methods
   onFilterChange(filters: SimpleFilterOptions) {
     this.currentFilters = filters;
+    
+    // Update sorting if provided in filters
+    if (filters.sortBy) {
+      this.currentSort.sortBy = filters.sortBy;
+    }
+    if (filters.order) {
+      this.currentSort.order = filters.order;
+    }
+    
     this.paginationConfig.currentPage = 1; // Reset to first page when filtering
     this.loadSubmissions(); // Reload data with new filters
   }

@@ -66,37 +66,40 @@
 
     <!-- Mobile Card Template -->
     <ng-template #mobileCard let-submission let-actions="actions">
-      <div class="mb-3">
-        <h3 class="font-semibold text-gray-900 mb-1">{{ submission.title }}</h3>
-        <p class="text-sm text-gray-600">by {{ getAuthorName(submission) }}</p>
-        <p class="text-xs text-gray-500 mt-1">{{ getTruncatedDescription(submission, 80) }}</p>
+      <!-- Title and Author Section -->
+      <div class="mb-4">
+        <h3 class="text-lg font-bold text-gray-900 mb-2 leading-tight">{{ submission.title }}</h3>
+        <p class="text-sm text-gray-600 mb-2">by {{ getAuthorName(submission) }}</p>
+        @if (getTruncatedDescription(submission, 80)) {
+          <p class="text-sm text-gray-500 leading-relaxed">{{ getTruncatedDescription(submission, 80) }}</p>
+        }
       </div>
       
       <!-- Meta Info -->
-      <div class="flex flex-wrap items-center gap-2 mb-3">
-        <span [ngClass]="getBadgeClass(submission.submissionType)">
-          {{ submission.submissionType }}
+      <div class="flex flex-wrap items-center gap-3 mb-4">
+        <span [ngClass]="getBadgeClass(submission.submissionType)" class="px-3 py-1">
+          {{ submission.submissionType | prettyLabel }}
         </span>
-        <span [ngClass]="getBadgeClass('accepted')">
+        <span [ngClass]="getBadgeClass('accepted')" class="px-3 py-1">
           Ready to Publish
         </span>
-        <span class="text-xs text-gray-500">
+        <span class="text-xs text-gray-500 font-medium">
           {{ submission.reviewedAt | date:'MMM d' }}
         </span>
       </div>
       
       <!-- Mobile Action Buttons -->
-      <div class="flex flex-wrap gap-2">
+      <div class="flex flex-wrap gap-2 mt-4">
         @for (action of actions; track action.label) {
           @if (!action.condition || action.condition(submission)) {
             <button
               (click)="action.handler(submission)"
-              [class]="'flex-1 px-3 py-2 text-xs font-medium rounded ' + 
-                (action.color === 'primary' ? 'text-blue-600 bg-blue-50 border border-blue-200' :
-                 action.color === 'warning' ? 'text-orange-600 bg-orange-50 border border-amber-200' :
-                 action.color === 'success' ? 'text-green-600 bg-green-50 border border-green-200' :
-                 action.color === 'danger' ? 'text-red-600 bg-red-50 border border-red-200' :
-                 'text-gray-600 bg-gray-50 border border-gray-200')">
+              [class]="'flex-1 px-4 py-3 text-sm font-semibold rounded-lg transition-colors duration-200 ' + 
+                (action.color === 'primary' ? 'text-white bg-blue-600 hover:bg-blue-700 shadow-sm' :
+                 action.color === 'warning' ? 'text-white bg-orange-600 hover:bg-orange-700 shadow-sm' :
+                 action.color === 'success' ? 'text-white bg-green-600 hover:bg-green-700 shadow-sm' :
+                 action.color === 'danger' ? 'text-white bg-red-600 hover:bg-red-700 shadow-sm' :
+                 'text-gray-700 bg-gray-100 hover:bg-gray-200 border border-gray-300')">
               {{ action.label }}
             </button>
           }

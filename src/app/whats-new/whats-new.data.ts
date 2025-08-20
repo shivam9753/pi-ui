@@ -11,7 +11,7 @@ export const WHATS_NEW_DATA: WhatsNewItem[] = [
   {
     "id": "1",
     "title": "Submit and Track Your Submissions",
-    "description": "Start by submitting your creative work - poetry, stories, articles, or opinion pieces. Then track their progress through our review process directly from your profile page. See real-time status updates as your submissions move from draft to review to publication.",
+    "description": "Start by submitting your creative work - poetry, articles, or opinion pieces. Then track their progress through our review process directly from your profile page. See real-time status updates as your submissions move from draft to review to publication.",
     "type": "Feature",
     "link": "/submission",
     "dateAdded": "2025-01-15"

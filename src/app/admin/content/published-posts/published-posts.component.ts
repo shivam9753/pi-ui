@@ -91,7 +91,7 @@ export class PublishedPostsComponent implements OnInit {
     const params: any = {
       limit: this.itemsPerPage,
       skip: skip,
-      sortBy: this.currentFilters.sortBy || 'publishedAt',
+      sortBy: this.currentFilters.sortBy || 'reviewedAt',
       order: this.currentFilters.order || 'desc'
     };
 
@@ -370,7 +370,10 @@ export class PublishedPostsComponent implements OnInit {
   }
 
   onTableSort(event: {column: string, direction: 'asc' | 'desc'}) {
-    // Implement sorting if needed
+    this.currentFilters.sortBy = event.column;
+    this.currentFilters.order = event.direction;
+    this.currentPage = 1; // Reset to first page when sorting
+    this.loadPublishedSubmissions(); // Reload data with new sorting
   }
 
   trackBySubmissionId(index: number, submission: any): string {

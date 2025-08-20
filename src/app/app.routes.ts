@@ -24,6 +24,7 @@ import { TagComponent } from './tag/tag.component';
 import { JsonConverterComponent } from './admin/json-converter/json-converter.component';
 import { WhatsNewComponent } from './whats-new/whats-new.component';
 import { postSSRResolver } from './resolvers/post-ssr.resolver';
+import { AboutComponent } from './info/about/about.component';
 
 export const routes: Routes = [
   // Public routes - Use explore as homepage for now
@@ -187,6 +188,11 @@ export const routes: Routes = [
     component: JsonConverterComponent,
     canActivate: [AdminGuard],
     title: 'JOSNß Parser - pi'
+  },
+  { 
+    path: 'about', 
+    component: AboutComponent,
+    title: 'About - pi'
   },
 
   // Legacy route handler - redirect /:slug to /post/:slug

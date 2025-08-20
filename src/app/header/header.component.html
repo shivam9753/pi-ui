@@ -133,11 +133,14 @@
   <!-- Mobile Menu Header -->
   <div class="p-6 border-b border-gray-200 flex items-center justify-between">
     <span class="text-xl font-bold text-orange-600">pi</span>
-    <button (click)="closeMobileMenu()" class="btn-icon btn-feedback flex items-center justify-center border border-gray-200 rounded-full hover:bg-white-hover transition-colors">
-      <svg class="w-5 h-5 text-gray-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-      </svg>
-    </button>
+    <div class="flex items-center space-x-3">
+      <app-theme-toggle></app-theme-toggle>
+      <button (click)="closeMobileMenu()" class="btn-icon btn-feedback flex items-center justify-center border border-gray-200 rounded-full hover:bg-white-hover transition-colors">
+        <svg class="w-5 h-5 text-gray-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+    </div>
   </div>
 
   <!-- Mobile Menu Content -->
@@ -254,11 +257,6 @@
         </div>
       }
     </nav>
-    
-    <!-- Theme Toggle Section -->
-    <div class="px-6 pt-4 pb-32">
-      <app-theme-toggle></app-theme-toggle>
-    </div>
     
     <!-- Mobile Login/Auth Section (if not logged in) -->
     @if (!loggedInUser()) {

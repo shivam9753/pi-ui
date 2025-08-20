@@ -16,10 +16,11 @@ import {
   SUBMISSION_BADGE_CONFIG
 } from '../../../shared/components';
 import { SimpleSubmissionFilterComponent, SimpleFilterOptions } from '../../../shared/components/simple-submission-filter/simple-submission-filter.component';
+import { PrettyLabelPipe } from '../../../pipes/pretty-label.pipe';
 
 @Component({
   selector: 'app-ready-to-publish',
-  imports: [CommonModule, FormsModule, AdminPageHeaderComponent, DataTableComponent, SimpleSubmissionFilterComponent],
+  imports: [CommonModule, FormsModule, AdminPageHeaderComponent, DataTableComponent, SimpleSubmissionFilterComponent, PrettyLabelPipe],
   templateUrl: './ready-to-publish.component.html',
   styleUrl: './ready-to-publish.component.css'
 })
