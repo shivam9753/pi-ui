@@ -239,6 +239,8 @@ export class ExploreComponent implements OnInit {
   }
 
   onFilterChange(type: string) {
+    // Clear search when changing tabs
+    this.clearSearch();
     this.getPublishedSubmissions(type);
   }
 

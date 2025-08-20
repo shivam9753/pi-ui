@@ -335,6 +335,31 @@
   letter-spacing: -0.025em;
 }
 
+/* Content Title Styling - Clean and minimal */
+.magazine-layout .content-title {
+  font-family: 'Source Sans Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important;
+  font-weight: 600 !important;
+  letter-spacing: -0.01em !important;
+  color: var(--text-primary) !important;
+  text-transform: none !important;
+  font-size: 1.5rem !important;
+  line-height: 1.4 !important;
+  margin-top: 2.5rem !important;
+  margin-bottom: 1.5rem !important;
+}
+
+@media (min-width: 640px) {
+  .magazine-layout .content-title {
+    font-size: 1.75rem !important;
+  }
+}
+
+@media (min-width: 1024px) {
+  .magazine-layout .content-title {
+    font-size: 1.875rem !important;
+  }
+}
+
 /* Content spacing improvements and line break handling */
 .content-body br {
   line-height: 1.8;

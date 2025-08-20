@@ -106,16 +106,16 @@
           
           <!-- Sidebar layout - compact list -->
           @if (layout === 'sidebar') {
-            <article class="cursor-pointer group hover:bg-gray-50 transition-all duration-200 mb-6 last:mb-0 p-3 rounded-lg"
+            <article class="cursor-pointer group hover:bg-gray-100 transition-all duration-200 mb-6 last:mb-0 p-3 rounded-lg"
               (click)="navigateToPost(post)">
               
               <!-- Post Title -->
-              <h4 class="font-bold text-gray-900 dark:text-white  transition-colors mb-2 text-base leading-tight line-clamp-2">
+              <h4 class="font-bold text-gray-900 transition-colors mb-2 text-base leading-tight line-clamp-2">
                 {{ post.title }}
               </h4>
 
               <!-- Post Description -->
-              <p class="text-gray-600 dark:text-gray-300 text-sm leading-relaxed line-clamp-3">
+              <p class="text-gray-600 text-sm leading-relaxed line-clamp-3">
                 {{ truncateExcerpt(post.excerpt, 120) }}
               </p>
             </article>

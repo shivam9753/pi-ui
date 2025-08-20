@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule, TitleCasePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { RichTextEditorComponent } from '../../../submit/rich-text-editor/rich-text-editor.component';
 import { BadgeLabelComponent } from '../../../utilities/badge-label/badge-label.component';
 import { TagInputComponent } from '../../../utilities/tag-input/tag-input.component';
@@ -73,6 +74,7 @@ export class PublishSubmissionComponent implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private router: Router,
+    private http: HttpClient,
     private backendService: BackendService
   ) {}
 
@@ -302,6 +304,62 @@ export class PublishSubmissionComponent implements OnInit {
     return content
       .replace(/\n/g, '<br>')          // Convert line breaks to br tags
       .replace(/\r/g, '');             // Remove carriage returns
+  }
+
+  // Add new content item to the submission
+  addNewContent() {
+    if (!this.submission) return;
+    
+    // Prevent adding more content if the type is other than poem
+    if (this.submission.submissionType !== 'poem') {
+      this.showError('Additional content sections can only be added to poems.');
+      return;
+    }
+    
+    if (!this.submission.contents) {
+      this.submission.contents = [];
+    }
+
+    const newContent = {
+      _id: this.generateTempId(), // Temporary ID for new content
+      title: '',
+      body: '',
+      wordCount: 0,
+      tags: [],
+      footnotes: ''
+    };
+
+    this.submission.contents.push(newContent);
+    
+    // Update expansion state arrays
+    this.contentExpanded.push(true); // Expand the new content by default
+    
+    this.showSuccess('New content section added. Don\'t forget to save your changes!');
+  }
+
+  // Remove content item from the submission
+  deleteContent(index: number) {
+    if (!this.submission?.contents || index < 0 || index >= this.submission.contents.length) {
+      return;
+    }
+
+    const contentTitle = this.submission.contents[index].title || `Content ${index + 1}`;
+    const confirmed = confirm(`Are you sure you want to delete "${contentTitle}"? This action cannot be undone.`);
+    
+    if (!confirmed) return;
+
+    this.submission.contents.splice(index, 1);
+    this.contentExpanded.splice(index, 1);
+    
+    // Update expansion state after removal
+    this.updateAllContentExpandedState();
+    
+    this.showSuccess(`"${contentTitle}" has been deleted.`);
+  }
+
+  // Generate temporary ID for new content items
+  private generateTempId(): string {
+    return 'temp_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
   }
 
   // Prepare content for saving (clean up rich text editor output while preserving line breaks)
@@ -574,12 +632,49 @@ export class PublishSubmissionComponent implements OnInit {
   saveChanges() {
     if (!this.submission) return;
 
+    // Separate existing and new content
+    const existingContent = this.submission.contents.filter((content: any) => 
+      content._id && !content._id.startsWith('temp_')
+    );
+    const newContent = this.submission.contents.filter((content: any) => 
+      !content._id || content._id.startsWith('temp_')
+    );
+
+    // First, handle new content creation via backend
+    if (newContent.length > 0) {
+      this.createNewContentAndUpdateSubmission(existingContent, newContent);
+    } else {
+      // No new content, just update existing
+      this.updateExistingSubmission();
+    }
+  }
+
+  private createNewContentAndUpdateSubmission(existingContent: any[], newContent: any[]) {
+    // Prepare all content (existing + new) for submission update
+    const allContent = [
+      ...existingContent.map((content: any) => ({
+        _id: content._id,
+        title: content.title,
+        body: this.prepareContentForSaving(content.body),
+        wordCount: this.calculateWordCount(content.body),
+        tags: (content.tags || []).filter((tag: string) => tag?.trim().length > 0),
+        footnotes: content.footnotes || ''
+      })),
+      ...newContent.map((content: any) => ({
+        // Don't include _id for new content - backend will create it
+        title: content.title || '',
+        body: this.prepareContentForSaving(content.body || ''),
+        wordCount: this.calculateWordCount(content.body || ''),
+        tags: (content.tags || []).filter((tag: string) => tag?.trim().length > 0),
+        footnotes: content.footnotes || ''
+      }))
+    ];
+
     // Collect all tags from content items to create submission-level tags
     const allContentTags = new Set<string>();
-    this.submission.contents.forEach((content: any) => {
+    allContent.forEach((content: any) => {
       if (content.tags && Array.isArray(content.tags)) {
         content.tags.forEach((tag: string) => {
-          // Filter out empty strings and whitespace-only tags
           const cleanTag = tag?.trim();
           if (cleanTag && cleanTag.length > 0) {
             allContentTags.add(cleanTag);
@@ -592,7 +687,53 @@ export class PublishSubmissionComponent implements OnInit {
       title: this.submission.title,
       description: this.submission?.description,
       excerpt: this.submission?.excerpt,
-      tags: Array.from(allContentTags), // Use actual content tags, not SEO keywords
+      tags: Array.from(allContentTags),
+      contents: allContent
+    };
+
+    if (this.submission.imageUrl && this.submission.imageUrl.trim()) {
+      updateData.imageUrl = this.submission.imageUrl;
+    }
+
+    this.backendService.updateSubmission(this.submission._id, updateData).subscribe({
+      next: (response) => {
+        this.showSuccess('Changes saved successfully, including new content!');
+        
+        // Update local submission with response data to get real content IDs
+        if (response.submission && response.submission.contents) {
+          this.submission.contents = response.submission.contents;
+          // Reset expansion state for updated content
+          this.contentExpanded = new Array(this.submission.contents.length).fill(false);
+          if (this.submission.contents.length > 0) {
+            this.contentExpanded[0] = true;
+          }
+        }
+      },
+      error: (err) => {
+        this.showError('Failed to save changes. Please try again.');
+      }
+    });
+  }
+
+  private updateExistingSubmission() {
+    // Collect all tags from content items to create submission-level tags
+    const allContentTags = new Set<string>();
+    this.submission.contents.forEach((content: any) => {
+      if (content.tags && Array.isArray(content.tags)) {
+        content.tags.forEach((tag: string) => {
+          const cleanTag = tag?.trim();
+          if (cleanTag && cleanTag.length > 0) {
+            allContentTags.add(cleanTag);
+          }
+        });
+      }
+    });
+
+    const updateData: any = {
+      title: this.submission.title,
+      description: this.submission?.description,
+      excerpt: this.submission?.excerpt,
+      tags: Array.from(allContentTags),
       contents: this.submission.contents.map((content: any) => ({
         _id: content._id,
         title: content.title,
@@ -603,7 +744,6 @@ export class PublishSubmissionComponent implements OnInit {
       }))
     };
 
-    // Only include imageUrl if it's not empty/null to avoid validation errors
     if (this.submission.imageUrl && this.submission.imageUrl.trim()) {
       updateData.imageUrl = this.submission.imageUrl;
     }
@@ -640,14 +780,22 @@ export class PublishSubmissionComponent implements OnInit {
       description: this.submission?.description,
       excerpt: this.submission?.excerpt,
       tags: Array.from(allContentTags), // Use actual content tags, not SEO keywords
-      contents: this.submission.contents.map((content: any) => ({
-        _id: content._id,
-        title: content.title,
-        body: this.prepareContentForSaving(content.body),
-        wordCount: this.calculateWordCount(content.body),
-        tags: (content.tags || []).filter((tag: string) => tag?.trim().length > 0),
-        footnotes: content.footnotes || ''
-      })),
+      contents: this.submission.contents.map((content: any) => {
+        const contentData: any = {
+          title: content.title,
+          body: this.prepareContentForSaving(content.body),
+          wordCount: this.calculateWordCount(content.body),
+          tags: (content.tags || []).filter((tag: string) => tag?.trim().length > 0),
+          footnotes: content.footnotes || ''
+        };
+        
+        // Only include _id if it's not a temporary ID (new content shouldn't have _id)
+        if (content._id && !content._id.startsWith('temp_')) {
+          contentData._id = content._id;
+        }
+        
+        return contentData;
+      }),
       // Include SEO data in the main update request
       seo: {
         slug: this.seoConfig.slug.trim(),
