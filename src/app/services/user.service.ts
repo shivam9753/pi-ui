@@ -117,6 +117,19 @@ export class UserService {
   }
 
   /**
+   * Create new user (admin only)
+   */
+  createUser(userData: {
+    name: string;
+    username: string;
+    email: string;
+    bio?: string;
+    role?: string;
+  }): Observable<{ success: boolean; message: string; user: { id: string; name: string; username: string; email: string; tempPassword: string } }> {
+    return this.apiService.post<{ success: boolean; message: string; user: { id: string; name: string; username: string; email: string; tempPassword: string } }>(API_ENDPOINTS.ADMIN.CREATE_USER, userData);
+  }
+
+  /**
    * Update user profile
    */
   updateUserProfile(userId: string, userData: Partial<User>): Observable<{ message: string; user: User }> {

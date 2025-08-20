@@ -13,11 +13,12 @@ import {
   createPendingReviewActions,
   SUBMISSION_BADGE_CONFIG
 } from '../../../shared/components';
+import { SimpleSubmissionFilterComponent, SimpleFilterOptions } from '../../../shared/components/simple-submission-filter/simple-submission-filter.component';
 
 @Component({
   selector: 'app-shortlisted-submissions',
   standalone: true,
-  imports: [CommonModule, FormsModule, AdminPageHeaderComponent, DataTableComponent],
+  imports: [CommonModule, FormsModule, AdminPageHeaderComponent, DataTableComponent, SimpleSubmissionFilterComponent],
   templateUrl: './shortlisted-submissions.component.html',
   styles: [`
     .space-y-6 > * + * {
@@ -39,6 +40,9 @@ export class ShortlistedSubmissionsComponent implements OnInit {
 
   submissions: any[] = [];
   loading: boolean = false;
+
+  // Filter properties
+  currentFilters: SimpleFilterOptions = {};
 
   // Header stats
   headerStats: AdminPageStat[] = [
@@ -78,11 +82,23 @@ export class ShortlistedSubmissionsComponent implements OnInit {
   loadShortlistedSubmissions() {
     this.loading = true;
     
-    const params = {
+    const params: any = {
       status: 'shortlisted',
       limit: this.paginationConfig.pageSize,
-      skip: (this.paginationConfig.currentPage - 1) * this.paginationConfig.pageSize
+      skip: (this.paginationConfig.currentPage - 1) * this.paginationConfig.pageSize,
+      sortBy: this.currentFilters.sortBy || 'createdAt',
+      order: this.currentFilters.order || 'desc'
     };
+
+    // Add search parameter if provided
+    if (this.currentFilters.search && this.currentFilters.search.trim() !== '') {
+      params.search = this.currentFilters.search.trim();
+    }
+
+    // Add type filter if selected
+    if (this.currentFilters.type && this.currentFilters.type.trim() !== '') {
+      params.submissionType = this.currentFilters.type;
+    }
 
     this.backendService.getSubmissions(params).subscribe({
       next: (response: any) => {
@@ -173,5 +189,12 @@ export class ShortlistedSubmissionsComponent implements OnInit {
 
   trackBySubmissionId(index: number, submission: any): string {
     return submission._id || submission.id || index.toString();
+  }
+
+  // Filter methods
+  onFilterChange(filters: SimpleFilterOptions) {
+    this.currentFilters = filters;
+    this.paginationConfig.currentPage = 1; // Reset to first page when filtering
+    this.loadShortlistedSubmissions();
   }
 }

@@ -33,6 +33,88 @@
   }
 }
 
+/* Touch Target Improvements - Ensure minimum 44px touch targets on mobile */
+@media (max-width: 1024px) {
+  .touch-target {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  
+  /* Icon-only buttons need proper touch targets */
+  .btn-icon {
+    min-height: 44px;
+    min-width: 44px;
+    padding: 10px;
+  }
+  
+  /* User avatar/initials circles */
+  .user-avatar {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  
+  /* Navigation links */
+  .nav-link {
+    min-height: 44px;
+    padding: 12px 16px;
+  }
+  
+  /* Form controls */
+  input:not(.btn-sm), select:not(.btn-sm), textarea:not(.btn-sm) {
+    min-height: 44px;
+    padding: 12px 16px;
+  }
+  
+  /* Table action buttons */
+  .table-action-btn {
+    min-height: 44px;
+    min-width: 44px;
+    padding: 10px;
+  }
+
+  /* Primary action buttons */
+  .btn-primary, .btn-secondary {
+    min-height: 44px;
+    padding: 12px 24px;
+  }
+}
+
+/* Button Press Feedback */
+.btn-feedback {
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.btn-feedback:active {
+  transform: scale(0.98);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Ripple effect for buttons */
+.btn-ripple {
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-ripple::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.3);
+  transform: translate(-50%, -50%);
+  transition: width 0.3s ease, height 0.3s ease;
+}
+
+.btn-ripple:active::before {
+  width: 300px;
+  height: 300px;
+}
+
 @utility bg-themed {
   background-color: var(--bg-primary);
 }
@@ -103,6 +185,71 @@
   &::placeholder {
     color: var(--text-tertiary);
   }
+}
+
+/* Standardized Design System Utilities */
+@utility rounded-system-sm {
+  border-radius: var(--radius-sm);
+}
+
+@utility rounded-system-md {
+  border-radius: var(--radius-md);
+}
+
+@utility rounded-system-lg {
+  border-radius: var(--radius-lg);
+}
+
+@utility rounded-system-xl {
+  border-radius: var(--radius-xl);
+}
+
+@utility shadow-system-sm {
+  box-shadow: var(--shadow-sm);
+}
+
+@utility shadow-system-md {
+  box-shadow: var(--shadow-md);
+}
+
+@utility shadow-system-lg {
+  box-shadow: var(--shadow-lg);
+}
+
+@utility shadow-system-xl {
+  box-shadow: var(--shadow-xl);
+}
+
+/* Button System Classes - Using traditional CSS since TailwindCSS utilities don't support pseudo-classes */
+.btn-primary {
+  background-color: var(--bg-accent);
+  color: var(--text-inverse);
+  border: none;
+  border-radius: var(--radius-md);
+  padding: 12px 24px;
+  font-weight: 500;
+  transition: all 0.15s ease;
+  box-shadow: var(--shadow-sm);
+}
+
+.btn-primary:hover {
+  background-color: var(--bg-accent-hover);
+  box-shadow: var(--shadow-md);
+}
+
+.btn-secondary {
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
+  border: 1px solid var(--border-primary);
+  border-radius: var(--radius-md);
+  padding: 12px 24px;
+  font-weight: 500;
+  transition: all 0.15s ease;
+}
+
+.btn-secondary:hover {
+  background-color: var(--bg-hover);
+  box-shadow: var(--shadow-sm);
 }
 
 /* CSS Variables for theming */

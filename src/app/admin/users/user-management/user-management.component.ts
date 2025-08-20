@@ -16,6 +16,7 @@ import {
   createUserActions,
   USER_BADGE_CONFIG
 } from '../../../shared/components';
+import { SimpleSubmissionFilterComponent, SimpleFilterOptions } from '../../../shared/components/simple-submission-filter/simple-submission-filter.component';
 
 
 interface Message {
@@ -31,7 +32,8 @@ interface Message {
     CommonModule, 
     FormsModule, 
     AdminPageHeaderComponent,
-    DataTableComponent
+    DataTableComponent,
+    SimpleSubmissionFilterComponent
   ],
   templateUrl: './user-management.component.html',
   styleUrls: ['./user-management.component.css']
@@ -52,7 +54,10 @@ export class UserManagementComponent implements OnInit, OnDestroy {
   totalUsers = 0;
   userStats = { users: 0, reviewers: 0, admins: 0, total: 0 };
   
-  // Filters and search
+  // Filter properties
+  currentFilters: SimpleFilterOptions = {};
+  
+  // Legacy filters for backward compatibility
   selectedRole = '';
   sortBy = 'createdAt';
   searchQuery = '';
@@ -107,14 +112,20 @@ export class UserManagementComponent implements OnInit, OnDestroy {
   loadUsers() {
     this.loading = true;
     
-    if (this.searchQuery.trim()) {
+    // Use currentFilters if available, fallback to legacy filters
+    const searchQuery = this.currentFilters.search || this.searchQuery;
+    const roleFilter = this.currentFilters.status || this.selectedRole;
+    const sortBy = this.currentFilters.sortBy || this.sortBy;
+    const order = this.currentFilters.order || 'desc';
+    
+    if (searchQuery && searchQuery.trim()) {
       // Use search endpoint
       this.userService.searchUsers({
-        q: this.searchQuery.trim(),
+        q: searchQuery.trim(),
         limit: this.pageSize,
         skip: (this.currentPage - 1) * this.pageSize,
-        sortBy: this.sortBy,
-        order: 'desc'
+        sortBy: sortBy,
+        order: order
       }).subscribe({
         next: (response) => {
           this.users = response.users || [];
@@ -134,9 +145,9 @@ export class UserManagementComponent implements OnInit, OnDestroy {
       this.userService.getAllUsers({
         limit: this.pageSize,
         skip: (this.currentPage - 1) * this.pageSize,
-        role: this.selectedRole || undefined,
-        sortBy: this.sortBy,
-        order: 'desc',
+        role: roleFilter || undefined,
+        sortBy: sortBy,
+        order: order,
         includeStats: true
       }).subscribe({
         next: (response) => {
@@ -427,6 +438,13 @@ export class UserManagementComponent implements OnInit, OnDestroy {
 
   onRoleChange(data: {user: UserListItem, event: any}) {
     this.changeUserRole(data.user, data.event);
+  }
+
+  // Filter methods
+  onFilterChange(filters: SimpleFilterOptions) {
+    this.currentFilters = filters;
+    this.currentPage = 1; // Reset to first page when filtering
+    this.loadUsers();
   }
 
   ngOnDestroy() {

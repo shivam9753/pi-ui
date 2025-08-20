@@ -6,6 +6,7 @@ import { environment } from '../../../../environments/environment';
 import { compressImageToAVIF } from '../../../shared/utils/image-compression.util';
 import { AdminPageHeaderComponent } from '../../../shared/components/admin-page-header/admin-page-header.component';
 import { API_ENDPOINTS } from '../../../shared/constants/api.constants';
+import { UserService } from '../../../services/user.service';
 
 @Component({
   selector: 'app-create-users',
@@ -29,7 +30,10 @@ export class CreateUsersComponent {
   messageType: 'success' | 'error' | 'info' = 'info';
   uploadingImage = false;
 
-  constructor(private http: HttpClient) {}
+  constructor(
+    private http: HttpClient,
+    private userService: UserService
+  ) {}
 
   async createUser() {
     if (!this.newUser.name || !this.newUser.username || !this.newUser.email) {
@@ -40,18 +44,12 @@ export class CreateUsersComponent {
     this.isSubmitting = true;
     
     try {
-      const jwtToken = localStorage.getItem('jwt_token');
-      const headers = new HttpHeaders({
-        'Authorization': `Bearer ${jwtToken}`,
-        'Content-Type': 'application/json'
-      });
-      
-      // Create user first
-      const createResponse: any = await this.http.post(`${environment.apiBaseUrl}${API_ENDPOINTS.ADMIN.CREATE_USER}`, this.newUser, { headers }).toPromise();
+      // Create user using UserService
+      const createResponse = await this.userService.createUser(this.newUser).toPromise();
       
       // If there's a profile image, upload it
-      if (this.selectedFile && createResponse.user) {
-        await this.uploadProfileImage(createResponse.user._id);
+      if (this.selectedFile && createResponse?.user) {
+        await this.uploadProfileImage(createResponse.user.id);
       }
       
       this.showMessage('User created successfully', 'success');

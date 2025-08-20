@@ -20,6 +20,7 @@ export interface TableAction {
   color?: 'primary' | 'secondary' | 'danger' | 'warning' | 'success';
   condition?: (item: any) => boolean;
   handler: (item: any) => void;
+  isMainAction?: boolean;
 }
 
 export interface PaginationConfig {
@@ -38,11 +39,70 @@ export interface PaginationConfig {
     <div class="w-full">
       <!-- Loading State -->
       @if (loading) {
-        <div class="loading-container">
-          <div class="text-center">
-            <div class="spinner mx-auto"></div>
-            <div class="loading-text text-gray-600 mt-3">{{ loadingText }}</div>
-          </div>
+        <!-- Desktop Skeleton Loading -->
+        <div class="hidden md:block border-gray-200 rounded-lg overflow-hidden">
+          <table class="w-full">
+            <thead class="border-b border-gray-200">
+              <tr>
+                @if (selectable) {
+                  <th class="px-6 py-3 text-left">
+                    <div class="h-4 w-4 bg-gray-200 rounded animate-pulse"></div>
+                  </th>
+                }
+                @for (column of columns; track column.key) {
+                  <th class="px-6 py-3">
+                    <div class="h-4 bg-gray-200 rounded animate-pulse" [style.width]="getSkeletonWidth()"></div>
+                  </th>
+                }
+                @if (actions && actions.length > 0) {
+                  <th class="px-6 py-3">
+                    <div class="h-4 w-16 bg-gray-200 rounded animate-pulse"></div>
+                  </th>
+                }
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-200">
+              @for (i of [1,2,3,4,5]; track i) {
+                <tr>
+                  @if (selectable) {
+                    <td class="px-6 py-4">
+                      <div class="h-4 w-4 bg-gray-200 rounded animate-pulse"></div>
+                    </td>
+                  }
+                  @for (column of columns; track column.key) {
+                    <td class="px-6 py-4">
+                      <div class="h-4 bg-gray-200 rounded animate-pulse" [style.width]="getSkeletonWidth()"></div>
+                    </td>
+                  }
+                  @if (actions && actions.length > 0) {
+                    <td class="px-6 py-4">
+                      <div class="flex space-x-2">
+                        <div class="h-8 w-8 bg-gray-200 rounded animate-pulse"></div>
+                        <div class="h-8 w-8 bg-gray-200 rounded animate-pulse"></div>
+                      </div>
+                    </td>
+                  }
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Mobile Skeleton Loading -->
+        <div class="md:hidden space-y-4 p-1">
+          @for (i of [1,2,3]; track i) {
+            <div class="border-gray-200 rounded-lg p-5 shadow-sm mx-2">
+              <div class="space-y-3 animate-pulse">
+                <div class="h-4 bg-gray-200 rounded w-3/4"></div>
+                <div class="h-3 bg-gray-200 rounded w-1/2"></div>
+                <div class="h-3 bg-gray-200 rounded w-2/3"></div>
+                <div class="flex gap-2 mt-4">
+                  <div class="h-8 bg-gray-200 rounded flex-1"></div>
+                  <div class="h-8 bg-gray-200 rounded flex-1"></div>
+                </div>
+              </div>
+            </div>
+          }
         </div>
       }
 
@@ -60,6 +120,7 @@ export interface PaginationConfig {
                       type="checkbox" 
                       [checked]="isAllSelected()" 
                       (change)="toggleSelectAll($event)"
+                      (click)="$event.stopPropagation()"
                       class="h-4 w-4 text-orange-600 focus:ring-orange-500 border-gray-300 rounded">
                   </th>
                 }
@@ -91,13 +152,18 @@ export interface PaginationConfig {
             </thead>
             <tbody class="divide-y divide-gray-200">
               @for (item of data; track trackByFn ? trackByFn($index, item) : $index) {
-                <tr class="hover:bg-themed-hover" [class.bg-themed-accent-light]="isItemSelected(item)">
+                <tr 
+                  class="hover:bg-themed-hover" 
+                  [class.bg-themed-accent-light]="isItemSelected(item)"
+                  [class.cursor-pointer]="rowClickable"
+                  (click)="onRowClickHandler(item, $event)">
                   @if (selectable) {
                     <td class="px-6 py-4">
                       <input 
                         type="checkbox" 
                         [checked]="isItemSelected(item)" 
                         (change)="toggleItemSelection(item)"
+                        (click)="$event.stopPropagation()"
                         class="h-4 w-4 text-orange-600 focus:ring-orange-500 border-gray-300 rounded">
                     </td>
                   }
@@ -147,8 +213,8 @@ export interface PaginationConfig {
                       <div class="flex items-center space-x-2">
                         @for (action of getVisibleActions(item); track action.label) {
                           <button
-                            (click)="action.handler(item)"
-                            [class]="getActionButtonClass(action.color)"
+                            (click)="action.handler(item); $event.stopPropagation()"
+                            [class]="getActionButtonClass(action.color) + ' table-action-btn btn-feedback'"
                             [title]="action.label">
                             @if (action.icon) {
                               <svg class="w-4 h-4" [innerHTML]="action.icon"></svg>
@@ -169,7 +235,10 @@ export interface PaginationConfig {
         <!-- Mobile Cards -->
         <div class="md:hidden space-y-4 p-1">
           @for (item of data; track trackByFn ? trackByFn($index, item) : $index) {
-            <div class="border-gray-200 rounded-lg p-5 shadow-sm mx-2">
+            <div 
+              class="border-gray-200 rounded-lg p-5 shadow-sm mx-2"
+              [class.cursor-pointer]="rowClickable"
+              (click)="onRowClickHandler(item, $event)">
               @if (mobileCardTemplate) {
                 <ng-container *ngTemplateOutlet="mobileCardTemplate; context: { $implicit: item, actions: getVisibleActions(item) }"></ng-container>
               } @else {
@@ -216,8 +285,9 @@ export interface PaginationConfig {
                   <div class="flex flex-wrap gap-2">
                     @for (action of getVisibleActions(item); track action.label) {
                       <button
-                        (click)="action.handler(item)"
-                        [class]="'flex-1 px-3 py-2 text-xs font-medium rounded ' + getActionButtonClass(action.color)">
+                        (click)="action.handler(item); $event.stopPropagation()"
+                        [class]="'flex-1 px-3 py-2 text-xs font-medium rounded btn-feedback ' + getActionButtonClass(action.color)"
+                        style="min-height: 36px;">
                         {{ action.label }}
                       </button>
                     }
@@ -248,7 +318,7 @@ export interface PaginationConfig {
             <button
               (click)="onPageChange.emit(pagination.currentPage - 1)"
               [disabled]="pagination.currentPage === 1"
-              class="px-4 py-2 text-sm border border-gray-300 rounded-md bg-white text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
+              class="px-4 py-2 text-sm border border-gray-300 rounded-md bg-white text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed btn-feedback touch-target">
               Previous
             </button>
             <span class="px-3 py-2 text-sm text-themed-secondary">
@@ -257,7 +327,7 @@ export interface PaginationConfig {
             <button
               (click)="onPageChange.emit(pagination.currentPage + 1)"
               [disabled]="pagination.currentPage === pagination.totalPages"
-              class="px-4 py-2 text-sm border border-gray-300 rounded-md bg-white text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
+              class="px-4 py-2 text-sm border border-gray-300 rounded-md bg-white text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed btn-feedback touch-target">
               Next
             </button>
           </div>
@@ -294,10 +364,12 @@ export class DataTableComponent<T = any> implements OnInit {
   @Input() itemLabel = 'items';
   @Input() trackByFn?: (index: number, item: T) => any;
   @Input() badgeConfig: Record<string, string> = {};
+  @Input() rowClickable = false;
 
   @Output() onSelectionChange = new EventEmitter<T[]>();
   @Output() onSort = new EventEmitter<{column: string, direction: 'asc' | 'desc'}>();
   @Output() onPageChange = new EventEmitter<number>();
+  @Output() onRowClick = new EventEmitter<T>();
 
   @ContentChild('customCell') customCellTemplate: TemplateRef<any> | null = null;
   @ContentChild('mobileCard') mobileCardTemplate: TemplateRef<any> | null = null;
@@ -394,5 +466,27 @@ export class DataTableComponent<T = any> implements OnInit {
       this.sortDirection = 'asc';
     }
     this.onSort.emit({ column, direction: this.sortDirection });
+  }
+
+  onRowClickHandler(item: T, event: Event): void {
+    if (!this.rowClickable) return;
+    
+    const mainAction = this.getMainAction(item);
+    if (mainAction) {
+      mainAction.handler(item);
+    } else {
+      this.onRowClick.emit(item);
+    }
+  }
+
+  getMainAction(item: T): TableAction | null {
+    const visibleActions = this.getVisibleActions(item);
+    return visibleActions.find(action => action.isMainAction) || 
+           (visibleActions.length > 0 ? visibleActions[0] : null);
+  }
+
+  getSkeletonWidth(): string {
+    const widths = ['60%', '80%', '70%', '90%', '75%'];
+    return widths[Math.floor(Math.random() * widths.length)];
   }
 }

@@ -6,6 +6,14 @@
     [stats]="headerStats">
   </app-admin-page-header>
 
+  <!-- Filter Component -->
+  <app-simple-submission-filter 
+    [availableTypes]="['opinion', 'poem', 'prose', 'article', 'book_review', 'cinema_essay']"
+    [showSortOptions]="true"
+    [sortField]="'createdAt'"
+    (filterChange)="onFilterChange($event)">
+  </app-simple-submission-filter>
+
   <!-- Submissions Table -->
   <app-data-table
     [data]="submissions"
@@ -13,6 +21,7 @@
     [actions]="actions"
     [badgeConfig]="badgeConfig"
     [loading]="loading"
+    [rowClickable]="true"
     [pagination]="paginationConfig"
     (actionClick)="handleAction($event)"
     (pageChange)="onPageChange($event)"

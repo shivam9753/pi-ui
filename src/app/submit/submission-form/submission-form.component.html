@@ -122,7 +122,7 @@
                   type="button"
                   (click)="saveAsDraft()"
                   [disabled]="!hasContent() || isSavingDraft"
-                  class="w-full font-medium py-3 px-6 rounded-2xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center border-2 bg-transparent border-themed-accent text-themed-accent hover:bg-themed-hover"
+                  class="w-full font-medium py-3 px-6 rounded-system-lg shadow-system-sm transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center border-2 bg-transparent border-themed-accent text-themed-accent hover:bg-themed-hover btn-feedback touch-target"
                   >
                   @if (isSavingDraft) {
                     <div class="w-4 h-4 border-2 border-orange-500 border-t-transparent rounded-full animate-spin mr-2"></div>
@@ -138,7 +138,7 @@
                 <button
                   type="submit"
                   [disabled]="!validateForm() || isSubmitting"
-                  class="w-full font-medium py-4 px-6 rounded-2xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center bg-themed-accent text-themed-inverse hover:bg-orange-600"
+                  class="w-full font-medium py-4 px-6 rounded-system-lg shadow-system-md transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center bg-themed-accent text-themed-inverse hover:bg-orange-600 btn-feedback touch-target"
                   >
                   @if (isSubmitting) {
                     <div class="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-3"></div>
@@ -149,7 +149,7 @@
                   type="button"
                   (click)="saveAsDraft()"
                   [disabled]="!hasContent() || isSavingDraft"
-                  class="w-full font-medium py-4 px-6 rounded-2xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center bg-themed-secondary text-themed hover:bg-themed-hover"
+                  class="w-full font-medium py-4 px-6 rounded-system-lg shadow-system-sm transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center bg-themed-secondary text-themed hover:bg-themed-hover btn-feedback touch-target"
                   >
                   @if (isSavingDraft) {
                     <div class="w-5 h-5 border-2 border-current border-t-transparent rounded-full animate-spin mr-3"></div>
@@ -167,7 +167,7 @@
     <div class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-6 py-3 safe-area-inset-bottom">
       <div class="flex justify-center space-x-16">
         <button (click)="activeTab = 'submit'"
-          class="flex flex-col items-center space-y-1 py-2 transition-colors duration-200"
+          class="flex flex-col items-center space-y-1 py-2 transition-colors duration-200 btn-feedback touch-target"
           [style.color]="activeTab === 'submit' ? 'var(--text-accent)' : 'var(--text-tertiary)'">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path>
@@ -175,7 +175,7 @@
           <span class="text-xs font-medium">Write</span>
         </button>
         <button (click)="activeTab = 'drafts'"
-          class="flex flex-col items-center space-y-1 py-2 relative transition-colors duration-200"
+          class="flex flex-col items-center space-y-1 py-2 relative transition-colors duration-200 btn-feedback touch-target"
           [style.color]="activeTab === 'drafts' ? 'var(--text-accent)' : 'var(--text-tertiary)'">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
@@ -186,7 +186,7 @@
           }
         </button>
         <button (click)="activeTab = 'guidelines'"
-          class="flex flex-col items-center space-y-1 py-2 transition-colors duration-200"
+          class="flex flex-col items-center space-y-1 py-2 transition-colors duration-200 btn-feedback touch-target"
           [style.color]="activeTab === 'guidelines' ? 'var(--text-accent)' : 'var(--text-tertiary)'">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
@@ -218,7 +218,7 @@
             [class.text-gray-900-secondary]="activeTab !== 'submit'"
             [class.hover:text-gray-900]="activeTab !== 'submit'"
             [class.hover:border-themed]="activeTab !== 'submit'"
-            class="whitespace-nowrap py-3 px-4 border-b-2 font-medium transition-colors duration-200 flex items-center gap-2">
+            class="whitespace-nowrap py-3 px-4 border-b-2 font-medium transition-colors duration-200 flex items-center gap-2 btn-feedback touch-target">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path>
             </svg>
@@ -334,7 +334,7 @@
                       type="button"
                       (click)="saveAsDraft()"
                       [disabled]="!hasContent() || isSavingDraft"
-                      class="px-8 py-4 font-medium rounded-2xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center bg-themed-secondary text-themed hover:bg-themed-hover"
+                      class="px-8 py-4 font-medium rounded-system-lg shadow-system-sm transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center bg-themed-secondary text-themed hover:bg-themed-hover btn-feedback touch-target"
                       >
                       @if (isSavingDraft) {
                         <div class="w-5 h-5 border-2 border-current border-t-transparent rounded-full animate-spin mr-3"></div>
@@ -344,7 +344,7 @@
                     <button
                       type="submit"
                       [disabled]="!validateForm() || isSubmitting"
-                      class="px-8 py-4 font-medium rounded-2xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center bg-themed-accent text-themed-inverse shadow-lg hover:bg-orange-600"
+                      class="px-8 py-4 font-medium rounded-system-lg shadow-system-lg transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center bg-themed-accent text-themed-inverse hover:bg-orange-600 btn-feedback touch-target"
                       >
                       @if (isSubmitting) {
                         <div class="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-3"></div>

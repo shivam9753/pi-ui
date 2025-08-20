@@ -205,7 +205,8 @@ export const createUserActions = (
   {
     label: 'Edit',
     color: 'primary',
-    handler: editHandler
+    handler: editHandler,
+    isMainAction: true
   },
   {
     label: 'View Profile',
@@ -245,7 +246,8 @@ export const createPublishedPostActions = (
     label: 'Configure & Publish',
     color: 'primary',
     condition: (post) => post.status === 'draft' || post.status === 'accepted',
-    handler: publishHandler
+    handler: publishHandler,
+    isMainAction: true
   },
   {
     label: 'Delete',
@@ -260,7 +262,8 @@ export const createPendingReviewActions = (
   {
     label: 'Review',
     color: 'primary',
-    handler: reviewHandler
+    handler: reviewHandler,
+    isMainAction: true
   }
 ];
 
@@ -270,7 +273,76 @@ export const createReadyToPublishActions = (
   {
     label: 'Configure & Publish',
     color: 'primary',
-    handler: configurePublishingHandler
+    handler: configurePublishingHandler,
+    isMainAction: true
+  }
+];
+
+// Prompts Table Configuration
+export const PROMPTS_TABLE_COLUMNS: TableColumn[] = [
+  {
+    key: 'title',
+    label: 'Title & Description',
+    type: 'custom',
+    width: '35%',
+    sortable: true
+  },
+  {
+    key: 'type',
+    label: 'Type',
+    type: 'custom',
+    width: '15%',
+    sortable: true
+  },
+  {
+    key: 'difficulty',
+    label: 'Difficulty',
+    type: 'custom',
+    width: '15%',
+    sortable: true
+  },
+  {
+    key: 'status',
+    label: 'Status',
+    type: 'custom',
+    width: '15%',
+    sortable: false
+  },
+  {
+    key: 'createdAt',
+    label: 'Created',
+    type: 'date',
+    width: '20%',
+    sortable: true
+  }
+];
+
+export const createPromptActions = (
+  editHandler: (prompt: any) => void,
+  toggleStatusHandler: (prompt: any) => void,
+  toggleFeaturedHandler: (prompt: any) => void,
+  deleteHandler: (prompt: any) => void
+): TableAction[] => [
+  {
+    label: 'Edit',
+    color: 'primary',
+    handler: editHandler,
+    isMainAction: true
+  },
+  {
+    label: 'Toggle Status',
+    color: 'secondary',
+    handler: toggleStatusHandler
+  },
+  {
+    label: 'Toggle Featured',
+    color: 'warning',
+    handler: toggleFeaturedHandler
+  },
+  {
+    label: 'Delete',
+    color: 'danger',
+    handler: deleteHandler
   }
 ];
 

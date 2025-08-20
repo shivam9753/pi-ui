@@ -25,6 +25,8 @@ export { AdvancedSubmissionFilterComponent } from './advanced-submission-filter/
 export type { AdvancedFilterOptions, QuickFilterEvent } from './advanced-submission-filter/advanced-submission-filter.component';
 export { SimpleSubmissionFilterComponent } from './simple-submission-filter/simple-submission-filter.component';
 export type { SimpleFilterOptions } from './simple-submission-filter/simple-submission-filter.component';
+export { SearchableUserSelectorComponent } from './searchable-user-selector/searchable-user-selector.component';
+export type { User } from './searchable-user-selector/searchable-user-selector.component';
 
 // Re-export existing components
 export { ModalComponent } from '../../modal/modal.component';

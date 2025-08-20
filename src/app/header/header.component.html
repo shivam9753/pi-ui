@@ -56,7 +56,7 @@
         </div>
 
         @if (!loggedInUser() && !isOnLoginPage()) {
-          <a routerLink="/login" class="btn-primary">Login</a>
+          <a routerLink="/login" class="btn-primary btn-feedback touch-target">Login</a>
         }
         @if (loggedInUser()) {
           <div class="relative" data-dropdown="user">
@@ -66,8 +66,8 @@
                     aria-haspopup="true"
                     aria-controls="user-dropdown-menu"
                     [attr.aria-label]="'User menu for ' + loggedInUser()!.name"
-                    class="flex items-center px-3 py-2 text-base font-medium text-themed hover:text-themed transition-colors duration-200 rounded-lg hover:bg-themed-hover">
-              <div class="w-8 h-8 bg-white-accent rounded-full flex items-center justify-center text-white text-sm font-medium mr-3" aria-hidden="true">
+                    class="flex items-center px-3 py-2 text-base font-medium text-themed hover:text-themed transition-colors duration-200 rounded-lg hover:bg-themed-hover btn-feedback touch-target">
+              <div class="user-avatar bg-white-accent rounded-full flex items-center justify-center text-white text-sm font-medium mr-3" aria-hidden="true">
                 {{ getUserInitials(loggedInUser()!.name) }}
               </div>
               <span>{{ loggedInUser()!.name }}</span>
@@ -110,7 +110,7 @@
                 [attr.aria-expanded]="isMobileMenuOpen()"
                 aria-controls="mobile-navigation-menu"
                 aria-label="Toggle navigation menu"
-                class="mobile-hamburger-button p-2 text-themed-secondary hover:text-themed hover:bg-themed-hover rounded-lg transition-all duration-200 lg:hidden">
+                class="mobile-hamburger-button btn-icon btn-feedback text-themed-secondary hover:text-themed hover:bg-themed-hover rounded-lg transition-all duration-200 lg:hidden">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
               d="M4 6h16M4 12h16M4 18h16" />
@@ -133,7 +133,7 @@
   <!-- Mobile Menu Header -->
   <div class="p-6 border-b border-gray-200 flex items-center justify-between">
     <span class="text-xl font-bold text-orange-600">pi</span>
-    <button (click)="closeMobileMenu()" class="w-8 h-8 flex items-center justify-center border border-gray-200 rounded-full hover:bg-white-hover transition-colors">
+    <button (click)="closeMobileMenu()" class="btn-icon btn-feedback flex items-center justify-center border border-gray-200 rounded-full hover:bg-white-hover transition-colors">
       <svg class="w-5 h-5 text-gray-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
       </svg>
@@ -161,7 +161,7 @@
     <nav class="flex-1 px-6 py-6 space-y-2">
       <a routerLink="/explore"
         (click)="closeMobileMenu()"
-        class="flex items-center px-4 py-3 text-themed hover:bg-themed-hover hover:text-themed rounded-lg transition-colors duration-200 group">
+        class="nav-link btn-feedback flex items-center px-4 py-3 text-themed hover:bg-themed-hover hover:text-themed rounded-lg transition-colors duration-200 group">
         <svg class="w-5 h-5 mr-3 text-themed-secondary group-hover:text-themed" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
         </svg>
@@ -171,7 +171,7 @@
       @if (loggedInUser()) {
         <button
           (click)="handleSubmitClick(); closeMobileMenu()"
-          class="w-full flex items-center px-4 py-3 text-themed hover:bg-themed-hover hover:text-themed rounded-lg transition-colors duration-200 group">
+          class="nav-link btn-feedback w-full flex items-center px-4 py-3 text-themed hover:bg-themed-hover hover:text-themed rounded-lg transition-colors duration-200 group">
           <svg class="w-5 h-5 mr-3 text-themed-secondary group-hover:text-themed" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
           </svg>

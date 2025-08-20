@@ -7,6 +7,16 @@
     (onRefresh)="loadUsers()">
   </app-admin-page-header>
 
+  <!-- Filter Component -->
+  <app-simple-submission-filter 
+    [availableStatuses]="['user', 'curator', 'reviewer', 'admin']"
+    [showSortOptions]="true"
+    [sortField]="'createdAt'"
+    [hideTypes]="true"
+    [statusLabel]="'Role'"
+    (filterChange)="onFilterChange($event)">
+  </app-simple-submission-filter>
+
   <!-- Data Table -->
   <app-data-table
     [columns]="columns"
@@ -15,6 +25,7 @@
     [loading]="loading"
     loadingText="Loading users..."
     [selectable]="false"
+    [rowClickable]="true"
     [pagination]="paginationConfig"
     itemLabel="users"
     [trackByFn]="trackByUserId"

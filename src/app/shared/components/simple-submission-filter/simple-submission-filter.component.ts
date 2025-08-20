@@ -6,6 +6,8 @@ export interface SimpleFilterOptions {
   type?: string;
   status?: string;
   search?: string;
+  sortBy?: string;
+  order?: 'asc' | 'desc';
 }
 
 @Component({
@@ -28,7 +30,7 @@ export interface SimpleFilterOptions {
         
         <div class="flex gap-3 overflow-x-auto pb-1">
           <!-- Type Filter -->
-          <div class="flex-shrink-0">
+          <div *ngIf="!hideTypes" class="flex-shrink-0">
             <select 
               [(ngModel)]="currentFilters.type" 
               (ngModelChange)="onFilterChange()"
@@ -46,6 +48,18 @@ export interface SimpleFilterOptions {
               (ngModelChange)="onFilterChange()"
               class="text-sm border border-gray-300 rounded-md px-3 py-2 bg-white min-w-[120px] focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
               <option *ngFor="let option of availableStatusOptions" [value]="option.value">
+                {{ option.label }}
+              </option>
+            </select>
+          </div>
+
+          <!-- Sort Filter -->
+          <div *ngIf="showSortOptions" class="flex-shrink-0">
+            <select 
+              [(ngModel)]="currentFilters.order" 
+              (ngModelChange)="onSortChange()"
+              class="text-sm border border-gray-300 rounded-md px-3 py-2 bg-white min-w-[120px] focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+              <option *ngFor="let option of sortOptions" [value]="option.value">
                 {{ option.label }}
               </option>
             </select>
@@ -76,8 +90,8 @@ export interface SimpleFilterOptions {
         
         <div class="flex items-center gap-4">
           <!-- Type Filter -->
-          <div class="flex items-center gap-2">
-            <label class="text-sm font-medium text-gray-700">Type:</label>
+          <div *ngIf="!hideTypes" class="flex items-center gap-2">
+            <label class="text-sm font-medium text-gray-700">{{ typeLabel }}:</label>
             <select 
               [(ngModel)]="currentFilters.type" 
               (ngModelChange)="onFilterChange()"
@@ -90,12 +104,25 @@ export interface SimpleFilterOptions {
 
           <!-- Status Filter (if status options available) -->
           <div *ngIf="availableStatusOptions.length > 1" class="flex items-center gap-2">
-            <label class="text-sm font-medium text-gray-700">Status:</label>
+            <label class="text-sm font-medium text-gray-700">{{ statusLabel }}:</label>
             <select 
               [(ngModel)]="currentFilters.status" 
               (ngModelChange)="onFilterChange()"
               class="text-sm border border-gray-300 rounded-md px-3 py-1 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
               <option *ngFor="let option of availableStatusOptions" [value]="option.value">
+                {{ option.label }}
+              </option>
+            </select>
+          </div>
+
+          <!-- Sort Filter -->
+          <div *ngIf="showSortOptions" class="flex items-center gap-2">
+            <label class="text-sm font-medium text-gray-700">Sort:</label>
+            <select 
+              [(ngModel)]="currentFilters.order" 
+              (ngModelChange)="onSortChange()"
+              class="text-sm border border-gray-300 rounded-md px-3 py-1 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+              <option *ngFor="let option of sortOptions" [value]="option.value">
                 {{ option.label }}
               </option>
             </select>
@@ -122,6 +149,11 @@ export class SimpleSubmissionFilterComponent implements OnInit {
   @Input() availableStatuses: string[] = [];
   @Input() availableTypes: string[] = ['opinion', 'poem', 'prose', 'article', 'book_review', 'cinema_essay'];
   @Input() initialFilters: SimpleFilterOptions = {};
+  @Input() showSortOptions: boolean = false;
+  @Input() sortField: string = 'publishedAt';
+  @Input() statusLabel: string = 'Status'; // Allow customization of status field label
+  @Input() typeLabel: string = 'Type'; // Allow customization of type field label
+  @Input() hideTypes: boolean = false; // Option to hide type filter
   @Output() filterChange = new EventEmitter<SimpleFilterOptions>();
 
   currentFilters: SimpleFilterOptions = {};
@@ -144,11 +176,26 @@ export class SimpleSubmissionFilterComponent implements OnInit {
     { value: 'accepted', label: 'Accepted' },
     { value: 'published', label: 'Published' },
     { value: 'rejected', label: 'Rejected' },
-    { value: 'draft', label: 'Draft' }
+    { value: 'draft', label: 'Draft' },
+    // User roles
+    { value: 'user', label: 'User' },
+    { value: 'curator', label: 'Curator' },
+    { value: 'reviewer', label: 'Reviewer' },
+    { value: 'admin', label: 'Admin' }
+  ];
+
+  sortOptions = [
+    { value: 'desc', label: 'Newest First' },
+    { value: 'asc', label: 'Oldest First' }
   ];
 
   ngOnInit() {
     this.currentFilters = { ...this.initialFilters };
+    // Set default sort if showSortOptions is true and no sort is set
+    if (this.showSortOptions && !this.currentFilters.order) {
+      this.currentFilters.sortBy = this.sortField;
+      this.currentFilters.order = 'desc';
+    }
   }
 
   get availableTypeOptions() {
@@ -172,12 +219,22 @@ export class SimpleSubmissionFilterComponent implements OnInit {
   }
 
   clearFilters() {
-    this.currentFilters = {};
+    const preserveSorting = this.showSortOptions;
+    const currentSort = preserveSorting ? {
+      sortBy: this.currentFilters.sortBy,
+      order: this.currentFilters.order
+    } : {};
+    
+    this.currentFilters = { ...currentSort };
     this.onFilterChange();
   }
 
   hasActiveFilters(): boolean {
-    return Object.values(this.currentFilters).some(value => value && value !== '');
+    const filtersToCheck = { ...this.currentFilters };
+    // Don't consider sort options as "active filters" for clear button display
+    delete filtersToCheck.sortBy;
+    delete filtersToCheck.order;
+    return Object.values(filtersToCheck).some(value => value && value !== '');
   }
 
   getActiveFilterCount(): number {
@@ -185,6 +242,12 @@ export class SimpleSubmissionFilterComponent implements OnInit {
     if (this.currentFilters.type) count++;
     if (this.currentFilters.status) count++;
     if (this.currentFilters.search && this.currentFilters.search.trim()) count++;
+    // Don't count sort as an "active filter" for the display
     return count;
+  }
+
+  onSortChange() {
+    this.currentFilters.sortBy = this.sortField;
+    this.onFilterChange();
   }
 }

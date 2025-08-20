@@ -5,6 +5,16 @@ import { BackendService } from '../../../services/backend.service';
 import { AuthService } from '../../../services/auth.service';
 import { AdminPageHeaderComponent, AdminPageStat } from '../../../shared/components/admin-page-header/admin-page-header.component';
 import { CommonUtils } from '../../../shared/utils';
+import {
+  DataTableComponent,
+  TableColumn,
+  TableAction,
+  PaginationConfig,
+  PROMPTS_TABLE_COLUMNS,
+  createPromptActions,
+  SUBMISSION_BADGE_CONFIG
+} from '../../../shared/components';
+import { SimpleSubmissionFilterComponent, SimpleFilterOptions } from '../../../shared/components/simple-submission-filter/simple-submission-filter.component';
 
 
 interface Prompt {
@@ -26,19 +36,28 @@ interface Prompt {
 @Component({
   selector: 'app-prompt-management',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, AdminPageHeaderComponent],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, AdminPageHeaderComponent, DataTableComponent, SimpleSubmissionFilterComponent],
   templateUrl: './prompt-management.component.html',
   styleUrl: './prompt-management.component.css'
 })
 export class PromptManagementComponent implements OnInit {
+  // Table configuration
+  columns: TableColumn[] = PROMPTS_TABLE_COLUMNS;
+  actions: TableAction[] = [];
+  badgeConfig = SUBMISSION_BADGE_CONFIG;
+  paginationConfig: PaginationConfig = {
+    currentPage: 1,
+    totalPages: 1,
+    pageSize: 10,
+    totalItems: 0
+  };
+  
   // All prompts data
   allPrompts: Prompt[] = [];
   filteredPrompts: Prompt[] = [];
   
-  // Filters
-  manageType = '';
-  manageSearch = '';
-  manageStatus = 'all'; // 'all', 'active', 'inactive'
+  // Filter properties
+  currentFilters: SimpleFilterOptions = {};
   
   // Loading states
   isLoading = true;
@@ -49,11 +68,6 @@ export class PromptManagementComponent implements OnInit {
   promptForm: FormGroup;
   editingPrompt: Prompt | null = null;
   showCreateForm = false;
-  
-  // Pagination
-  currentPage = 1;
-  itemsPerPage = 10;
-  totalItems = 0;
   
   // Make Math available in template
   Math = Math;
@@ -76,7 +90,17 @@ export class PromptManagementComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.setupTableActions();
     this.loadAllPrompts();
+  }
+
+  setupTableActions() {
+    this.actions = createPromptActions(
+      (prompt) => this.editPrompt(prompt),
+      (prompt) => this.togglePromptStatus(prompt),
+      (prompt) => this.toggleFeatured(prompt),
+      (prompt) => this.deletePrompt(prompt)
+    );
   }
 
   loadAllPrompts() {
@@ -88,7 +112,7 @@ export class PromptManagementComponent implements OnInit {
             ...prompt,
             formattedCreatedAt: prompt.createdAt ? new Date(prompt.createdAt).toLocaleDateString() : 'N/A'
           }));
-          this.applyManageFilters();
+          this.applyFilters();
         }
         this.isLoading = false;
       },
@@ -98,44 +122,62 @@ export class PromptManagementComponent implements OnInit {
     });
   }
 
-  applyManageFilters() {
+  applyFilters() {
     let prompts = [...this.allPrompts];
     
-    if (this.manageType) {
-      prompts = prompts.filter(p => p.type === this.manageType);
+    // Apply type filter
+    if (this.currentFilters.type) {
+      prompts = prompts.filter(p => p.type === this.currentFilters.type);
     }
     
-    if (this.manageStatus === 'active') {
-      prompts = prompts.filter(p => p.isActive);
-    } else if (this.manageStatus === 'inactive') {
-      prompts = prompts.filter(p => !p.isActive);
-    }
-    
-    if (this.manageSearch) {
-      const searchTerm = this.manageSearch.toLowerCase();
+    // Apply search filter
+    if (this.currentFilters.search) {
+      const searchTerm = this.currentFilters.search.toLowerCase();
       prompts = prompts.filter(p => 
         p.title.toLowerCase().includes(searchTerm) ||
         p.description.toLowerCase().includes(searchTerm)
       );
     }
     
-    this.totalItems = prompts.length;
+    // Apply sorting
+    const sortBy = this.currentFilters.sortBy || 'createdAt';
+    const order = this.currentFilters.order || 'desc';
+    
+    prompts.sort((a: any, b: any) => {
+      let aValue = a[sortBy];
+      let bValue = b[sortBy];
+      
+      if (sortBy === 'createdAt') {
+        aValue = new Date(aValue).getTime();
+        bValue = new Date(bValue).getTime();
+      } else if (typeof aValue === 'string') {
+        aValue = aValue.toLowerCase();
+        bValue = bValue.toLowerCase();
+      }
+      
+      if (order === 'desc') {
+        return bValue > aValue ? 1 : -1;
+      } else {
+        return aValue > bValue ? 1 : -1;
+      }
+    });
+    
     this.filteredPrompts = prompts;
-    this.currentPage = 1; // Reset to first page when filters change
+    this.paginationConfig.totalItems = prompts.length;
+    this.paginationConfig.totalPages = Math.ceil(prompts.length / this.paginationConfig.pageSize);
+    this.paginationConfig.currentPage = 1; // Reset to first page when filters change
   }
 
   get paginatedPrompts() {
-    const startIndex = (this.currentPage - 1) * this.itemsPerPage;
-    const endIndex = startIndex + this.itemsPerPage;
+    const startIndex = (this.paginationConfig.currentPage - 1) * this.paginationConfig.pageSize;
+    const endIndex = startIndex + this.paginationConfig.pageSize;
     return this.filteredPrompts.slice(startIndex, endIndex);
   }
 
-  get totalPages() {
-    return Math.ceil(this.totalItems / this.itemsPerPage);
-  }
-
-  onFilterChange() {
-    this.applyManageFilters();
+  // Filter methods
+  onFilterChange(filters: SimpleFilterOptions) {
+    this.currentFilters = filters;
+    this.applyFilters();
   }
 
   createPrompt() {
@@ -250,9 +292,27 @@ export class PromptManagementComponent implements OnInit {
   }
 
   goToPage(page: number) {
-    if (page >= 1 && page <= this.totalPages) {
-      this.currentPage = page;
+    if (page >= 1 && page <= this.paginationConfig.totalPages) {
+      this.paginationConfig.currentPage = page;
     }
+  }
+
+  onTablePageChange(page: number) {
+    this.paginationConfig.currentPage = page;
+  }
+
+  onTableSort(event: {column: string, direction: 'asc' | 'desc'}) {
+    this.currentFilters.sortBy = event.column;
+    this.currentFilters.order = event.direction;
+    this.applyFilters();
+  }
+
+  trackByPromptId(index: number, prompt: Prompt): string {
+    return prompt._id;
+  }
+
+  getBadgeClass(key: string): string {
+    return (this.badgeConfig as any)[key] || 'px-2 py-1 text-xs font-medium rounded-full bg-gray-50 text-gray-700';
   }
 
   getTypeLabel(type: string): string {

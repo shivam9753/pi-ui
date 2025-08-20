@@ -42,7 +42,8 @@ import { SubmissionTagComponent } from '../../submission-tag/submission-tag.comp
           <button
             (click)="action.handler(submission)"
             [class]="getActionButtonClass(action.color)"
-            class="flex-1 px-3 py-2 text-xs font-medium rounded">
+            class="flex-1 px-3 py-2 text-xs font-medium rounded btn-feedback"
+            style="min-height: 36px;">
             {{ action.label }}
           </button>
         }

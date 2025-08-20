@@ -91,8 +91,8 @@ export class PublishedPostsComponent implements OnInit {
     const params: any = {
       limit: this.itemsPerPage,
       skip: skip,
-      sortBy: 'reviewedAt',
-      order: 'desc'
+      sortBy: this.currentFilters.sortBy || 'publishedAt',
+      order: this.currentFilters.order || 'desc'
     };
 
     // Add type filter if selected

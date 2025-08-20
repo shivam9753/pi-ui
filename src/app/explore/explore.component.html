@@ -10,16 +10,6 @@
 
       <!-- PRIMARY CONTENT (Featured + Main Grid) -->
       <div class="sm:col-span-3 space-y-4 md:space-y-6">
-
-
-
-
-
-
-
-
-
-
         <!-- Navigation Section -->
         <div class="space-y-3">
           <!-- Tab Navigation with Sort Dropdown -->
@@ -36,7 +26,7 @@
                     
                     [class.border-transparent]="selectedType !== option.value"
                     [class.text-gray-600]="selectedType !== option.value"
-                    class="whitespace-nowrap py-2 px-3 border-b-2 font-medium transition-all duration-200 flex-shrink-0 text-sm"
+                    class="whitespace-nowrap py-2 px-3 border-b-2 font-medium transition-all duration-200 flex-shrink-0 text-sm touch-target btn-feedback"
                     >
                     {{ option.label }}
                   </button>
@@ -57,7 +47,7 @@
                     [class.text-gray-600]="selectedType !== option.value"
                     [class.hover:text-gray-900]="selectedType !== option.value"
                     [class.hover:border-gray-300]="selectedType !== option.value"
-                    class="whitespace-nowrap py-3 px-1 border-b-2 font-medium transition-colors duration-200 flex-shrink-0"
+                    class="whitespace-nowrap py-3 px-1 border-b-2 font-medium transition-colors duration-200 flex-shrink-0 btn-feedback"
                     >
                     {{ option.label }}
                   </button>
@@ -129,10 +119,10 @@
         @if (!loading && ((showSearchResults && searchResults.length > 0) || (!showSearchResults && submissions && submissions.length > 0))) {
           <div class="space-y-6">
             <!-- Mobile: Magazine-style layout -->
-            <div class="block md:hidden space-y-6 px-4">
+            <div class="block md:hidden divide-y divide-gray-100 px-4">
               @for (submission of (showSearchResults ? searchResults : submissions); track submission) {
                 <article
-                  class="cursor-pointer group"
+                  class="cursor-pointer group py-6 first:pt-0 last:pb-0"
                   (click)="openSubmission(submission)">
                   <div class="flex gap-4">
                     <!-- Content first, image second -->
@@ -186,12 +176,12 @@
               }
             </div>
             <!-- Desktop: Clean grid -->
-            <div class="hidden md:grid grid-cols-3 gap-6">
+            <div class="hidden md:grid grid-cols-3 gap-8">
               @for (submission of (showSearchResults ? searchResults : submissions); track submission) {
                 <div
-                  class="cursor-pointer group"
+                  class="cursor-pointer group bg-white hover:shadow-lg transition-all duration-300 rounded-2xl overflow-hidden border border-gray-100 hover:border-gray-200"
                   (click)="openSubmission(submission)">
-                  <div class="aspect-[4/3] rounded-2xl overflow-hidden bg-gray-100 mb-4">
+                  <div class="aspect-[4/3] bg-gray-100">
                     @if (submission.imageUrl) {
                       <img
                         [src]="submission.imageUrl"
@@ -207,7 +197,7 @@
                       </div>
                     }
                   </div>
-                  <div class="space-y-2">
+                  <div class="p-4 space-y-3">
                     <button
                       (click)="navigateToCategory(submission.submissionType); $event.stopPropagation()"
                       class="text-orange-500 text-xs font-medium hover:text-amber-700 transition-colors cursor-pointer text-left">

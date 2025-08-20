@@ -10,6 +10,8 @@
   <app-simple-submission-filter 
     [availableStatuses]="[SUBMISSION_STATUS.PUBLISHED, SUBMISSION_STATUS.ACCEPTED]"
     [availableTypes]="['opinion', 'poem', 'prose', 'article', 'book_review', 'cinema_essay']"
+    [showSortOptions]="true"
+    [sortField]="'publishedAt'"
     (filterChange)="onFilterChange($event)">
   </app-simple-submission-filter>
 
@@ -21,6 +23,7 @@
     [loading]="loading"
     loadingText="Loading published posts..."
     [selectable]="false"
+    [rowClickable]="true"
     [pagination]="paginationConfig"
     itemLabel="posts"
     [trackByFn]="trackBySubmissionId"
@@ -86,10 +89,10 @@
         }
         @case ('reviewedAt') {
           <div class="text-xs text-gray-500">
-            {{ item.reviewedAt | date:'MMM d' }}
+            {{ item.publishedAt | date:'MMM d, yyyy' }}
           </div>
           <div class="text-xs text-gray-400 mt-0.5">
-            {{ item.reviewedAt | date:'HH:mm' }}
+            {{ item.publishedAt | date:'HH:mm' }}
           </div>
         }
       }
@@ -112,7 +115,7 @@
           {{ submission.status | titlecase }}
         </span>
         <span class="text-xs text-gray-500">
-          {{ submission.reviewedAt | date:'MMM d' }}
+          {{ submission.publishedAt | date:'MMM d, yyyy' }}
         </span>
       </div>
       

@@ -13,7 +13,9 @@ import {
   PaginationConfig,
   SUBMISSIONS_TABLE_COLUMNS,
   createSubmissionActions,
-  SUBMISSION_BADGE_CONFIG
+  SUBMISSION_BADGE_CONFIG,
+  SearchableUserSelectorComponent,
+  User
 } from '../../../shared/components';
 import { PrettyLabelPipe } from '../../../pipes/pretty-label.pipe';
 import { SimpleSubmissionFilterComponent, SimpleFilterOptions } from '../../../shared/components/simple-submission-filter/simple-submission-filter.component';
@@ -21,7 +23,7 @@ import { SimpleSubmissionFilterComponent, SimpleFilterOptions } from '../../../s
 
 @Component({
   selector: 'app-all-submissions',
-  imports: [CommonModule, FormsModule, AdminPageHeaderComponent, DataTableComponent, PrettyLabelPipe, SimpleSubmissionFilterComponent],
+  imports: [CommonModule, FormsModule, AdminPageHeaderComponent, DataTableComponent, PrettyLabelPipe, SimpleSubmissionFilterComponent, SearchableUserSelectorComponent],
   templateUrl: './all-submissions.component.html',
   styleUrl: './all-submissions.component.css'
 })
@@ -45,7 +47,7 @@ export class AllSubmissionsComponent implements OnInit {
   };
   submissions: any[] = [];
   filteredSubmissions: any[] = [];
-  users: any[] = [];
+  users: User[] = [];
   loading = false;
   message = '';
   messageType: 'success' | 'error' | 'info' = 'info';
@@ -162,7 +164,11 @@ export class AllSubmissionsComponent implements OnInit {
     const headers = this.getAuthHeaders();
     this.http.get(`${environment.apiBaseUrl}${API_ENDPOINTS.ADMIN.USERS}`, { headers }).subscribe({
       next: (res: any) => {
-        this.users = res.users || [];
+        this.users = (res.users || []).map((user: any) => ({
+          _id: user._id,
+          name: user.name || user.username || 'Unknown',
+          email: user.email || 'No email'
+        }));
       },
       error: (err) => {
       }
