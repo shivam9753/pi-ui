@@ -3,28 +3,18 @@
   <app-admin-page-header
     title="Prompt Management"
     subtitle="Create, edit, and manage writing prompts"
-    [loading]="loading">
+    [loading]="loading"
+    (onRefresh)="refreshPrompts()">
     
-    <div class="flex items-center gap-2 sm:gap-3">
-      <button
-        (click)="refreshPrompts()"
-        class="btn-secondary flex items-center gap-1 sm:gap-2 text-xs sm:text-sm btn-feedback touch-target"
-        [disabled]="loading">
-        <svg class="w-3 h-3 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
-        </svg>
-        <span class="hidden sm:inline">Refresh</span>
-      </button>
-      <button
-        (click)="createPrompt()"
-        class="btn-primary flex items-center gap-1 sm:gap-2 text-xs sm:text-sm btn-feedback touch-target">
-        <svg class="w-3 h-3 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-        </svg>
-        <span class="hidden sm:inline">Create Prompt</span>
-        <span class="sm:hidden">Create</span>
-      </button>
-    </div>
+    <button
+      (click)="createPrompt()"
+      class="btn-primary flex items-center gap-1 sm:gap-2 text-xs sm:text-sm btn-feedback touch-target">
+      <svg class="w-3 h-3 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+      </svg>
+      <span class="hidden sm:inline">Add Prompt</span>
+      <span class="sm:hidden">Add</span>
+    </button>
   </app-admin-page-header>
 
   <!-- Create/Edit Form -->
@@ -278,7 +268,7 @@
         <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
         </svg>
-        Create Prompt
+        Add Prompt
       </button>
     </ng-template>
   </app-data-table>

@@ -13,7 +13,7 @@ import { StatusBadgeComponent } from '../shared/components/status-badge/status-b
 import { DataTableComponent } from '../shared/components/data-table/data-table.component';
 import { ProfileCompletionComponent } from '../profile-completion/profile-completion.component';
 import { SUBMISSION_STATUS, SubmissionStatus } from '../shared/constants/api.constants';
-import { SUBMISSION_BADGE_CONFIG } from '../shared/components/data-table/table-configs';
+import { SUBMISSION_BADGE_CONFIG, USER_SUBMISSIONS_TABLE_COLUMNS, createUserSubmissionActions } from '../shared/components/data-table/table-configs';
 
 // Add interfaces for new data types
 interface Submission {
@@ -591,30 +591,43 @@ export class UserProfileComponent implements OnInit {
 
   // Action methods for submissions
   editSubmission(submission: Submission) {
+    console.log('editSubmission called with submission:', submission._id);
     // Navigate to edit submission page
-    this.router.navigate(['/edit-submission', submission._id], { queryParams: { action: 'edit' } });
+    this.router.navigate(['/edit-submission', submission._id], { queryParams: { action: 'edit' } })
+      .then((success) => console.log('Navigation success:', success))
+      .catch((error) => console.error('Navigation error:', error));
   }
 
   resubmitSubmission(submission: Submission) {
+    console.log('resubmitSubmission called with submission:', submission._id);
     // For needs_revision status, navigate to edit submission page with resubmit action
-    this.router.navigate(['/edit-submission', submission._id], { queryParams: { action: 'resubmit' } });
+    this.router.navigate(['/edit-submission', submission._id], { queryParams: { action: 'resubmit' } })
+      .then((success) => console.log('Navigation success:', success))
+      .catch((error) => console.error('Navigation error:', error));
   }
 
   viewSubmissionDetails(submission: Submission) {
+    console.log('viewSubmissionDetails called with submission:', submission._id);
     // Navigate to read interface or admin review page
     if (submission.status === SUBMISSION_STATUS.PUBLISHED && submission.publishedWorkId) {
       // Check if submission has slug for SEO-friendly URL
       if (submission.slug) {
+        console.log('Navigating to slug:', submission.slug);
         this.router.navigate(['/post', submission.slug]);
       } else if (submission.seo?.slug) {
+        console.log('Navigating to seo slug:', submission.seo.slug);
         this.router.navigate(['/post', submission.seo.slug]);
       } else {
+        console.log('Navigating to read by ID:', submission.publishedWorkId);
         // Fallback to ID if no slug available
         this.router.navigate(['/read', submission.publishedWorkId]);
       }
     } else {
-      // For non-published submissions, show details in a modal or navigate to review page
-      // TODO: Implement submission details modal
+      console.log('Navigating to view mode for submission:', submission._id);
+      // For non-published submissions, navigate to edit-submission page in view mode
+      this.router.navigate(['/edit-submission', submission._id], { queryParams: { action: 'view' } })
+        .then((success) => console.log('Navigation success:', success))
+        .catch((error) => console.error('Navigation error:', error));
     }
   }
 
@@ -640,8 +653,8 @@ export class UserProfileComponent implements OnInit {
 
   // Helper methods to check submission status and available actions based on user requirements
   canEdit(submission: Submission): boolean {
-    // Edit for pending review or needs revision
-    const editableStatuses: SubmissionStatus[] = [SUBMISSION_STATUS.PENDING_REVIEW, SUBMISSION_STATUS.NEEDS_REVISION];
+    // Edit for pending review, needs revision, or draft
+    const editableStatuses: SubmissionStatus[] = [SUBMISSION_STATUS.PENDING_REVIEW, SUBMISSION_STATUS.NEEDS_REVISION, SUBMISSION_STATUS.DRAFT];
     return editableStatuses.includes(submission.status);
   }
 
@@ -656,9 +669,8 @@ export class UserProfileComponent implements OnInit {
   }
 
   canView(submission: Submission): boolean {
-    // View for published, draft, accepted, in_progress
-    const viewableStatuses: SubmissionStatus[] = [SUBMISSION_STATUS.PUBLISHED, SUBMISSION_STATUS.DRAFT, SUBMISSION_STATUS.ACCEPTED, SUBMISSION_STATUS.IN_PROGRESS];
-    return viewableStatuses.includes(submission.status);
+    // View for all statuses - users should be able to view their submissions
+    return true;
   }
 
   getActionButtons(submission: Submission): Array<{label: string, action: string, class: string}> {
@@ -700,20 +712,27 @@ export class UserProfileComponent implements OnInit {
   }
 
   handleSubmissionAction(action: string, submission: Submission) {
+    console.log('handleSubmissionAction called:', action, submission);
+    
     switch (action) {
       case 'view':
+        console.log('Calling viewSubmissionDetails');
         this.viewSubmissionDetails(submission);
         break;
       case 'edit':
+        console.log('Calling editSubmission');
         this.editSubmission(submission);
         break;
       case 'resubmit':
+        console.log('Calling resubmitSubmission');
         this.resubmitSubmission(submission);
         break;
       case 'delete':
+        console.log('Calling deleteSubmission');
         this.deleteSubmission(submission);
         break;
       default:
+        console.log('Unknown action:', action);
     }
   }
 
@@ -1187,5 +1206,16 @@ export class UserProfileComponent implements OnInit {
   editSubmissionForRevision(submission: any): void {
     // Navigate to edit-submission component
     this.router.navigate(['/edit-submission', submission._id]);
+  }
+
+  // Data table configuration methods
+  getUserSubmissionsColumns() {
+    return USER_SUBMISSIONS_TABLE_COLUMNS;
+  }
+
+  getUserSubmissionsActions() {
+    return createUserSubmissionActions(
+      (submission: any) => this.resubmitSubmission(submission)
+    );
   }
 }

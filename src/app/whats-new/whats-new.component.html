@@ -69,30 +69,46 @@
   </div>
 
   <!-- Items List -->
-  <div class="items-list">
+  <div class="items-grid">
     <div *ngIf="items.length === 0" class="empty-state">
-      <p>No updates yet. Check back soon for new features and improvements!</p>
+      <div class="empty-content">
+        <svg class="w-16 h-16 mx-auto mb-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
+        </svg>
+        <p class="text-lg text-gray-600 dark:text-gray-400">No updates yet</p>
+        <p class="text-sm text-gray-500 dark:text-gray-500">Check back soon for new features and improvements!</p>
+      </div>
     </div>
     
     <div *ngFor="let item of items" class="item-card">
-      <div class="item-header">
-        <h3 class="item-title">{{ item.title }}</h3>
-        <div class="item-meta">
-          <span class="item-type" [class]="getTypeClass(item.type)">
+      <!-- Card Content -->
+      <div class="card-content">
+        <!-- Header with Type and Date -->
+        <div class="card-header">
+          <span class="type-badge" [ngClass]="getTypeClass(item.type)">
+            <svg class="type-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path [attr.d]="getTypeIcon(item.type)" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
+            </svg>
             {{ item.type }}
           </span>
-          <span class="item-date">{{ formatDate(item.dateAdded) }}</span>
+          <span class="date-text">{{ formatDate(item.dateAdded) }}</span>
         </div>
-      </div>
-      
-      <p class="item-description">{{ item.description }}</p>
-      
-      <div *ngIf="item.link && item.link !== '#'" class="item-actions">
-        <button 
-          class="learn-more-btn"
-          (click)="navigateToLink(item.link)">
-          Learn More →
-        </button>
+        
+        <!-- Title -->
+        <h3 class="card-title">{{ item.title }}</h3>
+        
+        <!-- Description -->
+        <p class="card-description">{{ item.description }}</p>
+        
+        <!-- Learn More Button -->
+        <div *ngIf="item.link && item.link !== '#'" class="card-actions">
+          <button class="learn-more-button" (click)="navigateToLink(item.link)">
+            Learn More
+            <svg class="arrow-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
+            </svg>
+          </button>
+        </div>
       </div>
     </div>
   </div>

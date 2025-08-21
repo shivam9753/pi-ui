@@ -105,6 +105,7 @@ export class PromptManagementComponent implements OnInit {
 
   loadAllPrompts() {
     this.isLoading = true;
+    this.loading = true;
     this.backendService.getAllPrompts().subscribe({
       next: (response: { success: any; data: Prompt[]; }) => {
         if (response.success) {
@@ -115,9 +116,11 @@ export class PromptManagementComponent implements OnInit {
           this.applyFilters();
         }
         this.isLoading = false;
+        this.loading = false;
       },
       error: (error: any) => {
         this.isLoading = false;
+        this.loading = false;
       }
     });
   }

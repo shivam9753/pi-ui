@@ -92,4 +92,10 @@ export class WhatsNewComponent implements OnInit {
   getTypeClass(type: string): string {
     return type === 'Feature' ? 'feature' : 'defect';
   }
+
+  getTypeIcon(type: string): string {
+    return type === 'Feature' 
+      ? 'M13 10V3L4 14h7v7l9-11h-7z'
+      : 'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z';
+  }
 }

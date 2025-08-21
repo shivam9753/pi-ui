@@ -978,6 +978,33 @@
                 </div>
               }
 
+              <!-- Editorial Guidelines Panel -->
+              <div class="bg-white border border-gray-200 rounded-lg shadow-sm">
+                <!-- Collapsible Header -->
+                <button 
+                  (click)="toggleGuidelines()"
+                  class="w-full flex items-center justify-between text-left hover:bg-gray-50 rounded-lg p-3 transition-colors">
+                  <div class="flex items-center gap-2">
+                    <svg class="w-4 h-4 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                    </svg>
+                    <h3 class="text-sm font-medium text-gray-900">Editorial Guidelines</h3>
+                  </div>
+                  <svg class="w-4 h-4 text-gray-400 transition-transform duration-200"
+                       [class.rotate-180]="showGuidelines"
+                       fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                  </svg>
+                </button>
+                
+                <!-- Expandable Content -->
+                @if (showGuidelines) {
+                  <div class="border-t border-gray-200 p-3">
+                    <app-editorial-criteria></app-editorial-criteria>
+                  </div>
+                }
+              </div>
+
               <!-- Utility Actions -->
               <div class="space-y-2 pt-4 border-t border-gray-200">
                 <button (click)="toggleHistory()"

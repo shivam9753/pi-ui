@@ -226,35 +226,35 @@
                   </div>
                   <!-- Desktop Actions -->
                   <div class="flex justify-center gap-6">
-                    @if (!isResubmitting) {
+                      @if (!isResubmitting) {
+                        <button
+                          type="button"
+                          (click)="saveChanges()"
+                          [disabled]="isSaving"
+                          class="px-8 py-4 font-semibold rounded-2xl transition-all duration-200 border-2"
+                          [style.border-color]="'var(--border-primary)'"
+                          [style.color]="'var(--text-primary)'"
+                          [style.background-color]="'transparent'"
+                          >
+                          @if (isSaving) {
+                            <div class="inline-block w-5 h-5 border-2 border-current border-t-transparent rounded-full animate-spin mr-3"></div>
+                          }
+                          {{ isSaving ? 'Saving...' : 'Save Changes' }}
+                        </button>
+                      }
                       <button
-                        type="button"
-                        (click)="saveChanges()"
-                        [disabled]="isSaving"
-                        class="px-8 py-4 font-semibold rounded-2xl transition-all duration-200 border-2"
-                        [style.border-color]="'var(--border-primary)'"
-                        [style.color]="'var(--text-primary)'"
-                        [style.background-color]="'transparent'"
+                        type="submit"
+                        [disabled]="isSubmitting || !validateForm()"
+                        class="px-12 py-4 text-white font-semibold rounded-2xl transition-all duration-300 transform hover:scale-105 active:scale-95"
+                        [style.background-color]="'var(--bg-accent)'"
+                        [style.opacity]="(isSubmitting || !validateForm()) ? '0.6' : '1'"
                         >
-                        @if (isSaving) {
+                        @if (isSubmitting) {
                           <div class="inline-block w-5 h-5 border-2 border-current border-t-transparent rounded-full animate-spin mr-3"></div>
                         }
-                        {{ isSaving ? 'Saving...' : 'Save Changes' }}
+                        {{ isSubmitting ? 'Submitting...' : (isResubmitting ? 'Resubmit for Review' : 'Submit for Review') }}
                       </button>
-                    }
-                    <button
-                      type="submit"
-                      [disabled]="isSubmitting || !validateForm()"
-                      class="px-12 py-4 text-white font-semibold rounded-2xl transition-all duration-300 transform hover:scale-105 active:scale-95"
-                      [style.background-color]="'var(--bg-accent)'"
-                      [style.opacity]="(isSubmitting || !validateForm()) ? '0.6' : '1'"
-                      >
-                      @if (isSubmitting) {
-                        <div class="inline-block w-5 h-5 border-2 border-current border-t-transparent rounded-full animate-spin mr-3"></div>
-                      }
-                      {{ isSubmitting ? 'Submitting...' : (isResubmitting ? 'Resubmit for Review' : 'Submit for Review') }}
-                    </button>
-                  </div>
+                    </div>
                 </div>
               }
             </div>

@@ -9,11 +9,12 @@ import { ToastNotificationComponent } from '../../../shared/components/toast-not
 import { StatusBadgeComponent } from '../../../shared/components/status-badge/status-badge.component';
 import { environment } from '../../../../environments/environment';
 import { AnalysisPanelComponent } from './analysis-panel.component';
+import { EditorialCriteriaComponent } from './editorial-criteria.component';
 import { REVIEW_ACTIONS, ReviewAction, API_ENDPOINTS } from '../../../shared/constants/api.constants';
 
 @Component({
   selector: 'app-review-submission',
-  imports: [DatePipe, TitleCasePipe, CommonModule, FormsModule, ToastNotificationComponent, StatusBadgeComponent, AnalysisPanelComponent],
+  imports: [DatePipe, TitleCasePipe, CommonModule, FormsModule, ToastNotificationComponent, StatusBadgeComponent, AnalysisPanelComponent, EditorialCriteriaComponent],
   templateUrl: './review-submission.component.html',
   styleUrl: './review-submission.component.css'
 })
@@ -54,6 +55,9 @@ export class ReviewSubmissionComponent {
   
   // Quality breakdown display
   showFullBreakdown = false;
+  
+  // Editorial guidelines panel
+  showGuidelines = false;
   
   // Simplified - no navigation for now
 
@@ -304,6 +308,10 @@ export class ReviewSubmissionComponent {
 
   toggleMobileAnalysis() {
     this.showMobileAnalysis = !this.showMobileAnalysis;
+  }
+
+  toggleGuidelines() {
+    this.showGuidelines = !this.showGuidelines;
   }
 
   rejectSubmission() {

@@ -292,29 +292,67 @@
               </div>
             </div>
             
-            <!-- Recent Submissions Table -->
+            <!-- My Submissions Table -->
             <div class="bg-white rounded-lg border border-gray-200">
               <div class="px-6 py-4 border-b border-gray-200">
                 <div class="flex items-center justify-between">
-                  <h2 class="text-lg font-semibold text-gray-900">Recent Submissions</h2>
-                  <button 
-                    (click)="activeTab.set('submissions')"
-                    class="text-sm text-orange-600 hover:text-orange-700 font-medium">
-                    View all
-                  </button>
+                  <h2 class="text-lg font-semibold text-gray-900">My Submissions</h2>
+                  <!-- Filter Bar -->
+                  <div class="flex items-center gap-4">
+                    <select [(ngModel)]="submissionsFilter" (change)="applySubmissionsFilter()"
+                      class="border border-gray-300 rounded-md px-3 py-1 text-sm text-gray-900 focus:outline-none focus:ring-1 focus:ring-orange-500 focus:border-orange-500">
+                      <option value="">All Status</option>
+                      <option [value]="SUBMISSION_STATUS.PENDING_REVIEW">Pending Review</option>
+                      <option [value]="SUBMISSION_STATUS.IN_PROGRESS">In Progress</option>
+                      <option [value]="SUBMISSION_STATUS.RESUBMITTED">Resubmitted</option>
+                      <option [value]="SUBMISSION_STATUS.NEEDS_REVISION">Needs Revision</option>
+                      <option [value]="SUBMISSION_STATUS.ACCEPTED">Accepted</option>
+                      <option [value]="SUBMISSION_STATUS.PUBLISHED">Published</option>
+                      <option [value]="SUBMISSION_STATUS.REJECTED">Rejected</option>
+                      <option [value]="SUBMISSION_STATUS.DRAFT">Draft</option>
+                    </select>
+                  </div>
                 </div>
               </div>
               
               <app-data-table
-                [columns]="getRecentSubmissionsColumns()"
-                [data]="getRecentSubmissions()"
-                [actions]="getRecentSubmissionsActions()"
-                [loading]="false"
+                [columns]="getUserSubmissionsColumns()"
+                [data]="filteredSubmissions()"
+                [actions]="getUserSubmissionsActions()"
+                [loading]="submissionsLoading()"
                 [selectable]="false"
-                [pagination]="undefined"
                 itemLabel="submissions"
                 [trackByFn]="trackBySubmissionId"
                 [badgeConfig]="badgeConfig">
+                
+                <!-- Custom Title Template -->
+                <ng-template #customCell let-item="$implicit" let-column="column">
+                  @if (column.key === 'title') {
+                    <div class="max-w-xs">
+                      <div class="text-sm font-semibold text-gray-900 mb-1">
+                        {{ item.title }}
+                      </div>
+                      <!-- Show review feedback for accepted/rejected submissions -->
+                      @if (item.reviewFeedback && ['accepted', 'rejected'].includes(item.status)) {
+                        <div class="text-xs text-gray-600 leading-relaxed mb-1">
+                          <strong>Review:</strong> {{ item.reviewFeedback }}
+                        </div>
+                      }
+                      <!-- Show revision notes for needs_revision submissions -->
+                      @if (item.status === 'needs_revision' && item.revisionNotes) {
+                        <div class="text-xs text-amber-700 bg-orange-50 px-1 py-0.5 rounded mb-1">
+                          <strong>Revision needed:</strong> {{ item.revisionNotes }}
+                        </div>
+                      }
+                      <!-- Show excerpt if available -->
+                      @if (item?.excerpt) {
+                        <div class="text-xs text-gray-600 leading-relaxed line-clamp-2">
+                          {{ item?.excerpt }}
+                        </div>
+                      }
+                    </div>
+                  }
+                </ng-template>
                 
                 <!-- Empty State Template -->
                 <ng-template #emptyState>
@@ -324,6 +362,11 @@
                     </svg>
                     <h3 class="mt-2 text-sm font-medium text-gray-900">No submissions yet</h3>
                     <p class="mt-1 text-sm text-gray-500">Start by submitting your first work for review.</p>
+                    <button 
+                      (click)="goToSubmit()"
+                      class="mt-4 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-orange-600 hover:bg-orange-700">
+                      Submit Your First Work
+                    </button>
                   </div>
                 </ng-template>
               </app-data-table>
@@ -565,9 +608,19 @@
                 containerClass="text-center py-12">
               </app-loading-state>
             }
-            <!-- Submissions Cards -->
-            @if (!submissionsLoading()) {
-              <!-- Desktop Table -->
+            <!-- Submissions Table using Data Table Component -->
+            <app-data-table
+              [columns]="getUserSubmissionsColumns()"
+              [data]="filteredSubmissions()"
+              [actions]="getUserSubmissionsActions()"
+              [loading]="submissionsLoading()"
+              [selectable]="false"
+              itemLabel="submissions"
+              [badgeConfig]="badgeConfig">
+            </app-data-table>
+            
+            @if (false) {
+              <!-- OLD BROKEN TABLE COMMENTED OUT -->
               <div class="hidden md:block bg-white shadow-lg rounded-xl overflow-hidden border border-gray-200">
                 <div class="overflow-x-auto">
                   <table class="min-w-full">
@@ -637,7 +690,7 @@
                             <div class="flex items-center gap-2">
                               @for (button of getActionButtons(submission); track button) {
                                 <button
-                                  (click)="handleSubmissionAction(button.action, submission)"
+                                  (click)="handleSubmissionAction(button.action, submission); $event.stopPropagation()"
                                   [class]="'inline-flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 border ' + getButtonClass(button.action)">
                                   <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <!-- View Icon -->
@@ -734,7 +787,7 @@
                       <div class="flex items-center gap-2">
                         @for (button of getActionButtons(submission); track button) {
                           <button
-                            (click)="handleSubmissionAction(button.action, submission)"
+                            (click)="handleSubmissionAction(button.action, submission); $event.stopPropagation()"
                             [class]="'inline-flex items-center px-3 py-2 text-xs font-medium rounded-lg transition-all duration-200 border ' + getButtonClass(button.action)">
                             <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <!-- View Icon -->
@@ -762,16 +815,6 @@
                   </div>
                 }
               </div>
-            }
-            <!-- Empty State for Submissions -->
-            @if (!submissionsLoading() && filteredSubmissions().length === 0) {
-              <app-empty-state
-                title="No submissions yet"
-                message="Start by submitting your first work for review."
-                icon="folder"
-                actionText="Submit Your First Work"
-                [onAction]="goToSubmit.bind(this)">
-              </app-empty-state>
             }
           </div>
             </div>

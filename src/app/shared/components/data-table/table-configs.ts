@@ -278,6 +278,50 @@ export const createReadyToPublishActions = (
   }
 ];
 
+// User Submissions Table Configuration (for user profile)
+export const USER_SUBMISSIONS_TABLE_COLUMNS: TableColumn[] = [
+  {
+    key: 'title',
+    label: 'Title & Notes',
+    type: 'custom',
+    width: '35%',
+    sortable: true
+  },
+  {
+    key: 'submissionType',
+    label: 'Type',
+    type: 'badge',
+    width: '20%',
+    sortable: true
+  },
+  {
+    key: 'status',
+    label: 'Status',
+    type: 'badge',
+    width: '20%',
+    sortable: true
+  },
+  {
+    key: 'submittedAt',
+    label: 'Date',
+    type: 'date',
+    width: '25%',
+    sortable: true
+  }
+];
+
+export const createUserSubmissionActions = (
+  resubmitHandler: (submission: any) => void
+): TableAction[] => [
+  {
+    label: 'Resubmit',
+    color: 'warning',
+    handler: resubmitHandler,
+    condition: (submission) => submission.status === 'needs_revision',
+    isMainAction: true
+  }
+];
+
 // Prompts Table Configuration
 export const PROMPTS_TABLE_COLUMNS: TableColumn[] = [
   {

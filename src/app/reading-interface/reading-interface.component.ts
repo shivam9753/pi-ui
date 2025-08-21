@@ -152,6 +152,10 @@ content = signal<PublishedContent | null>(null);
         if (contentId) {
           this.loadContent(contentId);
         } else if (slug) {
+          // During SSR, immediately try to set basic meta tags based on slug
+          if (!isPlatformBrowser(this.platformId) && slug) {
+            this.setBasicMetaTagsFromSlug(slug);
+          }
           this.loadContentBySlug(slug);
         }
       });
@@ -254,7 +258,11 @@ content = signal<PublishedContent | null>(null);
 
       this.content.set(transformedContent);
       this.loading.set(false);
-      this.updatePageMeta(transformedContent);
+      
+      // Only update meta tags on client-side (SSR already handled it)
+      if (isPlatformBrowser(this.platformId)) {
+        this.updatePageMeta(transformedContent);
+      }
 
       // Load author details
       if (transformedContent.author?.id) {
@@ -389,6 +397,9 @@ content = signal<PublishedContent | null>(null);
         
         this.content.set(transformedContent);
         this.loading.set(false);
+        
+        // Update meta tags for client-side navigation
+        this.updatePageMeta(transformedContent);
         
         // Load author details
         if (transformedContent.author?.id) {
@@ -972,6 +983,50 @@ content = signal<PublishedContent | null>(null);
             // Don't set error state, just silently fail since author details are optional
           }
         });
+      }
+    });
+  }
+
+  private setBasicMetaTagsFromSlug(slug: string) {
+    // During SSR, immediately fetch and set meta tags
+    console.log('[SSR] Setting basic meta tags for slug:', slug);
+    
+    this.backendService.getSubmissionBySlug(slug).subscribe({
+      next: (data: any) => {
+        console.log('[SSR] Got data for meta tags:', data.title);
+        
+        // Set basic meta tags immediately during SSR
+        this.titleService.setTitle(`${data.title} — Poems by ${data.authorName || 'Anonymous'} - pi`);
+        
+        const description = data.description || data.excerpt || `Read "${data.title}" by ${data.authorName || 'Anonymous'} on Poems in India - a curated collection of poetry and literature.`;
+        
+        // Update meta description
+        this.metaService.updateTag({ name: 'description', content: description });
+        
+        // Open Graph tags
+        this.metaService.updateTag({ property: 'og:title', content: data.title });
+        this.metaService.updateTag({ property: 'og:description', content: description });
+        this.metaService.updateTag({ property: 'og:type', content: 'article' });
+        this.metaService.updateTag({ property: 'og:url', content: `https://poemsindia.in/post/${slug}` });
+        this.metaService.updateTag({ property: 'og:site_name', content: 'Poems in India' });
+        
+        // Set OG image
+        const imageUrl = this.getAbsoluteImageUrl(data.imageUrl) || this.getDefaultSocialImage();
+        this.metaService.updateTag({ property: 'og:image', content: imageUrl });
+        this.metaService.updateTag({ property: 'og:image:secure_url', content: imageUrl });
+        this.metaService.updateTag({ property: 'og:image:width', content: '1200' });
+        this.metaService.updateTag({ property: 'og:image:height', content: '630' });
+        
+        // Twitter Card tags
+        this.metaService.updateTag({ name: 'twitter:card', content: 'summary_large_image' });
+        this.metaService.updateTag({ name: 'twitter:title', content: data.title });
+        this.metaService.updateTag({ name: 'twitter:description', content: description });
+        this.metaService.updateTag({ name: 'twitter:image', content: imageUrl });
+        
+        console.log('[SSR] Meta tags set for:', data.title, 'Image URL:', imageUrl);
+      },
+      error: (error) => {
+        console.error('[SSR] Failed to load content for meta tags:', error);
       }
     });
   }

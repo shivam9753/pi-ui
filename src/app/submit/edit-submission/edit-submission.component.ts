@@ -39,6 +39,7 @@ export class EditSubmissionComponent implements OnInit {
   submission: EditableSubmission | null = null;
   submissionId: string = '';
   isResubmitting: boolean = false; // true for resubmit, false for edit
+  isViewMode: boolean = false; // true for view-only mode
   
   // Form state
   isSubmitting = false;
@@ -118,10 +119,11 @@ export class EditSubmissionComponent implements OnInit {
       }
     });
 
-    // Check if this is a resubmit action
+    // Check action type from query params
     this.route.queryParams.subscribe(queryParams => {
-      this.isResubmitting = queryParams['action'] === 'resubmit';
-      // Both 'edit' and 'resubmit' actions use the same interface, just different labeling
+      const action = queryParams['action'];
+      this.isResubmitting = action === 'resubmit';
+      this.isViewMode = action === 'view';
     });
 
     // Track form changes

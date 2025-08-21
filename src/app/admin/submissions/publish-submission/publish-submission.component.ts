@@ -836,9 +836,9 @@ export class PublishSubmissionComponent implements OnInit {
           this.showSuccess(`"${this.submission.title}" has been updated successfully!`);
           this.isPublishing = false;
           
-          // Redirect back to admin publication page
+          // Redirect back to return URL with page parameter or default admin page
           setTimeout(() => {
-            this.router.navigate(['/admin'], { fragment: 'publish' });
+            this.goBack();
           }, 2000);
         },
         error: (err) => {
@@ -870,9 +870,9 @@ export class PublishSubmissionComponent implements OnInit {
         const publishedUrl = response.url || `/post/${seoData.slug}`;
         this.showSuccess(`"${this.submission.title}" has been published successfully! Available at: ${publishedUrl}`);
         
-        // Redirect back to admin publication page
+        // Redirect back to return URL with page parameter or default admin page
         setTimeout(() => {
-          this.router.navigate(['/admin'], { fragment: 'publish' });
+          this.goBack();
         }, 2000);
         
         this.isPublishing = false;
@@ -893,7 +893,30 @@ export class PublishSubmissionComponent implements OnInit {
   }
 
   goBack() {
-    this.router.navigate(['/admin'], { fragment: 'publish' });
+    const returnUrl = this.route.snapshot.queryParams['returnUrl'];
+    const returnPage = this.route.snapshot.queryParams['returnPage'];
+    
+    if (returnUrl && returnPage) {
+      // Navigate back to the specific URL with the page parameter
+      const urlParts = returnUrl.split('#');
+      const path = urlParts[0];
+      const fragment = urlParts[1];
+      
+      this.router.navigate([path], { 
+        fragment: fragment,
+        queryParams: { returnPage: returnPage }
+      });
+    } else if (returnUrl) {
+      // Navigate back to the specific URL without page
+      const urlParts = returnUrl.split('#');
+      const path = urlParts[0];
+      const fragment = urlParts[1];
+      
+      this.router.navigate([path], { fragment: fragment });
+    } else {
+      // Default fallback
+      this.router.navigate(['/admin'], { fragment: 'publish' });
+    }
   }
 
   getPublishButtonText(): string {

@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule, DatePipe, TitleCasePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { BackendService } from '../../../services/backend.service';
 import { HtmlSanitizerService } from '../../../services/html-sanitizer.service';
 import { PublishedContent } from '../../../utilities/published-content-card/published-content-card.component';
@@ -65,10 +65,28 @@ export class PublishedPostsComponent implements OnInit {
   constructor(
     private backendService: BackendService,
     private router: Router,
+    private route: ActivatedRoute,
     private htmlSanitizer: HtmlSanitizerService
   ) {}
 
   ngOnInit() {
+    // Check for returnPage parameter in query params (for page restoration after navigation)
+    this.route.queryParams.subscribe(params => {
+      if (params['returnPage']) {
+        const returnPage = parseInt(params['returnPage'], 10);
+        if (returnPage > 0) {
+          this.currentPage = returnPage;
+          this.paginationConfig.currentPage = returnPage;
+          // Clear the query parameter to avoid persisting it
+          this.router.navigate([], {
+            relativeTo: this.route,
+            queryParams: {},
+            replaceUrl: true
+          });
+        }
+      }
+    });
+    
     this.setupTableActions();
     this.loadPublishedSubmissions();
   }
@@ -126,12 +144,22 @@ export class PublishedPostsComponent implements OnInit {
 
   // Navigate to publishing interface for editing
   editPublishedPost(submissionId: string) {
-    this.router.navigate(['/publish-configure', submissionId]);
+    this.router.navigate(['/publish-configure', submissionId], {
+      queryParams: { 
+        returnPage: this.currentPage,
+        returnUrl: '/admin#published-posts'
+      }
+    });
   }
 
   // Configure and publish a submission (for accepted but unpublished items)
   configureAndPublish(submissionId: string) {
-    this.router.navigate(['/publish-configure', submissionId]);
+    this.router.navigate(['/publish-configure', submissionId], {
+      queryParams: { 
+        returnPage: this.currentPage,
+        returnUrl: '/admin#published-posts'
+      }
+    });
   }
 
   // Navigate to publishing interface for editing (alias)
