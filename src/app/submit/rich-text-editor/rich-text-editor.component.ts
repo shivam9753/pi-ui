@@ -43,6 +43,16 @@ export class RichTextEditorComponent implements ControlValueAccessor, AfterViewI
     if (this.content && this.editor) {
       this.editor.nativeElement.innerHTML = this.content;
     }
+    
+    // Prevent browser from creating default paragraphs
+    if (this.editor) {
+      // Set default paragraph separator to br instead of div/p
+      try {
+        document.execCommand('defaultParagraphSeparator', false, 'br');
+      } catch (e) {
+        // Some browsers don't support this, ignore silently
+      }
+    }
   }
 
   // ControlValueAccessor methods
@@ -88,15 +98,40 @@ export class RichTextEditorComponent implements ControlValueAccessor, AfterViewI
     // Handle Enter key for proper line break insertion
     if (event.key === 'Enter' && !event.shiftKey) {
       event.preventDefault();
-      // Insert a line break instead of creating new div/p elements
-      document.execCommand('insertHTML', false, '<br><br>');
+      // Insert a single line break and trigger content change
+      const selection = window.getSelection();
+      if (selection && selection.rangeCount > 0) {
+        const range = selection.getRangeAt(0);
+        const br = document.createElement('br');
+        range.deleteContents();
+        range.insertNode(br);
+        range.setStartAfter(br);
+        range.collapse(true);
+        selection.removeAllRanges();
+        selection.addRange(range);
+        this.onContentChange({ target: this.editor.nativeElement } as any);
+      }
       return;
     }
     
-    // Handle Shift+Enter for single line break
+    // Handle Shift+Enter for double line break (paragraph break)
     if (event.key === 'Enter' && event.shiftKey) {
       event.preventDefault();
-      document.execCommand('insertHTML', false, '<br>');
+      const selection = window.getSelection();
+      if (selection && selection.rangeCount > 0) {
+        const range = selection.getRangeAt(0);
+        const br1 = document.createElement('br');
+        const br2 = document.createElement('br');
+        range.deleteContents();
+        range.insertNode(br1);
+        range.setStartAfter(br1);
+        range.insertNode(br2);
+        range.setStartAfter(br2);
+        range.collapse(true);
+        selection.removeAllRanges();
+        selection.addRange(range);
+        this.onContentChange({ target: this.editor.nativeElement } as any);
+      }
       return;
     }
     

@@ -3,6 +3,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { CommonModule, DatePipe, TitleCasePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { BackendService } from '../../../services/backend.service';
 import { AuthService } from '../../../services/auth.service';
 import { ToastNotificationComponent } from '../../../shared/components/toast-notification/toast-notification.component';
@@ -65,7 +66,8 @@ export class ReviewSubmissionComponent {
     private http: HttpClient, 
     private backendService: BackendService, 
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private sanitizer: DomSanitizer
   ) {
     this.id = this.activatedRoute.snapshot.paramMap.get('id')!;
     // Simplified initialization
@@ -623,21 +625,26 @@ export class ReviewSubmissionComponent {
   }
 
   // Clean HTML content for better display
-  cleanContent(content: string): string {
+  cleanContent(content: string): SafeHtml {
     if (!content) return '';
     
-    return content
+    const cleanedContent = content
       // Remove excessive empty divs
       .replace(/<div>\s*<\/div>/g, '<br>')
-      // Replace div tags with line breaks for poetry formatting
+      // Replace div tags with line breaks for poetry formatting, but preserve other formatting
       .replace(/<div>/g, '<br>')
       .replace(/<\/div>/g, '')
-      // Clean up multiple consecutive line breaks
+      // Clean up multiple consecutive line breaks (more than 2)
       .replace(/(<br\s*\/?>){3,}/g, '<br><br>')
+      // Convert multiple spaces within lines to non-breaking spaces to preserve formatting
+      .replace(/  +/g, (match) => '&nbsp;'.repeat(match.length))
       // Remove leading/trailing line breaks
       .replace(/^(<br\s*\/?>)+|(<br\s*\/?>)+$/g, '')
-      // Clean up any remaining empty paragraphs or spaces
+      // Clean up any remaining empty paragraphs or spaces at the very end
       .trim();
+    
+    // Use DomSanitizer to bypass HTML sanitization and preserve formatting
+    return this.sanitizer.bypassSecurityTrustHtml(cleanedContent);
   }
 
   // Calculate word count from content body

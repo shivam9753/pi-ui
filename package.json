@@ -36,7 +36,9 @@
     "@angular/ssr": "^19.2.15",
     "@tailwindcss/line-clamp": "^0.4.4",
     "@tailwindcss/postcss": "^4.1.11",
+    "@types/node-fetch": "^2.6.13",
     "express": "^4.18.2",
+    "node-fetch": "^3.3.2",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",
     "zone.js": "~0.15.0"

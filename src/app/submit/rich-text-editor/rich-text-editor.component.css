@@ -1,7 +1,12 @@
 /* Rich Text Editor Styles */
 
 .rich-text-editor {
-  font-family: 'Source Sans Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-family: 'Crimson Text', Georgia, serif !important;
+}
+
+/* Force all elements within rich text editor to use Crimson Text */
+.rich-text-editor * {
+  font-family: 'Crimson Text', Georgia, serif !important;
 }
 
 .toolbar-btn {
@@ -37,53 +42,57 @@
 }
 
 .editor-content {
-  font-family: 'Source Sans Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-family: 'Crimson Text', Georgia, serif !important;
   font-weight: 500;
-  line-height: 1.7;
+  line-height: 1.8;
+  font-size: 20px !important;
   word-wrap: break-word;
   overflow-wrap: break-word;
   white-space: pre-wrap; /* Preserve whitespace and line breaks */
   color: var(--text-primary) !important; /* Force theme text color */
 }
 
-/* Ensure all text elements inherit the theme color */
+/* Ensure all text elements inherit the theme color and font family */
 .editor-content *:not(strong):not(b):not(em):not(i) {
   color: inherit !important;
+  font-family: inherit !important;
 }
 
 .editor-content span {
   color: inherit !important;
+  font-family: inherit !important;
 }
 
 .editor-content div {
   color: inherit !important;
+  font-family: inherit !important;
 }
 
 .editor-content p {
   color: inherit !important;
+  font-family: inherit !important;
 }
 
 .editor-content:focus {
   outline: none;
 }
 
-/* Content styling */
-.editor-content p {
-  margin-bottom: 1rem;
-}
-
-.editor-content p:last-child {
-  margin-bottom: 0;
-}
-
-/* Line break handling */
-.editor-content br {
-  line-height: 1.7;
-}
-
-/* Ensure proper spacing for content with line breaks */
+/* Content styling - Remove all margins to prevent paragraph spacing */
+.editor-content p,
 .editor-content div {
-  margin: 0;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+/* Line break handling - make sure br elements provide proper spacing */
+.editor-content br {
+  line-height: inherit;
+}
+
+/* Force editor to not create block elements on Enter */
+.editor-content {
+  display: inline-block;
+  width: 100%;
 }
 
 /* Preserve formatting for poetry and formatted text */
@@ -256,7 +265,6 @@
 
 /* Special formatting for poetry/prose */
 .editor-content.poetry-mode {
-  font-family: 'Crimson Text', Georgia, serif;
   line-height: 1.8;
   font-weight: 500;
 }

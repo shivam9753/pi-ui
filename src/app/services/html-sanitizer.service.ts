@@ -1,11 +1,12 @@
 import { Injectable } from '@angular/core';
+import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 
 @Injectable({
   providedIn: 'root'
 })
 export class HtmlSanitizerService {
 
-  constructor() { }
+  constructor(private sanitizer: DomSanitizer) { }
 
   /**
    * Clean HTML tags and entities from text content
@@ -53,87 +54,26 @@ export class HtmlSanitizerService {
    * @param content The content that may contain HTML
    * @returns Content with HTML cleaned but line breaks preserved
    */
-  cleanContentPreservingBreaks(content: string): string {
+  cleanContentPreservingBreaks(content: string): SafeHtml {
     if (!content) return '';
     
-    // Create a temporary DOM element to properly parse the HTML
-    const tempDiv = document.createElement('div');
-    tempDiv.innerHTML = content;
+    const cleanedContent = content
+      // Remove excessive empty divs
+      .replace(/<div>\s*<\/div>/g, '<br>')
+      // Replace div tags with line breaks for poetry formatting, but preserve other formatting
+      .replace(/<div>/g, '<br>')
+      .replace(/<\/div>/g, '')
+      // Clean up multiple consecutive line breaks (more than 2)
+      .replace(/(<br\s*\/?>){3,}/g, '<br><br>')
+      // Convert multiple spaces within lines to non-breaking spaces to preserve formatting
+      .replace(/  +/g, (match) => '&nbsp;'.repeat(match.length))
+      // Remove leading/trailing line breaks
+      .replace(/^(<br\s*\/?>)+|(<br\s*\/?>)+$/g, '')
+      // Clean up any remaining empty paragraphs or spaces at the very end
+      .trim();
     
-    // Get the text content while preserving line breaks
-    let result = '';
-    
-    const processNode = (node: Node) => {
-      if (node.nodeType === Node.TEXT_NODE) {
-        // Add text content
-        result += node.textContent || '';
-      } else if (node.nodeType === Node.ELEMENT_NODE) {
-        const element = node as Element;
-        const tagName = element.tagName.toLowerCase();
-        
-        // Handle line break elements first (most important for poetry)
-        if (tagName === 'br') {
-          result += '\n';
-          return; // Don't process children for br tags
-        }
-        
-        // Handle block elements
-        if (tagName === 'div' || tagName === 'p') {
-          // Process children first
-          for (let child of Array.from(element.childNodes)) {
-            processNode(child);
-          }
-          // Add line break after block elements if they have content
-          if (element.textContent && element.textContent.trim()) {
-            result += '\n';
-          }
-        } else if (tagName === 'strong' || tagName === 'b') {
-          result += '<strong>';
-          for (let child of Array.from(element.childNodes)) {
-            processNode(child);
-          }
-          result += '</strong>';
-        } else if (tagName === 'em' || tagName === 'i') {
-          result += '<em>';
-          for (let child of Array.from(element.childNodes)) {
-            processNode(child);
-          }
-          result += '</em>';
-        } else if (tagName === 'u') {
-          result += '<u>';
-          for (let child of Array.from(element.childNodes)) {
-            processNode(child);
-          }
-          result += '</u>';
-        } else {
-          // For other elements, just process children
-          for (let child of Array.from(element.childNodes)) {
-            processNode(child);
-          }
-        }
-      }
-    };
-    
-    // Process all child nodes
-    for (let child of Array.from(tempDiv.childNodes)) {
-      processNode(child);
-    }
-    
-    // Clean up the result and convert newlines to br tags for HTML display
-    return result
-      .replace(/\n/g, '<br>')          // Convert each newline to <br> (preserve line breaks)
-      .replace(/<br\s*\/?>/g, '<br>')  // Normalize br tags
-      .replace(/&nbsp;/g, ' ')         // Convert non-breaking spaces
-      .replace(/&amp;/g, '&')          // Convert HTML entities
-      .replace(/&lt;/g, '<')
-      .replace(/&gt;/g, '>')
-      .replace(/&quot;/g, '"')
-      .replace(/&apos;/g, "'")
-      .replace(/&#39;/g, "'")
-      .replace(/(<br>\s*){3,}/g, '<br><br>')  // Limit consecutive br tags to max 2
-      .replace(/^<br>/, '')            // Remove leading <br>
-      .replace(/<br>$/, '')            // Remove trailing <br>
-      .trim();                         // Remove leading/trailing whitespace
+    // Use DomSanitizer to bypass HTML sanitization and preserve formatting
+    return this.sanitizer.bypassSecurityTrustHtml(cleanedContent);
   }
 
   /**

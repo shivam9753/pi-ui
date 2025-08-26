@@ -3,7 +3,7 @@ import { ExploreComponent } from './explore/explore.component';
 import { AdminGuard } from './guards/admin.guard';
 import { AuthGuard } from './guards/authguard';
 import { ReviewerGuard } from './guards/reviewer.guard';
-import { SubmissionFormComponent } from './submit/submission-form/submission-form.component';
+import { SubmissionEditorComponent } from './submit/submission-editor/submission-editor.component';
 import { UserLoginComponent } from './user-login/user-login.component';
 import { UserProfileComponent } from './user-profile/user-profile.component';
 import { ReadingInterfaceComponent } from './reading-interface/reading-interface.component';
@@ -13,7 +13,6 @@ import { WorkspaceComponent } from './workspace/workspace.component';
 import { PublishSubmissionComponent } from './admin/submissions/publish-submission/publish-submission.component';
 import { ReviewSubmissionComponent } from './admin/submissions/review-submission/review-submission.component';
 import { ProfileCompletionComponent } from './profile-completion/profile-completion.component';
-import { EditSubmissionComponent } from './submit/edit-submission/edit-submission.component';
 import { FaqsComponent } from './info/faqs/faqs.component';
 import { ContactComponent } from './info/contact/contact.component';
 import { PrivacyPolicyComponent } from './info/privacy-policy/privacy-policy.component';
@@ -94,13 +93,13 @@ export const routes: Routes = [
   },
   { 
     path: 'submission', 
-    component: SubmissionFormComponent, 
+    component: SubmissionEditorComponent, 
     canActivate: [AuthGuard],
     title: 'Submit Work - pi'
   },
   { 
     path: 'edit-submission/:id', 
-    component: EditSubmissionComponent, 
+    component: SubmissionEditorComponent, 
     canActivate: [AuthGuard],
     title: 'Edit Submission - pi'
   },

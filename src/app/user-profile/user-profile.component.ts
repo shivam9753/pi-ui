@@ -1218,4 +1218,8 @@ export class UserProfileComponent implements OnInit {
       (submission: any) => this.resubmitSubmission(submission)
     );
   }
+
+  getBadgeClass(key: string): string {
+    return (this.badgeConfig as any)[key] || 'px-2 py-1 text-xs font-medium rounded-full bg-gray-50 text-gray-700';
+  }
 }

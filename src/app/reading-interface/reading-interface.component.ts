@@ -2,7 +2,7 @@ import { Component, OnInit, signal, computed, inject, PLATFORM_ID, Inject } from
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { Title, Meta } from '@angular/platform-browser';
+import { Title, Meta, SafeHtml } from '@angular/platform-browser';
 import { BackendService } from '../services/backend.service';
 import { ThemingService } from '../services/theming.service';
 import { HtmlSanitizerService } from '../services/html-sanitizer.service';
@@ -764,7 +764,7 @@ content = signal<PublishedContent | null>(null);
   }
 
   // Clean content for display using global service
-  cleanContent(content: string): string {
+  cleanContent(content: string): SafeHtml {
     return this.htmlSanitizer.cleanContentPreservingBreaks(content);
   }
 
