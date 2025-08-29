@@ -16,6 +16,7 @@ import { AccessibilityService } from './shared/services/accessibility.service';
 })
 export class AppComponent implements OnInit {
   title = 'pi';
+  showHeaderFooter = true;
   
   constructor(
     private authService: AuthService, 
@@ -26,6 +27,7 @@ export class AppComponent implements OnInit {
     this.router.events.subscribe(event => {
       if (event instanceof NavigationEnd && isPlatformBrowser(this.platformId)) {
         window.scrollTo({ top: 0, behavior: 'smooth' });
+        this.showHeaderFooter = !event.url.includes('/login');
       }
     });
   }

@@ -58,3 +58,25 @@ button:focus, a:focus {
 button:active, a:active {
   background: transparent !important;
 }
+
+/* Mobile menu overlay improvements */
+.mobile-overlay {
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  transition: opacity 300ms ease-in-out, backdrop-filter 300ms ease-in-out;
+}
+
+/* Enhanced mobile menu shadow and animation */
+.mobile-menu {
+  box-shadow: -10px 0 25px -5px rgba(0, 0, 0, 0.1), -10px 0 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+/* Smooth transitions for menu items */
+.mobile-menu .nav-link {
+  transition: all 200ms ease-in-out;
+}
+
+/* Better visual separation */
+.mobile-menu .border-themed {
+  border-color: rgb(229 231 235 / 0.3);
+}

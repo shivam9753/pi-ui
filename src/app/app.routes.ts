@@ -24,6 +24,8 @@ import { JsonConverterComponent } from './admin/json-converter/json-converter.co
 import { WhatsNewComponent } from './whats-new/whats-new.component';
 import { postSSRResolver } from './resolvers/post-ssr.resolver';
 import { AboutComponent } from './info/about/about.component';
+import { ExploreRevampedComponent } from './explore/explore-revamped.component';
+import { SearchResultsComponent } from './search-results/search-results.component';
 
 export const routes: Routes = [
   // Public routes - Use explore as homepage for now
@@ -47,6 +49,11 @@ export const routes: Routes = [
     path: 'explore', 
     component: ExploreComponent,
     title: 'Explore - pi'
+  },
+  { 
+    path: 'search', 
+    component: SearchResultsComponent,
+    title: 'Search - pi'
   },
   { 
     path: 'category/:category', 
@@ -202,7 +209,7 @@ export const routes: Routes = [
       
       // Skip known application routes that aren't post slugs
       const knownRoutes = [
-        'login', 'explore', 'submit', 'admin', 'workspace', 'profile', 'prompts',
+        'login', 'explore', 'search', 'submit', 'admin', 'workspace', 'profile', 'prompts',
         'faqs', 'contact-us', 'privacy-policy', 'terms-of-use', 'whats-new',
         'complete-profile', 'review', 'publish', 'users', 'poem-parser', 'json-parser',
         'user-profile'

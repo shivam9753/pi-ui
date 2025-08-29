@@ -1,26 +1,28 @@
 <header class="bg-themed border-b border-themed relative z-50">
-  <div class="px-6 mx-auto sm:px-8 lg:px-12 xl:px-16">
-    <div class="flex items-center justify-between h-14 lg:h-16">
+  <div class="px-6 mx-auto sm:px-8 lg:px-16 xl:px-24">
+    <div class="flex items-center justify-between h-16 lg:h-20">
 
       <!-- Logo -->
-      <div class="flex items-center flex-shrink-0 ml-2">
+      <div class="flex items-center flex-shrink-0">
         <a routerLink="/" class="inline-flex items-center">
-          <span class="font-bold text-2xl text-orange-600">pi</span>
+          <img src="assets/poemsindia-logo.png" alt="PoemsIndia" class="w-auto" style="height: 120px;">
         </a>
       </div>
 
       <!-- Desktop Navigation -->
-      <nav class="hidden lg:flex lg:ml-16 lg:space-x-10 xl:space-x-14">
+      <nav class="hidden lg:flex lg:flex-1 lg:justify-center lg:space-x-4 xl:space-x-6 items-center">
+      
         <a routerLink="/explore"
+          (click)="clearSearchAndNavigate()"
           routerLinkActive="text-orange-600 font-semibold"
           [routerLinkActiveOptions]="{exact: false}"
-          class="text-base font-medium text-themed hover:text-orange-600 transition-colors duration-200">
+          class="text-sm font-medium text-themed hover:text-orange-600 transition-colors duration-200">
           Explore
         </a>
         <button (click)="handleSubmitClick()"
           [class.text-orange-600]="isSubmitActive()"
           [class.font-semibold]="isSubmitActive()"
-          class="text-base font-medium text-themed hover:text-orange-600 transition-colors duration-200">
+          class="text-sm font-medium text-themed hover:text-orange-600 transition-colors duration-200">
           Submit
         </button>
         @if (canReview()) {
@@ -28,7 +30,7 @@
             routerLink="/workspace"
             routerLinkActive="text-orange-600 font-semibold"
             [routerLinkActiveOptions]="{exact: false}"
-            class="text-base font-medium text-themed hover:text-orange-600 transition-colors duration-200">
+            class="text-sm font-medium text-themed hover:text-orange-600 transition-colors duration-200">
             Workspace
           </a>
         }
@@ -37,27 +39,68 @@
             routerLink="/admin"
             routerLinkActive="text-orange-600 font-semibold"
             [routerLinkActiveOptions]="{exact: false}"
-            class="text-base font-medium text-themed hover:text-orange-600 transition-colors duration-200">
+            class="text-sm font-medium text-themed hover:text-orange-600 transition-colors duration-200">
             Admin
           </a>
         }
-        <a routerLink="/prompts"
+        <!-- <a routerLink="/prompts"
           routerLinkActive="text-orange-600 font-semibold"
-          class="text-base font-medium text-themed hover:text-orange-600 transition-colors duration-200">
+          class="text-sm font-medium text-themed hover:text-orange-600 transition-colors duration-200">
           Prompts
-        </a>
+        </a> -->
       </nav>
 
       <!-- Desktop User Section -->
-      <div class="hidden lg:flex lg:items-center lg:space-x-3">
-        <!-- Theme Toggle -->
-        <div class="flex items-center">
-          <app-theme-toggle></app-theme-toggle>
+      <div class="hidden lg:flex lg:items-center lg:space-x-3 lg:flex-shrink-0">
+        <!-- Search Button -->
+        <button (click)="openSearchPage()" 
+                aria-label="Search content"
+                class="p-1.5 text-gray-500 hover:text-gray-400 transition-colors duration-200">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+          </svg>
+        </button>
+        <!-- Settings Dropdown -->
+        <div class="relative" data-dropdown="settings">
+          <button type="button" 
+                  (click)="toggleSettingsDropdown()" 
+                  [attr.aria-expanded]="showSettingsDropdown()"
+                  aria-haspopup="true"
+                  aria-controls="settings-dropdown-menu"
+                  aria-label="Settings menu"
+                  class="p-1.5 text-gray-500 hover:text-gray-400 transition-colors duration-200">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+          </button>
+          @if (showSettingsDropdown()) {
+            <div id="settings-dropdown-menu" 
+                 role="menu" 
+                 aria-labelledby="settings-menu-button"
+                 class="absolute right-0 mt-2 w-48 bg-themed-card border border-themed rounded-lg shadow-lg overflow-hidden transition-all duration-200">
+              <a routerLink="/whats-new" 
+                 (click)="closeSettingsDropdown()" 
+                 role="menuitem"
+                 class="flex items-center px-4 py-2 text-sm text-themed hover:bg-themed-hover focus:bg-themed-hover focus:outline-none">
+                <svg class="w-4 h-4 mr-3 text-themed-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                </svg>
+                What's New
+              </a>
+              <div class="flex items-center justify-between px-4 py-2 text-sm text-themed hover:bg-themed-hover">
+                <div class="flex items-center">
+                  <svg class="w-4 h-4 mr-3 text-themed-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/>
+                  </svg>
+                  <span>Theme</span>
+                </div>
+                <app-theme-toggle></app-theme-toggle>
+              </div>
+            </div>
+          }
         </div>
 
-        @if (!loggedInUser() && !isOnLoginPage()) {
-          <a routerLink="/login" class="btn-primary btn-feedback touch-target">Login</a>
-        }
         @if (loggedInUser()) {
           <div class="relative" data-dropdown="user">
             <button type="button" 
@@ -66,12 +109,12 @@
                     aria-haspopup="true"
                     aria-controls="user-dropdown-menu"
                     [attr.aria-label]="'User menu for ' + loggedInUser()!.name"
-                    class="flex items-center px-3 py-2 text-base font-medium text-themed hover:text-themed transition-colors duration-200 rounded-lg hover:bg-themed-hover btn-feedback touch-target">
-              <div class="user-avatar bg-white-accent rounded-full flex items-center justify-center text-white text-sm font-medium mr-3" aria-hidden="true">
+                    class="flex items-center px-2 py-1.5 text-sm font-medium text-themed hover:text-themed transition-colors duration-200 rounded-lg hover:bg-themed-hover btn-feedback touch-target">
+              <div class="user-avatar bg-white-accent rounded-full flex items-center justify-center text-white text-xs font-medium mr-2 w-6 h-6" aria-hidden="true">
                 {{ getUserInitials(loggedInUser()!.name) }}
               </div>
-              <span>{{ loggedInUser()!.name }}</span>
-              <svg class="w-4 h-4 ml-2 transition-transform duration-200" [ngClass]="{ 'rotate-180': showDropdown() }" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+              <span class="text-sm">{{ loggedInUser()!.name }}</span>
+              <svg class="w-3 h-3 ml-1.5 transition-transform duration-200" [ngClass]="{ 'rotate-180': showDropdown() }" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
               </svg>
             </button>
@@ -86,12 +129,6 @@
                    class="block px-4 py-2 text-sm text-themed hover:bg-themed-hover focus:bg-themed-hover focus:outline-none">
                   My Profile
                 </a>
-                <a routerLink="/whats-new" 
-                   (click)="closeDropdown()" 
-                   role="menuitem"
-                   class="block px-4 py-2 text-sm text-themed hover:bg-themed-hover focus:bg-themed-hover focus:outline-none">
-                  What's New
-                </a>
                 <div class="border-t border-themed my-1" aria-hidden="true"></div>
                 <button (click)="logout()" 
                         role="menuitem"
@@ -104,13 +141,22 @@
         }
       </div>
 
-      <!-- Mobile Menu Button (VISIBLE ONLY BELOW LG) -->
-      <div class="mobile-hamburger-container flex items-center lg:hidden">
+      <!-- Mobile Menu Buttons (VISIBLE ONLY BELOW LG) -->
+      <div class="mobile-buttons-container flex items-center space-x-2 lg:hidden">
+        @if (!loggedInUser() && !isOnLoginPage()) {
+          <a routerLink="/login" 
+             aria-label="Login or Sign up"
+             class="p-2 text-themed-secondary hover:text-themed hover:bg-themed-hover rounded-lg transition-all duration-200">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+            </svg>
+          </a>
+        }
         <button (click)="toggleMobileMenu()" 
                 [attr.aria-expanded]="isMobileMenuOpen()"
                 aria-controls="mobile-navigation-menu"
                 aria-label="Toggle navigation menu"
-                class="mobile-hamburger-button btn-icon btn-feedback text-themed-secondary hover:text-themed hover:bg-themed-hover rounded-lg transition-all duration-200 lg:hidden">
+                class="mobile-hamburger-button p-2 text-themed-secondary hover:text-themed hover:bg-themed-hover rounded-lg transition-all duration-200">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
               d="M4 6h16M4 12h16M4 18h16" />
@@ -122,25 +168,22 @@
   </div>
 </header>
 
-<!-- Mobile Overlay (Only show on mobile and when menu is open) -->
+
+<!-- Mobile Menu Overlay (Only show on mobile and when menu is open) -->
 @if (isMobileMenuOpen()) {
-  <div class="mobile-overlay fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden" (click)="closeMobileMenu()"></div>
+  <div class="mobile-overlay fixed inset-0 bg-black/60 backdrop-blur-sm z-40 lg:hidden transition-all duration-300" (click)="closeMobileMenu()"></div>
 }
 
 <!-- Mobile Slide-In Menu -->
-<div [ngClass]="{ 'translate-x-0': isMobileMenuOpen(), 'translate-x-full': !isMobileMenuOpen() }" class="mobile-menu fixed top-0 right-0 h-full w-72 bg-themed border-l border-themed z-50 transform transition-transform duration-300 lg:hidden shadow-xl">
+<div [ngClass]="{ 'translate-x-0': isMobileMenuOpen(), 'translate-x-full': !isMobileMenuOpen() }" class="mobile-menu fixed top-0 right-0 h-full w-80 bg-themed border-l border-themed z-50 transform transition-all duration-300 ease-in-out lg:hidden shadow-2xl">
 
   <!-- Mobile Menu Header -->
-  <div class="p-6 border-b border-gray-200 flex items-center justify-between">
-    <span class="text-xl font-bold text-orange-600">pi</span>
-    <div class="flex items-center space-x-3">
-      <app-theme-toggle></app-theme-toggle>
-      <button (click)="closeMobileMenu()" class="btn-icon btn-feedback flex items-center justify-center border border-gray-200 rounded-full hover:bg-white-hover transition-colors">
-        <svg class="w-5 h-5 text-gray-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+  <div class="p-4 border-b border-themed flex items-center justify-between">
+    <button (click)="closeMobileMenu()" class="p-2 flex items-center justify-center border border-themed rounded-full hover:bg-themed-hover transition-colors">
+        <svg class="w-5 h-5 text-themed" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
         </svg>
       </button>
-    </div>
   </div>
 
   <!-- Mobile Menu Content -->
@@ -154,7 +197,9 @@
           </div>
           <div class="ml-4">
             <p class="text-lg font-medium text-themed">{{ loggedInUser()!.name }}</p>
-            <p class="text-sm text-themed-secondary">{{ loggedInUser()!.role }}</p>
+            @if (hasElevatedRole()) {
+              <p class="text-sm text-themed-secondary">{{ loggedInUser()!.role }}</p>
+            }
           </div>
         </div>
       </div>
@@ -162,8 +207,9 @@
 
     <!-- Navigation Links -->
     <nav class="flex-1 px-6 py-6 space-y-2">
+
       <a routerLink="/explore"
-        (click)="closeMobileMenu()"
+        (click)="clearSearchAndNavigate(); closeMobileMenu()"
         class="nav-link btn-feedback flex items-center px-4 py-3 text-themed hover:bg-themed-hover hover:text-themed rounded-lg transition-colors duration-200 group">
         <svg class="w-5 h-5 mr-3 text-themed-secondary group-hover:text-themed" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -206,14 +252,14 @@
         </a>
       }
 
-      <a routerLink="/prompts"
+      <!-- <a routerLink="/prompts"
         (click)="closeMobileMenu()"
         class="flex items-center px-4 py-3 text-themed hover:bg-themed-hover hover:text-themed rounded-lg transition-colors duration-200 group">
         <svg class="w-5 h-5 mr-3 text-themed-secondary group-hover:text-themed" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
         </svg>
         <span class="text-base font-medium">Prompts</span>
-      </a>
+      </a> -->
 
       <a routerLink="/whats-new"
         (click)="closeMobileMenu()"
@@ -223,6 +269,43 @@
         </svg>
         <span class="text-base font-medium">What's New</span>
       </a>
+
+      <!-- Popular Topics Section -->
+      <div class="pt-4 mt-4 border-t border-themed">
+        <div class="px-4 mb-3">
+          <h3 class="text-xs font-bold text-themed-secondary uppercase tracking-wide">Popular Topics</h3>
+        </div>
+        
+        @if (loadingTags()) {
+          <div class="flex items-center justify-center py-4">
+            <div class="w-4 h-4 border-2 border-orange-500 border-t-transparent rounded-full animate-spin"></div>
+            <span class="ml-2 text-xs text-themed-secondary">Loading topics...</span>
+          </div>
+        }
+        
+        @if (!loadingTags()) {
+          <div class="px-4 flex flex-wrap gap-2">
+            @for (tag of popularTags(); track tag) {
+              <button
+                (click)="onTagClick(tag)"
+                class="px-3 py-1.5 text-sm text-themed bg-themed-secondary hover:bg-themed-hover rounded-full border border-themed transition-colors cursor-pointer">
+                #{{ tag }}
+              </button>
+            }
+          </div>
+        }
+      </div>
+
+      <!-- Universal Theme Toggle (visible to all users) -->
+      <div class="flex items-center justify-between px-4 py-3 text-themed">
+        <div class="flex items-center">
+          <svg class="w-5 h-5 mr-3 text-themed-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/>
+          </svg>
+          <span class="text-base font-medium">Theme</span>
+        </div>
+        <app-theme-toggle></app-theme-toggle>
+      </div>
 
       <!-- Submit button for non-logged users -->
       @if (!loggedInUser()) {
@@ -258,23 +341,5 @@
       }
     </nav>
     
-    <!-- Mobile Login/Auth Section (if not logged in) -->
-    @if (!loggedInUser()) {
-      <div class="p-6 border-t border-themed">
-        <div class="space-y-3">
-          <a routerLink="/login"
-            (click)="closeMobileMenu()"
-            class="w-full flex items-center justify-center px-4 py-3 text-base font-medium btn-primary">
-            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013 3v1" />
-            </svg>
-            Login
-          </a>
-          <p class="text-sm text-themed-secondary text-center">
-            Login to submit your creative work and join the community
-          </p>
-        </div>
-      </div>
-    }
   </div>
 </div>

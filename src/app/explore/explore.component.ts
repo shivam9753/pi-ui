@@ -26,11 +26,11 @@ export class ExploreComponent implements OnInit {
   sortBy: string = 'latest';
   loading: boolean = false;
   
-  // Pagination properties
-  currentPage: number = 1;
-  itemsPerPage: number = 9;
+  // Load more properties
+  itemsPerPage: number = 12;
   totalItems: number = 0;
-  totalPages: number = 0;
+  hasMoreItems: boolean = true;
+  isLoadingMore: boolean = false;
   
   
   // Updated filter options with better labels
@@ -136,15 +136,18 @@ export class ExploreComponent implements OnInit {
 
   getPublishedSubmissions(type: string = '') {
     this.selectedType = type;
-    this.currentPage = 1; // Reset to first page when filtering
-    
-    
+    this.submissions = []; // Reset submissions when filtering
+    this.hasMoreItems = true;
     this.loadPublishedSubmissions(type);
   }
 
-  loadPublishedSubmissions(type: string = '') {
-    this.loading = true;
-    const skip = (this.currentPage - 1) * this.itemsPerPage;
+  loadPublishedSubmissions(type: string = '', loadMore: boolean = false) {
+    if (loadMore) {
+      this.isLoadingMore = true;
+    } else {
+      this.loading = true;
+    }
+    const skip = loadMore ? this.submissions.length : 0;
     const params: any = {
       limit: this.itemsPerPage,
       skip: skip,
@@ -160,27 +163,39 @@ export class ExploreComponent implements OnInit {
       // Get trending posts for "Popular This Week" tab
       this.viewTrackerService.getTrendingPosts(this.itemsPerPage, skip).subscribe({
         next: (data) => {
-          this.submissions = data.submissions || [];
+          const newSubmissions = data.submissions || [];
+          if (loadMore) {
+            this.submissions = [...this.submissions, ...newSubmissions];
+          } else {
+            this.submissions = newSubmissions;
+          }
           this.totalItems = data.total || 0;
-          this.totalPages = Math.ceil(this.totalItems / this.itemsPerPage);
+          this.hasMoreItems = newSubmissions.length >= this.itemsPerPage;
           this.loading = false;
+          this.isLoadingMore = false;
         },
         error: (error) => {
           console.error('Error loading trending posts:', error);
           // Fallback to regular content if trending fails
           this.backendService.getPublishedContent('', params).subscribe({
             next: (data) => {
-              this.submissions = data.submissions || [];
+              const newSubmissions = data.submissions || [];
+              if (loadMore) {
+                this.submissions = [...this.submissions, ...newSubmissions];
+              } else {
+                this.submissions = newSubmissions;
+              }
               this.totalItems = data.total || 0;
-              this.totalPages = Math.ceil(this.totalItems / this.itemsPerPage);
+              this.hasMoreItems = newSubmissions.length >= this.itemsPerPage;
             },
             error: (fallbackError) => {
               console.error('Fallback also failed:', fallbackError);
               // Set empty state
               this.submissions = [];
               this.totalItems = 0;
-              this.totalPages = 0;
+              this.hasMoreItems = false;
               this.loading = false;
+              this.isLoadingMore = false;
             }
           });
         }
@@ -188,18 +203,25 @@ export class ExploreComponent implements OnInit {
     } else {
       this.backendService.getPublishedContent(type, params).subscribe({
         next: (data) => {
-          this.submissions = data.submissions || [];
+          const newSubmissions = data.submissions || [];
+          if (loadMore) {
+            this.submissions = [...this.submissions, ...newSubmissions];
+          } else {
+            this.submissions = newSubmissions;
+          }
           this.totalItems = data.total || 0;
-          this.totalPages = Math.ceil(this.totalItems / this.itemsPerPage);
+          this.hasMoreItems = newSubmissions.length >= this.itemsPerPage;
           this.loading = false;
+          this.isLoadingMore = false;
         },
         error: (error) => {
           console.error('Error loading published content:', error);
           // Set empty state
           this.submissions = [];
           this.totalItems = 0;
-          this.totalPages = 0;
+          this.hasMoreItems = false;
           this.loading = false;
+          this.isLoadingMore = false;
         }
       });
     }
@@ -293,7 +315,8 @@ export class ExploreComponent implements OnInit {
   // Handle sort change
   onSortChange(sortValue: string) {
     this.sortBy = sortValue;
-    this.currentPage = 1; // Reset to first page
+    this.submissions = []; // Reset submissions
+    this.hasMoreItems = true;
     this.loadPublishedSubmissions(this.selectedType);
   }
 
@@ -324,31 +347,11 @@ export class ExploreComponent implements OnInit {
   }
 
 
-  goToPage(page: number) {
-    if (page >= 1 && page <= this.totalPages) {
-      this.currentPage = page;
-      this.loadPublishedSubmissions(this.selectedType);
-      // Scroll to top of main content area
-      setTimeout(() => {
-        const contentElement = document.querySelector('.min-h-screen') || document.querySelector('.max-w-7xl');
-        if (contentElement) {
-          contentElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        } else {
-          window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-      }, 100);
+  // Load more functionality
+  loadMoreSubmissions() {
+    if (this.hasMoreItems && !this.isLoadingMore) {
+      this.loadPublishedSubmissions(this.selectedType, true);
     }
-  }
-
-  getPageNumbers(): number[] {
-    const pages = [];
-    const start = Math.max(1, this.currentPage - 2);
-    const end = Math.min(this.totalPages, this.currentPage + 2);
-    
-    for (let i = start; i <= end; i++) {
-      pages.push(i);
-    }
-    return pages;
   }
 
   // Excerpt truncation method

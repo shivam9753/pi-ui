@@ -630,4 +630,33 @@ export class AuthService {
       });
     }
   }
+
+  // Method to handle successful email authentication
+  public handleAuthSuccess(user: any, token: string): void {
+    if (isPlatformBrowser(this.platformId)) {
+      const fullUser: GoogleUser = {
+        id: user._id || user.id,
+        email: user.email,
+        name: user.name,
+        picture: user.profileImage || '',
+        given_name: user.name.split(' ')[0] || user.name,
+        family_name: user.name.split(' ').slice(1).join(' ') || '',
+        role: user.role || 'user',
+        needsProfileCompletion: user.needsProfileCompletion || false,
+        profileCompleted: user.profileCompleted || !user.needsProfileCompletion,
+        bio: user.bio || ''
+      };
+
+      // Store user and token in localStorage
+      localStorage.setItem('google_user', JSON.stringify(fullUser));
+      localStorage.setItem('jwt_token', token);
+
+      // Update auth state
+      this.userSubject.next(fullUser);
+      this.isLoggedInSubject.next(true);
+
+      // Check and fix profile completion if needed
+      this.checkAndFixProfileCompletion(fullUser);
+    }
+  }
 }

@@ -60,7 +60,7 @@ export class BackendService {
     
     let errorMessage = 'An unknown error occurred';
     
-    if (error.error instanceof ErrorEvent) {
+    if (typeof ErrorEvent !== 'undefined' && error.error instanceof ErrorEvent) {
       // Client-side error
       errorMessage = `Client Error: ${error.error.message}`;
     } else {
@@ -819,6 +819,29 @@ getPopularTags(options: { limit?: number } = {}): Observable<{
   const url = `${this.API_URL}${API_ENDPOINTS.CONTENT_NESTED.TAGS_POPULAR}`;
   return this.http.get<any>(url, { headers, params }).pipe(
     this.handleApiCall(url, 'GET')
+  );
+}
+
+// Authentication methods
+loginUser(email: string, password: string): Observable<any> {
+  const headers = this.getPublicHeaders();
+  const url = `${this.API_URL}/auth/login`;
+  return this.http.post<any>(url, { email, password }, { headers }).pipe(
+    this.handleApiCall(url, 'POST')
+  );
+}
+
+registerUser(userData: {
+  email: string;
+  username: string;
+  name: string;
+  password: string;
+  bio?: string;
+}): Observable<any> {
+  const headers = this.getPublicHeaders();
+  const url = `${this.API_URL}/auth/register`;
+  return this.http.post<any>(url, userData, { headers }).pipe(
+    this.handleApiCall(url, 'POST')
   );
 }
 

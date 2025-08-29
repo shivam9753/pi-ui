@@ -59,9 +59,6 @@
                 <h1 class="text-lg font-semibold text-gray-900">
                   {{ userProfile()?.name || userProfile()?.username }}
                 </h1>
-                <p class="text-sm text-gray-500">
-                  {{ '@' + userProfile()?.username }}
-                </p>
               </div>
             </div>
             
@@ -74,10 +71,6 @@
               <div class="text-center">
                 <div class="text-lg font-bold text-gray-900">{{ submissions().length }}</div>
                 <div class="text-xs text-gray-500">Submissions</div>
-              </div>
-              <div class="text-center hidden sm:block">
-                <div class="text-lg font-bold text-gray-900">{{ getReadingScore() }}</div>
-                <div class="text-xs text-gray-500">Score</div>
               </div>
               
               <!-- Edit Profile Button - Desktop Only -->

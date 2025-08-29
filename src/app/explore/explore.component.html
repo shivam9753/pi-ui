@@ -26,7 +26,7 @@
                     
                     [class.border-transparent]="selectedType !== option.value"
                     [class.text-gray-600]="selectedType !== option.value"
-                    class="whitespace-nowrap py-2 px-3 border-b-2 font-medium transition-all duration-200 flex-shrink-0 text-sm touch-target btn-feedback"
+                    class="whitespace-nowrap py-2 px-3 border-b-2 font-medium transition-all duration-200 flex-shrink-0 text-xs touch-target btn-feedback"
                     >
                     {{ option.label }}
                   </button>
@@ -47,7 +47,7 @@
                     [class.text-gray-600]="selectedType !== option.value"
                     [class.hover:text-gray-900]="selectedType !== option.value"
                     [class.hover:border-gray-300]="selectedType !== option.value"
-                    class="whitespace-nowrap py-3 px-1 border-b-2 font-medium transition-colors duration-200 flex-shrink-0 btn-feedback"
+                    class="whitespace-nowrap py-3 px-1 border-b-2 font-medium transition-colors duration-200 flex-shrink-0 btn-feedback text-sm"
                     >
                     {{ option.label }}
                   </button>
@@ -72,37 +72,6 @@
           </div>
         }
 
-        <!-- Search Box - Optimized for mobile -->
-        <div class="relative w-full sm:max-w-md">
-          <form (ngSubmit)="onSearchSubmit($event)">
-            <input
-              type="text"
-              [(ngModel)]="searchQuery"
-              placeholder="Search poems, articles, opinions..."
-              class="w-full px-4 py-3 pr-12 text-base sm:text-sm bg-white border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-200 focus:border-orange-500 transition-all duration-200">
-            <button type="submit" class="absolute right-3 top-1/2 transform -translate-y-1/2 p-1 hover:bg-gray-100 rounded-lg transition-colors">
-              @if (!isSearching) {
-                <svg class="w-5 h-5 text-gray-500 hover:text-gray-700 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-                </svg>
-              }
-              @if (isSearching) {
-                <div class="w-5 h-5 border-2 border-orange-500 border-t-transparent rounded-full animate-spin"></div>
-              }
-            </button>
-          </form>
-
-          <!-- Clear search button -->
-          @if (searchQuery) {
-            <button
-              (click)="clearSearch()"
-              class="absolute right-11 top-1/2 transform -translate-y-1/2 p-1 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-              </svg>
-            </button>
-          }
-        </div>
 
 
         <!-- Loading State -->
@@ -119,7 +88,7 @@
         @if (!loading && ((showSearchResults && searchResults.length > 0) || (!showSearchResults && submissions && submissions.length > 0))) {
           <div class="space-y-6">
             <!-- Mobile: Magazine-style layout -->
-            <div class="block md:hidden divide-y divide-gray-100 px-4">
+            <div class="block md:hidden divide-y divide-gray-600 px-4">
               @for (submission of (showSearchResults ? searchResults : submissions); track submission) {
                 <article
                   class="cursor-pointer group py-6 first:pt-0 last:pb-0"
@@ -135,14 +104,14 @@
                       </button>
                       
                       <!-- Title - magazine style -->
-                      <h2 class="font-bold text-gray-900 text-xl leading-tight mb-3 group-hover:text-gray-700 transition-colors"
+                      <h2 class="font-bold text-gray-900 text-lg leading-tight mb-3 group-hover:text-gray-700 transition-colors"
                         style="display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;">
                         {{ submission.title }}
                       </h2>
                       
                       <!-- Description - exactly 2 lines, wider -->
                       @if (submission?.excerpt || submission?.description) {
-                        <p class="text-gray-700 text-base leading-relaxed mb-3 font-light"
+                        <p class="text-gray-600 text-sm leading-relaxed mb-3 font-light"
                           style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;"
                           [innerHTML]="cleanContent(submission?.excerpt || submission?.description || '')"
                           >
@@ -176,10 +145,10 @@
               }
             </div>
             <!-- Desktop: Clean grid -->
-            <div class="hidden md:grid grid-cols-3 gap-8">
+            <div class="hidden md:grid grid-cols-4 lg:grid-cols-4 gap-4">
               @for (submission of (showSearchResults ? searchResults : submissions); track submission) {
                 <div
-                  class="cursor-pointer group bg-white hover:shadow-lg transition-all duration-300 rounded-2xl overflow-hidden border border-gray-100 hover:border-gray-200"
+                  class="cursor-pointer group bg-white hover:shadow-md transition-all duration-300 rounded-lg overflow-hidden border border-gray-200 hover:border-orange-300"
                   (click)="openSubmission(submission)">
                   <div class="aspect-[4/3] bg-gray-100">
                     @if (submission.imageUrl) {
@@ -191,156 +160,63 @@
                     @if (!submission.imageUrl) {
                       <div
                         class="w-full h-full bg-gray-100 flex items-center justify-center">
-                        <svg class="w-12 h-12 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg class="w-8 h-8 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
                         </svg>
                       </div>
                     }
                   </div>
-                  <div class="p-4 space-y-3">
+                  <div class="p-3 space-y-2">
                     <button
                       (click)="navigateToCategory(submission.submissionType); $event.stopPropagation()"
-                      class="text-orange-500 text-xs font-medium hover:text-amber-700 transition-colors cursor-pointer text-left">
+                      class="text-orange-600 text-xs font-semibold hover:text-orange-700 transition-colors cursor-pointer text-left uppercase">
                       {{ submission.submissionType | prettyLabel }}
                     </button>
-                    <h3 class="font-bold text-gray-900 text-base leading-tight group-hover:text-gray-700 transition-colors"
+                    <h3 class="font-semibold text-gray-900 text-sm leading-tight group-hover:text-gray-700 transition-colors"
                       style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
                       {{ submission.title }}
                     </h3>
                     @if (submission?.excerpt || submission?.description) {
-                      <p class="text-gray-600 text-sm mb-3 leading-relaxed"
-                        style="display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden;"
+                      <p class="text-gray-600 text-xs mb-2 leading-relaxed"
+                        style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;"
                         [innerHTML]="cleanContent(submission?.excerpt || submission?.description || '')"
                         >
                       </p>
                     }
-                    <div class="flex items-center gap-2 text-gray-500 text-sm">
+                    <div class="flex items-center gap-1 text-gray-500 text-xs flex-wrap">
                       <span class="font-medium">{{ submission.authorName || 'Anonymous' }}</span>
                       <span>•</span>
-                      <span>{{ submission.createdAt | date:'MMM d' }}</span>
-                      <span>•</span>
-                      <span>{{ submission.readingTime || '5' }} min read</span>
+                      <span>{{ submission.readingTime || '5' }}m</span>
                     </div>
                   </div>
                 </div>
               }
             </div>
-            <!-- Pagination -->
-            @if (totalPages > 1 && !showSearchResults) {
-              <div class="flex flex-col sm:flex-row items-center justify-between gap-4 mt-12 pt-6 border-t border-gray-200">
-                <!-- Page Info -->
-                <div class="text-sm text-gray-600">
-                  Showing {{ (currentPage - 1) * itemsPerPage + 1 }} to {{ Math.min(currentPage * itemsPerPage, totalItems) }} of {{ totalItems }} posts
-                </div>
-                <!-- Pagination Buttons -->
-                <div class="flex items-center space-x-2">
-                  <!-- Previous Button -->
-                  <button
-                    (click)="goToPage(currentPage - 1)"
-                    [disabled]="currentPage === 1"
-                    class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
-                    >
-                    Previous
-                  </button>
-                  <!-- Page Numbers -->
-                  @for (page of getPageNumbers(); track page) {
-                    <button
-                      (click)="goToPage(page)"
-                [ngClass]="{
-                  'bg-orange-500 text-white border-orange-500': page === currentPage,
-                  'bg-white text-gray-700 border-gray-300 hover:bg-gray-50': page !== currentPage
-                }"
-                      class="px-4 py-2 text-sm font-medium border rounded-lg transition-colors duration-200"
-                      >
-                      {{ page }}
-                    </button>
-                  }
-                  <!-- Next Button -->
-                  <button
-                    (click)="goToPage(currentPage + 1)"
-                    [disabled]="currentPage === totalPages"
-                    class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
-                    >
-                    Next
-                  </button>
+            <!-- Load More Button -->
+            @if (hasMoreItems && !showSearchResults && !isLoadingMore) {
+              <div class="mt-8 text-center">
+                <button 
+                  (click)="loadMoreSubmissions()"
+                  class="inline-flex items-center px-8 py-3 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors font-medium shadow-sm hover:shadow-md">
+                  <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                  </svg>
+                  Load More
+                </button>
+              </div>
+            }
+            
+            @if (isLoadingMore && !showSearchResults) {
+              <div class="mt-8 flex justify-center">
+                <div class="inline-flex items-center">
+                  <svg class="animate-spin h-8 w-8 text-orange-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  <span class="ml-3 text-lg text-themed">Loading more stories...</span>
                 </div>
               </div>
             }
-            <!-- Mobile Sidebar Content - At bottom for mobile -->
-            <div class="sm:hidden mt-6 space-y-4">
-              <!-- Mobile Trending Topics -->
-              <div class="bg-white border border-gray-200 rounded-xl p-3 shadow-sm">
-                <h3 class="font-bold text-gray-900 mb-2 text-sm">Popular Topics</h3>
-                @if (loadingTags) {
-                  <div class="flex items-center justify-center py-2">
-                    <div class="w-3 h-3 border-2 border-orange-500 border-t-transparent rounded-full animate-spin"></div>
-                    <span class="ml-2 text-xs text-gray-500">Loading...</span>
-                  </div>
-                }
-                @if (!loadingTags) {
-                  <div class="flex flex-wrap gap-1.5">
-                    @for (tag of trendingTags.slice(0, 8); track tag) {
-                      <button
-                        (click)="onTagClick(tag, $event)"
-                        class="px-2 py-0.5 bg-gray-100 text-gray-600 text-xs rounded-full hover:bg-amber-100 hover:text-amber-700 transition-colors cursor-pointer">
-                        #{{ tag }}
-                      </button>
-                    }
-                  </div>
-                }
-              </div>
-              <!-- Mobile Announcements - Writing/Content Events -->
-              <div class="rounded-xl p-3 shadow-sm">
-                <div class="flex items-center gap-2 mb-2">
-                  <svg class="w-3.5 h-3.5 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                  </svg>
-                  <h3 class="font-bold text-gray-900 text-sm">Live</h3>
-                </div>
-                <div class="space-y-2">
-                  @for (announcement of getWritingAnnouncements().slice(0, 2); track announcement) {
-                    <div
-                      class="bg-white rounded-lg p-2.5 border border-gray-100 dark:border-gray-700">
-                      <div class="flex items-start gap-2">
-                        <div class="flex-shrink-0 w-5 h-5 rounded-full flex items-center justify-center announcement-bg" [class]="announcement.colorClass + '-bg'">
-                          <svg class="w-2.5 h-2.5" [class]="announcement.colorClass" fill="currentColor" viewBox="0 0 24 24">
-                            @if (announcement.type === 'THEME') {
-                              <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                            }
-                            @if (announcement.type === 'CONTEST') {
-                              <path d="M12 2l3.09 6.26L22 9l-5 4.87L18.18 20 12 16.77 5.82 20 7 13.87 2 9l6.91-.74L12 2z"/>
-                            }
-                          </svg>
-                        </div>
-                        <div class="flex-1 min-w-0">
-                          <div class="flex items-center gap-2 mb-1">
-                            <h4 class="text-xs font-semibold text-gray-900">{{ announcement.title }}</h4>
-                            <span class="text-xs px-1.5 py-0.5 rounded-full text-white font-medium announcement-badge" [class]="announcement.colorClass + '-badge'">
-                              {{ announcement.type | prettyLabel}}
-                            </span>
-                          </div>
-                          <p class="text-xs text-gray-600 leading-relaxed mb-1"
-                            style="display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden;">
-                            {{ announcement.description }}
-                          </p>
-                          @if (announcement.link) {
-                            <button
-                              (click)="handleAnnouncementAction(announcement)"
-                              class="inline-flex items-center gap-1 text-xs font-medium hover:underline"
-                              [class]="announcement.colorClass">
-                              {{ announcement.linkText }}
-                              <svg class="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                              </svg>
-                            </button>
-                          }
-                        </div>
-                      </div>
-                    </div>
-                  }
-                </div>
-              </div>
-            </div>
           </div>
         }
 
@@ -404,34 +280,6 @@
             }
           </div>
 
-          <!-- Events & Challenges -->
-          <div class="border border-gray-200 rounded-lg p-4 shadow-sm">
-            <h3 class="text-sm font-bold text-gray-900 mb-3 uppercase tracking-wide">EVENTS & CHALLENGES</h3>
-            <div class="space-y-4">
-              @for (announcement of getWritingAnnouncements(); track announcement) {
-                <div class="space-y-2">
-                  <!-- Challenge header with dot -->
-                  <div class="flex items-start gap-2">
-                    <div class="w-2 h-2 rounded-full mt-2" [class]="announcement.colorClass + '-dot'"></div>
-                    <div class="flex-1">
-                      <h4 class="text-sm font-semibold text-gray-900 mb-1">{{ announcement.title }}</h4>
-                      <p class="text-sm text-gray-600 leading-relaxed mb-2">
-                        {{ announcement.description }}
-                      </p>
-                      @if (announcement.link) {
-                        <button
-                          (click)="handleAnnouncementAction(announcement)"
-                          class="text-sm font-medium hover:underline"
-                          [class]="announcement.colorClass">
-                          {{ announcement.linkText }}
-                        </button>
-                      }
-                    </div>
-                  </div>
-                </div>
-              }
-            </div>
-          </div>
         </div>
 
       </div>

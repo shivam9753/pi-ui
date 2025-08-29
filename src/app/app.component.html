@@ -8,7 +8,9 @@
 
 <div class="min-h-screen bg-white transition-colors duration-300 flex flex-col">
     <!-- Header -->
-    <app-header></app-header>
+    @if (showHeaderFooter) {
+      <app-header></app-header>
+    }
 
     <!-- Main content -->
     <main id="main-content" class="flex-1 bg-white">
@@ -18,7 +20,9 @@
     </main>
 
     <!-- Footer -->
-    <app-footer></app-footer>
+    @if (showHeaderFooter) {
+      <app-footer></app-footer>
+    }
 
     <!-- Global Loader -->
     <app-breathing-loader></app-breathing-loader>

@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule, DatePipe, TitleCasePipe } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { BackendService } from '../services/backend.service';
+import { ViewTrackerService } from '../services/view-tracker.service';
 import { CommonUtils } from '../shared/utils';
 
 @Component({
@@ -24,15 +25,18 @@ export class CategoryComponent implements OnInit {
   // Category display labels
   categoryLabels: { [key: string]: string } = {
     'poem': 'Poems',
-    'story': 'Stories',
+    'prose': 'Prose',
     'article': 'Articles',
-    'cinema_essay': 'Cinema Essays'
+    'cinema_essay': 'Cinema Essays',
+    'book_review': 'Book Reviews',
+    'popular': 'Popular This Week'
   };
 
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    private backendService: BackendService
+    private backendService: BackendService,
+    private viewTrackerService: ViewTrackerService
   ) {}
 
   ngOnInit() {
@@ -47,25 +51,44 @@ export class CategoryComponent implements OnInit {
     this.currentPage = 1; // Reset to first page
     const skip = (this.currentPage - 1) * this.itemsPerPage;
     
-    this.backendService.getPublishedContentByType(this.category, {
-      limit: this.itemsPerPage,
-      skip: skip,
-      sortBy: 'createdAt',
-      order: 'desc'
-    }).subscribe({
-      next: (data) => {
-        this.submissions = data.submissions || [];
-        this.totalItems = data.total || 0;
-        this.totalPages = Math.ceil(this.totalItems / this.itemsPerPage);
-        this.loading = false;
-      },
-      error: (error) => {
-        this.submissions = [];
-        this.totalItems = 0;
-        this.totalPages = 0;
-        this.loading = false;
-      }
-    });
+    if (this.category === 'popular') {
+      // Use trending API for popular category
+      this.viewTrackerService.getTrendingPosts(this.itemsPerPage, skip).subscribe({
+        next: (data) => {
+          this.submissions = data.submissions || [];
+          this.totalItems = data.total || 0;
+          this.totalPages = Math.ceil(this.totalItems / this.itemsPerPage);
+          this.loading = false;
+        },
+        error: (error) => {
+          this.submissions = [];
+          this.totalItems = 0;
+          this.totalPages = 0;
+          this.loading = false;
+        }
+      });
+    } else {
+      // Use regular content API for other categories
+      this.backendService.getPublishedContentByType(this.category, {
+        limit: this.itemsPerPage,
+        skip: skip,
+        sortBy: 'createdAt',
+        order: 'desc'
+      }).subscribe({
+        next: (data) => {
+          this.submissions = data.submissions || [];
+          this.totalItems = data.total || 0;
+          this.totalPages = Math.ceil(this.totalItems / this.itemsPerPage);
+          this.loading = false;
+        },
+        error: (error) => {
+          this.submissions = [];
+          this.totalItems = 0;
+          this.totalPages = 0;
+          this.loading = false;
+        }
+      });
+    }
   }
 
   getCategoryDisplayName(): string {
@@ -90,25 +113,44 @@ export class CategoryComponent implements OnInit {
     this.currentPage = page;
     const skip = (this.currentPage - 1) * this.itemsPerPage;
     
-    this.backendService.getPublishedContentByType(this.category, {
-      limit: this.itemsPerPage,
-      skip: skip,
-      sortBy: 'createdAt',
-      order: 'desc'
-    }).subscribe({
-      next: (data) => {
-        this.submissions = data.submissions || [];
-        this.totalItems = data.total || 0;
-        this.totalPages = Math.ceil(this.totalItems / this.itemsPerPage);
-        this.loading = false;
-      },
-      error: (error) => {
-        this.submissions = [];
-        this.totalItems = 0;
-        this.totalPages = 0;
-        this.loading = false;
-      }
-    });
+    if (this.category === 'popular') {
+      // Use trending API for popular category
+      this.viewTrackerService.getTrendingPosts(this.itemsPerPage, skip).subscribe({
+        next: (data) => {
+          this.submissions = data.submissions || [];
+          this.totalItems = data.total || 0;
+          this.totalPages = Math.ceil(this.totalItems / this.itemsPerPage);
+          this.loading = false;
+        },
+        error: (error) => {
+          this.submissions = [];
+          this.totalItems = 0;
+          this.totalPages = 0;
+          this.loading = false;
+        }
+      });
+    } else {
+      // Use regular content API for other categories
+      this.backendService.getPublishedContentByType(this.category, {
+        limit: this.itemsPerPage,
+        skip: skip,
+        sortBy: 'createdAt',
+        order: 'desc'
+      }).subscribe({
+        next: (data) => {
+          this.submissions = data.submissions || [];
+          this.totalItems = data.total || 0;
+          this.totalPages = Math.ceil(this.totalItems / this.itemsPerPage);
+          this.loading = false;
+        },
+        error: (error) => {
+          this.submissions = [];
+          this.totalItems = 0;
+          this.totalPages = 0;
+          this.loading = false;
+        }
+      });
+    }
   }
 
   // Navigate to specific page

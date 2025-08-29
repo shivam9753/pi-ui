@@ -182,10 +182,10 @@ export class ProfileCompletionComponent implements OnInit {
       // Get the correct user ID
       let userId = this.user?.id || (this.user as any)?._id;
       
-      // If still no ID, try to get from current user
+      // If still no ID, try to get from auth service
       if (!userId) {
-        const currentUser = this.backendService.getCurrentUserProfile();
-        userId = (currentUser as any)?.id || currentUser?._id;
+        const currentUser = this.authService.getCurrentUser();
+        userId = currentUser?.id || (currentUser as any)?._id;
       }
 
       if (!userId) {
@@ -309,7 +309,7 @@ export class ProfileCompletionComponent implements OnInit {
     const result = await response.json();
 
     // Update local user data
-    const currentUser = this.user || this.backendService.getCurrentUserProfile();
+    const currentUser = this.user || this.authService.getCurrentUser();
     const updatedUser = { 
       ...currentUser, 
       name: profileData.name,

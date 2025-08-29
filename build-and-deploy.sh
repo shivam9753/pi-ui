@@ -78,11 +78,11 @@ echo "🔄 Restarting services..."
 
 # Restart Angular SSR server
 echo "   - Restarting Angular SSR server..."
-pm2 restart angular-ssr
+pm2 restart ui-ssr || echo "⚠️  ui-ssr process not found or failed to restart"
 
 # Restart backend if needed
 echo "   - Restarting backend server..."
-pm2 restart backend
+pm2 restart backend || echo "⚠️  backend process not found or failed to restart"
 
 # Reload nginx
 echo "   - Reloading nginx..."

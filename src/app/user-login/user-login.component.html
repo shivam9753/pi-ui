@@ -1,97 +1,550 @@
-<div class="min-h-screen flex flex-col items-center py-8 px-4 sm:px-6 lg:px-8 bg-white">
-  <div class="w-full max-w-sm space-y-6 my-auto">
-    <div class="text-center space-y-2">
-      <p class="text-gray-900-secondary text-base">
-        Sign in to Submit!
-      </p>
+<!-- Mobile Layout -->
+<div class="lg:hidden min-h-screen">
+  <!-- Mobile header with background image -->
+  <div class="relative h-48 bg-gray-50 overflow-hidden">
+    <div class="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-90" style="background-image: url('assets/loginbackground.png');"></div>
+    <div class="absolute inset-0 bg-gradient-to-b from-transparent to-white/20"></div>
+    <!-- Explore button for mobile -->
+    <div class="absolute top-4 right-4">
+      <button 
+        (click)="skipToExplore()"
+        class="text-sm text-white hover:text-gray-200 font-medium transition-colors bg-black px-4 py-2 rounded-full shadow-lg"
+      >
+        Explore without Logging In
+      </button>
     </div>
+  </div>
 
-    <!-- Large Logo -->
-    <div class="text-center">
-      <div class="inline-flex items-center justify-center mb-8">
-        <svg width="320" height="320" viewBox="0 0 80 80">
-          <!-- Typewriter base -->
-          <rect x="20" y="45" width="40" height="20" rx="2" fill="#2a2a2a" stroke="#f97316" stroke-width="1"/>
-
-          <!-- Keys -->
-          <circle cx="30" cy="55" r="6" fill="#1a1a1a" stroke="#f97316" stroke-width="1.5"/>
-          <circle cx="50" cy="55" r="6" fill="#1a1a1a" stroke="#f97316" stroke-width="1.5"/>
-
-          <!-- Letters on keys -->
-          <text x="30" y="58" font-family="monospace" font-size="10" fill="#f97316" text-anchor="middle" font-weight="bold">p</text>
-          <text x="50" y="58" font-family="monospace" font-size="10" fill="#f97316" text-anchor="middle" font-weight="bold">i</text>
-
-          <!-- Paper coming out -->
-          <rect x="25" y="25" width="30" height="20" fill="white" stroke="#f97316" stroke-width="1" opacity="0.9"/>
-          <text x="40" y="37" font-family="serif" font-size="12" fill="#1a1a1a" text-anchor="middle">pi</text>
-        </svg>
-      </div>
-    </div>
-
-    <!-- Login Form -->
-    <div class="space-y-4">
-      <!-- Simple Divider -->
-      <div class="relative my-4">
-        <div class="absolute inset-0 flex items-center">
-          <div class="w-full border-t border-gray-200"></div>
-        </div>
-        <div class="relative flex justify-center text-xs">
-          <span class="px-3 bg-white text-gray-900-secondary">Sign in with</span>
+  <!-- Mobile form content -->
+  <div class="flex items-center justify-center px-4 sm:px-6 bg-white min-h-[calc(100vh-12rem)]">
+    <div class="w-full max-w-md space-y-6 py-6">
+      <!-- Header section -->
+      <div class="text-left space-y-4">
+        <div>
+          <div class="flex items-center gap-3 mb-2">
+            <h1 class="text-2xl sm:text-3xl font-bold text-gray-900">Login to PoemsIndia</h1>
+          </div>
+          <p class="text-gray-600 text-sm sm:text-base leading-relaxed">
+            Sign in with Google or your email to access your account and start writing,
+          </p>
         </div>
       </div>
 
-      <!-- Google Sign-in Button with Loading State -->
-      <button
-        type="button"
-        (click)="signInWithGoogle()"
-        [disabled]="isLoading"
-        class="w-full flex items-center justify-center px-4 py-3 bg-white border border-gray-200 rounded-lg hover:bg-white-hover transition-colors focus:outline-none focus:ring-2 focus:ring-orange-200 text-base text-gray-900 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-        <!-- Loading Spinner -->
-        @if (isLoading) {
-          <div class="w-5 h-5 mr-3 animate-spin">
-            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24">
-              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+      <!-- Login form -->
+      <div class="space-y-4 sm:space-y-6">
+        <!-- Google Sign-in Button -->
+        <button
+          type="button"
+          (click)="signInWithGoogle()"
+          [disabled]="isLoading"
+          class="w-full group relative flex items-center justify-center px-4 sm:px-6 py-2.5 sm:py-3 bg-white border-2 border-gray-200 rounded-lg hover:border-gray-300 hover:bg-gray-50 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-gray-100 text-sm sm:text-base text-gray-700 font-medium disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
+          >
+          <!-- Loading Spinner -->
+          @if (isLoading) {
+            <div class="w-5 h-5 mr-3 animate-spin">
+              <svg class="w-5 h-5 text-gray-500" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+            </div>
+          }
+
+          <!-- Google Icon (shown when not loading) -->
+          @if (!isLoading) {
+            <svg class="w-5 h-5 mr-3" viewBox="0 0 24 24">
+              <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+              <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+              <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+              <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
             </svg>
+          }
+
+          <span>{{ isLoading ? 'Signing you in...' : 'Continue with Google' }}</span>
+        </button>
+
+        <!-- Divider -->
+        <div class="relative">
+          <div class="absolute inset-0 flex items-center">
+            <div class="w-full border-t border-gray-200"></div>
+          </div>
+          <div class="relative flex justify-center text-sm">
+            <span class="px-4 bg-white text-gray-500">or</span>
+          </div>
+        </div>
+
+        <!-- Error Message -->
+        @if (errorMessage) {
+          <div class="mb-4 p-4 bg-red-50 border-l-4 border-red-400 rounded-lg shadow-sm animate-in slide-in-from-top-2 duration-300">
+            <div class="flex items-start">
+              <svg class="w-5 h-5 text-red-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+              </svg>
+              <div class="ml-3">
+                <h3 class="text-sm font-medium text-red-800">Registration Error</h3>
+                <p class="mt-1 text-sm text-red-700">{{ errorMessage }}</p>
+              </div>
+              <button (click)="errorMessage = ''" class="ml-auto flex-shrink-0 text-red-400 hover:text-red-600">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+              </button>
+            </div>
           </div>
         }
 
-        <!-- Google Icon (shown when not loading) -->
-        @if (!isLoading) {
-          <svg class="w-5 h-5 mr-3" viewBox="0 0 24 24">
-            <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-            <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-            <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
-            <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
-          </svg>
+        <!-- Login/Signup Form Toggle -->
+        @if (!isSignUp) {
+          <!-- Login Form -->
+          <form [formGroup]="loginForm" (ngSubmit)="loginWithEmail()" class="space-y-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Email</label>
+              <input
+                type="email"
+                formControlName="email"
+                placeholder="gimerpaix@gmail.com"
+                class="w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-gray-300 rounded-lg bg-gray-50 text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors text-sm sm:text-base"
+                [class.border-red-300]="getFieldError(loginForm, 'email')"
+                >
+              @if (getFieldError(loginForm, 'email')) {
+                <p class="mt-1 text-sm text-red-600">{{ getFieldError(loginForm, 'email') }}</p>
+              }
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Password</label>
+              <input
+                type="password"
+                formControlName="password"
+                placeholder="........"
+                class="w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-gray-300 rounded-lg bg-gray-50 text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors text-sm sm:text-base"
+                [class.border-red-300]="getFieldError(loginForm, 'password')"
+                >
+              @if (getFieldError(loginForm, 'password')) {
+                <p class="mt-1 text-sm text-red-600">{{ getFieldError(loginForm, 'password') }}</p>
+              }
+            </div>
+
+            <!-- Remember me checkbox -->
+            <div class="flex items-center">
+              <input
+                id="remember-me-mobile"
+                name="remember-me"
+                type="checkbox"
+                class="h-4 w-4 text-black focus:ring-black border-gray-300 rounded"
+                >
+              <label for="remember-me-mobile" class="ml-2 block text-sm text-gray-900">
+                Remember me
+              </label>
+            </div>
+
+            <button
+              type="submit"
+              [disabled]="emailLoading"
+              class="w-full flex items-center justify-center px-4 sm:px-6 py-2.5 sm:py-3 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors focus:outline-none focus:ring-2 focus:ring-black disabled:opacity-50 disabled:cursor-not-allowed font-medium text-sm sm:text-base"
+              >
+              @if (emailLoading) {
+                <svg class="w-5 h-5 mr-2 animate-spin" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 818-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 714 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Signing in...
+              }
+              @if (!emailLoading) {
+                Login
+              }
+            </button>
+          </form>
         }
 
-        <span>{{ isLoading ? 'Signing in...' : 'Continue with Google' }}</span>
-      </button>
+        <!-- Signup Form -->
+        @if (isSignUp) {
+          <form [formGroup]="signupForm" (ngSubmit)="signUpWithEmail()" class="space-y-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Email *</label>
+              <input
+                type="email"
+                formControlName="email"
+                placeholder="Enter your email"
+                class="w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-gray-300 rounded-lg bg-gray-50 text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors text-sm sm:text-base"
+                [class.border-red-300]="getFieldError(signupForm, 'email')"
+                >
+              @if (getFieldError(signupForm, 'email')) {
+                <p class="mt-1 text-sm text-red-600">{{ getFieldError(signupForm, 'email') }}</p>
+              }
+            </div>
 
-      <!-- Alternative: Button for Prompt/Overlay Method -->
-      <!-- Uncomment this if you want to offer both options -->
-      <!--
-      <button
-        type="button"
-        (click)="signInWithPrompt()"
-        class="w-full flex items-center justify-center px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg hover:bg-gray-100 transition-colors focus:outline-none focus:ring-2 focus:ring-gray-500 text-base text-gray-700 font-medium"
-        >
-        <svg class="w-5 h-5 mr-3" viewBox="0 0 24 24">
-          <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-          <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-          <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
-          <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
-        </svg>
-        Sign in with Account Chooser
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Username *</label>
+              <input
+                type="text"
+                formControlName="username"
+                placeholder="Choose a username"
+                class="w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-gray-300 rounded-lg bg-gray-50 text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors text-sm sm:text-base"
+                [class.border-red-300]="getFieldError(signupForm, 'username')"
+                >
+              @if (getFieldError(signupForm, 'username')) {
+                <p class="mt-1 text-sm text-red-600">{{ getFieldError(signupForm, 'username') }}</p>
+              }
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Name *</label>
+              <input
+                type="text"
+                formControlName="name"
+                placeholder="Enter your full name"
+                class="w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-gray-300 rounded-lg bg-gray-50 text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors text-sm sm:text-base"
+                [class.border-red-300]="getFieldError(signupForm, 'name')"
+                >
+              @if (getFieldError(signupForm, 'name')) {
+                <p class="mt-1 text-sm text-red-600">{{ getFieldError(signupForm, 'name') }}</p>
+              }
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Password *</label>
+              <input
+                type="password"
+                formControlName="password"
+                placeholder="Create a password (min. 6 characters)"
+                class="w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-gray-300 rounded-lg bg-gray-50 text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors text-sm sm:text-base"
+                [class.border-red-300]="getFieldError(signupForm, 'password')"
+                >
+              @if (getFieldError(signupForm, 'password')) {
+                <p class="mt-1 text-sm text-red-600">{{ getFieldError(signupForm, 'password') }}</p>
+              }
+            </div>
+
+
+            <button
+              type="submit"
+              [disabled]="emailLoading"
+              class="w-full flex items-center justify-center px-4 sm:px-6 py-2.5 sm:py-3 bg-black text-white rounded-lg hover:bg-gray-800 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-black disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer font-medium text-sm sm:text-base transform hover:scale-[1.02] active:scale-[0.98]"
+              >
+              @if (emailLoading) {
+                <svg class="w-5 h-5 mr-2 animate-spin" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 818-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 714 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Creating account...
+              }
+              @if (!emailLoading) {
+                Create Account
+              }
+            </button>
+          </form>
+        }
+
+        <!-- Toggle between Login and Signup -->
+        <div class="text-center">
+          @if (!isSignUp) {
+            <p class="text-sm text-gray-600">
+              Not a member? 
+              <button 
+                type="button" 
+                (click)="switchToSignUp()" 
+                class="font-semibold text-black hover:underline"
+              >
+                Create an account
+              </button>
+            </p>
+          } @else {
+            <p class="text-sm text-gray-600">
+              Already have an account? 
+              <button 
+                type="button" 
+                (click)="switchToSignIn()" 
+                class="font-semibold text-black hover:underline"
+              >
+                Sign in
+              </button>
+            </p>
+          }
+        </div>
+      </div>
+
+      <!-- Copyright footer -->
+      <div class="text-center mt-6">
+        <p class="text-xs text-gray-400 px-2">
+          © 2025 PoemsIndia
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Desktop Layout -->
+<div class="hidden lg:flex min-h-screen">
+  <!-- Left side - Login Form -->
+  <div class="flex-1 flex items-center justify-center px-20 xl:px-28 bg-white relative">
+    <!-- Desktop explore button -->
+    <div class="absolute top-6 right-6">
+      <button 
+        (click)="skipToExplore()"
+        class="text-sm text-white hover:text-gray-200 font-medium transition-colors bg-black px-4 py-2 rounded-lg shadow-md"
+      >
+        Explore without Logging In
       </button>
-      -->
     </div>
 
-    <!-- Simple Footer -->
-    <div class="text-center pt-4">
-      <p class="text-xs text-gray-900-tertiary">© 2025 PI by PoemsIndia</p>
+    <div class="w-full max-w-md space-y-8">
+      <!-- Header section -->
+      <div class="text-left space-y-6">
+        <div>
+          <div class="flex items-center gap-3 mb-2">
+            <h1 class="text-4xl font-bold text-gray-900">Login to PoemsIndia</h1>
+          </div>
+          <p class="text-gray-600 text-base">
+            Sign in with Google or your email to access your account and start writing,
+          </p>
+        </div>
+      </div>
+
+      <!-- Login form -->
+      <div class="space-y-6">
+        <!-- Google Sign-in Button -->
+        <button
+          type="button"
+          (click)="signInWithGoogle()"
+          [disabled]="isLoading"
+          class="w-full group relative flex items-center justify-center px-6 py-3 bg-white border-2 border-gray-200 rounded-lg hover:border-gray-300 hover:bg-gray-50 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-gray-100 text-base text-gray-700 font-medium disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
+          >
+          <!-- Loading Spinner -->
+          @if (isLoading) {
+            <div class="w-5 h-5 mr-3 animate-spin">
+              <svg class="w-5 h-5 text-gray-500" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 718-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 714 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+            </div>
+          }
+
+          <!-- Google Icon (shown when not loading) -->
+          @if (!isLoading) {
+            <svg class="w-5 h-5 mr-3" viewBox="0 0 24 24">
+              <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+              <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+              <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+              <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+            </svg>
+          }
+
+          <span>{{ isLoading ? 'Signing you in...' : 'Continue with Google' }}</span>
+        </button>
+
+        <!-- Divider -->
+        <div class="relative">
+          <div class="absolute inset-0 flex items-center">
+            <div class="w-full border-t border-gray-200"></div>
+          </div>
+          <div class="relative flex justify-center text-sm">
+            <span class="px-4 bg-white text-gray-500">or</span>
+          </div>
+        </div>
+
+        <!-- Error Message -->
+        @if (errorMessage) {
+          <div class="mb-4 p-4 bg-red-50 border-l-4 border-red-400 rounded-lg shadow-sm animate-in slide-in-from-top-2 duration-300">
+            <div class="flex items-start">
+              <svg class="w-5 h-5 text-red-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+              </svg>
+              <div class="ml-3">
+                <h3 class="text-sm font-medium text-red-800">Registration Error</h3>
+                <p class="mt-1 text-sm text-red-700">{{ errorMessage }}</p>
+              </div>
+              <button (click)="errorMessage = ''" class="ml-auto flex-shrink-0 text-red-400 hover:text-red-600">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+        }
+
+        <!-- Login/Signup Form Toggle -->
+        @if (!isSignUp) {
+          <!-- Login Form -->
+          <form [formGroup]="loginForm" (ngSubmit)="loginWithEmail()" class="space-y-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Email</label>
+              <input
+                type="email"
+                formControlName="email"
+                placeholder="gimerpaix@gmail.com"
+                class="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-50 text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                [class.border-red-300]="getFieldError(loginForm, 'email')"
+                >
+              @if (getFieldError(loginForm, 'email')) {
+                <p class="mt-1 text-sm text-red-600">{{ getFieldError(loginForm, 'email') }}</p>
+              }
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Password</label>
+              <input
+                type="password"
+                formControlName="password"
+                placeholder="........"
+                class="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-50 text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                [class.border-red-300]="getFieldError(loginForm, 'password')"
+                >
+              @if (getFieldError(loginForm, 'password')) {
+                <p class="mt-1 text-sm text-red-600">{{ getFieldError(loginForm, 'password') }}</p>
+              }
+            </div>
+
+            <!-- Remember me checkbox -->
+            <div class="flex items-center">
+              <input
+                id="remember-me-desktop"
+                name="remember-me"
+                type="checkbox"
+                class="h-4 w-4 text-black focus:ring-black border-gray-300 rounded"
+                >
+              <label for="remember-me-desktop" class="ml-2 block text-sm text-gray-900">
+                Remember me
+              </label>
+            </div>
+
+            <button
+              type="submit"
+              [disabled]="emailLoading"
+              class="w-full flex items-center justify-center px-6 py-3 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors focus:outline-none focus:ring-2 focus:ring-black disabled:opacity-50 disabled:cursor-not-allowed font-medium"
+              >
+              @if (emailLoading) {
+                <svg class="w-5 h-5 mr-2 animate-spin" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 718-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 714 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Signing in...
+              }
+              @if (!emailLoading) {
+                Login
+              }
+            </button>
+          </form>
+        }
+
+        <!-- Signup Form -->
+        @if (isSignUp) {
+          <form [formGroup]="signupForm" (ngSubmit)="signUpWithEmail()" class="space-y-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Email *</label>
+              <input
+                type="email"
+                formControlName="email"
+                placeholder="Enter your email"
+                class="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-50 text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                [class.border-red-300]="getFieldError(signupForm, 'email')"
+                >
+              @if (getFieldError(signupForm, 'email')) {
+                <p class="mt-1 text-sm text-red-600">{{ getFieldError(signupForm, 'email') }}</p>
+              }
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Username *</label>
+              <input
+                type="text"
+                formControlName="username"
+                placeholder="Choose a username"
+                class="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-50 text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                [class.border-red-300]="getFieldError(signupForm, 'username')"
+                >
+              @if (getFieldError(signupForm, 'username')) {
+                <p class="mt-1 text-sm text-red-600">{{ getFieldError(signupForm, 'username') }}</p>
+              }
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Name *</label>
+              <input
+                type="text"
+                formControlName="name"
+                placeholder="Enter your full name"
+                class="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-50 text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                [class.border-red-300]="getFieldError(signupForm, 'name')"
+                >
+              @if (getFieldError(signupForm, 'name')) {
+                <p class="mt-1 text-sm text-red-600">{{ getFieldError(signupForm, 'name') }}</p>
+              }
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Password *</label>
+              <input
+                type="password"
+                formControlName="password"
+                placeholder="Create a password (min. 6 characters)"
+                class="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-50 text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                [class.border-red-300]="getFieldError(signupForm, 'password')"
+                >
+              @if (getFieldError(signupForm, 'password')) {
+                <p class="mt-1 text-sm text-red-600">{{ getFieldError(signupForm, 'password') }}</p>
+              }
+            </div>
+
+
+            <button
+              type="submit"
+              [disabled]="emailLoading"
+              class="w-full flex items-center justify-center px-6 py-3 bg-black text-white rounded-lg hover:bg-gray-800 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-black disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer font-medium transform hover:scale-[1.02] active:scale-[0.98]"
+              >
+              @if (emailLoading) {
+                <svg class="w-5 h-5 mr-2 animate-spin" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 718-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 714 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Creating account...
+              }
+              @if (!emailLoading) {
+                Create Account
+              }
+            </button>
+          </form>
+        }
+
+        <!-- Toggle between Login and Signup -->
+        <div class="text-center">
+          @if (!isSignUp) {
+            <p class="text-sm text-gray-600">
+              Not a member? 
+              <button 
+                type="button" 
+                (click)="switchToSignUp()" 
+                class="font-semibold text-black hover:underline"
+              >
+                Create an account
+              </button>
+            </p>
+          } @else {
+            <p class="text-sm text-gray-600">
+              Already have an account? 
+              <button 
+                type="button" 
+                (click)="switchToSignIn()" 
+                class="font-semibold text-black hover:underline"
+              >
+                Sign in
+              </button>
+            </p>
+          }
+        </div>
+      </div>
+
+      <!-- Copyright footer -->
+      <div class="text-center mt-8">
+        <p class="text-xs text-gray-400">
+          © 2025 PoemsIndia
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right side - Background Image -->
+  <div class="flex-1 p-4 bg-gray-50">
+    <div class="w-full h-full bg-cover bg-center bg-no-repeat rounded-2xl" style="background-image: url('assets/loginbackground.png');">
     </div>
   </div>
 </div>
