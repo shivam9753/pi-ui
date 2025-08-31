@@ -119,16 +119,17 @@ export class ExploreComponent implements OnInit {
         // Extract tag names from the response - now it's a simple array
         this.trendingTags = data.tags || [];
         
-        // Fallback to hardcoded tags if API returns empty
+        // Only show tags if we actually have some from the API
+        // Don't show fallback tags that might not have content
         if (this.trendingTags.length === 0) {
-          this.trendingTags = ['poetry', 'prose', 'literature', 'stories', 'cinema', 'articles'];
+          this.trendingTags = [];
         }
         this.loadingTags = false;
       },
       error: (error) => {
         console.error('Error loading popular tags:', error);
-        // Fallback to hardcoded tags on error
-        this.trendingTags = ['poetry', 'prose', 'literature', 'stories', 'cinema', 'articles'];
+        // Don't show fallback tags - if API fails, show empty
+        this.trendingTags = [];
         this.loadingTags = false;
       }
     });

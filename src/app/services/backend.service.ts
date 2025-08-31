@@ -246,8 +246,46 @@ export class BackendService {
   }
 
   // Get all content
-  getContent(): Observable<any> {
-    return this.http.get<any>(`${this.API_URL}${API_ENDPOINTS.CONTENT}`);
+  getContent(options: {
+    published?: boolean;
+    featured?: boolean;
+    type?: string;
+    limit?: number;
+    skip?: number;
+    sortBy?: string;
+    order?: 'asc' | 'desc';
+    search?: string;
+    tags?: string;
+    tag?: string;
+    author?: string;
+    userId?: string;
+  } = {}): Observable<any> {
+    let params = new HttpParams();
+    
+    // Add all filter options
+    Object.keys(options).forEach(key => {
+      const value = (options as any)[key];
+      if (value !== undefined && value !== null && value !== '') {
+        params = params.set(key, value.toString());
+      }
+    });
+    
+    // Use auth headers for admin access to all content
+    const headers = this.getAuthHeaders();
+    
+    const url = `${this.API_URL}${API_ENDPOINTS.CONTENT}`;
+    return this.http.get<any>(url, { headers, params }).pipe(
+      this.handleApiCall(url, 'GET')
+    );
+  }
+
+  // Get single content by ID
+  getContentById(contentId: string): Observable<any> {
+    const headers = this.getPublicHeaders(); // Use public headers since this is for reading
+    const url = `${this.API_URL}${API_ENDPOINTS.CONTENT}/id/${contentId}`;
+    return this.http.get<any>(url, { headers }).pipe(
+      this.handleApiCall(url, 'GET')
+    );
   }
 
 
@@ -844,5 +882,23 @@ registerUser(userData: {
     this.handleApiCall(url, 'POST')
   );
 }
+
+// Content featuring methods (Admin/Reviewer only)
+featureContent(contentId: string): Observable<any> {
+  const headers = this.getAuthHeaders();
+  const url = `${this.API_URL}${API_ENDPOINTS.CONTENT}/${contentId}/feature`;
+  return this.http.post<any>(url, {}, { headers }).pipe(
+    this.handleApiCall(url, 'POST')
+  );
+}
+
+unfeatureContent(contentId: string): Observable<any> {
+  const headers = this.getAuthHeaders();
+  const url = `${this.API_URL}${API_ENDPOINTS.CONTENT}/${contentId}/unfeature`;
+  return this.http.post<any>(url, {}, { headers }).pipe(
+    this.handleApiCall(url, 'POST')
+  );
+}
+
 
 }

@@ -63,7 +63,8 @@
               <div class="mb-6 sm:mb-12">
                 <img [src]="content()!.imageUrl"
                   [alt]="content()!.title"
-                  class="w-full h-auto sm:max-h-96 lg:max-h-[500px] object-cover rounded-lg shadow-lg">
+                  class="w-full max-w-4xl mx-auto object-contain rounded-lg shadow-lg"
+                  style="aspect-ratio: 1200/630; max-height: 630px;">
               </div>
             }
             <!-- Content Items -->

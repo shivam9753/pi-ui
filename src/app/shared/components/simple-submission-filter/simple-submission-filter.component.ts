@@ -5,6 +5,7 @@ import { FormsModule } from '@angular/forms';
 export interface SimpleFilterOptions {
   type?: string;
   status?: string;
+  featured?: boolean;
   search?: string;
   sortBy?: string;
   order?: 'asc' | 'desc';

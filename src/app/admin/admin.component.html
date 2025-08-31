@@ -38,6 +38,25 @@
                   Published
                 </button>
               }
+              <!-- Featured Content - Admin/Reviewer -->
+              @if (canAccessTab('featured')) {
+                <button
+                  data-tab="featured"
+                  (click)="setActiveTab('featured')"
+                  [class.border-orange-500]="activeTab === 'featured'"
+                  [class.text-orange-600]="activeTab === 'featured'"
+                  [class.border-transparent]="activeTab !== 'featured'"
+                  [class.text-gray-600]="activeTab !== 'featured'"
+                  [class.hover:text-gray-900]="activeTab !== 'featured'"
+                  [class.hover:border-gray-300]="activeTab !== 'featured'"
+                  class="whitespace-nowrap py-3 px-3 sm:py-4 sm:px-6 border-b-2 font-medium text-xs sm:text-sm transition-all duration-200 flex items-center gap-1 sm:gap-2 min-w-max"
+                  >
+                  <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                  </svg>
+                  Content
+                </button>
+              }
               <!-- Manage Users - Admin only -->
               @if (canAccessTab('users')) {
                 <button
@@ -126,6 +145,11 @@
           @if (activeTab === 'published') {
             <div class="animate-fade-in">
               <app-published-posts></app-published-posts>
+            </div>
+          }
+          @if (activeTab === 'featured') {
+            <div class="animate-fade-in">
+              <app-featured-content></app-featured-content>
             </div>
           }
           @if (activeTab === 'users') {

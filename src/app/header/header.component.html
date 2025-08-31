@@ -270,32 +270,6 @@
         <span class="text-base font-medium">What's New</span>
       </a>
 
-      <!-- Popular Topics Section -->
-      <div class="pt-4 mt-4 border-t border-themed">
-        <div class="px-4 mb-3">
-          <h3 class="text-xs font-bold text-themed-secondary uppercase tracking-wide">Popular Topics</h3>
-        </div>
-        
-        @if (loadingTags()) {
-          <div class="flex items-center justify-center py-4">
-            <div class="w-4 h-4 border-2 border-orange-500 border-t-transparent rounded-full animate-spin"></div>
-            <span class="ml-2 text-xs text-themed-secondary">Loading topics...</span>
-          </div>
-        }
-        
-        @if (!loadingTags()) {
-          <div class="px-4 flex flex-wrap gap-2">
-            @for (tag of popularTags(); track tag) {
-              <button
-                (click)="onTagClick(tag)"
-                class="px-3 py-1.5 text-sm text-themed bg-themed-secondary hover:bg-themed-hover rounded-full border border-themed transition-colors cursor-pointer">
-                #{{ tag }}
-              </button>
-            }
-          </div>
-        }
-      </div>
-
       <!-- Universal Theme Toggle (visible to all users) -->
       <div class="flex items-center justify-between px-4 py-3 text-themed">
         <div class="flex items-center">

@@ -4,7 +4,6 @@ import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { Router, RouterModule, NavigationEnd } from '@angular/router';
 import { ThemingService } from '../services/theming.service';
 import { AuthService, GoogleUser } from '../services/auth.service'; // Import your AuthService
-import { BackendService } from '../services/backend.service'; // Import BackendService for tags
 import { Subscription } from 'rxjs';
 import { filter } from 'rxjs/operators';
 import { ThemeToggleComponent } from '../utilities/theme-toggle/theme-toggle.component';
@@ -20,7 +19,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
   themeService = inject(ThemingService);
   router = inject(Router);
   authService = inject(AuthService); // Inject AuthService
-  backendService = inject(BackendService); // Inject BackendService for tags
   platformId = inject(PLATFORM_ID);
   
   // Replace mock signals with actual auth-connected signals
@@ -32,10 +30,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
   userId = '';
   currentRoute = signal('');
   isDark = signal(false);
-
-  // Popular tags for mobile menu
-  popularTags = signal<string[]>([]);
-  loadingTags = signal(false);
 
 
   // App features/updates (for header dropdown)
@@ -93,9 +87,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
     // Set initial route
     this.currentRoute.set(this.router.url);
     
-    // Load popular tags
-    this.loadPopularTags();
-    
     this.subscriptions.push(userSubscription, themeSubscription, routeSubscription);
   }
 
@@ -150,31 +141,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
   hasElevatedRole(): boolean {
     const user = this.loggedInUser();
     return user?.role === 'curator' || user?.role === 'reviewer' || user?.role === 'admin';
-  }
-
-  // Load popular tags from published content
-  loadPopularTags() {
-    this.loadingTags.set(true);
-    this.backendService.getPopularTags({ limit: 6 }).subscribe({
-      next: (data) => {
-        // Extract tag names from the response
-        const tags = data.tags || [];
-        this.popularTags.set(tags);
-        this.loadingTags.set(false);
-      },
-      error: (error) => {
-        console.error('Error loading popular tags:', error);
-        // Fallback to some default tags
-        this.popularTags.set(['poetry', 'prose', 'literature', 'stories']);
-        this.loadingTags.set(false);
-      }
-    });
-  }
-
-  // Handle tag click in mobile menu
-  onTagClick(tag: string) {
-    this.closeMobileMenu();
-    this.router.navigate(['/tag', tag]);
   }
 
   logout() {

@@ -66,6 +66,10 @@ export class PublishSubmissionComponent implements OnInit {
     approvedImage: false
   };
 
+  // Profile image reuse properties
+  availableProfileImage: string | null = null;
+  showProfileImageReuse = false;
+
   // Toast notification properties
   toastMessage = '';
   toastType: 'success' | 'error' | 'info' = 'info';
@@ -103,7 +107,18 @@ export class PublishSubmissionComponent implements OnInit {
         }
         
         this.initializeSEOConfig();
-        this.loadUserProfile(this.submission.userId);
+        
+        // Extract userId as string (could be object with _id field)
+        const userId = typeof this.submission.userId === 'string' 
+          ? this.submission.userId 
+          : this.submission.userId?._id || this.submission.userId?.id;
+          
+        console.log('🔧 Extracted userId:', userId, 'from:', this.submission.userId);
+        
+        if (userId) {
+          this.loadUserProfile(userId);
+        }
+        
         this.loading = false;
       },
       error: (err) => {
@@ -387,6 +402,9 @@ export class PublishSubmissionComponent implements OnInit {
     if (file) {
       if (!this.validateImageFile(file, event.target)) return;
       this.selectedCoverImageFile = file;
+      
+      // Dismiss profile image reuse suggestion when user selects a different file
+      this.showProfileImageReuse = false;
     }
   }
 
@@ -961,8 +979,10 @@ export class PublishSubmissionComponent implements OnInit {
 
   // Load user profile to check for pending approval data
   loadUserProfile(userId: string) {
+    console.log('🔧 Loading user profile for:', userId);
     this.backendService.getUserById(userId).subscribe({
       next: (response: any) => {
+        console.log('🔧 User profile loaded:', response.user);
         this.userProfile = response.user;
         
         // Check if user has pending profile approval data
@@ -975,10 +995,60 @@ export class PublishSubmissionComponent implements OnInit {
             approvedImage: !!this.userProfile.profileImage
           };
         }
+
+        // Check for profile image reuse opportunity (only for poems)
+        this.checkProfileImageReuse();
       },
-      error: (err) => {
+      error: () => {
+        console.log('❌ Failed to load user profile');
+        // Error handled silently - optional operation
       }
     });
+  }
+
+  // Check if user profile image can be reused for poem submissions
+  checkProfileImageReuse() {
+    console.log('🔧 Checking profile image reuse conditions:');
+    console.log('🔧 Submission type:', this.submission?.submissionType);
+    console.log('🔧 Has existing image:', !!this.submission?.imageUrl);
+    console.log('🔧 User profile image:', this.userProfile?.profileImage);
+    console.log('🔧 Available profile image:', this.availableProfileImage);
+    console.log('🔧 Show reuse option:', this.showProfileImageReuse);
+
+    // Only show profile image reuse option for poems without an existing image
+    if (this.submission?.submissionType === 'poem' && 
+        !this.submission?.imageUrl && 
+        this.userProfile?.profileImage) {
+      
+      this.availableProfileImage = this.userProfile.profileImage;
+      this.showProfileImageReuse = true;
+      
+      console.log('✅ Profile image reuse enabled!');
+      this.showToast('Your profile image is available to reuse for this poem. Click "Use Profile Image" to avoid re-uploading.', 'info');
+    } else {
+      console.log('❌ Profile image reuse not enabled - conditions not met');
+    }
+  }
+
+  // Use profile image as submission cover image
+  useProfileImageAsCover() {
+    if (!this.availableProfileImage) {
+      this.showError('No profile image available to use.');
+      return;
+    }
+
+    // Set the profile image as the submission's cover image
+    this.submission.imageUrl = this.availableProfileImage;
+    
+    // Hide the reuse suggestion since we've used it
+    this.showProfileImageReuse = false;
+    
+    this.showSuccess('Profile image has been set as cover image for this poem!');
+  }
+
+  // Dismiss profile image reuse suggestion
+  dismissProfileImageReuse() {
+    this.showProfileImageReuse = false;
   }
 
   // Approve user's bio and copy to main profile
@@ -994,7 +1064,7 @@ export class PublishSubmissionComponent implements OnInit {
         // Check if all approvals are done
         this.checkProfileApprovalComplete();
       },
-      error: (err) => {
+      error: () => {
         this.showError('Failed to approve bio. Please try again.');
       }
     });
@@ -1012,7 +1082,7 @@ export class PublishSubmissionComponent implements OnInit {
         // Check if all approvals are done
         this.checkProfileApprovalComplete();
       },
-      error: (err) => {
+      error: () => {
         this.showError('Failed to approve profile image. Please try again.');
       }
     });

@@ -147,7 +147,7 @@ export class UserService {
    * Upload user profile image (admin only)
    */
   uploadUserProfileImage(userId: string, formData: FormData): Observable<{ success: boolean; message: string; imageUrl: string; user: User }> {
-    return this.apiService.post<{ success: boolean; message: string; imageUrl: string; user: User }>(API_ENDPOINTS.ADMIN.UPLOAD_PROFILE_IMAGE(userId), formData);
+    return this.apiService.upload<{ success: boolean; message: string; imageUrl: string; user: User }>(API_ENDPOINTS.ADMIN.UPLOAD_PROFILE_IMAGE(userId), formData);
   }
 
   /**

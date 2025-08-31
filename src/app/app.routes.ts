@@ -7,6 +7,7 @@ import { SubmissionEditorComponent } from './submit/submission-editor/submission
 import { UserLoginComponent } from './user-login/user-login.component';
 import { UserProfileComponent } from './user-profile/user-profile.component';
 import { ReadingInterfaceComponent } from './reading-interface/reading-interface.component';
+import { SimpleContentReaderComponent } from './simple-content-reader/simple-content-reader.component';
 import { PromptsComponent } from './prompts/prompts.component';
 import { AdminComponent } from './admin/admin.component';
 import { WorkspaceComponent } from './workspace/workspace.component';
@@ -97,6 +98,12 @@ export const routes: Routes = [
     path: 'read/:id', 
     component: ReadingInterfaceComponent,
     title: 'Post - pi'
+  },
+  // Simple content reader route
+  { 
+    path: 'content/:id', 
+    component: SimpleContentReaderComponent,
+    title: 'Content - pi'
   },
   { 
     path: 'submission', 

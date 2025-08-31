@@ -229,12 +229,26 @@ export const createPublishedPostActions = (
   editHandler: (post: any) => void,
   unpublishHandler: (post: any) => void,
   publishHandler: (post: any) => void,
-  deleteHandler: (post: any) => void
+  deleteHandler: (post: any) => void,
+  featureHandler?: (post: any) => void,
+  unfeatureHandler?: (post: any) => void
 ): TableAction[] => [
   {
     label: 'Edit',
     color: 'primary',
     handler: editHandler
+  },
+  {
+    label: 'Feature',
+    color: 'success',
+    condition: (post) => post.status === 'published' && !post.isFeatured && !!featureHandler,
+    handler: featureHandler || (() => {})
+  },
+  {
+    label: 'Unfeature',
+    color: 'warning',
+    condition: (post) => post.status === 'published' && post.isFeatured && !!unfeatureHandler,
+    handler: unfeatureHandler || (() => {})
   },
   {
     label: 'Unpublish',

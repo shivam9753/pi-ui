@@ -369,6 +369,8 @@ export class UserManagementComponent implements OnInit, OnDestroy {
     this.loading = true;
     
     try {
+      let updatedUser: any = null;
+      
       // Update user profile
       const updateResponse = await this.userService.updateUser(this.editingUser._id, {
         name: this.editUserForm.name,
@@ -376,18 +378,41 @@ export class UserManagementComponent implements OnInit, OnDestroy {
         bio: this.editUserForm.bio
       }).toPromise();
       
+      updatedUser = updateResponse?.user || this.editingUser;
+      
       // Update role if changed
       if (this.editUserForm.role !== this.editingUser.role) {
-        await this.userService.updateUserRole(this.editingUser._id, this.editUserForm.role as any).toPromise();
+        const roleResponse = await this.userService.updateUserRole(this.editingUser._id, this.editUserForm.role as any).toPromise();
+        updatedUser = roleResponse?.user || updatedUser;
       }
       
       // Upload image if selected
       if (this.selectedFile) {
-        await this.uploadUserImage(this.editingUser._id);
+        const imageResponse = await this.uploadUserImage(this.editingUser._id);
+        if (imageResponse?.user) {
+          updatedUser = imageResponse.user;
+        }
+      }
+      
+      // Update the local user in the array immediately
+      if (updatedUser) {
+        const userIndex = this.users.findIndex(u => u._id === this.editingUser!._id);
+        if (userIndex !== -1) {
+          this.users[userIndex] = {
+            ...this.users[userIndex],
+            name: updatedUser.name,
+            email: updatedUser.email,
+            bio: updatedUser.bio,
+            role: updatedUser.role,
+            profileImage: updatedUser.profileImage
+          };
+        }
       }
       
       this.showMessage('success', 'User updated successfully');
       this.closeEditModal();
+      
+      // Optional: Also refresh from server to ensure consistency
       this.loadUsers();
     } catch (error: any) {
       this.showMessage('error', error.error?.message || 'Failed to update user');
@@ -397,7 +422,7 @@ export class UserManagementComponent implements OnInit, OnDestroy {
   }
 
   async uploadUserImage(userId: string) {
-    if (!this.selectedFile) return;
+    if (!this.selectedFile) return null;
     
     this.uploadingImage = true;
     
@@ -405,9 +430,11 @@ export class UserManagementComponent implements OnInit, OnDestroy {
       const formData = new FormData();
       formData.append('profileImage', this.selectedFile);
       
-      await this.userService.uploadUserProfileImage(userId, formData).toPromise();
+      const response = await this.userService.uploadUserProfileImage(userId, formData).toPromise();
+      return response;
     } catch (error) {
       this.showMessage('error', 'Profile updated but image upload failed');
+      throw error;
     } finally {
       this.uploadingImage = false;
     }

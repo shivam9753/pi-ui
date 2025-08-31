@@ -5,6 +5,7 @@ import { AuthService } from '../services/auth.service';
 
 // Import individual admin tab components
 import { PublishedPostsComponent } from "./content/published-posts/published-posts.component";
+import { FeaturedContentComponent } from "./content/featured-content/featured-content.component";
 import { UserManagementComponent } from './users/user-management/user-management.component';
 import { PurgeManagementComponent } from './purge/purge-management.component';
 import { CreateUsersComponent } from './users/create-users/create-users.component';
@@ -15,6 +16,7 @@ import { AllSubmissionsComponent } from './submissions/all-submissions/all-submi
   standalone: true,
   imports: [
     PublishedPostsComponent,
+    FeaturedContentComponent,
     UserManagementComponent,
     PurgeManagementComponent,
     CreateUsersComponent,
@@ -26,7 +28,7 @@ import { AllSubmissionsComponent } from './submissions/all-submissions/all-submi
 export class AdminComponent implements OnInit, AfterViewInit {
   @ViewChild('tabNavigation') tabNavigation!: ElementRef;
   
-  activeTab: 'published' | 'users' | 'purge' | 'users_create' | 'submissions_all' = 'published';
+  activeTab: 'published' | 'featured' | 'users' | 'purge' | 'users_create' | 'submissions_all' = 'published';
   isAdmin = false;
   isReviewer = false;
   currentUser: any = null;
@@ -43,8 +45,8 @@ export class AdminComponent implements OnInit, AfterViewInit {
     
     // Handle URL fragments for direct tab navigation
     this.route.fragment.subscribe(fragment => {
-      if (fragment && ['published', 'users', 'purge', 'users_create', 'submissions_all'].includes(fragment)) {
-        const tab = fragment as 'published' | 'users' | 'purge' | 'users_create' | 'submissions_all';
+      if (fragment && ['published', 'featured', 'users', 'purge', 'users_create', 'submissions_all'].includes(fragment)) {
+        const tab = fragment as 'published' | 'featured' | 'users' | 'purge' | 'users_create' | 'submissions_all';
         // Only set tab if user has permission to access it
         if (this.canAccessTab(tab)) {
           this.activeTab = tab;
@@ -84,7 +86,7 @@ export class AdminComponent implements OnInit, AfterViewInit {
     }, 100);
   }
 
-  setActiveTab(tab: 'published' | 'users' | 'purge' | 'users_create' | 'submissions_all') {
+  setActiveTab(tab: 'published' | 'featured' | 'users' | 'purge' | 'users_create' | 'submissions_all') {
     // Check if user has permission to access this tab
     if (!this.canAccessTab(tab)) {
       return; // Prevent access to unauthorized tabs
@@ -123,8 +125,8 @@ export class AdminComponent implements OnInit, AfterViewInit {
     }
     
     if (this.isReviewer) {
-      // Reviewers and curators can access published content management
-      return tab === 'published';
+      // Reviewers and curators can access published content management and featured content
+      return tab === 'published' || tab === 'featured';
     }
     
     return false;

@@ -96,7 +96,9 @@ export class PublishedPostsComponent implements OnInit {
       (post) => this.editPublishedPost(post._id),
       (post) => this.unpublishSubmission(post._id, post.title),
       (post) => this.configureAndPublish(post._id),
-      (post) => this.deleteSubmission(post._id, post.title)
+      (post) => this.deleteSubmission(post._id, post.title),
+      (post) => this.featureContent(post._id, post.title),
+      (post) => this.unfeatureContent(post._id, post.title)
     );
   }
 
@@ -417,6 +419,50 @@ export class PublishedPostsComponent implements OnInit {
     this.currentFilters = filters;
     this.currentPage = 1; // Reset to first page when filtering
     this.loadPublishedSubmissions(); // Reload data with server-side filtering
+  }
+
+  // Feature content (mark as featured)
+  featureContent(contentId: string, title: string) {
+    if (!confirm(`Are you sure you want to mark "${title}" as featured? This will highlight it on the platform.`)) {
+      return;
+    }
+
+    this.backendService.featureContent(contentId).subscribe({
+      next: (response) => {
+        this.showSuccess('Content marked as featured successfully');
+        // Update the local state
+        const content = this.publishedSubmissions.find(sub => sub._id === contentId);
+        if (content) {
+          content.isFeatured = true;
+          content.featuredAt = new Date().toISOString();
+        }
+      },
+      error: (err) => {
+        this.showError('Failed to feature content: ' + (err.error?.message || err.message));
+      }
+    });
+  }
+
+  // Unfeature content (remove featured status)
+  unfeatureContent(contentId: string, title: string) {
+    if (!confirm(`Are you sure you want to remove featured status from "${title}"?`)) {
+      return;
+    }
+
+    this.backendService.unfeatureContent(contentId).subscribe({
+      next: (response) => {
+        this.showSuccess('Featured status removed successfully');
+        // Update the local state
+        const content = this.publishedSubmissions.find(sub => sub._id === contentId);
+        if (content) {
+          content.isFeatured = false;
+          content.featuredAt = null;
+        }
+      },
+      error: (err) => {
+        this.showError('Failed to unfeature content: ' + (err.error?.message || err.message));
+      }
+    });
   }
 
 
