@@ -199,9 +199,66 @@ export class ImageCompressionUtil {
 }
 
 // Helper function for easy AVIF compression
+// New function for WebP compression with 250KB target
+export async function compressImageToWebP(
+  file: File,
+  targetSizeKB: number = 250,
+  options: Omit<ImageCompressionOptions, 'outputFormat'> = {}
+): Promise<CompressedImage> {
+  const targetBytes = targetSizeKB * 1024;
+  let quality = options.quality || 0.8;
+  let result: CompressedImage;
+
+  // Initial compression
+  result = await ImageCompressionUtil.compressImage(file, {
+    ...options,
+    outputFormat: 'webp',
+    quality: quality
+  });
+
+  // If still too large, reduce quality iteratively
+  let attempts = 0;
+  const maxAttempts = 5;
+  
+  while (result.compressedSize > targetBytes && attempts < maxAttempts && quality > 0.3) {
+    quality -= 0.1;
+    attempts++;
+    
+    result = await ImageCompressionUtil.compressImage(file, {
+      ...options,
+      outputFormat: 'webp',
+      quality: quality
+    });
+  }
+
+  return result;
+}
+
+// Helper function for easy AVIF compression (legacy support)
 export async function compressImageToAVIF(
   file: File,
   options: Omit<ImageCompressionOptions, 'outputFormat'> = {}
 ): Promise<CompressedImage> {
   return ImageCompressionUtil.compressToAVIF(file, options);
+}
+
+// New helper function for space-efficient WebP compression
+export async function compressImageForUpload(
+  file: File,
+  options: {
+    targetSizeKB?: number;
+    maxWidth?: number;
+    maxHeight?: number;
+  } = {}
+): Promise<CompressedImage> {
+  const {
+    targetSizeKB = 250,
+    maxWidth = 1200,
+    maxHeight = 1200
+  } = options;
+
+  return compressImageToWebP(file, targetSizeKB, {
+    maxWidth,
+    maxHeight
+  });
 }

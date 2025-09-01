@@ -1,7 +1,7 @@
 import { Injectable, Inject, PLATFORM_ID } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams, HttpErrorResponse } from '@angular/common/http';
-import { Observable, throwError } from 'rxjs';
-import { tap, catchError, timeout, retry, map } from 'rxjs/operators';
+import { Observable, throwError, timer } from 'rxjs';
+import { tap, catchError, timeout, retry, map, retryWhen, scan, mergeMap } from 'rxjs/operators';
 import { isPlatformServer } from '@angular/common';
 import { environment } from '../../environments/environment';
 import {
@@ -43,7 +43,24 @@ export class BackendService {
     return (source: Observable<T>) => {
       return source.pipe(
         timeout(this.REQUEST_TIMEOUT),
-        retry(1), // Retry once on failure
+        retryWhen(errors => errors.pipe(
+          scan((retryCount, error: HttpErrorResponse) => {
+            // Only retry on rate limit (429) or temporary server errors (5xx)
+            if (error.status === 429 || (error.status >= 500 && error.status <= 599)) {
+              if (retryCount >= 3) {
+                throw error; // Stop retrying after 3 attempts
+              }
+              console.warn(`⏳ Retrying ${method} ${url} (attempt ${retryCount + 1}) due to ${error.status}`);
+              return retryCount + 1;
+            }
+            throw error; // Don't retry other errors
+          }, 0),
+          mergeMap((retryCount) => {
+            // Exponential backoff: 1s, 2s, 4s
+            const delayTime = Math.pow(2, retryCount) * 1000;
+            return timer(delayTime);
+          })
+        )),
         catchError((error: HttpErrorResponse) => {
           return this.handleError(error);
         })

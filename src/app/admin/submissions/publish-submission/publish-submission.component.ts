@@ -7,7 +7,8 @@ import { RichTextEditorComponent } from '../../../submit/rich-text-editor/rich-t
 import { BadgeLabelComponent } from '../../../utilities/badge-label/badge-label.component';
 import { TagInputComponent } from '../../../utilities/tag-input/tag-input.component';
 import { BackendService } from '../../../services/backend.service';
-import { SUBMISSION_STATUS } from '../../../shared/constants/api.constants';
+import { SUBMISSION_STATUS, UPLOAD_CONFIG } from '../../../shared/constants/api.constants';
+import { compressImageForUpload } from '../../../shared/utils/image-compression.util';
 
 interface SEOConfig {
   slug: string;
@@ -430,32 +431,70 @@ export class PublishSubmissionComponent implements OnInit {
     return text.trim().split(/\s+/).filter(word => word.length > 0).length;
   }
 
-  // Handle cover image file selection
-  onCoverImageSelect(event: any) {
+  // Handle cover image file selection with compression
+  async onCoverImageSelect(event: any) {
     const file = event.target.files[0];
     if (file) {
       if (!this.validateImageFile(file, event.target)) return;
-      this.selectedCoverImageFile = file;
       
-      // Dismiss profile image reuse suggestion when user selects a different file
-      this.showProfileImageReuse = false;
+      try {
+        this.showSuccess('Compressing cover image to WebP format...');
+        const compressed = await compressImageForUpload(file, {
+          targetSizeKB: 250,
+          maxWidth: UPLOAD_CONFIG.MAX_DIMENSIONS.width,
+          maxHeight: UPLOAD_CONFIG.MAX_DIMENSIONS.height
+        });
+        
+        this.selectedCoverImageFile = compressed.file;
+        
+        const originalSize = (file.size / 1024).toFixed(1);
+        const compressedSize = (compressed.file.size / 1024).toFixed(1);
+        this.showSuccess(
+          `Cover image compressed: ${originalSize}KB → ${compressedSize}KB (${compressed.compressionRatio}% reduction)`
+        );
+        
+        // Dismiss profile image reuse suggestion when user selects a different file
+        this.showProfileImageReuse = false;
+      } catch (error) {
+        this.showError('Failed to compress image. Using original.');
+        this.selectedCoverImageFile = file;
+      }
     }
   }
 
-  // Handle social media image file selection
-  onSocialImageSelect(event: any) {
+  // Handle social media image file selection with compression  
+  async onSocialImageSelect(event: any) {
     const file = event.target.files[0];
     if (file) {
       if (!this.validateImageFile(file, event.target)) return;
-      this.selectedSocialImageFile = file;
+      
+      try {
+        this.showSuccess('Compressing social image to WebP format...');
+        const compressed = await compressImageForUpload(file, {
+          targetSizeKB: 250,
+          maxWidth: UPLOAD_CONFIG.MAX_DIMENSIONS.width,
+          maxHeight: UPLOAD_CONFIG.MAX_DIMENSIONS.height
+        });
+        
+        this.selectedSocialImageFile = compressed.file;
+        
+        const originalSize = (file.size / 1024).toFixed(1);
+        const compressedSize = (compressed.file.size / 1024).toFixed(1);
+        this.showSuccess(
+          `Social image compressed: ${originalSize}KB → ${compressedSize}KB (${compressed.compressionRatio}% reduction)`
+        );
+      } catch (error) {
+        this.showError('Failed to compress image. Using original.');
+        this.selectedSocialImageFile = file;
+      }
     }
   }
 
   // Validate image file (shared validation logic)
   private validateImageFile(file: File, inputElement: HTMLInputElement): boolean {
-    // Validate file size (5MB max)
-    if (file.size > 5 * 1024 * 1024) {
-      this.showError('Image size must be less than 5MB');
+    // Validate file size (2MB max)
+    if (file.size > UPLOAD_CONFIG.MAX_IMAGE_SIZE) {
+      this.showError('Image size must be less than 2MB');
       inputElement.value = ''; // Clear the input
       return false;
     }
@@ -540,7 +579,7 @@ export class PublishSubmissionComponent implements OnInit {
     } else if (err.status === 401) {
       errorMessage = 'Not authorized to upload images.';
     } else if (err.status === 413) {
-      errorMessage = 'Image file too large (max 5MB).';
+      errorMessage = 'Image file too large (max 2MB).';
     } else if (err.error && err.error.error) {
       errorMessage = err.error.error;
     }

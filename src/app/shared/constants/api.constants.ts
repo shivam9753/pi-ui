@@ -221,7 +221,11 @@ export const ANALYSIS_CONFIG = {
 
 // File Upload Constants
 export const UPLOAD_CONFIG = {
-  MAX_IMAGE_SIZE: 5 * 1024 * 1024, // 5MB
+  MAX_IMAGE_SIZE: 2 * 1024 * 1024, // 2MB upload limit
+  TARGET_COMPRESSED_SIZE: 250 * 1024, // 250KB target after compression
+  COMPRESSION_FORMAT: 'webp', // Always compress to WebP
+  COMPRESSION_QUALITY: 0.8, // 80% quality
+  MAX_DIMENSIONS: { width: 1200, height: 1200 }, // Max dimensions
   ALLOWED_IMAGE_TYPES: ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'],
   UPLOAD_TIMEOUT: 30000 // 30 seconds
 } as const;

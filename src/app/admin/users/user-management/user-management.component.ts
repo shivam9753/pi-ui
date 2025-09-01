@@ -5,7 +5,8 @@ import { CommonModule, DatePipe, TitleCasePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { UserService } from '../../../services/user.service';
 import { UserListItem, User } from '../../../models';
-import { compressImageToAVIF } from '../../../shared/utils/image-compression.util';
+import { compressImageForUpload } from '../../../shared/utils/image-compression.util';
+import { UPLOAD_CONFIG } from '../../../shared/constants/api.constants';
 import { AdminPageHeaderComponent, AdminPageStat } from '../../../shared/components/admin-page-header/admin-page-header.component';
 import { 
   DataTableComponent, 
@@ -319,19 +320,19 @@ export class UserManagementComponent implements OnInit, OnDestroy {
         return;
       }
       
-      // Validate file size (5MB max for original)
-      if (file.size > 5 * 1024 * 1024) {
-        this.showMessage('error', 'Original image size must be less than 5MB');
+      // Validate file size (2MB max for original)
+      if (file.size > UPLOAD_CONFIG.MAX_IMAGE_SIZE) {
+        this.showMessage('error', 'Original image size must be less than 2MB');
         return;
       }
       
       try {
-        // Compress to AVIF format
-        this.showMessage('success', 'Compressing image to AVIF format...');
-        const compressed = await compressImageToAVIF(file, {
-          maxWidth: 800,
-          maxHeight: 800,
-          quality: 0.85
+        // Compress to WebP format with 250KB target
+        this.showMessage('success', 'Compressing image to WebP format...');
+        const compressed = await compressImageForUpload(file, {
+          targetSizeKB: 250,
+          maxWidth: UPLOAD_CONFIG.MAX_DIMENSIONS.width,
+          maxHeight: UPLOAD_CONFIG.MAX_DIMENSIONS.height
         });
         
         this.selectedFile = compressed.file;
@@ -342,7 +343,7 @@ export class UserManagementComponent implements OnInit, OnDestroy {
         const compressedSize = (compressed.file.size / 1024).toFixed(1);
         this.showMessage(
           'success',
-          `Image compressed: ${originalSize}KB → ${compressedSize}KB (${compressed.compressionRatio}% reduction)`
+          `WebP compressed: ${originalSize}KB → ${compressedSize}KB (${compressed.compressionRatio}% reduction)`
         );
       } catch (error) {
         this.showMessage('error', 'Failed to compress image. Using original.');
