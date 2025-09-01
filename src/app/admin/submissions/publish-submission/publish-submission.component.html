@@ -544,12 +544,12 @@
                       SEO Slug <span class="text-red-600">*</span>
                     </label>
                     <div class="flex items-center gap-2 mb-2">
-                      <span class="text-gray-600 text-sm">{{ baseUrl }}</span>
+                      <span class="text-gray-600 text-sm flex-shrink-0">{{ baseUrl }}</span>
                       <input
                         [(ngModel)]="seoConfig.slug"
                         (input)="validateSlug()"
                         placeholder="three-poems-by-vinita-agrawal"
-                        class="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-orange-300 focus:border-orange-500"
+                        class="flex-1 min-w-0 px-3 py-2 border border-gray-300 rounded-lg text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-orange-300 focus:border-orange-500"
                         [class.border-red-300]="slugError">
                     </div>
                     <p class="text-xs text-gray-500 mb-2">
