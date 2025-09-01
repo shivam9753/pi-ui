@@ -130,35 +130,69 @@ export class PublishSubmissionComponent implements OnInit {
 
   initializeSEOConfig() {
     if (this.submission) {
-      // Generate initial slug from title
-      this.seoConfig.slug = this.generateSlugFromTitle(this.submission.title);
-      this.seoConfig.metaTitle = this.submission.title;
-      this.seoConfig.metaDescription = this.submission?.description || '';
-      
-      // Initialize keywords from submission tags if available, otherwise from content tags
-      if (this.submission.tags && this.submission.tags.length > 0) {
-        // Filter out empty tags
-        const cleanTags = this.submission.tags.filter((tag: string) => tag?.trim().length > 0);
-        this.seoConfig.keywords = [...cleanTags];
-        this.keywordsInput = this.seoConfig.keywords.join(', ');
+      // Use existing SEO data if available, otherwise generate from submission data
+      if (this.submission.seo) {
+        // Populate from existing SEO data
+        this.seoConfig.slug = this.submission.seo.slug || this.generateSlugFromTitle(this.submission.title);
+        this.seoConfig.metaTitle = this.submission.seo.metaTitle || this.submission.title;
+        this.seoConfig.metaDescription = this.submission.seo.metaDescription || this.submission?.description || '';
+        this.seoConfig.keywords = this.submission.seo.keywords || [];
+        this.seoConfig.ogImage = this.submission.seo.ogImage || '';
+        this.seoConfig.featuredPost = this.submission.seo.featuredOnHomepage || false;
       } else {
-        // Collect tags from content items if no submission-level tags exist
-        const allContentTags = new Set<string>();
-        if (this.submission.contents) {
-          this.submission.contents.forEach((content: any) => {
-            if (content.tags && Array.isArray(content.tags)) {
-              content.tags.forEach((tag: string) => {
-                const cleanTag = tag?.trim();
-                if (cleanTag && cleanTag.length > 0) {
-                  allContentTags.add(cleanTag);
-                }
-              });
-            }
-          });
-        }
-        this.seoConfig.keywords = Array.from(allContentTags);
-        this.keywordsInput = this.seoConfig.keywords.join(', ');
+        // Generate initial values if no SEO data exists
+        this.seoConfig.slug = this.generateSlugFromTitle(this.submission.title);
+        this.seoConfig.metaTitle = this.submission.title;
+        this.seoConfig.metaDescription = this.submission?.description || '';
+        this.seoConfig.ogImage = '';
+        this.seoConfig.featuredPost = false;
       }
+
+      // Populate form fields from submission data
+      if (!this.submission.description && this.submission.contents?.length > 0) {
+        // Auto-generate description from first content if empty
+        const firstContent = this.submission.contents[0];
+        const plainText = this.extractPlainText(firstContent.body);
+        this.submission.description = plainText.substring(0, 200).trim();
+        if (this.submission.description.length === 200) {
+          this.submission.description += '...';
+        }
+      }
+
+      // Initialize excerpt if not present (only for backward compatibility)
+      if (!this.submission.excerpt && this.submission.description) {
+        this.submission.excerpt = this.submission.description.substring(0, 150).trim();
+        if (this.submission.excerpt.length === 150) {
+          this.submission.excerpt += '...';
+        }
+      }
+      
+      // Initialize keywords from existing SEO data, then fall back to submission/content tags
+      if (this.seoConfig.keywords.length === 0) {
+        if (this.submission.tags && this.submission.tags.length > 0) {
+          // Filter out empty tags
+          const cleanTags = this.submission.tags.filter((tag: string) => tag?.trim().length > 0);
+          this.seoConfig.keywords = [...cleanTags];
+        } else {
+          // Collect tags from content items if no submission-level tags exist
+          const allContentTags = new Set<string>();
+          if (this.submission.contents) {
+            this.submission.contents.forEach((content: any) => {
+              if (content.tags && Array.isArray(content.tags)) {
+                content.tags.forEach((tag: string) => {
+                  const cleanTag = tag?.trim();
+                  if (cleanTag && cleanTag.length > 0) {
+                    allContentTags.add(cleanTag);
+                  }
+                });
+              }
+            });
+          }
+          this.seoConfig.keywords = Array.from(allContentTags);
+        }
+      }
+      
+      this.keywordsInput = this.seoConfig.keywords.join(', ');
 
       // Initialize content expansion state
       if (this.submission.contents) {
@@ -584,23 +618,47 @@ export class PublishSubmissionComponent implements OnInit {
     this.showSuccess('Description auto-filled from content.');
   }
 
-  // Auto-fill excerpt from content
+  // Auto-fill excerpt from description or content
   autoFillExcerpt() {
-    if (!this.submission.contents || this.submission.contents.length === 0) {
-      this.showError('No content available to generate excerpt from.');
-      return;
+    // Use description if available, otherwise use content
+    if (this.submission?.description && this.submission?.description.trim()) {
+      const excerpt = this.submission.description.substring(0, 150).trim();
+      this.submission.excerpt = excerpt.length === 150 ? excerpt + '...' : excerpt;
+      this.showSuccess('Excerpt auto-filled from description.');
+    } else if (this.submission.contents && this.submission.contents.length > 0) {
+      // Extract text from the first content item
+      const firstContent = this.submission.contents[0];
+      const plainText = this.extractPlainText(firstContent.body);
+      
+      // Create a short excerpt (first 150 characters for cards)
+      const excerpt = plainText.substring(0, 150).trim();
+      const finalExcerpt = excerpt.length === 150 ? excerpt + '...' : excerpt;
+      
+      this.submission.excerpt = finalExcerpt;
+      this.showSuccess('Excerpt auto-filled from content.');
+    } else {
+      this.showError('No description or content available to generate excerpt from.');
     }
+  }
 
-    // Extract text from the first content item
-    const firstContent = this.submission.contents[0];
-    const plainText = this.extractPlainText(firstContent.body);
-    
-    // Create a short excerpt (first 150 characters for cards)
-    const excerpt = plainText.substring(0, 150).trim();
-    const finalExcerpt = excerpt.length === 150 ? excerpt + '...' : excerpt;
-    
-    this.submission.excerpt = finalExcerpt;
-    this.showSuccess('Excerpt auto-filled from content.');
+  // Get auto-generated excerpt for display
+  getAutoGeneratedExcerpt(): string {
+    if (this.submission?.description && this.submission?.description.trim()) {
+      const excerpt = this.submission.description.substring(0, 150).trim();
+      return excerpt.length === 150 ? excerpt + '...' : excerpt;
+    } else if (this.submission.contents && this.submission.contents.length > 0) {
+      const firstContent = this.submission.contents[0];
+      const plainText = this.extractPlainText(firstContent.body);
+      const excerpt = plainText.substring(0, 150).trim();
+      return excerpt.length === 150 ? excerpt + '...' : excerpt;
+    }
+    return 'No content available for preview';
+  }
+
+  // Enable custom excerpt editing
+  enableCustomExcerpt() {
+    // Set current auto-generated excerpt as starting point
+    this.submission.excerpt = this.getAutoGeneratedExcerpt();
   }
 
   // Auto-fill meta description from content or description
@@ -871,40 +929,54 @@ export class PublishSubmissionComponent implements OnInit {
   }
 
   private publishWithSEO() {
-    // Prepare SEO configuration data
-    const seoData = {
-      slug: this.seoConfig.slug.trim(),
-      metaTitle: this.seoConfig.metaTitle,
-      metaDescription: this.seoConfig.metaDescription,
-      keywords: this.seoConfig.keywords,
-      ogImage: this.seoConfig.ogImage,
-      featuredOnHomepage: this.seoConfig.featuredPost
-    };
+    // First save the submission changes (description, excerpt, etc.), then publish with SEO
+    const saveObservable = this.saveChangesForPublish();
+    
+    if (!saveObservable) {
+      this.isPublishing = false;
+      return;
+    }
 
-    // Use the new SEO-enabled publishing endpoint
-    this.backendService.publishSubmissionWithSEO(this.submission._id, seoData).subscribe({
+    saveObservable.subscribe({
       next: (response) => {
-        
-        const publishedUrl = response.url || `/post/${seoData.slug}`;
-        this.showSuccess(`"${this.submission.title}" has been published successfully! Available at: ${publishedUrl}`);
-        
-        // Redirect back to return URL with page parameter or default admin page
-        setTimeout(() => {
-          this.goBack();
-        }, 2000);
-        
-        this.isPublishing = false;
+        // Now that changes are saved, proceed with publishing
+        const seoData = {
+          slug: this.seoConfig.slug.trim(),
+          metaTitle: this.seoConfig.metaTitle,
+          metaDescription: this.seoConfig.metaDescription,
+          keywords: this.seoConfig.keywords,
+          ogImage: this.seoConfig.ogImage,
+          featuredOnHomepage: this.seoConfig.featuredPost
+        };
+
+        // Use the SEO-enabled publishing endpoint
+        this.backendService.publishSubmissionWithSEO(this.submission._id, seoData).subscribe({
+          next: (publishResponse) => {
+            const publishedUrl = publishResponse.url || `/post/${seoData.slug}`;
+            this.showSuccess(`"${this.submission.title}" has been published successfully! Available at: ${publishedUrl}`);
+            
+            // Redirect back to return URL with page parameter or default admin page
+            setTimeout(() => {
+              this.goBack();
+            }, 2000);
+            
+            this.isPublishing = false;
+          },
+          error: (err) => {
+            // Check if the error is slug-related
+            if (err.message?.includes('Slug already exists')) {
+              this.slugError = 'This slug is already taken. Please choose a different one.';
+              this.showError('Slug already exists. Please choose a different slug.');
+            } else {
+              this.showError('Failed to publish submission. Please try again.');
+            }
+            
+            this.isPublishing = false;
+          }
+        });
       },
       error: (err) => {
-        
-        // Check if the error is slug-related
-        if (err.message?.includes('Slug already exists')) {
-          this.slugError = 'This slug is already taken. Please choose a different one.';
-          this.showError('Slug already exists. Please choose a different slug.');
-        } else {
-          this.showError('Failed to publish submission. Please try again.');
-        }
-        
+        this.showError('Failed to save submission changes before publishing. Please try again.');
         this.isPublishing = false;
       }
     });
@@ -1040,10 +1112,23 @@ export class PublishSubmissionComponent implements OnInit {
     // Set the profile image as the submission's cover image
     this.submission.imageUrl = this.availableProfileImage;
     
-    // Hide the reuse suggestion since we've used it
-    this.showProfileImageReuse = false;
-    
-    this.showSuccess('Profile image has been set as cover image for this poem!');
+    // Immediately save the change to persist it
+    const updateData = {
+      imageUrl: this.availableProfileImage
+    };
+
+    this.backendService.updateSubmission(this.submission._id, updateData).subscribe({
+      next: (response) => {
+        // Hide the reuse suggestion since we've used it
+        this.showProfileImageReuse = false;
+        this.showSuccess('Profile image has been set as cover image and saved successfully!');
+      },
+      error: (err) => {
+        // Revert the change if saving failed
+        this.submission.imageUrl = '';
+        this.showError('Failed to save profile image as cover. Please try again.');
+      }
+    });
   }
 
   // Dismiss profile image reuse suggestion
