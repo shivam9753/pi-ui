@@ -72,6 +72,8 @@ export class SubmissionEditorComponent implements OnInit, OnDestroy {
   hasUnsavedChanges = false;
   hasChanges = false;
   currentDraftId: string | null = null;
+  relatedTopicPitchId: string | null = null; // Store topic pitch ID if submission is from a pitch
+  private topicPitchData: { title?: string; description?: string; type?: string } | null = null; // Store topic pitch data to apply later
   private subscriptions: Subscription[] = [];
 
   // Toast notification properties
@@ -164,6 +166,10 @@ export class SubmissionEditorComponent implements OnInit, OnDestroy {
       } else if (queryParams['draft']) {
         this.mode = 'create';
         this.loadSpecificDraft(queryParams['draft']);
+      } else if (queryParams['topicId']) {
+        // Handle topic pitch parameters
+        this.mode = 'create';
+        this.handleTopicPitchParams(queryParams);
       }
     });
 
@@ -203,7 +209,10 @@ export class SubmissionEditorComponent implements OnInit, OnDestroy {
 
   get pageSubtitle(): string {
     switch (this.mode) {
-      case 'create': return 'Share your literary voice with our community';
+      case 'create': 
+        return this.relatedTopicPitchId 
+          ? '✨ Writing based on a community topic pitch - form pre-filled for you!' 
+          : 'Share your literary voice with our community';
       case 'edit': return 'Update your submission and resubmit';
       case 'resubmit': return 'Make revisions and resubmit for review';
       case 'view': return 'Review your submission';
@@ -328,6 +337,39 @@ export class SubmissionEditorComponent implements OnInit, OnDestroy {
         }
       });
     }
+  }
+
+  handleTopicPitchParams(queryParams: any): void {
+    // Store topic pitch data for later use
+    const { topicId, title, type, description } = queryParams;
+    
+    // Store topic ID for future reference
+    if (topicId) {
+      this.relatedTopicPitchId = topicId;
+    }
+    
+    // Store data to apply after type selection
+    this.topicPitchData = {
+      title: title || undefined,
+      description: description || undefined,
+      type: type || undefined
+    };
+    
+    // Map topic pitch content types to submission types and trigger selection
+    if (type) {
+      let submissionType = type;
+      if (type === 'cinema_essay') {
+        submissionType = 'article'; // Map cinema essay to article for submission
+      }
+      
+      // This will trigger onTypeSelected which will set up the form properly
+      this.onTypeSelected(submissionType);
+    }
+    
+    // Show a notification that this is from a topic pitch
+    setTimeout(() => {
+      this.showToast('Pre-filled from topic pitch! Feel free to modify as needed.', 'info');
+    }, 100);
   }
 
   loadDraft(draft: Draft): void {
@@ -495,6 +537,32 @@ export class SubmissionEditorComponent implements OnInit, OnDestroy {
     this.selectedType = type;
     this.form.patchValue({ submissionType: type });
     
+    // Apply topic pitch data if available
+    if (this.topicPitchData) {
+      setTimeout(() => {
+        if (this.topicPitchData?.title) {
+          this.form.patchValue({ title: this.topicPitchData.title });
+          
+          // Also set title on the first content item
+          const contentsArray = this.form.get('contents') as FormArray;
+          if (contentsArray && contentsArray.length > 0) {
+            const firstContent = contentsArray.at(0);
+            firstContent?.patchValue({ title: this.topicPitchData.title });
+          }
+        }
+        
+        if (this.topicPitchData?.description) {
+          this.form.patchValue({ description: this.topicPitchData.description });
+        }
+        
+        // Clear the stored data since we've applied it
+        this.topicPitchData = null;
+        
+        // Force change detection
+        this.cdr.detectChanges();
+      }, 0);
+    }
+    
     // Auto-scroll to content section after type selection
     setTimeout(() => {
       const contentSection = document.querySelector('[data-section="content"]') || 
@@ -503,7 +571,7 @@ export class SubmissionEditorComponent implements OnInit, OnDestroy {
       if (contentSection) {
         contentSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }
-    }, 100);
+    }, this.topicPitchData ? 200 : 100); // Delay scroll if we're applying topic pitch data
   }
 
   onTypeChange(): void {

@@ -1,0 +1,271 @@
+<!-- Topic Pitches Management -->
+<div class="space-y-6">
+  <!-- Header -->
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <div>
+      <h2 class="text-2xl font-bold text-gray-900">Topic Pitches</h2>
+      <p class="text-gray-600 mt-1">Pitch ideas and claim topics to write about</p>
+    </div>
+    
+    <!-- Create Topic Button -->
+    <button
+      (click)="showCreateForm = !showCreateForm"
+      class="btn-primary flex items-center gap-2">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+      </svg>
+      Pitch Topic
+    </button>
+  </div>
+
+  <!-- Create Topic Form -->
+  @if (showCreateForm) {
+    <div class="bg-gray-50 p-6 rounded-lg border">
+      <form [formGroup]="createForm" (ngSubmit)="onCreateTopic()">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <!-- Title -->
+          <div class="md:col-span-2">
+            <label for="title" class="block text-sm font-medium text-gray-700 mb-2">
+              Topic Title *
+            </label>
+            <input
+              type="text"
+              id="title"
+              formControlName="title"
+              placeholder="Enter a compelling topic title..."
+              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500">
+            @if (createForm.get('title')?.errors && createForm.get('title')?.touched) {
+              <p class="text-red-600 text-sm mt-1">Title is required (min 3 characters)</p>
+            }
+          </div>
+
+          <!-- Content Type -->
+          <div>
+            <label for="contentType" class="block text-sm font-medium text-gray-700 mb-2">
+              Content Type *
+            </label>
+            <select
+              id="contentType"
+              formControlName="contentType"
+              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500">
+              <option value="article">Article</option>
+              <option value="opinion">Opinion</option>
+              <option value="cinema_essay">Cinema Essay</option>
+              <option value="story">Story</option>
+            </select>
+          </div>
+
+          <!-- Priority -->
+          <div>
+            <label for="priority" class="block text-sm font-medium text-gray-700 mb-2">
+              Priority
+            </label>
+            <select
+              id="priority"
+              formControlName="priority"
+              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500">
+              <option value="low">Low</option>
+              <option value="medium">Medium</option>
+              <option value="high">High</option>
+            </select>
+          </div>
+
+          <!-- Deadline -->
+          <div>
+            <label for="deadline" class="block text-sm font-medium text-gray-700 mb-2">
+              Deadline (Optional)
+            </label>
+            <input
+              type="date"
+              id="deadline"
+              formControlName="deadline"
+              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500">
+          </div>
+
+          <!-- Tags -->
+          <div>
+            <label for="tags" class="block text-sm font-medium text-gray-700 mb-2">
+              Tags (comma-separated)
+            </label>
+            <input
+              type="text"
+              id="tags"
+              formControlName="tags"
+              placeholder="tag1, tag2, tag3"
+              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500">
+          </div>
+
+          <!-- Description -->
+          <div class="md:col-span-2">
+            <label for="description" class="block text-sm font-medium text-gray-700 mb-2">
+              Description *
+            </label>
+            <textarea
+              id="description"
+              formControlName="description"
+              rows="4"
+              placeholder="Provide details about what you'd like someone to write about..."
+              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500"></textarea>
+            @if (createForm.get('description')?.errors && createForm.get('description')?.touched) {
+              <p class="text-red-600 text-sm mt-1">Description is required (min 10 characters)</p>
+            }
+          </div>
+        </div>
+
+        <!-- Form Actions -->
+        <div class="flex justify-end gap-3 mt-6">
+          <button
+            type="button"
+            (click)="showCreateForm = false; createForm.reset({ contentType: 'article', priority: 'medium' })"
+            class="btn-secondary">
+            Cancel
+          </button>
+          <button
+            type="submit"
+            [disabled]="createForm.invalid"
+            [class.opacity-50]="createForm.invalid"
+            [class.cursor-not-allowed]="createForm.invalid"
+            class="btn-primary">
+            Create Topic
+          </button>
+        </div>
+      </form>
+    </div>
+  }
+
+  <!-- Filters -->
+  <div class="flex flex-col sm:flex-row gap-4 bg-gray-50 p-4 rounded-lg">
+    <div class="flex-1">
+      <label class="block text-sm font-medium text-gray-700 mb-1">Status</label>
+      <select
+        [(ngModel)]="statusFilter"
+        (change)="onFilterChange()"
+        class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-orange-500">
+        <option value="all">All Status</option>
+        <option value="available">Available</option>
+        <option value="claimed">Claimed</option>
+        <option value="completed">Completed</option>
+        <option value="cancelled">Cancelled</option>
+      </select>
+    </div>
+    
+    <div class="flex-1">
+      <label class="block text-sm font-medium text-gray-700 mb-1">Type</label>
+      <select
+        [(ngModel)]="typeFilter"
+        (change)="onFilterChange()"
+        class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-orange-500">
+        <option value="all">All Types</option>
+        <option value="article">Article</option>
+        <option value="opinion">Opinion</option>
+        <option value="cinema_essay">Cinema Essay</option>
+        <option value="story">Story</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Topics List -->
+  @if (loading) {
+    <div class="flex items-center justify-center py-12">
+      <div class="w-8 h-8 border-4 border-orange-500/20 border-t-orange-500 rounded-full animate-spin"></div>
+    </div>
+  }
+
+  @if (!loading && topics.length === 0) {
+    <div class="text-center py-12 bg-gray-50 rounded-lg">
+      <svg class="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
+      </svg>
+      <h3 class="text-lg font-medium text-gray-900 mb-2">No topics found</h3>
+      <p class="text-gray-600">Be the first to pitch a topic for the community!</p>
+    </div>
+  }
+
+  @if (!loading && topics.length > 0) {
+    <div class="space-y-4">
+      @for (topic of topics; track topic._id) {
+        <div class="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow">
+          <!-- Topic Header -->
+          <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-4">
+            <div class="flex-1">
+              <div class="flex flex-wrap items-center gap-2 mb-2">
+                <h3 class="text-lg font-semibold text-gray-900">{{ topic.title }}</h3>
+                <span [class]="getPriorityColor(topic.priority)" class="px-2 py-1 text-xs font-medium rounded-full">
+                  {{ topic.priority | titlecase }}
+                </span>
+                <span [class]="getStatusColor(topic.status)" class="px-2 py-1 text-xs font-medium rounded-full">
+                  {{ topic.status | titlecase }}
+                </span>
+              </div>
+              
+              <p class="text-gray-600 text-sm mb-2">{{ topic.description }}</p>
+              
+              <div class="flex flex-wrap items-center gap-4 text-sm text-gray-500">
+                <span>{{ topic.contentType | titlecase }}</span>
+                <span>By {{ topic.pitcherName }} ({{ topic.pitcherRole }})</span>
+                <span>{{ formatDate(topic.createdAt) }}</span>
+                @if (topic.deadline) {
+                  <span class="text-orange-600">Deadline: {{ formatDate(topic.deadline) }}</span>
+                }
+              </div>
+
+              @if (topic.tags && topic.tags.length > 0) {
+                <div class="flex flex-wrap gap-1 mt-2">
+                  @for (tag of topic.tags; track tag) {
+                    <span class="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded">{{ tag }}</span>
+                  }
+                </div>
+              }
+            </div>
+
+            <!-- Actions -->
+            <div class="flex flex-col sm:flex-row gap-2 sm:ml-4">
+              @if (canClaimTopic(topic)) {
+                <button
+                  (click)="onWriteOnTopic(topic)"
+                  class="btn-primary text-sm whitespace-nowrap">
+                  Write on This
+                </button>
+              }
+              
+              @if (topic.status === 'claimed' && topic.claimedBy === currentUser?._id) {
+                <span class="text-sm text-blue-600 font-medium">You claimed this</span>
+              }
+              
+              @if (topic.status === 'claimed' && topic.claimedBy !== currentUser?._id) {
+                <span class="text-sm text-gray-500">Claimed by {{ topic.claimedByName }}</span>
+              }
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+
+    <!-- Pagination -->
+    @if (totalPages > 1) {
+      <div class="flex justify-center items-center gap-2 mt-6">
+        <button
+          (click)="onPageChange(currentPage - 1)"
+          [disabled]="currentPage === 1"
+          [class.opacity-50]="currentPage === 1"
+          [class.cursor-not-allowed]="currentPage === 1"
+          class="px-3 py-2 border border-gray-300 rounded-md text-sm hover:bg-gray-50">
+          Previous
+        </button>
+        
+        <span class="px-4 py-2 text-sm text-gray-600">
+          Page {{ currentPage }} of {{ totalPages }}
+        </span>
+        
+        <button
+          (click)="onPageChange(currentPage + 1)"
+          [disabled]="currentPage === totalPages"
+          [class.opacity-50]="currentPage === totalPages"
+          [class.cursor-not-allowed]="currentPage === totalPages"
+          class="px-3 py-2 border border-gray-300 rounded-md text-sm hover:bg-gray-50">
+          Next
+        </button>
+      </div>
+    }
+  }
+</div>

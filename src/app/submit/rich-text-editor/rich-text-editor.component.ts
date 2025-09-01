@@ -211,8 +211,29 @@ export class RichTextEditorComponent implements ControlValueAccessor, AfterViewI
       this.editor.nativeElement.innerHTML += content;
     }
     
+    // Apply theme styles to newly pasted content
+    this.applyThemeStyles();
+    
     // Trigger content change
     this.onContentChange({ target: this.editor.nativeElement } as any);
+  }
+  
+  private applyThemeStyles(): void {
+    // Force all elements to use our theme styles after paste
+    if (this.editor) {
+      const allElements = this.editor.nativeElement.querySelectorAll('*');
+      allElements.forEach((element: any) => {
+        // Remove any remaining inline styles
+        element.removeAttribute('style');
+        
+        // Remove font-related attributes
+        const formattingAttrs = ['color', 'face', 'size', 'bgcolor', 'font-family', 'font-size', 'font-weight'];
+        formattingAttrs.forEach(attr => element.removeAttribute(attr));
+      });
+      
+      // Ensure the editor content itself has our theme class
+      this.editor.nativeElement.classList.add('editor-content');
+    }
   }
   
   private escapeHtml(text: string): string {
@@ -222,17 +243,44 @@ export class RichTextEditorComponent implements ControlValueAccessor, AfterViewI
   }
 
   private removeColorStyles(html: string): string {
-    // Remove color-related CSS properties from style attributes
+    // Remove all font and color-related CSS properties from style attributes
     return html
-      .replace(/style\s*=\s*"[^"]*color[^"]*"/gi, '') // Remove style attributes containing 'color'
-      .replace(/style\s*=\s*'[^']*color[^']*'/gi, '') // Handle single quotes
-      .replace(/color\s*:\s*[^;]+;?/gi, '') // Remove color: declarations
-      .replace(/background-color\s*:\s*[^;]+;?/gi, '') // Remove background-color: declarations
-      .replace(/background\s*:\s*[^;]+;?/gi, '') // Remove background: declarations
-      .replace(/style\s*=\s*["'][^"']*["']/gi, (match) => {
-        // Clean up empty or whitespace-only style attributes
-        const styleContent = match.replace(/style\s*=\s*["']([^"']*)["']/i, '$1').trim();
-        return styleContent ? match : '';
+      .replace(/style\s*=\s*"[^"]*"/gi, (match) => {
+        // Extract style content
+        const styleContent = match.replace(/style\s*=\s*"([^"]*)"/i, '$1');
+        // Remove all formatting-related styles while preserving line breaks
+        const cleanedStyle = styleContent
+          .replace(/color\s*:\s*[^;]+;?/gi, '')
+          .replace(/background-color\s*:\s*[^;]+;?/gi, '')
+          .replace(/background\s*:\s*[^;]+;?/gi, '')
+          .replace(/font-family\s*:\s*[^;]+;?/gi, '')
+          .replace(/font-size\s*:\s*[^;]+;?/gi, '')
+          .replace(/font-weight\s*:\s*[^;]+;?/gi, '')
+          .replace(/line-height\s*:\s*[^;]+;?/gi, '')
+          .replace(/text-decoration\s*:\s*[^;]+;?/gi, '')
+          .replace(/;\s*;/g, ';') // Remove double semicolons
+          .replace(/^\s*;\s*|\s*;\s*$/g, '') // Remove leading/trailing semicolons
+          .trim();
+        
+        return cleanedStyle ? `style="${cleanedStyle}"` : '';
+      })
+      .replace(/style\s*=\s*'[^']*'/gi, (match) => {
+        // Handle single quotes too
+        const styleContent = match.replace(/style\s*=\s*'([^']*)'/i, '$1');
+        const cleanedStyle = styleContent
+          .replace(/color\s*:\s*[^;]+;?/gi, '')
+          .replace(/background-color\s*:\s*[^;]+;?/gi, '')
+          .replace(/background\s*:\s*[^;]+;?/gi, '')
+          .replace(/font-family\s*:\s*[^;]+;?/gi, '')
+          .replace(/font-size\s*:\s*[^;]+;?/gi, '')
+          .replace(/font-weight\s*:\s*[^;]+;?/gi, '')
+          .replace(/line-height\s*:\s*[^;]+;?/gi, '')
+          .replace(/text-decoration\s*:\s*[^;]+;?/gi, '')
+          .replace(/;\s*;/g, ';')
+          .replace(/^\s*;\s*|\s*;\s*$/g, '')
+          .trim();
+        
+        return cleanedStyle ? `style='${cleanedStyle}'` : '';
       });
   }
 
@@ -241,9 +289,9 @@ export class RichTextEditorComponent implements ControlValueAccessor, AfterViewI
     const tempDiv = document.createElement('div');
     tempDiv.innerHTML = html;
     
-    // Allow only basic formatting tags
+    // Allow only basic formatting tags, but remove font-specific tags
     const allowedTags = ['p', 'div', 'br', 'strong', 'b', 'em', 'i', 'u', 'span'];
-    const allowedAttributes = ['class']; // Remove 'style' to strip color and other inline styles
+    const allowedAttributes = ['class']; // Remove 'style' and other formatting attributes
     
     this.cleanElement(tempDiv, allowedTags, allowedAttributes);
     
@@ -257,34 +305,55 @@ export class RichTextEditorComponent implements ControlValueAccessor, AfterViewI
     children.forEach(child => {
       const tagName = child.tagName.toLowerCase();
       
+      // Remove font-specific tags entirely, replacing with their content
+      const fontTags = ['font', 'small', 'big', 'tt', 'strike', 'del'];
+      
+      if (fontTags.includes(tagName)) {
+        // Replace font tags with just their text content
+        const textNode = document.createTextNode(child.textContent || '');
+        child.parentNode?.replaceChild(textNode, child);
+        return; // Skip processing this element further
+      }
+      
       if (!allowedTags.includes(tagName)) {
-        // Replace disallowed tags with their content
+        // Replace other disallowed tags with span to preserve content
         const span = document.createElement('span');
         span.innerHTML = child.innerHTML;
         child.parentNode?.replaceChild(span, child);
         this.cleanElement(span, allowedTags, allowedAttributes);
       } else {
-        // Clean attributes
+        // Clean all attributes except allowed ones
         const attributes = Array.from(child.attributes);
         attributes.forEach(attr => {
-          if (!allowedAttributes.includes(attr.name.toLowerCase())) {
+          const attrName = attr.name.toLowerCase();
+          if (!allowedAttributes.includes(attrName)) {
             child.removeAttribute(attr.name);
           }
         });
         
-        // Remove any style attributes that might contain color information
-        child.removeAttribute('style');
+        // Specifically remove formatting-related attributes
+        const formattingAttributes = ['style', 'color', 'face', 'size', 'bgcolor', 'font-family', 'font-size'];
+        formattingAttributes.forEach(attr => {
+          child.removeAttribute(attr);
+        });
         
         // Recursively clean child elements
         this.cleanElement(child, allowedTags, allowedAttributes);
       }
     });
     
-    // Also clean text nodes to remove any color spans that might have been converted
+    // Clean text nodes - ensure parent elements don't have formatting styles
     const textNodes = Array.from(element.childNodes).filter(node => node.nodeType === Node.TEXT_NODE);
     textNodes.forEach(textNode => {
-      if (textNode.parentElement?.style) {
+      if (textNode.parentElement) {
+        // Remove any remaining style attributes
         textNode.parentElement.removeAttribute('style');
+        
+        // Remove font-related attributes from parent
+        const formattingAttributes = ['color', 'face', 'size', 'bgcolor'];
+        formattingAttributes.forEach(attr => {
+          textNode.parentElement!.removeAttribute(attr);
+        });
       }
     });
   }

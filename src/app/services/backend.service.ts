@@ -917,5 +917,47 @@ unfeatureContent(contentId: string): Observable<any> {
   );
 }
 
+// Generic HTTP methods
+get<T = any>(endpoint: string, params?: any): Observable<T> {
+  const headers = this.getAuthHeaders();
+  let httpParams = new HttpParams();
+  
+  if (params) {
+    Object.keys(params).forEach(key => {
+      if (params[key] !== null && params[key] !== undefined) {
+        httpParams = httpParams.set(key, params[key].toString());
+      }
+    });
+  }
+
+  const url = `${this.API_URL}${endpoint}`;
+  return this.http.get<T>(url, { headers, params: httpParams }).pipe(
+    this.handleApiCall(url, 'GET')
+  );
+}
+
+post<T = any>(endpoint: string, body: any = {}): Observable<T> {
+  const headers = this.getAuthHeaders();
+  const url = `${this.API_URL}${endpoint}`;
+  return this.http.post<T>(url, body, { headers }).pipe(
+    this.handleApiCall(url, 'POST')
+  );
+}
+
+put<T = any>(endpoint: string, body: any = {}): Observable<T> {
+  const headers = this.getAuthHeaders();
+  const url = `${this.API_URL}${endpoint}`;
+  return this.http.put<T>(url, body, { headers }).pipe(
+    this.handleApiCall(url, 'PUT')
+  );
+}
+
+delete<T = any>(endpoint: string): Observable<T> {
+  const headers = this.getAuthHeaders();
+  const url = `${this.API_URL}${endpoint}`;
+  return this.http.delete<T>(url, { headers }).pipe(
+    this.handleApiCall(url, 'DELETE')
+  );
+}
 
 }

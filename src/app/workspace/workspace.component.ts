@@ -8,6 +8,7 @@ import { ReadyToPublishComponent } from "../admin/submissions/ready-to-publish/r
 import { PendingReviewsComponent } from "../admin/submissions/pending-reviews/pending-reviews.component";
 import { PromptManagementComponent } from '../admin/prompts/prompt-management/prompt-management.component';
 import { ShortlistedSubmissionsComponent } from '../admin/submissions/shortlisted/shortlisted-submissions.component';
+import { TopicPitchesComponent } from './topic-pitches/topic-pitches.component';
 
 @Component({
   selector: 'app-workspace',
@@ -16,13 +17,14 @@ import { ShortlistedSubmissionsComponent } from '../admin/submissions/shortliste
     PromptManagementComponent,
     ReadyToPublishComponent,
     PendingReviewsComponent,
-    ShortlistedSubmissionsComponent
+    ShortlistedSubmissionsComponent,
+    TopicPitchesComponent
 ],
   templateUrl: './workspace.component.html',
   styleUrl: './workspace.component.css'
 })
 export class WorkspaceComponent implements OnInit {
-  activeTab: 'review' | 'shortlisted' | 'publish' | 'prompts' = 'review';
+  activeTab: 'review' | 'shortlisted' | 'publish' | 'prompts' | 'pitches' = 'review';
   isAdmin = false;
   isReviewer = false;
   isCurator = false;
@@ -40,8 +42,8 @@ export class WorkspaceComponent implements OnInit {
     
     // Handle URL fragments for direct tab navigation
     this.route.fragment.subscribe(fragment => {
-      if (fragment && ['review', 'shortlisted', 'publish', 'prompts'].includes(fragment)) {
-        const tab = fragment as 'review' | 'shortlisted' | 'publish' | 'prompts';
+      if (fragment && ['review', 'shortlisted', 'publish', 'prompts', 'pitches'].includes(fragment)) {
+        const tab = fragment as 'review' | 'shortlisted' | 'publish' | 'prompts' | 'pitches';
         // Only set tab if user has permission to access it
         if (this.canAccessTab(tab)) {
           this.activeTab = tab;
@@ -75,7 +77,7 @@ export class WorkspaceComponent implements OnInit {
     this.loading = false;
   }
 
-  setActiveTab(tab: 'review' | 'shortlisted' | 'publish' | 'prompts') {
+  setActiveTab(tab: 'review' | 'shortlisted' | 'publish' | 'prompts' | 'pitches') {
     // Check if user has permission to access this tab
     if (!this.canAccessTab(tab)) {
       return; // Prevent access to unauthorized tabs
@@ -97,12 +99,12 @@ export class WorkspaceComponent implements OnInit {
     
     if (this.isReviewer) {
       // Reviewers can access all workspace tabs
-      return ['review', 'shortlisted', 'publish', 'prompts'].includes(tab);
+      return ['review', 'shortlisted', 'publish', 'prompts', 'pitches'].includes(tab);
     }
     
     if (this.isCurator) {
-      // Curators can access review and shortlisted tabs only
-      return ['review', 'shortlisted'].includes(tab);
+      // Curators can access review, shortlisted, and pitches tabs
+      return ['review', 'shortlisted', 'pitches'].includes(tab);
     }
     
     return false;
