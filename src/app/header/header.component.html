@@ -143,6 +143,14 @@
 
       <!-- Mobile Menu Buttons (VISIBLE ONLY BELOW LG) -->
       <div class="mobile-buttons-container flex items-center space-x-2 lg:hidden">
+        <!-- Search Button -->
+        <button (click)="openSearchPage()" 
+                aria-label="Search content"
+                class="p-2 text-themed-secondary hover:text-themed hover:bg-themed-hover rounded-lg transition-all duration-200">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+          </svg>
+        </button>
         @if (!loggedInUser() && !isOnLoginPage()) {
           <a routerLink="/login" 
              aria-label="Login or Sign up"
