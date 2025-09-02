@@ -115,7 +115,7 @@ export const API_ENDPOINTS = {
   
   // File Upload endpoints
   UPLOADS: {
-    IMAGE: '/uploads/image',
+    IMAGE: '/images/upload',
     PROFILE_IMAGE: '/uploads/profile-image',
     SUBMISSION_IMAGE: (id: string) => `/submissions/${id}/upload-image`
   }

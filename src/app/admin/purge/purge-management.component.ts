@@ -50,9 +50,9 @@ interface PurgePreview {
       <div class="mb-8">
         <div class="sm:flex sm:items-center sm:justify-between">
           <div>
-            <h1 class="text-2xl font-bold text-gray-900">Data Purge Management</h1>
+            <h1 class="text-2xl font-bold text-gray-900">Rejected Submissions Management</h1>
             <p class="mt-2 text-sm text-gray-700">
-              Manage storage by purging rejected and spam submissions older than specified periods.
+              View and manage rejected and spam submissions. You can filter by age or view all submissions.
               <span class="font-medium text-red-600">⚠️ Purging permanently deletes data.</span>
             </p>
           </div>
@@ -134,6 +134,7 @@ interface PurgePreview {
                 [(ngModel)]="filters.olderThanDays"
                 (ngModelChange)="loadPurgeableSubmissions()"
                 class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500 sm:text-sm">
+                <option value="0">All (no age limit)</option>
                 <option value="30">30 days</option>
                 <option value="60">60 days</option>
                 <option value="120">120 days (4 months)</option>
@@ -221,7 +222,7 @@ interface PurgePreview {
                   Preview Purge
                 </button>
                 <button
-                  (click)="openPurgeConfirmation()"
+                  (click)="showPurgeWithPreview()"
                   [disabled]="selectedSubmissions.length === 0"
                   class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 disabled:opacity-50">
                   <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -253,7 +254,7 @@ interface PurgePreview {
         <div class="bg-white shadow overflow-hidden sm:rounded-lg">
           <div class="px-4 py-5 sm:px-6">
             <h3 class="text-lg leading-6 font-medium text-gray-900">
-              Purgeable Submissions ({{ pagination?.total | number }})
+              Rejected Submissions ({{ pagination?.total | number }})
             </h3>
           </div>
           <div class="overflow-x-auto">
@@ -368,8 +369,8 @@ interface PurgePreview {
           <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
           </svg>
-          <h3 class="mt-2 text-sm font-medium text-gray-900">No submissions eligible for purging</h3>
-          <p class="mt-1 text-sm text-gray-500">Adjust your filters to see purgeable submissions.</p>
+          <h3 class="mt-2 text-sm font-medium text-gray-900">No rejected submissions found</h3>
+          <p class="mt-1 text-sm text-gray-500">Adjust your filters to see rejected submissions.</p>
         </div>
       }
     
@@ -377,7 +378,7 @@ interface PurgePreview {
       @if (loadingSubmissions) {
         <div class="text-center py-12">
           <div class="w-8 h-8 mx-auto border-4 border-orange-500/20 border-t-orange-500 rounded-full animate-spin"></div>
-          <p class="mt-2 text-sm text-gray-500">Loading purgeable submissions...</p>
+          <p class="mt-2 text-sm text-gray-500">Loading rejected submissions...</p>
         </div>
       }
     
@@ -404,12 +405,11 @@ interface PurgePreview {
                 <ul class="mt-2 text-sm text-red-800">
                   @if (preview) {
                     <li>• {{ preview.submissionsToDelete }} submissions</li>
-                  }
-                  @if (preview) {
                     <li>• {{ preview.contentToDelete }} content pieces</li>
-                  }
-                  @if (preview) {
                     <li>• {{ preview.reviewsToDelete }} reviews</li>
+                  } @else {
+                    <li>• {{ selectedSubmissions.length }} selected submissions</li>
+                    <li>• All associated content and reviews</li>
                   }
                 </ul>
               </div>
@@ -468,8 +468,8 @@ export class PurgeManagementComponent implements OnInit {
   purgeConfirmText = '';
 
   filters = {
-    olderThanDays: 120,
-    status: '',
+    olderThanDays: 0, // Set to 0 to show all rejected submissions by default
+    status: 'rejected', // Set to rejected by default
     limit: 50,
     skip: 0
   };
@@ -557,9 +557,25 @@ export class PurgeManagementComponent implements OnInit {
     }
   }
 
+  showPurgeWithPreview() {
+    // Show confirmation modal immediately
+    // Preview data is optional - the modal will show basic info if preview fails
+    this.openPurgeConfirmation();
+    
+    // Try to get preview data in background (optional)
+    if (!this.preview) {
+      this.previewPurge().catch(() => {
+        // Ignore preview errors - we can still show the modal
+        console.warn('Preview failed, but modal will still work');
+      });
+    }
+  }
+
   openPurgeConfirmation() {
+    console.log('Opening purge confirmation modal'); // Debug log
     this.showPurgeConfirmation = true;
     this.purgeConfirmText = '';
+    console.log('Modal state:', this.showPurgeConfirmation); // Debug log
   }
 
   closePurgeConfirmation() {
