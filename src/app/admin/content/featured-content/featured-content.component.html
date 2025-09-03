@@ -118,6 +118,15 @@
           }
         }
       </ng-template>
+
+      <!-- Mobile Card Template -->
+      <ng-template #mobileCard let-content let-actions="actions">
+        <app-submission-mobile-card
+          [submission]="content"
+          [actions]="consistentActions"
+          [badgeConfig]="badgeConfig">
+        </app-submission-mobile-card>
+      </ng-template>
     </app-data-table>
   </div>
 

@@ -234,11 +234,41 @@ export interface PaginationConfig {
 
         <!-- Mobile Cards -->
         <div class="md:hidden space-y-4 p-1">
+          <!-- Mobile Select All -->
+          @if (selectable && data.length > 0) {
+            <div class="bg-gray-50 border border-gray-200 rounded-lg p-4 mx-2 mb-4">
+              <div class="flex items-center justify-between">
+                <span class="text-sm font-medium text-gray-700">Select All Items</span>
+                <input 
+                  type="checkbox" 
+                  [checked]="isAllSelected()" 
+                  (change)="toggleSelectAll($event)"
+                  class="h-5 w-5 text-orange-600 focus:ring-orange-500 border-gray-300 rounded">
+              </div>
+            </div>
+          }
+          
           @for (item of data; track trackByFn ? trackByFn($index, item) : $index) {
             <div 
               class="border-gray-200 rounded-lg p-5 shadow-sm mx-2"
               [class.cursor-pointer]="rowClickable"
+              [class.bg-orange-50]="selectable && isItemSelected(item)"
+              [class.border-orange-300]="selectable && isItemSelected(item)"
               (click)="onRowClickHandler(item, $event)">
+              
+              <!-- Mobile Selection Checkbox -->
+              @if (selectable) {
+                <div class="flex items-center justify-between mb-3 pb-3 border-b border-gray-100">
+                  <span class="text-sm font-medium text-gray-700">Select Item</span>
+                  <input 
+                    type="checkbox" 
+                    [checked]="isItemSelected(item)" 
+                    (change)="toggleItemSelection(item)"
+                    (click)="$event.stopPropagation()"
+                    class="h-5 w-5 text-orange-600 focus:ring-orange-500 border-gray-300 rounded">
+                </div>
+              }
+              
               @if (mobileCardTemplate) {
                 <ng-container *ngTemplateOutlet="mobileCardTemplate; context: { $implicit: item, actions: getVisibleActions(item) }"></ng-container>
               } @else {

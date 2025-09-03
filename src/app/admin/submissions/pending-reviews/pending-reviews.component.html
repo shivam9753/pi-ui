@@ -70,45 +70,11 @@
 
     <!-- Mobile Card Template -->
     <ng-template #mobileCard let-submission let-actions="actions">
-      <!-- Title and Author Section -->
-      <div class="mb-4">
-        <h3 class="text-lg font-bold text-gray-900 mb-2 leading-tight">{{ submission.title }}</h3>
-        <p class="text-sm text-gray-600 mb-2">by {{ getAuthorName(submission) }}</p>
-        @if (getTruncatedDescription(submission, 80)) {
-          <p class="text-sm text-gray-500 leading-relaxed">{{ getTruncatedDescription(submission, 80) }}</p>
-        }
-      </div>
-      
-      <!-- Status and Meta Info -->
-      <div class="flex flex-wrap items-center gap-3 mb-4">
-        <span [ngClass]="getBadgeClass(submission.submissionType)" class="px-3 py-1">
-          {{ submission.submissionType | prettyLabel }}
-        </span>
-        <span [ngClass]="getBadgeClass(submission.status)" class="px-3 py-1">
-          {{ submission.status | prettyLabel }}
-        </span>
-        <span class="text-xs text-gray-500 font-medium">
-          {{ submission.createdAt | date:'MMM d' }}
-        </span>
-      </div>
-      
-      <!-- Mobile Action Buttons -->
-      <div class="flex flex-wrap gap-2 mt-4">
-        @for (action of actions; track action.label) {
-          @if (!action.condition || action.condition(submission)) {
-            <button
-              (click)="action.handler(submission)"
-              [class]="'flex-1 px-4 py-3 text-sm font-semibold rounded-lg transition-colors duration-200 ' + 
-                (action.color === 'primary' ? 'text-white bg-blue-600 hover:bg-blue-700 shadow-sm' :
-                 action.color === 'warning' ? 'text-white bg-orange-600 hover:bg-orange-700 shadow-sm' :
-                 action.color === 'success' ? 'text-white bg-green-600 hover:bg-green-700 shadow-sm' :
-                 action.color === 'danger' ? 'text-white bg-red-600 hover:bg-red-700 shadow-sm' :
-                 'text-gray-700 bg-gray-100 hover:bg-gray-200 border border-gray-300')">
-              {{ action.label }}
-            </button>
-          }
-        }
-      </div>
+      <app-submission-mobile-card
+        [submission]="submission"
+        [actions]="consistentActions"
+        [badgeConfig]="badgeConfig">
+      </app-submission-mobile-card>
     </ng-template>
 
     <!-- Empty State Template -->

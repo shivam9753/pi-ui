@@ -1,19 +1,119 @@
 <div class="w-full">
   <!-- Standardized Header -->
   <app-admin-page-header
-    title="Published Posts Management"
-    subtitle="View and edit all published content."
-    [loading]="loading">
+    title="Submissions Management"
+    subtitle="View and manage all submissions and published content."
+    [loading]="loading"
+    [stats]="stats">
   </app-admin-page-header>
+
+  <!-- Quick Filter Tabs -->
+  <div class="mb-6">
+    <div class="flex flex-wrap gap-2 sm:gap-4">
+      <button
+        (click)="setQuickFilter('published')"
+        [class.bg-orange-500]="quickFilter === 'published'"
+        [class.text-white]="quickFilter === 'published'"
+        [class.border-orange-500]="quickFilter === 'published'"
+        [class.bg-white]="quickFilter !== 'published'"
+        [class.text-gray-700]="quickFilter !== 'published'"
+        [class.border-gray-300]="quickFilter !== 'published'"
+        class="px-4 py-2 rounded-lg border-2 font-medium text-sm transition-all duration-200 hover:border-orange-500 hover:text-orange-600">
+        Published Only
+      </button>
+      <button
+        (click)="setQuickFilter('all')"
+        [class.bg-orange-500]="quickFilter === 'all'"
+        [class.text-white]="quickFilter === 'all'"
+        [class.border-orange-500]="quickFilter === 'all'"
+        [class.bg-white]="quickFilter !== 'all'"
+        [class.text-gray-700]="quickFilter !== 'all'"
+        [class.border-gray-300]="quickFilter !== 'all'"
+        class="px-4 py-2 rounded-lg border-2 font-medium text-sm transition-all duration-200 hover:border-orange-500 hover:text-orange-600">
+        All Submissions
+      </button>
+      <button
+        (click)="setQuickFilter('accepted')"
+        [class.bg-orange-500]="quickFilter === 'accepted'"
+        [class.text-white]="quickFilter === 'accepted'"
+        [class.border-orange-500]="quickFilter === 'accepted'"
+        [class.bg-white]="quickFilter !== 'accepted'"
+        [class.text-gray-700]="quickFilter !== 'accepted'"
+        [class.border-gray-300]="quickFilter !== 'accepted'"
+        class="px-4 py-2 rounded-lg border-2 font-medium text-sm transition-all duration-200 hover:border-orange-500 hover:text-orange-600">
+        Ready to Publish
+      </button>
+    </div>
+  </div>
 
   <!-- Filter Component -->
   <app-simple-submission-filter 
-    [availableStatuses]="[SUBMISSION_STATUS.PUBLISHED, SUBMISSION_STATUS.ACCEPTED]"
+    [availableStatuses]="getAvailableStatuses()"
     [availableTypes]="['opinion', 'poem', 'prose', 'article', 'book_review', 'cinema_essay']"
     [showSortOptions]="true"
     [sortField]="'reviewedAt'"
     (filterChange)="onFilterChange($event)">
   </app-simple-submission-filter>
+
+  <!-- Selection Info -->
+  @if (selectedSubmissions.size > 0) {
+    <div class="mb-4 text-sm text-gray-600 bg-orange-50 p-3 rounded-lg">
+      {{ selectedSubmissions.size }} submission(s) selected
+    </div>
+  }
+  
+  <!-- Message -->
+  @if (message) {
+    <div class="mb-6 p-4 rounded-lg" [ngClass]="{
+      'bg-green-50 text-green-800 border border-green-200': messageType === 'success',
+      'bg-red-50 text-red-800 border border-red-200': messageType === 'error',
+      'bg-blue-50 text-blue-800 border border-blue-200': messageType === 'info'
+    }">
+      {{ message }}
+    </div>
+  }
+
+  <!-- Bulk Actions Bar (Only show when "All Submissions" filter is active) -->
+  @if (showBulkActions && quickFilter === 'all') {
+    <div class="mb-6 p-4 bg-orange-50 border border-orange-300 rounded-lg">
+      <div class="flex items-center justify-between flex-wrap gap-4">
+        <div class="flex items-center gap-4">
+          <span class="text-sm font-medium text-amber-800">
+            {{ selectedSubmissions.size }} submission(s) selected
+          </span>
+          <button 
+            (click)="clearSelection()" 
+            class="text-sm text-orange-600 hover:text-amber-800 underline">
+            Clear Selection
+          </button>
+        </div>
+        
+        <div class="flex items-center gap-4">
+          <div class="flex items-center gap-2">
+            <label class="text-sm font-medium text-amber-800">Reassign to:</label>
+            <div class="min-w-64">
+              <app-searchable-user-selector
+                [users]="users"
+                [(ngModel)]="bulkSelectedUserId"
+                placeholder="Search and select user..."
+                inputClass="text-sm border border-orange-300 rounded px-3 py-1 pr-8 bg-white focus:outline-none focus:ring-2 focus:ring-orange-200 focus:border-orange-300">
+              </app-searchable-user-selector>
+            </div>
+          </div>
+          
+          <button 
+            (click)="bulkReassignUser()" 
+            [disabled]="!bulkSelectedUserId || bulkActionLoading"
+            class="px-4 py-2 bg-orange-600 text-white rounded-md hover:bg-orange-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2">
+            @if (bulkActionLoading) {
+              <div class="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin"></div>
+            }
+            Reassign Selected
+          </button>
+        </div>
+      </div>
+    </div>
+  }
 
   <!-- Data Table -->
   <app-data-table
@@ -21,13 +121,15 @@
     [data]="filteredSubmissions"
     [actions]="actions"
     [loading]="loading"
-    loadingText="Loading published posts..."
-    [selectable]="false"
+    loadingText="Loading submissions..."
+    [selectable]="quickFilter === 'all'"
+    [selectedItems]="selectedSubmissionsArray"
     [rowClickable]="true"
     [pagination]="paginationConfig"
-    itemLabel="posts"
+    itemLabel="submissions"
     [trackByFn]="trackBySubmissionId"
     [badgeConfig]="badgeConfig"
+    (onSelectionChange)="onSelectionChange($event)"
     (onPageChange)="onTablePageChange($event)"
     (onSort)="onTableSort($event)">
     
@@ -100,42 +202,11 @@
 
     <!-- Mobile Card Template -->
     <ng-template #mobileCard let-submission let-actions="actions">
-      <div class="mb-3">
-        <h3 class="font-semibold text-gray-900 mb-1">{{ submission.title }}</h3>
-        <p class="text-sm text-gray-600">by {{ getAuthorName(submission) }}</p>
-        <p class="text-xs text-gray-500 mt-1">{{ getTruncatedDescription(submission, 80) }}</p>
-      </div>
-      
-      <!-- Status and Meta Info -->
-      <div class="flex flex-wrap items-center gap-2 mb-3">
-        <span [class]="submission.submissionType | typeBadge">
-          {{ submission.submissionType | prettyLabel }}
-        </span>
-        <span [ngClass]="getBadgeClass(submission.status)">
-          {{ submission.status | titlecase }}
-        </span>
-        <span class="text-xs text-gray-500">
-          {{ submission.publishedAt | date:'MMM d, yyyy' }}
-        </span>
-      </div>
-      
-      <!-- Mobile Action Buttons -->
-      <div class="flex flex-wrap gap-2">
-        @for (action of actions; track action.label) {
-          @if (!action.condition || action.condition(submission)) {
-            <button
-              (click)="action.handler(submission)"
-              [class]="'flex-1 px-3 py-2 text-xs font-medium rounded ' + 
-                (action.color === 'primary' ? 'text-blue-600 bg-blue-50 border border-blue-200' :
-                 action.color === 'warning' ? 'text-orange-600 bg-orange-50 border border-amber-200' :
-                 action.color === 'success' ? 'text-green-600 bg-green-50 border border-green-200' :
-                 action.color === 'danger' ? 'text-red-600 bg-red-50 border border-red-200' :
-                 'text-gray-600 bg-gray-50 border border-gray-200')">
-              {{ action.label }}
-            </button>
-          }
-        }
-      </div>
+      <app-submission-mobile-card
+        [submission]="submission"
+        [actions]="consistentActions"
+        [badgeConfig]="badgeConfig">
+      </app-submission-mobile-card>
     </ng-template>
 
     <!-- Empty State Template -->

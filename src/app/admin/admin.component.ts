@@ -7,9 +7,8 @@ import { AuthService } from '../services/auth.service';
 import { PublishedPostsComponent } from "./content/published-posts/published-posts.component";
 import { FeaturedContentComponent } from "./content/featured-content/featured-content.component";
 import { UserManagementComponent } from './users/user-management/user-management.component';
-import { PurgeManagementComponent } from './purge/purge-management.component';
 import { CreateUsersComponent } from './users/create-users/create-users.component';
-import { AllSubmissionsComponent } from './submissions/all-submissions/all-submissions.component';
+import { PurgeManagementComponent } from './purge/purge-management.component';
 
 @Component({
   selector: 'app-admin',
@@ -18,9 +17,8 @@ import { AllSubmissionsComponent } from './submissions/all-submissions/all-submi
     PublishedPostsComponent,
     FeaturedContentComponent,
     UserManagementComponent,
-    PurgeManagementComponent,
     CreateUsersComponent,
-    AllSubmissionsComponent
+    PurgeManagementComponent
 ],
   templateUrl: './admin.component.html',
   styleUrl: './admin.component.css'
@@ -28,7 +26,8 @@ import { AllSubmissionsComponent } from './submissions/all-submissions/all-submi
 export class AdminComponent implements OnInit, AfterViewInit {
   @ViewChild('tabNavigation') tabNavigation!: ElementRef;
   
-  activeTab: 'published' | 'featured' | 'users' | 'purge' | 'users_create' | 'submissions_all' = 'published';
+  activeTab: 'submissions' | 'content' | 'users' | 'purge' = 'submissions';
+  userSubTab: 'manage' | 'create' = 'manage';
   isAdmin = false;
   isReviewer = false;
   currentUser: any = null;
@@ -45,8 +44,8 @@ export class AdminComponent implements OnInit, AfterViewInit {
     
     // Handle URL fragments for direct tab navigation
     this.route.fragment.subscribe(fragment => {
-      if (fragment && ['published', 'featured', 'users', 'purge', 'users_create', 'submissions_all'].includes(fragment)) {
-        const tab = fragment as 'published' | 'featured' | 'users' | 'purge' | 'users_create' | 'submissions_all';
+      if (fragment && ['submissions', 'content', 'users', 'purge'].includes(fragment)) {
+        const tab = fragment as 'submissions' | 'content' | 'users' | 'purge';
         // Only set tab if user has permission to access it
         if (this.canAccessTab(tab)) {
           this.activeTab = tab;
@@ -75,7 +74,7 @@ export class AdminComponent implements OnInit, AfterViewInit {
       return;
     }
     
-    this.activeTab = 'published';
+    this.activeTab = 'submissions';
     this.loading = false;
   }
 
@@ -86,13 +85,17 @@ export class AdminComponent implements OnInit, AfterViewInit {
     }, 100);
   }
 
-  setActiveTab(tab: 'published' | 'featured' | 'users' | 'purge' | 'users_create' | 'submissions_all') {
+  setActiveTab(tab: 'submissions' | 'content' | 'users' | 'purge') {
     // Check if user has permission to access this tab
     if (!this.canAccessTab(tab)) {
       return; // Prevent access to unauthorized tabs
     }
 
     this.activeTab = tab;
+    // Reset user sub-tab when switching to users
+    if (tab === 'users') {
+      this.userSubTab = 'manage';
+    }
     // Update URL fragment for bookmarkable tabs
     this.router.navigate([], { 
       fragment: tab,
@@ -103,6 +106,10 @@ export class AdminComponent implements OnInit, AfterViewInit {
     setTimeout(() => {
       this.scrollToActiveTab();
     }, 50);
+  }
+
+  setUserSubTab(subTab: 'manage' | 'create') {
+    this.userSubTab = subTab;
   }
 
   private scrollToActiveTab() {
@@ -125,8 +132,8 @@ export class AdminComponent implements OnInit, AfterViewInit {
     }
     
     if (this.isReviewer) {
-      // Reviewers and curators can access published content management and featured content
-      return tab === 'published' || tab === 'featured';
+      // Reviewers and curators can access submissions and content management
+      return tab === 'submissions' || tab === 'content';
     }
     
     return false;

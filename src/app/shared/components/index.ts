@@ -19,6 +19,10 @@ export type {
 export * from './data-table/table-configs';
 export { UserMobileCardComponent } from './data-table/mobile-card-templates/user-mobile-card.component';
 export { SubmissionMobileCardComponent } from './data-table/mobile-card-templates/submission-mobile-card.component';
+export { SubmissionMobileCardComponent as ConsistentSubmissionMobileCardComponent } from './submission-mobile-card/submission-mobile-card.component';
+export type { SubmissionAction } from './submission-mobile-card/submission-mobile-card.component';
+export { UserMobileCardComponent as ConsistentUserMobileCardComponent } from './user-mobile-card/user-mobile-card.component';
+export type { UserAction } from './user-mobile-card/user-mobile-card.component';
 export { SubmissionFilterComponent } from './submission-filter/submission-filter.component';
 export type { FilterOptions } from './submission-filter/submission-filter.component';
 export { AdvancedSubmissionFilterComponent } from './advanced-submission-filter/advanced-submission-filter.component';

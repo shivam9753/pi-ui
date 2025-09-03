@@ -15,7 +15,9 @@ import {
   PaginationConfig,
   USER_TABLE_COLUMNS,
   createUserActions,
-  USER_BADGE_CONFIG
+  USER_BADGE_CONFIG,
+  ConsistentUserMobileCardComponent,
+  UserAction
 } from '../../../shared/components';
 import { SimpleSubmissionFilterComponent, SimpleFilterOptions } from '../../../shared/components/simple-submission-filter/simple-submission-filter.component';
 
@@ -34,7 +36,8 @@ interface Message {
     FormsModule, 
     AdminPageHeaderComponent,
     DataTableComponent,
-    SimpleSubmissionFilterComponent
+    SimpleSubmissionFilterComponent,
+    ConsistentUserMobileCardComponent
   ],
   templateUrl: './user-management.component.html',
   styleUrls: ['./user-management.component.css']
@@ -43,6 +46,7 @@ export class UserManagementComponent implements OnInit, OnDestroy {
   // Table configuration
   columns: TableColumn[] = USER_TABLE_COLUMNS;
   actions: TableAction[] = [];
+  consistentUserActions: UserAction[] = [];
   badgeConfig = USER_BADGE_CONFIG;
   selectedUsers: UserListItem[] = [];
   paginationConfig: PaginationConfig = {
@@ -104,6 +108,27 @@ export class UserManagementComponent implements OnInit, OnDestroy {
       (user) => this.openEditModal(user),
       (user) => this.viewUserProfile(user)
     );
+    
+    // Setup consistent actions for mobile user cards
+    this.consistentUserActions = [
+      {
+        label: 'Edit',
+        color: 'primary',
+        handler: (user) => this.openEditModal(user)
+      },
+      {
+        label: 'View Profile',
+        color: 'secondary',
+        handler: (user) => this.viewUserProfile(user)
+      }
+    ];
+  }
+  
+  // Handle role change from consistent user card
+  onUserRoleChange(event: {user: any, newRole: string}) {
+    // Create a fake event object that matches the expected format
+    const fakeEvent = { target: { value: event.newRole } };
+    this.changeUserRole(event.user, fakeEvent);
   }
 
   min(a: number, b: number): number {

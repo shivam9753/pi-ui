@@ -693,6 +693,18 @@ export class ReviewSubmissionComponent {
     }
   }
 
-  // Navigation methods removed for now due to API issues
+  // Navigation methods
+  viewUserProfile(userId: any) {
+    if (!userId) return;
+    
+    // Extract the actual ID from the userId object or use it directly
+    const actualUserId = typeof userId === 'object' ? userId._id || userId.id : userId;
+    
+    if (actualUserId) {
+      // Navigate to public author profile instead of private user profile
+      this.router.navigate(['/author', actualUserId]);
+    }
+  }
+
   // The core review functionality works fine without navigation
 }

@@ -19,36 +19,36 @@
         <div class="max-w-screen-xl mx-auto px-0 sm:px-6 md:px-10">
           <div class="mobile-tab-nav sm:mobile-tab-nav-disabled">
             <nav #tabNavigation class="flex justify-center sm:justify-center space-x-2 sm:space-x-8 overflow-x-auto scrollbar-hide px-4 sm:px-0" aria-label="Admin Tabs">
-              <!-- Manage Published - Admin only -->
-              @if (canAccessTab('published')) {
+              <!-- Submissions Management - Admin/Reviewer -->
+              @if (canAccessTab('submissions')) {
                 <button
-                  data-tab="published"
-                  (click)="setActiveTab('published')"
-                  [class.border-orange-500]="activeTab === 'published'"
-                  [class.text-orange-600]="activeTab === 'published'"
-                  [class.border-transparent]="activeTab !== 'published'"
-                  [class.text-gray-600]="activeTab !== 'published'"
-                  [class.hover:text-gray-900]="activeTab !== 'published'"
-                  [class.hover:border-gray-300]="activeTab !== 'published'"
+                  data-tab="submissions"
+                  (click)="setActiveTab('submissions')"
+                  [class.border-orange-500]="activeTab === 'submissions'"
+                  [class.text-orange-600]="activeTab === 'submissions'"
+                  [class.border-transparent]="activeTab !== 'submissions'"
+                  [class.text-gray-600]="activeTab !== 'submissions'"
+                  [class.hover:text-gray-900]="activeTab !== 'submissions'"
+                  [class.hover:border-gray-300]="activeTab !== 'submissions'"
                   class="whitespace-nowrap py-3 px-3 sm:py-4 sm:px-6 border-b-2 font-medium text-xs sm:text-sm transition-all duration-200 flex items-center gap-1 sm:gap-2 min-w-max"
                   >
                   <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                   </svg>
-                  Published
+                  Submissions
                 </button>
               }
-              <!-- Featured Content - Admin/Reviewer -->
-              @if (canAccessTab('featured')) {
+              <!-- Content Management - Admin/Reviewer -->
+              @if (canAccessTab('content')) {
                 <button
-                  data-tab="featured"
-                  (click)="setActiveTab('featured')"
-                  [class.border-orange-500]="activeTab === 'featured'"
-                  [class.text-orange-600]="activeTab === 'featured'"
-                  [class.border-transparent]="activeTab !== 'featured'"
-                  [class.text-gray-600]="activeTab !== 'featured'"
-                  [class.hover:text-gray-900]="activeTab !== 'featured'"
-                  [class.hover:border-gray-300]="activeTab !== 'featured'"
+                  data-tab="content"
+                  (click)="setActiveTab('content')"
+                  [class.border-orange-500]="activeTab === 'content'"
+                  [class.text-orange-600]="activeTab === 'content'"
+                  [class.border-transparent]="activeTab !== 'content'"
+                  [class.text-gray-600]="activeTab !== 'content'"
+                  [class.hover:text-gray-900]="activeTab !== 'content'"
+                  [class.hover:border-gray-300]="activeTab !== 'content'"
                   class="whitespace-nowrap py-3 px-3 sm:py-4 sm:px-6 border-b-2 font-medium text-xs sm:text-sm transition-all duration-200 flex items-center gap-1 sm:gap-2 min-w-max"
                   >
                   <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="currentColor" viewBox="0 0 20 20">
@@ -57,7 +57,7 @@
                   Content
                 </button>
               }
-              <!-- Manage Users - Admin only -->
+              <!-- User Management - Admin only -->
               @if (canAccessTab('users')) {
                 <button
                   data-tab="users"
@@ -95,44 +95,6 @@
                   Purge Data
                 </button>
               }
-              
-              <!-- Create Users Tab -->
-              @if (canAccessTab('users_create')) {
-                <button
-                  data-tab="users_create"
-                  (click)="setActiveTab('users_create')"
-                  [class.border-orange-500]="activeTab === 'users_create'"
-                  [class.text-orange-600]="activeTab === 'users_create'"
-                  [class.border-transparent]="activeTab !== 'users_create'"
-                  [class.text-gray-600]="activeTab !== 'users_create'"
-                  [class.hover:text-gray-900]="activeTab !== 'users_create'"
-                  [class.hover:border-gray-300]="activeTab !== 'users_create'"
-                  class="whitespace-nowrap py-3 px-3 sm:py-4 sm:px-6 border-b-2 font-medium text-xs sm:text-sm transition-all duration-200 flex items-center gap-1 sm:gap-2 min-w-max">
-                  <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/>
-                  </svg>
-                  Create Users
-                </button>
-              }
-              
-              <!-- All Submissions Tab -->
-              @if (canAccessTab('submissions_all')) {
-                <button
-                  data-tab="submissions_all"
-                  (click)="setActiveTab('submissions_all')"
-                  [class.border-orange-500]="activeTab === 'submissions_all'"
-                  [class.text-orange-600]="activeTab === 'submissions_all'"
-                  [class.border-transparent]="activeTab !== 'submissions_all'"
-                  [class.text-gray-600]="activeTab !== 'submissions_all'"
-                  [class.hover:text-gray-900]="activeTab !== 'submissions_all'"
-                  [class.hover:border-gray-300]="activeTab !== 'submissions_all'"
-                  class="whitespace-nowrap py-3 px-3 sm:py-4 sm:px-6 border-b-2 font-medium text-xs sm:text-sm transition-all duration-200 flex items-center gap-1 sm:gap-2 min-w-max">
-                  <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                  </svg>
-                  All Submissions
-                </button>
-              }
             </nav>
           </div>
         </div>
@@ -142,34 +104,56 @@
       <div class="bg-white w-full">
         <!-- Centered inner content -->
         <div class="pt-6 max-w-screen-xl mx-auto px-4 sm:px-6 md:px-10">
-          @if (activeTab === 'published') {
+          @if (activeTab === 'submissions') {
             <div class="animate-fade-in">
               <app-published-posts></app-published-posts>
             </div>
           }
-          @if (activeTab === 'featured') {
+          @if (activeTab === 'content') {
             <div class="animate-fade-in">
               <app-featured-content></app-featured-content>
             </div>
           }
           @if (activeTab === 'users') {
             <div class="animate-fade-in">
-              <app-user-management></app-user-management>
+              <!-- User Management Sub-tabs -->
+              <div class="mb-6">
+                <div class="border-b border-gray-200">
+                  <div class="flex space-x-6">
+                    <button
+                      (click)="setUserSubTab('manage')"
+                      [class.border-orange-500]="userSubTab === 'manage'"
+                      [class.text-orange-600]="userSubTab === 'manage'"
+                      [class.border-transparent]="userSubTab !== 'manage'"
+                      [class.text-gray-600]="userSubTab !== 'manage'"
+                      class="py-2 px-1 border-b-2 font-medium text-sm transition-colors duration-200 hover:text-orange-600 hover:border-orange-300">
+                      Manage Users
+                    </button>
+                    <button
+                      (click)="setUserSubTab('create')"
+                      [class.border-orange-500]="userSubTab === 'create'"
+                      [class.text-orange-600]="userSubTab === 'create'"
+                      [class.border-transparent]="userSubTab !== 'create'"
+                      [class.text-gray-600]="userSubTab !== 'create'"
+                      class="py-2 px-1 border-b-2 font-medium text-sm transition-colors duration-200 hover:text-orange-600 hover:border-orange-300">
+                      Create Users
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- User Sub-tab Content -->
+              @if (userSubTab === 'manage') {
+                <app-user-management></app-user-management>
+              }
+              @if (userSubTab === 'create') {
+                <app-create-users></app-create-users>
+              }
             </div>
           }
           @if (activeTab === 'purge') {
             <div class="animate-fade-in">
               <app-purge-management></app-purge-management>
-            </div>
-          }
-          @if (activeTab === 'users_create') {
-            <div class="animate-fade-in">
-              <app-create-users></app-create-users>
-            </div>
-          }
-          @if (activeTab === 'submissions_all') {
-            <div class="animate-fade-in">
-              <app-all-submissions></app-all-submissions>
             </div>
           }
         </div>

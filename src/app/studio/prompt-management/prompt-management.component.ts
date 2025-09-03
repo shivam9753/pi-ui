@@ -1,10 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
-import { BackendService } from '../../../services/backend.service';
-import { AuthService } from '../../../services/auth.service';
-import { AdminPageHeaderComponent, AdminPageStat } from '../../../shared/components/admin-page-header/admin-page-header.component';
-import { CommonUtils } from '../../../shared/utils';
+import { BackendService } from '../../services/backend.service';
+import { AuthService } from '../../services/auth.service';
+import { AdminPageHeaderComponent, AdminPageStat } from '../../shared/components/admin-page-header/admin-page-header.component';
+import { CommonUtils } from '../../shared/utils';
 import {
   DataTableComponent,
   TableColumn,
@@ -13,8 +13,8 @@ import {
   PROMPTS_TABLE_COLUMNS,
   createPromptActions,
   SUBMISSION_BADGE_CONFIG
-} from '../../../shared/components';
-import { SimpleSubmissionFilterComponent, SimpleFilterOptions } from '../../../shared/components/simple-submission-filter/simple-submission-filter.component';
+} from '../../shared/components';
+import { SimpleSubmissionFilterComponent, SimpleFilterOptions } from '../../shared/components/simple-submission-filter/simple-submission-filter.component';
 
 
 interface Prompt {

@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule, DatePipe, TitleCasePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { BackendService } from '../../../services/backend.service';
 import { HtmlSanitizerService } from '../../../services/html-sanitizer.service';
 import { PublishedContent } from '../../../utilities/published-content-card/published-content-card.component';
@@ -15,15 +16,20 @@ import {
   PaginationConfig,
   PUBLISHED_POSTS_TABLE_COLUMNS,
   createPublishedPostActions,
-  SUBMISSION_BADGE_CONFIG
+  SUBMISSION_BADGE_CONFIG,
+  SearchableUserSelectorComponent,
+  User,
+  ConsistentSubmissionMobileCardComponent,
+  SubmissionAction
 } from '../../../shared/components';
 import { SimpleSubmissionFilterComponent, SimpleFilterOptions } from '../../../shared/components/simple-submission-filter/simple-submission-filter.component';
-import { SUBMISSION_STATUS } from '../../../shared/constants/api.constants';
+import { SUBMISSION_STATUS, API_ENDPOINTS } from '../../../shared/constants/api.constants';
+import { environment } from '../../../../environments/environment';
 
 
 @Component({
   selector: 'app-published-posts',
-  imports: [CommonModule, DatePipe, TitleCasePipe, FormsModule, PrettyLabelPipe, TypeBadgePipe, AdminPageHeaderComponent, DataTableComponent, SimpleSubmissionFilterComponent],
+  imports: [CommonModule, DatePipe, TitleCasePipe, FormsModule, PrettyLabelPipe, TypeBadgePipe, AdminPageHeaderComponent, DataTableComponent, SimpleSubmissionFilterComponent, SearchableUserSelectorComponent, ConsistentSubmissionMobileCardComponent],
   templateUrl: './published-posts.component.html',
   styleUrl: './published-posts.component.css'
 })
@@ -31,6 +37,7 @@ export class PublishedPostsComponent implements OnInit {
   // Table configuration
   columns: TableColumn[] = PUBLISHED_POSTS_TABLE_COLUMNS;
   actions: TableAction[] = [];
+  consistentActions: SubmissionAction[] = [];
   badgeConfig = SUBMISSION_BADGE_CONFIG;
   paginationConfig: PaginationConfig = {
     currentPage: 1,
@@ -46,6 +53,20 @@ export class PublishedPostsComponent implements OnInit {
   
   // Filter properties
   currentFilters: SimpleFilterOptions = {};
+  quickFilter: 'published' | 'all' | 'accepted' = 'published';
+
+  // Analytics stats
+  stats: AdminPageStat[] = [];
+
+  // Author reassignment properties
+  users: User[] = [];
+  selectedSubmissions = new Set<string>();
+  selectedSubmissionsArray: any[] = [];
+  bulkSelectedUserId: string = '';
+  bulkActionLoading = false;
+  showBulkActions = false;
+  message = '';
+  messageType: 'success' | 'error' | 'info' = 'info';
 
   // Constants for template usage
   readonly SUBMISSION_STATUS = SUBMISSION_STATUS;
@@ -64,6 +85,7 @@ export class PublishedPostsComponent implements OnInit {
 
   constructor(
     private backendService: BackendService,
+    private http: HttpClient,
     private router: Router,
     private route: ActivatedRoute,
     private htmlSanitizer: HtmlSanitizerService
@@ -88,6 +110,7 @@ export class PublishedPostsComponent implements OnInit {
     });
     
     this.setupTableActions();
+    this.loadUsers();
     this.loadPublishedSubmissions();
   }
 
@@ -100,6 +123,25 @@ export class PublishedPostsComponent implements OnInit {
       (post) => this.featureContent(post._id, post.title),
       (post) => this.unfeatureContent(post._id, post.title)
     );
+    
+    // Setup consistent actions for mobile cards
+    this.consistentActions = [
+      {
+        label: 'Edit',
+        color: 'primary',
+        handler: (post) => this.editPublishedPost(post._id)
+      },
+      {
+        label: 'Feature',
+        color: 'warning',
+        handler: (post) => this.featureContent(post._id, post.title)
+      },
+      {
+        label: 'View',
+        color: 'secondary',
+        handler: (post) => this.viewContent(post)
+      }
+    ];
   }
 
   loadPublishedSubmissions() {
@@ -125,23 +167,64 @@ export class PublishedPostsComponent implements OnInit {
     if (this.currentFilters.search && this.currentFilters.search.trim() !== '') {
       params.search = this.currentFilters.search.trim();
     }
+
+    // Add status filter based on quick filter
+    if (this.quickFilter === 'published') {
+      params.status = 'published';
+    } else if (this.quickFilter === 'accepted') {
+      params.status = 'accepted';
+    }
+    // For 'all', don't add status filter to get all submissions
     
-    // Load published submissions with server-side filtering
-    this.backendService.getPublishedContent(typeFilter, params).subscribe({
-      next: (data) => {
-        this.publishedSubmissions = data.submissions || [];
-        this.filteredSubmissions = data.submissions || []; // Use server-filtered data directly
-        this.totalCount = data.total || 0;
+    // Choose the appropriate API endpoint based on quick filter
+    const apiCall = this.quickFilter === 'published' 
+      ? this.backendService.getPublishedContent(typeFilter, params)
+      : this.backendService.getSubmissions(params);
+    
+    apiCall.subscribe({
+      next: (data: any) => {
+        this.publishedSubmissions = data.submissions || data.data || [];
+        this.filteredSubmissions = data.submissions || data.data || [];
+        this.totalCount = data.total || data.pagination?.total || 0;
         this.totalPages = Math.ceil(this.totalCount / this.itemsPerPage);
         this.hasMore = data.pagination?.hasMore || false;
         this.updatePaginationConfig();
+        this.calculateStats();
         this.loading = false;
       },
-      error: (err) => {
-        this.showError('Failed to load published submissions');
+      error: (err: any) => {
+        this.showError('Failed to load submissions');
         this.loading = false;
       }
     });
+  }
+
+  setQuickFilter(filter: 'published' | 'all' | 'accepted') {
+    this.quickFilter = filter;
+    this.currentPage = 1; // Reset to first page
+    this.loadPublishedSubmissions();
+  }
+
+  getAvailableStatuses() {
+    switch (this.quickFilter) {
+      case 'published':
+        return [SUBMISSION_STATUS.PUBLISHED];
+      case 'accepted':
+        return [SUBMISSION_STATUS.ACCEPTED];
+      case 'all':
+        return [
+          SUBMISSION_STATUS.SUBMITTED,
+          SUBMISSION_STATUS.PENDING_REVIEW,
+          SUBMISSION_STATUS.IN_PROGRESS,
+          SUBMISSION_STATUS.SHORTLISTED,
+          SUBMISSION_STATUS.ACCEPTED,
+          SUBMISSION_STATUS.PUBLISHED,
+          SUBMISSION_STATUS.REJECTED,
+          SUBMISSION_STATUS.NEEDS_REVISION
+        ];
+      default:
+        return [SUBMISSION_STATUS.PUBLISHED, SUBMISSION_STATUS.ACCEPTED];
+    }
   }
 
   // Navigate to publishing interface for editing
@@ -152,6 +235,13 @@ export class PublishedPostsComponent implements OnInit {
         returnUrl: '/admin#published-posts'
       }
     });
+  }
+
+  // View published content
+  viewContent(post: any) {
+    if (post.slug) {
+      window.open(`/${post.submissionType}/${post.slug}`, '_blank');
+    }
   }
 
   // Configure and publish a submission (for accepted but unpublished items)
@@ -394,6 +484,59 @@ export class PublishedPostsComponent implements OnInit {
     };
   }
 
+  calculateStats() {
+    if (!this.publishedSubmissions.length) {
+      this.stats = [];
+      return;
+    }
+
+    const totalViews = this.publishedSubmissions.reduce((sum, submission) => {
+      return sum + (submission.viewCount || 0);
+    }, 0);
+
+    const averageViews = this.publishedSubmissions.length > 0 
+      ? Math.round(totalViews / this.publishedSubmissions.length) 
+      : 0;
+
+    const trendingPosts = this.publishedSubmissions.filter(submission => {
+      const recentViews = submission.recentViews || 0;
+      const totalViews = submission.viewCount || 0;
+      return recentViews >= 10 && totalViews > 0 && (recentViews / totalViews) >= 0.3;
+    }).length;
+
+    const featuredCount = this.publishedSubmissions.filter(submission => 
+      submission.featured === true
+    ).length;
+
+    this.stats = [
+      {
+        label: 'Total Published',
+        value: this.totalCount.toLocaleString(),
+        color: '#3b82f6'
+      },
+      {
+        label: 'Total Views',
+        value: totalViews.toLocaleString(),
+        color: '#10b981'
+      },
+      {
+        label: 'Avg Views/Post',
+        value: averageViews.toLocaleString(),
+        color: '#f59e0b'
+      },
+      {
+        label: 'Trending Posts',
+        value: trendingPosts.toString(),
+        color: '#ef4444'
+      },
+      {
+        label: 'Featured Content',
+        value: featuredCount.toString(),
+        color: '#8b5cf6'
+      }
+    ];
+  }
+
   onTablePageChange(page: number) {
     this.currentPage = page;
     this.loadPublishedSubmissions();
@@ -465,5 +608,86 @@ export class PublishedPostsComponent implements OnInit {
     });
   }
 
+  // Load users for author reassignment
+  loadUsers() {
+    this.backendService.getUsers({}).subscribe({
+      next: (response: any) => {
+        this.users = response.users || response.data || [];
+      },
+      error: (err: any) => {
+        console.error('Failed to load users:', err);
+      }
+    });
+  }
+
+  // Selection management
+  onSelectionChange(selectedItems: any[]) {
+    this.selectedSubmissionsArray = selectedItems;
+    this.selectedSubmissions.clear();
+    selectedItems.forEach(item => this.selectedSubmissions.add(item._id));
+    this.showBulkActions = this.selectedSubmissions.size > 0;
+  }
+
+  clearSelection() {
+    this.selectedSubmissions.clear();
+    this.selectedSubmissionsArray = [];
+    this.showBulkActions = false;
+    this.bulkSelectedUserId = '';
+  }
+
+  // Bulk author reassignment
+  bulkReassignUser() {
+    if (!this.bulkSelectedUserId || this.selectedSubmissions.size === 0) {
+      return;
+    }
+
+    const selectedUser = this.users.find(u => u._id === this.bulkSelectedUserId);
+    const confirmMsg = `Are you sure you want to reassign ${this.selectedSubmissions.size} submission(s) to ${selectedUser?.name || 'selected user'}?`;
+    
+    if (!confirm(confirmMsg)) {
+      return;
+    }
+
+    this.bulkActionLoading = true;
+    const submissionIds = Array.from(this.selectedSubmissions);
+    const headers = this.getAuthHeaders();
+    
+    this.http.put(`${environment.apiBaseUrl}${API_ENDPOINTS.ADMIN.SUBMISSIONS.BULK_REASSIGN}`, {
+      submissionIds,
+      newUserId: this.bulkSelectedUserId
+    }, { headers }).subscribe({
+      next: (response: any) => {
+        this.showMessage(
+          `Successfully reassigned ${this.selectedSubmissions.size} submission(s) to ${selectedUser?.name || 'selected user'}`,
+          'success'
+        );
+        this.clearSelection();
+        this.loadPublishedSubmissions();
+        this.bulkActionLoading = false;
+      },
+      error: (err: any) => {
+        this.showMessage(err.error?.message || 'Failed to reassign submissions', 'error');
+        this.bulkActionLoading = false;
+      }
+    });
+  }
+
+  // Get authentication headers
+  private getAuthHeaders(): HttpHeaders {
+    const jwtToken = localStorage.getItem('jwt_token');
+    return new HttpHeaders({
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${jwtToken}`
+    });
+  }
+
+  // Show message helper
+  showMessage(text: string, type: 'success' | 'error' | 'info') {
+    this.message = text;
+    this.messageType = type;
+    setTimeout(() => {
+      this.message = '';
+    }, 5000);
+  }
 
 }

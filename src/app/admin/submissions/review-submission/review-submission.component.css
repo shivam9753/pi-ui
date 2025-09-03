@@ -1,6 +1,13 @@
+/* Typography - Magazine Style */
+.font-serif {
+  font-family: 'Crimson Text', Georgia, serif;
+}
+
 /* Poetry and content formatting */
 .content-body {
+  font-family: 'Crimson Text', Georgia, serif;
   line-height: 1.7;
+  font-weight: 500;
 }
 
 .content-body br {

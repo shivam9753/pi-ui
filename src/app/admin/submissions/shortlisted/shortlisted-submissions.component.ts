@@ -11,7 +11,9 @@ import {
   PaginationConfig,
   PENDING_REVIEWS_TABLE_COLUMNS,
   createPendingReviewActions,
-  SUBMISSION_BADGE_CONFIG
+  SUBMISSION_BADGE_CONFIG,
+  ConsistentSubmissionMobileCardComponent,
+  SubmissionAction
 } from '../../../shared/components';
 import { SimpleSubmissionFilterComponent, SimpleFilterOptions } from '../../../shared/components/simple-submission-filter/simple-submission-filter.component';
 import { PrettyLabelPipe } from '../../../pipes/pretty-label.pipe';
@@ -19,7 +21,7 @@ import { PrettyLabelPipe } from '../../../pipes/pretty-label.pipe';
 @Component({
   selector: 'app-shortlisted-submissions',
   standalone: true,
-  imports: [CommonModule, FormsModule, AdminPageHeaderComponent, DataTableComponent, SimpleSubmissionFilterComponent, PrettyLabelPipe],
+  imports: [CommonModule, FormsModule, AdminPageHeaderComponent, DataTableComponent, SimpleSubmissionFilterComponent, PrettyLabelPipe, ConsistentSubmissionMobileCardComponent],
   templateUrl: './shortlisted-submissions.component.html',
   styles: [`
     .space-y-6 > * + * {
@@ -31,6 +33,7 @@ export class ShortlistedSubmissionsComponent implements OnInit {
   // Table configuration
   columns: TableColumn[] = PENDING_REVIEWS_TABLE_COLUMNS;
   actions: TableAction[] = [];
+  consistentActions: SubmissionAction[] = [];
   badgeConfig = SUBMISSION_BADGE_CONFIG;
   paginationConfig: PaginationConfig = {
     currentPage: 1,
@@ -78,6 +81,15 @@ export class ShortlistedSubmissionsComponent implements OnInit {
     this.actions = createPendingReviewActions((submission: any) => {
       this.router.navigate(['/review-submission', submission._id]);
     });
+    
+    // Setup consistent actions for mobile cards
+    this.consistentActions = [
+      {
+        label: 'Review',
+        color: 'primary',
+        handler: (submission) => this.router.navigate(['/review-submission', submission._id])
+      }
+    ];
   }
 
   loadShortlistedSubmissions() {

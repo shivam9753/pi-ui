@@ -13,14 +13,16 @@ import {
   PaginationConfig,
   READY_TO_PUBLISH_TABLE_COLUMNS,
   createReadyToPublishActions,
-  SUBMISSION_BADGE_CONFIG
+  SUBMISSION_BADGE_CONFIG,
+  ConsistentSubmissionMobileCardComponent,
+  SubmissionAction
 } from '../../../shared/components';
 import { SimpleSubmissionFilterComponent, SimpleFilterOptions } from '../../../shared/components/simple-submission-filter/simple-submission-filter.component';
 import { PrettyLabelPipe } from '../../../pipes/pretty-label.pipe';
 
 @Component({
   selector: 'app-ready-to-publish',
-  imports: [CommonModule, FormsModule, AdminPageHeaderComponent, DataTableComponent, SimpleSubmissionFilterComponent, PrettyLabelPipe],
+  imports: [CommonModule, FormsModule, AdminPageHeaderComponent, DataTableComponent, SimpleSubmissionFilterComponent, PrettyLabelPipe, ConsistentSubmissionMobileCardComponent],
   templateUrl: './ready-to-publish.component.html',
   styleUrl: './ready-to-publish.component.css'
 })
@@ -28,6 +30,7 @@ export class ReadyToPublishComponent implements OnInit {
   // Table configuration
   columns: TableColumn[] = READY_TO_PUBLISH_TABLE_COLUMNS;
   actions: TableAction[] = [];
+  consistentActions: SubmissionAction[] = [];
   badgeConfig = SUBMISSION_BADGE_CONFIG;
   paginationConfig: PaginationConfig = {
     currentPage: 1,
@@ -62,6 +65,15 @@ export class ReadyToPublishComponent implements OnInit {
     this.actions = createReadyToPublishActions(
       (submission) => this.configurePublishing(submission._id || submission.id)
     );
+    
+    // Setup consistent actions for mobile cards
+    this.consistentActions = [
+      {
+        label: 'Configure & Publish',
+        color: 'success',
+        handler: (submission) => this.configurePublishing(submission._id || submission.id)
+      }
+    ];
   }
 
   // Load accepted submissions

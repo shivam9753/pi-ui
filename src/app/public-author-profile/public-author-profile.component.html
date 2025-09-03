@@ -1,0 +1,231 @@
+<div class="min-h-screen bg-gray-50">
+  
+  <!-- Loading State -->
+  @if (isLoading()) {
+    <app-loading-state message="Loading author profile..."></app-loading-state>
+  }
+  
+  <!-- Error State -->
+  @if (error()) {
+    <div class="max-w-4xl mx-auto px-4 py-16">
+      <app-empty-state
+        [icon]="'user'"
+        [title]="'Author Not Found'"
+        [message]="error()!"
+        [actionText]="'Back to Explore'"
+        [onAction]="goToExplore">
+      </app-empty-state>
+    </div>
+  }
+  
+  <!-- Author Profile Content -->
+  @if (!isLoading() && !error() && authorProfile()) {
+    <div class="max-w-6xl mx-auto px-4 py-8">
+      
+      <!-- Author Header -->
+      <div class="bg-white rounded-2xl shadow-sm border border-gray-200 mb-8 overflow-hidden">
+        <!-- Cover/Banner Area -->
+        <div class="bg-gradient-to-r from-blue-500 to-purple-600 h-32 sm:h-48 relative">
+          <!-- Profile Picture - Centered and overlapping banner -->
+          <div class="absolute -bottom-12 left-1/2 transform -translate-x-1/2">
+            <img 
+              [src]="getProfileImageUrl(authorProfile()?.profileImage)"
+              [alt]="authorProfile()?.name + ' profile picture'"
+              class="w-24 h-24 sm:w-32 sm:h-32 rounded-full border-4 border-white bg-white shadow-lg object-cover">
+          </div>
+        </div>
+        
+        <!-- Profile Info -->
+        <div class="px-6 pt-16 pb-6 text-center">
+          <!-- Name and Basic Stats -->
+          <div>
+            <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 mb-4">
+              {{ authorProfile()?.name }}
+            </h1>
+            
+            <div class="flex flex-wrap justify-center gap-4 text-sm text-gray-600 mb-4">
+              @if (authorProfile()?.totalFeaturedWorks) {
+                <div class="flex items-center gap-1">
+                  <svg class="w-4 h-4 text-yellow-600" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/>
+                  </svg>
+                  <span class="font-medium">{{ authorProfile()?.totalFeaturedWorks }}</span> featured works
+                </div>
+              }
+              
+              @if (authorProfile()?.joinedDate) {
+                <div class="flex items-center gap-1">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                  </svg>
+                  <span>Joined {{ formatDate(authorProfile()!.joinedDate!) }}</span>
+                </div>
+              }
+            </div>
+          </div>
+          
+          <!-- Bio Section -->
+          @if (authorProfile()?.bio) {
+            <div class="mt-6 max-w-2xl mx-auto">
+              <p class="text-gray-700 leading-relaxed text-lg" [innerHTML]="authorProfile()?.bio"></p>
+            </div>
+          }
+          
+          <!-- Social Links -->
+          @if (authorProfile()?.socialLinks) {
+            <div class="mt-6 flex flex-wrap justify-center gap-3">
+              @if (authorProfile()?.socialLinks?.website) {
+                <button 
+                  (click)="openSocialLink(authorProfile()!.socialLinks!.website!)"
+                  class="inline-flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9v-9m0-9v9"/>
+                  </svg>
+                  Website
+                </button>
+              }
+              
+              @if (authorProfile()?.socialLinks?.twitter) {
+                <button 
+                  (click)="openSocialLink('https://twitter.com/' + authorProfile()!.socialLinks!.twitter!)"
+                  class="inline-flex items-center gap-2 px-4 py-2 bg-blue-100 hover:bg-blue-200 text-blue-700 rounded-lg transition-colors">
+                  <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z"/>
+                  </svg>
+                  Twitter
+                </button>
+              }
+              
+              @if (authorProfile()?.socialLinks?.instagram) {
+                <button 
+                  (click)="openSocialLink('https://instagram.com/' + authorProfile()!.socialLinks!.instagram!)"
+                  class="inline-flex items-center gap-2 px-4 py-2 bg-pink-100 hover:bg-pink-200 text-pink-700 rounded-lg transition-colors">
+                  <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12.017 0C8.396 0 7.989.013 7.041.048 6.094.082 5.52.204 5.017.388a6.624 6.624 0 00-2.357 1.533A6.52 6.52 0 00.926 4.204C.743 4.708.621 5.281.588 6.227.013 7.175 0 7.584 0 12.017c0 4.432.013 4.841.048 5.788.033.946.155 1.519.34 2.024.18.895.479 1.563.896 2.125a6.55 6.55 0 002.125.896 7.108 7.108 0 002.023.84c.947.035 1.356.048 5.789.048 4.432 0 4.841-.013 5.788-.048.946-.032 1.519-.155 2.023-.84a6.55 6.55 0 002.125-.896 6.55 6.55 0 00.896-2.125c.184-.505.307-1.078.34-2.024.035-.947.048-1.356.048-5.788 0-4.433-.013-4.842-.048-5.789-.033-.946-.156-1.519-.34-2.024a6.55 6.55 0 00-.896-2.125A6.55 6.55 0 0019.229.388C18.724.204 18.151.082 17.205.048 16.258.013 15.849 0 11.417 0h.6zm-.988 1.75h.156c4.235 0 4.73.018 6.4.096.787.036 1.216.166 1.5.276.504.196.864.43 1.238.805.375.375.61.734.805 1.238.11.285.24.713.276 1.5.078 1.671.096 2.165.096 6.4 0 4.235-.018 4.73-.096 6.4-.036.787-.166 1.216-.276 1.5-.196.504-.43.864-.805 1.238a3.32 3.32 0 01-1.238.805c-.285.11-.713.24-1.5.276-1.671.078-2.165.096-6.4.096-4.236 0-4.73-.018-6.401-.096-.787-.036-1.216-.166-1.5-.276a3.32 3.32 0 01-1.238-.805 3.32 3.32 0 01-.805-1.238c-.11-.285-.24-.713-.276-1.5-.078-1.671-.096-2.165-.096-6.4 0-4.235.018-4.73.096-6.401.036-.787.166-1.216.276-1.5.196-.504.43-.864.805-1.238a3.32 3.32 0 011.238-.805c.285-.11.713-.24 1.5-.276 1.462-.067 2.023-.082 4.8-.082l-.06 1.75z"/>
+                    <path d="M12.017 5.838a6.179 6.179 0 100 12.358 6.179 6.179 0 000-12.358zM12.017 15.75a3.571 3.571 0 110-7.142 3.571 3.571 0 010 7.142zM18.539 5.592a1.44 1.44 0 11-2.88 0 1.44 1.44 0 012.88 0z"/>
+                  </svg>
+                  Instagram
+                </button>
+              }
+            </div>
+          }
+        </div>
+      </div>
+      
+      <!-- Featured Works Section -->
+      <div class="bg-white rounded-2xl shadow-sm border border-gray-200">
+        <div class="p-6 border-b border-gray-200">
+          <div class="flex items-center gap-2 mb-2">
+            <h2 class="text-2xl font-bold text-gray-900">Featured Works</h2>
+            <svg class="w-5 h-5 text-yellow-500" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/>
+            </svg>
+          </div>
+          <p class="text-gray-600">
+            @if (featuredWorks().length > 0) {
+              {{ featuredWorks().length }} featured {{ featuredWorks().length === 1 ? 'work' : 'works' }}
+            } @else {
+              No featured works yet
+            }
+          </p>
+        </div>
+        
+        <!-- Works Grid -->
+        @if (featuredWorks().length > 0) {
+          <div class="p-6">
+            <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+              @for (work of featuredWorks(); track work._id) {
+                <article 
+                  class="group cursor-pointer bg-gray-50 rounded-xl border border-gray-200 hover:border-gray-300 hover:shadow-md transition-all duration-200 overflow-hidden"
+                  (click)="navigateToWork(work)">
+                  
+                  <div class="p-5">
+                    <!-- Work Type Badge -->
+                    <div class="mb-3">
+                      <span 
+                        class="inline-block px-3 py-1 rounded-full text-xs font-medium"
+                        [ngClass]="getWorkTypeColor(work)">
+                        {{ getWorkType(work) | titlecase }}
+                      </span>
+                    </div>
+                    
+                    <!-- Title -->
+                    <h3 class="font-bold text-gray-900 text-lg mb-2 group-hover:text-blue-600 transition-colors line-clamp-2">
+                      {{ work.title }}
+                    </h3>
+                    
+                    <!-- Excerpt -->
+                    @if (work.excerpt) {
+                      <p class="text-gray-600 text-sm mb-4 line-clamp-3">
+                        {{ work.excerpt }}
+                      </p>
+                    }
+                    
+                    <!-- Metadata -->
+                    <div class="flex items-center justify-between text-xs text-gray-500">
+                      <div class="flex items-center gap-3">
+                        <!-- Publication Date -->
+                        <span class="flex items-center gap-1">
+                          <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                          </svg>
+                          {{ formatDate(work.publishedAt) }}
+                        </span>
+                        
+                        <!-- Reading Time -->
+                        @if (work.readingTime) {
+                          <span class="flex items-center gap-1">
+                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                            {{ work.readingTime }}min
+                          </span>
+                        }
+                      </div>
+                      
+                      <!-- View Count -->
+                      @if (work.viewCount && work.viewCount > 0) {
+                        <span class="flex items-center gap-1">
+                          <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                          </svg>
+                          {{ work.viewCount }}
+                        </span>
+                      }
+                    </div>
+                    
+                    <!-- Tags -->
+                    @if (work.tags && work.tags.length > 0) {
+                      <div class="mt-3 flex flex-wrap gap-1">
+                        @for (tag of work.tags.slice(0, 3); track tag) {
+                          <span class="inline-block px-2 py-1 bg-gray-200 text-gray-600 rounded text-xs">
+                            #{{ tag }}
+                          </span>
+                        }
+                        @if (work.tags.length > 3) {
+                          <span class="inline-block px-2 py-1 bg-gray-200 text-gray-600 rounded text-xs">
+                            +{{ work.tags.length - 3 }} more
+                          </span>
+                        }
+                      </div>
+                    }
+                  </div>
+                </article>
+              }
+            </div>
+          </div>
+        } @else {
+          <!-- No Works State -->
+          <div class="p-12">
+            <app-empty-state
+              [icon]="'star'"
+              [title]="'No Featured Works'"
+              [message]="'This author has not had any works featured yet.'">
+            </app-empty-state>
+          </div>
+        }
+      </div>
+    </div>
+  }
+</div>

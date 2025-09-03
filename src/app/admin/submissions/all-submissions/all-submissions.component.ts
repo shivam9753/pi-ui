@@ -15,7 +15,9 @@ import {
   createSubmissionActions,
   SUBMISSION_BADGE_CONFIG,
   SearchableUserSelectorComponent,
-  User
+  User,
+  ConsistentSubmissionMobileCardComponent,
+  SubmissionAction
 } from '../../../shared/components';
 import { PrettyLabelPipe } from '../../../pipes/pretty-label.pipe';
 import { SimpleSubmissionFilterComponent, SimpleFilterOptions } from '../../../shared/components/simple-submission-filter/simple-submission-filter.component';
@@ -23,7 +25,7 @@ import { SimpleSubmissionFilterComponent, SimpleFilterOptions } from '../../../s
 
 @Component({
   selector: 'app-all-submissions',
-  imports: [CommonModule, FormsModule, AdminPageHeaderComponent, DataTableComponent, PrettyLabelPipe, SimpleSubmissionFilterComponent, SearchableUserSelectorComponent],
+  imports: [CommonModule, FormsModule, AdminPageHeaderComponent, DataTableComponent, PrettyLabelPipe, SimpleSubmissionFilterComponent, SearchableUserSelectorComponent, ConsistentSubmissionMobileCardComponent],
   templateUrl: './all-submissions.component.html',
   styleUrl: './all-submissions.component.css'
 })
@@ -37,6 +39,7 @@ export class AllSubmissionsComponent implements OnInit {
     sortable: false
   }];
   actions: TableAction[] = [];
+  consistentActions: SubmissionAction[] = [];
   badgeConfig = SUBMISSION_BADGE_CONFIG;
   selectedSubmissionsArray: any[] = [];
   paginationConfig: PaginationConfig = {
@@ -102,6 +105,20 @@ export class AllSubmissionsComponent implements OnInit {
         label: 'Delete',
         color: 'danger' as const,
         handler: (submission: any) => this.deleteSubmission(submission)
+      }
+    ];
+    
+    // Setup consistent actions for mobile cards
+    this.consistentActions = [
+      {
+        label: 'Change Author',
+        color: 'warning',
+        handler: (submission) => this.startEdit(submission)
+      },
+      {
+        label: 'Delete',
+        color: 'danger',
+        handler: (submission) => this.deleteSubmission(submission)
       }
     ];
   }

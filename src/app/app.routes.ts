@@ -6,11 +6,13 @@ import { ReviewerGuard } from './guards/reviewer.guard';
 import { SubmissionEditorComponent } from './submit/submission-editor/submission-editor.component';
 import { UserLoginComponent } from './user-login/user-login.component';
 import { UserProfileComponent } from './user-profile/user-profile.component';
+import { PublicAuthorProfileComponent } from './public-author-profile/public-author-profile.component';
 import { ReadingInterfaceComponent } from './reading-interface/reading-interface.component';
 import { SimpleContentReaderComponent } from './simple-content-reader/simple-content-reader.component';
 import { PromptsComponent } from './prompts/prompts.component';
 import { AdminComponent } from './admin/admin.component';
 import { WorkspaceComponent } from './workspace/workspace.component';
+import { StudioComponent } from './studio/studio.component';
 import { PublishSubmissionComponent } from './admin/submissions/publish-submission/publish-submission.component';
 import { ReviewSubmissionComponent } from './admin/submissions/review-submission/review-submission.component';
 import { ProfileCompletionComponent } from './profile-completion/profile-completion.component';
@@ -65,6 +67,11 @@ export const routes: Routes = [
     path: 'tag/:tag', 
     component: TagComponent,
     title: 'Tag - pi'
+  },
+  { 
+    path: 'author/:id', 
+    component: PublicAuthorProfileComponent,
+    title: 'Author Profile - pi'
   },
   { 
     path: 'user-profile/:id', 
@@ -131,8 +138,14 @@ export const routes: Routes = [
     canActivate: [ReviewerGuard],
     title: 'Editorial Workspace'
   },
+  { 
+    path: 'studio', 
+    component: StudioComponent, 
+    canActivate: [AuthGuard],
+    title: 'Creative Studio'
+  },
   
-  // Legacy routes for backwards compatibility (redirect to workspace/admin with hash)
+  // Legacy routes for backwards compatibility
   { 
     path: 'review', 
     redirectTo: '/workspace#review',
@@ -146,6 +159,11 @@ export const routes: Routes = [
   { 
     path: 'users', 
     redirectTo: '/admin#users',
+    pathMatch: 'full'
+  },
+  { 
+    path: 'pitches', 
+    redirectTo: '/studio#pitches',
     pathMatch: 'full'
   },
   { 
@@ -216,10 +234,10 @@ export const routes: Routes = [
       
       // Skip known application routes that aren't post slugs
       const knownRoutes = [
-        'login', 'explore', 'search', 'submit', 'admin', 'workspace', 'profile', 'prompts',
+        'login', 'explore', 'search', 'submit', 'admin', 'workspace', 'studio', 'profile', 'prompts',
         'faqs', 'contact-us', 'privacy-policy', 'terms-of-use', 'whats-new',
         'complete-profile', 'review', 'publish', 'users', 'poem-parser', 'json-parser',
-        'user-profile'
+        'user-profile', 'pitches', 'about'
       ];
       
       if (slug && !knownRoutes.includes(slug)) {

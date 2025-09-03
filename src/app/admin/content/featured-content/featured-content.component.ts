@@ -13,13 +13,15 @@ import {
   PaginationConfig,
   PUBLISHED_POSTS_TABLE_COLUMNS,
   createPublishedPostActions,
-  SUBMISSION_BADGE_CONFIG
+  SUBMISSION_BADGE_CONFIG,
+  ConsistentSubmissionMobileCardComponent,
+  SubmissionAction
 } from '../../../shared/components';
 import { SimpleSubmissionFilterComponent, SimpleFilterOptions } from '../../../shared/components/simple-submission-filter/simple-submission-filter.component';
 
 @Component({
   selector: 'app-featured-content',
-  imports: [CommonModule, DatePipe, FormsModule, PrettyLabelPipe, AdminPageHeaderComponent, DataTableComponent, SimpleSubmissionFilterComponent],
+  imports: [CommonModule, DatePipe, FormsModule, PrettyLabelPipe, AdminPageHeaderComponent, DataTableComponent, SimpleSubmissionFilterComponent, ConsistentSubmissionMobileCardComponent],
   templateUrl: './featured-content.component.html',
   styleUrl: './featured-content.component.css'
 })
@@ -56,6 +58,7 @@ export class FeaturedContentComponent implements OnInit {
     }
   ];
   actions: TableAction[] = [];
+  consistentActions: SubmissionAction[] = [];
   badgeConfig = SUBMISSION_BADGE_CONFIG;
   paginationConfig: PaginationConfig = {
     currentPage: 1,
@@ -130,6 +133,27 @@ export class FeaturedContentComponent implements OnInit {
       {
         label: 'View',
         color: 'secondary',
+        handler: (content) => this.viewContent(content)
+      }
+    ];
+    
+    // Setup consistent actions for mobile cards
+    this.consistentActions = [
+      {
+        label: 'Feature',
+        color: 'warning',
+        condition: (content) => !content.isFeatured,
+        handler: (content) => this.featureContent(content._id, content.title)
+      },
+      {
+        label: 'Unfeature',
+        color: 'secondary',
+        condition: (content) => content.isFeatured,
+        handler: (content) => this.unfeatureContent(content._id, content.title)
+      },
+      {
+        label: 'View',
+        color: 'primary',
         handler: (content) => this.viewContent(content)
       }
     ];
