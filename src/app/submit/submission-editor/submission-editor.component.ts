@@ -93,35 +93,35 @@ export class SubmissionEditorComponent implements OnInit, OnDestroy {
     { 
       label: 'Poem', 
       value: 'poem', 
-      description: 'Verses, lyrics, free verse',
+      description: 'Poetry in all forms',
       icon: '📝',
       expedited: false
     },
     { 
       label: 'Prose', 
       value: 'prose', 
-      description: 'Short stories, narratives',
+      description: 'Ceative nonfiction, memoir, and more',
       icon: '📖',
       expedited: false
     },
     { 
       label: 'Article', 
       value: 'article', 
-      description: 'In-depth analysis, research',
+      description: 'Well-researched analysis, deep dives, or thoughtful essays',
       icon: '📰',
       expedited: false
     },
     { 
       label: 'Book Review', 
       value: 'book_review', 
-      description: 'Book analysis, recommendations',
+      description: 'Critical takes, reader impressions, and recommendations worth sharing',
       icon: '📚',
       expedited: false
     },
     { 
       label: 'Cinema Essay', 
       value: 'cinema_essay', 
-      description: 'Film analysis, reviews',
+      description: 'Film criticism, analysis or essays on cinema culture',
       icon: '🎬',
       expedited: false
     }
@@ -709,7 +709,7 @@ export class SubmissionEditorComponent implements OnInit, OnDestroy {
 
     if (this.isResubmitMode) {
       // Use updateSubmission instead of resubmitSubmission to avoid backend action mapping issues
-      cleanedData.status = SUBMISSION_STATUS.PENDING_REVIEW; // Reset to pending review for resubmission
+      cleanedData.status = SUBMISSION_STATUS.RESUBMITTED; // Set to resubmitted status
       this.backendService.updateSubmission(this.submissionId!, cleanedData).subscribe({
         next: (response: any) => {
           this.showToast('Submission resubmitted successfully! It will be reviewed again.', 'success');

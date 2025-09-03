@@ -197,11 +197,9 @@ export class PublishSubmissionComponent implements OnInit {
 
       // Initialize content expansion state
       if (this.submission.contents) {
-        this.contentExpanded = new Array(this.submission.contents.length).fill(false);
-        // Expand first content item by default
-        if (this.submission.contents.length > 0) {
-          this.contentExpanded[0] = true;
-        }
+        // Expand all content items by default for better visibility during publishing
+        this.contentExpanded = new Array(this.submission.contents.length).fill(true);
+        this.allContentExpanded = true;
       }
     }
   }
@@ -343,6 +341,8 @@ export class PublishSubmissionComponent implements OnInit {
       .replace(/&lt;/g, '<')
       .replace(/&gt;/g, '>')
       .replace(/&quot;/g, '"')
+      .replace(/<([^>]+)\s+style\s*=\s*["'][^"']*["']([^>]*)>/gi, '<$1$2>') // Remove inline style attributes
+      .replace(/<([^>]+)\s+class\s*=\s*["'][^"']*["']([^>]*)>/gi, '<$1$2>') // Remove class attributes that might have theme styles
       .replace(/^\s*<br\s*\/?>/g, '')            // Remove leading br tags
       .replace(/<br\s*\/?>$/g, '')               // Remove trailing br tags
       .trim();                                   // Remove leading/trailing whitespace

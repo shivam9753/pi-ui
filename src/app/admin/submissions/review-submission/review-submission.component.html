@@ -31,7 +31,7 @@
         <div class="text-right flex flex-col items-end gap-2">
           <app-status-badge [status]="submission?.status" size="md"></app-status-badge>
           <app-status-badge [status]="submission?.submissionType" size="sm"></app-status-badge>
-          @if (submission?.submissionType === 'opinion') {
+          @if (submission?.isFeatured) {
             <app-status-badge
               status="featured"
               size="sm"
@@ -398,7 +398,7 @@
               <div class="text-right mr-4 flex flex-col items-end gap-2">
                 <app-status-badge [status]="submission?.status" size="md"></app-status-badge>
                 <app-status-badge [status]="submission?.submissionType" size="sm"></app-status-badge>
-                @if (submission?.submissionType === 'opinion') {
+                @if (submission?.isFeatured) {
                   <app-status-badge
                     status="featured"
                     size="sm"

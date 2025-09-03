@@ -507,11 +507,11 @@ export class ReviewSubmissionComponent {
            ['admin', 'reviewer', 'curator'].includes(user.role);
   }
 
-  // Check if action buttons should show (for in_progress and shortlisted submissions)
+  // Check if action buttons should show (for in_progress, shortlisted, and resubmitted submissions)
   canShowActionButtons(): boolean {
     const user = this.loggedInUser || this.authService.getCurrentUser();
     const isLoggedIn = user && (user.id || user.email);
-    return ['in_progress', 'shortlisted'].includes(this.submission?.status) && 
+    return ['in_progress', 'shortlisted', 'resubmitted'].includes(this.submission?.status) && 
            isLoggedIn &&
            user?.role && 
            ['admin', 'reviewer', 'curator'].includes(user.role);

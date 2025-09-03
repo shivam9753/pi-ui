@@ -17,24 +17,24 @@
   justify-content: center;
   border-radius: 0.375rem;
   border: 1px solid transparent;
-  color: var(--text-secondary);
+  color: #6b7280;
   transition: all 0.2s ease;
 }
 
 .toolbar-btn:hover {
-  color: var(--text-primary);
-  background-color: var(--bg-hover);
+  color: #1f2937;
+  background-color: #f3f4f6;
 }
 
 .toolbar-btn:focus {
   outline: none;
-  box-shadow: 0 0 0 2px var(--border-focus);
+  box-shadow: 0 0 0 2px #f97316;
 }
 
 .toolbar-btn.active {
-  background-color: var(--bg-accent-light);
-  color: var(--text-accent);
-  border-color: var(--border-accent);
+  background-color: #fed7aa;
+  color: #c2410c;
+  border-color: #fb923c;
 }
 
 .toolbar-btn:hover {
@@ -49,28 +49,55 @@
   word-wrap: break-word;
   overflow-wrap: break-word;
   white-space: pre-wrap; /* Preserve whitespace and line breaks */
-  color: var(--text-primary) !important; /* Force theme text color */
+  color: #1f2937 !important; /* Force dark text color for light mode */
 }
 
-/* Ensure all text elements inherit the theme color and font family */
+/* Force all text elements to use dark text color - override any inline styles */
 .editor-content *:not(strong):not(b):not(em):not(i) {
-  color: inherit !important;
+  color: #1f2937 !important;
   font-family: inherit !important;
 }
 
 .editor-content span {
-  color: inherit !important;
+  color: #1f2937 !important;
   font-family: inherit !important;
 }
 
 .editor-content div {
-  color: inherit !important;
+  color: #1f2937 !important;
   font-family: inherit !important;
+  background-color: transparent !important;
 }
 
 .editor-content p {
-  color: inherit !important;
+  color: #1f2937 !important;
   font-family: inherit !important;
+  background-color: transparent !important;
+}
+
+/* Override any background colors on text elements */
+.editor-content * {
+  background-color: transparent !important;
+}
+
+/* Specifically target any elements that might have light/white text */
+.editor-content [style*="color: white"],
+.editor-content [style*="color: #fff"],
+.editor-content [style*="color: #ffffff"],
+.editor-content [style*="color: rgb(255, 255, 255)"],
+.editor-content .text-white,
+.editor-content [data-theme="dark"],
+.editor-content .dark-text {
+  color: #1f2937 !important;
+}
+
+/* Force text color on any contenteditable elements */
+.editor-content[contenteditable="true"],
+.editor-content[contenteditable="true"] *,
+.rich-text-editor [contenteditable="true"],
+.rich-text-editor [contenteditable="true"] * {
+  color: #1f2937 !important;
+  background-color: transparent !important;
 }
 
 .editor-content:focus {
@@ -103,13 +130,13 @@
 .editor-content strong,
 .editor-content b {
   font-weight: 700;
-  color: var(--text-primary);
+  color: #1f2937;
 }
 
 .editor-content em,
 .editor-content i {
   font-style: italic;
-  color: var(--text-secondary);
+  color: #6b7280;
 }
 
 .editor-content u {
@@ -117,16 +144,16 @@
 }
 
 .editor-content blockquote {
-  border-left: 4px solid var(--border-accent);
+  border-left: 4px solid #fb923c;
   padding-left: 1rem;
   padding-top: 0.5rem;
   padding-bottom: 0.5rem;
   margin-top: 1rem;
   margin-bottom: 1rem;
-  background-color: var(--bg-accent-light);
-  color: var(--text-secondary);
+  background-color: #fed7aa;
+  color: #6b7280;
   font-style: italic;
-  border-radius: 0 var(--radius-md) var(--radius-md) 0;
+  border-radius: 0 0.375rem 0.375rem 0;
 }
 
 .editor-content blockquote p {
@@ -152,20 +179,20 @@
 
 /* Selection styling */
 .editor-content ::selection {
-  background-color: var(--bg-accent-light);
-  color: var(--text-accent);
+  background-color: #fed7aa;
+  color: #c2410c;
 }
 
 /* Focus styles */
 .rich-text-editor:focus-within {
-  box-shadow: 0 0 0 2px var(--ring-color);
-  border-color: var(--border-focus);
+  box-shadow: 0 0 0 2px #f97316;
+  border-color: #f97316;
 }
 
 /* Empty state placeholder */
 .editor-content:empty::before {
   content: attr(placeholder);
-  color: var(--text-tertiary);
+  color: #9ca3af;
   pointer-events: none;
 }
 
@@ -192,16 +219,16 @@
 }
 
 .editor-content::-webkit-scrollbar-track {
-  background: var(--bg-secondary);
+  background: #f9fafb;
 }
 
 .editor-content::-webkit-scrollbar-thumb {
-  background: var(--border-secondary);
+  background: #d1d5db;
   border-radius: 2px;
 }
 
 .editor-content::-webkit-scrollbar-thumb:hover {
-  background: var(--text-tertiary);
+  background: #9ca3af;
 }
 
 /* Animation for toolbar buttons */
@@ -223,8 +250,8 @@
 
 /* Image upload and drag-drop styles */
 .editor-content.drag-over {
-  border-color: var(--border-accent) !important;
-  background-color: var(--bg-accent-light);
+  border-color: #fb923c !important;
+  background-color: #fed7aa;
 }
 
 .image-container {
@@ -242,7 +269,7 @@
 
 .image-info {
   font-size: 0.75rem;
-  color: var(--text-tertiary);
+  color: #9ca3af;
   margin-top: 0.5rem;
   text-align: center;
 }
@@ -358,7 +385,7 @@
 .word-count {
   font-size: 0.75rem;
   font-weight: 500;
-  color: var(--text-tertiary);
+  color: #9ca3af;
 }
 
 /* Special formatting for poetry/prose */

@@ -265,8 +265,23 @@
             <!-- Content Management Section -->
             <div class="bg-white border border-gray-200 rounded-lg p-6 shadow-sm mb-8">
               <div class="flex items-center justify-between mb-6">
-                <h2 class="text-xl font-semibold text-gray-900">Content Management</h2>
+                <div>
+                  <h2 class="text-xl font-semibold text-gray-900">Content Management</h2>
+                  @if (submission.contents && submission.contents.length > 1) {
+                    <p class="text-sm text-gray-600 mt-1">{{ submission.contents.length }} content sections</p>
+                  }
+                </div>
                 <div class="flex gap-2">
+                  @if (submission.contents && submission.contents.length > 1 && activeContentTab === 'edit') {
+                    <button
+                      (click)="toggleAllContent()"
+                      class="px-3 py-1.5 text-sm font-medium text-gray-700 bg-gray-100 border border-gray-200 rounded-md hover:bg-gray-200 transition-colors">
+                      <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" [attr.d]="allContentExpanded ? 'M7 14l5-5 5 5' : 'M19 9l-7 7-7-7'"></path>
+                      </svg>
+                      {{ allContentExpanded ? 'Collapse All' : 'Expand All' }}
+                    </button>
+                  }
                   <button
                     (click)="activeContentTab = 'edit'"
                     [class.bg-orange-100]="activeContentTab === 'edit'"
