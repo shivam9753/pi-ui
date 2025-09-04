@@ -67,7 +67,6 @@ export class UserProfileComponent implements OnInit {
   drafts = signal<Draft[]>([]);
   
   isEditMode = signal(false);
-  isFollowing = signal(false);
   showProfileEditor = signal(false);
   
   // Tab management
@@ -209,7 +208,6 @@ export class UserProfileComponent implements OnInit {
         // User ID provided in route - load specific user profile
         this.loadUserProfile(userId);
         this.loadPublishedWorks(userId);
-        this.checkFollowStatus(userId);
         
         // Load additional data - for now always load to test
         this.loadSubmissions();
@@ -409,18 +407,6 @@ export class UserProfileComponent implements OnInit {
     return totalWords;
   }
 
-  checkFollowStatus(userId: string) {
-    if (!this.isOwnProfile()) {
-      this.backendService.checkFollowStatus(userId).subscribe({
-        next: (response: any) => {
-          this.isFollowing.set(response.isFollowing);
-        },
-        error: (error: any) => {
-          this.isFollowing.set(false);
-        }
-      });
-    }
-  }
 
   refreshDrafts() {
     this.loadDrafts();
@@ -891,29 +877,6 @@ export class UserProfileComponent implements OnInit {
     this.showProfileEditor.set(false);
   }
 
-  toggleFollow() {
-    const profile = this.userProfile();
-    if (!profile) return;
-
-    const currentFollowStatus = this.isFollowing();
-    const action = currentFollowStatus ? 'unfollow' : 'follow';
-
-    this.backendService.toggleFollowUser(profile._id, action).subscribe({
-      next: (response: any) => {
-        this.isFollowing.set(response.isFollowing);
-        
-        const updatedProfile = { ...profile };
-        if (updatedProfile.stats) {
-          const increment = response.isFollowing ? 1 : -1;
-          updatedProfile.stats.followers = Math.max(0, updatedProfile.stats.followers + increment);
-          this.userProfile.set(updatedProfile);
-        }
-      },
-      error: (error: any) => {
-        this.error.set(`Failed to ${action} user`);
-      }
-    });
-  }
 
   openMessageModal() {
   }
@@ -1039,15 +1002,6 @@ export class UserProfileComponent implements OnInit {
     return this.formatStatNumber(totalViews);
   }
 
-  getReadingScore(): string {
-    // Calculate a reading score based on publications and engagement
-    const publications = this.publishedWorks().length;
-    const totalViews = this.publishedWorks().reduce((sum, work) => sum + (work.viewCount || 0), 0);
-    
-    // Simple reading score algorithm: publications weight + views weight
-    const score = Math.round((publications * 10) + (totalViews * 0.1));
-    return this.formatStatNumber(score);
-  }
 
   private formatStatNumber(num: number): string {
     if (num >= 1000000) return (num / 1000000).toFixed(1).replace('.0', '') + 'M';
