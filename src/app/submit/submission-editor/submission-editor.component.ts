@@ -212,7 +212,7 @@ export class SubmissionEditorComponent implements OnInit, OnDestroy {
       case 'create': 
         return this.relatedTopicPitchId 
           ? '✨ Writing based on a community topic pitch - form pre-filled for you!' 
-          : 'Share your literary voice with our community';
+          : 'Send us your work for consideration';
       case 'edit': return 'Update your submission and resubmit';
       case 'resubmit': return 'Make revisions and resubmit for review';
       case 'view': return 'Review your submission';

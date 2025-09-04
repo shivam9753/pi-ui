@@ -621,7 +621,7 @@ export class ReviewSubmissionComponent {
 
   // Navigate back to pending reviews
   goBackToPendingReviews() {
-    this.router.navigate(['/admin/submissions/pending-reviews']);
+    this.router.navigate(['/workspace'], { queryParams: { tab: 'review' } });
   }
 
   // Clean HTML content for better display

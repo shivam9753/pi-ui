@@ -1,5 +1,6 @@
 
 import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
 import { CommonUtils, StringUtils } from '../../shared/utils';
 
@@ -15,7 +16,7 @@ export interface Draft {
 
 @Component({
   selector: 'app-drafts-list',
-  imports: [EmptyStateComponent],
+  imports: [CommonModule, EmptyStateComponent],
   templateUrl: './drafts-list.component.html',
   styleUrl: './drafts-list.component.css'
 })

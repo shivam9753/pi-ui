@@ -233,7 +233,7 @@ export interface PaginationConfig {
         </div>
 
         <!-- Mobile Cards -->
-        <div class="md:hidden space-y-4 p-1">
+        <div class="md:hidden space-y-4 px-4">
           <!-- Mobile Select All -->
           @if (selectable && data.length > 0) {
             <div class="bg-gray-50 border border-gray-200 rounded-lg p-4 mx-2 mb-4">
@@ -250,14 +250,14 @@ export interface PaginationConfig {
           
           @for (item of data; track trackByFn ? trackByFn($index, item) : $index) {
             <div 
-              class="border-gray-200 rounded-lg p-5 shadow-sm mx-2"
+              [class]="mobileCardTemplate ? 'mb-4' : 'bg-white border border-gray-200 rounded-lg p-5 shadow-sm'"
               [class.cursor-pointer]="rowClickable"
-              [class.bg-orange-50]="selectable && isItemSelected(item)"
-              [class.border-orange-300]="selectable && isItemSelected(item)"
+              [class.bg-orange-50]="selectable && isItemSelected(item) && !mobileCardTemplate"
+              [class.border-orange-300]="selectable && isItemSelected(item) && !mobileCardTemplate"
               (click)="onRowClickHandler(item, $event)">
               
-              <!-- Mobile Selection Checkbox -->
-              @if (selectable) {
+              <!-- Mobile Selection Checkbox - only show when not using custom template -->
+              @if (selectable && !mobileCardTemplate) {
                 <div class="flex items-center justify-between mb-3 pb-3 border-b border-gray-100">
                   <span class="text-sm font-medium text-gray-700">Select Item</span>
                   <input 
@@ -273,35 +273,35 @@ export interface PaginationConfig {
                 <ng-container *ngTemplateOutlet="mobileCardTemplate; context: { $implicit: item, actions: getVisibleActions(item) }"></ng-container>
               } @else {
                 <!-- Default Mobile Card Template -->
-                <div class="mb-3">
+                <div class="mb-4 p-4 bg-white rounded-lg border border-gray-200">
                   @for (column of columns; track column.key) {
                     @if (!column.mobileHidden) {
-                      <div class="mb-2">
-                        <span class="text-xs font-semibold text-themed-secondary uppercase tracking-wide">{{ column.label }}:</span>
-                        <div class="mt-1">
+                      <div class="mb-4">
+                        <span class="text-sm font-semibold text-gray-700 uppercase tracking-wide">{{ column.label }}:</span>
+                        <div class="mt-2">
                           @switch (column.type) {
                             @case ('image') {
-                              <div class="w-8 h-8 rounded-full bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center">
+                              <div class="w-10 h-10 rounded-full bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center">
                                 @if (getNestedValue(item, column.key)) {
-                                  <img [src]="getNestedValue(item, column.key)" alt="Image" class="w-8 h-8 rounded-full object-cover" />
+                                  <img [src]="getNestedValue(item, column.key)" alt="Image" class="w-10 h-10 rounded-full object-cover" />
                                 } @else {
-                                  <span class="text-white font-medium text-xs">{{ getInitials(item) }}</span>
+                                  <span class="text-white font-medium text-sm">{{ getInitials(item) }}</span>
                                 }
                               </div>
                             }
                             @case ('badge') {
-                              <span [class]="getBadgeClass(getNestedValue(item, column.key))">
+                              <span [class]="getBadgeClass(getNestedValue(item, column.key)) + ' text-sm px-3 py-1'">
                                 {{ getNestedValue(item, column.key) | prettyLabel }}
                               </span>
                             }
                             @case ('date') {
-                              <span class="text-sm text-gray-700">{{ getNestedValue(item, column.key) | date:'MMM d, y' }}</span>
+                              <span class="text-base text-gray-800">{{ getNestedValue(item, column.key) | date:'MMM d, y' }}</span>
                             }
                             @case ('custom') {
                               <ng-container *ngTemplateOutlet="customCellTemplate; context: { $implicit: item, column: column }"></ng-container>
                             }
                             @default {
-                              <div class="text-sm text-themed leading-normal">{{ getNestedValue(item, column.key) }}</div>
+                              <div class="text-base text-gray-800 leading-relaxed">{{ getNestedValue(item, column.key) }}</div>
                             }
                           }
                         </div>
@@ -312,12 +312,12 @@ export interface PaginationConfig {
                 
                 <!-- Mobile Action Buttons -->
                 @if (actions && actions.length > 0) {
-                  <div class="flex flex-wrap gap-2">
+                  <div class="flex flex-wrap gap-3 mt-4 p-4 border-t border-gray-200">
                     @for (action of getVisibleActions(item); track action.label) {
                       <button
                         (click)="action.handler(item); $event.stopPropagation()"
-                        [class]="'flex-1 px-3 py-2 text-xs font-medium rounded btn-feedback ' + getActionButtonClass(action.color)"
-                        style="min-height: 36px;">
+                        [class]="'flex-1 px-4 py-3 text-sm font-semibold rounded-lg btn-feedback ' + getActionButtonClass(action.color)"
+                        style="min-height: 44px;">
                         {{ action.label }}
                       </button>
                     }

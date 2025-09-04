@@ -254,6 +254,28 @@
       </div>
     }
 
+    <!-- Drafts Content (Mobile) -->
+    @if (isCreateMode && activeTab === 'drafts') {
+      <div class="px-6 py-6 pb-32">
+        <app-drafts-list
+          [drafts]="drafts"
+          [isInline]="true"
+          (loadDraft)="loadDraftAndSwitchToSubmit($event)"
+          (deleteDraft)="deleteDraft($event)"
+          (createNew)="activeTab = 'submit'"
+        ></app-drafts-list>
+      </div>
+    }
+
+    <!-- Guidelines Content (Mobile) -->
+    @if (isCreateMode && activeTab === 'guidelines') {
+      <div class="px-6 py-6 pb-32">
+        <app-guidelines-overlay
+          [isInline]="true"
+        ></app-guidelines-overlay>
+      </div>
+    }
+
     <!-- Bottom Navigation (Create mode only) -->
     @if (isCreateMode) {
       <div class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-6 py-3 safe-area-inset-bottom">

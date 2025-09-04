@@ -5,7 +5,7 @@
     <div class="px-6 pt-6 pb-6 border-b border-gray-200">
       <!-- Title Section -->
       <div class="mb-6">
-        <h1 class="text-3xl sm:text-4xl font-serif font-bold text-gray-900 leading-tight mb-3">{{ submission?.title }}</h1>
+        <h1 class="text-2xl sm:text-3xl font-serif font-bold text-gray-900 leading-tight mb-3">{{ submission?.title }}</h1>
         @if (submission?.description) {
           <p class="text-lg text-gray-700 leading-relaxed font-light italic border-l-4 border-orange-500 pl-4" style="font-family: 'Crimson Text', Georgia, serif;">{{ submission?.description }}</p>
         }
@@ -15,11 +15,11 @@
       <div class="flex items-start justify-between mb-6">
         <div>
           <div class="text-gray-800">
-            <span class="text-lg font-medium">by</span>
+            <span class="text-base font-medium">by</span>
             @if (submission?.userId) {
               <button 
                 (click)="viewUserProfile(submission.userId)"
-                class="font-medium ml-1 text-lg text-gray-800 hover:text-gray-900 hover:underline cursor-pointer transition-colors duration-200">
+                class="font-medium ml-1 text-base text-gray-800 hover:text-gray-900 hover:underline cursor-pointer transition-colors duration-200">
                 {{ submission.userId.name }}
               </button>
             }
@@ -113,12 +113,12 @@
 
       <!-- Content Items -->
       @if (submission && submission.contents && submission.contents.length > 0) {
-        <div class="prose-custom space-y-8">
+        <div class="prose-custom space-y-8 mt-12">
           @for (content of submission.contents; track content; let i = $index) {
             <article class="content-section">
               <!-- Content Title (if multiple items) -->
               @if (submission.contents.length > 1) {
-                <h2 class="text-2xl sm:text-3xl font-serif font-bold text-gray-900 mb-6 pb-3 border-b border-gray-200">
+                <h2 class="text-2xl sm:text-3xl font-serif font-bold text-gray-900 mb-6 pb-3 border-b border-gray-200 pt-4">
                   {{ i + 1 }}. {{ content.title }}
                 </h2>
               }
@@ -369,7 +369,7 @@
           <header class="mb-4 relative sm:mt-8">
             <!-- Title Row -->
             <div class="mb-6">
-              <h1 class="text-2xl sm:text-4xl lg:text-5xl xl:text-6xl font-serif font-bold text-gray-900 leading-tight mb-2 sm:mb-4 mt-8 sm:mt-12">{{ submission?.title }}</h1>
+              <h1 class="text-2xl sm:text-3xl lg:text-4xl font-serif font-bold text-gray-900 leading-tight mb-2 sm:mb-4 mt-8 sm:mt-12">{{ submission?.title }}</h1>
               @if (submission?.description) {
                 <div class="mb-4 sm:mb-8">
                   <p class="text-lg sm:text-xl text-gray-700 leading-relaxed font-light italic border-l-4 border-orange-500 pl-4 sm:pl-6" style="font-family: 'Crimson Text', Georgia, serif;">{{ submission?.description }}</p>
@@ -381,7 +381,7 @@
             <!-- Author and Metadata -->
             <div class="flex items-start justify-between mb-4 pb-4 sm:mb-8 sm:pb-8 border-b border-gray-200">
               <div>
-                <div class="text-lg font-medium text-gray-900">
+                <div class="text-base sm:text-lg font-medium text-gray-900">
                   <span>by</span>
                   @if (submission?.userId) {
                     <button 

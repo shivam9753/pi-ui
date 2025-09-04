@@ -81,6 +81,19 @@ export interface QuickFilterEvent {
           </div>
         </div>
 
+        <!-- Mobile: Sort Dropdown -->
+        <div class="px-4 py-3 border-b border-gray-100">
+          <div>
+            <label class="block text-xs font-medium text-gray-700 mb-1">Sort</label>
+            <select [(ngModel)]="currentSort" (ngModelChange)="onSortChange()"
+                    class="w-full text-sm border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white">
+              <option *ngFor="let option of filterOptions.sortOptions" [value]="option.value">
+                {{ option.label }}
+              </option>
+            </select>
+          </div>
+        </div>
+
         <!-- Mobile: Stacked layout -->
         <div class="px-4 py-3">
           <div class="space-y-3">
@@ -170,10 +183,10 @@ export interface QuickFilterEvent {
         </div>
 
         <!-- Sort Dropdown -->
-        <div class="flex items-center gap-2">
+        <div class="flex items-center gap-2 flex-shrink-0">
           <label class="text-sm font-medium text-gray-700 whitespace-nowrap">Sort:</label>
           <select [(ngModel)]="currentSort" (ngModelChange)="onSortChange()"
-                  class="text-sm border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                  class="text-sm border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white relative z-10 min-w-[140px]">
             <option *ngFor="let option of filterOptions.sortOptions" [value]="option.value">
               {{ option.label }}
             </option>
