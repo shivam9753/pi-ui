@@ -5,6 +5,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { ImageCompressionUtil, CompressedImage } from '../../shared/utils/image-compression.util';
 import { environment } from '../../../environments/environment';
 import { API_ENDPOINTS } from '../../shared/constants/api.constants';
+import { ThemingService } from '../../services/theming.service';
 
 @Component({
   selector: 'app-rich-text-editor',
@@ -39,6 +40,7 @@ export class RichTextEditorComponent implements ControlValueAccessor, AfterViewI
   private onChange = (value: string) => {};
   private onTouched = () => {};
   private http = inject(HttpClient);
+  public themingService = inject(ThemingService);
 
   ngAfterViewInit(): void {
     // Initialize editor content after view is ready

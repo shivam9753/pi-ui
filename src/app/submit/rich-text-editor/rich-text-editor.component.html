@@ -1,17 +1,25 @@
 <!-- Rich Text Editor Component -->
-<div class="rich-text-editor bg-white border border-gray-200 rounded-xl transition-all duration-200 focus-within:ring-2 focus-within:ring-themed-accent focus-within:border-gray-200-accent">
+<div class="rich-text-editor rounded-xl transition-all duration-200 focus-within:ring-2 focus-within:ring-themed-accent focus-within:border-gray-200-accent"
+     [class.bg-white]="themingService.isLight()"
+     [class.bg-gray-800]="themingService.isDark()"
+     [class.border-gray-200]="themingService.isLight()"
+     [class.border-gray-700]="themingService.isDark()">
 
   <!-- Toolbar -->
-  <div class="flex flex-wrap items-center gap-1 p-3 border-b border-gray-200 bg-white-secondary rounded-t-xl">
+  <div class="flex flex-wrap items-center gap-1 p-3 border-b rounded-t-xl"
+       [class.border-gray-200]="themingService.isLight()"
+       [class.border-gray-700]="themingService.isDark()"
+       [class.bg-gray-50]="themingService.isLight()"
+       [class.bg-gray-700]="themingService.isDark()">
 
     <!-- Formatting Group -->
-    <div class="flex items-center gap-1 pr-2 border-r border-gray-200">
+    <div class="flex items-center gap-1 pr-2 border-r border-gray-200 dark:border-gray-600">
       <!-- Bold -->
       <button
         type="button"
         (click)="toggleFormat('bold')"
         [class.active]="isFormatActive('bold')"
-        class="toolbar-btn"
+        class="toolbar-btn text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-600"
         title="Bold (Ctrl+B)"
         >
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -25,7 +33,7 @@
         type="button"
         (click)="toggleFormat('italic')"
         [class.active]="isFormatActive('italic')"
-        class="toolbar-btn"
+        class="toolbar-btn text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-600"
         title="Italic (Ctrl+I)"
         >
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -38,7 +46,7 @@
         type="button"
         (click)="toggleFormat('underline')"
         [class.active]="isFormatActive('underline')"
-        class="toolbar-btn"
+        class="toolbar-btn text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-600"
         title="Underline (Ctrl+U)"
         >
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -49,13 +57,13 @@
     </div>
 
     <!-- Alignment Group -->
-    <div class="flex items-center gap-1 px-2 border-r border-gray-200">
+    <div class="flex items-center gap-1 px-2 border-r border-gray-200 dark:border-gray-600">
       <!-- Left Align -->
       <button
         type="button"
         (click)="setAlignment('left')"
         [class.active]="currentAlignment === 'left'"
-        class="toolbar-btn"
+        class="toolbar-btn text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-600"
         title="Align Left"
         >
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -68,7 +76,7 @@
         type="button"
         (click)="setAlignment('center')"
         [class.active]="currentAlignment === 'center'"
-        class="toolbar-btn"
+        class="toolbar-btn text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-600"
         title="Align Center"
         >
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -81,7 +89,7 @@
         type="button"
         (click)="setAlignment('right')"
         [class.active]="currentAlignment === 'right'"
-        class="toolbar-btn"
+        class="toolbar-btn text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-600"
         title="Align Right"
         >
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -94,7 +102,7 @@
         type="button"
         (click)="setAlignment('justify')"
         [class.active]="currentAlignment === 'justify'"
-        class="toolbar-btn"
+        class="toolbar-btn text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-600"
         title="Justify"
         >
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -104,13 +112,13 @@
     </div>
 
     <!-- Text Style Group -->
-    <div class="flex items-center gap-1 px-2 border-r border-gray-200">
+    <div class="flex items-center gap-1 px-2 border-r border-gray-200 dark:border-gray-600">
       <!-- Quote -->
       <button
         type="button"
         (click)="toggleFormat('blockquote')"
         [class.active]="isFormatActive('blockquote')"
-        class="toolbar-btn"
+        class="toolbar-btn text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-600"
         title="Quote"
         >
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -124,7 +132,7 @@
           type="button"
           (click)="triggerImageUpload()"
           [disabled]="isImageUploading"
-          class="toolbar-btn"
+          class="toolbar-btn text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-600"
           title="Insert Image"
           >
           @if (!isImageUploading) {
@@ -148,7 +156,7 @@
       <button
         type="button"
         (click)="clearFormatting()"
-        class="toolbar-btn"
+        class="toolbar-btn text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-600"
         title="Clear Formatting"
         >
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -158,7 +166,7 @@
     </div>
 
     <!-- Word Count -->
-    <div class="ml-auto text-xs text-gray-900-secondary font-medium">
+    <div class="ml-auto text-xs text-gray-500 dark:text-gray-400 font-medium">
       {{ wordCount }} words
     </div>
   </div>
@@ -174,7 +182,11 @@
       (dragover)="onDragOver($event)"
       (dragleave)="onDragLeave($event)"
       (drop)="onDrop($event)"
-      class="editor-content min-h-[300px] p-4 text-gray-900 bg-white focus:outline-none transition-colors"
+      class="editor-content min-h-[300px] p-4 focus:outline-none transition-colors"
+      [class.text-gray-900]="themingService.isLight()"
+      [class.text-gray-100]="themingService.isDark()"
+      [class.bg-white]="themingService.isLight()"
+      [class.bg-gray-800]="themingService.isDark()"
       role="textbox"
       [attr.aria-label]="'Rich text editor for ' + placeholder"
       data-placeholder-text="false"
@@ -183,7 +195,9 @@
     <!-- Placeholder overlay (when empty) -->
     @if (!content || content.trim() === '') {
       <div
-        class="absolute top-4 left-4 text-gray-900-tertiary pointer-events-none"
+        class="absolute top-4 left-4 pointer-events-none"
+        [class.text-gray-500]="themingService.isLight()"
+        [class.text-gray-400]="themingService.isDark()"
         >
         {{ placeholder }}
         @if (allowImages) {
@@ -197,15 +211,15 @@
     <!-- Upload progress indicator -->
     @if (isImageUploading) {
       <div
-        class="absolute inset-0 bg-white border border-gray-200 bg-opacity-75 flex items-center justify-center rounded-b-lg"
+        class="absolute inset-0 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 bg-opacity-75 dark:bg-opacity-75 flex items-center justify-center rounded-b-lg"
         >
         <div class="text-center">
-          <svg class="w-8 h-8 animate-spin mx-auto mb-2 text-gray-900-accent" fill="none" viewBox="0 0 24 24">
+          <svg class="w-8 h-8 animate-spin mx-auto mb-2 text-orange-500" fill="none" viewBox="0 0 24 24">
             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
             <path class="opacity-75" fill="currentColor" d="m4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
           </svg>
-          <p class="text-sm text-gray-900-secondary">{{ uploadStatus }}</p>
-          <p class="text-xs text-gray-900-tertiary mt-1">Image will be stored securely on AWS S3</p>
+          <p class="text-sm text-gray-600 dark:text-gray-300">{{ uploadStatus }}</p>
+          <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Image will be stored securely on AWS S3</p>
         </div>
       </div>
     }

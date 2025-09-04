@@ -17,13 +17,7 @@
   justify-content: center;
   border-radius: 0.375rem;
   border: 1px solid transparent;
-  color: #6b7280;
   transition: all 0.2s ease;
-}
-
-.toolbar-btn:hover {
-  color: #1f2937;
-  background-color: #f3f4f6;
 }
 
 .toolbar-btn:focus {
@@ -49,28 +43,23 @@
   word-wrap: break-word;
   overflow-wrap: break-word;
   white-space: pre-wrap; /* Preserve whitespace and line breaks */
-  color: #1f2937 !important; /* Force dark text color for light mode */
 }
 
-/* Force all text elements to use dark text color - override any inline styles */
+/* Force all text elements to inherit font family only */
 .editor-content *:not(strong):not(b):not(em):not(i) {
-  color: #1f2937 !important;
   font-family: inherit !important;
 }
 
 .editor-content span {
-  color: #1f2937 !important;
   font-family: inherit !important;
 }
 
 .editor-content div {
-  color: #1f2937 !important;
   font-family: inherit !important;
   background-color: transparent !important;
 }
 
 .editor-content p {
-  color: #1f2937 !important;
   font-family: inherit !important;
   background-color: transparent !important;
 }
@@ -91,12 +80,11 @@
   color: #1f2937 !important;
 }
 
-/* Force text color on any contenteditable elements */
+/* Remove background colors on contenteditable elements */
 .editor-content[contenteditable="true"],
 .editor-content[contenteditable="true"] *,
 .rich-text-editor [contenteditable="true"],
 .rich-text-editor [contenteditable="true"] * {
-  color: #1f2937 !important;
   background-color: transparent !important;
 }
 
@@ -150,13 +138,11 @@
 .editor-content strong,
 .editor-content b {
   font-weight: 700;
-  color: #1f2937;
 }
 
 .editor-content em,
 .editor-content i {
   font-style: italic;
-  color: #6b7280;
 }
 
 .editor-content u {
@@ -209,12 +195,7 @@
   border-color: #f97316;
 }
 
-/* Empty state placeholder */
-.editor-content:empty::before {
-  content: attr(placeholder);
-  color: #9ca3af;
-  pointer-events: none;
-}
+/* Empty state placeholder - handled by HTML overlay instead */
 
 /* Responsive design */
 @media (max-width: 640px) {
