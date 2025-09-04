@@ -158,9 +158,8 @@ export class PublishedPostsComponent implements OnInit {
     };
 
     // Add type filter if selected
-    let typeFilter = '';
     if (this.currentFilters.type && this.currentFilters.type.trim() !== '') {
-      typeFilter = this.currentFilters.type;
+      params.type = this.currentFilters.type.trim();
     }
 
     // Add search parameter if provided
@@ -178,7 +177,7 @@ export class PublishedPostsComponent implements OnInit {
     
     // Choose the appropriate API endpoint based on quick filter
     const apiCall = this.quickFilter === 'published' 
-      ? this.backendService.getPublishedContent(typeFilter, params)
+      ? this.backendService.getPublishedContent(params.type || '', params)
       : this.backendService.getSubmissions(params);
     
     apiCall.subscribe({
@@ -460,12 +459,32 @@ export class PublishedPostsComponent implements OnInit {
 
   // Get author name with fallback
   getAuthorName(submission: any): string {
-    return submission.username || 
-           submission.authorName || 
-           submission.author?.username || 
-           submission.author?.name || 
-           submission.submitterName || 
-           'Unknown Author';
+    // First try to get actual name fields
+    const name = submission.username || 
+                 submission.authorName || 
+                 submission.author?.username || 
+                 submission.author?.name || 
+                 submission.submitterName || 
+                 submission.userId?.name ||
+                 submission.userId?.username ||
+                 submission.submitterEmail ||
+                 submission.author?.email ||
+                 submission.userId?.email ||
+                 submission.email;
+    
+    // If we got an email address, try to extract a more readable name
+    if (name && name.includes('@')) {
+      // Extract the part before @ and make it more readable
+      const emailPart = name.split('@')[0];
+      // Replace dots and underscores with spaces, capitalize first letter
+      return emailPart
+        .replace(/[._]/g, ' ')
+        .split(' ')
+        .map((word: string) => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(' ');
+    }
+    
+    return name || 'Unknown Author';
   }
 
   // Truncate description for display

@@ -79,23 +79,42 @@ export class ReadyToPublishComponent implements OnInit {
   loadAcceptedSubmissions() {
     this.loading = true;
     
-    // Check if we have a valid JWT token
-    const jwtToken = localStorage.getItem('jwt_token');
-    
-
-    
-    // Use the new consolidated endpoint with pagination
-    this.backendService.getSubmissions({
+    // Build API parameters from current filters, pagination, and sorting
+    const apiParams: any = {
       status: "accepted",
       limit: this.paginationConfig.pageSize,
       skip: (this.paginationConfig.currentPage - 1) * this.paginationConfig.pageSize,
-      sortBy: 'reviewedAt',
-      order: 'desc'
-    }).subscribe({
+      sortBy: this.currentFilters.sortBy || 'reviewedAt',
+      order: this.currentFilters.order || 'desc'
+    };
+    
+    // Add type filter if selected
+    if (this.currentFilters.type && this.currentFilters.type.trim() !== '') {
+      apiParams.type = this.currentFilters.type.trim();
+    }
+    
+    // Add search parameter if provided
+    if (this.currentFilters.search && this.currentFilters.search.trim() !== '') {
+      apiParams.search = this.currentFilters.search.trim();
+    }
+    
+    // Use the new consolidated endpoint with pagination
+    this.backendService.getSubmissions(apiParams).subscribe({
       next: (data) => {
         // Handle optimized response structure
         this.acceptedSubmissions = data.submissions || [];
-        this.applyFilters();
+        this.filteredSubmissions = this.acceptedSubmissions; // Use API response directly
+        
+        // Update pagination from API response
+        if (data.pagination) {
+          this.paginationConfig = {
+            currentPage: data.pagination.currentPage || 1,
+            totalPages: data.pagination.totalPages || 1,
+            pageSize: data.pagination.limit || 50,
+            totalItems: data.total || 0
+          };
+        }
+        
         this.loading = false;
       },
       error: (err) => {
@@ -237,8 +256,13 @@ export class ReadyToPublishComponent implements OnInit {
   }
 
   onTableSort(event: {column: string, direction: 'asc' | 'desc'}) {
-    // Update sorting if needed - could implement sorting here
-    this.loadAcceptedSubmissions();
+    this.currentFilters = {
+      ...this.currentFilters,
+      sortBy: event.column,
+      order: event.direction
+    };
+    this.paginationConfig.currentPage = 1; // Reset to first page when sorting
+    this.loadAcceptedSubmissions(); // Reload data with new sorting
   }
 
   // Helper methods for table display
@@ -269,8 +293,18 @@ export class ReadyToPublishComponent implements OnInit {
 
   // Filter methods
   onFilterChange(filters: SimpleFilterOptions) {
-    this.currentFilters = filters;
-    this.applyFilters();
+    this.currentFilters = { ...filters };
+    
+    // Update sorting if provided in filters
+    if (filters.sortBy) {
+      // sortBy is handled in loadAcceptedSubmissions
+    }
+    if (filters.order) {
+      // order is handled in loadAcceptedSubmissions
+    }
+    
+    this.paginationConfig.currentPage = 1; // Reset to first page when filtering
+    this.loadAcceptedSubmissions(); // Reload data with new filters
   }
 
   applyFilters() {

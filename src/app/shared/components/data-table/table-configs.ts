@@ -46,7 +46,7 @@ export const SUBMISSIONS_TABLE_COLUMNS: TableColumn[] = [
   {
     key: 'authorName',
     label: 'Author',
-    type: 'text',
+    type: 'custom',
     width: '20%',
     sortable: true
   },
@@ -55,38 +55,6 @@ export const SUBMISSIONS_TABLE_COLUMNS: TableColumn[] = [
     label: 'Type',
     type: 'badge',
     width: '15%',
-    sortable: true
-  },
-  {
-    key: 'status',
-    label: 'Status',
-    type: 'badge',
-    width: '15%',
-    sortable: true
-  },
-  {
-    key: 'createdAt',
-    label: 'Created',
-    type: 'date',
-    width: '20%',
-    sortable: true
-  }
-];
-
-// Published Posts Table Configuration
-export const PUBLISHED_POSTS_TABLE_COLUMNS: TableColumn[] = [
-  {
-    key: 'title',
-    label: 'Title & Author',
-    type: 'custom',
-    width: '40%',
-    sortable: true
-  },
-  {
-    key: 'submissionType',
-    label: 'Type',
-    type: 'custom',
-    width: '18%',
     sortable: true
   },
   {
@@ -104,11 +72,43 @@ export const PUBLISHED_POSTS_TABLE_COLUMNS: TableColumn[] = [
     sortable: false
   },
   {
-    key: 'reviewedAt',
+    key: 'createdAt',
     label: 'Date',
+    type: 'date',
+    width: '18%',
+    sortable: true
+  }
+];
+
+// Published Posts Table Configuration
+export const PUBLISHED_POSTS_TABLE_COLUMNS: TableColumn[] = [
+  {
+    key: 'title',
+    label: 'Title & Author',
+    type: 'custom',
+    width: '45%',
+    sortable: true
+  },
+  {
+    key: 'submissionType',
+    label: 'Type',
+    type: 'custom',
+    width: '20%',
+    sortable: true
+  },
+  {
+    key: 'status',
+    label: 'Status',
     type: 'custom',
     width: '15%',
     sortable: true
+  },
+  {
+    key: 'stats',
+    label: 'Stats',
+    type: 'custom',
+    width: '20%',
+    sortable: false
   }
 ];
 
@@ -189,8 +189,8 @@ export const READY_TO_PUBLISH_TABLE_COLUMNS: TableColumn[] = [
     sortable: false
   },
   {
-    key: 'reviewedAt',
-    label: 'Accepted',
+    key: 'createdAt',
+    label: 'Date',
     type: 'date',
     width: '25%',
     sortable: true

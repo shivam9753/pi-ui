@@ -59,7 +59,7 @@ export class AllSubmissionsComponent implements OnInit {
   
   // Sorting properties
   currentSort = {
-    sortBy: 'reviewedAt',
+    sortBy: 'createdAt',
     order: 'desc' as 'asc' | 'desc'
   };
   
@@ -161,11 +161,11 @@ export class AllSubmissionsComponent implements OnInit {
   getApiFilters() {
     const apiFilters: any = {};
     
-    if (this.currentFilters.status) {
+    if (this.currentFilters.status && this.currentFilters.status !== '') {
       apiFilters.status = this.currentFilters.status;
     }
     
-    if (this.currentFilters.type) {
+    if (this.currentFilters.type && this.currentFilters.type !== '') {
       apiFilters.type = this.currentFilters.type;
     }
     
@@ -372,7 +372,7 @@ export class AllSubmissionsComponent implements OnInit {
 
   // Filter methods
   onFilterChange(filters: SimpleFilterOptions) {
-    this.currentFilters = filters;
+    this.currentFilters = { ...filters };
     
     // Update sorting if provided in filters
     if (filters.sortBy) {
@@ -381,6 +381,9 @@ export class AllSubmissionsComponent implements OnInit {
     if (filters.order) {
       this.currentSort.order = filters.order;
     }
+    
+    // Clear existing selections when filters change
+    this.clearSelection();
     
     this.paginationConfig.currentPage = 1; // Reset to first page when filtering
     this.loadSubmissions(); // Reload data with new filters
@@ -394,7 +397,32 @@ export class AllSubmissionsComponent implements OnInit {
 
   // Helper methods to handle different API response structures
   getAuthorName(item: any): string {
-    return item.authorName || 'Unknown';
+    // First try to get actual name fields
+    const name = item.username || 
+                 item.authorName || 
+                 item.author?.username || 
+                 item.author?.name || 
+                 item.submitterName || 
+                 item.userId?.name ||
+                 item.userId?.username ||
+                 item.submitterEmail ||
+                 item.author?.email ||
+                 item.userId?.email ||
+                 item.email;
+    
+    // If we got an email address, try to extract a more readable name
+    if (name && name.includes('@')) {
+      // Extract the part before @ and make it more readable
+      const emailPart = name.split('@')[0];
+      // Replace dots and underscores with spaces, capitalize first letter
+      return emailPart
+        .replace(/[._]/g, ' ')
+        .split(' ')
+        .map((word: string) => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(' ');
+    }
+    
+    return name || 'Unknown Author';
   }
 
   getAuthorEmail(item: any): string {

@@ -9,6 +9,9 @@
   <!-- Filter Component -->
   <app-simple-submission-filter 
     [availableStatuses]="['accepted']"
+    [showSortOptions]="true"
+    [sortField]="'reviewedAt'"
+    [initialFilters]="currentFilters"
     (filterChange)="onFilterChange($event)">
   </app-simple-submission-filter>
 
@@ -59,6 +62,14 @@
                 <span class="font-mono">{{ item.wordCount }}</span> words
               </div>
             }
+          </div>
+        }
+        @case ('createdAt') {
+          <div class="text-xs text-gray-500">
+            {{ item.createdAt | date:'MMM d, yyyy' }}
+          </div>
+          <div class="text-xs text-gray-400 mt-0.5">
+            {{ item.createdAt | date:'HH:mm' }}
           </div>
         }
       }
