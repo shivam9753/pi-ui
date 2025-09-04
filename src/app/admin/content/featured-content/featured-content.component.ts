@@ -11,8 +11,6 @@ import {
   TableColumn,
   TableAction,
   PaginationConfig,
-  PUBLISHED_POSTS_TABLE_COLUMNS,
-  createPublishedPostActions,
   SUBMISSION_BADGE_CONFIG,
   ConsistentSubmissionMobileCardComponent,
   SubmissionAction

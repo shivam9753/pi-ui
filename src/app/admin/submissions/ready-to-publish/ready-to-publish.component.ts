@@ -1,9 +1,8 @@
 import { Component, OnInit } from '@angular/core';
-import { CommonModule, DatePipe, TitleCasePipe } from '@angular/common';
+import { CommonModule} from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { BadgeLabelComponent } from '../../../utilities/badge-label/badge-label.component';
-import { ContentCardComponent, ContentCardData } from '../../../shared/components/content-card/content-card.component';
+import { ContentCardData } from '../../../shared/components/content-card/content-card.component';
 import { BackendService } from '../../../services/backend.service';
 import { AdminPageHeaderComponent } from '../../../shared/components/admin-page-header/admin-page-header.component';
 import {

@@ -3,11 +3,11 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { ContentCardComponent, ContentCardData } from '../../../shared/components/content-card/content-card.component';
+import { ContentCardData } from '../../../shared/components/content-card/content-card.component';
 import { AdminPageHeaderComponent, AdminPageStat } from '../../../shared/components/admin-page-header/admin-page-header.component';
 import { BackendService } from '../../../services/backend.service';
 import { AuthorService } from '../../../services/author.service';
-import { SUBMISSION_STATUS, SubmissionStatus } from '../../../shared/constants/api.constants';
+import { SUBMISSION_STATUS } from '../../../shared/constants/api.constants';
 import {
   DataTableComponent,
   TableColumn,

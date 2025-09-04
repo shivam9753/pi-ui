@@ -225,6 +225,23 @@ export class BackendService {
         console.log('✅ Backend response:', response);
         console.log('📋 Response status field:', response?.status);
       }),
+      catchError((error) => {
+        console.error('❌ Submission creation failed:', error);
+        
+        // Provide more user-friendly error messages
+        if (error.error?.error === 'document must have an _id before saving') {
+          return throwError(() => ({
+            ...error,
+            error: {
+              ...error.error,
+              message: 'Server configuration error. Please contact support.',
+              originalError: error.error.error
+            }
+          }));
+        }
+        
+        return throwError(() => error);
+      }),
       this.handleApiCall(url, 'POST')
     );
   }
@@ -566,7 +583,8 @@ export class BackendService {
 
   // Get user profile with enhanced stats
   getUserProfile(id: string): Observable<UserProfile> {
-    return this.http.get<any>(`${this.API_URL}${API_ENDPOINTS.USERS_NESTED.PROFILE_BY_ID(id)}`);
+    const headers = this.getAuthHeaders();
+    return this.http.get<any>(`${this.API_URL}${API_ENDPOINTS.USERS_NESTED.PROFILE_BY_ID(id)}`, { headers });
   }
 
   // Get user's published works

@@ -30,6 +30,9 @@ export class TopicPitchesComponent implements OnInit {
   totalPages = 1;
   limit = 10;
 
+  // Expanded topics tracking
+  expandedTopics = new Set<string>();
+
   constructor(
     private fb: FormBuilder,
     private authService: AuthService,
@@ -162,5 +165,81 @@ export class TopicPitchesComponent implements OnInit {
 
   formatDate(dateString: string): string {
     return new Date(dateString).toLocaleDateString();
+  }
+
+  getTopicCountByStatus(status: string): number {
+    return this.topics.filter(topic => topic.status === status).length;
+  }
+
+  getRecentActivity(): TopicPitch[] {
+    return this.topics
+      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+      .slice(0, 5);
+  }
+
+  getActivityIcon(status: string): string {
+    switch (status) {
+      case 'available': return 'bg-green-500';
+      case 'claimed': return 'bg-blue-500';
+      case 'completed': return 'bg-purple-500';
+      case 'cancelled': return 'bg-gray-500';
+      default: return 'bg-gray-500';
+    }
+  }
+
+  getActivityText(topic: TopicPitch): string {
+    switch (topic.status) {
+      case 'available':
+        return `Pitched by ${this.formatUserName(topic.pitcherName)}`;
+      case 'claimed':
+        return `Claimed by ${this.formatUserName(topic.claimedByName) || 'Unknown'}`;
+      case 'completed':
+        return `Completed by ${this.formatUserName(topic.claimedByName) || 'Unknown'}`;
+      case 'cancelled':
+        return `Cancelled`;
+      default:
+        return `Status: ${topic.status}`;
+    }
+  }
+
+  formatUserName(name: string | undefined | null): string {
+    if (!name) return '';
+    
+    // If it looks like a generated username (has numbers at the end), format it
+    if (name.includes('_') && /\d+$/.test(name)) {
+      return name.replace(/_\d+$/, '').replace(/_/g, ' ');
+    }
+    
+    return name;
+  }
+
+  getRelativeTime(dateString: string): string {
+    const now = new Date();
+    const date = new Date(dateString);
+    const diffInMinutes = Math.floor((now.getTime() - date.getTime()) / (1000 * 60));
+    
+    if (diffInMinutes < 1) return 'Just now';
+    if (diffInMinutes < 60) return `${diffInMinutes}m ago`;
+    
+    const diffInHours = Math.floor(diffInMinutes / 60);
+    if (diffInHours < 24) return `${diffInHours}h ago`;
+    
+    const diffInDays = Math.floor(diffInHours / 24);
+    if (diffInDays < 7) return `${diffInDays}d ago`;
+    
+    return this.formatDate(dateString);
+  }
+
+
+  toggleTopicExpansion(topicId: string): void {
+    if (this.expandedTopics.has(topicId)) {
+      this.expandedTopics.delete(topicId);
+    } else {
+      this.expandedTopics.add(topicId);
+    }
+  }
+
+  isTopicExpanded(topicId: string): boolean {
+    return this.expandedTopics.has(topicId);
   }
 }

@@ -201,19 +201,36 @@ export class UserProfileComponent implements OnInit {
     private backendService: BackendService
   ) {}
 
+  // Helper method to check if a string is a valid MongoDB ObjectId
+  private isValidObjectId(id: string): boolean {
+    // MongoDB ObjectId is exactly 24 characters and contains only hexadecimal characters
+    return /^[0-9a-fA-F]{24}$/.test(id);
+  }
+
   ngOnInit() {
     this.route.params.subscribe(params => {
-      const userId = params['id'] || this.userId;
-      if (userId) {
-        // User ID provided in route - load specific user profile
-        this.loadUserProfile(userId);
-        this.loadPublishedWorks(userId);
-        
-        // Load additional data - for now always load to test
-        this.loadSubmissions();
-        this.loadDrafts();
+      const routeUserId = params['id'];
+      const currentUser = this.backendService.getCurrentUserProfile();
+      
+      // Check if this is the current user's profile
+      const isCurrentUser = currentUser && routeUserId === currentUser._id;
+      
+      if (routeUserId && !isCurrentUser) {
+        // Different user ID provided in route - load specific user profile
+        // Only proceed if the ID looks like a MongoDB ObjectId (24 hex chars)
+        if (this.isValidObjectId(routeUserId)) {
+          this.loadUserProfile(routeUserId);
+          this.loadPublishedWorks(routeUserId);
+          
+          // Load additional data - for now always load to test
+          this.loadSubmissions();
+          this.loadDrafts();
+        } else {
+          // UUID format - treat as current user profile since backend doesn't support UUID lookups
+          this.loadCurrentUserProfile();
+        }
       } else {
-        // No user ID in route - load current user's profile
+        // No user ID in route OR it's the current user - load current user's profile
         this.loadCurrentUserProfile();
       }
     });
@@ -232,21 +249,34 @@ export class UserProfileComponent implements OnInit {
           this.userProfile.set(profile);
           this.resetEditForm();
           
-          // Load additional data with user ID
-          this.loadPublishedWorks(profile._id);
+          // Load additional data - for current user, use user-specific endpoints
+          this.loadCurrentUserPublishedWorks();
           this.loadSubmissions();
           this.loadDrafts();
           
           this.isLoading.set(false);
         },
         error: (error: any) => {
+          console.error('Error loading current user profile from API:', error);
+          
+          // Check if it's an auth error (401 or 403)
+          if (error.status === 401 || error.status === 403) {
+            // Clear any invalid token
+            localStorage.removeItem('jwt_token');
+            localStorage.removeItem('user');
+            this.error.set('Please log in to view your profile');
+            this.isLoading.set(false);
+            setTimeout(() => this.router.navigate(['/login']), 1500);
+            return;
+          }
           
           // Fallback: try to get from localStorage
           const currentUser = this.backendService.getCurrentUserProfile();
           if (currentUser && currentUser._id) {
-            // Load profile data using current user's ID from localStorage
-            this.loadUserProfile(currentUser._id);
-            this.loadPublishedWorks(currentUser._id);
+            // For current user, set the profile directly from localStorage and load current user data
+            this.userProfile.set(currentUser);
+            this.resetEditForm();
+            this.loadCurrentUserPublishedWorks();
             
             // Load user-specific data (submissions and drafts)
             this.loadSubmissions();
@@ -255,7 +285,7 @@ export class UserProfileComponent implements OnInit {
             // If no current user, redirect to login
             this.error.set('Please log in to view your profile');
             this.isLoading.set(false);
-            setTimeout(() => this.router.navigate(['/login']), 2000);
+            setTimeout(() => this.router.navigate(['/login']), 1500);
           }
         }
       });
@@ -278,9 +308,20 @@ export class UserProfileComponent implements OnInit {
           this.isLoading.set(false);
         },
         error: (error: any) => {
-          this.error.set('Failed to load user profile');
-          this.isLoading.set(false);
+          console.error('Error loading user profile:', error);
           
+          // Check if it's an auth error (401 or 403) - user needs to log in
+          if (error.status === 401 || error.status === 403) {
+            // Clear any invalid token
+            localStorage.removeItem('jwt_token');
+            localStorage.removeItem('user');
+            this.error.set('Please log in to view this profile');
+            this.isLoading.set(false);
+            setTimeout(() => this.router.navigate(['/login']), 1500);
+            return;
+          }
+          
+          // Try fallback method
           this.backendService.getUserById(userId).subscribe({
             next: (response: any) => {
               this.userProfile.set(response.user);
@@ -288,8 +329,19 @@ export class UserProfileComponent implements OnInit {
               this.isLoading.set(false);
             },
             error: (fallbackError: any) => {
-              this.error.set('User not found');
-              this.isLoading.set(false);
+              console.error('Fallback getUserById also failed:', fallbackError);
+              
+              // Check if fallback also has auth error
+              if (fallbackError.status === 401 || fallbackError.status === 403) {
+                localStorage.removeItem('jwt_token');
+                localStorage.removeItem('user');
+                this.error.set('Please log in to view this profile');
+                this.isLoading.set(false);
+                setTimeout(() => this.router.navigate(['/login']), 1500);
+              } else {
+                this.error.set('User not found');
+                this.isLoading.set(false);
+              }
             }
           });
         }
@@ -321,6 +373,46 @@ export class UserProfileComponent implements OnInit {
         }
       });
     } catch (error) {
+      this.publishedWorks.set([]);
+      this.worksLoading.set(false);
+    }
+  }
+
+  // Load current user's published works using submissions API
+  async loadCurrentUserPublishedWorks() {
+    try {
+      this.worksLoading.set(true);
+      
+      // Use submissions API to get current user's published works
+      this.backendService.getSubmissions({
+        status: 'published',
+        limit: 20,
+        sortBy: 'publishedAt',
+        order: 'desc'
+      }).subscribe({
+        next: (response: any) => {
+          // Transform submissions to published works format
+          const publishedWorks = (response.submissions || []).map((submission: any) => ({
+            _id: submission._id,
+            title: submission.title,
+            excerpt: submission.excerpt || submission.description,
+            submissionType: submission.submissionType,
+            publishedAt: submission.publishedAt || submission.updatedAt,
+            viewCount: submission.viewCount || 0,
+            slug: submission.slug || submission.seo?.slug
+          }));
+          
+          this.publishedWorks.set(publishedWorks);
+          this.worksLoading.set(false);
+        },
+        error: (error: any) => {
+          console.error('Error loading current user published works:', error);
+          this.publishedWorks.set([]);
+          this.worksLoading.set(false);
+        }
+      });
+    } catch (error) {
+      console.error('Exception loading current user published works:', error);
       this.publishedWorks.set([]);
       this.worksLoading.set(false);
     }

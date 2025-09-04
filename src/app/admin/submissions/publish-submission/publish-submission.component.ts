@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
-import { CommonModule, TitleCasePipe } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { RichTextEditorComponent } from '../../../submit/rich-text-editor/rich-text-editor.component';
 import { BadgeLabelComponent } from '../../../utilities/badge-label/badge-label.component';
 import { TagInputComponent } from '../../../utilities/tag-input/tag-input.component';

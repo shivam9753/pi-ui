@@ -4,15 +4,14 @@ import { FormsModule } from '@angular/forms';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { environment } from '../../../../environments/environment';
 import { BackendService } from '../../../services/backend.service';
-import { AdminPageHeaderComponent, AdminPageStat } from '../../../shared/components/admin-page-header/admin-page-header.component';
-import { SUBMISSION_STATUS, SubmissionStatus, API_ENDPOINTS } from '../../../shared/constants/api.constants';
+import { AdminPageHeaderComponent } from '../../../shared/components/admin-page-header/admin-page-header.component';
+import { SUBMISSION_STATUS, API_ENDPOINTS } from '../../../shared/constants/api.constants';
 import {
   DataTableComponent,
   TableColumn,
   TableAction,
   PaginationConfig,
   SUBMISSIONS_TABLE_COLUMNS,
-  createSubmissionActions,
   SUBMISSION_BADGE_CONFIG,
   SearchableUserSelectorComponent,
   User,
