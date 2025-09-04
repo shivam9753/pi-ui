@@ -42,8 +42,9 @@ export interface QuickFilterEvent {
       </div>
 
       <!-- Mobile Filter Content -->
-      <div class="transition-all duration-200 ease-in-out"
-           [class.hidden]="!mobileFiltersOpen">
+      <div class="transition-all duration-200 ease-in-out overflow-hidden"
+           [class.max-h-0]="!mobileFiltersOpen"
+           [class.max-h-screen]="mobileFiltersOpen">
         
         <!-- Quick Filter Chips -->
         <div class="px-4 py-3 border-b border-gray-100">
@@ -95,7 +96,7 @@ export interface QuickFilterEvent {
         </div>
 
         <!-- Mobile: Stacked layout -->
-        <div class="px-4 py-3">
+        <div class="px-4 pt-3 pb-6 max-h-80 overflow-y-auto">
           <div class="space-y-3">
             <!-- Status -->
             <div>
@@ -142,7 +143,7 @@ export interface QuickFilterEvent {
             </div>
 
             <!-- Active Filter Count -->
-            <div *ngIf="getActiveFilterCount() > 0" class="mt-3">
+            <div *ngIf="getActiveFilterCount() > 0" class="mt-3 mb-4">
               <span class="text-xs text-blue-600 font-medium">
                 {{ getActiveFilterCount() }} filter{{ getActiveFilterCount() > 1 ? 's' : '' }} active
               </span>

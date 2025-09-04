@@ -1,5 +1,5 @@
 
-import { Component, ElementRef, EventEmitter, forwardRef, Input, Output, ViewChild, AfterViewInit, inject } from '@angular/core';
+import { Component, ElementRef, EventEmitter, forwardRef, Input, Output, ViewChild, AfterViewInit, OnDestroy, inject, ViewEncapsulation } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { ImageCompressionUtil, CompressedImage } from '../../shared/utils/image-compression.util';
@@ -11,6 +11,7 @@ import { API_ENDPOINTS } from '../../shared/constants/api.constants';
   imports: [],
   templateUrl: './rich-text-editor.component.html',
   styleUrls: ['./rich-text-editor.component.css'],
+  encapsulation: ViewEncapsulation.None,
   providers: [
     {
       provide: NG_VALUE_ACCESSOR,
@@ -19,7 +20,7 @@ import { API_ENDPOINTS } from '../../shared/constants/api.constants';
     }
   ]
 })
-export class RichTextEditorComponent implements ControlValueAccessor, AfterViewInit {
+export class RichTextEditorComponent implements ControlValueAccessor, AfterViewInit, OnDestroy {
   @ViewChild('editor', { static: true }) editor!: ElementRef<HTMLDivElement>;
   
   @Input() placeholder: string = 'Write your content here...';
@@ -31,6 +32,7 @@ export class RichTextEditorComponent implements ControlValueAccessor, AfterViewI
   wordCount: number = 0;
   currentAlignment: string = 'left';
   uploadedImages: CompressedImage[] = [];
+  temporaryImages: string[] = []; // Track temporary S3 URLs for cleanup
   isImageUploading: boolean = false;
   uploadStatus: string = 'Preparing upload...';
   
@@ -62,6 +64,13 @@ export class RichTextEditorComponent implements ControlValueAccessor, AfterViewI
       // Make instance available for delete functionality
       (window as any).richTextEditorInstance = this;
     }
+    
+    this.setupPageUnloadCleanup();
+  }
+
+  ngOnDestroy(): void {
+    // Cleanup temporary images when component is destroyed
+    this.cleanupTemporaryImages();
   }
 
   private setupCaptionEventListeners(): void {
@@ -86,11 +95,34 @@ export class RichTextEditorComponent implements ControlValueAccessor, AfterViewI
     });
   }
 
-  private setupDeleteButtonListener(imageId: string): void {
-    const deleteBtn = this.editor.nativeElement.querySelector(`[data-image-id="${imageId}"] .delete-btn`);
+  private setupImageEventListeners(imageId: string): void {
+    const figure = this.editor.nativeElement.querySelector(`[data-image-id="${imageId}"]`);
+    if (!figure) return;
+    
+    // Delete button
+    const deleteBtn = figure.querySelector('.delete-btn');
     if (deleteBtn) {
-      deleteBtn.addEventListener('click', () => {
+      deleteBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
         this.deleteImage(imageId);
+      });
+    }
+    
+    // Width toggle button
+    const widthBtn = figure.querySelector('.width-btn');
+    if (widthBtn) {
+      widthBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        this.toggleImageWidth(imageId);
+      });
+    }
+    
+    // Caption button
+    const captionBtn = figure.querySelector('.caption-btn');
+    if (captionBtn) {
+      captionBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        this.focusCaption(imageId);
       });
     }
   }
@@ -100,83 +132,70 @@ export class RichTextEditorComponent implements ControlValueAccessor, AfterViewI
     const images = this.editor.nativeElement.querySelectorAll('img');
     
     images.forEach((img: any) => {
-      // Skip if already has controls
-      if (img.parentElement?.classList.contains('image-figure') && 
-          img.parentElement?.querySelector('.image-controls')) {
+      // Skip if already has new-style toolbar
+      if (img.closest('.image-figure')?.querySelector('.image-toolbar')) {
         return;
       }
       
       // Create unique ID for existing image
       const imageId = `existing-img-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
       const imageUrl = img.src;
+      const alt = img.alt || 'Image';
       
-      // If image is not wrapped in figure, wrap it
-      if (!img.parentElement?.classList.contains('image-figure')) {
-        const figure = document.createElement('figure');
-        figure.className = 'image-figure';
-        figure.contentEditable = 'false';
-        figure.setAttribute('data-image-id', imageId);
-        figure.setAttribute('data-image-url', imageUrl);
-        
-        // Create image container and controls
-        const imageContainer = document.createElement('div');
-        imageContainer.className = 'image-container';
-        
-        const controls = document.createElement('div');
-        controls.className = 'image-controls';
-        controls.innerHTML = `<button type="button" class="image-control-btn delete-btn" data-image-id="${imageId}" title="Delete Image">×</button>`;
-        
-        // Wrap the image
-        img.parentNode?.insertBefore(figure, img);
-        imageContainer.appendChild(img);
-        imageContainer.appendChild(controls);
-        figure.appendChild(imageContainer);
-        
-        // Add existing caption if any (look for nearby text)
-        const nextSibling = figure.nextSibling;
-        if (nextSibling && nextSibling.nodeType === Node.TEXT_NODE && nextSibling.textContent?.trim()) {
-          const caption = document.createElement('figcaption');
-          caption.contentEditable = 'true';
-          caption.textContent = nextSibling.textContent.trim();
-          figure.appendChild(caption);
-          nextSibling.remove();
-        } else {
-          // Add empty caption
-          const caption = document.createElement('figcaption');
-          caption.contentEditable = 'true';
-          caption.setAttribute('data-placeholder', 'Add caption...');
-          figure.appendChild(caption);
-        }
-        
-        // Set up delete button listener
-        this.setupDeleteButtonListener(imageId);
-      } else {
-        // Image is already in figure, just add controls if missing
-        const figure = img.parentElement;
-        if (!figure.querySelector('.image-controls')) {
-          figure.setAttribute('data-image-id', imageId);
-          figure.setAttribute('data-image-url', imageUrl);
-          
-          // Check if image is directly in figure or in a container
-          let imageContainer = figure.querySelector('.image-container');
-          if (!imageContainer) {
-            imageContainer = document.createElement('div');
-            imageContainer.className = 'image-container';
-            const img = figure.querySelector('img');
-            if (img) {
-              figure.insertBefore(imageContainer, img);
-              imageContainer.appendChild(img);
-            }
-          }
-          
-          const controls = document.createElement('div');
-          controls.className = 'image-controls';
-          controls.innerHTML = `<button type="button" class="image-control-btn delete-btn" data-image-id="${imageId}" title="Delete Image">×</button>`;
-          
-          imageContainer.appendChild(controls);
-          this.setupDeleteButtonListener(imageId);
+      // Get existing caption if any
+      let existingCaption = '';
+      const existingFigure = img.closest('figure');
+      if (existingFigure) {
+        const figcaption = existingFigure.querySelector('figcaption');
+        if (figcaption) {
+          existingCaption = figcaption.textContent || '';
         }
       }
+      
+      // Create new Substack-like figure structure
+      const figureHtml = `<figure class="image-figure" contenteditable="false" data-image-id="${imageId}" data-image-url="${imageUrl}" data-width="full">
+        <div class="image-wrapper">
+          <div class="image-container">
+            <img src="${imageUrl}" alt="${alt}" class="image-content" />
+            <div class="image-toolbar">
+              <div class="image-toolbar-group">
+                <button type="button" class="image-toolbar-btn width-btn" data-action="width" data-image-id="${imageId}" title="Change width">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ffffff" style="stroke: #ffffff; color: #ffffff; stroke-width: 2;">
+                    <path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01" stroke="#ffffff" style="stroke: #ffffff;"/>
+                  </svg>
+                </button>
+                <button type="button" class="image-toolbar-btn caption-btn" data-action="caption" data-image-id="${imageId}" title="Edit caption">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ffffff" style="stroke: #ffffff; color: #ffffff; stroke-width: 2;">
+                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" stroke="#ffffff" style="stroke: #ffffff;"/>
+                  </svg>
+                </button>
+                <button type="button" class="image-toolbar-btn delete-btn" data-action="delete" data-image-id="${imageId}" title="Delete image">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ffffff" style="stroke: #ffffff; color: #ffffff; stroke-width: 2;">
+                    <path d="M3 6h18M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" stroke="#ffffff" style="stroke: #ffffff;"/>
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
+          <figcaption class="image-caption" contenteditable="true" data-placeholder="Write a caption...">${existingCaption}</figcaption>
+        </div>
+      </figure>`;
+      
+      // Replace the old image/figure with new structure
+      const tempDiv = document.createElement('div');
+      tempDiv.innerHTML = figureHtml;
+      const newFigure = tempDiv.firstChild as Element;
+      
+      if (existingFigure) {
+        existingFigure.parentNode?.replaceChild(newFigure, existingFigure);
+      } else {
+        img.parentNode?.replaceChild(newFigure, img);
+      }
+      
+      // Set up event listeners for the new structure
+      setTimeout(() => {
+        this.setupImageEventListeners(imageId);
+      }, 0);
     });
   }
 
@@ -639,62 +658,124 @@ export class RichTextEditorComponent implements ControlValueAccessor, AfterViewI
     formData.append('submissionType', 'article'); // Default to article
     formData.append('alt', '');
     formData.append('caption', caption);
+    formData.append('temporary', 'true'); // Mark as temporary upload
 
     return this.http.post(`${environment.apiBaseUrl}${API_ENDPOINTS.UPLOADS.IMAGE}`, formData, { headers }).toPromise();
   }
 
   private insertS3ImageIntoEditor(imageData: any): void {
-    // Show caption input modal
-    const caption = prompt('Enter image caption (optional):');
+    // Track temporary image for potential cleanup
+    this.temporaryImages.push(imageData.url);
     
-    this.insertImageWithCaption(imageData.url, imageData.alt || 'Uploaded image', caption || '');
+    // Insert image without prompt - caption can be added inline
+    this.insertImageWithCaption(imageData.url, imageData.alt || 'Uploaded image', '');
   }
 
   private insertImageWithCaption(imageUrl: string, alt: string, caption: string): void {
     const imageId = `img-${Date.now()}`;
     
-    // Create proper figure element with caption support and delete controls
-    const figureHtml = `<figure class="image-figure" contenteditable="false" data-image-id="${imageId}" data-image-url="${imageUrl}">
-      <div class="image-container">
-        <img src="${imageUrl}" alt="${alt}" class="max-w-full h-auto rounded-lg shadow-sm mx-auto block" />
-        <div class="image-controls">
-          <button type="button" class="image-control-btn delete-btn" data-image-id="${imageId}" title="Delete Image">×</button>
+    // Create Substack-like figure element with better controls
+    const figureHtml = `<figure class="image-figure" contenteditable="false" data-image-id="${imageId}" data-image-url="${imageUrl}" data-width="full">
+      <div class="image-wrapper">
+        <div class="image-container">
+          <img src="${imageUrl}" alt="${alt}" class="image-content" />
+          <div class="image-toolbar">
+            <div class="image-toolbar-group">
+              <button type="button" class="image-toolbar-btn width-btn" data-action="width" data-image-id="${imageId}" title="Change width">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ffffff" style="stroke: #ffffff; color: #ffffff; stroke-width: 2;">
+                  <path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01" stroke="#ffffff" style="stroke: #ffffff;"/>
+                </svg>
+              </button>
+              <button type="button" class="image-toolbar-btn caption-btn" data-action="caption" data-image-id="${imageId}" title="Edit caption">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ffffff" style="stroke: #ffffff; color: #ffffff; stroke-width: 2;">
+                  <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" stroke="#ffffff" style="stroke: #ffffff;"/>
+                </svg>
+              </button>
+              <button type="button" class="image-toolbar-btn delete-btn" data-action="delete" data-image-id="${imageId}" title="Delete image">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ffffff" style="stroke: #ffffff; color: #ffffff; stroke-width: 2;">
+                  <path d="M3 6h18M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" stroke="#ffffff" style="stroke: #ffffff;"/>
+                </svg>
+              </button>
+            </div>
+          </div>
         </div>
+        ${caption ? `<figcaption class="image-caption" contenteditable="true">${caption}</figcaption>` : '<figcaption class="image-caption" contenteditable="true" data-placeholder="Write a caption..."></figcaption>'}
       </div>
-      ${caption ? `<figcaption contenteditable="true">${caption}</figcaption>` : '<figcaption contenteditable="true" data-placeholder="Add caption..."></figcaption>'}
     </figure>`;
     
-    // Insert at current cursor position with NO paragraph separation
+    // Insert with proper spacing
     this.insertContentAtCursor(figureHtml);
     
     this.onContentChange({ target: this.editor.nativeElement } as any);
     
-    // Set up delete button event listener
+    // Set up event listeners for all buttons
     setTimeout(() => {
-      this.setupDeleteButtonListener(imageId);
+      this.setupImageEventListeners(imageId);
     }, 0);
   }
 
   private insertContentAtCursor(htmlContent: string): void {
+    // Ensure we're working within the correct editor element
+    const editorElement = this.editor.nativeElement;
+    
+    // Focus the editor first to ensure proper selection
+    editorElement.focus();
+    
     const selection = window.getSelection();
     if (selection && selection.rangeCount > 0) {
       const range = selection.getRangeAt(0);
       
-      // Create and insert the content without any extra spacing
+      // Verify that the selection is within our editor element
+      let container = range.commonAncestorContainer;
+      if (container.nodeType === Node.TEXT_NODE) {
+        container = container.parentNode as Element;
+      }
+      
+      // If selection is not within our editor, create a new range at the end of editor
+      if (!editorElement.contains(container as Node)) {
+        range.selectNodeContents(editorElement);
+        range.collapse(false); // Collapse to end
+      }
+      
+      // Ensure we're not inside another figure
+      const figure = (container as Element).closest?.('.image-figure');
+      if (figure && editorElement.contains(figure)) {
+        range.setStartAfter(figure);
+        range.collapse(true);
+      }
+      
+      // Add line breaks before and after for proper spacing
+      const beforeBr = document.createElement('br');
+      const afterBr = document.createElement('br');
+      
+      // Create and insert the content
       const tempDiv = document.createElement('div');
       tempDiv.innerHTML = htmlContent;
       const contentNode = tempDiv.firstChild!;
       
+      range.insertNode(afterBr);
       range.insertNode(contentNode);
-      range.setStartAfter(contentNode);
+      range.insertNode(beforeBr);
       
-      // Position cursor after the inserted content
+      // Position cursor after the figure
+      range.setStartAfter(afterBr);
       range.collapse(true);
       selection.removeAllRanges();
       selection.addRange(range);
     } else {
-      // Fallback: append to end without extra spacing
-      this.editor.nativeElement.innerHTML += htmlContent;
+      // Fallback: append to end of editor with proper spacing
+      if (editorElement.innerHTML.trim() === '') {
+        editorElement.innerHTML = htmlContent + '<br>';
+      } else {
+        editorElement.innerHTML += '<br>' + htmlContent + '<br>';
+      }
+      
+      // Set cursor after the inserted content
+      const range = document.createRange();
+      range.selectNodeContents(editorElement);
+      range.collapse(false);
+      selection?.removeAllRanges();
+      selection?.addRange(range);
     }
   }
 
@@ -769,6 +850,50 @@ export class RichTextEditorComponent implements ControlValueAccessor, AfterViewI
       }
     }
   }
+
+  toggleImageWidth(imageId: string): void {
+    const figure = this.editor.nativeElement.querySelector(`[data-image-id="${imageId}"]`);
+    if (!figure) return;
+    
+    const currentWidth = figure.getAttribute('data-width') || 'full';
+    let newWidth: string;
+    
+    switch (currentWidth) {
+      case 'full':
+        newWidth = 'wide';
+        break;
+      case 'wide':
+        newWidth = 'normal';
+        break;
+      case 'normal':
+        newWidth = 'small';
+        break;
+      default:
+        newWidth = 'full';
+    }
+    
+    figure.setAttribute('data-width', newWidth);
+    figure.className = `image-figure image-width-${newWidth}`;
+    this.onContentChange({ target: this.editor.nativeElement } as any);
+  }
+
+  focusCaption(imageId: string): void {
+    const figure = this.editor.nativeElement.querySelector(`[data-image-id="${imageId}"]`);
+    if (!figure) return;
+    
+    const caption = figure.querySelector('figcaption');
+    if (caption) {
+      caption.focus();
+      // Select all text in caption if it has placeholder content
+      if (caption.textContent === '' || caption.hasAttribute('data-placeholder')) {
+        const range = document.createRange();
+        range.selectNodeContents(caption);
+        const selection = window.getSelection();
+        selection?.removeAllRanges();
+        selection?.addRange(range);
+      }
+    }
+  }
   
   private async deleteImageFromS3(imageUrl: string): Promise<void> {
     try {
@@ -813,5 +938,91 @@ export class RichTextEditorComponent implements ControlValueAccessor, AfterViewI
     });
     
     return images;
+  }
+
+  // Orphaned image cleanup methods
+  private setupPageUnloadCleanup(): void {
+    // Cleanup on page unload (user leaves without submitting)
+    window.addEventListener('beforeunload', () => {
+      this.cleanupTemporaryImages();
+    });
+    
+    // Also cleanup on visibility change (mobile browsers)
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) {
+        this.cleanupTemporaryImages();
+      }
+    });
+  }
+
+  private cleanupTemporaryImages(): void {
+    if (this.temporaryImages.length > 0) {
+      // Send cleanup request to backend (non-blocking)
+      const jwtToken = localStorage.getItem('jwt_token');
+      if (jwtToken) {
+        const headers = new HttpHeaders({
+          'Authorization': `Bearer ${jwtToken}`
+        });
+        
+        // Use sendBeacon for reliability during page unload
+        const cleanupData = { imageUrls: this.temporaryImages };
+        const blob = new Blob([JSON.stringify(cleanupData)], { type: 'application/json' });
+        
+        try {
+          navigator.sendBeacon(`${environment.apiBaseUrl}/api/uploads/cleanup-temp-images`, blob);
+        } catch (error) {
+          // Fallback to regular HTTP request
+          this.http.post(`${environment.apiBaseUrl}/api/uploads/cleanup-temp-images`, cleanupData, { headers })
+            .toPromise()
+            .catch(() => {
+              // Ignore errors during cleanup
+            });
+        }
+      }
+      
+      // Clear the tracked images
+      this.temporaryImages = [];
+    }
+  }
+
+  // Public method to mark images as permanent (called when submission is successful)
+  markImagesAsPermanent(): void {
+    const imageUrls = this.getImageUrls();
+    
+    if (imageUrls.length > 0) {
+      const jwtToken = localStorage.getItem('jwt_token');
+      if (jwtToken) {
+        const headers = new HttpHeaders({
+          'Authorization': `Bearer ${jwtToken}`
+        });
+        
+        const confirmData = { imageUrls: imageUrls.map(img => img.src) };
+        this.http.post(`${environment.apiBaseUrl}/api/uploads/confirm-images`, confirmData, { headers })
+          .toPromise()
+          .then(() => {
+            // Images are now permanent, clear temporary tracking
+            this.temporaryImages = [];
+          })
+          .catch((error) => {
+            console.warn('Failed to confirm images as permanent:', error);
+          });
+      }
+    }
+  }
+
+  // Get all image URLs currently in the editor
+  private getImageUrls(): {src: string, imageId: string}[] {
+    const figures = this.editor.nativeElement.querySelectorAll('figure[data-image-id] img');
+    const urls: {src: string, imageId: string}[] = [];
+    
+    figures.forEach((img: any) => {
+      const figure = img.closest('figure');
+      urls.push({
+        src: img.src,
+        imageId: figure?.getAttribute('data-image-id') || ''
+      });
+    });
+    
+    return urls;
   }
 }

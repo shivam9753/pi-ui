@@ -79,6 +79,213 @@
   }
 }
 
+/* Rich Text Editor Image Styles - Global overrides for Substack-like layout */
+.image-figure {
+  position: relative !important;
+  margin: 1rem 0 !important;
+  clear: both !important;
+  display: block !important;
+  width: 100% !important;
+  text-align: center !important;
+  line-height: 0 !important;
+  padding: 0 !important;
+  border: none !important;
+  background: transparent !important;
+}
+
+.image-wrapper {
+  position: relative !important;
+  display: block !important;
+  max-width: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  line-height: 0 !important;
+}
+
+.image-container {
+  position: relative !important;
+  display: block !important;
+  width: 100% !important;
+  border-radius: 8px !important;
+  overflow: hidden !important;
+  background: #f8f9fa !important;
+  transition: all 0.2s ease !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  line-height: 0 !important;
+  border: none !important;
+}
+
+.image-container:hover {
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15) !important;
+}
+
+.image-content {
+  display: block !important;
+  width: 100% !important;
+  height: auto !important;
+  border: none !important;
+  background: transparent !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  vertical-align: top !important;
+  line-height: 0 !important;
+}
+
+.image-toolbar {
+  position: absolute !important;
+  top: 8px !important;
+  right: 8px !important;
+  opacity: 0 !important;
+  transition: all 0.2s ease !important;
+  z-index: 999 !important;
+  pointer-events: auto !important;
+}
+
+.image-figure:hover .image-toolbar {
+  opacity: 1 !important;
+}
+
+.image-toolbar-group {
+  display: flex !important;
+  align-items: center !important;
+  background: rgba(0, 0, 0, 0.85) !important;
+  border-radius: 8px !important;
+  padding: 4px !important;
+  gap: 2px !important;
+  backdrop-filter: blur(10px) !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3) !important;
+  white-space: nowrap !important;
+}
+
+.image-toolbar-btn {
+  width: 26px !important;
+  height: 26px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  background: transparent !important;
+  color: rgba(255, 255, 255, 0.9) !important;
+  border: none !important;
+  border-radius: 4px !important;
+  cursor: pointer !important;
+  font-size: 12px !important;
+  font-weight: normal !important;
+  transition: all 0.2s ease !important;
+  flex-shrink: 0 !important;
+}
+
+.image-toolbar-btn:hover {
+  background: rgba(255, 255, 255, 0.2) !important;
+  color: rgba(255, 255, 255, 1) !important;
+  transform: none !important;
+}
+
+.image-toolbar-btn.delete-btn:hover {
+  background: rgba(220, 38, 38, 0.8) !important;
+  color: rgba(255, 255, 255, 1) !important;
+}
+
+.image-toolbar-btn svg,
+.image-toolbar-btn svg path,
+.image-toolbar-btn svg * {
+  width: 16px !important;
+  height: 16px !important;
+  stroke-width: 2 !important;
+  pointer-events: none !important;
+  stroke: #ffffff !important;
+  fill: none !important;
+  color: #ffffff !important;
+}
+
+.image-toolbar-btn:hover svg,
+.image-toolbar-btn:hover svg path,
+.image-toolbar-btn:hover svg * {
+  stroke: #ffffff !important;
+  color: #ffffff !important;
+}
+
+/* Dark theme compatibility */
+@media (prefers-color-scheme: dark) {
+  .image-toolbar-group {
+    background: rgba(255, 255, 255, 0.9) !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5) !important;
+  }
+  
+  .image-toolbar-btn {
+    color: rgba(0, 0, 0, 0.8) !important;
+  }
+  
+  .image-toolbar-btn:hover {
+    background: rgba(0, 0, 0, 0.1) !important;
+    color: rgba(0, 0, 0, 1) !important;
+  }
+  
+  .image-toolbar-btn.delete-btn:hover {
+    background: rgba(220, 38, 38, 0.8) !important;
+    color: rgba(255, 255, 255, 1) !important;
+  }
+  
+  .image-toolbar-btn svg,
+  .image-toolbar-btn svg path,
+  .image-toolbar-btn svg * {
+    stroke: #000000 !important;
+    color: #000000 !important;
+  }
+  
+  .image-toolbar-btn:hover svg,
+  .image-toolbar-btn:hover svg path,
+  .image-toolbar-btn:hover svg * {
+    stroke: #000000 !important;
+    color: #000000 !important;
+  }
+  
+  .image-toolbar-btn.delete-btn:hover svg,
+  .image-toolbar-btn.delete-btn:hover svg path,
+  .image-toolbar-btn.delete-btn:hover svg * {
+    stroke: #ffffff !important;
+    color: #ffffff !important;
+  }
+}
+
+.image-caption {
+  font-family: 'Crimson Text', Georgia, serif !important;
+  font-size: 15px !important;
+  line-height: 1.4 !important;
+  color: #666 !important;
+  text-align: center !important;
+  margin: 6px 0 0 0 !important;
+  padding: 2px 8px !important;
+  font-style: italic !important;
+  transition: all 0.2s ease !important;
+  border: none !important;
+  background: transparent !important;
+  outline: none !important;
+  resize: none !important;
+  min-height: auto !important;
+  display: block !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+.image-caption:focus {
+  color: #333 !important;
+  background: rgba(249, 115, 22, 0.05) !important;
+  border-radius: 4px !important;
+  outline: 1px solid rgba(249, 115, 22, 0.3) !important;
+}
+
+.image-caption:empty::before {
+  content: attr(data-placeholder) !important;
+  color: #bbb !important;
+  font-style: italic !important;
+  opacity: 0.8 !important;
+}
+
+.image-caption:focus::before {
+  display: none !important;
+}
+
 /* Button Press Feedback */
 .btn-feedback {
   position: relative;

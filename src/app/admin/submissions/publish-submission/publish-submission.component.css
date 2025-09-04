@@ -395,3 +395,53 @@ textarea:focus {
     border: 2px solid var(--text-primary);
   }
 }
+
+/* === IMAGE TOOLBAR FIXES FOR PUBLISH SUBMISSION === */
+/* Ensure image toolbar displays horizontally in admin view */
+.image-toolbar-group {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  justify-content: center !important;
+  background: rgba(0, 0, 0, 0.85) !important;
+  border-radius: 8px !important;
+  padding: 4px !important;
+  gap: 2px !important;
+  backdrop-filter: blur(10px) !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3) !important;
+  white-space: nowrap !important;
+}
+
+.image-toolbar-btn {
+  width: 26px !important;
+  height: 26px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  background: transparent !important;
+  color: rgba(255, 255, 255, 0.9) !important;
+  border: none !important;
+  border-radius: 4px !important;
+  cursor: pointer !important;
+  font-size: 12px !important;
+  font-weight: normal !important;
+  transition: all 0.2s ease !important;
+  flex-shrink: 0 !important;
+}
+
+.image-toolbar-btn:hover {
+  background: rgba(255, 255, 255, 0.2) !important;
+  color: rgba(255, 255, 255, 1) !important;
+}
+
+.image-toolbar-btn svg,
+.image-toolbar-btn svg path,
+.image-toolbar-btn svg * {
+  width: 16px !important;
+  height: 16px !important;
+  stroke-width: 2 !important;
+  pointer-events: none !important;
+  stroke: #ffffff !important;
+  fill: none !important;
+  color: #ffffff !important;
+}

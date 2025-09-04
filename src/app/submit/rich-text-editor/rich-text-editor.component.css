@@ -104,7 +104,7 @@
   outline: none;
 }
 
-/* Content styling - Remove all margins to prevent paragraph spacing */
+/* Content styling - Controlled spacing for better layout */
 .editor-content p,
 .editor-content div {
   margin: 0 !important;
@@ -114,6 +114,26 @@
 /* Line break handling - make sure br elements provide proper spacing */
 .editor-content br {
   line-height: inherit;
+}
+
+/* Ensure proper spacing around images - Higher specificity */
+.rich-text-editor .editor-content br + .image-figure,
+.rich-text-editor .editor-content .image-figure + br,
+.editor-content br + .image-figure,
+.editor-content .image-figure + br {
+  display: block !important;
+  margin: 0.5rem 0 !important;
+}
+
+/* Prevent multiple consecutive line breaks near images */
+.rich-text-editor .editor-content .image-figure + br + br,
+.editor-content .image-figure + br + br {
+  display: none !important;
+}
+
+.rich-text-editor .editor-content br + br + .image-figure,
+.editor-content br + br + .image-figure {
+  margin-top: 0.5rem !important;
 }
 
 /* Force editor to not create block elements on Enter */
@@ -254,17 +274,11 @@
   background-color: #fed7aa;
 }
 
+/* Legacy image container styles - keeping for backwards compatibility */
 .image-container {
   position: relative;
   margin: 1rem 0;
   text-align: center;
-}
-
-.image-container img {
-  display: block;
-  margin: 0 auto;
-  border-radius: 0.5rem;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
 }
 
 .image-info {
@@ -274,102 +288,196 @@
   text-align: center;
 }
 
-/* Enhanced image with caption styles */
+/* Substack-like image styling - Higher specificity */
+.rich-text-editor .editor-content .image-figure,
 .editor-content .image-figure {
-  position: relative;
-  margin: 0 !important;
-  clear: both;
-  display: inline-block;
-  overflow: visible;
-  width: 100%;
-}
-
-.editor-content .image-container {
-  position: relative;
-  display: inline-block;
-  width: 100%;
-}
-
-.editor-content .image-figure img {
-  display: block;
-  margin: 0 auto;
-  border-radius: 0.5rem;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  max-width: 100%;
-  height: auto;
-}
-
-.editor-content .image-figure figcaption {
-  font-family: 'Crimson Text', Georgia, serif !important;
-  font-size: 0.875rem !important;
-  line-height: 1.4 !important;
-  color: #6b7280 !important;
+  position: relative !important;
+  margin: 1rem 0 !important;
+  clear: both !important;
+  display: block !important;
+  width: 100% !important;
   text-align: center !important;
-  margin-top: 0.5rem !important;
-  margin-bottom: 0 !important;
-  padding: 0.25rem 0.5rem !important;
-  font-style: italic !important;
-  transition: all 0.2s ease;
+  line-height: 0 !important;
+  padding: 0 !important;
+  border: none !important;
+  background: transparent !important;
 }
 
-.editor-content .image-figure figcaption:focus {
+/* Image width variants - Higher specificity */
+.rich-text-editor .editor-content .image-width-small,
+.editor-content .image-width-small {
+  max-width: 400px !important;
+  margin: 1rem auto !important;
+}
+
+.rich-text-editor .editor-content .image-width-normal,
+.editor-content .image-width-normal {
+  max-width: 600px !important;
+  margin: 1rem auto !important;
+}
+
+.rich-text-editor .editor-content .image-width-wide,
+.editor-content .image-width-wide {
+  max-width: 800px !important;
+  margin: 1rem auto !important;
+}
+
+.rich-text-editor .editor-content .image-width-full,
+.editor-content .image-width-full {
+  max-width: 100% !important;
+  margin: 1rem 0 !important;
+}
+
+.rich-text-editor .editor-content .image-wrapper,
+.editor-content .image-wrapper {
+  position: relative !important;
+  display: block !important;
+  max-width: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  line-height: 0 !important;
+}
+
+.rich-text-editor .editor-content .image-container,
+.editor-content .image-container {
+  position: relative !important;
+  display: block !important;
+  width: 100% !important;
+  border-radius: 8px !important;
+  overflow: hidden !important;
+  background: #f8f9fa !important;
+  transition: all 0.2s ease !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  line-height: 0 !important;
+  border: none !important;
+}
+
+.rich-text-editor .editor-content .image-container:hover,
+.editor-content .image-container:hover {
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15) !important;
+}
+
+.rich-text-editor .editor-content .image-content,
+.editor-content .image-content {
+  display: block !important;
+  width: 100% !important;
+  height: auto !important;
+  border: none !important;
+  background: transparent !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  vertical-align: top !important;
+  line-height: 0 !important;
+}
+
+.rich-text-editor .editor-content .image-caption,
+.editor-content .image-caption {
+  font-family: 'Crimson Text', Georgia, serif !important;
+  font-size: 15px !important;
+  line-height: 1.4 !important;
+  color: #666 !important;
+  text-align: center !important;
+  margin: 6px 0 0 0 !important;
+  padding: 2px 8px !important;
+  font-style: italic !important;
+  transition: all 0.2s ease !important;
+  border: none !important;
+  background: transparent !important;
   outline: none !important;
-  color: #374151 !important;
-  background-color: rgba(249, 115, 22, 0.1) !important;
-  border-radius: 0.25rem !important;
+  resize: none !important;
+  min-height: auto !important;
+  display: block !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
 }
 
-.editor-content .image-figure figcaption:empty::before {
-  content: attr(data-placeholder);
-  color: #9ca3af !important;
+.rich-text-editor .editor-content .image-caption:focus,
+.editor-content .image-caption:focus {
+  color: #333 !important;
+  background: rgba(249, 115, 22, 0.05) !important;
+  border-radius: 4px !important;
+  outline: 1px solid rgba(249, 115, 22, 0.3) !important;
+}
+
+.rich-text-editor .editor-content .image-caption:empty::before,
+.editor-content .image-caption:empty::before {
+  content: attr(data-placeholder) !important;
+  color: #bbb !important;
   font-style: italic !important;
-  opacity: 0.7;
+  opacity: 0.8 !important;
 }
 
-.editor-content .image-figure figcaption:focus::before {
-  display: none;
+.rich-text-editor .editor-content .image-caption:focus::before,
+.editor-content .image-caption:focus::before {
+  display: none !important;
 }
 
-/* Image controls overlay */
-.editor-content .image-controls {
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  display: flex;
-  gap: 4px;
-  opacity: 0.9 !important;
-  z-index: 100;
-  pointer-events: auto;
+/* Substack-like image toolbar - Higher specificity */
+.rich-text-editor .editor-content .image-toolbar,
+.editor-content .image-toolbar {
+  position: absolute !important;
+  top: 8px !important;
+  right: 8px !important;
+  opacity: 0 !important;
+  transition: all 0.2s ease !important;
+  z-index: 999 !important;
+  pointer-events: auto !important;
 }
 
-.editor-content .image-figure:hover .image-controls {
+.rich-text-editor .editor-content .image-figure:hover .image-toolbar,
+.editor-content .image-figure:hover .image-toolbar {
   opacity: 1 !important;
 }
 
-.editor-content .image-control-btn {
-  width: 24px !important;
-  height: 24px !important;
+.rich-text-editor .editor-content .image-toolbar-group,
+.editor-content .image-toolbar-group {
   display: flex !important;
-  align-items: center;
-  justify-content: center;
-  background: #dc2626 !important;
+  align-items: center !important;
+  background: rgba(0, 0, 0, 0.85) !important;
+  border-radius: 8px !important;
+  padding: 4px !important;
+  gap: 2px !important;
+  backdrop-filter: blur(10px) !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3) !important;
+  white-space: nowrap !important;
+}
+
+.rich-text-editor .editor-content .image-toolbar-btn,
+.editor-content .image-toolbar-btn {
+  width: 26px !important;
+  height: 26px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  background: transparent !important;
   color: white !important;
   border: none !important;
-  border-radius: 50% !important;
+  border-radius: 4px !important;
   cursor: pointer !important;
-  font-size: 14px !important;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3) !important;
-  font-weight: bold !important;
+  font-size: 12px !important;
+  font-weight: normal !important;
+  transition: all 0.2s ease !important;
+  flex-shrink: 0 !important;
 }
 
-.editor-content .image-control-btn:hover {
-  background: #b91c1c !important;
-  transform: scale(1.1);
+.rich-text-editor .editor-content .image-toolbar-btn:hover,
+.editor-content .image-toolbar-btn:hover {
+  background: rgba(255, 255, 255, 0.2) !important;
+  transform: none !important;
 }
 
-.editor-content .image-control-btn svg {
-  width: 12px !important;
-  height: 12px !important;
+.rich-text-editor .editor-content .image-toolbar-btn.delete-btn:hover,
+.editor-content .image-toolbar-btn.delete-btn:hover {
+  background: rgba(220, 38, 38, 0.8) !important;
+}
+
+.rich-text-editor .editor-content .image-toolbar-btn svg,
+.editor-content .image-toolbar-btn svg {
+  width: 14px !important;
+  height: 14px !important;
+  stroke-width: 1.5 !important;
+  pointer-events: none !important;
 }
 
 /* Loading spinner for image upload */

@@ -72,7 +72,7 @@ export class PendingReviewsComponent implements OnInit {
     dateFrom: '',
     dateTo: '',
     sortBy: 'createdAt',
-    sortOrder: 'asc'
+    sortOrder: 'desc'
   };
 
   // Filter configuration for FilterBarComponent
@@ -195,8 +195,8 @@ export class PendingReviewsComponent implements OnInit {
       { label: 'Long Read', value: 'long' }
     ],
     sortOptions: [
-      { label: 'Oldest First', value: 'createdAt-asc' },
       { label: 'Newest First', value: 'createdAt-desc' },
+      { label: 'Oldest First', value: 'createdAt-asc' },
       { label: 'Title A-Z', value: 'title-asc' },
       { label: 'Title Z-A', value: 'title-desc' }
     ]

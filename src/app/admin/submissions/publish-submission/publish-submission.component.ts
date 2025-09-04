@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewEncapsulation } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -23,7 +23,8 @@ interface SEOConfig {
   selector: 'app-publish-submission',
   imports: [CommonModule, FormsModule, RichTextEditorComponent, BadgeLabelComponent, TagInputComponent],
   templateUrl: './publish-submission.component.html',
-  styleUrl: './publish-submission.component.css'
+  styleUrl: './publish-submission.component.css',
+  encapsulation: ViewEncapsulation.None
 })
 export class PublishSubmissionComponent implements OnInit {
   submission: any = null;

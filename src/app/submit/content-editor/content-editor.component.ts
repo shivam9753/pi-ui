@@ -1,5 +1,5 @@
 
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output, ViewEncapsulation } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RichTextEditorComponent } from '../rich-text-editor/rich-text-editor.component';
 import { TagInputComponent } from '../../utilities/tag-input/tag-input.component';
@@ -9,7 +9,8 @@ import { CompressedImage } from '../../shared/utils/image-compression.util';
   selector: 'app-content-editor',
   imports: [ReactiveFormsModule, FormsModule, RichTextEditorComponent, TagInputComponent],
   templateUrl: './content-editor.component.html',
-  styleUrl: './content-editor.component.css'
+  styleUrl: './content-editor.component.css',
+  encapsulation: ViewEncapsulation.None
 })
 export class ContentEditorComponent {
   @Input() selectedType: string = '';
