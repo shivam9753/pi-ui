@@ -33,6 +33,12 @@ export class TopicPitchesComponent implements OnInit {
   // Expanded topics tracking
   expandedTopics = new Set<string>();
 
+  // Claiming modal state
+  showClaimModal = false;
+  topicToCliam: TopicPitch | null = null;
+  claimDeadline = '';
+  claimingInProgress = false;
+
   constructor(
     private fb: FormBuilder,
     private authService: AuthService,
@@ -103,16 +109,6 @@ export class TopicPitchesComponent implements OnInit {
     }
   }
 
-  onClaimTopic(topicId: string) {
-    this.backendService.post(`/topic-pitches/${topicId}/claim`, {}).subscribe({
-      next: () => {
-        this.loadTopics();
-      },
-      error: (error: any) => {
-        console.error('Error claiming topic:', error);
-      }
-    });
-  }
 
   onWriteOnTopic(topic: TopicPitch) {
     // Navigate to submission editor with topic pre-filled
@@ -241,5 +237,39 @@ export class TopicPitchesComponent implements OnInit {
 
   isTopicExpanded(topicId: string): boolean {
     return this.expandedTopics.has(topicId);
+  }
+
+  onClaimTopic(topic: TopicPitch): void {
+    this.topicToCliam = topic;
+    this.claimDeadline = '';
+    this.showClaimModal = true;
+  }
+
+  closeClaimModal(): void {
+    this.showClaimModal = false;
+    this.topicToCliam = null;
+    this.claimDeadline = '';
+    this.claimingInProgress = false;
+  }
+
+  confirmClaimTopic(): void {
+    if (!this.topicToCliam) return;
+
+    this.claimingInProgress = true;
+
+    const payload = {
+      userDeadline: this.claimDeadline || null
+    };
+
+    this.backendService.post(`/topic-pitches/${this.topicToCliam._id}/claim`, payload).subscribe({
+      next: () => {
+        this.closeClaimModal();
+        this.loadTopics(); // Refresh the list to show updated status
+      },
+      error: (error: any) => {
+        console.error('Error claiming topic:', error);
+        this.claimingInProgress = false;
+      }
+    });
   }
 }

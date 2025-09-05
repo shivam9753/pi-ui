@@ -11,6 +11,7 @@ export interface TopicPitch {
   claimedByName?: string;
   claimedAt?: string;
   deadline?: string;
+  userDeadline?: string;
   priority: 'low' | 'medium' | 'high';
   tags?: string[];
   submissionId?: string;

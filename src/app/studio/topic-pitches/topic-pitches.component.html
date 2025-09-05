@@ -6,23 +6,22 @@
       <div class="lg:col-span-3 space-y-6">
         <!-- Header -->
         <div class="bg-white rounded-lg shadow-sm border p-6">
-          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <div>
-              <div class="flex items-center gap-3 mb-2">
-                <div class="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center">
-                  <svg class="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
-                  </svg>
-                </div>
-                <h1 class="text-3xl font-bold text-gray-900">Topic Pitches</h1>
+          <div class="text-center">
+            <!-- Title Section -->
+            <div class="flex justify-center items-center gap-3 mb-2">
+              <div class="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center">
+                <svg class="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
+                </svg>
               </div>
-              <p class="text-gray-600">Pitch creative ideas and write compelling content for the community</p>
+              <h1 class="text-3xl font-bold text-gray-900">Topic Pitches</h1>
             </div>
+            <p class="text-gray-600 mb-6">Pitch creative ideas and write compelling content for the community</p>
             
             <!-- Create Topic Button -->
             <button
               (click)="showCreateForm = !showCreateForm"
-              class="bg-orange-600 hover:bg-orange-700 text-white px-6 py-3 rounded-lg font-semibold flex items-center gap-2 transition-colors shadow-lg">
+              class="bg-orange-600 hover:bg-orange-700 text-white px-6 py-3 rounded-lg font-semibold inline-flex items-center gap-2 transition-colors shadow-lg">
               <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
               </svg>
@@ -53,118 +52,140 @@
           </div>
         </div>
 
-        <!-- Create Topic Form -->
+        <!-- Create Topic Modal -->
         @if (showCreateForm) {
-          <div class="bg-white rounded-lg shadow-sm border p-6">
-            <form [formGroup]="createForm" (ngSubmit)="onCreateTopic()">
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <!-- Title -->
-                <div class="md:col-span-2">
-                  <label for="title" class="block text-sm font-medium text-gray-700 mb-2">
-                    Topic Title *
-                  </label>
-                  <input
-                    type="text"
-                    id="title"
-                    formControlName="title"
-                    placeholder="Enter a compelling topic title..."
-                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500">
-                  @if (createForm.get('title')?.errors && createForm.get('title')?.touched) {
-                    <p class="text-red-600 text-sm mt-1">Title is required (min 3 characters)</p>
-                  }
+          <div class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+            <div class="flex items-center justify-center min-h-screen p-4">
+              <!-- Background overlay -->
+              <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true" (click)="showCreateForm = false"></div>
+
+              <!-- Modal -->
+              <div class="relative bg-white rounded-lg shadow-xl transform transition-all w-full max-w-5xl mx-auto p-6">
+                <div class="mb-4">
+                  <h3 class="text-lg leading-6 font-semibold text-gray-900 flex items-center gap-2" id="modal-title">
+                    <div class="w-8 h-8 bg-orange-100 rounded-lg flex items-center justify-center">
+                      <svg class="w-5 h-5 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
+                      </svg>
+                    </div>
+                    Pitch New Topic
+                  </h3>
+                  <p class="mt-1 text-sm text-gray-600">Share a creative idea for others to write about</p>
                 </div>
 
-                <!-- Content Type -->
-                <div>
-                  <label for="contentType" class="block text-sm font-medium text-gray-700 mb-2">
-                    Content Type *
-                  </label>
-                  <select
-                    id="contentType"
-                    formControlName="contentType"
-                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500">
-                    <option value="article">Article</option>
-                    <option value="opinion">Opinion</option>
-                    <option value="cinema_essay">Cinema Essay</option>
-                    <option value="story">Story</option>
-                  </select>
-                </div>
+                <form [formGroup]="createForm" (ngSubmit)="onCreateTopic()">
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Title -->
+                    <div class="md:col-span-2">
+                      <label for="modal-topic-title" class="block text-sm font-medium text-gray-700 mb-2">
+                        Topic Title *
+                      </label>
+                      <input
+                        type="text"
+                        id="modal-topic-title"
+                        formControlName="title"
+                        placeholder="Enter a compelling topic title..."
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500">
+                      @if (createForm.get('title')?.errors && createForm.get('title')?.touched) {
+                        <p class="text-red-600 text-sm mt-1">Title is required (min 3 characters)</p>
+                      }
+                    </div>
 
-                <!-- Priority -->
-                <div>
-                  <label for="priority" class="block text-sm font-medium text-gray-700 mb-2">
-                    Priority
-                  </label>
-                  <select
-                    id="priority"
-                    formControlName="priority"
-                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500">
-                    <option value="low">Low</option>
-                    <option value="medium">Medium</option>
-                    <option value="high">High</option>
-                  </select>
-                </div>
+                    <!-- Content Type -->
+                    <div>
+                      <label for="modal-contentType" class="block text-sm font-medium text-gray-700 mb-2">
+                        Content Type *
+                      </label>
+                      <select
+                        id="modal-contentType"
+                        formControlName="contentType"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500">
+                        <option value="article">Article</option>
+                        <option value="opinion">Opinion</option>
+                        <option value="cinema_essay">Cinema Essay</option>
+                        <option value="story">Story</option>
+                      </select>
+                    </div>
 
-                <!-- Deadline -->
-                <div>
-                  <label for="deadline" class="block text-sm font-medium text-gray-700 mb-2">
-                    Deadline (Optional)
-                  </label>
-                  <input
-                    type="date"
-                    id="deadline"
-                    formControlName="deadline"
-                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500">
-                </div>
+                    <!-- Priority -->
+                    <div>
+                      <label for="modal-priority" class="block text-sm font-medium text-gray-700 mb-2">
+                        Priority
+                      </label>
+                      <select
+                        id="modal-priority"
+                        formControlName="priority"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500">
+                        <option value="low">Low</option>
+                        <option value="medium">Medium</option>
+                        <option value="high">High</option>
+                      </select>
+                    </div>
 
-                <!-- Tags -->
-                <div>
-                  <label for="tags" class="block text-sm font-medium text-gray-700 mb-2">
-                    Tags (comma-separated)
-                  </label>
-                  <input
-                    type="text"
-                    id="tags"
-                    formControlName="tags"
-                    placeholder="tag1, tag2, tag3"
-                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500">
-                </div>
+                    <!-- Deadline -->
+                    <div>
+                      <label for="modal-deadline" class="block text-sm font-medium text-gray-700 mb-2">
+                        Deadline (Optional)
+                      </label>
+                      <input
+                        type="date"
+                        id="modal-deadline"
+                        formControlName="deadline"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500">
+                    </div>
 
-                <!-- Description -->
-                <div class="md:col-span-2">
-                  <label for="description" class="block text-sm font-medium text-gray-700 mb-2">
-                    Description *
-                  </label>
-                  <textarea
-                    id="description"
-                    formControlName="description"
-                    rows="6"
-                    placeholder="Provide details about what you'd like someone to write about..."
-                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500"></textarea>
-                  @if (createForm.get('description')?.errors && createForm.get('description')?.touched) {
-                    <p class="text-red-600 text-sm mt-1">Description is required (min 10 characters)</p>
-                  }
-                </div>
+                    <!-- Tags -->
+                    <div>
+                      <label for="modal-tags" class="block text-sm font-medium text-gray-700 mb-2">
+                        Tags (comma-separated)
+                      </label>
+                      <input
+                        type="text"
+                        id="modal-tags"
+                        formControlName="tags"
+                        placeholder="culture, music, social-media"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500">
+                    </div>
+
+                    <!-- Description -->
+                    <div class="md:col-span-2">
+                      <label for="modal-description" class="block text-sm font-medium text-gray-700 mb-2">
+                        Description *
+                      </label>
+                      <textarea
+                        id="modal-description"
+                        formControlName="description"
+                        rows="4"
+                        placeholder="Provide details about what you'd like someone to write about..."
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500"></textarea>
+                      @if (createForm.get('description')?.errors && createForm.get('description')?.touched) {
+                        <p class="text-red-600 text-sm mt-1">Description is required (min 10 characters)</p>
+                      }
+                    </div>
+                  </div>
+
+                  <!-- Modal Actions -->
+                  <div class="flex flex-col sm:flex-row gap-3 mt-6 pt-4 border-t border-gray-100">
+                    <button
+                      type="submit"
+                      [disabled]="createForm.invalid"
+                      [class.opacity-50]="createForm.invalid"
+                      class="flex-1 bg-orange-600 hover:bg-orange-700 text-white px-6 py-3 rounded-lg font-medium transition-colors flex items-center justify-center gap-2">
+                      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
+                      </svg>
+                      Pitch Topic
+                    </button>
+                    <button
+                      type="button"
+                      (click)="showCreateForm = false; createForm.reset({ contentType: 'article', priority: 'medium' })"
+                      class="px-6 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors">
+                      Cancel
+                    </button>
+                  </div>
+                </form>
               </div>
-
-              <!-- Form Actions -->
-              <div class="flex justify-end gap-3 mt-6">
-                <button
-                  type="button"
-                  (click)="showCreateForm = false; createForm.reset({ contentType: 'article', priority: 'medium' })"
-                  class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors">
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  [disabled]="createForm.invalid"
-                  [class.opacity-50]="createForm.invalid"
-                  [class.cursor-not-allowed]="createForm.invalid"
-                  class="bg-orange-600 hover:bg-orange-700 text-white px-6 py-2 rounded-lg font-semibold transition-colors">
-                  Create Topic
-                </button>
-              </div>
-            </form>
+            </div>
           </div>
         }
 
@@ -245,9 +266,9 @@
                     <div class="flex items-center gap-2">
                       @if (canClaimTopic(topic)) {
                         <button
-                          (click)="onWriteOnTopic(topic)"
-                          class="bg-green-600 hover:bg-green-700 text-white px-3 py-1.5 rounded text-sm font-medium transition-colors">
-                          Write
+                          (click)="onClaimTopic(topic)"
+                          class="bg-orange-600 hover:bg-orange-700 text-white px-3 py-1.5 rounded text-sm font-medium transition-colors">
+                          Claim Topic
                         </button>
                       }
                       
@@ -358,6 +379,58 @@
         }
       </div>
 
+      <!-- Claiming Modal -->
+      @if (showClaimModal) {
+        <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div class="bg-white rounded-lg shadow-xl max-w-md w-full mx-4">
+            <div class="p-6">
+              <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-semibold text-gray-900">Claim Topic</h3>
+                <button 
+                  (click)="closeClaimModal()"
+                  class="text-gray-400 hover:text-gray-600">
+                  <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                  </svg>
+                </button>
+              </div>
+              
+              @if (topicToCliam) {
+                <div class="mb-4">
+                  <h4 class="font-medium text-gray-900 mb-2">{{ topicToCliam.title }}</h4>
+                  <p class="text-sm text-gray-600 line-clamp-3">{{ topicToCliam.description }}</p>
+                </div>
+                
+                <div class="mb-4">
+                  <label for="claimDeadline" class="block text-sm font-medium text-gray-700 mb-2">
+                    Set your personal deadline (optional)
+                  </label>
+                  <input
+                    type="date"
+                    id="claimDeadline"
+                    [(ngModel)]="claimDeadline"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500">
+                </div>
+                
+                <div class="flex gap-3">
+                  <button
+                    (click)="closeClaimModal()"
+                    class="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors">
+                    Cancel
+                  </button>
+                  <button
+                    (click)="confirmClaimTopic()"
+                    [disabled]="claimingInProgress"
+                    class="flex-1 bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded-lg font-medium transition-colors disabled:opacity-50">
+                    {{ claimingInProgress ? 'Claiming...' : 'Claim Topic' }}
+                  </button>
+                </div>
+              }
+            </div>
+          </div>
+        </div>
+      }
+
       <!-- Activity Sidebar -->
       <div class="lg:col-span-1">
         <div class="sticky top-8 space-y-6">
@@ -369,22 +442,22 @@
               </svg>
               Topic Stats
             </h3>
-            <div class="grid grid-cols-2 gap-4">
-              <div class="text-center p-3 bg-green-50 rounded-lg border border-green-200">
+            <div class="grid grid-cols-2 gap-3">
+              <div class="text-center p-4 bg-green-50 rounded-lg border border-green-200">
                 <div class="text-2xl font-bold text-green-700">{{ getTopicCountByStatus('available') }}</div>
-                <div class="text-sm text-green-600 font-medium">Available</div>
+                <div class="text-xs text-green-600 font-medium mt-1">Available</div>
               </div>
-              <div class="text-center p-3 bg-blue-50 rounded-lg border border-blue-200">
+              <div class="text-center p-4 bg-blue-50 rounded-lg border border-blue-200">
                 <div class="text-2xl font-bold text-blue-700">{{ getTopicCountByStatus('claimed') }}</div>
-                <div class="text-sm text-blue-600 font-medium">Claimed</div>
+                <div class="text-xs text-blue-600 font-medium mt-1">Claimed</div>
               </div>
-              <div class="text-center p-3 bg-purple-50 rounded-lg border border-purple-200">
+              <div class="text-center p-4 bg-purple-50 rounded-lg border border-purple-200">
                 <div class="text-2xl font-bold text-purple-700">{{ getTopicCountByStatus('completed') }}</div>
-                <div class="text-sm text-purple-600 font-medium">Completed</div>
+                <div class="text-xs text-purple-600 font-medium mt-1">Completed</div>
               </div>
-              <div class="text-center p-3 bg-orange-50 rounded-lg border border-orange-200">
+              <div class="text-center p-4 bg-orange-50 rounded-lg border border-orange-200">
                 <div class="text-2xl font-bold text-orange-700">{{ topics.length }}</div>
-                <div class="text-sm text-orange-600 font-medium">Total</div>
+                <div class="text-xs text-orange-600 font-medium mt-1">Total</div>
               </div>
             </div>
           </div>

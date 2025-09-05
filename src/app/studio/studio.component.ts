@@ -4,11 +4,12 @@ import { AuthService } from '../services/auth.service';
 import { CommonModule } from '@angular/common';
 import { TopicPitchesComponent } from './topic-pitches/topic-pitches.component';
 import { PromptManagementComponent } from './prompt-management/prompt-management.component';
+import { MyClaimedTopicsComponent } from './my-claimed-topics/my-claimed-topics.component';
 
 @Component({
   selector: 'app-studio',
   standalone: true,
-  imports: [CommonModule, TopicPitchesComponent, PromptManagementComponent],
+  imports: [CommonModule, TopicPitchesComponent, PromptManagementComponent, MyClaimedTopicsComponent],
   templateUrl: './studio.component.html',
   styleUrl: './studio.component.css'
 })
@@ -66,6 +67,8 @@ export class StudioComponent implements OnInit {
     switch (tab) {
       case 'pitches':
         return this.isLoggedIn; // All logged in users can access pitches
+      case 'claimed':
+        return this.isLoggedIn; // All logged in users can access their claimed topics
       case 'prompts':
         return this.isAdmin || this.isReviewer; // Admin and reviewers can manage prompts
       default:

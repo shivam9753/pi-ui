@@ -1,0 +1,383 @@
+<!-- My Claimed Topics -->
+<div class="min-h-screen bg-gray-50">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    
+    <!-- Header -->
+    <div class="mb-8">
+      <h1 class="text-3xl font-bold text-gray-900 flex items-center gap-3">
+        <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+          <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+          </svg>
+        </div>
+        My Claimed Topics
+      </h1>
+      <p class="text-gray-600 mt-2">Write and manage your claimed topics with drafts</p>
+    </div>
+
+    @if (loading) {
+      <div class="flex items-center justify-center py-16">
+        <div class="w-8 h-8 border-4 border-blue-500/20 border-t-blue-500 rounded-full animate-spin"></div>
+      </div>
+    }
+
+    @if (!loading && claimedTopics.length === 0) {
+      <div class="bg-white rounded-lg shadow-sm border">
+        <div class="text-center py-16">
+          <svg class="w-20 h-20 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+          </svg>
+          <h3 class="text-xl font-semibold text-gray-900 mb-2">No claimed topics</h3>
+          <p class="text-gray-600 mb-6">You haven't claimed any topics yet. Browse available topics to start writing!</p>
+          <a href="/studio#pitches" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium transition-colors">
+            Browse Topics
+          </a>
+        </div>
+      </div>
+    }
+
+    @if (!loading && claimedTopics.length > 0) {
+      <!-- Desktop Layout -->
+      <div class="hidden lg:grid lg:grid-cols-3 gap-8">
+        
+        <!-- Topics List -->
+        <div class="lg:col-span-1">
+          <div class="bg-white rounded-lg shadow-sm border">
+            <div class="p-4 border-b border-gray-200">
+              <h2 class="text-lg font-semibold text-gray-900">Claimed Topics ({{ claimedTopics.length }})</h2>
+            </div>
+            <div class="divide-y divide-gray-200">
+              @for (topic of claimedTopics; track topic._id) {
+                <div 
+                  (click)="selectTopic(topic)"
+                  [class.bg-blue-50]="selectedTopic?._id === topic._id"
+                  [class.border-blue-200]="selectedTopic?._id === topic._id"
+                  class="p-4 cursor-pointer hover:bg-gray-50 transition-colors">
+                  
+                  <div class="flex items-start justify-between">
+                    <div class="flex-1 min-w-0">
+                      <div class="flex items-center gap-2 mb-1">
+                        <h3 class="text-sm font-medium text-gray-900 truncate">{{ topic.title }}</h3>
+                        @if (hasDraft(topic._id)) {
+                          <div class="flex items-center gap-1 text-xs text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full">
+                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                            </svg>
+                            Draft
+                          </div>
+                        }
+                      </div>
+                      <p class="text-xs text-gray-600 line-clamp-2 mb-2">{{ topic.description.slice(0, 80) }}...</p>
+                      
+                      <div class="flex items-center gap-2 text-xs text-gray-500">
+                        <span>{{ topic.contentType | titlecase }}</span>
+                        <span>•</span>
+                        <span>Claimed {{ getRelativeTime(topic.claimedAt!) }}</span>
+                      </div>
+
+                      @if (topic.userDeadline) {
+                        <div class="mt-2">
+                          <span 
+                            [class.text-red-600]="isDeadlineOverdue(topic)"
+                            [class.text-orange-600]="isDeadlineApproaching(topic)"
+                            [class.text-gray-500]="!isDeadlineOverdue(topic) && !isDeadlineApproaching(topic)"
+                            class="text-xs font-medium">
+                            @if (isDeadlineOverdue(topic)) {
+                              ⚠️ Overdue: {{ formatDate(topic.userDeadline) }}
+                            } @else if (isDeadlineApproaching(topic)) {
+                              ⏰ Due: {{ formatDate(topic.userDeadline) }}
+                            } @else {
+                              📅 Due: {{ formatDate(topic.userDeadline) }}
+                            }
+                          </span>
+                        </div>
+                      }
+                    </div>
+
+                    <button 
+                      (click)="unclaimTopic(topic); $event.stopPropagation()"
+                      class="ml-2 p-1 text-gray-400 hover:text-red-600 transition-colors"
+                      title="Unclaim topic">
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+        </div>
+
+        <!-- Editor Area -->
+        <div class="lg:col-span-2">
+          @if (selectedTopic) {
+            <div class="bg-white rounded-lg shadow-sm border">
+              <div class="p-6 border-b border-gray-200">
+                <div class="flex items-center justify-between">
+                  <div>
+                    <h2 class="text-xl font-semibold text-gray-900 mb-1">{{ selectedTopic.title }}</h2>
+                    <p class="text-sm text-gray-600">{{ selectedTopic.contentType | titlecase }}</p>
+                  </div>
+                  <div class="flex items-center gap-2">
+                    @if (draftId) {
+                      <div class="flex items-center gap-1 text-sm text-green-600 bg-green-50 px-2 py-1 rounded">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                        </svg>
+                        Draft Saved
+                      </div>
+                    }
+                    <button 
+                      (click)="saveDraft()"
+                      [disabled]="savingDraft || !draftContent.trim()"
+                      [class.opacity-50]="savingDraft || !draftContent.trim()"
+                      class="bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center gap-2">
+                      @if (savingDraft) {
+                        <svg class="w-4 h-4 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                        </svg>
+                        Saving...
+                      } @else {
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"></path>
+                        </svg>
+                        {{ draftId ? 'Update Draft' : 'Save Draft' }}
+                      }
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="p-6">
+                <!-- Topic Description Reference -->
+                <div class="mb-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
+                  <h3 class="text-sm font-medium text-gray-900 mb-2">Topic Description</h3>
+                  <p class="text-sm text-gray-700 leading-relaxed">{{ selectedTopic.description }}</p>
+                </div>
+
+                <!-- Rich Text Editor -->
+                <div class="mb-4">
+                  <label class="block text-sm font-medium text-gray-700 mb-2">Your Content</label>
+                  @if (loadingDraft) {
+                    <div class="flex items-center justify-center py-8 bg-gray-50 rounded-lg border border-gray-200">
+                      <div class="flex items-center gap-3 text-gray-600">
+                        <div class="w-5 h-5 border-2 border-blue-500/20 border-t-blue-500 rounded-full animate-spin"></div>
+                        <span class="text-sm">Loading existing draft...</span>
+                      </div>
+                    </div>
+                  } @else {
+                    <app-rich-text-editor
+                      [(ngModel)]="draftContent"
+                      [allowImages]="true"
+                      placeholder="Start writing your content based on the topic description above...">
+                    </app-rich-text-editor>
+                  }
+                </div>
+
+                <!-- Submit Options -->
+                <div class="border-t border-gray-200 pt-6">
+                  <div class="flex flex-col sm:flex-row gap-3">
+                    <button 
+                      class="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition-colors flex items-center justify-center gap-2">
+                      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
+                      </svg>
+                      Submit for Review
+                    </button>
+                    <button class="px-6 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors">
+                      Preview
+                    </button>
+                  </div>
+                  <p class="text-xs text-gray-500 mt-2">
+                    Submitting will send your content for editorial review. You can save as draft to continue working later.
+                  </p>
+                </div>
+              </div>
+            </div>
+          } @else {
+            <div class="bg-white rounded-lg shadow-sm border">
+              <div class="text-center py-16">
+                <svg class="w-16 h-16 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path>
+                </svg>
+                <h3 class="text-lg font-medium text-gray-900 mb-2">Select a topic to start writing</h3>
+                <p class="text-gray-600">Choose one of your claimed topics from the list to begin working on it.</p>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- Mobile Layout -->
+      <div class="lg:hidden space-y-4">
+        <!-- Topics List -->
+        <div class="bg-white rounded-lg shadow-sm border">
+          <div class="p-4 border-b border-gray-200">
+            <h2 class="text-lg font-semibold text-gray-900">My Claimed Topics ({{ claimedTopics.length }})</h2>
+          </div>
+          <div class="divide-y divide-gray-200">
+            @for (topic of claimedTopics; track topic._id) {
+              <div class="p-4">
+                <div class="flex items-start justify-between mb-3">
+                  <div class="flex-1 min-w-0">
+                    <div class="flex items-center gap-2 mb-1">
+                      <h3 class="text-sm font-medium text-gray-900">{{ topic.title }}</h3>
+                      @if (hasDraft(topic._id)) {
+                        <div class="flex items-center gap-1 text-xs text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full">
+                          <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                          </svg>
+                          Draft
+                        </div>
+                      }
+                    </div>
+                    <p class="text-xs text-gray-600 mb-2">{{ topic.description.slice(0, 120) }}...</p>
+                    
+                    <div class="flex items-center gap-2 text-xs text-gray-500 mb-2">
+                      <span>{{ topic.contentType | titlecase }}</span>
+                      <span>•</span>
+                      <span>Claimed {{ getRelativeTime(topic.claimedAt!) }}</span>
+                    </div>
+
+                    @if (topic.userDeadline) {
+                      <div class="mb-2">
+                        <span 
+                          [class.text-red-600]="isDeadlineOverdue(topic)"
+                          [class.text-orange-600]="isDeadlineApproaching(topic)"
+                          [class.text-gray-500]="!isDeadlineOverdue(topic) && !isDeadlineApproaching(topic)"
+                          class="text-xs font-medium">
+                          @if (isDeadlineOverdue(topic)) {
+                            ⚠️ Overdue: {{ formatDate(topic.userDeadline) }}
+                          } @else if (isDeadlineApproaching(topic)) {
+                            ⏰ Due: {{ formatDate(topic.userDeadline) }}
+                          } @else {
+                            📅 Due: {{ formatDate(topic.userDeadline) }}
+                          }
+                        </span>
+                      </div>
+                    }
+                  </div>
+
+                  <button 
+                    (click)="unclaimTopic(topic)"
+                    class="p-1 text-gray-400 hover:text-red-600 transition-colors"
+                    title="Unclaim topic">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                    </svg>
+                  </button>
+                </div>
+
+                <!-- Mobile Action Button -->
+                <button 
+                  (click)="openMobileEditor(topic)"
+                  class="w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-3 rounded-lg font-medium transition-colors flex items-center justify-center gap-2">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                  </svg>
+                  {{ hasDraft(topic._id) ? 'Continue Writing' : 'Start Writing' }}
+                </button>
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+
+      <!-- Mobile Editor Modal -->
+      @if (showMobileEditor && selectedTopic) {
+        <div class="fixed inset-0 z-50 bg-white" role="dialog" aria-modal="true">
+          <div class="flex flex-col h-full">
+            <!-- Mobile Editor Header -->
+            <div class="flex items-center justify-between p-4 border-b border-gray-200 bg-white">
+              <button 
+                (click)="closeMobileEditor()"
+                class="p-2 text-gray-400 hover:text-gray-600 transition-colors">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+              </button>
+              
+              <div class="text-center">
+                <h2 class="text-sm font-medium text-gray-900 truncate max-w-48">{{ selectedTopic.title }}</h2>
+                <p class="text-xs text-gray-500">{{ selectedTopic.contentType | titlecase }}</p>
+              </div>
+
+              <div class="flex items-center gap-2">
+                @if (draftId) {
+                  <div class="flex items-center gap-1 text-xs text-green-600 bg-green-50 px-2 py-1 rounded">
+                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                    </svg>
+                    Saved
+                  </div>
+                }
+                <button 
+                  (click)="saveDraft()"
+                  [disabled]="savingDraft || !draftContent.trim()"
+                  [class.opacity-50]="savingDraft || !draftContent.trim()"
+                  class="bg-orange-600 hover:bg-orange-700 text-white px-3 py-1.5 rounded text-sm font-medium transition-colors flex items-center gap-1">
+                  @if (savingDraft) {
+                    <div class="w-3 h-3 border border-white/30 border-t-white rounded-full animate-spin"></div>
+                  } @else {
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"></path>
+                    </svg>
+                  }
+                  {{ draftId ? 'Update' : 'Save' }}
+                </button>
+              </div>
+            </div>
+
+            <!-- Mobile Editor Content -->
+            <div class="flex-1 flex flex-col overflow-hidden">
+              <!-- Topic Description - Collapsible -->
+              <div class="p-4 bg-gray-50 border-b border-gray-200">
+                <button 
+                  (click)="showTopicDescription = !showTopicDescription"
+                  class="flex items-center justify-between w-full text-left">
+                  <h3 class="text-sm font-medium text-gray-900">Topic Description</h3>
+                  <svg class="w-4 h-4 text-gray-500 transition-transform" [class.rotate-180]="showTopicDescription" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                  </svg>
+                </button>
+                @if (showTopicDescription) {
+                  <p class="text-sm text-gray-700 leading-relaxed mt-2">{{ selectedTopic.description }}</p>
+                }
+              </div>
+
+              <!-- Editor Area -->
+              <div class="flex-1 p-4 overflow-y-auto">
+                @if (loadingDraft) {
+                  <div class="flex items-center justify-center py-8">
+                    <div class="flex items-center gap-3 text-gray-600">
+                      <div class="w-5 h-5 border-2 border-blue-500/20 border-t-blue-500 rounded-full animate-spin"></div>
+                      <span class="text-sm">Loading existing draft...</span>
+                    </div>
+                  </div>
+                } @else {
+                  <app-rich-text-editor
+                    [(ngModel)]="draftContent"
+                    [allowImages]="true"
+                    placeholder="Start writing your content based on the topic description above...">
+                  </app-rich-text-editor>
+                }
+              </div>
+
+              <!-- Mobile Action Bar -->
+              <div class="p-4 border-t border-gray-200 bg-white">
+                <button 
+                  class="w-full bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition-colors flex items-center justify-center gap-2">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
+                  </svg>
+                  Submit for Review
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      }
+    }
+  </div>
+</div>
