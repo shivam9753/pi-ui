@@ -1,5 +1,82 @@
 /* Magazine-Style Reading Interface */
 
+/* Hide image toolbar elements in reading mode - Enhanced */
+.content-body .image-toolbar,
+.content-body .image-toolbar-group,
+.content-body .image-toolbar-btn,
+.reading-text .image-toolbar,
+.reading-text .image-toolbar-group,
+.reading-text .image-toolbar-btn,
+.magazine-layout .image-toolbar,
+.magazine-layout .image-toolbar-group,
+.magazine-layout .image-toolbar-btn,
+.image-figure .image-toolbar,
+.image-figure .image-toolbar-group,
+.image-figure .image-toolbar-btn {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  z-index: -1 !important;
+}
+
+/* Override hover states for image toolbars in reading mode */
+.content-body .image-figure:hover .image-toolbar,
+.reading-text .image-figure:hover .image-toolbar,
+.magazine-layout .image-figure:hover .image-toolbar {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+/* Comprehensive toolbar hiding - catch all selectors */
+:host ::ng-deep .image-toolbar,
+:host ::ng-deep .image-toolbar-group,
+:host ::ng-deep .image-toolbar-btn,
+:host ::ng-deep .image-figure:hover .image-toolbar,
+:host ::ng-deep figure .image-toolbar,
+:host ::ng-deep div .image-toolbar,
+:host ::ng-deep span .image-toolbar,
+:host ::ng-deep img + .image-toolbar,
+:host ::ng-deep .image-figure:hover .image-toolbar-group,
+:host ::ng-deep .image-figure:hover .image-toolbar-btn {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  position: absolute !important;
+  top: -9999px !important;
+  left: -9999px !important;
+  z-index: -9999 !important;
+  width: 0 !important;
+  height: 0 !important;
+  overflow: hidden !important;
+}
+
+/* Global override for all possible toolbar elements */
+:host ::ng-deep [class*="image-toolbar"],
+:host ::ng-deep [class*="toolbar"] {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  position: absolute !important;
+  top: -9999px !important;
+  left: -9999px !important;
+}
+
+/* Nuclear option - hide any absolutely positioned element that might be a toolbar */
+:host ::ng-deep div[style*="position: absolute"][style*="top: 8px"][style*="right: 8px"],
+:host ::ng-deep div[style*="position:absolute"][style*="top:8px"][style*="right:8px"],
+:host ::ng-deep *[style*="z-index: 999"],
+:host ::ng-deep *[style*="z-index:999"] {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
 .magazine-layout {
   width: 100%;
   margin: 0 auto;

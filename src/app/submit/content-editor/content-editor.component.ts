@@ -147,7 +147,7 @@ This could be:
   }
 
   shouldAllowImages(): boolean {
-    return this.selectedType === 'article' || this.selectedType === 'cinema_essay';
+    return true; // Allow images for all submission types
   }
 
   onImageUpload(image: CompressedImage, contentIndex: number): void {

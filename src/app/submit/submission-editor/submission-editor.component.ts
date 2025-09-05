@@ -946,7 +946,7 @@ export class SubmissionEditorComponent implements OnInit, OnDestroy {
   }
 
   shouldAllowImages(): boolean {
-    return this.selectedType === 'article' || this.selectedType === 'cinema_essay';
+    return true; // Allow images for all submission types
   }
 
   private markFormGroupTouched(formGroup: FormGroup | FormArray) {

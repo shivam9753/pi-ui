@@ -58,6 +58,39 @@ export class HtmlSanitizerService {
     if (!content) return '';
     
     const cleanedContent = content
+      // Remove image toolbar elements and related UI (more comprehensive removal)
+      .replace(/<div[^>]*class="[^"]*image-toolbar[^"]*"[^>]*>[\s\S]*?<\/div>/gi, '')
+      .replace(/<div[^>]*image-toolbar[^>]*>[\s\S]*?<\/div>/gi, '')
+      .replace(/<button[^>]*class="[^"]*image-toolbar-btn[^"]*"[^>]*>[\s\S]*?<\/button>/gi, '')
+      .replace(/<button[^>]*image-toolbar-btn[^>]*>[\s\S]*?<\/button>/gi, '')
+      // Remove specific toolbar buttons with data-action attributes (from rich text editor)
+      .replace(/<button[^>]*data-action="[^"]*"[^>]*>[\s\S]*?<\/button>/gi, '')
+      .replace(/<button[^>]*data-image-id="[^"]*"[^>]*>[\s\S]*?<\/button>/gi, '')
+      .replace(/<button[^>]*type="button"[^>]*title="[^"]*"[^>]*>[\s\S]*?<\/button>/gi, '')
+      // Remove any button that contains SVG with editing icons
+      .replace(/<button[^>]*>[\s\S]*?<svg[^>]*>[\s\S]*?<path[^>]*stroke="#ffffff"[^>]*>[\s\S]*?<\/svg>[\s\S]*?<\/button>/gi, '')
+      .replace(/<button[^>]*>[\s\S]*?<svg[^>]*fill="none"[^>]*stroke="#ffffff"[^>]*>[\s\S]*?<\/button>/gi, '')
+      // Nuclear option: Remove any button with data-action or data-image-id (comprehensive match)
+      .replace(/<button[^>]*(?:data-action|data-image-id)[^>]*>[\s\S]*?<\/button>/gi, '')
+      // Remove buttons with specific titles that indicate editing functionality
+      .replace(/<button[^>]*title="(?:Change width|Edit caption|Delete image)"[^>]*>[\s\S]*?<\/button>/gi, '')
+      // Remove any standalone buttons that appear in figures (likely toolbar buttons)
+      .replace(/<figure[^>]*>[\s\S]*?<button[^>]*>[\s\S]*?<\/button>[\s\S]*?<\/figure>/gi, function(match) {
+        return match.replace(/<button[^>]*>[\s\S]*?<\/button>/gi, '');
+      })
+      // Additional comprehensive button removal for any missed cases
+      .replace(/<button[^>]*data-action[^>]*>[\s\S]*?<\/button>/gi, '')
+      .replace(/<button[^>]*data-image-id[^>]*>[\s\S]*?<\/button>/gi, '')
+      // Remove any SVG icons that are part of toolbars
+      .replace(/<svg[^>]*class="[^"]*w-4 h-4[^"]*"[^>]*>[\s\S]*?<\/svg>/gi, '')
+      .replace(/<svg[^>]*width="16"[^>]*height="16"[^>]*stroke="#ffffff"[^>]*>[\s\S]*?<\/svg>/gi, '')
+      // Remove standalone toolbar elements by common patterns
+      .replace(/<div[^>]*style="[^"]*position:\s*absolute[^"]*"[^>]*>[\s\S]*?<\/div>/gi, '')
+      // Remove elements with high z-index (likely floating toolbars)
+      .replace(/<[^>]*style="[^"]*z-index:\s*9[0-9][0-9][^"]*"[^>]*>[\s\S]*?<\/[^>]*>/gi, '')
+      // Clean up excessive whitespace and non-breaking spaces
+      .replace(/(&nbsp;\s*){2,}/g, ' ')
+      .replace(/\s*&nbsp;\s*/g, ' ')
       // Remove excessive empty divs
       .replace(/<div>\s*<\/div>/g, '<br>')
       // Replace div tags with line breaks for poetry formatting, but preserve other formatting

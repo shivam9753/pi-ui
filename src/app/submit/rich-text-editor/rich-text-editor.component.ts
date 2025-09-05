@@ -239,8 +239,11 @@ export class RichTextEditorComponent implements ControlValueAccessor, AfterViewI
     const target = event.target as HTMLDivElement;
     this.content = target.innerHTML;
     this.updateWordCount();
-    this.onChange(this.content);
-    this.contentChange.emit(this.content);
+    
+    // Get clean content without toolbar elements for form submission
+    const cleanContent = this.getCleanContentForSaving();
+    this.onChange(cleanContent);
+    this.contentChange.emit(cleanContent);
     this.onTouched();
   }
 
@@ -547,9 +550,10 @@ export class RichTextEditorComponent implements ControlValueAccessor, AfterViewI
   }
 
   private updateWordCount(): void {
-    // Get plain text content
+    // Get clean content without toolbar elements for accurate word count
+    const cleanContent = this.getCleanContentForSaving();
     const tempDiv = document.createElement('div');
-    tempDiv.innerHTML = this.content;
+    tempDiv.innerHTML = cleanContent;
     const plainText = tempDiv.textContent || tempDiv.innerText || '';
     
     // Count words
@@ -558,8 +562,9 @@ export class RichTextEditorComponent implements ControlValueAccessor, AfterViewI
 
   // Get plain text for form validation
   getPlainText(): string {
+    const cleanContent = this.getCleanContentForSaving();
     const tempDiv = document.createElement('div');
-    tempDiv.innerHTML = this.content;
+    tempDiv.innerHTML = cleanContent;
     return tempDiv.textContent || tempDiv.innerText || '';
   }
 
@@ -1026,5 +1031,41 @@ export class RichTextEditorComponent implements ControlValueAccessor, AfterViewI
     });
     
     return urls;
+  }
+
+  // Get clean content without toolbar elements for saving to database
+  getCleanContentForSaving(): string {
+    if (!this.editor) return this.content;
+    
+    // Create a copy of the editor content
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = this.content;
+    
+    // Remove all toolbar elements
+    const toolbars = tempDiv.querySelectorAll('.image-toolbar, .image-toolbar-group');
+    toolbars.forEach(toolbar => toolbar.remove());
+    
+    // Remove all toolbar buttons
+    const toolbarButtons = tempDiv.querySelectorAll('button[data-action], button[data-image-id]');
+    toolbarButtons.forEach(button => button.remove());
+    
+    // Remove any SVG elements that are part of toolbars
+    const toolbarSvgs = tempDiv.querySelectorAll('svg[stroke="#ffffff"], svg[width="16"][height="16"]');
+    toolbarSvgs.forEach(svg => {
+      // Only remove if it's not inside an img or in content
+      const parentButton = svg.closest('button');
+      if (parentButton && (parentButton.hasAttribute('data-action') || parentButton.hasAttribute('data-image-id'))) {
+        svg.remove();
+      }
+    });
+    
+    // Clean up any excessive whitespace and line breaks that might be left
+    let cleanedHTML = tempDiv.innerHTML
+      .replace(/\s*<button[^>]*>[\s\S]*?<\/button>\s*/gi, '') // Remove any remaining buttons
+      .replace(/(&nbsp;\s*){3,}/g, ' ') // Clean up excessive non-breaking spaces
+      .replace(/(<br\s*\/?>\s*){3,}/gi, '<br><br>') // Clean up excessive line breaks
+      .trim();
+    
+    return cleanedHTML;
   }
 }
