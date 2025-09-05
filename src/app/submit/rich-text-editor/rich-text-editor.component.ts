@@ -53,9 +53,22 @@ export class RichTextEditorComponent implements ControlValueAccessor, AfterViewI
       // Set default paragraph separator to br instead of div/p
       try {
         document.execCommand('defaultParagraphSeparator', false, 'br');
+        // Also set formatBlock command to use br for consistency
+        document.execCommand('formatBlock', false, 'div');
       } catch (e) {
         // Some browsers don't support this, ignore silently
       }
+      
+      // Add event listener to convert any div/p tags to br tags on paste
+      this.editor.nativeElement.addEventListener('paste', (e) => {
+        setTimeout(() => this.normalizePastedContent(), 10);
+      });
+      
+      // Add event listener to handle input normalization
+      // this.editor.nativeElement.addEventListener('input', (e) => {
+      //   // Allow a small delay for browser processing
+      //   setTimeout(() => this.normalizeBrowserContent(), 5);
+      // });
       
       // Set up event listeners for caption editing
       this.setupCaptionEventListeners();
@@ -240,15 +253,36 @@ export class RichTextEditorComponent implements ControlValueAccessor, AfterViewI
     this.content = target.innerHTML;
     this.updateWordCount();
     
-    // Get clean content without toolbar elements for form submission
-    const cleanContent = this.getCleanContentForSaving();
-    this.onChange(cleanContent);
-    this.contentChange.emit(cleanContent);
+    // For real-time content updates, preserve raw content with line breaks
+    // Only clean toolbar elements but preserve all line breaks for live editing
+    let rawContentForEditing = this.content;
+    
+    // Only remove toolbar elements for form binding, but keep ALL line breaks
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = rawContentForEditing;
+    
+    // Remove only toolbar elements
+    const toolbars = tempDiv.querySelectorAll('.image-toolbar, .image-toolbar-group');
+    toolbars.forEach(toolbar => toolbar.remove());
+    const toolbarButtons = tempDiv.querySelectorAll('button[data-action], button[data-image-id]');
+    toolbarButtons.forEach(button => button.remove());
+    const toolbarSvgs = tempDiv.querySelectorAll('svg[stroke="#ffffff"], svg[width="16"][height="16"]');
+    toolbarSvgs.forEach(svg => {
+      const parentButton = svg.closest('button');
+      if (parentButton && (parentButton.hasAttribute('data-action') || parentButton.hasAttribute('data-image-id'))) {
+        svg.remove();
+      }
+    });
+    
+    rawContentForEditing = tempDiv.innerHTML;
+    
+    this.onChange(rawContentForEditing);
+    this.contentChange.emit(rawContentForEditing);
     this.onTouched();
   }
 
   onKeyDown(event: KeyboardEvent): void {
-    // Handle Enter key for proper line break insertion
+    // Handle Enter key for proper line break insertion (single line break for poetry/content)
     if (event.key === 'Enter' && !event.shiftKey) {
       event.preventDefault();
       // Insert a single line break and trigger content change
@@ -267,7 +301,7 @@ export class RichTextEditorComponent implements ControlValueAccessor, AfterViewI
       return;
     }
     
-    // Handle Shift+Enter for double line break (paragraph break)
+    // Handle Shift+Enter for paragraph break (double line break for stanza/paragraph separation)
     if (event.key === 'Enter' && event.shiftKey) {
       event.preventDefault();
       const selection = window.getSelection();
@@ -320,13 +354,13 @@ export class RichTextEditorComponent implements ControlValueAccessor, AfterViewI
       // If no HTML, get plain text and handle line breaks properly for poetry
       const plainText = clipboardData.getData('text/plain');
       
-      // Handle different line break patterns
+      // Handle different line break patterns - preserve user's line breaks for poetry
       content = plainText
         .replace(/\r\n/g, '\n') // Normalize Windows line breaks
         .replace(/\r/g, '\n')   // Normalize Mac line breaks
         .split('\n')            // Split into lines
         .map(line => line.trim() === '' ? '<br>' : this.escapeHtml(line)) // Empty lines become <br>, content lines are escaped
-        .join('<br>');          // Join with single <br> tags
+        .join('<br>');          // Join with single <br> tags - single line break for poetry
     } else {
       // Clean up HTML content - remove unwanted tags and attributes
       content = this.sanitizeClipboardHTML(content);
@@ -550,10 +584,16 @@ export class RichTextEditorComponent implements ControlValueAccessor, AfterViewI
   }
 
   private updateWordCount(): void {
-    // Get clean content without toolbar elements for accurate word count
-    const cleanContent = this.getCleanContentForSaving();
+    // Use current content but remove toolbar elements for accurate word count
     const tempDiv = document.createElement('div');
-    tempDiv.innerHTML = cleanContent;
+    tempDiv.innerHTML = this.content;
+    
+    // Remove toolbar elements
+    const toolbars = tempDiv.querySelectorAll('.image-toolbar, .image-toolbar-group');
+    toolbars.forEach(toolbar => toolbar.remove());
+    const toolbarButtons = tempDiv.querySelectorAll('button[data-action], button[data-image-id]');
+    toolbarButtons.forEach(button => button.remove());
+    
     const plainText = tempDiv.textContent || tempDiv.innerText || '';
     
     // Count words
@@ -562,9 +602,15 @@ export class RichTextEditorComponent implements ControlValueAccessor, AfterViewI
 
   // Get plain text for form validation
   getPlainText(): string {
-    const cleanContent = this.getCleanContentForSaving();
     const tempDiv = document.createElement('div');
-    tempDiv.innerHTML = cleanContent;
+    tempDiv.innerHTML = this.content;
+    
+    // Remove toolbar elements
+    const toolbars = tempDiv.querySelectorAll('.image-toolbar, .image-toolbar-group');
+    toolbars.forEach(toolbar => toolbar.remove());
+    const toolbarButtons = tempDiv.querySelectorAll('button[data-action], button[data-image-id]');
+    toolbarButtons.forEach(button => button.remove());
+    
     return tempDiv.textContent || tempDiv.innerText || '';
   }
 
@@ -1033,6 +1079,27 @@ export class RichTextEditorComponent implements ControlValueAccessor, AfterViewI
     return urls;
   }
 
+  // Normalize pasted content to use consistent br tags instead of div/p
+  private normalizePastedContent(): void {
+    if (!this.editor) return;
+    
+    let content = this.editor.nativeElement.innerHTML;
+    
+    // Convert div tags to br tags
+    content = content
+      .replace(/<\/div><div>/g, '<br>')    // div breaks to br
+      .replace(/<div>/g, '')               // remove opening div
+      .replace(/<\/div>/g, '<br>')         // closing div to br
+      .replace(/<\/p><p>/g, '<br><br>')    // paragraph breaks to double br
+      .replace(/<p>/g, '')                 // remove opening p
+      .replace(/<\/p>/g, '<br>')           // closing p to br
+      .replace(/(<br\s*\/?>\s*){6,}/g, '<br><br><br><br><br>'); // limit excessive breaks but allow intentional spacing
+    
+    // Update the editor
+    this.editor.nativeElement.innerHTML = content;
+    this.onContentChange({ target: this.editor.nativeElement } as any);
+  }
+
   // Get clean content without toolbar elements for saving to database
   getCleanContentForSaving(): string {
     if (!this.editor) return this.content;
@@ -1059,11 +1126,12 @@ export class RichTextEditorComponent implements ControlValueAccessor, AfterViewI
       }
     });
     
-    // Clean up any excessive whitespace and line breaks that might be left
+    // Clean up any excessive whitespace but preserve intentional line breaks
     let cleanedHTML = tempDiv.innerHTML
       .replace(/\s*<button[^>]*>[\s\S]*?<\/button>\s*/gi, '') // Remove any remaining buttons
       .replace(/(&nbsp;\s*){3,}/g, ' ') // Clean up excessive non-breaking spaces
-      .replace(/(<br\s*\/?>\s*){3,}/gi, '<br><br>') // Clean up excessive line breaks
+      // PRESERVE intentional line breaks - only limit truly excessive ones (6+)
+      .replace(/(<br\s*\/?>\s*){6,}/gi, '<br><br><br><br><br>') // Allow up to 5 line breaks for intentional spacing
       .trim();
     
     return cleanedHTML;

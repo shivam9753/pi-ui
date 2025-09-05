@@ -328,7 +328,7 @@ export class PublishSubmissionComponent implements OnInit {
     }
   }
 
-  // Clean content for editing (remove empty divs, preserve line breaks)
+  // Clean content for editing (remove empty divs, preserve ALL line breaks)
   cleanContentForEditing(content: string): string {
     if (!content) return '';
     return content
@@ -336,7 +336,8 @@ export class PublishSubmissionComponent implements OnInit {
       .replace(/<div>\s*<\/div>/g, '')           // Remove div tags with only whitespace
       .replace(/<div>/g, '')                     // Remove opening div tags
       .replace(/<\/div>/g, '<br>')               // Convert closing div tags to line breaks
-      .replace(/(<br\s*\/?>\s*){3,}/g, '<br><br>')     // Limit consecutive br tags to max 2
+      // PRESERVE ALL LINE BREAKS - Don't limit them at all when loading for editing
+      // .replace(/(<br\s*\/?>\s*){4,}/g, '<br><br><br>')  // REMOVED: Don't limit br tags
       .replace(/&nbsp;/g, ' ')                   // Convert non-breaking spaces
       .replace(/&amp;/g, '&')                    // Convert HTML entities
       .replace(/&lt;/g, '<')
@@ -344,9 +345,8 @@ export class PublishSubmissionComponent implements OnInit {
       .replace(/&quot;/g, '"')
       .replace(/<([^>]+)\s+style\s*=\s*["'][^"']*["']([^>]*)>/gi, '<$1$2>') // Remove inline style attributes
       .replace(/<([^>]+)\s+class\s*=\s*["'][^"']*["']([^>]*)>/gi, '<$1$2>') // Remove class attributes that might have theme styles
-      .replace(/^\s*<br\s*\/?>/g, '')            // Remove leading br tags
-      .replace(/<br\s*\/?>$/g, '')               // Remove trailing br tags
-      .trim();                                   // Remove leading/trailing whitespace
+      // PRESERVE user's intentional formatting - don't strip any br tags
+      .replace(/^\s+|\s+$/g, '');                // Only trim whitespace, preserve ALL HTML formatting
   }
 
   // Clean content for preview (convert line breaks to HTML)
@@ -413,17 +413,20 @@ export class PublishSubmissionComponent implements OnInit {
     return 'temp_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
   }
 
-  // Prepare content for saving (clean up rich text editor output while preserving line breaks)
+  // Prepare content for saving (clean up rich text editor output while preserving ALL line breaks)
   prepareContentForSaving(content: string): string {
     if (!content) return '';
-    return content
+    
+    const result = content
       .replace(/<div><\/div>/g, '')                    // Remove empty div tags
       .replace(/<div>\s*<\/div>/g, '')                 // Remove div tags with only whitespace
-      .replace(/(<br\s*\/?>\s*){3,}/g, '<br><br>')     // Limit consecutive br tags to max 2
-      .replace(/^\s*(<br\s*\/?>\s*)+/g, '')            // Remove leading br tags
-      .replace(/(\s*<br\s*\/?>\s*)+$/g, '')            // Remove trailing br tags
+      // PRESERVE ALL LINE BREAKS - Don't limit consecutive br tags for poetry/intentional spacing
+      // Only remove truly excessive (10+ consecutive) line breaks to prevent abuse while preserving intentional spacing
+      .replace(/(<br\s*\/?>\s*){11,}/g, '<br><br><br><br><br><br><br><br><br><br>')  // Limit to max 10 consecutive
       // DO NOT normalize whitespace - preserve line structure for poetry and formatted text
-      .trim();                                         // Remove leading/trailing whitespace only
+      .replace(/^\s+|\s+$/g, '');                      // Only trim whitespace, not HTML tags
+    
+    return result;
   }
 
   // Calculate word count for content
