@@ -633,14 +633,24 @@ export class ReviewSubmissionComponent {
   cleanContent(content: string): SafeHtml {
     if (!content) return '';
     
-    const cleanedContent = content
-      // Remove excessive empty divs
-      .replace(/<div>\s*<\/div>/g, '<br>')
-      // Replace div tags with line breaks for poetry formatting, but preserve other formatting
-      .replace(/<div>/g, '<br>')
-      .replace(/<\/div>/g, '')
-      // Clean up multiple consecutive line breaks (more than 2)
-      .replace(/(<br\s*\/?>){3,}/g, '<br><br>')
+    // First, convert line breaks (\n) to <br> tags for proper display
+    let cleanedContent = content
+      // Convert actual line breaks to <br> tags
+      .replace(/\n/g, '<br>');
+    
+    // If content already contains HTML (like <div> tags), handle them appropriately
+    if (cleanedContent.includes('<div>') || cleanedContent.includes('</div>')) {
+      cleanedContent = cleanedContent
+        // Remove excessive empty divs
+        .replace(/<div>\s*<\/div>/g, '<br>')
+        // Replace opening div tags with line breaks (to preserve poem formatting)
+        .replace(/<div>/g, '<br>')
+        .replace(/<\/div>/g, '')
+        // Clean up multiple consecutive line breaks (more than 2)
+        .replace(/(<br\s*\/?>){3,}/g, '<br><br>');
+    }
+    
+    cleanedContent = cleanedContent
       // Convert multiple spaces within lines to non-breaking spaces to preserve formatting
       .replace(/  +/g, (match) => '&nbsp;'.repeat(match.length))
       // Remove leading/trailing line breaks
