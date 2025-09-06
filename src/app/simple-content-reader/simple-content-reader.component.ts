@@ -176,20 +176,16 @@ export class SimpleContentReaderComponent implements OnInit {
   private loadContent(id: string) {
     this.loading.set(true);
     
-    // Use the enhanced getContent method to fetch a single content piece
-    this.backendService.getContent({ 
-      published: true 
-    }).subscribe({
+    // Use the specific getContentById method to fetch a single content piece
+    this.backendService.getContentById(id).subscribe({
       next: (response) => {
-        // Find the specific content by ID
-        const foundContent = response.contents?.find((c: any) => c._id === id);
-        
-        if (foundContent) {
-          this.content.set(foundContent);
+        // Response should contain the content directly
+        if (response && response._id) {
+          this.content.set(response);
           this.sanitizedContent.set(
-            this.htmlSanitizer.cleanContentPreservingBreaks(foundContent.body)
+            this.htmlSanitizer.cleanContentPreservingBreaks(response.body)
           );
-          this.updatePageMeta(foundContent);
+          this.updatePageMeta(response);
         } else {
           this.content.set(null);
         }

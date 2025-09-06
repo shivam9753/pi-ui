@@ -1,8 +1,10 @@
 
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, NavigationEnd } from '@angular/router';
+import { filter } from 'rxjs/operators';
+import { Subscription } from 'rxjs';
 import { ContentCardData } from '../../../shared/components/content-card/content-card.component';
 import { AdminPageHeaderComponent, AdminPageStat } from '../../../shared/components/admin-page-header/admin-page-header.component';
 import { BackendService } from '../../../services/backend.service';
@@ -30,7 +32,7 @@ import { PrettyLabelPipe } from '../../../pipes/pretty-label.pipe';
   templateUrl: './pending-reviews.component.html',
   styleUrl: './pending-reviews.component.css'
 })
-export class PendingReviewsComponent implements OnInit {
+export class PendingReviewsComponent implements OnInit, OnDestroy {
   // Table configuration
   columns: TableColumn[] = PENDING_REVIEWS_TABLE_COLUMNS;
   actions: TableAction[] = [];
@@ -203,18 +205,34 @@ export class PendingReviewsComponent implements OnInit {
   };
 
   showAdvancedFilters = false;
+  private routerSubscription: Subscription = new Subscription();
+  private readonly PAGINATION_STORAGE_KEY = 'pending-reviews-pagination';
 
   constructor(
     private backendService: BackendService,
     private router: Router,
     private authorService: AuthorService
   ) {
-    
+    // Listen for navigation events to restore pagination state
+    this.routerSubscription = this.router.events
+      .pipe(filter(event => event instanceof NavigationEnd))
+      .subscribe((event: NavigationEnd) => {
+        if (event.url.includes('/admin/pending-reviews')) {
+          this.restorePaginationState();
+        }
+      });
   }
 
   ngOnInit() {
+    this.restorePaginationState();
     this.setupTableActions();
     this.loadSubmissions();
+  }
+
+  ngOnDestroy() {
+    if (this.routerSubscription) {
+      this.routerSubscription.unsubscribe();
+    }
   }
 
   setupTableActions() {
@@ -233,6 +251,8 @@ export class PendingReviewsComponent implements OnInit {
   }
 
   reviewSubmission(submission: any) {
+    // Save current pagination state before navigating
+    this.savePaginationState();
     this.router.navigate(['/review-submission', submission._id]);
   }
 
@@ -519,5 +539,35 @@ export class PendingReviewsComponent implements OnInit {
 
   getBadgeClass(key: string): string {
     return (this.badgeConfig as any)[key] || 'px-2 py-1 text-xs font-medium rounded-full bg-gray-50 text-gray-700';
+  }
+
+  // Pagination state persistence methods
+  private savePaginationState() {
+    const state = {
+      currentPage: this.currentPage,
+      filters: this.filters,
+      activeQuickFilters: this.activeQuickFilters,
+      timestamp: Date.now()
+    };
+    sessionStorage.setItem(this.PAGINATION_STORAGE_KEY, JSON.stringify(state));
+  }
+
+  private restorePaginationState() {
+    try {
+      const savedState = sessionStorage.getItem(this.PAGINATION_STORAGE_KEY);
+      if (savedState) {
+        const state = JSON.parse(savedState);
+        // Only restore if the state is recent (within last 30 minutes)
+        const thirtyMinutesAgo = Date.now() - (30 * 60 * 1000);
+        if (state.timestamp && state.timestamp > thirtyMinutesAgo) {
+          this.currentPage = state.currentPage || 1;
+          this.filters = { ...this.filters, ...state.filters };
+          this.activeQuickFilters = state.activeQuickFilters || [];
+        }
+      }
+    } catch (error) {
+      // If there's any error in parsing, just start fresh
+      console.warn('Could not restore pagination state:', error);
+    }
   }
 }

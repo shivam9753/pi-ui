@@ -3,7 +3,8 @@
   .mobile-overlay,
   .mobile-menu,
   .mobile-hamburger-container,
-  .mobile-hamburger-button {
+  .mobile-hamburger-button,
+  .mobile-buttons-container {
     display: none !important;
   }
 }

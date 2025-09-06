@@ -25,7 +25,7 @@ export interface SimpleFilterOptions {
             type="text"
             [(ngModel)]="currentFilters.search" 
             (ngModelChange)="onFilterChange()"
-            placeholder="Search submissions..."
+[placeholder]="placeholder"
             class="w-full text-sm border border-gray-300 rounded-md px-3 py-2 bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
         </div>
         
@@ -85,7 +85,7 @@ export interface SimpleFilterOptions {
             type="text"
             [(ngModel)]="currentFilters.search" 
             (ngModelChange)="onFilterChange()"
-            placeholder="Search submissions..."
+[placeholder]="placeholder"
             class="w-full text-sm border border-gray-300 rounded-md px-3 py-2 bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
         </div>
         
@@ -155,6 +155,7 @@ export class SimpleSubmissionFilterComponent implements OnInit {
   @Input() statusLabel: string = 'Status'; // Allow customization of status field label
   @Input() typeLabel: string = 'Type'; // Allow customization of type field label
   @Input() hideTypes: boolean = false; // Option to hide type filter
+  @Input() placeholder: string = 'Search submissions...'; // Customizable search placeholder
   @Output() filterChange = new EventEmitter<SimpleFilterOptions>();
 
   currentFilters: SimpleFilterOptions = {};

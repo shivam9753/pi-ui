@@ -129,7 +129,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   }
 
   canReview(): any {
-    return this.authService.canAccessAdmin();
+    return this.canAccessWorkspace();
   }
 
 
@@ -141,6 +141,19 @@ export class HeaderComponent implements OnInit, OnDestroy {
   hasElevatedRole(): boolean {
     const user = this.loggedInUser();
     return user?.role === 'curator' || user?.role === 'reviewer' || user?.role === 'admin';
+  }
+
+  // Check if user can access Studio (users, curators, admins - NOT reviewers)
+  canAccessStudio(): boolean {
+    const user = this.loggedInUser();
+    if (!user) return false; // Not logged in
+    return user.role !== 'reviewer';
+  }
+
+  // Check if user can access Workspace (reviewers and admins - NOT curators)
+  canAccessWorkspace(): boolean {
+    const user = this.loggedInUser();
+    return user?.role === 'reviewer' || user?.role === 'admin';
   }
 
   logout() {

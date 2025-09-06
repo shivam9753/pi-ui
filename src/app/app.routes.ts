@@ -29,6 +29,7 @@ import { postSSRResolver } from './resolvers/post-ssr.resolver';
 import { AboutComponent } from './info/about/about.component';
 import { ExploreRevampedComponent } from './explore/explore-revamped.component';
 import { SearchResultsComponent } from './search-results/search-results.component';
+import { FeaturedPoemsComponent } from './featured-poems/featured-poems.component';
 
 export const routes: Routes = [
   // Public routes - Use explore as homepage for now
@@ -67,6 +68,11 @@ export const routes: Routes = [
     path: 'tag/:tag', 
     component: TagComponent,
     title: 'Tag - pi'
+  },
+  { 
+    path: 'featured-poems', 
+    component: FeaturedPoemsComponent,
+    title: 'Featured Poems - pi'
   },
   { 
     path: 'author/:id', 

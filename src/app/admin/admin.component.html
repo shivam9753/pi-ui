@@ -76,6 +76,25 @@
                   Users
                 </button>
               }
+              <!-- Analytics - Admin/Reviewer -->
+              @if (canAccessTab('analytics')) {
+                <button
+                  data-tab="analytics"
+                  (click)="setActiveTab('analytics')"
+                  [class.border-orange-500]="activeTab === 'analytics'"
+                  [class.text-orange-600]="activeTab === 'analytics'"
+                  [class.border-transparent]="activeTab !== 'analytics'"
+                  [class.text-gray-600]="activeTab !== 'analytics'"
+                  [class.hover:text-gray-900]="activeTab !== 'analytics'"
+                  [class.hover:border-gray-300]="activeTab !== 'analytics'"
+                  class="whitespace-nowrap py-3 px-3 sm:py-4 sm:px-6 border-b-2 font-medium text-xs sm:text-sm transition-all duration-200 flex items-center gap-1 sm:gap-2 min-w-max"
+                  >
+                  <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                  </svg>
+                  Analytics
+                </button>
+              }
               <!-- Data Purge - Admin only -->
               @if (canAccessTab('purge')) {
                 <button
@@ -149,6 +168,11 @@
               @if (userSubTab === 'create') {
                 <app-create-users></app-create-users>
               }
+            </div>
+          }
+          @if (activeTab === 'analytics') {
+            <div class="animate-fade-in">
+              <app-analytics></app-analytics>
             </div>
           }
           @if (activeTab === 'purge') {

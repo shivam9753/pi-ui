@@ -146,7 +146,7 @@ export class PublicAuthorProfileComponent implements OnInit {
     if (work.slug) {
       this.router.navigate(['/post', work.slug]);
     } else {
-      this.router.navigate(['/read', work._id]);
+      this.router.navigate(['/content', work._id]);
     }
   }
 

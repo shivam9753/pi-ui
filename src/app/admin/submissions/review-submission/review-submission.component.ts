@@ -11,7 +11,7 @@ import { StatusBadgeComponent } from '../../../shared/components/status-badge/st
 import { environment } from '../../../../environments/environment';
 import { AnalysisPanelComponent } from './analysis-panel.component';
 import { EditorialCriteriaComponent } from './editorial-criteria.component';
-import { REVIEW_ACTIONS, ReviewAction, API_ENDPOINTS } from '../../../shared/constants/api.constants';
+import { REVIEW_ACTIONS, ReviewAction, API_ENDPOINTS, SUBMISSION_STATUS } from '../../../shared/constants/api.constants';
 
 @Component({
   selector: 'app-review-submission',
@@ -60,7 +60,12 @@ export class ReviewSubmissionComponent {
   // Editorial guidelines panel
   showGuidelines = false;
   
-  // Simplified - no navigation for now
+  // Navigation properties
+  reviewableSubmissions: any[] = [];
+  currentSubmissionIndex: number = -1;
+  hasNext: boolean = false;
+  hasPrevious: boolean = false;
+  isLoadingNavigation: boolean = false;
 
   constructor(
     private http: HttpClient, 
@@ -70,10 +75,10 @@ export class ReviewSubmissionComponent {
     private sanitizer: DomSanitizer
   ) {
     this.id = this.activatedRoute.snapshot.paramMap.get('id')!;
-    // Simplified initialization
     
     if (this.id) {
       this.getSubmissionWithContents(this.id);
+      this.loadReviewableSubmissions();
     }
     if(!environment.production)
       this.isAnalysisEnabled = true;
@@ -706,5 +711,127 @@ export class ReviewSubmissionComponent {
     }
   }
 
-  // The core review functionality works fine without navigation
+  // Navigation methods
+  loadReviewableSubmissions() {
+    this.isLoadingNavigation = true;
+    
+    // Try with a simpler API call first - just get the basic reviewable statuses
+    const params = {
+      limit: 100, // Reduced limit for testing
+      skip: 0,
+      sortBy: 'createdAt',
+      order: 'desc',
+      status: `${SUBMISSION_STATUS.PENDING_REVIEW},${SUBMISSION_STATUS.IN_PROGRESS}`
+    };
+    
+    console.log('Loading reviewable submissions with params:', params);
+    console.log('Status constants:', {
+      PENDING_REVIEW: SUBMISSION_STATUS.PENDING_REVIEW,
+      IN_PROGRESS: SUBMISSION_STATUS.IN_PROGRESS,
+      SHORTLISTED: SUBMISSION_STATUS.SHORTLISTED
+    });
+    
+    this.backendService.getSubmissions(params).subscribe({
+      next: (data) => {
+        console.log('API Response:', data);
+        console.log('Loaded reviewable submissions:', data.submissions?.length || 0, 'submissions');
+        console.log('Current submission ID:', this.id);
+        this.reviewableSubmissions = data.submissions || [];
+        this.updateNavigationState();
+        this.isLoadingNavigation = false;
+      },
+      error: (error) => {
+        console.error('Error loading reviewable submissions:', error);
+        console.error('Error details:', error.error);
+        
+        // Try fallback approach - get all submissions without status filter
+        console.log('Trying fallback approach...');
+        const fallbackParams = {
+          limit: 100,
+          skip: 0,
+          sortBy: 'createdAt',
+          order: 'desc'
+        };
+        
+        this.backendService.getSubmissions(fallbackParams).subscribe({
+          next: (data) => {
+            console.log('Fallback API Response:', data);
+            const reviewableStatuses = ['pending_review', 'in_progress', 'shortlisted', 'resubmitted', 'needs_revision'];
+            this.reviewableSubmissions = (data.submissions || []).filter((sub: any) => 
+              reviewableStatuses.includes(sub.status)
+            );
+            console.log('Filtered submissions:', this.reviewableSubmissions.length);
+            this.updateNavigationState();
+            this.isLoadingNavigation = false;
+          },
+          error: (fallbackError) => {
+            console.error('Fallback also failed:', fallbackError);
+            this.isLoadingNavigation = false;
+            this.reviewableSubmissions = [];
+            this.updateNavigationState();
+          }
+        });
+      }
+    });
+  }
+
+  updateNavigationState() {
+    // Find current submission in the list
+    this.currentSubmissionIndex = this.reviewableSubmissions.findIndex(
+      sub => sub._id === this.id
+    );
+    
+    console.log('Current submission index:', this.currentSubmissionIndex);
+    console.log('Total submissions:', this.reviewableSubmissions.length);
+    console.log('Submission IDs:', this.reviewableSubmissions.map(s => s._id).slice(0, 5));
+    
+    // Update navigation flags
+    this.hasPrevious = this.currentSubmissionIndex > 0;
+    this.hasNext = this.currentSubmissionIndex >= 0 && 
+                   this.currentSubmissionIndex < this.reviewableSubmissions.length - 1;
+                   
+    console.log('Has previous:', this.hasPrevious, 'Has next:', this.hasNext);
+  }
+
+  goToPrevious() {
+    if (!this.hasPrevious) return;
+    
+    const previousSubmission = this.reviewableSubmissions[this.currentSubmissionIndex - 1];
+    if (previousSubmission) {
+      this.navigateToSubmission(previousSubmission._id);
+    }
+  }
+
+  goToNext() {
+    if (!this.hasNext) return;
+    
+    const nextSubmission = this.reviewableSubmissions[this.currentSubmissionIndex + 1];
+    if (nextSubmission) {
+      this.navigateToSubmission(nextSubmission._id);
+    }
+  }
+
+  private navigateToSubmission(submissionId: string) {
+    // Navigate to the new submission
+    this.router.navigate(['/review-submission', submissionId]);
+    
+    // Update current ID and reload data
+    this.id = submissionId;
+    this.getSubmissionWithContents(submissionId);
+    this.updateNavigationState();
+    
+    // Reset form state
+    this.resetReviewForm();
+    
+    // Scroll to top for better UX
+    window.scrollTo(0, 0);
+  }
+
+  getCurrentSubmissionInfo(): string {
+    if (this.currentSubmissionIndex < 0 || this.reviewableSubmissions.length === 0) {
+      return '';
+    }
+    
+    return `${this.currentSubmissionIndex + 1} of ${this.reviewableSubmissions.length}`;
+  }
 }
