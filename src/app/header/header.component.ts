@@ -143,11 +143,11 @@ export class HeaderComponent implements OnInit, OnDestroy {
     return user?.role === 'writer' || user?.role === 'reviewer' || user?.role === 'admin';
   }
 
-  // Check if user can access Studio (users, writers, admins - NOT reviewers)
+  // Check if user can access Studio (only admin and writer roles)
   canAccessStudio(): boolean {
     const user = this.loggedInUser();
     if (!user) return false; // Not logged in
-    return user.role !== 'reviewer';
+    return user.role === 'admin' || user.role === 'writer';
   }
 
   // Check if user can access Workspace (reviewers and admins - NOT writers)

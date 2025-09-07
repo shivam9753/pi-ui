@@ -3,6 +3,7 @@ import { ExploreComponent } from './explore/explore.component';
 import { AdminGuard } from './guards/admin.guard';
 import { AuthGuard } from './guards/authguard';
 import { ReviewerGuard } from './guards/reviewer.guard';
+import { StudioGuard } from './guards/studio.guard';
 import { SubmissionEditorComponent } from './submit/submission-editor/submission-editor.component';
 import { UserLoginComponent } from './user-login/user-login.component';
 import { UserProfileComponent } from './user-profile/user-profile.component';
@@ -146,7 +147,7 @@ export const routes: Routes = [
   { 
     path: 'studio', 
     component: StudioComponent, 
-    canActivate: [AuthGuard],
+    canActivate: [StudioGuard],
     title: 'Creative Studio'
   },
   
