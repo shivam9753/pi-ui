@@ -12,6 +12,7 @@ export interface AdvancedFilterOptions {
   dateTo?: string;
   sortBy?: string;
   sortOrder?: string;
+  isTopicSubmission?: boolean;
 }
 
 export interface QuickFilterEvent {
@@ -305,7 +306,8 @@ export class AdvancedSubmissionFilterComponent implements OnInit {
     { key: 'resubmitted', label: 'Resubmitted', color: 'blue' },
     { key: 'myReviews', label: 'My Reviews', color: 'purple' },
     { key: 'newAuthors', label: 'New Authors', color: 'green' },
-    { key: 'quickRead', label: 'Quick Read', color: 'yellow' }
+    { key: 'quickRead', label: 'Quick Read', color: 'yellow' },
+    { key: 'topicSubmissions', label: 'Topic Submissions', color: 'indigo' }
   ];
 
   filterOptions = {
@@ -399,6 +401,8 @@ export class AdvancedSubmissionFilterComponent implements OnInit {
           return 'border-green-200 bg-green-50 text-green-700 hover:bg-green-100';
         case 'yellow':
           return 'border-yellow-200 bg-yellow-50 text-amber-700 hover:bg-amber-100';
+        case 'indigo':
+          return 'border-indigo-200 bg-indigo-50 text-indigo-700 hover:bg-indigo-100';
         default:
           return 'border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100';
       }
