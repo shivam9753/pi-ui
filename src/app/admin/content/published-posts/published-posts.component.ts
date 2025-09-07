@@ -464,13 +464,13 @@ export class PublishedPostsComponent implements OnInit {
 
   // Get author name with fallback
   getAuthorName(submission: any): string {
-    // First try to get actual name fields
-    const name = submission.username || 
-                 submission.authorName || 
-                 submission.author?.username || 
+    // Prioritize actual names over usernames for better display
+    const name = submission.authorName || 
                  submission.author?.name || 
                  submission.submitterName || 
                  submission.userId?.name ||
+                 submission.username || 
+                 submission.author?.username || 
                  submission.userId?.username ||
                  submission.submitterEmail ||
                  submission.author?.email ||

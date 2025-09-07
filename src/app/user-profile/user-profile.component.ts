@@ -381,7 +381,7 @@ export class UserProfileComponent implements OnInit {
         next: (response: any) => {
           // Filter only published submissions and transform to published works format
           const publishedSubmissions = (response.submissions || []).filter(
-            (submission: any) => submission.status === 'published'
+            (submission: any) => submission.status === SUBMISSION_STATUS.PUBLISHED
           );
           
           const publishedWorks = publishedSubmissions.map((submission: any) => ({

@@ -364,10 +364,10 @@ export class FeaturedContentComponent implements OnInit {
 
   // Get author name with fallback
   getAuthorName(content: any): string {
-    return content.author?.username || 
-           content.author?.name || 
-           content.username || 
+    return content.author?.name || 
            content.authorName || 
+           content.author?.username || 
+           content.username || 
            'Unknown Author';
   }
 
