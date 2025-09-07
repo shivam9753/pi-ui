@@ -371,21 +371,20 @@ export class UserProfileComponent implements OnInit {
     }
   }
 
-  // Load current user's published works using submissions API
+  // Load current user's published works using user-specific API
   async loadCurrentUserPublishedWorks() {
     try {
       this.worksLoading.set(true);
       
-      // Use submissions API to get current user's published works
-      this.backendService.getSubmissions({
-        status: 'published',
-        limit: 20,
-        sortBy: 'publishedAt',
-        order: 'desc'
-      }).subscribe({
+      // Use user-specific API to get current user's submissions, then filter published ones
+      this.backendService.getUserSubmissions().subscribe({
         next: (response: any) => {
-          // Transform submissions to published works format
-          const publishedWorks = (response.submissions || []).map((submission: any) => ({
+          // Filter only published submissions and transform to published works format
+          const publishedSubmissions = (response.submissions || []).filter(
+            (submission: any) => submission.status === 'published'
+          );
+          
+          const publishedWorks = publishedSubmissions.map((submission: any) => ({
             _id: submission._id,
             title: submission.title,
             excerpt: submission.excerpt || submission.description,
