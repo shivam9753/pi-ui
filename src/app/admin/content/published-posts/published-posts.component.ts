@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { CommonModule, DatePipe, TitleCasePipe } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
@@ -29,7 +29,7 @@ import { environment } from '../../../../environments/environment';
 
 @Component({
   selector: 'app-published-posts',
-  imports: [CommonModule, DatePipe, TitleCasePipe, FormsModule, PrettyLabelPipe, TypeBadgePipe, AdminPageHeaderComponent, DataTableComponent, SimpleSubmissionFilterComponent, SearchableUserSelectorComponent, ConsistentSubmissionMobileCardComponent],
+  imports: [CommonModule, FormsModule, PrettyLabelPipe, TypeBadgePipe, AdminPageHeaderComponent, DataTableComponent, SimpleSubmissionFilterComponent, SearchableUserSelectorComponent, ConsistentSubmissionMobileCardComponent],
   templateUrl: './published-posts.component.html',
   styleUrl: './published-posts.component.css'
 })
@@ -392,6 +392,11 @@ export class PublishedPostsComponent implements OnInit {
     this.loadPublishedSubmissions();
   }
 
+  // Handler for admin page header refresh
+  onRefresh() {
+    this.refreshList();
+  }
+
   // Pagination methods
   goToPage(page: number) {
     if (page < 1 || page > this.totalPages) return;
@@ -504,6 +509,8 @@ export class PublishedPostsComponent implements OnInit {
   }
 
   calculateStats() {
+    // Note: In the future, these stats should come from the API response
+    // For now, we calculate basic stats from the current page data
     if (!this.publishedSubmissions.length) {
       this.stats = [];
       return;

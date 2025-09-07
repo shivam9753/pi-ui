@@ -24,11 +24,10 @@ import {
   ConsistentSubmissionMobileCardComponent,
   SubmissionAction
 } from '../../../shared/components';
-import { PrettyLabelPipe } from '../../../pipes/pretty-label.pipe';
 
 @Component({
   selector: 'app-pending-reviews',
-  imports: [CommonModule, FormsModule, AdminPageHeaderComponent, DataTableComponent, PrettyLabelPipe, AdvancedSubmissionFilterComponent, ConsistentSubmissionMobileCardComponent],
+  imports: [CommonModule, FormsModule, AdminPageHeaderComponent, DataTableComponent, AdvancedSubmissionFilterComponent, ConsistentSubmissionMobileCardComponent],
   templateUrl: './pending-reviews.component.html',
   styleUrl: './pending-reviews.component.css'
 })
@@ -227,6 +226,7 @@ export class PendingReviewsComponent implements OnInit, OnDestroy {
     this.restorePaginationState();
     this.setupTableActions();
     this.loadSubmissions();
+    this.calculateStats(); // Initialize with empty stats
   }
 
   ngOnDestroy() {
@@ -270,6 +270,14 @@ export class PendingReviewsComponent implements OnInit, OnDestroy {
         this.hasMore = data.pagination?.hasMore || false;
         this.totalPages = Math.ceil(this.totalSubmissions / this.pageSize);
         this.updatePaginationConfig();
+        
+        // Use backend stats if available, otherwise fallback to page-based calculation
+        if (data.stats) {
+          this.calculateStatsFromBackend(data.stats);
+        } else {
+          this.calculateStats(); // Fallback to page-based stats
+        }
+        
         this.loading = false;
       },
       (error) => {
@@ -287,7 +295,8 @@ export class PendingReviewsComponent implements OnInit, OnDestroy {
       limit: this.pageSize,
       skip: (page - 1) * this.pageSize,
       sortBy,
-      order
+      order,
+      includeStats: true  // Request stats from backend
     };
 
     // Show all reviewable statuses when no specific status filter is applied
@@ -569,5 +578,83 @@ export class PendingReviewsComponent implements OnInit, OnDestroy {
       // If there's any error in parsing, just start fresh
       console.warn('Could not restore pagination state:', error);
     }
+  }
+
+  // Calculate stats from backend-provided stats (PREFERRED)
+  private calculateStatsFromBackend(backendStats: any) {
+    const typeBreakdown = backendStats.typeBreakdown || {};
+    const total = this.totalSubmissions;
+
+    this.headerStats = [
+      {
+        label: 'Total Pending',
+        value: total.toLocaleString(),
+        color: '#3b82f6'
+      },
+      {
+        label: 'Poems',
+        value: (typeBreakdown.poem || 0).toLocaleString(),
+        color: '#10b981'
+      },
+      {
+        label: 'Articles',
+        value: (typeBreakdown.article || 0).toLocaleString(),
+        color: '#f59e0b'
+      },
+      {
+        label: 'Prose',
+        value: (typeBreakdown.prose || 0).toLocaleString(),
+        color: '#ef4444'
+      },
+      {
+        label: 'Opinions',
+        value: (typeBreakdown.opinion || 0).toLocaleString(),
+        color: '#8b5cf6'
+      }
+    ];
+  }
+
+  // Calculate stats from currently loaded submissions (FALLBACK)
+  private calculateStats() {
+    if (!this.submissions || this.submissions.length === 0) {
+      this.headerStats = [];
+      return;
+    }
+
+    // Count submissions by type from current page only
+    const typeCounts = this.submissions.reduce((acc, submission) => {
+      const type = submission.submissionType || 'unknown';
+      acc[type] = (acc[type] || 0) + 1;
+      return acc;
+    }, {} as { [key: string]: number });
+
+    // Build stats array (note: these are page-based, not total counts)
+    this.headerStats = [
+      {
+        label: 'Total Pending',
+        value: this.totalSubmissions.toLocaleString(), // This is accurate from API
+        color: '#3b82f6'
+      },
+      {
+        label: 'Poems (Page)',
+        value: (typeCounts.poem || 0).toLocaleString(), // Page-based count
+        color: '#10b981'
+      },
+      {
+        label: 'Articles (Page)',
+        value: (typeCounts.article || 0).toLocaleString(), // Page-based count
+        color: '#f59e0b'
+      },
+      {
+        label: 'Prose (Page)',
+        value: (typeCounts.prose || 0).toLocaleString(), // Page-based count
+        color: '#ef4444'
+      },
+      {
+        label: 'Opinions (Page)',
+        value: (typeCounts.opinion || 0).toLocaleString(), // Page-based count
+        color: '#8b5cf6'
+      }
+    ];
   }
 }

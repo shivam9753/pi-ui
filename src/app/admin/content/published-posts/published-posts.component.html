@@ -4,7 +4,8 @@
     title="Submissions Management"
     subtitle="View and manage all submissions and published content."
     [loading]="loading"
-    [stats]="stats">
+    [stats]="stats"
+    (onRefresh)="onRefresh()">
   </app-admin-page-header>
 
   <!-- Quick Filter Tabs -->

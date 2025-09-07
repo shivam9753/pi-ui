@@ -1,7 +1,7 @@
 // admin-user-management.component.ts
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
-import { CommonModule, DatePipe, TitleCasePipe } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { UserService } from '../../../services/user.service';
 import { UserListItem, User } from '../../../models';
@@ -30,8 +30,6 @@ interface Message {
 @Component({
   selector: 'app-user-management',
   imports: [
-    DatePipe, 
-    TitleCasePipe, 
     CommonModule, 
     FormsModule, 
     AdminPageHeaderComponent,
