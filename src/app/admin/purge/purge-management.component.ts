@@ -1,43 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ApiService } from '../../services/api.service';
-
-interface PurgeableSubmission {
-  _id: string;
-  title: string;
-  status: string;
-  author: string;
-  submittedAt: string;
-  eligibleSince: string;
-  daysSinceEligible: number;
-}
-
-interface PurgeStats {
-  totalPurgeable: number;
-  byStatus: Array<{
-    _id: string;
-    count: number;
-    oldestEligible: string;
-    newestEligible: string;
-  }>;
-  lastUpdated: string;
-}
-
-interface PurgePreview {
-  submissionsToDelete: number;
-  contentToDelete: number;
-  reviewsToDelete: number;
-  affectedUsers: string[];
-  details: Array<{
-    submissionId: string;
-    title: string;
-    author: string;
-    contentPieces: number;
-    reviews: number;
-    status: string;
-  }>;
-}
+import { BackendService } from '../../services/backend.service';
+import { Submission } from '../../models/submission.model';
+import { Author, AuthorUtils } from '../../models/author.model';
 
 @Component({
   selector: 'app-purge-management',
@@ -50,401 +16,427 @@ interface PurgePreview {
       <div class="mb-8">
         <div class="sm:flex sm:items-center sm:justify-between">
           <div>
-            <h1 class="text-2xl font-bold text-gray-900">Rejected Submissions Management</h1>
+            <h1 class="text-2xl font-bold text-gray-900">Submissions Management</h1>
             <p class="mt-2 text-sm text-gray-700">
-              View and manage rejected and spam submissions. You can filter by age or view all submissions.
+              View and manage draft and rejected submissions. 
               <span class="font-medium text-red-600">⚠️ Purging permanently deletes data.</span>
             </p>
           </div>
           <div class="mt-4 sm:mt-0">
             <button
-              (click)="loadStats()"
-              [disabled]="loading"
+              (click)="refreshData()"
+              [disabled]="loadingDrafts || loadingRejected"
               class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50">
-              @if (!loading) {
+              @if (!loadingDrafts && !loadingRejected) {
                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
                 </svg>
               }
-              @if (loading) {
+              @if (loadingDrafts || loadingRejected) {
                 <div class="w-4 h-4 mr-2 border-2 border-gray-300 border-t-orange-500 rounded-full animate-spin"></div>
               }
-              Refresh Stats
+              Refresh Data
             </button>
           </div>
         </div>
       </div>
     
-      <!-- Stats Cards -->
-      @if (stats) {
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <div class="bg-white overflow-hidden shadow rounded-lg">
-            <div class="p-5">
-              <div class="flex items-center">
-                <div class="flex-shrink-0">
-                  <svg class="h-6 w-6 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                  </svg>
-                </div>
-                <div class="ml-5 w-0 flex-1">
-                  <dl>
-                    <dt class="text-sm font-medium text-gray-500 truncate">Total Purgeable</dt>
-                    <dd class="text-lg font-medium text-gray-900">{{ stats.totalPurgeable | number }}</dd>
-                  </dl>
-                </div>
-              </div>
-            </div>
-          </div>
-          @for (statusStat of stats.byStatus.slice(0, 2); track statusStat) {
-            <div class="bg-white overflow-hidden shadow rounded-lg">
-              <div class="p-5">
-                <div class="flex items-center">
-                  <div class="flex-shrink-0">
-                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
-                      [ngClass]="{
-                        'bg-red-100 text-red-800': statusStat._id === 'rejected',
-                        'bg-amber-100 text-amber-800': statusStat._id === 'spam',
-                        'bg-gray-100 text-gray-800': statusStat._id !== 'rejected' && statusStat._id !== 'spam'
-                      }">
-                      {{ statusStat._id | titlecase }}
-                    </span>
-                  </div>
-                  <div class="ml-5 w-0 flex-1">
-                    <dl>
-                      <dt class="text-sm font-medium text-gray-500 truncate">Count</dt>
-                      <dd class="text-lg font-medium text-gray-900">{{ statusStat.count | number }}</dd>
-                    </dl>
-                  </div>
-                </div>
-              </div>
-            </div>
-          }
-        </div>
-      }
-    
-      <!-- Controls -->
-      <div class="bg-white shadow rounded-lg mb-6">
-        <div class="px-4 py-5 sm:p-6">
-          <h3 class="text-lg font-medium text-gray-900 mb-4">Purge Filters</h3>
-    
-          <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div>
-              <label for="olderThanDays" class="block text-sm font-medium text-gray-700">Older than (days)</label>
-              <select id="olderThanDays"
-                [(ngModel)]="filters.olderThanDays"
-                (ngModelChange)="loadPurgeableSubmissions()"
-                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500 sm:text-sm">
-                <option value="0">All (no age limit)</option>
-                <option value="30">30 days</option>
-                <option value="60">60 days</option>
-                <option value="120">120 days (4 months)</option>
-                <option value="180">180 days (6 months)</option>
-              </select>
-            </div>
-    
-            <div>
-              <label for="statusFilter" class="block text-sm font-medium text-gray-700">Status</label>
-              <select id="statusFilter"
-                [(ngModel)]="filters.status"
-                (ngModelChange)="loadPurgeableSubmissions()"
-                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500 sm:text-sm">
-                <option value="">All statuses</option>
-                <option value="rejected">Rejected</option>
-                <option value="spam">Spam</option>
-              </select>
-            </div>
-    
-            <div>
-              <label for="limit" class="block text-sm font-medium text-gray-700">Results per page</label>
-              <select id="limit"
-                [(ngModel)]="filters.limit"
-                (ngModelChange)="loadPurgeableSubmissions()"
-                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500 sm:text-sm">
-                <option value="25">25</option>
-                <option value="50">50</option>
-                <option value="100">100</option>
-              </select>
-            </div>
-    
-            <div class="flex items-end">
-              <button
-                (click)="loadPurgeableSubmissions()"
-                [disabled]="loadingSubmissions"
-                class="w-full inline-flex justify-center items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-orange-600 hover:bg-orange-700 disabled:opacity-50">
-                @if (!loadingSubmissions) {
-                  <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-                  </svg>
+      <!-- Tab Navigation -->
+      <div class="mb-6">
+        <div class="border-b border-gray-200">
+          <nav class="-mb-px flex space-x-8" aria-label="Tabs">
+            <button
+              (click)="setActiveTab('drafts')"
+              [class.border-orange-500]="activeTab === 'drafts'"
+              [class.text-orange-600]="activeTab === 'drafts'"
+              [class.border-transparent]="activeTab !== 'drafts'"
+              [class.text-gray-500]="activeTab !== 'drafts'"
+              [class.hover:text-gray-700]="activeTab !== 'drafts'"
+              [class.hover:border-gray-300]="activeTab !== 'drafts'"
+              class="whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm transition-colors duration-200">
+              <div class="flex items-center space-x-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                </svg>
+                <span>Draft Submissions</span>
+                @if (draftSubmissions.length > 0) {
+                  <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full">{{ draftSubmissions.length }}</span>
                 }
-                @if (loadingSubmissions) {
-                  <div class="w-4 h-4 mr-2 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+              </div>
+            </button>
+            <button
+              (click)="setActiveTab('rejected')"
+              [class.border-orange-500]="activeTab === 'rejected'"
+              [class.text-orange-600]="activeTab === 'rejected'"
+              [class.border-transparent]="activeTab !== 'rejected'"
+              [class.text-gray-500]="activeTab !== 'rejected'"
+              [class.hover:text-gray-700]="activeTab !== 'rejected'"
+              [class.hover:border-gray-300]="activeTab !== 'rejected'"
+              class="whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm transition-colors duration-200">
+              <div class="flex items-center space-x-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                </svg>
+                <span>Rejected Submissions</span>
+                @if (rejectedSubmissions.length > 0) {
+                  <span class="bg-red-100 text-red-800 text-xs font-medium px-2.5 py-0.5 rounded-full">{{ rejectedSubmissions.length }}</span>
                 }
-                Search
-              </button>
-            </div>
-          </div>
+              </div>
+            </button>
+          </nav>
         </div>
       </div>
     
-      <!-- Selection Controls -->
-      @if (purgeableSubmissions.length > 0) {
-        <div class="bg-white shadow rounded-lg mb-6">
-          <div class="px-4 py-5 sm:p-6">
-            <div class="sm:flex sm:items-center sm:justify-between">
-              <div class="flex items-center space-x-4">
-                <div class="flex items-center">
-                  <input
-                    id="selectAll"
-                    type="checkbox"
-                    [checked]="selectedSubmissions.length === purgeableSubmissions.length && purgeableSubmissions.length > 0"
-                    [indeterminate]="selectedSubmissions.length > 0 && selectedSubmissions.length < purgeableSubmissions.length"
-                    (change)="toggleSelectAll($event)"
-                    class="h-4 w-4 text-orange-600 focus:ring-orange-500 border-gray-300 rounded">
-                  <label for="selectAll" class="ml-2 text-sm text-gray-700">
-                    Select all ({{ selectedSubmissions.length }} selected)
-                  </label>
+      <!-- Tab Content -->
+      @if (activeTab === 'drafts') {
+        <div class="animate-fade-in">
+          <!-- Draft Submissions Content -->
+          <div class="bg-white shadow rounded-lg mb-6">
+            <div class="px-4 py-5 sm:p-6">
+              <h3 class="text-lg font-medium text-gray-900 mb-4">Draft Submissions</h3>
+              <p class="text-sm text-gray-600 mb-4">
+                These are submissions that users have saved as drafts but never submitted for review.
+              </p>
+              
+              <!-- Draft Submissions Table -->
+              @if (draftSubmissions.length > 0) {
+                <div class="overflow-x-auto">
+                  <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                      <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Title</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Author</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Created</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Last Updated</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                      @for (submission of draftSubmissions; track submission._id) {
+                        <tr class="hover:bg-gray-50">
+                          <td class="px-6 py-4">
+                            <div class="text-sm font-medium text-gray-900 max-w-xs truncate" [title]="submission.title">
+                              {{ submission.title }}
+                            </div>
+                          </td>
+                          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            {{ getAuthorName(submission) }}
+                          </td>
+                          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                              {{ submission.submissionType | titlecase }}
+                            </span>
+                          </td>
+                          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            {{ submission.createdAt | date:'MMM d, y' }}
+                          </td>
+                          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            {{ submission.updatedAt | date:'MMM d, y' }}
+                          </td>
+                          <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                            <div class="flex space-x-2">
+                              <button
+                                (click)="viewSubmissionDetails(submission)"
+                                class="text-blue-600 hover:text-blue-900">
+                                View
+                              </button>
+                              <button
+                                (click)="deleteDraftSubmission(submission._id)"
+                                class="text-red-600 hover:text-red-900">
+                                Delete
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      }
+                    </tbody>
+                  </table>
                 </div>
-              </div>
-              <div class="mt-4 sm:mt-0 flex space-x-3">
-                <button
-                  (click)="previewPurge()"
-                  [disabled]="selectedSubmissions.length === 0 || previewing"
-                  class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50">
-                  @if (!previewing) {
-                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-                    </svg>
-                  }
-                  @if (previewing) {
-                    <div class="w-4 h-4 mr-2 border-2 border-gray-300 border-t-orange-500 rounded-full animate-spin"></div>
-                  }
-                  Preview Purge
-                </button>
-                <button
-                  (click)="showPurgeWithPreview()"
-                  [disabled]="selectedSubmissions.length === 0"
-                  class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 disabled:opacity-50">
-                  <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+              } @else {
+                <div class="text-center py-8">
+                  <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
                   </svg>
-                  Purge Selected ({{ selectedSubmissions.length }})
-                </button>
-              </div>
+                  <h3 class="mt-2 text-sm font-medium text-gray-900">No draft submissions found</h3>
+                  <p class="mt-1 text-sm text-gray-500">All submissions have been submitted for review.</p>
+                </div>
+              }
+              
+              @if (loadingDrafts) {
+                <div class="text-center py-8">
+                  <div class="w-8 h-8 mx-auto border-4 border-blue-500/20 border-t-blue-500 rounded-full animate-spin"></div>
+                  <p class="mt-2 text-sm text-gray-500">Loading draft submissions...</p>
+                </div>
+              }
             </div>
           </div>
         </div>
       }
-    
-      <!-- Preview Results -->
-      @if (preview) {
-        <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
-          <h4 class="text-sm font-medium text-blue-900 mb-2">Purge Preview</h4>
-          <div class="text-sm text-blue-800">
-            <p><strong>{{ preview.submissionsToDelete }}</strong> submissions will be deleted</p>
-            <p><strong>{{ preview.contentToDelete }}</strong> content pieces will be deleted</p>
-            <p><strong>{{ preview.reviewsToDelete }}</strong> reviews will be deleted</p>
-            <p><strong>{{ preview.affectedUsers.length }}</strong> users affected: {{ preview.affectedUsers.join(', ') }}</p>
-          </div>
-        </div>
-      }
-    
-      <!-- Submissions Table -->
-      @if (purgeableSubmissions.length > 0) {
-        <div class="bg-white shadow overflow-hidden sm:rounded-lg">
-          <div class="px-4 py-5 sm:px-6">
-            <h3 class="text-lg leading-6 font-medium text-gray-900">
-              Rejected Submissions ({{ pagination?.total | number }})
-            </h3>
-          </div>
-          <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-gray-200">
-              <thead class="bg-gray-50">
-                <tr>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    <input
-                      type="checkbox"
-                      [checked]="selectedSubmissions.length === purgeableSubmissions.length && purgeableSubmissions.length > 0"
-                      [indeterminate]="selectedSubmissions.length > 0 && selectedSubmissions.length < purgeableSubmissions.length"
-                      (change)="toggleSelectAll($event)"
-                      class="h-4 w-4 text-orange-600 focus:ring-orange-500 border-gray-300 rounded">
-                  </th>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Title</th>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Author</th>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Days Eligible</th>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Submitted</th>
-                </tr>
-              </thead>
-              <tbody class="bg-white divide-y divide-gray-200">
-                @for (submission of purgeableSubmissions; track trackBySubmissionId($index, submission)) {
-                  <tr class="hover:bg-gray-50">
-                    <td class="px-6 py-4 whitespace-nowrap">
-                      <input
-                        type="checkbox"
-                        [value]="submission._id"
-                        [checked]="selectedSubmissions.includes(submission._id)"
-                        (change)="toggleSelection(submission._id, $event)"
-                        class="h-4 w-4 text-orange-600 focus:ring-orange-500 border-gray-300 rounded">
-                    </td>
-                    <td class="px-6 py-4">
-                      <div class="text-sm font-medium text-gray-900 max-w-xs truncate" [title]="submission.title">
-                        {{ submission.title }}
-                      </div>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {{ submission.author }}
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap">
-                      <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
-                        [ngClass]="{
-                          'bg-red-100 text-red-800': submission.status === 'rejected',
-                          'bg-amber-100 text-amber-800': submission.status === 'spam',
-                          'bg-gray-100 text-gray-800': submission.status !== 'rejected' && submission.status !== 'spam'
-                        }">
-                        {{ submission.status | titlecase }}
-                      </span>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {{ submission.daysSinceEligible }}
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {{ submission.submittedAt | date:'MMM d, y' }}
-                    </td>
-                  </tr>
+      
+      @if (activeTab === 'rejected') {
+        <div class="animate-fade-in">
+          <!-- Rejected Submissions Content -->
+          <div class="bg-white shadow rounded-lg mb-6">
+            <div class="px-4 py-5 sm:p-6">
+              <h3 class="text-lg font-medium text-gray-900 mb-4">Rejected Submissions</h3>
+              <p class="text-sm text-gray-600 mb-4">
+                These are submissions that have been reviewed and rejected. You can delete them permanently.
+              </p>
+              
+              <!-- Rejected Submissions Table -->
+              @if (rejectedSubmissions.length > 0) {
+                <div class="overflow-x-auto">
+                  <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                      <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          <input
+                            type="checkbox"
+                            [checked]="selectedRejected.length === rejectedSubmissions.length && rejectedSubmissions.length > 0"
+                            [indeterminate]="selectedRejected.length > 0 && selectedRejected.length < rejectedSubmissions.length"
+                            (change)="toggleSelectAllRejected($event)"
+                            class="h-4 w-4 text-orange-600 focus:ring-orange-500 border-gray-300 rounded">
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Title</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Author</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Rejected At</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Reviewed By</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                      @for (submission of rejectedSubmissions; track submission._id) {
+                        <tr class="hover:bg-gray-50">
+                          <td class="px-6 py-4 whitespace-nowrap">
+                            <input
+                              type="checkbox"
+                              [value]="submission._id"
+                              [checked]="selectedRejected.includes(submission._id)"
+                              (change)="toggleRejectedSelection(submission._id, $event)"
+                              class="h-4 w-4 text-orange-600 focus:ring-orange-500 border-gray-300 rounded">
+                          </td>
+                          <td class="px-6 py-4">
+                            <div class="text-sm font-medium text-gray-900 max-w-xs truncate" [title]="submission.title">
+                              {{ submission.title }}
+                            </div>
+                          </td>
+                          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            {{ getAuthorName(submission) }}
+                          </td>
+                          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                              {{ submission.submissionType | titlecase }}
+                            </span>
+                          </td>
+                          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            {{ submission.reviewedAt | date:'MMM d, y' }}
+                          </td>
+                          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            {{ submission.reviewedBy || 'System' }}
+                          </td>
+                          <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                            <button
+                              (click)="viewSubmissionDetails(submission)"
+                              class="text-blue-600 hover:text-blue-900">
+                              View Details
+                            </button>
+                          </td>
+                        </tr>
+                      }
+                    </tbody>
+                  </table>
+                </div>
+                
+                <!-- Bulk Actions for Rejected -->
+                @if (selectedRejected.length > 0) {
+                  <div class="mt-4 flex items-center justify-between bg-gray-50 px-4 py-3 rounded-lg">
+                    <div class="text-sm text-gray-700">
+                      <strong>{{ selectedRejected.length }}</strong> submissions selected
+                    </div>
+                    <button
+                      (click)="deleteSelectedRejected()"
+                      class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700">
+                      <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                      </svg>
+                      Delete Selected ({{ selectedRejected.length }})
+                    </button>
+                  </div>
                 }
-              </tbody>
-            </table>
-          </div>
-          <!-- Pagination -->
-          @if (pagination && pagination.total > pagination.limit) {
-            <div class="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
-              <div class="flex-1 flex justify-between sm:hidden">
-                <button
-                  (click)="previousPage()"
-                  [disabled]="pagination.skip === 0"
-                  class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50">
-                  Previous
-                </button>
-                <button
-                  (click)="nextPage()"
-                  [disabled]="!pagination.hasMore"
-                  class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50">
-                  Next
-                </button>
-              </div>
-              <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
-                <div>
-                  <p class="text-sm text-gray-700">
-                    Showing <span class="font-medium">{{ pagination.skip + 1 }}</span> to
-                    <span class="font-medium">{{ Math.min(pagination.skip + pagination.limit, pagination.total) }}</span> of
-                    <span class="font-medium">{{ pagination.total }}</span> results
-                  </p>
+              } @else {
+                <div class="text-center py-8">
+                  <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                  </svg>
+                  <h3 class="mt-2 text-sm font-medium text-gray-900">No rejected submissions found</h3>
+                  <p class="mt-1 text-sm text-gray-500">All submissions are either published, pending, or in draft.</p>
                 </div>
-                <div>
-                  <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px">
-                    <button
-                      (click)="previousPage()"
-                      [disabled]="pagination.skip === 0"
-                      class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50">
-                      Previous
-                    </button>
-                    <button
-                      (click)="nextPage()"
-                      [disabled]="!pagination.hasMore"
-                      class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50">
-                      Next
-                    </button>
-                  </nav>
+              }
+              
+              @if (loadingRejected) {
+                <div class="text-center py-8">
+                  <div class="w-8 h-8 mx-auto border-4 border-red-500/20 border-t-red-500 rounded-full animate-spin"></div>
+                  <p class="mt-2 text-sm text-gray-500">Loading rejected submissions...</p>
                 </div>
-              </div>
+              }
             </div>
-          }
-        </div>
-      }
-    
-      <!-- Empty State -->
-      @if (purgeableSubmissions.length === 0 && !loadingSubmissions) {
-        <div class="text-center py-12">
-          <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-          </svg>
-          <h3 class="mt-2 text-sm font-medium text-gray-900">No rejected submissions found</h3>
-          <p class="mt-1 text-sm text-gray-500">Adjust your filters to see rejected submissions.</p>
-        </div>
-      }
-    
-      <!-- Loading State -->
-      @if (loadingSubmissions) {
-        <div class="text-center py-12">
-          <div class="w-8 h-8 mx-auto border-4 border-orange-500/20 border-t-orange-500 rounded-full animate-spin"></div>
-          <p class="mt-2 text-sm text-gray-500">Loading rejected submissions...</p>
+          </div>
         </div>
       }
     
     </div>
     
-    <!-- Purge Confirmation Modal -->
-    @if (showPurgeConfirmation) {
+    <!-- Submission Detail Modal -->
+    @if (showDetailModal && selectedSubmission) {
       <div class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-        <div class="relative top-20 mx-auto p-5 border w-11/12 md:w-3/4 lg:w-1/2 shadow-lg rounded-md bg-white">
+        <div class="relative top-20 mx-auto p-5 border w-11/12 md:w-4/5 lg:w-3/4 xl:w-2/3 shadow-lg rounded-md bg-white">
           <div class="mt-3">
-            <div class="flex items-center justify-center mx-auto">
-              <svg class="h-12 w-12 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.464 0L4.35 16.5c-.77.833.192 2.5 1.732 2.5z"/>
-              </svg>
-            </div>
-            <div class="mt-2 px-7 py-3">
-              <h3 class="text-lg font-medium text-gray-900 text-center">Confirm Permanent Deletion</h3>
-              <p class="text-sm text-gray-500 mt-2 text-center">
-                You are about to permanently delete <strong>{{ selectedSubmissions.length }}</strong> submissions and all associated data.
-                This action cannot be undone.
-              </p>
-              <div class="mt-4 p-4 bg-red-50 rounded-md">
-                <h4 class="text-sm font-medium text-red-900">This will delete:</h4>
-                <ul class="mt-2 text-sm text-red-800">
-                  @if (preview) {
-                    <li>• {{ preview.submissionsToDelete }} submissions</li>
-                    <li>• {{ preview.contentToDelete }} content pieces</li>
-                    <li>• {{ preview.reviewsToDelete }} reviews</li>
-                  } @else {
-                    <li>• {{ selectedSubmissions.length }} selected submissions</li>
-                    <li>• All associated content and reviews</li>
-                  }
-                </ul>
-              </div>
-              <div class="mt-4">
-                <label for="confirmText" class="block text-sm font-medium text-gray-700">
-                  Type "PURGE" to confirm:
-                </label>
-                <input
-                  id="confirmText"
-                  type="text"
-                  [(ngModel)]="purgeConfirmText"
-                  placeholder="Type PURGE to confirm"
-                  class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 sm:text-sm">
-              </div>
-            </div>
-            <div class="flex items-center px-4 py-3 space-x-2">
+            <!-- Header -->
+            <div class="flex items-center justify-between mb-4">
+              <h3 class="text-xl font-semibold text-gray-900">Submission Details</h3>
               <button
-                (click)="closePurgeConfirmation()"
-                class="flex-1 px-4 py-2 bg-white text-gray-700 text-base font-medium rounded-md border border-gray-300 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-300">
-                Cancel
+                (click)="closeDetailModal()"
+                class="text-gray-400 hover:text-gray-600">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
               </button>
-              <button
-                (click)="executePurge()"
-                [disabled]="purgeConfirmText !== 'PURGE' || purging"
-                class="flex-1 px-4 py-2 bg-red-600 text-white text-base font-medium rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 disabled:opacity-50">
-                @if (!purging) {
-                  <span>Delete Forever</span>
-                }
-                @if (purging) {
-                  <div class="flex items-center justify-center">
-                    <div class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
-                    Purging...
+            </div>
+            
+            <!-- Loading State -->
+            @if (loadingSubmissionDetails) {
+              <div class="text-center py-12">
+                <div class="w-8 h-8 mx-auto border-4 border-orange-500/20 border-t-orange-500 rounded-full animate-spin"></div>
+                <p class="mt-2 text-sm text-gray-500">Loading submission details...</p>
+              </div>
+            }
+            
+            <!-- Content -->
+            @if (!loadingSubmissionDetails) {
+              <div class="max-h-96 overflow-y-auto">
+                <!-- Basic Info -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Title</label>
+                    <p class="text-sm text-gray-900">{{ selectedSubmission.title }}</p>
+                  </div>
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Author</label>
+                    <p class="text-sm text-gray-900">{{ getAuthorName(selectedSubmission) }}</p>
+                  </div>
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Type</label>
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
+                      [ngClass]="{
+                        'bg-blue-100 text-blue-800': selectedSubmission.status === 'draft',
+                        'bg-red-100 text-red-800': selectedSubmission.status === 'rejected'
+                      }">
+                      {{ selectedSubmission.submissionType | titlecase }}
+                    </span>
+                  </div>
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Status</label>
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
+                      [ngClass]="{
+                        'bg-yellow-100 text-yellow-800': selectedSubmission.status === 'draft',
+                        'bg-red-100 text-red-800': selectedSubmission.status === 'rejected'
+                      }">
+                      {{ selectedSubmission.status | titlecase }}
+                    </span>
+                  </div>
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Created</label>
+                    <p class="text-sm text-gray-900">{{ selectedSubmission.createdAt | date:'MMM d, y, h:mm a' }}</p>
+                  </div>
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Last Updated</label>
+                    <p class="text-sm text-gray-900">{{ selectedSubmission.updatedAt | date:'MMM d, y, h:mm a' }}</p>
+                  </div>
+                  @if (selectedSubmission.reviewedAt) {
+                    <div>
+                      <label class="block text-sm font-medium text-gray-700 mb-1">Reviewed At</label>
+                      <p class="text-sm text-gray-900">{{ selectedSubmission.reviewedAt | date:'MMM d, y, h:mm a' }}</p>
+                    </div>
+                  }
+                  @if (selectedSubmission.reviewedBy) {
+                    <div>
+                      <label class="block text-sm font-medium text-gray-700 mb-1">Reviewed By</label>
+                      <p class="text-sm text-gray-900">{{ selectedSubmission.reviewedBy }}</p>
+                    </div>
+                  }
+                </div>
+                
+                <!-- Description -->
+                @if (selectedSubmission.description) {
+                  <div class="mb-6">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Description</label>
+                    <div class="bg-gray-50 p-3 rounded-md">
+                      <p class="text-sm text-gray-900">{{ selectedSubmission.description }}</p>
+                    </div>
                   </div>
                 }
+                
+                <!-- Content Pieces -->
+                @if (selectedSubmission.contents && selectedSubmission.contents.length > 0) {
+                  <div class="mb-6">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Content ({{ selectedSubmission.contents.length }} pieces)</label>
+                    <div class="space-y-4">
+                      @for (content of selectedSubmission.contents; track content._id) {
+                        <div class="bg-gray-50 p-4 rounded-md">
+                          <div class="flex justify-between items-start mb-2">
+                            <h4 class="text-sm font-medium text-gray-900">{{ content.title }}</h4>
+                            @if (content.tags && content.tags.length > 0) {
+                              <div class="flex flex-wrap gap-1">
+                                @for (tag of content.tags; track tag) {
+                                  <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">
+                                    {{ tag }}
+                                  </span>
+                                }
+                              </div>
+                            }
+                          </div>
+                          <div class="text-sm text-gray-700 max-h-32 overflow-y-auto" [innerHTML]="content.body"></div>
+                        </div>
+                      }
+                    </div>
+                  </div>
+                }
+                
+                <!-- Review Notes -->
+                @if (selectedSubmission.revisionNotes) {
+                  <div class="mb-6">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Review Notes</label>
+                    <div class="bg-red-50 p-3 rounded-md border border-red-200">
+                      <p class="text-sm text-red-800">{{ selectedSubmission.revisionNotes }}</p>
+                    </div>
+                  </div>
+                }
+              </div>
+            }
+            
+            <!-- Actions -->
+            <div class="flex items-center justify-end space-x-3 mt-6 pt-4 border-t">
+              <button
+                (click)="closeDetailModal()"
+                class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50">
+                Close
               </button>
+              @if (selectedSubmission.status === 'draft') {
+                <button
+                  (click)="deleteDraftSubmission(selectedSubmission._id); closeDetailModal()"
+                  class="px-4 py-2 text-sm font-medium text-white bg-red-600 border border-transparent rounded-md hover:bg-red-700">
+                  Delete Draft
+                </button>
+              }
+              @if (selectedSubmission.status === 'rejected') {
+                <button
+                  (click)="deleteRejectedSubmission(selectedSubmission._id); closeDetailModal()"
+                  class="px-4 py-2 text-sm font-medium text-white bg-red-600 border border-transparent rounded-md hover:bg-red-700">
+                  Delete Submission
+                </button>
+              }
             </div>
           </div>
         </div>
@@ -453,180 +445,170 @@ interface PurgePreview {
     `
 })
 export class PurgeManagementComponent implements OnInit {
-  stats: PurgeStats | null = null;
-  purgeableSubmissions: PurgeableSubmission[] = [];
-  selectedSubmissions: string[] = [];
-  preview: PurgePreview | null = null;
-  pagination: any = null;
-
-  loading = false;
-  loadingSubmissions = false;
-  previewing = false;
-  purging = false;
-
-  showPurgeConfirmation = false;
-  purgeConfirmText = '';
-
-  filters = {
-    olderThanDays: 0, // Set to 0 to show all rejected submissions by default
-    status: 'rejected', // Set to rejected by default
-    limit: 50,
-    skip: 0
-  };
-
-  Math = Math;
-
-  constructor(private apiService: ApiService) {}
+  activeTab: 'drafts' | 'rejected' = 'drafts';
+  
+  draftSubmissions: Submission[] = [];
+  rejectedSubmissions: Submission[] = [];
+  selectedRejected: string[] = [];
+  
+  loadingDrafts = false;
+  loadingRejected = false;
+  
+  // Detail view state
+  showDetailModal = false;
+  selectedSubmission: Submission | null = null;
+  loadingSubmissionDetails = false;
+  
+  constructor(private backendService: BackendService) {}
 
   ngOnInit() {
-    this.loadStats();
-    this.loadPurgeableSubmissions();
+    this.loadDraftSubmissions();
+    this.loadRejectedSubmissions();
+  }
+  
+  setActiveTab(tab: 'drafts' | 'rejected') {
+    this.activeTab = tab;
+  }
+  
+  refreshData() {
+    this.loadDraftSubmissions();
+    this.loadRejectedSubmissions();
   }
 
-  async loadStats() {
-    this.loading = true;
+  async loadDraftSubmissions() {
+    this.loadingDrafts = true;
     try {
-      const response = await this.apiService.get<PurgeStats>('/purge/stats').toPromise();
-      this.stats = response || null;
-    } catch (error) {
-      this.stats = null;
-    } finally {
-      this.loading = false;
-    }
-  }
-
-  async loadPurgeableSubmissions() {
-    this.loadingSubmissions = true;
-    try {
-      const params = {
-        olderThanDays: this.filters.olderThanDays.toString(),
-        limit: this.filters.limit.toString(),
-        skip: this.filters.skip.toString()
-      };
-
-      if (this.filters.status) {
-        (params as any).status = this.filters.status;
-      }
-
-      const response = await this.apiService.get<any>('/purge/submissions', params).toPromise();
-      this.purgeableSubmissions = response?.submissions || [];
-      this.pagination = response?.pagination || null;
-      
-      // Clear selections when reloading
-      this.selectedSubmissions = [];
-      this.preview = null;
-    } catch (error) {
-      this.purgeableSubmissions = [];
-      this.pagination = null;
-    } finally {
-      this.loadingSubmissions = false;
-    }
-  }
-
-  toggleSelection(submissionId: string, event: any) {
-    if (event.target.checked) {
-      this.selectedSubmissions.push(submissionId);
-    } else {
-      this.selectedSubmissions = this.selectedSubmissions.filter(id => id !== submissionId);
-    }
-    this.preview = null; // Clear preview when selection changes
-  }
-
-  toggleSelectAll(event: any) {
-    if (event.target.checked) {
-      this.selectedSubmissions = this.purgeableSubmissions.map(s => s._id);
-    } else {
-      this.selectedSubmissions = [];
-    }
-    this.preview = null; // Clear preview when selection changes
-  }
-
-  async previewPurge() {
-    if (this.selectedSubmissions.length === 0) return;
-
-    this.previewing = true;
-    try {
-      const response = await this.apiService.post<any>('/purge/preview', {
-        submissionIds: this.selectedSubmissions
+      const response = await this.backendService.getSubmissions({
+        status: 'draft',
+        limit: 100,
+        sortBy: 'updatedAt',
+        order: 'desc'
       }).toPromise();
-      this.preview = response?.preview || null;
+      this.draftSubmissions = AuthorUtils.normalizeSubmissionsAuthors(response?.submissions || []);
     } catch (error) {
-      this.preview = null;
+      console.error('Error loading draft submissions:', error);
+      this.draftSubmissions = [];
     } finally {
-      this.previewing = false;
+      this.loadingDrafts = false;
     }
   }
 
-  showPurgeWithPreview() {
-    // Show confirmation modal immediately
-    // Preview data is optional - the modal will show basic info if preview fails
-    this.openPurgeConfirmation();
+  async loadRejectedSubmissions() {
+    this.loadingRejected = true;
+    try {
+      const response = await this.backendService.getSubmissions({
+        status: 'rejected',
+        limit: 100,
+        sortBy: 'reviewedAt',
+        order: 'desc'
+      }).toPromise();
+      this.rejectedSubmissions = AuthorUtils.normalizeSubmissionsAuthors(response?.submissions || []);
+    } catch (error) {
+      console.error('Error loading rejected submissions:', error);
+      this.rejectedSubmissions = [];
+    } finally {
+      this.loadingRejected = false;
+    }
+  }
+
+  toggleRejectedSelection(submissionId: string, event: any) {
+    if (event.target.checked) {
+      this.selectedRejected.push(submissionId);
+    } else {
+      this.selectedRejected = this.selectedRejected.filter(id => id !== submissionId);
+    }
+  }
+
+  toggleSelectAllRejected(event: any) {
+    if (event.target.checked) {
+      this.selectedRejected = this.rejectedSubmissions.map(s => s._id);
+    } else {
+      this.selectedRejected = [];
+    }
+  }
+
+  async deleteDraftSubmission(submissionId: string) {
+    if (!confirm('Are you sure you want to delete this draft submission? This action cannot be undone.')) {
+      return;
+    }
     
-    // Try to get preview data in background (optional)
-    if (!this.preview) {
-      this.previewPurge().catch(() => {
-        // Ignore preview errors - we can still show the modal
-        console.warn('Preview failed, but modal will still work');
-      });
-    }
-  }
-
-  openPurgeConfirmation() {
-    console.log('Opening purge confirmation modal'); // Debug log
-    this.showPurgeConfirmation = true;
-    this.purgeConfirmText = '';
-    console.log('Modal state:', this.showPurgeConfirmation); // Debug log
-  }
-
-  closePurgeConfirmation() {
-    this.showPurgeConfirmation = false;
-    this.purgeConfirmText = '';
-  }
-
-  async executePurge() {
-    if (this.purgeConfirmText !== 'PURGE' || this.selectedSubmissions.length === 0) return;
-
-    this.purging = true;
     try {
-      const response = await this.apiService.post<any>('/purge/execute', {
-        submissionIds: this.selectedSubmissions,
-        confirmPurge: true
-      }).toPromise();
-
-      if (response?.success) {
-        // Success - reload data
-        this.selectedSubmissions = [];
-        this.preview = null;
-        await this.loadStats();
-        await this.loadPurgeableSubmissions();
-        
-        alert(`Successfully purged ${response?.results?.totalSubmissions || 0} submissions`);
-      } else {
-        alert('Purge failed: ' + (response?.message || 'Unknown error'));
-      }
+      await this.backendService.deleteSubmission(submissionId).toPromise();
+      this.draftSubmissions = this.draftSubmissions.filter(s => s._id !== submissionId);
+      alert('Draft submission deleted successfully.');
     } catch (error) {
-      alert('Error executing purge: ' + (error as any)?.error?.message || 'Unknown error');
-    } finally {
-      this.purging = false;
-      this.closePurgeConfirmation();
+      console.error('Error deleting draft submission:', error);
+      alert('Failed to delete draft submission.');
     }
   }
-
-  trackBySubmissionId(index: number, submission: PurgeableSubmission): string {
-    return submission._id;
-  }
-
-  nextPage() {
-    if (this.pagination && this.pagination.hasMore) {
-      this.filters.skip += this.filters.limit;
-      this.loadPurgeableSubmissions();
+  
+  async deleteSelectedRejected() {
+    if (this.selectedRejected.length === 0) return;
+    
+    const count = this.selectedRejected.length;
+    if (!confirm(`Are you sure you want to delete ${count} rejected submissions? This action cannot be undone.`)) {
+      return;
+    }
+    
+    try {
+      for (const submissionId of this.selectedRejected) {
+        await this.backendService.deleteSubmission(submissionId).toPromise();
+      }
+      
+      this.rejectedSubmissions = this.rejectedSubmissions.filter(
+        s => !this.selectedRejected.includes(s._id)
+      );
+      this.selectedRejected = [];
+      alert(`Successfully deleted ${count} rejected submissions.`);
+    } catch (error) {
+      console.error('Error deleting rejected submissions:', error);
+      alert('Failed to delete some rejected submissions.');
     }
   }
-
-  previousPage() {
-    if (this.filters.skip > 0) {
-      this.filters.skip = Math.max(0, this.filters.skip - this.filters.limit);
-      this.loadPurgeableSubmissions();
+  
+  getAuthorName(submission: Submission): string {
+    return submission.author?.name || 'Unknown';
+  }
+  
+  async viewSubmissionDetails(submission: Submission) {
+    this.selectedSubmission = submission;
+    this.showDetailModal = true;
+    
+    // Load full submission details with content if not already loaded
+    if (!submission.contents || submission.contents.length === 0) {
+      this.loadingSubmissionDetails = true;
+      try {
+        const response = await this.backendService.getSubmissionWithContents(submission._id).toPromise();
+        if (response) {
+          this.selectedSubmission = { ...submission, contents: response.contents || [] };
+        }
+      } catch (error) {
+        console.error('Error loading submission details:', error);
+      } finally {
+        this.loadingSubmissionDetails = false;
+      }
+    }
+  }
+  
+  closeDetailModal() {
+    this.showDetailModal = false;
+    this.selectedSubmission = null;
+    this.loadingSubmissionDetails = false;
+  }
+  
+  async deleteRejectedSubmission(submissionId: string) {
+    if (!confirm('Are you sure you want to delete this rejected submission? This action cannot be undone.')) {
+      return;
+    }
+    
+    try {
+      await this.backendService.deleteSubmission(submissionId).toPromise();
+      this.rejectedSubmissions = this.rejectedSubmissions.filter(s => s._id !== submissionId);
+      this.selectedRejected = this.selectedRejected.filter(id => id !== submissionId);
+      alert('Rejected submission deleted successfully.');
+    } catch (error) {
+      console.error('Error deleting rejected submission:', error);
+      alert('Failed to delete rejected submission.');
     }
   }
 }

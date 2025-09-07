@@ -117,6 +117,7 @@ export class SearchableUserSelectorComponent implements OnInit, ControlValueAcce
 
   @Output() userSelected = new EventEmitter<User>();
   @Output() userCleared = new EventEmitter<void>();
+  @Output() searchQuery = new EventEmitter<string>();
 
   selectedUser: User | null = null;
   searchTerm = '';
@@ -160,10 +161,17 @@ export class SearchableUserSelectorComponent implements OnInit, ControlValueAcce
   }
 
   onSearchChange() {
+    console.log('🔤 onSearchChange called with searchTerm:', this.searchTerm);
+    
     this.updateFilteredUsers();
     if (!this.isOpen) {
       this.isOpen = true;
     }
+    
+    // Emit search query to parent component for API search
+    console.log('📡 About to emit searchQuery with:', this.searchTerm);
+    this.searchQuery.emit(this.searchTerm);
+    console.log('✅ searchQuery emitted');
     
     // Clear selection if user is typing
     if (this.selectedUser && this.searchTerm !== `${this.selectedUser.name} (${this.selectedUser.email})`) {

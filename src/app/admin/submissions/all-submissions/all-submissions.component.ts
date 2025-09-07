@@ -13,7 +13,6 @@ import {
   PaginationConfig,
   SUBMISSIONS_TABLE_COLUMNS,
   SUBMISSION_BADGE_CONFIG,
-  SearchableUserSelectorComponent,
   User,
   ConsistentSubmissionMobileCardComponent,
   SubmissionAction
@@ -24,7 +23,7 @@ import { SimpleSubmissionFilterComponent, SimpleFilterOptions } from '../../../s
 
 @Component({
   selector: 'app-all-submissions',
-  imports: [CommonModule, FormsModule, AdminPageHeaderComponent, DataTableComponent, PrettyLabelPipe, SimpleSubmissionFilterComponent, SearchableUserSelectorComponent, ConsistentSubmissionMobileCardComponent],
+  imports: [CommonModule, FormsModule, AdminPageHeaderComponent, DataTableComponent, PrettyLabelPipe, SimpleSubmissionFilterComponent, ConsistentSubmissionMobileCardComponent],
   templateUrl: './all-submissions.component.html',
   styleUrl: './all-submissions.component.css'
 })
@@ -51,6 +50,7 @@ export class AllSubmissionsComponent implements OnInit {
   filteredSubmissions: any[] = [];
   users: User[] = [];
   loading = false;
+  searchTimeout: any;
   message = '';
   messageType: 'success' | 'error' | 'info' = 'info';
   
@@ -73,6 +73,20 @@ export class AllSubmissionsComponent implements OnInit {
   showBulkActions = false;
   bulkSelectedUserId = '';
   bulkActionLoading = false;
+  
+  // New bulk user search properties
+  bulkUserSearchTerm = '';
+  showBulkDropdown = false;
+  bulkFilteredUsers: User[] = [];
+  bulkSearchLoading = false;
+  bulkSearchTimeout: any;
+  
+  // New edit user search properties
+  editUserSearchTerm = '';
+  showEditDropdown = false;
+  editFilteredUsers: User[] = [];
+  editSearchLoading = false;
+  editSearchTimeout: any;
 
   constructor(
     private http: HttpClient,
@@ -91,6 +105,9 @@ export class AllSubmissionsComponent implements OnInit {
     this.setupTableActions();
     this.loadSubmissions();
     this.loadUsers();
+    
+    // Initialize bulk search with initial users
+    this.bulkFilteredUsers = [];
   }
 
   setupTableActions() {
@@ -177,8 +194,8 @@ export class AllSubmissionsComponent implements OnInit {
   }
 
   loadUsers() {
-    const headers = this.getAuthHeaders();
-    this.http.get(`${environment.apiBaseUrl}${API_ENDPOINTS.ADMIN.USERS}`, { headers }).subscribe({
+    // Load initial set of users (first 20) for dropdown
+    this.backendService.getUsers({ limit: 20, skip: 0 }).subscribe({
       next: (res: any) => {
         this.users = (res.users || []).map((user: any) => ({
           _id: user._id,
@@ -187,14 +204,142 @@ export class AllSubmissionsComponent implements OnInit {
         }));
       },
       error: (err) => {
+        console.error('Error loading initial users:', err);
       }
     });
+  }
+
+  // New bulk user search methods
+  onBulkUserSearch(event: any) {
+    console.log('🎯 onBulkUserSearch called!', event);
+    const searchTerm = event.target.value;
+    console.log('🎯 Search term:', searchTerm);
+    this.bulkUserSearchTerm = searchTerm;
+    
+    // Clear existing timeout
+    if (this.bulkSearchTimeout) {
+      clearTimeout(this.bulkSearchTimeout);
+    }
+    
+    // Debounce search
+    this.bulkSearchTimeout = setTimeout(() => {
+      this.performBulkUserSearch(searchTerm);
+    }, 300);
+  }
+  
+  performBulkUserSearch(searchTerm: string) {
+    console.log('🔍 Bulk user search for:', searchTerm);
+    
+    if (!searchTerm.trim()) {
+      // Load initial users
+      this.bulkFilteredUsers = this.users.slice(0, 20);
+      return;
+    }
+    
+    this.bulkSearchLoading = true;
+    const headers = this.getAuthHeaders();
+    const url = `${environment.apiBaseUrl}/users/search?q=${encodeURIComponent(searchTerm)}&limit=50`;
+    console.log('🌐 Bulk search API URL:', url);
+    
+    this.http.get(url, { headers }).subscribe({
+      next: (res: any) => {
+        console.log('✅ Bulk search results:', res);
+        this.bulkFilteredUsers = (res.users || []).map((user: any) => ({
+          _id: user._id,
+          name: user.name || user.username || 'Unknown',
+          email: user.email || 'No email'
+        }));
+        this.bulkSearchLoading = false;
+      },
+      error: (err) => {
+        console.error('❌ Bulk search error:', err);
+        this.bulkFilteredUsers = [];
+        this.bulkSearchLoading = false;
+      }
+    });
+  }
+  
+  selectBulkUser(user: User) {
+    this.bulkSelectedUserId = user._id;
+    this.bulkUserSearchTerm = `${user.name} (${user.email})`;
+    this.showBulkDropdown = false;
+  }
+  
+  hideBulkDropdown() {
+    setTimeout(() => {
+      this.showBulkDropdown = false;
+    }, 150);
+  }
+  
+  // New edit user search methods
+  onEditUserSearch(event: any) {
+    const searchTerm = event.target.value;
+    this.editUserSearchTerm = searchTerm;
+    
+    // Clear existing timeout
+    if (this.editSearchTimeout) {
+      clearTimeout(this.editSearchTimeout);
+    }
+    
+    // Debounce search
+    this.editSearchTimeout = setTimeout(() => {
+      this.performEditUserSearch(searchTerm);
+    }, 300);
+  }
+  
+  performEditUserSearch(searchTerm: string) {
+    console.log('🔍 Edit user search for:', searchTerm);
+    
+    if (!searchTerm.trim()) {
+      // Load initial users
+      this.editFilteredUsers = this.users.slice(0, 20);
+      return;
+    }
+    
+    this.editSearchLoading = true;
+    const headers = this.getAuthHeaders();
+    const url = `${environment.apiBaseUrl}/users/search?q=${encodeURIComponent(searchTerm)}&limit=50`;
+    console.log('🌐 Edit search API URL:', url);
+    
+    this.http.get(url, { headers }).subscribe({
+      next: (res: any) => {
+        console.log('✅ Edit search results:', res);
+        this.editFilteredUsers = (res.users || []).map((user: any) => ({
+          _id: user._id,
+          name: user.name || user.username || 'Unknown',
+          email: user.email || 'No email'
+        }));
+        this.editSearchLoading = false;
+      },
+      error: (err) => {
+        console.error('❌ Edit search error:', err);
+        this.editFilteredUsers = [];
+        this.editSearchLoading = false;
+      }
+    });
+  }
+  
+  selectEditUser(user: User) {
+    this.selectedUserId = user._id;
+    this.editUserSearchTerm = `${user.name} (${user.email})`;
+    this.showEditDropdown = false;
+  }
+  
+  hideEditDropdown() {
+    setTimeout(() => {
+      this.showEditDropdown = false;
+    }, 150);
   }
 
   startEdit(submission: any) {
     this.editingSubmission = { ...submission };
     // Handle different possible data structures for userId
     this.selectedUserId = submission.userId?._id || submission.userId || submission.authorId || '';
+    
+    // Initialize edit search with current user data
+    this.editUserSearchTerm = '';
+    this.editFilteredUsers = this.users.slice(0, 20); // Show initial users
+    this.showEditDropdown = false;
   }
 
   cancelEdit() {

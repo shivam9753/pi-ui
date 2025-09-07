@@ -1,911 +1,409 @@
-<div class="min-h-screen bg-gray-50">
-
-  <!-- Loading State -->
-  @if (isLoading()) {
-    <div class="flex items-center justify-center min-h-screen bg-gray-50">
-      <div class="text-center">
-        <div class="w-8 h-8 border-4 border-orange-200 border-t-orange-500 rounded-full animate-spin mx-auto mb-4"></div>
-        <p class="text-gray-600">Loading profile...</p>
-      </div>
+<!-- Loading State -->
+@if (isLoading()) {
+  <div class="min-h-screen flex items-center justify-center">
+    <div class="text-center">
+      <div class="w-12 h-12 border-4 border-orange-200 border-t-orange-500 rounded-full animate-spin mx-auto mb-4"></div>
+      <p class="text-gray-600">Loading profile...</p>
     </div>
-  }
+  </div>
+}
 
-  <!-- Error State -->
-  @if (error() && !isLoading()) {
-    <div class="flex items-center justify-center min-h-screen">
-      <div class="text-center max-w-md mx-auto px-4">
-        <div class="w-16 h-16 bg-red-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
-          <svg class="w-8 h-8 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+<!-- Error State -->
+@if (error()) {
+  <div class="min-h-screen flex items-center justify-center">
+    <div class="text-center">
+      <div class="text-red-500 text-6xl mb-4">⚠️</div>
+      <h2 class="text-2xl font-bold text-gray-900 mb-2">Profile Not Found</h2>
+      <p class="text-gray-600 mb-4">{{ error() }}</p>
+      <button 
+        (click)="router.navigate(['/'])"
+        class="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors">
+        Go Home
+      </button>
+    </div>
+  </div>
+}
+
+<!-- Profile Content -->
+@if (!isLoading() && !error() && userProfile()) {
+  <div>
+    
+    <!-- Enhanced Profile Header -->
+    <div class="relative">
+      <!-- Cover Background -->
+      <div class="h-32 sm:h-40 bg-gradient-to-br from-orange-500 via-orange-600 to-orange-700 relative overflow-hidden">
+        <div class="absolute inset-0 bg-black/20"></div>
+        <!-- Decorative pattern -->
+        <div class="absolute inset-0 opacity-30">
+          <svg class="w-full h-full" viewBox="0 0 100 100" fill="none">
+            <defs>
+              <pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse">
+                <path d="M 10 0 L 0 0 0 10" fill="none" stroke="white" stroke-width="0.5" opacity="0.3"/>
+              </pattern>
+            </defs>
+            <rect width="100" height="100" fill="url(#grid)" />
           </svg>
         </div>
-        <h3 class="text-xl font-semibold text-gray-900 mb-2">{{ error() }}</h3>
-        <p class="text-gray-600 mb-4">Please try again or contact support if the problem persists.</p>
-        <button
-          (click)="clearError(); loadUserProfile(userId || '')"
-          class="btn-primary">
-          Try Again
-        </button>
       </div>
-    </div>
-  }
-
-  <!-- Profile Content - Only show when not loading and no error -->
-  @if (!isLoading() && !error() && userProfile()) {
-    <div>
-      <!-- Hero Section with Profile -->
-      <div class="relative">
-        <!-- Cover Background -->
-        <div class="h-32 sm:h-40 bg-gradient-to-br from-orange-500 via-orange-600 to-orange-700 relative overflow-hidden">
-          <div class="absolute inset-0 bg-black/20"></div>
-          <!-- Decorative pattern -->
-          <div class="absolute inset-0 opacity-30">
-            <svg class="w-full h-full" viewBox="0 0 100 100" fill="none">
-              <defs>
-                <pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse">
-                  <path d="M 10 0 L 0 0 0 10" fill="none" stroke="white" stroke-width="0.5" opacity="0.3"/>
-                </pattern>
-              </defs>
-              <rect width="100" height="100" fill="url(#grid)" />
-            </svg>
+      
+      <!-- Profile Content Overlay -->
+      <div class="relative -mt-12 sm:-mt-16">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div class="bg-white rounded-2xl shadow-xl p-6 sm:p-8">
+            <div class="flex flex-col sm:flex-row items-start sm:items-center gap-6">
+              <!-- Profile Picture -->
+              <div class="relative flex-shrink-0">
+                <div class="w-24 h-24 sm:w-32 sm:h-32 rounded-full bg-gradient-to-br from-orange-500 to-orange-600 p-1">
+                  <div class="w-full h-full rounded-full bg-white p-1">
+                    @if (userProfile()?.profileImage) {
+                      <img
+                        [src]="userProfile()!.profileImage"
+                        [alt]="userProfile()!.username"
+                        (error)="onImageError($event)"
+                        class="w-full h-full object-cover rounded-full" />
+                    }
+                    @if (!userProfile()?.profileImage) {
+                      <div class="w-full h-full bg-gradient-to-br from-orange-500 to-orange-600 rounded-full flex items-center justify-center">
+                        <span class="text-white text-2xl sm:text-4xl font-bold">
+                          {{ userProfile()?.username?.[0]?.toUpperCase() || '?' }}
+                        </span>
+                      </div>
+                    }
+                  </div>
+                </div>
+                <!-- Online indicator -->
+                <div class="absolute bottom-2 right-2 w-4 h-4 bg-green-500 border-2 border-white rounded-full"></div>
+              </div>
+              
+              <!-- Profile Info -->
+              <div class="flex-1 min-w-0">
+                <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+                  <div class="flex-1 min-w-0">
+                    <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
+                      {{ userProfile()?.name || userProfile()?.username }}
+                    </h1>
+                    @if (userProfile()?.bio) {
+                      <p class="text-gray-600 text-sm sm:text-base leading-relaxed mb-4">
+                        {{ userProfile()?.bio }}
+                      </p>
+                    }
+                    
+                    <!-- Social Links -->
+                    @if (hasSocialLinks()) {
+                      <div class="flex items-center gap-3 mb-4">
+                        @if (userProfile()?.socialLinks?.website) {
+                          <a [href]="getSocialUrl('website', userProfile()!.socialLinks!.website!)" target="_blank" class="text-gray-500 hover:text-orange-600 transition-colors">
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                            </svg>
+                          </a>
+                        }
+                        @if (userProfile()?.socialLinks?.twitter) {
+                          <a [href]="getSocialUrl('twitter', userProfile()!.socialLinks!.twitter!)" target="_blank" class="text-gray-500 hover:text-blue-500 transition-colors">
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                              <path d="M23 3a10.9 10.9 0 01-3.14 1.53 4.48 4.48 0 00-7.86 3v1A10.66 10.66 0 013 4s-4 9 5 13a11.64 11.64 0 01-7 2c9 5 20 0 20-11.5a4.5 4.5 0 00-.08-.83A7.72 7.72 0 0023 3z"/>
+                            </svg>
+                          </a>
+                        }
+                        @if (userProfile()?.socialLinks?.linkedin) {
+                          <a [href]="getSocialUrl('linkedin', userProfile()!.socialLinks!.linkedin!)" target="_blank" class="text-gray-500 hover:text-blue-700 transition-colors">
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                              <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+                            </svg>
+                          </a>
+                        }
+                      </div>
+                    }
+                  </div>
+                  
+                  <!-- Action Buttons -->
+                  <div class="flex items-center gap-3">
+                    @if (isOwnProfile()) {
+                      <button
+                        (click)="editProfileAdvanced()"
+                        class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-orange-500 transition-colors">
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                        </svg>
+                        Edit Profile
+                      </button>
+                      <button
+                        (click)="goToSubmit()"
+                        class="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-orange-600 rounded-lg hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-orange-500 transition-colors">
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                        </svg>
+                        Write
+                      </button>
+                    }
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Stats Row -->
+            <div class="grid grid-cols-2 gap-4 mt-8 pt-6 border-t border-gray-100">
+              <div class="text-center">
+                <div class="text-2xl font-bold text-gray-900">{{ publishedWorks().length }}</div>
+                <div class="text-sm text-gray-500">Published</div>
+              </div>
+              <div class="text-center">
+                <div class="text-2xl font-bold text-gray-900">{{ getPostViews() }}</div>
+                <div class="text-sm text-gray-500">Views</div>
+              </div>
+            </div>
           </div>
         </div>
+      </div>
+    </div>
+
+    <!-- Main Content Area -->
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 overflow-hidden">
+      
+      <!-- My Submissions -->
+      <div>
+        <h2 class="text-2xl font-bold text-gray-900 mb-6">My Submissions</h2>
         
-        <!-- Profile Content Overlay -->
-        <div class="relative -mt-12 sm:-mt-16">
-          <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="bg-white rounded-2xl shadow-xl p-6 sm:p-8">
-              <div class="flex flex-col sm:flex-row items-start sm:items-center gap-6">
-                <!-- Profile Picture -->
-                <div class="relative flex-shrink-0">
-                  <div class="w-24 h-24 sm:w-32 sm:h-32 rounded-full bg-gradient-to-br from-orange-500 to-orange-600 p-1">
-                    <div class="w-full h-full rounded-full bg-white p-1">
-                      @if (userProfile()?.profileImage) {
-                        <img
-                          [src]="userProfile()!.profileImage"
-                          [alt]="userProfile()!.username"
-                          (error)="onImageError($event)"
-                          class="w-full h-full object-cover rounded-full" />
+        @if (submissionsLoading()) {
+          <div class="text-center py-12">
+            <div class="w-8 h-8 border-4 border-orange-200 border-t-orange-500 rounded-full animate-spin mx-auto mb-4"></div>
+            <p class="text-gray-600">Loading your submissions...</p>
+          </div>
+        }
+        
+        @if (!submissionsLoading() && submissions().length > 0) {
+          <div class="space-y-4">
+            @for (submission of getAllSubmissionsChronological(); track submission._id) {
+              <div class="bg-white rounded-xl border border-gray-100 shadow-sm hover:shadow-md hover:border-gray-200 transition-all duration-300 overflow-hidden">
+                <div class="p-6">
+                  <!-- Header Row -->
+                  <div class="flex items-start justify-between mb-4">
+                    <div class="flex-1 min-w-0">
+                      <!-- Title -->
+                      <h3 class="text-xl font-bold text-gray-900 mb-2 line-clamp-2 leading-tight">
+                        {{ truncateTitle(submission.title) }}
+                      </h3>
+                      
+                      <!-- Meta Information -->
+                      <div class="flex items-center gap-3 text-sm text-gray-500">
+                        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-gray-100 text-gray-700">
+                          {{ formatType(submission.submissionType) }}
+                        </span>
+                        <span class="flex items-center">
+                          <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                          </svg>
+                          {{ submission.submittedAt | date:'MMM d, y' }}
+                        </span>
+                      </div>
+                    </div>
+                    
+                    <!-- Status Badge -->
+                    <div class="flex items-center gap-2 ml-4">
+                      @if (submission.status === 'published') {
+                        <div class="inline-flex items-center px-3 py-1.5 rounded-full text-sm font-medium bg-emerald-100 text-emerald-700 border border-emerald-200">
+                          <div class="w-2 h-2 bg-emerald-500 rounded-full mr-2"></div>
+                          Published
+                        </div>
                       }
-                      @if (!userProfile()?.profileImage) {
-                        <div class="w-full h-full bg-gradient-to-br from-orange-500 to-orange-600 rounded-full flex items-center justify-center">
-                          <span class="text-white text-2xl sm:text-4xl font-bold">
-                            {{ userProfile()?.username?.[0]?.toUpperCase() || '?' }}
-                          </span>
+                      @if (submission.status === 'accepted') {
+                        <div class="inline-flex items-center px-3 py-1.5 rounded-full text-sm font-medium bg-green-100 text-green-700 border border-green-200">
+                          <div class="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
+                          Accepted
+                        </div>
+                      }
+                      @if (submission.status === 'needs_revision') {
+                        <div class="inline-flex items-center px-3 py-1.5 rounded-full text-sm font-medium bg-amber-100 text-amber-700 border border-amber-200">
+                          <div class="w-2 h-2 bg-amber-500 rounded-full mr-2"></div>
+                          Needs Revision
+                        </div>
+                      }
+                      @if (submission.status === 'rejected') {
+                        <div class="inline-flex items-center px-3 py-1.5 rounded-full text-sm font-medium bg-red-100 text-red-700 border border-red-200">
+                          <div class="w-2 h-2 bg-red-500 rounded-full mr-2"></div>
+                          Rejected
+                        </div>
+                      }
+                      @if (['pending_review', 'in_progress', 'resubmitted'].includes(submission.status)) {
+                        <div class="inline-flex items-center px-3 py-1.5 rounded-full text-sm font-medium bg-blue-100 text-blue-700 border border-blue-200">
+                          <div class="w-2 h-2 bg-blue-500 rounded-full mr-2 animate-pulse"></div>
+                          Under Review
+                        </div>
+                      }
+                      @if (submission.status === 'draft') {
+                        <div class="inline-flex items-center px-3 py-1.5 rounded-full text-sm font-medium bg-slate-100 text-slate-700 border border-slate-200">
+                          <div class="w-2 h-2 bg-slate-500 rounded-full mr-2"></div>
+                          Draft
                         </div>
                       }
                     </div>
                   </div>
-                  <!-- Online indicator -->
-                  <div class="absolute bottom-2 right-2 w-4 h-4 bg-green-500 border-2 border-white rounded-full"></div>
-                </div>
-                
-                <!-- Profile Info -->
-                <div class="flex-1 min-w-0">
-                  <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
-                    <div class="flex-1 min-w-0">
-                      <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
-                        {{ userProfile()?.name || userProfile()?.username }}
-                      </h1>
-                      @if (userProfile()?.bio) {
-                        <p class="text-gray-600 text-sm sm:text-base leading-relaxed mb-4">
-                          {{ userProfile()?.bio }}
-                        </p>
-                      }
-                      
-                      <!-- Social Links -->
-                      @if (hasSocialLinks()) {
-                        <div class="flex items-center gap-3 mb-4">
-                          @if (userProfile()?.socialLinks?.website) {
-                            <a [href]="getSocialUrl('website', userProfile()!.socialLinks!.website!)" target="_blank" class="text-gray-500 hover:text-orange-600 transition-colors">
-                              <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
-                              </svg>
-                            </a>
-                          }
-                          @if (userProfile()?.socialLinks?.twitter) {
-                            <a [href]="getSocialUrl('twitter', userProfile()!.socialLinks!.twitter!)" target="_blank" class="text-gray-500 hover:text-blue-500 transition-colors">
-                              <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                                <path d="M23 3a10.9 10.9 0 01-3.14 1.53 4.48 4.48 0 00-7.86 3v1A10.66 10.66 0 013 4s-4 9 5 13a11.64 11.64 0 01-7 2c9 5 20 0 20-11.5a4.5 4.5 0 00-.08-.83A7.72 7.72 0 0023 3z"/>
-                              </svg>
-                            </a>
-                          }
-                          @if (userProfile()?.socialLinks?.linkedin) {
-                            <a [href]="getSocialUrl('linkedin', userProfile()!.socialLinks!.linkedin!)" target="_blank" class="text-gray-500 hover:text-blue-700 transition-colors">
-                              <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                                <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
-                              </svg>
-                            </a>
-                          }
-                        </div>
+                  
+                  <!-- Actions Row -->
+                  <div class="flex items-center justify-between pt-4 border-t border-gray-100">
+                    <!-- Review Comments Link -->
+                    <div>
+                      @if (submission.reviewFeedback || submission.revisionNotes) {
+                        <button
+                          (click)="showReviewModal(submission)"
+                          class="inline-flex items-center text-sm font-medium text-orange-600 hover:text-orange-700 transition-colors">
+                          <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-3.582 8-8 8a8.959 8.959 0 01-4.906-1.475L3 21l2.525-5.094A8.959 8.959 0 013 12c0-4.418 3.582-8 8-8s8 3.582 8 8z"/>
+                          </svg>
+                          Review Comments
+                        </button>
                       }
                     </div>
                     
                     <!-- Action Buttons -->
                     <div class="flex items-center gap-3">
-                      @if (isOwnProfile()) {
+                      <!-- View Button -->
+                      <button
+                        (click)="handleSubmissionAction('view', submission)"
+                        class="inline-flex items-center px-4 py-2 text-sm font-semibold text-gray-700 bg-white border-2 border-gray-200 rounded-lg hover:bg-gray-50 hover:border-gray-300 transition-all duration-200">
+                        <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                        </svg>
+                        View
+                      </button>
+                      
+                      <!-- Edit Button -->
+                      @if (['draft', 'needs_revision'].includes(submission.status)) {
                         <button
-                          (click)="editProfileAdvanced()"
-                          class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-orange-500 transition-colors">
-                          <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          (click)="handleSubmissionAction('edit', submission)"
+                          class="inline-flex items-center px-4 py-2 text-sm font-semibold text-white bg-orange-600 border-2 border-orange-600 rounded-lg hover:bg-orange-700 hover:border-orange-700 transition-all duration-200 shadow-sm">
+                          <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
                           </svg>
-                          Edit Profile
-                        </button>
-                        <button
-                          (click)="goToSubmit()"
-                          class="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-orange-600 rounded-lg hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-orange-500 transition-colors">
-                          <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
-                          </svg>
-                          Write
+                          Edit
                         </button>
                       }
                     </div>
                   </div>
                 </div>
               </div>
-              
-              <!-- Stats Row -->
-              <div class="grid grid-cols-2 gap-4 mt-8 pt-6 border-t border-gray-100">
-                <div class="text-center">
-                  <div class="text-2xl font-bold text-gray-900">{{ publishedWorks().length }}</div>
-                  <div class="text-sm text-gray-500">Published</div>
-                </div>
-                <div class="text-center">
-                  <div class="text-2xl font-bold text-gray-900">{{ getPostViews() }}</div>
-                  <div class="text-sm text-gray-500">Views</div>
-                </div>
-              </div>
-            </div>
+            }
           </div>
-        </div>
+        }
+        
+        @if (!submissionsLoading() && submissions().length === 0) {
+          <div class="text-center py-12 bg-white rounded-xl border border-gray-200">
+            <svg class="mx-auto h-16 w-16 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+            </svg>
+            <h3 class="text-lg font-medium text-gray-900 mb-2">No submissions yet</h3>
+            <p class="text-gray-500 mb-6">Start your writing journey by submitting your first work.</p>
+            <button
+              (click)="goToSubmit()"
+              class="inline-flex items-center px-6 py-3 text-sm font-medium text-white bg-orange-600 rounded-lg hover:bg-orange-700 transition-colors">
+              <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+              </svg>
+              Submit Your First Work
+            </button>
+          </div>
+        }
       </div>
-      <!-- Main Content Area -->
-      <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          
-          <!-- Main Content -->
-          <div class="lg:col-span-2 space-y-8">
-            
-            <!-- Action Items Alert -->
-            @if (isOwnProfile() && getNeedsRevisionCount() > 0) {
-              <div class="bg-orange-50 border-l-4 border-orange-400 p-4 rounded-r-lg">
-                <div class="flex">
-                  <svg class="w-5 h-5 text-orange-400 mr-3 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    </div>
+  </div>
+}
+
+<!-- Review Comments Modal -->
+@if (selectedSubmission()) {
+  <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+    <div class="bg-white rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+      <div class="p-6">
+        <!-- Modal Header -->
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="text-lg font-semibold text-gray-900">Review Comments</h3>
+          <button
+            (click)="selectedSubmission.set(null)"
+            class="text-gray-400 hover:text-gray-600">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+            </svg>
+          </button>
+        </div>
+        
+        <!-- Submission Title -->
+        <h4 class="font-semibold text-gray-900 mb-4">{{ cleanHtml(selectedSubmission()!.title) }}</h4>
+        
+        <!-- Review Content -->
+        <div class="space-y-4">
+          @if (selectedSubmission()!.status === 'needs_revision' && selectedSubmission()!.revisionNotes) {
+            <div class="p-4 bg-orange-50 border border-orange-200 rounded-lg">
+              <div class="text-orange-900">
+                <strong class="font-semibold flex items-center">
+                  <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"/>
                   </svg>
-                  <div>
-                    <h3 class="text-sm font-medium text-orange-800">Action Required</h3>
-                    <p class="text-sm text-orange-700 mt-1">{{ getNeedsRevisionCount() }} submission(s) need revision.</p>
-                    <button 
-                      (click)="viewNeedsRevision()"
-                      class="mt-2 text-sm text-orange-800 hover:text-orange-900 underline font-medium">
-                      Review now →
-                    </button>
-                  </div>
-                </div>
+                  Revision Required:
+                </strong>
+                <p class="mt-2 leading-relaxed">{{ selectedSubmission()!.revisionNotes }}</p>
               </div>
-            }
-
-            <!-- Featured/Latest Works -->
-            <div class="space-y-6">
-              <div class="flex items-center justify-between">
-                <h2 class="text-2xl font-bold text-gray-900">Latest Works</h2>
-                @if (publishedWorks().length > 3) {
-                  <button 
-                    (click)="activeTab.set('published')"
-                    class="text-orange-600 hover:text-orange-700 font-medium text-sm">
-                    View all →
-                  </button>
-                }
-              </div>
-              
-              @if (worksLoading()) {
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                  @for (i of [1,2,3,4]; track i) {
-                    <div class="bg-white rounded-xl border border-gray-200 p-6 animate-pulse">
-                      <div class="h-4 bg-gray-200 rounded mb-3"></div>
-                      <div class="h-3 bg-gray-200 rounded w-3/4 mb-2"></div>
-                      <div class="h-3 bg-gray-200 rounded w-1/2"></div>
-                    </div>
-                  }
-                </div>
-              }
-              
-              @if (!worksLoading() && publishedWorks().length > 0) {
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                  @for (work of publishedWorks().slice(0, 4); track work._id) {
-                    <div
-                      class="group bg-white rounded-xl border border-gray-200 p-6 hover:shadow-lg hover:border-orange-200 transition-all duration-300 cursor-pointer"
-                      (click)="onPublishedWorkCardClick(work)">
-                      <div class="mb-4">
-                        <span [class]="getTypeBadgeClass(work.submissionType)" class="mb-3 inline-block">
-                          {{ formatType(work.submissionType) }}
-                        </span>
-                        <h3 class="text-lg font-semibold text-gray-900 group-hover:text-orange-600 transition-colors mb-2 line-clamp-2">
-                          {{ work.title }}
-                        </h3>
-                        @if (work.excerpt) {
-                          <p class="text-gray-600 text-sm leading-relaxed line-clamp-3">
-                            {{ cleanHtml(work.excerpt) }}
-                          </p>
-                        }
-                      </div>
-                      
-                      <div class="flex items-center justify-between text-xs text-gray-500 pt-4 border-t border-gray-100">
-                        <span>{{ work.publishedAt | date:'MMM d, y' }}</span>
-                        <div class="flex items-center text-orange-600 group-hover:text-orange-700">
-                          <span class="mr-1">Read</span>
-                          <svg class="w-3 h-3 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                          </svg>
-                        </div>
-                      </div>
-                    </div>
-                  }
-                </div>
-              }
-              
-              @if (!worksLoading() && publishedWorks().length === 0) {
-                <div class="text-center py-12 bg-white rounded-xl border border-gray-200">
-                  <svg class="mx-auto h-16 w-16 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
-                  </svg>
-                  <h3 class="text-lg font-medium text-gray-900 mb-2">
-                    {{ isOwnProfile() ? 'No published works yet' : 'No published works' }}
-                  </h3>
-                  <p class="text-gray-500 mb-6">
-                    {{ isOwnProfile() ? 'Start your writing journey by submitting your first work.' : 'This writer hasn\'t published any works yet.' }}
-                  </p>
-                  @if (isOwnProfile()) {
-                    <button
-                      (click)="goToSubmit()"
-                      class="inline-flex items-center px-6 py-3 text-sm font-medium text-white bg-orange-600 rounded-lg hover:bg-orange-700 transition-colors">
-                      <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
-                      </svg>
-                      Submit Your First Work
-                    </button>
-                  }
-                </div>
-              }
             </div>
-
-            <!-- Recent Activity -->
-            @if (isOwnProfile() && getRecentActivity().length > 0) {
-              <div class="space-y-4">
-                <h2 class="text-2xl font-bold text-gray-900">Recent Activity</h2>
-                <div class="bg-white rounded-xl border border-gray-200 p-4">
-                  <div class="space-y-2">
-                    @for (activity of getRecentActivity().slice(0, 5); track activity.id) {
-                      <div class="flex items-center space-x-3 py-1.5">
-                        <div [class]="getActivityIconClass(activity.type)" class="w-6 h-6 flex-shrink-0">
-                          <svg class="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            @switch (activity.type) {
-                              @case ('submitted') {
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
-                              }
-                              @case ('reviewed') {
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4"/>
-                              }
-                              @case ('published') {
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253"/>
-                              }
-                            }
-                          </svg>
-                        </div>
-                        <div class="flex-1 min-w-0">
-                          <div class="flex items-center justify-between">
-                            <div class="flex-1 min-w-0">
-                              <p class="text-sm font-medium text-gray-900 truncate">
-                                {{ activity.message }}: <span class="font-normal text-gray-600">{{ activity.submissionTitle }}</span>
-                              </p>
-                            </div>
-                            <div class="flex-shrink-0 ml-2">
-                              <p class="text-xs text-gray-400">{{ activity.timestamp | date:'MMM d, h:mm a' }}</p>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    }
-                  </div>
-                </div>
-              </div>
-            }
-          </div>
+          }
           
-          <!-- Sidebar -->
-          <div class="space-y-8">
-            
-            <!-- Quick Stats Card -->
-            <div class="bg-white rounded-xl border border-gray-200 p-6">
-              <h3 class="text-lg font-semibold text-gray-900 mb-4">Writing Stats</h3>
-              <div class="space-y-4">
-                <div class="flex items-center justify-between">
-                  <div class="flex items-center">
-                    <div class="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center mr-3">
-                      <svg class="w-4 h-4 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253"/>
-                      </svg>
-                    </div>
-                    <span class="text-sm text-gray-600">Published</span>
-                  </div>
-                  <span class="font-semibold text-gray-900">{{ publishedWorks().length }}</span>
-                </div>
-                
-                @if (isOwnProfile()) {
-                  <div class="flex items-center justify-between">
-                    <div class="flex items-center">
-                      <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center mr-3">
-                        <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
-                        </svg>
-                      </div>
-                      <span class="text-sm text-gray-600">In Progress</span>
-                    </div>
-                    <span class="font-semibold text-gray-900">{{ getInReviewCount() + getPendingCount() }}</span>
-                  </div>
-                  
-                  <div class="flex items-center justify-between">
-                    <div class="flex items-center">
-                      <div class="w-8 h-8 bg-orange-100 rounded-lg flex items-center justify-center mr-3">
-                        <svg class="w-4 h-4 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
-                        </svg>
-                      </div>
-                      <span class="text-sm text-gray-600">Need Revision</span>
-                    </div>
-                    <span class="font-semibold text-gray-900">{{ getNeedsRevisionCount() }}</span>
-                  </div>
-                }
-                
-                <div class="flex items-center justify-between">
-                  <div class="flex items-center">
-                    <div class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center mr-3">
-                      <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-                      </svg>
-                    </div>
-                    <span class="text-sm text-gray-600">Total Views</span>
-                  </div>
-                  <span class="font-semibold text-gray-900">{{ getPostViews() }}</span>
-                </div>
+          @if (selectedSubmission()!.reviewFeedback && selectedSubmission()!.status === 'accepted') {
+            <div class="p-4 bg-green-50 border border-green-200 rounded-lg">
+              <div class="text-green-900">
+                <strong class="font-semibold flex items-center">
+                  <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                  </svg>
+                  Accepted:
+                </strong>
+                <p class="mt-2 leading-relaxed">{{ selectedSubmission()!.reviewFeedback }}</p>
               </div>
             </div>
-            
-            <!-- Quick Actions -->
-            @if (isOwnProfile()) {
-              <div class="bg-white rounded-xl border border-gray-200 p-6">
-                <h3 class="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h3>
-                <div class="space-y-3">
-                  <button 
-                    (click)="goToSubmit()"
-                    class="w-full inline-flex items-center justify-center px-4 py-3 text-sm font-medium text-white bg-orange-600 rounded-lg hover:bg-orange-700 transition-colors">
-                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
-                    </svg>
-                    Submit New Work
-                  </button>
-                  
-                  <button 
-                    (click)="activeTab.set('submissions')"
-                    class="w-full inline-flex items-center justify-center px-4 py-3 text-sm font-medium text-gray-700 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
-                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
-                    </svg>
-                    View All Submissions
-                  </button>
-                  
-                  @if (publishedWorks().length > 4) {
-                    <button 
-                      (click)="activeTab.set('published')"
-                      class="w-full inline-flex items-center justify-center px-4 py-3 text-sm font-medium text-gray-700 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
-                      <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253"/>
-                      </svg>
-                      View All Published
-                    </button>
-                  }
-                </div>
-              </div>
-            }
-          </div>
-        </div>
-      </div>
-      
-      <!-- Tab Content Modals/Overlays -->
-      @if (activeTab() === 'published') {
-        <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div class="bg-white rounded-xl max-w-6xl w-full max-h-[90vh] overflow-y-auto mx-4 sm:mx-0">
-            <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
-              <h2 class="text-xl font-semibold text-gray-900">Published Works</h2>
-              <button 
-                (click)="activeTab.set('')"
-                class="text-gray-400 hover:text-gray-600">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                </svg>
-              </button>
-            </div>
-            <div class="p-6">
-          <div class="w-full">
-            <!-- Published Works Content -->
-            @if (worksLoading()) {
-              <app-loading-state
-                type="spinner"
-                size="md"
-                loadingText="Loading works..."
-                containerClass="text-center py-12">
-              </app-loading-state>
-            }
-            <!-- Published Works Cards -->
-            @if (!worksLoading()) {
-              <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                @for (work of filteredWorks(); track trackByWorkId($index, work)) {
-                  <div
-                    class="group bg-white border border-gray-200 rounded-xl p-6 hover:shadow-lg hover:border-orange-200 transition-all duration-300 cursor-pointer overflow-hidden"
-                    (click)="onPublishedWorkCardClick(work)">
-                    <!-- Card Header -->
-                    <div class="mb-4">
-                      <div class="flex items-start justify-between mb-3">
-                        <h3 class="text-lg font-bold text-gray-900 group-hover:text-orange-600 transition-colors leading-tight"
-                          style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
-                          {{ work.title }}
-                        </h3>
-                        <!-- Reading time indicator -->
-                        <div class="flex-shrink-0 ml-2">
-                          <span class="inline-flex items-center px-2 py-1 text-xs text-gray-500 bg-gray-100 rounded-full">
-                            <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                            </svg>
-                            {{ work.readingTime || 5 }}m
-                          </span>
-                        </div>
-                      </div>
-                      <!-- Type Badge -->
-                      <div class="mb-3">
-                        <span [class]="getTypeBadgeClass(work.submissionType)">
-                          {{ formatType(work.submissionType) }}
-                        </span>
-                      </div>
-                    </div>
-                    <!-- Excerpt -->
-                    <div class="mb-4">
-                      @if (work.excerpt) {
-                        <p class="text-gray-600 text-sm leading-relaxed"
-                          style="display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;">
-                          {{ cleanHtml(work.excerpt) }}
-                        </p>
-                      }
-                      @if (!work.excerpt) {
-                        <p class="text-gray-400 text-sm italic">
-                          No preview available
-                        </p>
-                      }
-                    </div>
-                    <!-- Card Footer -->
-                    <div class="flex items-center justify-between text-xs text-gray-500 pt-4 border-t border-gray-100 group-hover:border-orange-100 transition-colors">
-                      <div class="flex items-center">
-                        <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                        </svg>
-                        <span class="font-medium">{{ work.publishedAt | date:'MMM d, y' }}</span>
-                      </div>
-                      <div class="flex items-center text-orange-600 group-hover:text-orange-700 transition-colors">
-                        <span class="text-xs font-medium">Read more</span>
-                        <svg class="w-3 h-3 ml-1 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                        </svg>
-                      </div>
-                    </div>
-                  </div>
-                }
-              </div>
-            }
-            <!-- Empty State for Published Works -->
-            @if (!worksLoading() && filteredWorks().length === 0) {
-              <app-empty-state
-                title="No published works yet"
-                message="You haven't published any works yet."
-                icon="document"
-                actionText="Create Your First Work"
-                [onAction]="goToSubmit.bind(this)">
-              </app-empty-state>
-            }
-          </div>
-            </div>
-          </div>
-        </div>
-      }
-      
-      @if (activeTab() === 'submissions') {
-        <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div class="bg-white rounded-xl max-w-6xl w-full max-h-[90vh] overflow-y-auto mx-4 sm:mx-0">
-            <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
-              <h2 class="text-xl font-semibold text-gray-900">My Submissions</h2>
-              <button 
-                (click)="activeTab.set('')"
-                class="text-gray-400 hover:text-gray-600">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                </svg>
-              </button>
-            </div>
-            <div class="p-6">
-          <div class="w-full">
-            <!-- Filter Bar -->
-            <div class="flex flex-wrap items-center justify-center md:justify-start gap-4 mb-6">
-              <!-- Status Filter -->
-              <div class="flex items-center text-sm">
-                <svg class="w-4 h-4 mr-2 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                </svg>
-                <span class="mr-2 text-gray-600 font-medium">Status</span>
-                <select [(ngModel)]="submissionsFilter" (change)="applySubmissionsFilter()"
-                  class="border border-gray-300 rounded-md px-3 py-1 text-gray-900 focus:outline-none focus:ring-1 focus:ring-orange-500 focus:border-orange-500">
-                  <option value="">All Status</option>
-                  <option [value]="SUBMISSION_STATUS.PENDING_REVIEW">Pending Review</option>
-                  <option [value]="SUBMISSION_STATUS.IN_PROGRESS">In Progress</option>
-                  <option [value]="SUBMISSION_STATUS.RESUBMITTED">Resubmitted</option>
-                  <option [value]="SUBMISSION_STATUS.NEEDS_REVISION">Needs Revision</option>
-                  <option [value]="SUBMISSION_STATUS.ACCEPTED">Accepted</option>
-                  <option [value]="SUBMISSION_STATUS.PUBLISHED">Published</option>
-                  <option [value]="SUBMISSION_STATUS.REJECTED">Rejected</option>
-                  <option [value]="SUBMISSION_STATUS.DRAFT">Draft</option>
-                </select>
-              </div>
-              <!-- Sort Filter -->
-              <div class="flex items-center text-sm">
-                <svg class="w-4 h-4 mr-2 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12"/>
-                </svg>
-                <span class="mr-2 text-gray-600 font-medium">Sort</span>
-                <select [(ngModel)]="submissionsSort" (change)="applySubmissionsFilter()"
-                  class="border border-gray-300 rounded-md px-3 py-1 text-gray-900 focus:outline-none focus:ring-1 focus:ring-orange-500 focus:border-orange-500">
-                  <option value="newest">Newest First</option>
-                  <option value="oldest">Oldest First</option>
-                  <option value="status">By Status</option>
-                  <option value="title">Title A-Z</option>
-                </select>
+          }
+          
+          @if (selectedSubmission()!.reviewFeedback && selectedSubmission()!.status === 'rejected') {
+            <div class="p-4 bg-red-50 border border-red-200 rounded-lg">
+              <div class="text-red-900">
+                <strong class="font-semibold flex items-center">
+                  <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                  </svg>
+                  Rejected:
+                </strong>
+                <p class="mt-2 leading-relaxed">{{ selectedSubmission()!.reviewFeedback }}</p>
               </div>
             </div>
-            <!-- Submissions Loading -->
-            @if (submissionsLoading()) {
-              <app-loading-state
-                type="spinner"
-                size="md"
-                loadingText="Loading submissions..."
-                containerClass="text-center py-12">
-              </app-loading-state>
-            }
-            <!-- Submissions Table using Data Table Component -->
-            <app-data-table
-              [columns]="getUserSubmissionsColumns()"
-              [data]="filteredSubmissions()"
-              [actions]="getUserSubmissionsActions()"
-              [loading]="submissionsLoading()"
-              [selectable]="false"
-              itemLabel="submissions"
-              [badgeConfig]="badgeConfig">
-              
-              <!-- Custom Cell Template for Title & Notes -->
-              <ng-template #customCell let-submission let-column="column">
-                @switch (column.key) {
-                  @case ('title') {
-                    <div class="max-w-xs">
-                      <div class="text-sm md:text-base font-semibold text-gray-900 mb-2">
-                        {{ submission.title }}
-                      </div>
-                      <!-- Show review feedback for accepted/rejected submissions -->
-                      @if (submission.reviewFeedback && ['accepted', 'rejected'].includes(submission.status)) {
-                        <div class="text-sm text-gray-600 leading-relaxed mb-2 p-2 bg-blue-50 rounded">
-                          <strong>Review:</strong> {{ submission.reviewFeedback }}
-                        </div>
-                      }
-                      <!-- Show revision notes for needs_revision submissions -->
-                      @if (submission.status === 'needs_revision' && submission.revisionNotes) {
-                        <div class="text-sm text-orange-700 bg-orange-50 px-2 py-1 rounded mb-2">
-                          <strong>Revision needed:</strong> {{ submission.revisionNotes }}
-                        </div>
-                      }
-                      <!-- Show excerpt if available -->
-                      @if (submission?.excerpt) {
-                        <div class="text-sm text-gray-600 leading-relaxed line-clamp-2">
-                          {{ submission?.excerpt }}
-                        </div>
-                      }
-                    </div>
-                  }
-                }
-              </ng-template>
-              
-              <!-- Mobile Card Template for Modal -->
-              <ng-template #mobileCard let-submission let-actions="actions">
-                <!-- Title Section -->
-                <div class="mb-6">
-                  <h3 class="text-xl font-bold text-gray-900 mb-3 leading-tight">{{ submission.title }}</h3>
-                  @if (submission?.excerpt) {
-                    <p class="text-base text-gray-600 leading-relaxed line-clamp-2">{{ submission?.excerpt }}</p>
-                  }
-                </div>
-                
-                <!-- Review Feedback -->
-                @if (submission.reviewFeedback && ['accepted', 'rejected'].includes(submission.status)) {
-                  <div class="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                    <div class="text-base text-blue-900">
-                      <strong class="font-semibold">Review Feedback:</strong>
-                      <p class="mt-2">{{ submission.reviewFeedback }}</p>
-                    </div>
-                  </div>
-                }
-
-                <!-- Revision Notes -->
-                @if (submission.status === 'needs_revision' && submission.revisionNotes) {
-                  <div class="mb-6 p-4 bg-orange-50 border border-orange-200 rounded-lg">
-                    <div class="text-base text-orange-900">
-                      <strong class="font-semibold">Revision Required:</strong>
-                      <p class="mt-2">{{ submission.revisionNotes }}</p>
-                    </div>
-                  </div>
-                }
-                
-                <!-- Meta Info -->
-                <div class="flex flex-wrap items-center gap-3 mb-6">
-                  <span [ngClass]="getBadgeClass(submission.submissionType)" class="px-4 py-2 text-sm">
-                    {{ submission.submissionType | prettyLabel }}
-                  </span>
-                  <span [ngClass]="getBadgeClass(submission.status)" class="px-4 py-2 text-sm">
-                    {{ submission.status | prettyLabel }}
-                  </span>
-                  <span class="text-sm text-gray-500 font-medium px-2 py-1">
-                    {{ submission.submittedAt | date:'MMM d, y' }}
-                  </span>
-                </div>
-                
-                <!-- Mobile Action Buttons -->
-                <div class="flex flex-wrap gap-3 mt-6">
-                  @for (action of actions; track action.label) {
-                    @if (!action.condition || action.condition(submission)) {
-                      <button
-                        (click)="action.handler(submission)"
-                        [class]="'flex-1 px-5 py-4 text-base font-semibold rounded-lg transition-colors duration-200 ' + 
-                          (action.color === 'primary' ? 'text-white bg-blue-600 hover:bg-blue-700 shadow-sm' :
-                           action.color === 'warning' ? 'text-white bg-orange-600 hover:bg-orange-700 shadow-sm' :
-                           action.color === 'success' ? 'text-white bg-green-600 hover:bg-green-700 shadow-sm' :
-                           action.color === 'danger' ? 'text-white bg-red-600 hover:bg-red-700 shadow-sm' :
-                           'text-gray-700 bg-gray-100 hover:bg-gray-200 border border-gray-300')">
-                        {{ action.label }}
-                      </button>
-                    }
-                  }
-                </div>
-              </ng-template>
-            </app-data-table>
-            
-            @if (false) {
-              <!-- OLD BROKEN TABLE COMMENTED OUT -->
-              <div class="hidden md:block bg-white shadow-lg rounded-xl overflow-hidden border border-gray-200">
-                <div class="overflow-x-auto">
-                  <table class="min-w-full">
-                    <thead class="bg-gray-50 border-b border-gray-200">
-                      <tr>
-                        <th class="px-4 py-3 text-left text-xs font-semibold text-gray-900 uppercase tracking-wider">Title & Notes</th>
-                        <th class="px-4 py-3 text-left text-xs font-semibold text-gray-900 uppercase tracking-wider">Type</th>
-                        <th class="px-4 py-3 text-left text-xs font-semibold text-gray-900 uppercase tracking-wider">Status</th>
-                        <th class="px-4 py-3 text-left text-xs font-semibold text-gray-900 uppercase tracking-wider">Date</th>
-                        <th class="px-4 py-3 text-left text-xs font-semibold text-gray-900 uppercase tracking-wider">Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody class="bg-white divide-y divide-gray-200">
-                      @for (submission of filteredSubmissions(); track trackBySubmissionId($index, submission)) {
-                        <tr class="transition-all duration-200 group">
-                          <!-- Title & Notes Column -->
-                          <td class="px-4 py-4">
-                            <div class="max-w-xs">
-                              <div class="text-sm font-semibold text-gray-900 mb-1">
-                                {{ submission.title }}
-                              </div>
-                              <!-- Show review feedback for accepted/rejected submissions -->
-                              @if (submission.reviewFeedback && ['accepted', 'rejected'].includes(submission.status)) {
-                                <div class="text-xs text-gray-600 leading-relaxed mb-1">
-                                  <strong>Review:</strong> {{ submission.reviewFeedback }}
-                                </div>
-                              }
-                              <!-- Show revision notes for needs_revision submissions -->
-                              @if (submission.status === 'needs_revision' && submission.revisionNotes) {
-                                <div class="text-xs text-orange-700 bg-orange-50 px-1 py-0.5 rounded mb-1">
-                                  <strong>Revision needed:</strong> {{ submission.revisionNotes }}
-                                </div>
-                              }
-                              <!-- Show excerpt if available -->
-                              @if (submission?.excerpt) {
-                                <div class="text-xs text-gray-600 leading-relaxed line-clamp-2">
-                                  {{ submission?.excerpt }}
-                                </div>
-                              }
-                            </div>
-                          </td>
-                          <!-- Type Column -->
-                          <td class="px-4 py-4">
-                            <span [class]="submission.submissionType | typeBadge">
-                              {{ submission.submissionType | prettyLabel }}
-                            </span>
-                          </td>
-                          <!-- Status Column -->
-                          <td class="px-4 py-4">
-                            <app-status-badge
-                              [status]="submission.status"
-                              size="sm"
-                              [showIcon]="true">
-                            </app-status-badge>
-                          </td>
-                          <!-- Date Column -->
-                          <td class="px-4 py-4">
-                            <div class="text-xs text-gray-600">
-                              {{ submission.submittedAt | date:'MMM d' }}
-                            </div>
-                            <div class="text-xs text-gray-500 mt-0.5">
-                              {{ submission.submittedAt | date:'HH:mm' }}
-                            </div>
-                          </td>
-                          <!-- Actions Column -->
-                          <td class="px-8 py-6">
-                            <div class="flex items-center gap-2">
-                              @for (button of getActionButtons(submission); track button) {
-                                <button
-                                  (click)="handleSubmissionAction(button.action, submission); $event.stopPropagation()"
-                                  [class]="'inline-flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 border ' + getButtonClass(button.action)">
-                                  <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <!-- View Icon -->
-                                    @if (button.action === 'view') {
-                                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-                                    }
-                                    <!-- Edit Icon -->
-                                    @if (button.action === 'edit') {
-                                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
-                                    }
-                                    <!-- Resubmit Icon -->
-                                    @if (button.action === 'resubmit') {
-                                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
-                                    }
-                                    <!-- Delete Icon -->
-                                    @if (button.action === 'delete') {
-                                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                                    }
-                                  </svg>
-                                  {{ button.label }}
-                                </button>
-                              }
-                            </div>
-                          </td>
-                        </tr>
-                      }
-                    </tbody>
-                  </table>
-                </div>
+          }
+          
+          @if (selectedSubmission()!.reviewFeedback && !['accepted', 'rejected', 'needs_revision'].includes(selectedSubmission()!.status)) {
+            <div class="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+              <div class="text-blue-900">
+                <strong class="font-semibold flex items-center">
+                  <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"/>
+                  </svg>
+                  Review Comments:
+                </strong>
+                <p class="mt-2 leading-relaxed">{{ selectedSubmission()!.reviewFeedback }}</p>
               </div>
-
-              <!-- Mobile Cards -->
-              <div class="md:hidden space-y-4">
-                @for (submission of filteredSubmissions(); track trackBySubmissionId($index, submission)) {
-                  <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-5 hover:shadow-md transition-all duration-200">
-                    <!-- Card Header -->
-                    <div class="flex items-start justify-between mb-3">
-                      <div class="flex-1 min-w-0">
-                        <h3 class="text-base font-semibold text-gray-900 mb-2 line-clamp-2">
-                          {{ submission.title }}
-                        </h3>
-                        <div class="flex items-center gap-2 mb-2">
-                          <span [class]="submission.submissionType | typeBadge">
-                            {{ submission.submissionType | prettyLabel }}
-                          </span>
-                          <app-status-badge
-                            [status]="submission.status"
-                            size="sm"
-                            [showIcon]="true">
-                          </app-status-badge>
-                        </div>
-                      </div>
-                    </div>
-
-                    <!-- Content Preview -->
-                    @if (submission?.excerpt) {
-                      <div class="mb-4">
-                        <p class="text-sm text-gray-600 leading-relaxed line-clamp-3">
-                          {{ submission?.excerpt }}
-                        </p>
-                      </div>
-                    }
-
-                    <!-- Review Feedback -->
-                    @if (submission.reviewFeedback && ['accepted', 'rejected'].includes(submission.status)) {
-                      <div class="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-                        <div class="text-sm text-blue-900">
-                          <strong class="font-medium">Review Feedback:</strong>
-                          <p class="mt-1">{{ submission.reviewFeedback }}</p>
-                        </div>
-                      </div>
-                    }
-
-                    <!-- Revision Notes -->
-                    @if (submission.status === 'needs_revision' && submission.revisionNotes) {
-                      <div class="mb-4 p-3 bg-orange-50 border border-orange-200 rounded-lg">
-                        <div class="text-sm text-orange-900">
-                          <strong class="font-medium">Revision Required:</strong>
-                          <p class="mt-1">{{ submission.revisionNotes }}</p>
-                        </div>
-                      </div>
-                    }
-
-                    <!-- Card Footer -->
-                    <div class="flex items-center justify-between pt-3 border-t border-gray-100">
-                      <div class="flex items-center text-sm text-gray-500">
-                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                        </svg>
-                        <span>{{ submission.submittedAt | date:'MMM d, y' }}</span>
-                      </div>
-                      
-                      <!-- Action Buttons -->
-                      <div class="flex items-center gap-2">
-                        @for (button of getActionButtons(submission); track button) {
-                          <button
-                            (click)="handleSubmissionAction(button.action, submission); $event.stopPropagation()"
-                            [class]="'inline-flex items-center px-3 py-2 text-xs font-medium rounded-lg transition-all duration-200 border ' + getButtonClass(button.action)">
-                            <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <!-- View Icon -->
-                              @if (button.action === 'view') {
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-                              }
-                              <!-- Edit Icon -->
-                              @if (button.action === 'edit') {
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
-                              }
-                              <!-- Resubmit Icon -->
-                              @if (button.action === 'resubmit') {
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
-                              }
-                              <!-- Delete Icon -->
-                              @if (button.action === 'delete') {
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                              }
-                            </svg>
-                            {{ button.label }}
-                          </button>
-                        }
-                      </div>
-                    </div>
-                  </div>
-                }
-              </div>
-            }
-          </div>
             </div>
-          </div>
-        </div>
-      }
-    </div>
-  }
-
-  <!-- Profile Editor Modal -->
-  @if (showProfileEditor()) {
-    <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <div class="bg-white rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-        <div class="p-6">
-          <app-profile-completion
-            mode="edit"
-            [initialData]="userProfile()"
-            [showContainer]="false"
-            [showHeader]="true"
-            [showSkipButton]="false"
-            customTitle="Edit Your Profile"
-            customSubtitle="Update your profile information"
-            (profileSaved)="onProfileSaved($event)"
-            (profileCancelled)="onProfileCancelled()">
-          </app-profile-completion>
+          }
         </div>
       </div>
     </div>
-  }
-</div>
+  </div>
+}
+
+<!-- Profile Editor Modal -->
+@if (showProfileEditor()) {
+  <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+    <div class="bg-white rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+      <div class="p-6">
+        <app-profile-completion
+          mode="edit"
+          [initialData]="userProfile()"
+          (profileSaved)="onProfileSaved($event)"
+          (cancelled)="showProfileEditor.set(false)">
+        </app-profile-completion>
+      </div>
+    </div>
+  </div>
+}

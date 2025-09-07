@@ -53,12 +53,11 @@
           <div class="flex items-center gap-2">
             <label class="text-sm font-medium text-amber-800">Assign to:</label>
             <div class="min-w-64">
-              <app-searchable-user-selector
-                [users]="users"
-                [(ngModel)]="bulkSelectedUserId"
+              <input
+                type="text"
+                (input)="searchUsersSimple($event)"
                 placeholder="Search and select user..."
-                inputClass="text-sm border border-orange-300 rounded px-3 py-1 pr-8 bg-white focus:outline-none focus:ring-2 focus:ring-orange-200 focus:border-orange-300">
-              </app-searchable-user-selector>
+                class="w-full text-sm border border-orange-300 rounded px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-orange-200 focus:border-orange-300">
             </div>
           </div>
           
@@ -130,12 +129,49 @@
         @case ('actions') {
           @if (editingSubmission?._id === item._id) {
             <div class="space-y-2">
-              <app-searchable-user-selector
-                [users]="users"
-                [(ngModel)]="selectedUserId"
-                placeholder="Search and select new author..."
-                inputClass="w-full text-sm border border-gray-300 rounded px-2 py-1 pr-8 bg-white focus:outline-none focus:ring-2 focus:ring-orange-200 focus:border-orange-300">
-              </app-searchable-user-selector>
+              <div class="relative">
+                <input
+                  type="text"
+                  [(ngModel)]="editUserSearchTerm"
+                  (input)="onEditUserSearch($event)"
+                  (focus)="showEditDropdown = true"
+                  (blur)="hideEditDropdown()"
+                  placeholder="Search and select new author..."
+                  class="w-full text-sm border border-gray-300 rounded px-2 py-1 pr-8 bg-white focus:outline-none focus:ring-2 focus:ring-orange-200 focus:border-orange-300"
+                  autocomplete="off">
+                
+                <!-- Dropdown -->
+                @if (showEditDropdown && editFilteredUsers.length > 0) {
+                  <div class="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-md shadow-lg max-h-60 overflow-auto">
+                    @for (user of editFilteredUsers; track user._id) {
+                      <div
+                        (mousedown)="selectEditUser(user)"
+                        class="px-3 py-2 hover:bg-gray-50 cursor-pointer border-b border-gray-100 last:border-b-0">
+                        <div class="font-medium text-gray-900 text-sm">{{ user.name }}</div>
+                        <div class="text-xs text-gray-500">{{ user.email }}</div>
+                      </div>
+                    }
+                  </div>
+                }
+                
+                <!-- No results -->
+                @if (showEditDropdown && editUserSearchTerm && editFilteredUsers.length === 0 && !editSearchLoading) {
+                  <div class="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-md shadow-lg">
+                    <div class="px-3 py-2 text-sm text-gray-500">
+                      No users found matching "{{ editUserSearchTerm }}"
+                    </div>
+                  </div>
+                }
+                
+                <!-- Loading -->
+                @if (showEditDropdown && editSearchLoading) {
+                  <div class="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-md shadow-lg">
+                    <div class="px-3 py-2 text-sm text-gray-500">
+                      Searching users...
+                    </div>
+                  </div>
+                }
+              </div>
               <div class="flex gap-2">
                 <button (click)="saveChanges()" class="text-green-600 hover:text-green-900 text-sm">Save</button>
                 <button (click)="cancelEdit()" class="text-gray-600 hover:text-gray-900 text-sm">Cancel</button>
