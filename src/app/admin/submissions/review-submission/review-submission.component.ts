@@ -469,7 +469,7 @@ export class ReviewSubmissionComponent {
            ['pending_review', 'in_progress', 'resubmitted', 'shortlisted'].includes(this.submission?.status) &&
            isLoggedIn &&
            user?.role && 
-           ['admin', 'reviewer', 'curator'].includes(user.role);
+           ['admin', 'reviewer', 'writer'].includes(user.role);
   }
 
   // Helper methods for status checks
@@ -509,7 +509,7 @@ export class ReviewSubmissionComponent {
     return this.submission?.status === 'pending_review' && 
            isLoggedIn &&
            user?.role && 
-           ['admin', 'reviewer', 'curator'].includes(user.role);
+           ['admin', 'reviewer', 'writer'].includes(user.role);
   }
 
   // Check if action buttons should show (for in_progress, shortlisted, and resubmitted submissions)
@@ -519,7 +519,7 @@ export class ReviewSubmissionComponent {
     return ['in_progress', 'shortlisted', 'resubmitted'].includes(this.submission?.status) && 
            isLoggedIn &&
            user?.role && 
-           ['admin', 'reviewer', 'curator'].includes(user.role);
+           ['admin', 'reviewer', 'writer'].includes(user.role);
   }
 
   // Check if user can approve submissions (accept only)
@@ -537,13 +537,13 @@ export class ReviewSubmissionComponent {
     const isLoggedIn = user && (user.id || user.email);
     return isLoggedIn &&
            user?.role && 
-           ['admin', 'reviewer', 'curator'].includes(user.role);
+           ['admin', 'reviewer', 'writer'].includes(user.role);
   }
 
   // Check if user can only curate (shortlist only)
-  isCuratorOnly(): boolean {
+  isWriterOnly(): boolean {
     const user = this.loggedInUser || this.authService.getCurrentUser();
-    return user?.role === 'curator';
+    return user?.role === 'writer';
   }
 
   // Check if shortlist button should be disabled/hidden

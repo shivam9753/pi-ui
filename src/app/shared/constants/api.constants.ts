@@ -163,7 +163,7 @@ export const SUBMISSION_TYPES = {
 // User Roles Constants
 export const USER_ROLES = {
   USER: 'user',
-  CURATOR: 'curator',
+  WRITER: 'writer',
   REVIEWER: 'reviewer',
   ADMIN: 'admin'
 } as const;

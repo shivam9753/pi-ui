@@ -137,20 +137,20 @@ export class HeaderComponent implements OnInit, OnDestroy {
     return this.authService.isAdmin();
   }
 
-  // Check if user has elevated role (curator, reviewer, or admin)
+  // Check if user has elevated role (writer, reviewer, or admin)
   hasElevatedRole(): boolean {
     const user = this.loggedInUser();
-    return user?.role === 'curator' || user?.role === 'reviewer' || user?.role === 'admin';
+    return user?.role === 'writer' || user?.role === 'reviewer' || user?.role === 'admin';
   }
 
-  // Check if user can access Studio (users, curators, admins - NOT reviewers)
+  // Check if user can access Studio (users, writers, admins - NOT reviewers)
   canAccessStudio(): boolean {
     const user = this.loggedInUser();
     if (!user) return false; // Not logged in
     return user.role !== 'reviewer';
   }
 
-  // Check if user can access Workspace (reviewers and admins - NOT curators)
+  // Check if user can access Workspace (reviewers and admins - NOT writers)
   canAccessWorkspace(): boolean {
     const user = this.loggedInUser();
     return user?.role === 'reviewer' || user?.role === 'admin';

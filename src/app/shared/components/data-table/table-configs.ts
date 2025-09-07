@@ -431,6 +431,6 @@ export const SUBMISSION_BADGE_CONFIG = {
 export const USER_BADGE_CONFIG = {
   'admin': 'tag tag-red',
   'reviewer': 'tag tag-blue',
-  'curator': 'tag tag-purple',
+  'writer': 'tag tag-purple',
   'user': 'tag tag-gray'
 };

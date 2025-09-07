@@ -21,7 +21,7 @@ export class StudioComponent implements OnInit {
   isLoggedIn = false;
   isAdmin = false;
   isReviewer = false;
-  isCurator = false;
+  isWriter = false;
 
   constructor(
     private authService: AuthService,
@@ -36,7 +36,7 @@ export class StudioComponent implements OnInit {
       this.isLoggedIn = !!user;
       this.isAdmin = user?.role === 'admin';
       this.isReviewer = user?.role === 'reviewer' || this.isAdmin;
-      this.isCurator = user?.role === 'curator' || this.isAdmin;
+      this.isWriter = user?.role === 'writer' || this.isAdmin;
       
       // Set default tab based on permissions
       if (this.canAccessTab('pitches')) {

@@ -39,9 +39,9 @@ export class MyClaimedTopicsComponent implements OnInit {
   loadClaimedTopics() {
     this.loading = true;
     
-    // Get topics claimed by current user - just filter by status on frontend
+    // Get topics claimed by current user - include both claimed and completed
     const queryParams = {
-      status: 'claimed'
+      // Remove status filter to get all topics, then filter by user on frontend
     };
 
     this.backendService.get<any>('/topic-pitches', queryParams).subscribe({
@@ -52,8 +52,9 @@ export class MyClaimedTopicsComponent implements OnInit {
         console.log('All claimed topics:', response.topics);
         
         this.claimedTopics = response.topics?.filter((topic: TopicPitch) => {
-          console.log('Comparing topic.claimedBy:', topic.claimedBy, 'with user ID:', currentUserId);
-          return topic.claimedBy === currentUserId;
+          console.log('Comparing topic.claimedBy:', topic.claimedBy, 'with user ID:', currentUserId, 'status:', topic.status);
+          // Include both claimed and completed topics by this user
+          return topic.claimedBy === currentUserId && (topic.status === 'claimed' || topic.status === 'completed');
         }) || [];
         
         console.log('Filtered claimed topics:', this.claimedTopics);
@@ -253,16 +254,96 @@ export class MyClaimedTopicsComponent implements OnInit {
     });
   }
 
+  showSuccessNotification = false;
+  showErrorNotification = false;
+  notificationMessage = '';
+  submittingForReview = false;
+
   private showSuccessMessage(message: string) {
-    // Simple success feedback - could be enhanced with a toast/notification service
-    console.log('✅ Success:', message);
-    // TODO: Implement proper user feedback (toast notification)
+    this.notificationMessage = message;
+    this.showSuccessNotification = true;
+    this.showErrorNotification = false;
+    
+    // Auto hide after 3 seconds
+    setTimeout(() => {
+      this.showSuccessNotification = false;
+    }, 3000);
   }
 
   private showErrorMessage(message: string) {
-    // Simple error feedback - could be enhanced with a toast/notification service
-    console.error('❌ Error:', message);
-    // TODO: Implement proper user feedback (toast notification)
+    this.notificationMessage = message;
+    this.showErrorNotification = true;
+    this.showSuccessNotification = false;
+    
+    // Auto hide after 5 seconds
+    setTimeout(() => {
+      this.showErrorNotification = false;
+    }, 5000);
+  }
+
+  submitForReview() {
+    if (!this.selectedTopic || !this.draftContent.trim()) {
+      this.showErrorMessage('Please add content before submitting for review.');
+      return;
+    }
+
+    this.submittingForReview = true;
+
+    const submissionData = {
+      title: this.selectedTopic.title,
+      description: `Submission for topic pitch: ${this.selectedTopic.title}`,
+      submissionType: this.selectedTopic.contentType,
+      contents: [{
+        title: this.selectedTopic.title,
+        body: this.draftContent,
+        type: this.selectedTopic.contentType,
+        tags: this.selectedTopic.tags || []
+      }],
+      topicPitchId: this.selectedTopic._id,
+      status: 'submitted'
+    };
+
+    this.backendService.post('/submissions', submissionData).subscribe({
+      next: (response: any) => {
+        console.log('Submission created successfully:', response);
+        this.submittingForReview = false;
+        
+        // Mark topic as completed
+        this.markTopicCompleted();
+        
+        this.showSuccessMessage('Content submitted for review successfully!');
+      },
+      error: (error: any) => {
+        console.error('Error submitting for review:', error);
+        this.submittingForReview = false;
+        this.showErrorMessage('Failed to submit for review. Please try again.');
+      }
+    });
+  }
+
+  private markTopicCompleted() {
+    if (!this.selectedTopic) return;
+
+    const updateData = {
+      status: 'completed'
+    };
+
+    this.backendService.put(`/topic-pitches/${this.selectedTopic._id}`, updateData).subscribe({
+      next: () => {
+        console.log('Topic marked as completed');
+        // Refresh the claimed topics list
+        this.loadClaimedTopics();
+        
+        // Clear the selected topic and content
+        this.selectedTopic = null;
+        this.draftContent = '';
+        this.draftId = null;
+        this.closeMobileEditor();
+      },
+      error: (error: any) => {
+        console.error('Error marking topic as completed:', error);
+      }
+    });
   }
 
   unclaimTopic(topic: TopicPitch) {
@@ -327,6 +408,14 @@ export class MyClaimedTopicsComponent implements OnInit {
 
   hasDraft(topicId: string): boolean {
     return this.topicsWithDrafts.has(topicId);
+  }
+
+  isTopicCompleted(topic: TopicPitch): boolean {
+    return topic.status === 'completed';
+  }
+
+  canEditTopic(topic: TopicPitch): boolean {
+    return topic.status === 'claimed'; // Only allow editing claimed topics, not completed ones
   }
 
   openMobileEditor(topic: TopicPitch) {

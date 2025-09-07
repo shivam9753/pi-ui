@@ -14,7 +14,7 @@ export interface GoogleUser {
   picture: string;
   given_name: string;
   family_name: string;
-  role?: 'user' | 'curator' | 'reviewer' | 'admin';
+  role?: 'user' | 'writer' | 'reviewer' | 'admin';
   needsProfileCompletion?: boolean;
   isNewUser?: boolean;
   profileCompleted?: boolean;
@@ -523,9 +523,9 @@ export class AuthService {
     return user?.role === 'admin';
   }
 
-  public isCurator(): boolean {
+  public isWriter(): boolean {
     const user = this.getCurrentUser();
-    return user?.role === 'curator' || user?.role === 'reviewer' || user?.role === 'admin';
+    return user?.role === 'writer' || user?.role === 'reviewer' || user?.role === 'admin';
   }
 
   public isReviewer(): boolean {
@@ -538,11 +538,11 @@ export class AuthService {
   }
 
   public canAccessAdmin(): boolean {
-    return this.hasRole(['curator', 'reviewer', 'admin']);
+    return this.hasRole(['writer', 'reviewer', 'admin']);
   }
 
   public canCurate(): boolean {
-    return this.hasRole(['curator', 'reviewer', 'admin']);
+    return this.hasRole(['writer', 'reviewer', 'admin']);
   }
 
   public canAdmin(): boolean {

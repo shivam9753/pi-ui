@@ -56,7 +56,7 @@ export interface UserAction {
                 [disabled]="user.role === 'admin' || isChangingRole"
                 class="text-xs px-2 py-1 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed">
                 <option value="user">User</option>
-                <option value="curator">Curator</option>
+                <option value="writer">Writer</option>
                 <option value="reviewer">Reviewer</option>
                 <option value="admin" disabled>Admin</option>
               </select>
@@ -109,7 +109,7 @@ export class UserMobileCardComponent {
     const roleColors: { [key: string]: string } = {
       'admin': 'bg-red-100 text-red-800 border border-red-200',
       'reviewer': 'bg-blue-100 text-blue-800 border border-blue-200',
-      'curator': 'bg-purple-100 text-purple-800 border border-purple-200',
+      'writer': 'bg-purple-100 text-purple-800 border border-purple-200',
       'user': 'bg-gray-100 text-gray-800 border border-gray-200'
     };
     

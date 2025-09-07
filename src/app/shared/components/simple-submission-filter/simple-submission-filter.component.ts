@@ -181,7 +181,7 @@ export class SimpleSubmissionFilterComponent implements OnInit {
     { value: 'draft', label: 'Draft' },
     // User roles
     { value: 'user', label: 'User' },
-    { value: 'curator', label: 'Curator' },
+    { value: 'writer', label: 'Writer' },
     { value: 'reviewer', label: 'Reviewer' },
     { value: 'admin', label: 'Admin' }
   ];

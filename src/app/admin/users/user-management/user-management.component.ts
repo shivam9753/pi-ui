@@ -55,7 +55,7 @@ export class UserManagementComponent implements OnInit, OnDestroy {
   };
   users: UserListItem[] = [];
   totalUsers = 0;
-  userStats = { users: 0, curators: 0, reviewers: 0, admins: 0, total: 0 };
+  userStats = { users: 0, writers: 0, reviewers: 0, admins: 0, total: 0 };
   
   // Stats for AdminPageHeader
   stats: AdminPageStat[] = [];
@@ -189,7 +189,7 @@ export class UserManagementComponent implements OnInit, OnDestroy {
           if (response.stats) {
             this.userStats = {
               users: response.stats.users || 0,
-              curators: (response.stats as any).curators || 0,
+              writers: (response.stats as any).writers || 0,
               reviewers: response.stats.reviewers || 0,
               admins: response.stats.admins || 0,
               total: response.stats.total || 0
@@ -212,7 +212,7 @@ export class UserManagementComponent implements OnInit, OnDestroy {
 
 
   changeUserRole(user: UserListItem, event: any) {
-    const newRole = event.target.value as 'user' | 'curator' | 'reviewer' | 'admin';
+    const newRole = event.target.value as 'user' | 'writer' | 'reviewer' | 'admin';
     
     if (newRole === user.role) {
       return; // No change needed
@@ -536,7 +536,7 @@ export class UserManagementComponent implements OnInit, OnDestroy {
   calculateUserStats() {
     const totalUsers = this.userStats.total || 0;
     const regularUsers = this.userStats.users || 0;
-    const curators = this.userStats.curators || 0;
+    const writers = this.userStats.writers || 0;
     const reviewers = this.userStats.reviewers || 0;
     const admins = this.userStats.admins || 0;
 
@@ -552,8 +552,8 @@ export class UserManagementComponent implements OnInit, OnDestroy {
         color: '#10b981'
       },
       {
-        label: 'Curators',
-        value: curators.toLocaleString(),
+        label: 'Writers',
+        value: writers.toLocaleString(),
         color: '#f59e0b'
       },
       {
@@ -589,8 +589,8 @@ export class UserManagementComponent implements OnInit, OnDestroy {
         color: '#10b981'
       },
       {
-        label: 'Curators',
-        value: (roleCounts.curator || 0).toLocaleString(),
+        label: 'Writers',
+        value: (roleCounts.writer || 0).toLocaleString(),
         color: '#f59e0b'
       },
       {

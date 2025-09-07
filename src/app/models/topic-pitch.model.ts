@@ -2,10 +2,10 @@ export interface TopicPitch {
   _id: string;
   title: string;
   description: string;
-  contentType: 'article' | 'opinion' | 'cinema_essay' | 'story';
+  contentType: 'article' | 'opinion' | 'cinema_essay' | 'miscellaneous';
   pitchedBy: string;
   pitcherName: string;
-  pitcherRole: 'creator' | 'curator' | 'admin';
+  pitcherRole: 'creator' | 'writer' | 'admin';
   status: 'available' | 'claimed' | 'completed' | 'cancelled';
   claimedBy?: string;
   claimedByName?: string;
@@ -22,7 +22,7 @@ export interface TopicPitch {
 export interface CreateTopicPitchPayload {
   title: string;
   description: string;
-  contentType: 'article' | 'opinion' | 'cinema_essay' | 'story';
+  contentType: 'article' | 'opinion' | 'cinema_essay' | 'miscellaneous';
   deadline?: string;
   priority?: 'low' | 'medium' | 'high';
   tags?: string[];
@@ -31,7 +31,7 @@ export interface CreateTopicPitchPayload {
 export interface UpdateTopicPitchPayload {
   title?: string;
   description?: string;
-  contentType?: 'article' | 'opinion' | 'cinema_essay' | 'story';
+  contentType?: 'article' | 'opinion' | 'cinema_essay' | 'miscellaneous';
   deadline?: string;
   priority?: 'low' | 'medium' | 'high';
   tags?: string[];
@@ -79,7 +79,7 @@ export interface TopicPitchStats {
     article: number;
     opinion: number;
     cinema_essay: number;
-    story: number;
+    miscellaneous: number;
   };
   byPriority: {
     high: number;

@@ -89,7 +89,7 @@ export interface SubmissionHistoryEntry {
   timestamp: string;
   userId: string;
   username?: string;
-  userRole: 'user' | 'curator' | 'reviewer' | 'admin';
+  userRole: 'user' | 'writer' | 'reviewer' | 'admin';
   notes?: string;
 }
 

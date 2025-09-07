@@ -133,7 +133,7 @@ export class TopicPitchesComponent implements OnInit {
   }
 
   canClaimTopic(topic: TopicPitch): boolean {
-    return topic.status === 'available' && topic.pitchedBy !== this.currentUser?._id;
+    return topic.status === 'available';
   }
 
   canEditTopic(topic: TopicPitch): boolean {

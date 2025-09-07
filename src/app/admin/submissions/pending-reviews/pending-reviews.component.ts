@@ -73,7 +73,8 @@ export class PendingReviewsComponent implements OnInit, OnDestroy {
     dateFrom: '',
     dateTo: '',
     sortBy: 'createdAt',
-    sortOrder: 'desc'
+    sortOrder: 'desc',
+    isTopicSubmission: '' // Filter for submissions from topic pitches
   };
 
   // Filter configuration for FilterBarComponent
@@ -164,6 +165,11 @@ export class PendingReviewsComponent implements OnInit, OnDestroy {
       key: 'quickRead',
       label: 'Quick Read',
       color: 'yellow'
+    },
+    {
+      key: 'topicSubmissions',
+      label: 'Topic Submissions',
+      color: 'orange'
     }
   ];
 
@@ -315,6 +321,7 @@ export class PendingReviewsComponent implements OnInit, OnDestroy {
     if (this.filters['wordLength']) params.wordLength = this.filters['wordLength'];
     if (this.filters['dateFrom']) params.dateFrom = this.filters['dateFrom'];
     if (this.filters['dateTo']) params.dateTo = this.filters['dateTo'];
+    if (this.filters['isTopicSubmission']) params.isTopicSubmission = this.filters['isTopicSubmission'];
 
     return params;
   }
@@ -467,6 +474,10 @@ export class PendingReviewsComponent implements OnInit, OnDestroy {
       case 'quickRead':
         this.filters['wordLength'] = isActive ? 'quick' : '';
         break;
+      
+      case 'topicSubmissions':
+        this.filters['isTopicSubmission'] = isActive ? 'true' : '';
+        break;
     }
   }
 
@@ -485,6 +496,7 @@ export class PendingReviewsComponent implements OnInit, OnDestroy {
     this.filters['status'] = '';
     this.filters['authorType'] = '';
     this.filters['wordLength'] = '';
+    this.filters['isTopicSubmission'] = '';
     this.loadSubmissions(1);
   }
 

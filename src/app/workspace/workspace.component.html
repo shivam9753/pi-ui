@@ -12,7 +12,7 @@
   }
 
   <!-- Main Workspace -->
-  @if (!loading && (isAdmin || isReviewer || isCurator)) {
+  @if (!loading && (isAdmin || isReviewer || isWriter)) {
     <div class="bg-white pb-10">
       <!-- Tab Navigation -->
       <div class="border-b border-gray-200 bg-white shadow-sm">
@@ -103,7 +103,7 @@
   }
 
   <!-- Access Denied -->
-  @if (!loading && !isAdmin && !isReviewer && !isCurator) {
+  @if (!loading && !isAdmin && !isReviewer && !isWriter) {
     <div class="flex items-center justify-center min-h-screen bg-white">
       <div class="text-center max-w-md mx-auto p-8">
         <div class="w-16 h-16 mx-auto mb-4 bg-red-100 rounded-full flex items-center justify-center">

@@ -5,7 +5,7 @@ export interface User {
   email: string;
   bio?: string;
   profileImage?: string;
-  role: 'user' | 'curator' | 'reviewer' | 'admin';
+  role: 'user' | 'writer' | 'reviewer' | 'admin';
   needsProfileCompletion?: boolean;
   socialLinks?: {
     website?: string;
@@ -61,7 +61,7 @@ export interface UserListItem {
   name?: string;
   email: string;
   bio?: string;
-  role: 'user' | 'curator' | 'reviewer' | 'admin';
+  role: 'user' | 'writer' | 'reviewer' | 'admin';
   profileImage?: string;
   createdAt: string;
   totalSubmissions?: number;
@@ -73,7 +73,7 @@ export interface CreateUserPayload {
   name: string;
   email: string;
   password: string;
-  role: 'user' | 'curator' | 'reviewer' | 'admin';
+  role: 'user' | 'writer' | 'reviewer' | 'admin';
   bio?: string;
 }
 

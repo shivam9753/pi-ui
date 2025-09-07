@@ -153,7 +153,7 @@ export class UserService {
   /**
    * Update user role (admin only)
    */
-  updateUserRole(userId: string, role: 'user' | 'reviewer' | 'admin' | 'curator'): Observable<{ message: string; user: User }> {
+  updateUserRole(userId: string, role: 'user' | 'reviewer' | 'admin' | 'writer'): Observable<{ message: string; user: User }> {
     return this.apiService.patch<{ message: string; user: User }>(API_ENDPOINTS.USERS_NESTED.UPDATE_ROLE(userId), { role });
   }
 

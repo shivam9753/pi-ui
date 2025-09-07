@@ -23,7 +23,7 @@ export class WorkspaceComponent implements OnInit {
   activeTab: 'review' | 'shortlisted' | 'publish' = 'review';
   isAdmin = false;
   isReviewer = false;
-  isCurator = false;
+  isWriter = false;
   currentUser: any = null;
   loading = true;
 
@@ -61,10 +61,10 @@ export class WorkspaceComponent implements OnInit {
     // Check user roles
     this.isAdmin = user.role === 'admin';
     this.isReviewer = user.role === 'reviewer';
-    this.isCurator = user.role === 'curator';
+    this.isWriter = user.role === 'writer';
     
-    // Admins, reviewers, and curators can access workspace
-    if (!this.isAdmin && !this.isReviewer && !this.isCurator) {
+    // Admins, reviewers, and writers can access workspace
+    if (!this.isAdmin && !this.isReviewer && !this.isWriter) {
       this.router.navigate(['/']);
       return;
     }
@@ -98,8 +98,8 @@ export class WorkspaceComponent implements OnInit {
       return ['review', 'shortlisted'].includes(tab);
     }
     
-    if (this.isCurator) {
-      // Curators can access review and shortlisted tabs
+    if (this.isWriter) {
+      // Writers can access review and shortlisted tabs
       return ['review', 'shortlisted'].includes(tab);
     }
     

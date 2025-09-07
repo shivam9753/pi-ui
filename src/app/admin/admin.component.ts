@@ -66,11 +66,11 @@ export class AdminComponent implements OnInit, AfterViewInit {
 
     this.currentUser = user;
     
-    // Distinguish between admin, reviewer, and curator roles
+    // Distinguish between admin, reviewer, and writer roles
     this.isAdmin = user.role === 'admin';
-    this.isReviewer = user.role === 'reviewer' || user.role === 'curator';
+    this.isReviewer = user.role === 'reviewer' || user.role === 'writer';
     
-    // Admins, reviewers, and curators can access this component
+    // Admins, reviewers, and writers can access this component
     if (!this.isAdmin && !this.isReviewer) {
       this.router.navigate(['/']);
       return;
@@ -134,7 +134,7 @@ export class AdminComponent implements OnInit, AfterViewInit {
     }
     
     if (this.isReviewer) {
-      // Reviewers and curators can access submissions, content management, and analytics
+      // Reviewers and writers can access submissions, content management, and analytics
       return tab === 'submissions' || tab === 'content' || tab === 'analytics';
     }
     
