@@ -57,7 +57,10 @@ export class UserManagementComponent implements OnInit, OnDestroy {
   };
   users: UserListItem[] = [];
   totalUsers = 0;
-  userStats = { users: 0, reviewers: 0, admins: 0, total: 0 };
+  userStats = { users: 0, curators: 0, reviewers: 0, admins: 0, total: 0 };
+  
+  // Stats for AdminPageHeader
+  stats: AdminPageStat[] = [];
   
   // Filter properties
   currentFilters: SimpleFilterOptions = {};
@@ -188,10 +191,15 @@ export class UserManagementComponent implements OnInit, OnDestroy {
           if (response.stats) {
             this.userStats = {
               users: response.stats.users || 0,
+              curators: (response.stats as any).curators || 0,
               reviewers: response.stats.reviewers || 0,
               admins: response.stats.admins || 0,
               total: response.stats.total || 0
             };
+            this.calculateUserStats();
+          } else {
+            // If no stats from server, calculate basic stats from loaded users
+            this.calculateBasicUserStats();
           }
           this.loading = false;
         },
@@ -524,6 +532,80 @@ export class UserManagementComponent implements OnInit, OnDestroy {
     this.searchQuery = '';
     this.selectedRole = '';
     this.loadUsers();
+  }
+
+  // Calculate stats for AdminPageHeader from backend stats
+  calculateUserStats() {
+    const totalUsers = this.userStats.total || 0;
+    const regularUsers = this.userStats.users || 0;
+    const curators = this.userStats.curators || 0;
+    const reviewers = this.userStats.reviewers || 0;
+    const admins = this.userStats.admins || 0;
+
+    this.stats = [
+      {
+        label: 'Total Users',
+        value: totalUsers.toLocaleString(),
+        color: '#3b82f6'
+      },
+      {
+        label: 'Regular Users',
+        value: regularUsers.toLocaleString(),
+        color: '#10b981'
+      },
+      {
+        label: 'Curators',
+        value: curators.toLocaleString(),
+        color: '#f59e0b'
+      },
+      {
+        label: 'Reviewers',
+        value: reviewers.toLocaleString(),
+        color: '#ef4444'
+      },
+      {
+        label: 'Admins',
+        value: admins.toLocaleString(),
+        color: '#8b5cf6'
+      }
+    ];
+  }
+
+  // Calculate basic stats from currently loaded users when backend stats are not available
+  calculateBasicUserStats() {
+    const totalUsers = this.users.length;
+    const roleCounts = this.users.reduce((acc, user) => {
+      acc[user.role] = (acc[user.role] || 0) + 1;
+      return acc;
+    }, {} as any);
+
+    this.stats = [
+      {
+        label: 'Total Users',
+        value: totalUsers.toLocaleString(),
+        color: '#3b82f6'
+      },
+      {
+        label: 'Regular Users',
+        value: (roleCounts.user || 0).toLocaleString(),
+        color: '#10b981'
+      },
+      {
+        label: 'Curators',
+        value: (roleCounts.curator || 0).toLocaleString(),
+        color: '#f59e0b'
+      },
+      {
+        label: 'Reviewers',
+        value: (roleCounts.reviewer || 0).toLocaleString(),
+        color: '#ef4444'
+      },
+      {
+        label: 'Admins',
+        value: (roleCounts.admin || 0).toLocaleString(),
+        color: '#8b5cf6'
+      }
+    ];
   }
 
 }

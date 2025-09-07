@@ -709,4 +709,52 @@ export class PublishedPostsComponent implements OnInit {
     }, 5000);
   }
 
+  // User search handler
+  private searchTimeout: any;
+  onUserSearch(searchTerm: string) {
+    console.log('🔍 User search triggered with term:', searchTerm);
+    
+    // Clear existing timeout
+    if (this.searchTimeout) {
+      clearTimeout(this.searchTimeout);
+    }
+    
+    // If search term is empty, reset to initial users
+    if (!searchTerm.trim()) {
+      // Reload initial users
+      this.loadUsers();
+      return;
+    }
+    
+    // Debounce search
+    this.searchTimeout = setTimeout(() => {
+      this.performUserSearch(searchTerm);
+    }, 300);
+  }
+
+  private performUserSearch(searchTerm: string) {
+    console.log('📡 Performing API search for:', searchTerm);
+    
+    const headers = this.getAuthHeaders();
+    const url = `${environment.apiBaseUrl}/users/search?q=${encodeURIComponent(searchTerm)}&limit=50`;
+    console.log('🌐 API URL:', url);
+
+    this.http.get(url, { headers }).subscribe({
+      next: (res: any) => {
+        console.log('✅ User search results:', res);
+        this.users = (res.users || []).map((user: any) => ({
+          _id: user._id,
+          name: user.name || user.username || 'Unknown',
+          email: user.email || 'No email'
+        }));
+        console.log('🎯 Updated users count:', this.users.length);
+      },
+      error: (err) => {
+        console.error('❌ User search error:', err);
+        console.error('❌ Full error:', JSON.stringify(err, null, 2));
+        // Keep existing users on error
+      }
+    });
+  }
+
 }

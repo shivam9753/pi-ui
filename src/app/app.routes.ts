@@ -27,7 +27,6 @@ import { JsonConverterComponent } from './admin/json-converter/json-converter.co
 import { WhatsNewComponent } from './whats-new/whats-new.component';
 import { postSSRResolver } from './resolvers/post-ssr.resolver';
 import { AboutComponent } from './info/about/about.component';
-import { ExploreRevampedComponent } from './explore/explore-revamped.component';
 import { SearchResultsComponent } from './search-results/search-results.component';
 import { FeaturedPoemsComponent } from './featured-poems/featured-poems.component';
 

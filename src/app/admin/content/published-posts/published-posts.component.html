@@ -95,6 +95,7 @@
               <app-searchable-user-selector
                 [users]="users"
                 [(ngModel)]="bulkSelectedUserId"
+                (searchQuery)="onUserSearch($event)"
                 placeholder="Search and select user..."
                 inputClass="text-sm border border-orange-300 rounded px-3 py-1 pr-8 bg-white focus:outline-none focus:ring-2 focus:ring-orange-200 focus:border-orange-300">
               </app-searchable-user-selector>
