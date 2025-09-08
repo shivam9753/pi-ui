@@ -29,27 +29,9 @@
   <div>
     
     <!-- Enhanced Profile Header -->
-    <div class="relative">
-      <!-- Cover Background -->
-      <div class="h-32 sm:h-40 bg-gradient-to-br from-orange-500 via-orange-600 to-orange-700 relative overflow-hidden">
-        <div class="absolute inset-0 bg-black/20"></div>
-        <!-- Decorative pattern -->
-        <div class="absolute inset-0 opacity-30">
-          <svg class="w-full h-full" viewBox="0 0 100 100" fill="none">
-            <defs>
-              <pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse">
-                <path d="M 10 0 L 0 0 0 10" fill="none" stroke="white" stroke-width="0.5" opacity="0.3"/>
-              </pattern>
-            </defs>
-            <rect width="100" height="100" fill="url(#grid)" />
-          </svg>
-        </div>
-      </div>
-      
-      <!-- Profile Content Overlay -->
-      <div class="relative -mt-12 sm:-mt-16">
-        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div class="bg-white rounded-2xl shadow-xl p-6 sm:p-8">
+    <div class="bg-white border-b border-gray-100">
+      <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 sm:p-8">
             <div class="flex flex-col sm:flex-row items-start sm:items-center gap-6">
               <!-- Profile Picture -->
               <div class="relative flex-shrink-0">
@@ -160,8 +142,8 @@
 
         <!-- Submission Status Tabs -->
         @if (submissions().length > 0) {
-          <div class="border-b border-gray-200 mb-6">
-            <nav class="-mb-px flex space-x-8 overflow-x-auto tab-scrollbar pb-1">
+          <div class="border-b border-gray-100 sm:border-gray-200 mb-6">
+            <nav class="-mb-px flex space-x-2 sm:space-x-6 overflow-x-auto tab-scrollbar pb-1">
               <!-- All Tab -->
               <button
                 (click)="setActiveTab('all')"
@@ -257,15 +239,13 @@
         @if (!submissionsLoading() && submissions().length > 0) {
           <div class="space-y-6">
             @for (submission of getFilteredSubmissions(); track submission._id) {
-              <div class="bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-lg hover:border-gray-200 transition-all duration-300 overflow-hidden group">
-                <!-- Status Bar -->
-                <div class="h-1 bg-gradient-to-r" 
-                     [class]="submission.status === 'published' ? 'from-emerald-500 to-emerald-400' :
-                              submission.status === 'accepted' ? 'from-green-500 to-green-400' :
-                              submission.status === 'needs_revision' ? 'from-amber-500 to-amber-400' :
-                              submission.status === 'rejected' ? 'from-red-500 to-red-400' :
-                              ['pending_review', 'in_progress', 'resubmitted'].includes(submission.status) ? 'from-blue-500 to-blue-400' :
-                              'from-gray-400 to-gray-300'"></div>
+              <div class="bg-white rounded-2xl border-l-4 sm:border border-0 sm:border-gray-100 shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden group"
+                   [class]="submission.status === 'published' ? 'border-l-emerald-500' :
+                            submission.status === 'accepted' ? 'border-l-green-500' :
+                            submission.status === 'needs_revision' ? 'border-l-amber-500' :
+                            submission.status === 'rejected' ? 'border-l-red-500' :
+                            ['pending_review', 'in_progress', 'resubmitted'].includes(submission.status) ? 'border-l-blue-500' :
+                            'border-l-gray-400'">
                 
                 <div class="p-6">
                   <!-- Header Section -->
@@ -358,7 +338,7 @@
                   </div>
                   
                   <!-- Actions Section -->
-                  <div class="flex items-center justify-between pt-4 border-t border-gray-100">
+                  <div class="flex items-center justify-between pt-4 border-t border-gray-50 sm:border-gray-100">
                     <div class="flex items-center gap-4">
                       @if (submission.reviewFeedback || submission.revisionNotes) {
                         <button
@@ -441,7 +421,6 @@
         }
       </div>
     </div>
-  </div>
 }
 
 <!-- Review Comments Modal -->
