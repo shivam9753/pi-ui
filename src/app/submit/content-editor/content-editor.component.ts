@@ -1,5 +1,5 @@
 
-import { Component, EventEmitter, Input, Output, ViewEncapsulation } from '@angular/core';
+import { Component, EventEmitter, Input, Output, ViewEncapsulation, OnChanges, SimpleChanges } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RichTextEditorComponent } from '../rich-text-editor/rich-text-editor.component';
 import { TagInputComponent } from '../../utilities/tag-input/tag-input.component';
@@ -12,10 +12,11 @@ import { CompressedImage } from '../../shared/utils/image-compression.util';
   styleUrl: './content-editor.component.css',
   encapsulation: ViewEncapsulation.None
 })
-export class ContentEditorComponent {
+export class ContentEditorComponent implements OnChanges {
   @Input() selectedType: string = '';
   @Input() contents: any[] = [];
   @Input() formArray!: FormArray;
+  @Input() readonly: boolean = false;
   
   @Output() contentsChanged = new EventEmitter<any[]>();
   @Output() prevStep = new EventEmitter<void>();
@@ -25,6 +26,20 @@ export class ContentEditorComponent {
   uploadedImages: Map<number, CompressedImage[]> = new Map();
 
   constructor(private fb: FormBuilder) {}
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['readonly'] && this.formArray) {
+      this.updateReadonlyState();
+    }
+  }
+
+  private updateReadonlyState(): void {
+    if (this.readonly) {
+      this.formArray.disable();
+    } else {
+      this.formArray.enable();
+    }
+  }
 
   // Note: updateContentField removed - now using reactive forms directly with [formControl]
 

@@ -50,7 +50,15 @@ interface Draft {
   selector: 'app-user-profile',
   imports: [CommonModule, FormsModule, RouterModule, TypeBadgePipe, PrettyLabelPipe, ProfileCompletionComponent],
   templateUrl: './user-profile.component.html',
-  styleUrl: './user-profile.component.css'
+  styleUrl: './user-profile.component.css',
+  styles: [`
+    .line-clamp-2 {
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+  `]
 })
 export class UserProfileComponent implements OnInit {
   // Core data
@@ -493,19 +501,44 @@ export class UserProfileComponent implements OnInit {
   handleSubmissionAction(action: string, submission: Submission) {
     if (action === 'view') {
       // Navigate to submission view
-      if (submission.publishedWorkId) {
+      if (submission.status === 'published' && submission.publishedWorkId) {
+        // Published submissions go to reading interface
         this.router.navigate(['/read', submission.publishedWorkId]);
       } else {
-        this.router.navigate(['/submission', submission._id]);
+        // All other submissions go to edit-submission in view mode
+        this.router.navigate(['/edit-submission', submission._id], { 
+          queryParams: { mode: 'view' } 
+        });
       }
     } else if (action === 'edit') {
-      // Navigate to edit submission
-      this.router.navigate(['/submission', submission._id, 'edit']);
+      // Navigate to edit submission 
+      this.router.navigate(['/edit-submission', submission._id]);
     }
   }
 
   cleanHtml(html: string): string {
     // Simple HTML tag removal for display
     return html ? html.replace(/<[^>]*>/g, '') : '';
+  }
+
+  getTruncatedDescription(submission: Submission): string {
+    const text = submission.excerpt || submission.content || '';
+    const plainText = text.replace(/<[^>]*>/g, ''); // Remove HTML tags
+    return plainText.length > 80 ? plainText.substring(0, 80) + '...' : plainText;
+  }
+
+  getFormattedStatus(status: string): string {
+    const statusMap: { [key: string]: string } = {
+      'pending_review': 'Pending Review',
+      'in_progress': 'In Review', 
+      'resubmitted': 'Resubmitted',
+      'shortlisted': 'Shortlisted',
+      'accepted': 'Ready to Publish',
+      'published': 'Published',
+      'rejected': 'Rejected',
+      'needs_revision': 'Needs Revision',
+      'draft': 'Draft'
+    };
+    return statusMap[status] || status.replace(/_/g, ' ').replace(/\b\w/g, (l: string) => l.toUpperCase());
   }
 }

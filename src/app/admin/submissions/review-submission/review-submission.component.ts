@@ -32,6 +32,19 @@ export class ReviewSubmissionComponent {
   showReviewForm: boolean = false;
   isSubmitting: boolean = false;
   
+  // Common rejection reasons
+  commonRejectionReasons = [
+    'Submitted in Hindi (English portal only)',
+    'AI Generated/Perfected content',
+    'Clichéd Language',
+    'Forced Rhyme',
+    'Poor grammar/spelling',
+    'Inappropriate content',
+    'Plagiarized content',
+    'Does not meet quality standards',
+    'Format not suitable for platform'
+  ];
+  
   // History and status tracking
   submissionHistory: any[] = [];
   showHistory: boolean = false;
@@ -148,6 +161,21 @@ export class ReviewSubmissionComponent {
     this.reviewAction = null;
     this.showReviewForm = false;
     this.reviewNotes = '';
+  }
+
+  // Method to handle common rejection reason selection
+  selectCommonReason(reason: string) {
+    if (this.reviewNotes.trim() === '') {
+      // If textarea is empty, set the reason
+      this.reviewNotes = reason;
+    } else {
+      // If there's already content, append with proper formatting
+      const currentText = this.reviewNotes.trim();
+      // Check if the reason is already in the text
+      if (!currentText.includes(reason)) {
+        this.reviewNotes = currentText + (currentText.endsWith('.') || currentText.endsWith(',') ? ' ' : '. ') + reason;
+      }
+    }
   }
 
   confirmReview() {
@@ -498,6 +526,16 @@ export class ReviewSubmissionComponent {
   }
 
   canReviewSubmission(): boolean {
+    const user = this.loggedInUser || this.authService.getCurrentUser();
+    const isAdmin = user?.role === 'admin';
+    
+    // Admin can review any submission including published ones
+    if (isAdmin) {
+      const adminReviewableStatuses = ['pending_review', 'in_progress', 'resubmitted', 'shortlisted', 'published', 'accepted'];
+      return adminReviewableStatuses.includes(this.submission?.status);
+    }
+    
+    // Non-admins can only review these statuses
     const reviewableStatuses = ['pending_review', 'in_progress', 'resubmitted', 'shortlisted'];
     return reviewableStatuses.includes(this.submission?.status);
   }
@@ -559,6 +597,8 @@ export class ReviewSubmissionComponent {
   // Check if specific action is allowed based on current status
   isActionAllowed(action: string): boolean {
     const status = this.submission?.status;
+    const user = this.loggedInUser || this.authService.getCurrentUser();
+    const isAdmin = user?.role === 'admin';
     
     switch (action) {
       case 'approve':
@@ -568,6 +608,11 @@ export class ReviewSubmissionComponent {
         return this.canShortlist();
       case 'reject':
       case 'revision':
+        // Admin can reject/revise any submission including published ones
+        if (isAdmin) {
+          return this.canPerformCurationActions();
+        }
+        // Non-admins follow normal rules
         return this.canPerformCurationActions() && !['accepted', 'approved', 'rejected'].includes(status);
       default:
         return true;

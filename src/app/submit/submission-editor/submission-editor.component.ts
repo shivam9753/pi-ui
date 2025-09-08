@@ -159,9 +159,11 @@ export class SubmissionEditorComponent implements OnInit, OnDestroy {
 
     this.route.queryParams.subscribe(queryParams => {
       const action = queryParams['action'];
-      if (action === 'resubmit') {
+      const mode = queryParams['mode'];
+      
+      if (action === 'resubmit' || mode === 'resubmit') {
         this.mode = 'resubmit';
-      } else if (action === 'view') {
+      } else if (action === 'view' || mode === 'view') {
         this.mode = 'view';
       } else if (queryParams['draft']) {
         this.mode = 'create';

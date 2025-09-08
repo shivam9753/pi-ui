@@ -111,24 +111,18 @@ export class ExploreComponent implements OnInit {
     this.loadPopularTags();
   }
 
-  // Load popular tags from published submissions
+  // Load popular tags from the new backend API
   loadPopularTags() {
     this.loadingTags = true;
-    this.backendService.getPopularTags({ limit: 10 }).subscribe({
+    this.backendService.getPopularTags({ limit: 8 }).subscribe({
       next: (data) => {
-        // Extract tag names from the response - now it's a simple array
+        // Extract tag names from the response
         this.trendingTags = data.tags || [];
-        
-        // Only show tags if we actually have some from the API
-        // Don't show fallback tags that might not have content
-        if (this.trendingTags.length === 0) {
-          this.trendingTags = [];
-        }
         this.loadingTags = false;
       },
       error: (error) => {
         console.error('Error loading popular tags:', error);
-        // Don't show fallback tags - if API fails, show empty
+        // Set empty array if API fails
         this.trendingTags = [];
         this.loadingTags = false;
       }

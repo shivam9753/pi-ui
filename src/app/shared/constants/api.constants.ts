@@ -109,7 +109,7 @@ export const API_ENDPOINTS = {
   
   CONTENT_NESTED: {
     BY_TAG: (tag: string) => `/content/by-tag/${encodeURIComponent(tag)}`,
-    TAGS_POPULAR: '/content/tags/popular'
+    TAGS_POPULAR: '/content/popular-tags'
   },
   
   

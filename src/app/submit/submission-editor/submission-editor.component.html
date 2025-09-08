@@ -148,6 +148,7 @@
                     [selectedType]="selectedType"
                     [contents]="getContentControls()"
                     [formArray]="getContentsFormArray()"
+                    [readonly]="isViewMode"
                     (contentsChanged)="onContentChanged($event)"
                   ></app-content-editor>
                 </div>
@@ -475,6 +476,7 @@
                     [selectedType]="selectedType"
                     [contents]="getContentControls()"
                     [formArray]="getContentsFormArray()"
+                    [readonly]="isViewMode"
                     (contentsChanged)="onContentChanged($event)"
                   ></app-content-editor>
                 </div>

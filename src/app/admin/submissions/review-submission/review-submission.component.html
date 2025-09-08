@@ -207,6 +207,23 @@
               }
             </span>
           </label>
+          
+          <!-- Common Rejection Reasons (Mobile) - Show only for reject action -->
+          @if (reviewAction === 'reject') {
+            <div class="mb-3">
+              <label class="block text-sm font-medium text-gray-700 mb-2">Quick Select Common Reasons:</label>
+              <div class="grid grid-cols-1 gap-2">
+                @for (reason of commonRejectionReasons; track reason) {
+                  <button
+                    type="button"
+                    (click)="selectCommonReason(reason)"
+                    class="text-left px-3 py-2 text-sm bg-gray-50 border border-gray-200 rounded-lg hover:bg-gray-100 transition-colors">
+                    {{ reason }}
+                  </button>
+                }
+              </div>
+            </div>
+          }
           <textarea
             id="mobileReviewNotes"
             [(ngModel)]="reviewNotes"
@@ -666,6 +683,23 @@
                           }
                         </span>
                       </label>
+                      
+                      <!-- Common Rejection Reasons (Desktop) - Show only for reject action -->
+                      @if (reviewAction === 'reject') {
+                        <div class="mb-3">
+                          <label class="block text-sm font-medium text-gray-700 mb-2">Quick Select Common Reasons:</label>
+                          <div class="grid grid-cols-2 gap-2">
+                            @for (reason of commonRejectionReasons; track reason) {
+                              <button
+                                type="button"
+                                (click)="selectCommonReason(reason)"
+                                class="text-left px-3 py-2 text-sm bg-gray-50 border border-gray-200 rounded-lg hover:bg-gray-100 transition-colors">
+                                {{ reason }}
+                              </button>
+                            }
+                          </div>
+                        </div>
+                      }
                       <textarea
                         id="reviewNotes"
                         [(ngModel)]="reviewNotes"
@@ -991,6 +1025,23 @@
                         }
                       </span>
                     </label>
+                    
+                    <!-- Common Rejection Reasons (Desktop Sidebar) - Show only for reject action -->
+                    @if (reviewAction === 'reject') {
+                      <div class="mb-3">
+                        <label class="block text-xs font-medium text-gray-700 mb-2">Quick Select Common Reasons:</label>
+                        <div class="grid grid-cols-1 gap-1">
+                          @for (reason of commonRejectionReasons; track reason) {
+                            <button
+                              type="button"
+                              (click)="selectCommonReason(reason)"
+                              class="text-left px-2 py-1.5 text-xs bg-gray-50 border border-gray-200 rounded hover:bg-gray-100 transition-colors">
+                              {{ reason }}
+                            </button>
+                          }
+                        </div>
+                      </div>
+                    }
                     <textarea
                       id="reviewNotes"
                       [(ngModel)]="reviewNotes"
