@@ -1,0 +1,252 @@
+<div class="w-full">
+  <!-- Standardized Header -->
+  <app-admin-page-header
+    title="All Submissions"
+    subtitle="View and manage all submission statuses and assignments."
+    [loading]="loading"
+    (onRefresh)="refreshData()">
+  </app-admin-page-header>
+
+  <!-- Filter Component -->
+  <app-simple-submission-filter 
+    [availableStatuses]="['pending_review', 'in_progress', 'needs_revision', 'accepted', 'published', 'rejected', 'draft', 'submitted', 'resubmitted']"
+    [showSortOptions]="true"
+    [sortField]="'createdAt'"
+    [initialFilters]="currentFilters"
+    (filterChange)="onFilterChange($event)">
+  </app-simple-submission-filter>
+
+  <!-- Selection Info -->
+  @if (selectedSubmissions.size > 0) {
+    <div class="mb-4 text-sm text-gray-600 bg-orange-50 p-3 rounded-lg">
+      {{ selectedSubmissions.size }} submission(s) selected
+    </div>
+  }
+  
+  <!-- Message -->
+  @if (message) {
+    <div class="mb-6 p-4 rounded-lg" [ngClass]="{
+      'bg-green-50 text-green-800 border border-green-200': messageType === 'success',
+      'bg-red-50 text-red-800 border border-red-200': messageType === 'error',
+      'bg-blue-50 text-blue-800 border border-blue-200': messageType === 'info'
+    }">
+      {{ message }}
+    </div>
+  }
+
+  <!-- Bulk Actions Bar -->
+  @if (showBulkActions) {
+    <div class="mb-6 p-4 bg-orange-50 border border-orange-300 rounded-lg">
+      <div class="flex items-center justify-between flex-wrap gap-4">
+        <div class="flex items-center gap-4">
+          <span class="text-sm font-medium text-amber-800">
+            {{ selectedSubmissions.size }} submission(s) selected
+          </span>
+          <button 
+            (click)="clearSelection()" 
+            class="text-sm text-orange-600 hover:text-amber-800 underline">
+            Clear Selection
+          </button>
+        </div>
+        
+        <div class="flex items-center gap-4">
+          <div class="flex items-center gap-2">
+            <label class="text-sm font-medium text-amber-800">Assign to:</label>
+            <div class="min-w-64 relative">
+              <input
+                type="text"
+                [(ngModel)]="bulkUserSearchTerm"
+                (input)="onBulkUserSearch($event)"
+                (focus)="onBulkUserInputFocus()"
+                (blur)="hideBulkDropdown()"
+                placeholder="Search and select user..."
+                class="w-full text-sm border border-orange-300 rounded px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-orange-200 focus:border-orange-300"
+                autocomplete="off">
+                
+              <!-- Dropdown -->
+              @if (showBulkDropdown && bulkFilteredUsers.length > 0) {
+                <div class="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-md shadow-lg max-h-60 overflow-auto">
+                  @for (user of bulkFilteredUsers; track user._id) {
+                    <div
+                      (mousedown)="selectBulkUser(user)"
+                      class="px-3 py-2 hover:bg-gray-50 cursor-pointer border-b border-gray-100 last:border-b-0">
+                      <div class="font-medium text-gray-900 text-sm">{{ user.name }}</div>
+                      <div class="text-xs text-gray-500">{{ user.email }}</div>
+                    </div>
+                  }
+                </div>
+              }
+              
+              <!-- No results -->
+              @if (showBulkDropdown && bulkUserSearchTerm && bulkFilteredUsers.length === 0 && !bulkSearchLoading) {
+                <div class="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-md shadow-lg">
+                  <div class="px-3 py-2 text-sm text-gray-500">
+                    No users found matching "{{ bulkUserSearchTerm }}"
+                  </div>
+                </div>
+              }
+              
+              <!-- Loading -->
+              @if (showBulkDropdown && bulkSearchLoading) {
+                <div class="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-md shadow-lg">
+                  <div class="px-3 py-2 text-sm text-gray-500 flex items-center gap-2">
+                    <div class="w-4 h-4 border-2 border-gray-300 border-t-gray-600 rounded-full animate-spin"></div>
+                    Searching users...
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+          
+          <button 
+            (click)="bulkReassignUser()" 
+            [disabled]="!bulkSelectedUserId || bulkActionLoading"
+            class="px-4 py-2 bg-orange-600 text-white rounded-md hover:bg-orange-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2">
+            @if (bulkActionLoading) {
+              <div class="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin"></div>
+            }
+            Reassign Selected
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Data Table -->
+  <app-data-table
+    [columns]="columns"
+    [data]="filteredSubmissions"
+    [loading]="loading"
+    loadingText="Loading submissions..."
+    [selectable]="true"
+    [selectedItems]="selectedSubmissionsArray"
+    [pagination]="paginationConfig"
+    itemLabel="submissions"
+    [trackByFn]="trackBySubmissionId"
+    [badgeConfig]="badgeConfig"
+    (onSelectionChange)="onSelectionChange($event)"
+    (onPageChange)="onTablePageChange($event)"
+    (onSort)="onTableSort($event)">
+    
+    <!-- Custom Cell Template -->
+    <ng-template #customCell let-item let-column="column">
+      @switch (column.key) {
+        @case ('title') {
+          <div>
+            <div class="text-sm font-medium text-gray-900">{{ item.title }}</div>
+            @if (item?.description) {
+              <div class="text-sm text-gray-500 truncate max-w-xs">{{ item?.description }}</div>
+            }
+          </div>
+        }
+        @case ('authorName') {
+          <div class="text-sm text-gray-900">
+            {{ getAuthorName(item) }}
+          </div>
+        }
+        @case ('stats') {
+          <div class="text-xs text-gray-600">
+            @if (item.status === 'published') {
+              <div class="flex items-center gap-1">
+                <svg class="w-3 h-3 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                <span class="text-green-600 font-medium">Published</span>
+              </div>
+            } @else {
+              <div class="flex items-center gap-1">
+                <svg class="w-3 h-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                <span class="text-gray-500">{{ item.status | prettyLabel }}</span>
+              </div>
+            }
+          </div>
+        }
+        @case ('actions') {
+          @if (editingSubmission?._id === item._id) {
+            <div class="space-y-2">
+              <div class="relative">
+                <input
+                  type="text"
+                  [(ngModel)]="editUserSearchTerm"
+                  (input)="onEditUserSearch($event)"
+                  (focus)="showEditDropdown = true"
+                  (blur)="hideEditDropdown()"
+                  placeholder="Search and select new author..."
+                  class="w-full text-sm border border-gray-300 rounded px-2 py-1 pr-8 bg-white focus:outline-none focus:ring-2 focus:ring-orange-200 focus:border-orange-300"
+                  autocomplete="off">
+                
+                <!-- Dropdown -->
+                @if (showEditDropdown && editFilteredUsers.length > 0) {
+                  <div class="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-md shadow-lg max-h-60 overflow-auto">
+                    @for (user of editFilteredUsers; track user._id) {
+                      <div
+                        (mousedown)="selectEditUser(user)"
+                        class="px-3 py-2 hover:bg-gray-50 cursor-pointer border-b border-gray-100 last:border-b-0">
+                        <div class="font-medium text-gray-900 text-sm">{{ user.name }}</div>
+                        <div class="text-xs text-gray-500">{{ user.email }}</div>
+                      </div>
+                    }
+                  </div>
+                }
+                
+                <!-- No results -->
+                @if (showEditDropdown && editUserSearchTerm && editFilteredUsers.length === 0 && !editSearchLoading) {
+                  <div class="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-md shadow-lg">
+                    <div class="px-3 py-2 text-sm text-gray-500">
+                      No users found matching "{{ editUserSearchTerm }}"
+                    </div>
+                  </div>
+                }
+                
+                <!-- Loading -->
+                @if (showEditDropdown && editSearchLoading) {
+                  <div class="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-md shadow-lg">
+                    <div class="px-3 py-2 text-sm text-gray-500">
+                      Searching users...
+                    </div>
+                  </div>
+                }
+              </div>
+              <div class="flex gap-2">
+                <button (click)="saveChanges()" class="text-green-600 hover:text-green-900 text-sm">Save</button>
+                <button (click)="cancelEdit()" class="text-gray-600 hover:text-gray-900 text-sm">Cancel</button>
+              </div>
+            </div>
+          } @else {
+            <div class="flex gap-2">
+              <button (click)="startEdit(item)" class="text-orange-600 hover:text-orange-900 text-sm">
+                Change Author
+              </button>
+              <button (click)="deleteSubmission(item)" class="text-red-600 hover:text-red-900 text-sm font-medium">
+                Delete
+              </button>
+            </div>
+          }
+        }
+      }
+    </ng-template>
+
+    <!-- Mobile Card Template -->
+    <ng-template #mobileCard let-submission let-actions="actions">
+      <app-submission-mobile-card
+        [submission]="submission"
+        [actions]="consistentActions"
+        [badgeConfig]="badgeConfig"
+        [selectable]="true"
+        [selected]="selectedSubmissions.has(submission._id)"
+        (selectionChange)="toggleSubmissionSelection(submission._id)">
+      </app-submission-mobile-card>
+    </ng-template>
+
+    <!-- Empty State Template -->
+    <ng-template #emptyState>
+      <svg class="w-12 h-12 mx-auto text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+      </svg>
+      <h3 class="text-lg font-medium text-gray-900 mb-2">No submissions found</h3>
+      <p class="text-gray-500">No submissions have been created yet.</p>
+    </ng-template>
+  </app-data-table>
+</div>

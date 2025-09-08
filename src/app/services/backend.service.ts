@@ -826,10 +826,31 @@ approveUserProfileImage(userId: string): Observable<any> {
 }
 
 // Get user's submissions with status tracking
-getUserSubmissions(): Observable<any> {
+getUserSubmissions(options: {
+  limit?: number;
+  skip?: number;
+  status?: string;
+  type?: string;
+} = {}): Observable<any> {
+  let params = new HttpParams();
+  
+  if (options.limit !== undefined) params = params.set('limit', options.limit.toString());
+  if (options.skip !== undefined) params = params.set('skip', options.skip.toString());
+  if (options.status) params = params.set('status', options.status);
+  if (options.type) params = params.set('type', options.type);
+  
+  const url = `${this.API_URL}${API_ENDPOINTS.SUBMISSIONS_NESTED.USER_SUBMISSIONS}`;
+  console.log('🌐 Making API call to:', url, 'with params:', params.toString());
+  
   const headers = this.getAuthHeaders();
-  return this.http.get<any>(`${this.API_URL}${API_ENDPOINTS.SUBMISSIONS_NESTED.USER_SUBMISSIONS}`, { headers }).pipe(
+  console.log('🔑 Auth headers:', headers);
+  
+  return this.http.get<any>(url, { headers, params }).pipe(
+    tap(response => {
+      console.log('🚀 Raw API response for getUserSubmissions:', response);
+    }),
     catchError(error => {
+      console.error('🚨 API error in getUserSubmissions:', error);
       return throwError(() => error);
     })
   );

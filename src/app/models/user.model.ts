@@ -53,6 +53,22 @@ export interface UserStats {
 
 export interface UserProfile extends User {
   // Specific profile view fields
+  submissionStats?: {
+    total: number;
+    published: number;
+    pending: number;
+    needsRevision: number;
+    draft: number;
+    accepted: number;
+    rejected: number;
+    byType: {
+      poem: number;
+      prose: number;
+      article: number;
+      opinion: number;
+      [key: string]: number;
+    };
+  };
 }
 
 export interface UserListItem {
