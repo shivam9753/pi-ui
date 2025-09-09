@@ -71,36 +71,108 @@ export class BackendService {
   private handleError(error: HttpErrorResponse): Observable<never> {
     // For validation errors and other API errors, preserve the original error structure
     if (error.status === HTTP_STATUS.BAD_REQUEST && error.error) {
-      // Preserve the original error structure for validation errors
-      return throwError(() => error);
+      // Enhance error with mobile-friendly details
+      const enhancedError = {
+        ...error,
+        mobileMessage: this.getMobileFriendlyMessage(error),
+        details: error.error.details || error.error.message || 'Please check the form and try again'
+      };
+      return throwError(() => enhancedError);
     }
     
     let errorMessage = 'An unknown error occurred';
+    let mobileMessage = 'Something went wrong';
+    let details = '';
     
     if (typeof ErrorEvent !== 'undefined' && error.error instanceof ErrorEvent) {
       // Client-side error
       errorMessage = `Client Error: ${error.error.message}`;
+      mobileMessage = 'Connection problem';
+      details = 'Please check your internet connection and try again';
     } else {
       // Server-side error
       switch (error.status) {
         case 0:
           errorMessage = 'Cannot connect to server. Check your internet connection.';
+          mobileMessage = 'No connection';
+          details = 'Check your internet and try again';
           break;
         case HTTP_STATUS.NOT_FOUND:
           errorMessage = 'API endpoint not found';
+          mobileMessage = 'Page not found';
+          details = 'The requested content is not available';
           break;
         case HTTP_STATUS.INTERNAL_SERVER_ERROR:
           errorMessage = 'Server internal error';
+          mobileMessage = 'Server error';
+          details = 'Our servers are experiencing issues. Please try again later';
           break;
         case HTTP_STATUS.SERVICE_UNAVAILABLE:
           errorMessage = 'Service temporarily unavailable';
+          mobileMessage = 'Service unavailable';
+          details = 'We\'re temporarily down for maintenance. Try again soon';
+          break;
+        case HTTP_STATUS.UNAUTHORIZED:
+          errorMessage = 'Unauthorized access';
+          mobileMessage = 'Access denied';
+          details = 'Please log in and try again';
+          break;
+        case HTTP_STATUS.FORBIDDEN:
+          errorMessage = 'Forbidden access';
+          mobileMessage = 'Permission denied';
+          details = 'You don\'t have permission for this action';
           break;
         default:
           errorMessage = `Server Error: ${error.status} - ${error.message}`;
+          mobileMessage = 'Error occurred';
+          details = `Status: ${error.status}`;
       }
     }
     
-    return throwError(() => new Error(errorMessage));
+    const enhancedError = {
+      ...error,
+      message: errorMessage,
+      mobileMessage,
+      details
+    };
+    
+    return throwError(() => enhancedError);
+  }
+
+  private getMobileFriendlyMessage(error: HttpErrorResponse): string {
+    if (error.error?.message) {
+      const message = error.error.message.toLowerCase();
+      
+      if (message.includes('already exists')) {
+        return 'Account exists';
+      }
+      if (message.includes('invalid credentials')) {
+        return 'Wrong login info';
+      }
+      if (message.includes('validation')) {
+        return 'Form has errors';
+      }
+      if (message.includes('required')) {
+        return 'Missing info';
+      }
+      if (message.includes('password')) {
+        return 'Password issue';
+      }
+      if (message.includes('email')) {
+        return 'Email problem';
+      }
+      if (message.includes('username')) {
+        return 'Username issue';
+      }
+      if (message.includes('registration')) {
+        return 'Signup failed';
+      }
+      if (message.includes('login')) {
+        return 'Login failed';
+      }
+    }
+    
+    return 'Error occurred';
   }
 
 

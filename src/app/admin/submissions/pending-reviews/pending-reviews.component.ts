@@ -365,11 +365,29 @@ export class PendingReviewsComponent implements OnInit, OnDestroy {
   moveToProgress(submissionId: string) {
     this.backendService.moveSubmissionToProgress(submissionId, 'Moving to in progress for detailed review').subscribe(
       (response) => {
+        console.log('✅ Successfully moved submission to progress:', response);
         // Refresh the list
         this.loadSubmissions(this.currentPage);
       },
       (error) => {
-        // Error moving submission to progress
+        console.error('❌ Error moving submission to progress:', error);
+        console.error('Error details:', {
+          status: error.status,
+          message: error.error?.message,
+          details: error.error?.details,
+          submissionId: error.error?.submissionId,
+          currentStatus: error.error?.currentStatus,
+          requiredStatus: error.error?.requiredStatus
+        });
+        
+        // Show user-friendly error message
+        let errorMessage = 'Failed to move submission to progress';
+        if (error.error?.details) {
+          errorMessage += ': ' + error.error.details;
+        }
+        
+        // TODO: Use toast service to show error message
+        alert(errorMessage);
       }
     );
   }
@@ -540,10 +558,10 @@ export class PendingReviewsComponent implements OnInit, OnDestroy {
 
   // Helper methods for table display
   getAuthorName(submission: any): string {
-    return submission.username || 
-           submission.authorName || 
+    return submission.author?.name || 
+    submission.authorName || 
+    submission.username || 
            submission.author?.username || 
-           submission.author?.name || 
            submission.submitterName || 
            'Unknown Author';
   }

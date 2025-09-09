@@ -1,5 +1,5 @@
-import { Component, Input, Output, EventEmitter, OnInit, OnDestroy, OnChanges, SimpleChanges } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, Input, Output, EventEmitter, OnInit, OnDestroy, OnChanges, SimpleChanges, HostListener, Inject, PLATFORM_ID } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { trigger, state, style, transition, animate } from '@angular/animations';
 
 @Component({
@@ -10,23 +10,27 @@ import { trigger, state, style, transition, animate } from '@angular/animations'
     @if (isVisible) {
       <div
         [@slideIn]="isVisible ? 'in' : 'out'"
-        class="fixed top-6 right-6 z-50 max-w-sm w-full transition-all duration-300 ease-out transform">
-        <div [ngClass]="getToastClasses()" class="bg-white border rounded-2xl p-6 shadow-xl">
-          <div class="flex items-start space-x-4">
+        [ngClass]="getContainerClasses()"
+        class="fixed z-50 transition-all duration-300 ease-out transform">
+        <div [ngClass]="getToastClasses()" [class]="getToastSizeClasses()">
+          <div class="flex items-start space-x-3 sm:space-x-4">
             <!-- Icon -->
-            <div [ngClass]="getIconClasses()" class="flex-shrink-0 w-6 h-6 flex items-center justify-center rounded-full">
-              <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+            <div [ngClass]="getIconClasses()" [class]="getIconSizeClasses()">
+              <svg [class]="getSvgSizeClasses()" fill="currentColor" viewBox="0 0 24 24">
                 <path [attr.d]="getIconPath()"></path>
               </svg>
             </div>
             <!-- Message Content -->
             <div class="flex-1 min-w-0">
-              <p class="font-medium text-gray-900 text-sm leading-5">{{ message }}</p>
+              <p [class]="getMessageClasses()">{{ message }}</p>
+              @if (isMobile && details) {
+                <p class="text-xs text-gray-600 mt-1">{{ details }}</p>
+              }
             </div>
             <!-- Close Button -->
             <button (click)="close()"
-              class="flex-shrink-0 text-gray-400 hover:text-gray-600 transition-colors duration-200">
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              [class]="getCloseButtonClasses()">
+              <svg [class]="getCloseSvgClasses()" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
               </svg>
             </button>
@@ -56,6 +60,7 @@ import { trigger, state, style, transition, animate } from '@angular/animations'
 })
 export class ToastNotificationComponent implements OnInit, OnDestroy, OnChanges {
   @Input() message = '';
+  @Input() details = ''; // Additional details for mobile
   @Input() type: 'success' | 'error' | 'info' | 'warning' = 'info';
   @Input() isVisible = false;
   @Input() autoClose = true;
@@ -63,10 +68,25 @@ export class ToastNotificationComponent implements OnInit, OnDestroy, OnChanges 
   @Output() closed = new EventEmitter<void>();
 
   private autoCloseTimer?: number;
+  isMobile = false;
+
+  constructor(@Inject(PLATFORM_ID) private platformId: Object) {}
 
   ngOnInit() {
+    this.checkIfMobile();
     if (this.autoClose && this.isVisible) {
       this.startAutoCloseTimer();
+    }
+  }
+
+  @HostListener('window:resize', ['$event'])
+  onResize() {
+    this.checkIfMobile();
+  }
+
+  private checkIfMobile() {
+    if (isPlatformBrowser(this.platformId)) {
+      this.isMobile = window.innerWidth < 640; // Tailwind sm breakpoint
     }
   }
 
@@ -141,5 +161,53 @@ export class ToastNotificationComponent implements OnInit, OnDestroy, OnChanges 
       default:
         return 'M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z';
     }
+  }
+
+  getContainerClasses(): string {
+    if (this.isMobile) {
+      return 'top-4 left-4 right-4 max-w-none';
+    } else {
+      return 'top-6 right-6 max-w-sm w-full';
+    }
+  }
+
+  getToastSizeClasses(): string {
+    const baseClasses = 'bg-white border shadow-xl';
+    if (this.isMobile) {
+      return `${baseClasses} rounded-lg p-4`;
+    } else {
+      return `${baseClasses} rounded-2xl p-6`;
+    }
+  }
+
+  getIconSizeClasses(): string {
+    const baseClasses = 'flex-shrink-0 flex items-center justify-center rounded-full';
+    if (this.isMobile) {
+      return `${baseClasses} w-5 h-5`;
+    } else {
+      return `${baseClasses} w-6 h-6`;
+    }
+  }
+
+  getSvgSizeClasses(): string {
+    return this.isMobile ? 'w-3 h-3' : 'w-4 h-4';
+  }
+
+  getMessageClasses(): string {
+    const baseClasses = 'font-medium text-gray-900 leading-5';
+    return this.isMobile ? `${baseClasses} text-sm` : `${baseClasses} text-sm`;
+  }
+
+  getCloseButtonClasses(): string {
+    const baseClasses = 'flex-shrink-0 text-gray-400 hover:text-gray-600 transition-colors duration-200';
+    if (this.isMobile) {
+      return `${baseClasses} p-1 -m-1`;
+    } else {
+      return baseClasses;
+    }
+  }
+
+  getCloseSvgClasses(): string {
+    return this.isMobile ? 'w-4 h-4' : 'w-5 h-5';
   }
 }
