@@ -120,7 +120,7 @@
                       
                       <!-- Author byline -->
                       <div class="text-gray-900 text-sm font-medium">
-                        By {{ submission.authorName || 'Anonymous' }}
+                        By {{ submission.author?.name || submission.authorName || 'NA' }}
                       </div>
                     </div>
                     
@@ -184,7 +184,7 @@
                       </p>
                     }
                     <div class="flex items-center gap-1 text-gray-500 text-xs flex-wrap">
-                      <span class="font-medium">{{ submission.authorName || 'Anonymous' }}</span>
+                      <span class="font-medium">By {{ submission.author?.name || submission.authorName || 'NA' }}</span>
                       <span>•</span>
                       <span>{{ submission.readingTime || '5' }}m</span>
                     </div>
