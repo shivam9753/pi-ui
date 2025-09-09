@@ -80,10 +80,7 @@ export class ProfileCompletionComponent implements OnInit {
   private loadInitialData() {
     if (!this.user) return;
     
-    // If we're in completion mode, determine if user actually needs completion
-    if (this.mode === 'completion') {
-      this.isEditMode = !this.needsProfileCompletion(this.user);
-    }
+    // Profile editing is always available - no mandatory completion
     
     // Pre-fill with existing data from the user object
     // Use backend-validated data if available, otherwise use Google data
@@ -103,18 +100,8 @@ export class ProfileCompletionComponent implements OnInit {
     this.loadInitialData();
   }
 
-  needsProfileCompletion(user: any): boolean {
-    // Check if user needs profile completion based on backend response
-    if (user.needsProfileCompletion) return true;
-    
-    // Also check for default values that indicate incomplete profile
-    return !user.name || 
-           user.name.trim() === '' || 
-           user.name === 'Google authenticated user' ||
-           !user.bio || 
-           user.bio.trim() === '' || 
-           user.bio === 'Google authenticated user';
-  }
+  // REMOVED: Profile completion is no longer mandatory
+  // Users can edit their profile anytime
 
   onImageSelected(event: any) {
     const file = event.target.files[0];
@@ -171,7 +158,6 @@ export class ProfileCompletionComponent implements OnInit {
       const profileUpdateData: any = {
         name: this.profileData.name.trim(),
         bio: this.profileData.bio.trim(),
-        profileCompleted: true
       };
 
       // Only include profileImage if it's a valid URL
@@ -274,8 +260,7 @@ export class ProfileCompletionComponent implements OnInit {
       ...this.user, 
       name: profileData.name,
       bio: profileData.bio,
-      picture: profileData.profileImage,
-      profileCompleted: true
+      picture: profileData.profileImage
     };
     localStorage.setItem('google_user', JSON.stringify(updatedUser));
     
@@ -314,8 +299,7 @@ export class ProfileCompletionComponent implements OnInit {
       ...currentUser, 
       name: profileData.name,
       bio: profileData.bio,
-      picture: profileData.profileImage,
-      profileCompleted: true
+      picture: profileData.profileImage
     };
     
     localStorage.setItem('google_user', JSON.stringify(updatedUser));

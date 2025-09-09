@@ -92,6 +92,7 @@ export class PendingReviewsComponent implements OnInit, OnDestroy {
       options: [
         { value: '', label: 'All Statuses' },
         { value: SUBMISSION_STATUS.PENDING_REVIEW, label: 'Pending Review' },
+        { value: SUBMISSION_STATUS.SHORTLISTED, label: 'Shortlisted' },
         { value: SUBMISSION_STATUS.IN_PROGRESS, label: 'In Progress' },
         { value: SUBMISSION_STATUS.NEEDS_REVISION, label: 'Needs Revision' },
         { value: SUBMISSION_STATUS.RESUBMITTED, label: 'Resubmitted' }
@@ -186,6 +187,7 @@ export class PendingReviewsComponent implements OnInit, OnDestroy {
     statuses: [
       { label: 'All Statuses', value: '' },
       { label: 'Pending Review', value: 'pending_review' },
+      { label: 'Shortlisted', value: 'shortlisted' },
       { label: 'In Progress', value: 'in_progress' },
       { label: 'Needs Revision', value: 'needs_revision' },
       { label: 'Resubmitted', value: 'resubmitted' }
@@ -268,10 +270,10 @@ export class PendingReviewsComponent implements OnInit, OnDestroy {
     
     const params = this.buildQueryParams(page);
     
-    // Use the unified submissions API for pending reviews with advanced filtering
-    this.backendService.getSubmissions(params).subscribe(
+    // Use the new optimized review-queue endpoint for better performance
+    this.backendService.getReviewQueue(params).subscribe(
       (data) => {
-        this.submissions = data.submissions || [];  // Fixed: using 'submissions' instead of 'pendingSubmissions'
+        this.submissions = data.submissions || [];
         this.totalSubmissions = data.total || 0;
         this.hasMore = data.pagination?.hasMore || false;
         this.totalPages = Math.ceil(this.totalSubmissions / this.pageSize);
@@ -305,14 +307,12 @@ export class PendingReviewsComponent implements OnInit, OnDestroy {
       includeStats: true  // Request stats from backend
     };
 
-    // Show all reviewable statuses when no specific status filter is applied
+    // Let the review-queue endpoint handle status filtering logic
+    // Only add status param when specifically filtering (e.g., quick filters)
     if (this.filters['status'] && this.filters['status'].trim()) {
-      // For specific status filters (e.g., from quick filters)
       params.status = this.filters['status'];
-    } else {
-      // Default to show pending_review, shortlisted, and in_progress submissions
-      params.status = `${SUBMISSION_STATUS.PENDING_REVIEW},${SUBMISSION_STATUS.SHORTLISTED},${SUBMISSION_STATUS.IN_PROGRESS}`;
     }
+    // Remove default status logic - let backend review-queue endpoint decide
 
     // Add other filters only if they have values
     if (this.filters['type']) params.type = this.filters['type'];

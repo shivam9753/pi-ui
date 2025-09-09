@@ -161,17 +161,26 @@ export class SubmissionEditorComponent implements OnInit, OnDestroy {
       const action = queryParams['action'];
       const mode = queryParams['mode'];
       
+      console.log('🔧 DEBUG: Query params:', queryParams);
+      console.log('🔧 DEBUG: action:', action, 'mode:', mode);
+      
       if (action === 'resubmit' || mode === 'resubmit') {
         this.mode = 'resubmit';
+        console.log('🔧 DEBUG: Set mode to RESUBMIT');
       } else if (action === 'view' || mode === 'view') {
         this.mode = 'view';
+        console.log('🔧 DEBUG: Set mode to VIEW');
       } else if (queryParams['draft']) {
         this.mode = 'create';
         this.loadSpecificDraft(queryParams['draft']);
+        console.log('🔧 DEBUG: Set mode to CREATE (draft)');
       } else if (queryParams['topicId']) {
         // Handle topic pitch parameters
         this.mode = 'create';
         this.handleTopicPitchParams(queryParams);
+        console.log('🔧 DEBUG: Set mode to CREATE (topic)');
+      } else {
+        console.log('🔧 DEBUG: No query params matched, mode remains:', this.mode);
       }
     });
 
@@ -238,6 +247,16 @@ export class SubmissionEditorComponent implements OnInit, OnDestroy {
     this.backendService.getSubmissionWithContents(this.submissionId).subscribe({
       next: (data: EditableSubmission) => {
         this.submission = data;
+        
+        // Auto-detect mode based on submission status if not already set via query params
+        if (this.mode === 'edit' && data.status === 'needs_revision') {
+          this.mode = 'resubmit';
+          console.log('🔧 DEBUG: Auto-detected RESUBMIT mode based on needs_revision status');
+        } else if (this.mode === 'edit' && data.status === 'rejected') {
+          this.mode = 'resubmit';
+          console.log('🔧 DEBUG: Auto-detected RESUBMIT mode based on rejected status');
+        }
+        
         this.populateForm(data);
       },
       error: (error: any) => {
@@ -686,6 +705,11 @@ export class SubmissionEditorComponent implements OnInit, OnDestroy {
   }
 
   submitForReview(): void {
+    console.log('🔧 DEBUG: submitForReview called');
+    console.log('🔧 DEBUG: Current mode:', this.mode);
+    console.log('🔧 DEBUG: isResubmitMode:', this.isResubmitMode);
+    console.log('🔧 DEBUG: isEditMode:', this.isEditMode);
+    
     if (this.form.invalid) {
       this.markFormGroupTouched(this.form);
       this.showToast('Please fill in all required fields before submitting.', 'error');
@@ -710,21 +734,29 @@ export class SubmissionEditorComponent implements OnInit, OnDestroy {
     }
 
     if (this.isResubmitMode) {
-      // Use updateSubmission instead of resubmitSubmission to avoid backend action mapping issues
-      cleanedData.status = SUBMISSION_STATUS.RESUBMITTED; // Set to resubmitted status
-      this.backendService.updateSubmission(this.submissionId!, cleanedData).subscribe({
+      console.log('🔧 DEBUG: Taking RESUBMIT branch - calling resubmitSubmission API');
+      // Use the semantic resubmission API - no need to set status manually
+      this.backendService.resubmitSubmission(this.submissionId!, cleanedData).subscribe({
         next: (response: any) => {
-          this.showToast('Submission resubmitted successfully! It will be reviewed again.', 'success');
+          this.isSubmitting = false;
+          this.hasChanges = false;
+          this.hasUnsavedChanges = false;
+          this.showToast('Submission resubmitted successfully! Status automatically updated to "resubmitted".', 'success');
           setTimeout(() => {
             this.router.navigate(['/user-profile']);
           }, 2000);
         },
         error: (error: any) => {
-          this.showToast('Error resubmitting. Please try again.', 'error');
+          let errorMessage = 'Error resubmitting. Please try again.';
+          if (error.error?.message) {
+            errorMessage = error.error.message;
+          }
+          this.showToast(errorMessage, 'error');
           this.isSubmitting = false;
         }
       });
     } else if (this.isEditMode) {
+      console.log('🔧 DEBUG: Taking EDIT branch - calling updateSubmission API');
       cleanedData.status = SUBMISSION_STATUS.PENDING_REVIEW;
       this.backendService.updateSubmission(this.submissionId!, cleanedData).subscribe({
         next: (response: any) => {

@@ -304,7 +304,7 @@ export class ReviewSubmissionComponent {
       reviewNotes: this.reviewNotes.trim() || 'Approved without specific comments.'
     };
 
-    this.backendService.submitReviewAction(this.id, REVIEW_ACTIONS.APPROVE as ReviewAction, reviewData).subscribe({
+    this.backendService.approveSubmissionSemantic(this.id, reviewData).subscribe({
       next: () => {
         this.handleReviewSuccess('Submission approved successfully!');
       },
@@ -354,7 +354,7 @@ export class ReviewSubmissionComponent {
       reviewNotes: this.reviewNotes.trim()
     };
 
-    this.backendService.submitReviewAction(this.id, REVIEW_ACTIONS.REJECT as ReviewAction, reviewData).subscribe({
+    this.backendService.rejectSubmissionSemantic(this.id, reviewData).subscribe({
       next: () => {
         this.handleReviewSuccess('Submission rejected.');
       },
@@ -375,7 +375,7 @@ export class ReviewSubmissionComponent {
       reviewNotes: this.reviewNotes.trim()
     };
 
-    this.backendService.submitReviewAction(this.id, REVIEW_ACTIONS.REVISION as ReviewAction, reviewData).subscribe({
+    this.backendService.requestRevisionSemantic(this.id, reviewData).subscribe({
       next: () => {
         this.handleReviewSuccess('Revision requested. Author has been notified.');
       },
@@ -414,7 +414,7 @@ export class ReviewSubmissionComponent {
       reviewerId: user?.id || user?.email
     };
 
-    this.backendService.submitReviewAction(this.id, REVIEW_ACTIONS.SHORTLIST as ReviewAction, reviewData).subscribe({
+    this.backendService.shortlistSubmissionSemantic(this.id, reviewData).subscribe({
       next: () => {
         this.handleReviewSuccess('Submission shortlisted successfully!');
       },

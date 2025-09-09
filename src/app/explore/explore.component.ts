@@ -146,7 +146,7 @@ export class ExploreComponent implements OnInit {
     const params: any = {
       limit: this.itemsPerPage,
       skip: skip,
-      sortBy: this.sortBy === 'latest' ? 'reviewedAt' : this.sortBy,
+      sortBy: this.sortBy === 'latest' ? 'publishedAt' : this.sortBy,
       order: 'desc' as 'desc'
     };
     
@@ -171,8 +171,8 @@ export class ExploreComponent implements OnInit {
         },
         error: (error) => {
           console.error('Error loading trending posts:', error);
-          // Fallback to regular content if trending fails
-          this.backendService.getPublishedContent('', params).subscribe({
+          // Fallback to regular content if trending fails using optimized explore endpoint
+          this.backendService.getExploreContent(params).subscribe({
             next: (data) => {
               const newSubmissions = data.submissions || [];
               if (loadMore) {
@@ -196,7 +196,9 @@ export class ExploreComponent implements OnInit {
         }
       });
     } else {
-      this.backendService.getPublishedContent(type, params).subscribe({
+      // Use optimized explore endpoint with type filtering
+      const exploreParams = type ? { ...params, type } : params;
+      this.backendService.getExploreContent(exploreParams).subscribe({
         next: (data) => {
           const newSubmissions = data.submissions || [];
           if (loadMore) {

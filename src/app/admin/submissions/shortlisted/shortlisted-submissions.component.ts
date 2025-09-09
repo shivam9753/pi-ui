@@ -112,7 +112,7 @@ export class ShortlistedSubmissionsComponent implements OnInit {
       params.submissionType = this.currentFilters.type;
     }
 
-    this.backendService.getSubmissions(params).subscribe({
+    this.backendService.getReviewQueue(params).subscribe({
       next: (response: any) => {
         this.submissions = response.submissions || [];
         this.paginationConfig.totalItems = response.total || 0;

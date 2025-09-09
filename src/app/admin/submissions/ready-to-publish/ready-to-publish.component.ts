@@ -97,8 +97,8 @@ export class ReadyToPublishComponent implements OnInit {
       apiParams.search = this.currentFilters.search.trim();
     }
     
-    // Use the new consolidated endpoint with pagination
-    this.backendService.getSubmissions(apiParams).subscribe({
+    // Use the new optimized publish-queue endpoint for better performance
+    this.backendService.getPublishQueue(apiParams).subscribe({
       next: (data) => {
         // Handle optimized response structure
         this.acceptedSubmissions = data.submissions || [];

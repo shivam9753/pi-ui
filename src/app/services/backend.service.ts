@@ -991,6 +991,178 @@ put<T = any>(endpoint: string, body: any = {}): Observable<T> {
   );
 }
 
+// ========================================
+// NEW OPTIMIZED LIGHTWEIGHT ENDPOINTS
+// ========================================
+
+// Get review queue - lightweight cards for review workflow
+getReviewQueue(options: {
+  limit?: number;
+  skip?: number;
+  status?: string;
+  type?: string;
+  urgent?: boolean;
+  newAuthor?: boolean;
+  quickRead?: boolean;
+  topicSubmission?: boolean;
+  sortBy?: string;
+  order?: 'asc' | 'desc';
+} = {}): Observable<any> {
+  const headers = this.getAuthHeaders();
+  let params = new HttpParams();
+  
+  if (options.limit) params = params.set('limit', options.limit.toString());
+  if (options.skip) params = params.set('skip', options.skip.toString());
+  if (options.status) params = params.set('status', options.status);
+  if (options.type) params = params.set('type', options.type);
+  if (options.urgent) params = params.set('urgent', 'true');
+  if (options.newAuthor) params = params.set('newAuthor', 'true');
+  if (options.quickRead) params = params.set('quickRead', 'true');
+  if (options.topicSubmission) params = params.set('topicSubmission', 'true');
+  if (options.sortBy) params = params.set('sortBy', options.sortBy);
+  if (options.order) params = params.set('order', options.order);
+
+  return this.http.get(`${this.API_URL}/submissions/review-queue`, { headers, params }).pipe(
+    catchError(this.handleError)
+  );
+}
+
+// Get publish queue - lightweight cards for publish workflow  
+getPublishQueue(options: {
+  limit?: number;
+  skip?: number;
+  type?: string;
+  sortBy?: string;
+  order?: 'asc' | 'desc';
+} = {}): Observable<any> {
+  const headers = this.getAuthHeaders();
+  let params = new HttpParams();
+  
+  if (options.limit) params = params.set('limit', options.limit.toString());
+  if (options.skip) params = params.set('skip', options.skip.toString());
+  if (options.type) params = params.set('type', options.type);
+  if (options.sortBy) params = params.set('sortBy', options.sortBy);
+  if (options.order) params = params.set('order', options.order);
+
+  return this.http.get(`${this.API_URL}/submissions/publish-queue`, { headers, params }).pipe(
+    catchError(this.handleError)
+  );
+}
+
+// Get explore content - lightweight cards for public content
+getExploreContent(options: {
+  limit?: number;
+  skip?: number;
+  type?: string;
+  featured?: boolean;
+  sortBy?: string;
+  order?: 'asc' | 'desc';
+} = {}): Observable<any> {
+  let params = new HttpParams();
+  
+  if (options.limit) params = params.set('limit', options.limit.toString());
+  if (options.skip) params = params.set('skip', options.skip.toString());
+  if (options.type) params = params.set('type', options.type);
+  if (options.featured) params = params.set('featured', 'true');
+  if (options.sortBy) params = params.set('sortBy', options.sortBy);
+  if (options.order) params = params.set('order', options.order);
+
+  return this.http.get(`${this.API_URL}/submissions/explore`, { params }).pipe(
+    catchError(this.handleError)
+  );
+}
+
+// Get complete review data - full data for review workflow
+getCompleteReviewData(submissionId: string): Observable<any> {
+  const headers = this.getAuthHeaders();
+  return this.http.get(`${this.API_URL}/submissions/${submissionId}/review-data`, { headers }).pipe(
+    catchError(this.handleError)
+  );
+}
+
+// Get complete publish data - full data for publish workflow
+getCompletePublishData(submissionId: string): Observable<any> {
+  const headers = this.getAuthHeaders();
+  return this.http.get(`${this.API_URL}/submissions/${submissionId}/publish-data`, { headers }).pipe(
+    catchError(this.handleError)
+  );
+}
+
+// Get content view - optimized public reading experience
+getContentView(submissionId: string): Observable<any> {
+  return this.http.get(`${this.API_URL}/submissions/${submissionId}/content-view`).pipe(
+    catchError(this.handleError)
+  );
+}
+
+// Get admin purge candidates - cleanup management
+getAdminPurgeCandidates(options: {
+  limit?: number;
+  skip?: number;
+  type?: string;
+  daysOld?: number;
+} = {}): Observable<any> {
+  const headers = this.getAuthHeaders();
+  let params = new HttpParams();
+  
+  if (options.limit) params = params.set('limit', options.limit.toString());
+  if (options.skip) params = params.set('skip', options.skip.toString());
+  if (options.type) params = params.set('type', options.type);
+  if (options.daysOld) params = params.set('daysOld', options.daysOld.toString());
+
+  return this.http.get(`${this.API_URL}/submissions/admin/purge-candidates`, { headers, params }).pipe(
+    catchError(this.handleError)
+  );
+}
+
+// ========================================
+// NEW SEMANTIC REVIEW ENDPOINTS
+// ========================================
+
+// Approve submission - semantic endpoint with no action parameter
+approveSubmissionSemantic(submissionId: string, reviewData: { 
+  reviewNotes: string; 
+  rating?: number 
+}): Observable<any> {
+  const headers = this.getAuthHeaders();
+  return this.http.post(`${this.API_URL}/reviews/${submissionId}/approve`, reviewData, { headers }).pipe(
+    catchError(this.handleError)
+  );
+}
+
+// Reject submission - semantic endpoint with no action parameter
+rejectSubmissionSemantic(submissionId: string, reviewData: { 
+  reviewNotes: string; 
+  rating?: number 
+}): Observable<any> {
+  const headers = this.getAuthHeaders();
+  return this.http.post(`${this.API_URL}/reviews/${submissionId}/reject`, reviewData, { headers }).pipe(
+    catchError(this.handleError)
+  );
+}
+
+// Request revision - semantic endpoint with no action parameter
+requestRevisionSemantic(submissionId: string, reviewData: { 
+  reviewNotes: string; 
+  rating?: number 
+}): Observable<any> {
+  const headers = this.getAuthHeaders();
+  return this.http.post(`${this.API_URL}/reviews/${submissionId}/revision`, reviewData, { headers }).pipe(
+    catchError(this.handleError)
+  );
+}
+
+// Shortlist submission - semantic endpoint with no action parameter
+shortlistSubmissionSemantic(submissionId: string, reviewData: { 
+  reviewNotes: string; 
+  reviewerId?: string 
+}): Observable<any> {
+  const headers = this.getAuthHeaders();
+  return this.http.post(`${this.API_URL}/reviews/${submissionId}/shortlist`, reviewData, { headers }).pipe(
+    catchError(this.handleError)
+  );
+}
+
 delete<T = any>(endpoint: string): Observable<T> {
   const headers = this.getAuthHeaders();
   const url = `${this.API_URL}${endpoint}`;

@@ -15,9 +15,6 @@ export interface GoogleUser {
   given_name: string;
   family_name: string;
   role?: 'user' | 'writer' | 'reviewer' | 'admin';
-  needsProfileCompletion?: boolean;
-  isNewUser?: boolean;
-  profileCompleted?: boolean;
   bio?: string;
 }
 
@@ -198,9 +195,6 @@ export class AuthService {
           ...baseUser,
           id: res.user?._id || res.user?.id || baseUser.id,
           role: res.user?.role || 'user',
-          needsProfileCompletion: res.needsProfileCompletion,
-          isNewUser: res.isNewUser,
-          profileCompleted: res.user?.profileCompleted,
           bio: res.user?.bio || baseUser.bio
         };
         
@@ -217,9 +211,6 @@ export class AuthService {
         
         this.userSubject.next(fullUser);
         this.isLoggedInSubject.next(true);
-        
-        // Check and fix profile completion status if needed
-        this.checkAndFixProfileCompletion(fullUser);
         
         this.navigateAfterLogin();
       },
@@ -444,14 +435,6 @@ export class AuthService {
   }
 
   private navigateAfterLogin(): void {
-    const currentUser = this.getCurrentUser();
-    
-    // Check if user needs profile completion
-    if (currentUser && this.needsProfileCompletion(currentUser)) {
-      this.router.navigate(['/complete-profile']);
-      return;
-    }
-    
     // Check if there's a stored return URL
     const returnUrl = isPlatformBrowser(this.platformId) 
       ? localStorage.getItem('returnUrl') 
@@ -461,36 +444,13 @@ export class AuthService {
       localStorage.removeItem('returnUrl');
       this.router.navigate([returnUrl]);
     } else {
-      // Default navigation
+      // Default navigation - no profile completion required
       this.router.navigate(['/explore']);
     }
   }
 
-  private needsProfileCompletion(user: any): boolean {
-    
-    // If this is a completely new user (email doesn't exist in system), require profile completion
-    if (user.isNewUser) {
-      return true;
-    }
-    
-    // Check if user needs profile completion based on backend response
-    if (user.needsProfileCompletion) {
-      return true;
-    }
-    if (user.profileCompleted === false) {
-      return true;
-    }
-    
-    // Also check for default values that indicate incomplete profile
-    const hasIncompleteProfile = !user.name || 
-           user.name.trim() === '' || 
-           user.name === 'Google authenticated user' ||
-           !user.bio || 
-           user.bio.trim() === '' || 
-           user.bio === 'Google authenticated user';
-    
-    return hasIncompleteProfile;
-  }
+  // REMOVED: Profile completion is no longer mandatory for Google OAuth users
+  // Users can complete their profile by visiting /user-profile when they want to
 
   // Public methods for components to use
   public getCurrentUser(): GoogleUser | null {
@@ -591,45 +551,11 @@ export class AuthService {
     this.signInWithPopup();
   }
 
-  // Public method to check if user needs profile completion
-  public userNeedsProfileCompletion(): boolean {
-    const currentUser = this.getCurrentUser();
-    return currentUser ? this.needsProfileCompletion(currentUser) : false;
-  }
+  // REMOVED: Profile completion is no longer mandatory
+  // Users can update their profile anytime via /user-profile
 
-  // Method to check and fix profile completion status
-  private checkAndFixProfileCompletion(user: GoogleUser): void {
-    if (!user.id) return;
-
-    // Only try to fix if backend says needsProfileCompletion but user seems to have complete data
-    if (user.needsProfileCompletion && user.name && user.bio && 
-        user.name.trim() !== '' && user.bio.trim() !== '' &&
-        user.name !== 'Google authenticated user' && user.bio !== 'Google authenticated user') {
-      
-      const jwtToken = localStorage.getItem('jwt_token');
-      if (!jwtToken) return;
-
-      fetch(`${environment.apiBaseUrl}/users/${user.id}/fix-profile-completion`, {
-        method: 'PATCH',
-        headers: {
-          'Authorization': `Bearer ${jwtToken}`,
-          'Content-Type': 'application/json'
-        }
-      })
-      .then(response => response.json())
-      .then(result => {
-        if (result.fixed) {
-          // Update the current user object
-          const updatedUser = { ...user, profileCompleted: true, needsProfileCompletion: false };
-          localStorage.setItem('google_user', JSON.stringify(updatedUser));
-          this.userSubject.next(updatedUser);
-        }
-      })
-      .catch(error => {
-        // Failed to fix profile completion
-      });
-    }
-  }
+  // REMOVED: Profile completion checking is no longer needed
+  // All Google OAuth users are created with completed profiles by default
 
   // Method to handle successful email authentication
   public handleAuthSuccess(user: any, token: string): void {
@@ -642,8 +568,6 @@ export class AuthService {
         given_name: user.name.split(' ')[0] || user.name,
         family_name: user.name.split(' ').slice(1).join(' ') || '',
         role: user.role || 'user',
-        needsProfileCompletion: user.needsProfileCompletion || false,
-        profileCompleted: user.profileCompleted || !user.needsProfileCompletion,
         bio: user.bio || ''
       };
 
@@ -654,9 +578,6 @@ export class AuthService {
       // Update auth state
       this.userSubject.next(fullUser);
       this.isLoggedInSubject.next(true);
-
-      // Check and fix profile completion if needed
-      this.checkAndFixProfileCompletion(fullUser);
     }
   }
 }
