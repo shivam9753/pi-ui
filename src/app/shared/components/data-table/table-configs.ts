@@ -342,35 +342,21 @@ export const PROMPTS_TABLE_COLUMNS: TableColumn[] = [
     key: 'title',
     label: 'Title & Description',
     type: 'custom',
-    width: '35%',
-    sortable: true
-  },
-  {
-    key: 'type',
-    label: 'Type',
-    type: 'custom',
-    width: '15%',
-    sortable: true
-  },
-  {
-    key: 'difficulty',
-    label: 'Difficulty',
-    type: 'custom',
-    width: '15%',
+    width: '55%',
     sortable: true
   },
   {
     key: 'status',
     label: 'Status',
     type: 'custom',
-    width: '15%',
+    width: '20%',
     sortable: false
   },
   {
     key: 'createdAt',
     label: 'Created',
     type: 'date',
-    width: '20%',
+    width: '25%',
     sortable: true
   }
 ];
@@ -378,7 +364,6 @@ export const PROMPTS_TABLE_COLUMNS: TableColumn[] = [
 export const createPromptActions = (
   editHandler: (prompt: any) => void,
   toggleStatusHandler: (prompt: any) => void,
-  toggleFeaturedHandler: (prompt: any) => void,
   deleteHandler: (prompt: any) => void
 ): TableAction[] => [
   {
@@ -391,11 +376,6 @@ export const createPromptActions = (
     label: 'Toggle Status',
     color: 'secondary',
     handler: toggleStatusHandler
-  },
-  {
-    label: 'Toggle Featured',
-    color: 'warning',
-    handler: toggleFeaturedHandler
   },
   {
     label: 'Delete',

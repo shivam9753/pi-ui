@@ -87,10 +87,21 @@ export class ProfileCompletionComponent implements OnInit {
     this.profileData.name = this.user.name || '';
     this.profileData.bio = this.user.bio || '';
     
+    // Reset profile image to original state
+    this.profileData.profileImage = null;
+    
     // Set image preview if user already has a profile image
     // Check for both backend profileImage and Google picture
-    if (this.user.picture) {
-      this.profileImagePreview = this.user.picture;
+    if (this.user.picture || (this.user as any).profileImage) {
+      this.profileImagePreview = this.user.picture || (this.user as any).profileImage;
+    } else {
+      this.profileImagePreview = null;
+    }
+    
+    // Reset file input
+    const fileInput = document.getElementById('profileImage') as HTMLInputElement;
+    if (fileInput) {
+      fileInput.value = '';
     }
   }
 
@@ -348,6 +359,9 @@ export class ProfileCompletionComponent implements OnInit {
   }
 
   cancel() {
+    // Reset form to original data before emitting cancel event
+    this.loadInitialData();
+    
     // Emit cancel event
     this.profileCancelled.emit();
     

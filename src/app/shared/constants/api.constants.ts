@@ -65,10 +65,10 @@ export const API_ENDPOINTS = {
   },
   
   REVIEWS_NESTED: {
-    ACTION: (id: string) => `/reviews/${id}/action`,
-    APPROVE: (id: string) => `/reviews/${id}/approve`, // DEPRECATED
-    REJECT: (id: string) => `/reviews/${id}/reject`, // DEPRECATED
-    REVISION: (id: string) => `/reviews/${id}/revision`, // DEPRECATED
+    APPROVE: (id: string) => `/reviews/${id}/approve`,
+    REJECT: (id: string) => `/reviews/${id}/reject`,
+    REVISION: (id: string) => `/reviews/${id}/revision`,
+    SHORTLIST: (id: string) => `/reviews/${id}/shortlist`,
     MOVE_TO_PROGRESS: (id: string) => `/reviews/${id}/move-to-progress`,
     SUBMISSION: (id: string) => `/reviews/submission/${id}`,
     BY_REVIEWER: (reviewerId: string) => `/reviews/reviewer/${reviewerId}`,
@@ -88,8 +88,6 @@ export const API_ENDPOINTS = {
     STATS: (id: string) => `/users/${id}/stats`,
     PUBLISHED_WORKS: (id: string) => `/users/${id}/published-works`,
     SUBMISSION_HISTORY: (id: string) => `/users/${id}/submission-history`,
-    APPROVE_BIO: (id: string) => `/users/${id}/approve-bio`,
-    APPROVE_PROFILE_IMAGE: (id: string) => `/users/${id}/approve-profile-image`,
     FOLLOW: (id: string) => `/users/${id}/follow`,
     CHANGE_PASSWORD: (id: string) => `/users/${id}/change-password`,
     UPDATE_ROLE: (id: string) => `/users/${id}/role`,
@@ -109,7 +107,13 @@ export const API_ENDPOINTS = {
   
   CONTENT_NESTED: {
     BY_TAG: (tag: string) => `/content/by-tag/${encodeURIComponent(tag)}`,
-    TAGS_POPULAR: '/content/popular-tags'
+  },
+  
+  TAGS: '/tags',
+  TAGS_NESTED: {
+    POPULAR: '/tags/popular',
+    TRENDING: '/tags/trending',
+    SEARCH: '/tags/search'
   },
   
   

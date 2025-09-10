@@ -36,7 +36,7 @@
   overflow: hidden;
 }
 
-/* Mobile-specific button fixes */
+/* Mobile-specific button fixes - updated */
 @media (max-width: 639px) {
   /* Fix oversized buttons in filter area and header */
   .btn-secondary {

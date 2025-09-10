@@ -14,11 +14,9 @@ import {
 import { 
   API_ENDPOINTS, 
   SUBMISSION_STATUS, 
-  REVIEW_ACTIONS, 
   API_CONFIG,
   HTTP_STATUS,
   SubmissionStatus,
-  ReviewAction,
   API_UTILS 
 } from '../shared/constants/api.constants';
 
@@ -455,39 +453,20 @@ export class BackendService {
 
   
 
-  /**
-   * Unified review action method - replaces individual approve/reject/revision methods
-   * @param submissionId - The submission ID
-   * @param action - The review action (approve, reject, revision)
-   * @param reviewData - Review data including notes and optional rating
-   */
-  submitReviewAction(submissionId: string, action: ReviewAction, reviewData: { reviewNotes: string; rating?: number }) {
-    const headers = this.getAuthHeaders();
-    const url = API_ENDPOINTS.REVIEWS_NESTED.ACTION(submissionId);
-    
-    return this.http.post(
-      `${this.API_URL}${url}`,
-      {
-        action,
-        ...reviewData
-      },
-      { headers }
-    ).pipe(this.handleApiCall(url, 'POST'));
-  }
 
-  // DEPRECATED: Use submitReviewAction instead
+  // Use semantic endpoints for review actions
   approveSubmission(submissionId: string, reviewData: { reviewNotes: string }) {
-    return this.submitReviewAction(submissionId, REVIEW_ACTIONS.APPROVE as ReviewAction, reviewData);
+    return this.approveSubmissionSemantic(submissionId, reviewData);
   }
 
-  // DEPRECATED: Use submitReviewAction instead  
+  // Use semantic endpoints for review actions  
   rejectSubmission(submissionId: string, reviewData: { reviewNotes: string }) {
-    return this.submitReviewAction(submissionId, REVIEW_ACTIONS.REJECT as ReviewAction, reviewData);
+    return this.rejectSubmissionSemantic(submissionId, reviewData);
   }
 
-  // DEPRECATED: Use submitReviewAction instead
+  // Use semantic endpoints for review actions
   requestRevision(submissionId: string, reviewData: { reviewNotes: string }) {
-    return this.submitReviewAction(submissionId, REVIEW_ACTIONS.REVISION as ReviewAction, reviewData);
+    return this.requestRevisionSemantic(submissionId, reviewData);
   }
 
   // Get review details for a submission
@@ -838,7 +817,8 @@ export class BackendService {
   }
 
   getAllPrompts(): Observable<any> {
-  return this.http.get<any>(`${this.API_URL}${API_ENDPOINTS.PROMPTS_NESTED.ALL}`);
+  const headers = this.getAuthHeaders();
+  return this.http.get<any>(`${this.API_URL}${API_ENDPOINTS.PROMPTS_NESTED.ALL}`, {headers});
 }
 
 // Create new prompt (admin only)
@@ -860,7 +840,8 @@ deletePrompt(promptId: string): Observable<any> {
 
 // Toggle prompt active status (admin only)
 togglePromptStatus(promptId: string): Observable<any> {
-  return this.http.patch<any>(`${this.API_URL}${API_ENDPOINTS.PROMPTS_NESTED.TOGGLE_STATUS(promptId)}`, {});
+  const headers = this.getAuthHeaders();
+  return this.http.patch<any>(`${this.API_URL}${API_ENDPOINTS.PROMPTS_NESTED.TOGGLE_STATUS(promptId)}`, {}, {headers});
 }
 
 // Increment prompt usage count
@@ -885,17 +866,6 @@ checkUserSubmissionHistory(userId: string): Observable<any> {
 
 // Profile image upload is handled separately in user profile management
 
-// Approve user bio (admin only)
-approveUserBio(userId: string, approvedBio: string): Observable<any> {
-  const headers = this.getAuthHeaders();
-  return this.http.post<any>(`${this.API_URL}${API_ENDPOINTS.USERS_NESTED.APPROVE_BIO(userId)}`, { approvedBio }, { headers });
-}
-
-// Approve user profile image (admin only)
-approveUserProfileImage(userId: string): Observable<any> {
-  const headers = this.getAuthHeaders();
-  return this.http.post<any>(`${this.API_URL}${API_ENDPOINTS.USERS_NESTED.APPROVE_PROFILE_IMAGE(userId)}`, {}, { headers });
-}
 
 // Get user's submissions with status tracking
 getUserSubmissions(options: {
@@ -971,8 +941,8 @@ deleteDraft(draftId: string): Observable<any> {
   );
 }
 
-// Get popular tags from published content
-getPopularTags(options: { limit?: number } = {}): Observable<{
+// Get popular tags from trending submissions
+getPopularTags(options: { limit?: number; windowDays?: number } = {}): Observable<{
   tags: string[];
 }> {
   let params = new HttpParams();
@@ -980,9 +950,12 @@ getPopularTags(options: { limit?: number } = {}): Observable<{
   if (options.limit) {
     params = params.set('limit', options.limit.toString());
   }
+  if (options.windowDays) {
+    params = params.set('windowDays', options.windowDays.toString());
+  }
 
   const headers = this.getPublicHeaders();
-  const url = `${this.API_URL}${API_ENDPOINTS.CONTENT_NESTED.TAGS_POPULAR}`;
+  const url = `${this.API_URL}${API_ENDPOINTS.TAGS_NESTED.POPULAR}`;
   return this.http.get<any>(url, { headers, params }).pipe(
     this.handleApiCall(url, 'GET')
   );

@@ -17,25 +17,26 @@
     </button>
   </app-admin-page-header>
 
-  <!-- Create/Edit Form -->
+  <!-- Create/Edit Modal -->
   @if (showCreateForm) {
-    <div class="bg-white border border-gray-200 rounded-lg p-6 mb-6">
-      <div class="flex justify-between items-center mb-4">
-        <h3 class="text-lg font-semibold text-gray-900">
-          {{ editingPrompt ? 'Edit Prompt' : 'Create New Prompt' }}
-        </h3>
-        <button
-          (click)="cancelEdit()"
-          class="text-gray-500 hover:text-gray-700 transition-colors duration-200">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-          </svg>
-        </button>
-      </div>
-      <form [formGroup]="promptForm" (ngSubmit)="savePrompt()">
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+    <div class="fixed inset-0 z-50 flex items-center justify-center">
+      <div class="fixed inset-0 bg-black bg-opacity-50" (click)="cancelEdit()"></div>
+      <div class="relative bg-white rounded-lg shadow-lg p-6 m-4 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="text-lg font-semibold text-gray-900">
+            {{ editingPrompt ? 'Edit Prompt' : 'Create New Prompt' }}
+          </h3>
+          <button
+            (click)="cancelEdit()"
+            class="text-gray-500 hover:text-gray-700 transition-colors duration-200">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+        <form [formGroup]="promptForm" (ngSubmit)="savePrompt()">
           <!-- Title -->
-          <div class="md:col-span-2">
+          <div class="mb-4">
             <label class="block text-sm font-medium text-gray-700 mb-2">Title *</label>
             <input
               type="text"
@@ -49,31 +50,59 @@
               </div>
             }
           </div>
-          <!-- Type -->
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">Type *</label>
-            <select
-              formControlName="type"
-              class="form-input"
-              [class.border-red-500]="promptForm.get('type')?.invalid && promptForm.get('type')?.touched">
-              <option value="">Select type...</option>
-              <option value="poem">Poem</option>
-              <option value="prose">Prose</option>
-              <option value="article">Article</option>
-              <option value="cinema_essay">Cinema Essay</option>
-            </select>
+          
+          <!-- Tags with Chips -->
+          <div class="mb-4">
+            <label class="block text-sm font-medium text-gray-700 mb-2">Tags</label>
+            <div class="border border-gray-300 rounded-md p-2 min-h-[42px] flex flex-wrap items-center gap-2">
+              <!-- Display existing tags as chips -->
+              @for (tag of selectedTags; track tag) {
+                <span class="inline-flex items-center px-3 py-1 rounded-full text-sm bg-blue-100 text-blue-800">
+                  {{ tag }}
+                  <button 
+                    type="button"
+                    (click)="removeTag(tag)"
+                    class="ml-1 inline-flex items-center p-0.5 rounded-full text-blue-400 hover:bg-blue-200 hover:text-blue-600">
+                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6m0 0L6 6l12 12" />
+                    </svg>
+                  </button>
+                </span>
+              }
+              <!-- Input for new tags -->
+              <input
+                type="text"
+                #tagInput
+                (keydown.enter)="addTag(tagInput.value, tagInput); $event.preventDefault()"
+                (keydown.comma)="addTag(tagInput.value, tagInput); $event.preventDefault()"
+                placeholder="Type tag and press Enter..."
+                class="flex-1 min-w-[120px] border-0 outline-none bg-transparent text-sm"
+                [class.text-gray-400]="!tagInput.value" />
+            </div>
+            <div class="text-gray-500 text-xs mt-1">
+              Type a tag and press Enter or comma to add it
+            </div>
           </div>
-          <!-- Difficulty -->
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">Difficulty *</label>
-            <select formControlName="difficulty" class="form-input">
-              <option value="beginner">Beginner</option>
-              <option value="intermediate">Intermediate</option>
-              <option value="advanced">Advanced</option>
-            </select>
+
+          <!-- Description -->
+          <div class="mb-4">
+            <label class="block text-sm font-medium text-gray-700 mb-2">Description *</label>
+            <textarea
+              formControlName="description"
+              rows="4"
+              placeholder="Enter the writing prompt description..."
+              class="form-input resize-none"
+              [class.border-red-500]="promptForm.get('description')?.invalid && promptForm.get('description')?.touched">
+            </textarea>
+            @if (promptForm.get('description')?.invalid && promptForm.get('description')?.touched) {
+              <div class="text-red-500 text-sm mt-1">
+                Description is required (max 1000 characters)
+              </div>
+            }
           </div>
-          <!-- Status Toggles -->
-          <div class="md:col-span-2 flex gap-6">
+
+          <!-- Status Toggle -->
+          <div class="mb-6">
             <label class="flex items-center">
               <input
                 type="checkbox"
@@ -81,56 +110,33 @@
                 class="mr-2 rounded border-gray-300 focus:ring-blue-500" />
               <span class="text-gray-700">Active</span>
             </label>
-            <label class="flex items-center">
-              <input
-                type="checkbox"
-                formControlName="featured"
-                class="mr-2 rounded border-gray-300 focus:ring-blue-500" />
-              <span class="text-gray-700">Featured</span>
-            </label>
           </div>
-        </div>
-        <!-- Description -->
-        <div class="mb-6">
-          <label class="block text-sm font-medium text-gray-700 mb-2">Description *</label>
-          <textarea
-            formControlName="description"
-            rows="4"
-            placeholder="Enter the writing prompt description..."
-            class="form-input resize-none"
-            [class.border-red-500]="promptForm.get('description')?.invalid && promptForm.get('description')?.touched">
-          </textarea>
-          @if (promptForm.get('description')?.invalid && promptForm.get('description')?.touched) {
-            <div class="text-red-500 text-sm mt-1">
-              Description is required (max 1000 characters)
-            </div>
-          }
-        </div>
-        <!-- Actions -->
-        <div class="flex justify-end gap-3">
-          <button
-            type="button"
-            (click)="cancelEdit()"
-            class="btn-secondary">
-            Cancel
-          </button>
-          <button
-            type="submit"
-            [disabled]="promptForm.invalid || isSaving"
-            class="btn-primary">
-            @if (isSaving) {
-              <div class="w-4 h-4 mr-2 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-            }
-            {{ editingPrompt ? 'Update' : 'Create' }} Prompt
-          </button>
-        </div>
-      </form>
+
+          <!-- Actions -->
+          <div class="flex justify-end gap-3">
+            <button
+              type="button"
+              (click)="cancelEdit()"
+              class="btn-secondary">
+              Cancel
+            </button>
+            <button
+              type="submit"
+              [disabled]="promptForm.invalid || isSaving"
+              class="btn-primary">
+              @if (isSaving) {
+                <div class="w-4 h-4 mr-2 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+              }
+              {{ editingPrompt ? 'Update' : 'Create' }} Prompt
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
   }
 
   <!-- Filter Component -->
   <app-simple-submission-filter 
-    [availableTypes]="['poem', 'prose', 'article', 'cinema_essay']"
     [showSortOptions]="true"
     [sortField]="'createdAt'"
     (filterChange)="onFilterChange($event)">
@@ -160,23 +166,19 @@
             <div class="text-sm font-semibold text-gray-900 mb-1">
               {{ item.title }}
             </div>
-            <div class="text-xs text-gray-500 leading-relaxed line-clamp-2">
+            <div class="text-xs text-gray-500 leading-relaxed line-clamp-2 mb-2">
               {{ item.description }}
             </div>
+            @if (item.tags && item.tags.length > 0) {
+              <div class="flex flex-wrap gap-1">
+                @for (tag of item.tags; track tag) {
+                  <span class="px-2 py-1 text-xs bg-blue-100 text-blue-700 rounded-full">
+                    {{ tag }}
+                  </span>
+                }
+              </div>
+            }
           </div>
-        }
-        @case ('type') {
-          <span class="tag tag-blue">
-            {{ getTypeLabel(item.type) }}
-          </span>
-        }
-        @case ('difficulty') {
-          <span class="tag"
-            [class.tag-green]="item.difficulty === 'beginner'"
-            [class.tag-yellow]="item.difficulty === 'intermediate'"
-            [class.tag-red]="item.difficulty === 'advanced'">
-            {{ getDifficultyLabel(item.difficulty) }}
-          </span>
         }
         @case ('status') {
           <div class="flex items-center gap-2">
@@ -187,11 +189,6 @@
             <span class="text-sm text-gray-600">
               {{ item.isActive ? 'Active' : 'Inactive' }}
             </span>
-            @if (item.featured) {
-              <span class="tag tag-yellow text-xs">
-                ⭐
-              </span>
-            }
           </div>
         }
       }
@@ -201,20 +198,20 @@
     <ng-template #mobileCard let-prompt let-actions="actions">
       <div class="mb-3">
         <h3 class="font-semibold text-gray-900 mb-1">{{ prompt.title }}</h3>
-        <p class="text-xs text-gray-500 mt-1 line-clamp-2">{{ prompt.description }}</p>
+        <p class="text-xs text-gray-500 mt-1 line-clamp-2 mb-2">{{ prompt.description }}</p>
+        @if (prompt.tags && prompt.tags.length > 0) {
+          <div class="flex flex-wrap gap-1">
+            @for (tag of prompt.tags; track tag) {
+              <span class="px-2 py-1 text-xs bg-blue-100 text-blue-700 rounded-full">
+                {{ tag }}
+              </span>
+            }
+          </div>
+        }
       </div>
       
-      <!-- Type and Status Info -->
+      <!-- Status Info -->
       <div class="flex flex-wrap items-center gap-2 mb-3">
-        <span class="tag tag-blue">
-          {{ getTypeLabel(prompt.type) }}
-        </span>
-        <span class="tag"
-          [class.tag-green]="prompt.difficulty === 'beginner'"
-          [class.tag-yellow]="prompt.difficulty === 'intermediate'"
-          [class.tag-red]="prompt.difficulty === 'advanced'">
-          {{ getDifficultyLabel(prompt.difficulty) }}
-        </span>
         <div class="flex items-center gap-1">
           <span class="w-2 h-2 rounded-full"
             [class.bg-green-500]="prompt.isActive"
@@ -224,11 +221,6 @@
             {{ prompt.isActive ? 'Active' : 'Inactive' }}
           </span>
         </div>
-        @if (prompt.featured) {
-          <span class="tag tag-yellow text-xs">
-            ⭐
-          </span>
-        }
         <span class="text-xs text-gray-500">
           {{ prompt.formattedCreatedAt }}
         </span>
@@ -260,7 +252,7 @@
       </div>
       <h3 class="text-lg font-medium text-gray-900 mb-2">No prompts found</h3>
       <p class="text-gray-500 mb-4">
-        {{ currentFilters.search || currentFilters.type ? 'Try adjusting your filters.' : 'No prompts have been created yet.' }}
+        {{ currentFilters.search ? 'Try adjusting your filters.' : 'No prompts have been created yet.' }}
       </p>
       <button
         (click)="createPrompt()"

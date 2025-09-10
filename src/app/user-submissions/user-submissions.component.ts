@@ -1,12 +1,9 @@
 import { Component, OnInit, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { RouterModule, ActivatedRoute, Router } from '@angular/router';
+import { RouterModule, Router } from '@angular/router';
 import { BackendService } from '../services/backend.service';
-import { UserProfile, PublishedWork } from '../models';
-import { TypeBadgePipe } from '../pipes/type-badge.pipe';
 import { PrettyLabelPipe } from '../pipes/pretty-label.pipe';
-import { ProfileCompletionComponent } from '../profile-completion/profile-completion.component';
 import { SUBMISSION_STATUS, SubmissionStatus } from '../shared/constants/api.constants';
 
 // Interfaces
@@ -47,10 +44,10 @@ interface Draft {
 }
 
 @Component({
-  selector: 'app-user-profile',
-  imports: [CommonModule, FormsModule, RouterModule, ProfileCompletionComponent, PrettyLabelPipe],
-  templateUrl: './user-profile.component.html',
-  styleUrl: './user-profile.component.css',
+  selector: 'app-user-submissions',
+  imports: [CommonModule, FormsModule, RouterModule, PrettyLabelPipe],
+  templateUrl: './user-submissions.component.html',
+  styleUrl: './user-submissions.component.css',
   styles: [`
     .line-clamp-2 {
       display: -webkit-box;
@@ -60,18 +57,13 @@ interface Draft {
     }
   `]
 })
-export class UserProfileComponent implements OnInit {
+export class UserSubmissionsComponent implements OnInit {
   // Core data
-  userProfile = signal<UserProfile | null>(null);
   submissions = signal<Submission[]>([]);
   drafts = signal<Draft[]>([]);
   
   // UI state
-  isEditMode = signal(false);
-  showProfileEditor = signal(false);
-  activeTab = signal<'published' | 'submissions' | 'drafts' | ''>('');
   selectedSubmission = signal<Submission | null>(null);
-  openDraftMenu = signal<string>('');
   
   // Loading states
   isLoading = signal(true);
@@ -94,122 +86,22 @@ export class UserProfileComponent implements OnInit {
   
   // Pagination state
   submissionsPage = signal(0);
-  submissionsLimit = signal(5);
+  submissionsLimit = signal(10);
   hasMoreSubmissions = signal(true);
   totalSubmissions = signal(0);
   
   // Constants for template
   readonly SUBMISSION_STATUS = SUBMISSION_STATUS;
-  
-  
-  // This page is ALWAYS the user's own profile - public profiles use public-author-profile component
-  isOwnProfile = computed(() => true);
-
-  // Edit form
-  editForm: any = {
-    name: '',
-    bio: '',
-    profileImage: '',
-    socialLinks: {
-      website: '',
-      twitter: '',
-      instagram: '',
-      linkedin: ''
-    },
-    preferences: {
-      emailNotifications: true,
-      publicProfile: true
-    }
-  };
 
   constructor(
-    private route: ActivatedRoute,
     public router: Router,
     private backendService: BackendService
   ) {}
 
   ngOnInit() {
-    // This component is ALWAYS for the current user's own profile
-    // Public profiles use the public-author-profile component
-    this.loadOwnProfile();
+    this.loadSubmissions();
+    this.loadDrafts();
   }
-
-  /**
-   * Load current user's own profile with all data (submissions, drafts, etc.)
-   */
-  async loadOwnProfile() {
-    try {
-      this.isLoading.set(true);
-      this.error.set(null);
-      
-      console.log('🔍 loadOwnProfile: Starting to load profile...');
-      
-      this.backendService.getCurrentUserProfileFromAPI().subscribe({
-        next: (response: any) => {
-          console.log('✅ Profile loaded successfully:', response);
-          this.userProfile.set(response.profile);
-          this.resetEditForm();
-          
-          console.log('🔍 About to call loadSubmissions, isOwnProfile():', this.isOwnProfile());
-          
-          // Load all data for own profile
-          this.loadSubmissions();
-          this.loadDrafts();
-          
-          this.isLoading.set(false);
-        },
-        error: (error: any) => {
-          console.error('Error loading own profile:', error);
-          
-          if (error.status === 401 || error.status === 403) {
-            // Clear auth token manually since clearAuthToken may not exist
-            localStorage.removeItem('jwt_token');
-            localStorage.removeItem('user');
-            this.error.set('Please log in to view your profile');
-            setTimeout(() => this.router.navigate(['/login']), 1500);
-          } else {
-            this.error.set('Error loading profile');
-          }
-          
-          this.isLoading.set(false);
-        }
-      });
-    } catch (error) {
-      console.error('Exception in loadOwnProfile:', error);
-      this.error.set('Error loading profile');
-      this.isLoading.set(false);
-    }
-  }
-
-  /**
-   * Load another user's profile (public view only)
-   */
-  async loadUserProfile(userId: string) {
-    try {
-      this.isLoading.set(true);
-      this.error.set(null);
-      
-      this.backendService.getUserProfile(userId).subscribe({
-        next: (response: any) => {
-          this.userProfile.set(response.profile);
-          
-          // For other users, show only basic profile info
-          
-          this.isLoading.set(false);
-        },
-        error: (error: any) => {
-          console.error('Error loading user profile:', error);
-          this.error.set('User not found or error loading profile');
-          this.isLoading.set(false);
-        }
-      });
-    } catch (error) {
-      console.error('Exception in loadUserProfile:', error);
-      this.error.set('Error loading profile');
-      this.isLoading.set(false);
-    }
-  }
-
 
   /**
    * Load user's submissions with pagination
@@ -239,12 +131,14 @@ export class UserProfileComponent implements OnInit {
           this.totalSubmissions.set(response.total || submissions.length);
           this.hasMoreSubmissions.set(submissions.length >= this.submissionsLimit());
           this.submissionsLoading.set(false);
+          this.isLoading.set(false);
         },
         error: (error: any) => {
           console.error('❌ Error loading submissions:', error);
           this.submissions.set([]);
           this.hasMoreSubmissions.set(false);
           this.submissionsLoading.set(false);
+          this.isLoading.set(false);
         }
       });
     } catch (error) {
@@ -252,6 +146,7 @@ export class UserProfileComponent implements OnInit {
       this.submissions.set([]);
       this.hasMoreSubmissions.set(false);
       this.submissionsLoading.set(false);
+      this.isLoading.set(false);
     }
   }
 
@@ -299,7 +194,6 @@ export class UserProfileComponent implements OnInit {
    * Load user's drafts
    */
   async loadDrafts() {
-    
     try {
       this.draftsLoading.set(true);
       
@@ -321,35 +215,9 @@ export class UserProfileComponent implements OnInit {
     }
   }
 
-  // Helper method to reset edit form
-  resetEditForm() {
-    const profile = this.userProfile();
-    if (profile) {
-      this.editForm = {
-        name: profile.name || '',
-        bio: profile.bio || '',
-        profileImage: profile.profileImage || '',
-        socialLinks: profile.socialLinks || {
-          website: '',
-          twitter: '',
-          instagram: '',
-          linkedin: ''
-        },
-        preferences: profile.preferences || {
-          emailNotifications: true,
-          publicProfile: true
-        }
-      };
-    }
-  }
-
   // Navigation helpers
   goToSubmit() {
     this.router.navigate(['/submission']);
-  }
-
-  editProfileAdvanced() {
-    this.showProfileEditor.set(true);
   }
 
   // Utility methods for template
@@ -359,16 +227,6 @@ export class UserProfileComponent implements OnInit {
 
   truncateTitle(title: string, maxLength: number = 50): string {
     return title.length > maxLength ? title.substring(0, maxLength) + '...' : title;
-  }
-
-  getSocialUrl(platform: string, handle: string): string {
-    const baseUrls = {
-      twitter: 'https://twitter.com/',
-      instagram: 'https://instagram.com/',
-      linkedin: 'https://linkedin.com/in/',
-      website: handle.startsWith('http') ? '' : 'https://'
-    };
-    return (baseUrls[platform as keyof typeof baseUrls] || '') + handle;
   }
 
   // Computed methods for filtering and sorting
@@ -462,46 +320,8 @@ export class UserProfileComponent implements OnInit {
     this.loadSubmissions();
   }
 
-
   refreshDrafts() {
     this.loadDrafts();
-  }
-
-  // Profile editor callbacks
-  onProfileSaved(event: any) {
-    this.showProfileEditor.set(false);
-    this.loadOwnProfile(); // Reload profile data
-  }
-
-  onProfileCancelled() {
-    this.showProfileEditor.set(false);
-    // Reset the edit form to original values when canceling
-    this.resetEditForm();
-  }
-
-  // Template helper methods that are referenced in the HTML
-  hasSocialLinks(): boolean {
-    const profile = this.userProfile();
-    if (!profile?.socialLinks) return false;
-    
-    const links = profile.socialLinks;
-    return !!(links.website || links.twitter || links.linkedin || links.instagram);
-  }
-
-  getCurrentUserId(): string | null {
-    const currentUser = this.backendService.getCurrentUserProfile();
-    return currentUser?._id || null;
-  }
-
-  onImageError(event: any) {
-    // Handle profile image load errors
-    event.target.style.display = 'none';
-  }
-
-  getPostViews(): number {
-    // Get total views from profile stats if available
-    const profile = this.userProfile();
-    return profile?.stats?.totalViews || 0;
   }
 
   showReviewModal(submission: Submission) {
@@ -580,113 +400,4 @@ export class UserProfileComponent implements OnInit {
     
     this.expandedComments.set(newExpanded);
   }
-
-  // Navigate to submissions page
-  goToSubmissions() {
-    this.router.navigate(['/my-submissions']);
-  }
-
-  // Get submission summary messages with priority (last 7 days only)
-  getSubmissionSummaryMessages() {
-    const submissions = this.submissions();
-    const messages: { message: string; type: string; priority: number; date?: Date; submissionType?: string }[] = [];
-    const now = new Date();
-    const sevenDaysAgo = new Date(now.getTime() - (7 * 24 * 60 * 60 * 1000));
-
-    console.log('🔍 Processing submissions for summary:', submissions.length);
-
-    submissions.forEach(submission => {
-      // Use updatedAt for filtering (most relevant for status changes)
-      const updateDate = new Date(submission.updatedAt || submission.reviewedAt || submission.submittedAt);
-      const submissionTypeFormatted = submission.submissionType.replace('_', ' ').toLowerCase();
-      
-      console.log(`📝 Processing: ${submission.title} - Status: ${submission.status} - Updated: ${updateDate.toISOString()}`);
-      
-      // Only include submissions updated in the last 7 days
-      if (updateDate < sevenDaysAgo) {
-        console.log(`⏰ Skipping ${submission.title} - too old (${updateDate.toDateString()})`);
-        return;
-      }
-
-      // Priority 1: Recent publications
-      if (submission.status === 'published') {
-        messages.push({
-          message: `Your ${submissionTypeFormatted} "${this.cleanHtml(submission.title)}" was published`,
-          type: 'published',
-          priority: 1,
-          date: updateDate,
-          submissionType: submissionTypeFormatted
-        });
-      }
-
-      // Priority 2: Accepted submissions
-      if (submission.status === 'accepted') {
-        messages.push({
-          message: `Your ${submissionTypeFormatted} "${this.cleanHtml(submission.title)}" was accepted`,
-          type: 'accepted',
-          priority: 2,
-          date: updateDate,
-          submissionType: submissionTypeFormatted
-        });
-      }
-
-      // Priority 3: Needs revision
-      if (submission.status === 'needs_revision') {
-        messages.push({
-          message: `Your ${submissionTypeFormatted} "${this.cleanHtml(submission.title)}" needs revision`,
-          type: 'needs_revision',
-          priority: 3,
-          date: updateDate,
-          submissionType: submissionTypeFormatted
-        });
-      }
-
-      // Priority 4: Shortlisted
-      if (submission.status === 'shortlisted') {
-        messages.push({
-          message: `Your ${submissionTypeFormatted} "${this.cleanHtml(submission.title)}" was shortlisted`,
-          type: 'shortlisted',
-          priority: 4,
-          date: updateDate,
-          submissionType: submissionTypeFormatted
-        });
-      }
-
-      // Priority 5: Under review
-      if (['pending_review', 'in_progress', 'resubmitted'].includes(submission.status)) {
-        messages.push({
-          message: `Your ${submissionTypeFormatted} "${this.cleanHtml(submission.title)}" is under review`,
-          type: 'under_review',
-          priority: 5,
-          date: updateDate,
-          submissionType: submissionTypeFormatted
-        });
-      }
-
-      // Priority 6: Rejected
-      if (submission.status === 'rejected') {
-        messages.push({
-          message: `Your ${submissionTypeFormatted} "${this.cleanHtml(submission.title)}" was rejected`,
-          type: 'rejected',
-          priority: 6,
-          date: updateDate,
-          submissionType: submissionTypeFormatted
-        });
-      }
-    });
-
-    // Sort by most recent first (no priority system, just chronological)
-    const sortedMessages = messages.sort((a, b) => {
-      return (b.date?.getTime() || 0) - (a.date?.getTime() || 0);
-    }).slice(0, 8); // Show max 8 messages
-    
-    console.log('📊 Generated messages (last 7 days, most recent first):', sortedMessages);
-    return sortedMessages;
-  }
-
-  // Get limited submissions for summary
-  getSummarySubmissions() {
-    return this.getAllSubmissionsChronological().slice(0, 3);
-  }
-
 }

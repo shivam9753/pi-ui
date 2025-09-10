@@ -1182,38 +1182,24 @@ export class PublishSubmissionComponent implements OnInit {
   // Approve user's bio and copy to main profile
   approveBio() {
     const updatedBio = this.profileApprovalData.tempBio;
-    this.backendService.approveUserBio(this.userProfile._id, updatedBio).subscribe({
-      next: (response: any) => {
-        this.userProfile = response.user;
-        this.profileApprovalData.approvedBio = updatedBio;
-        this.profileApprovalData.tempBio = '';
-        this.showSuccess('Bio approved and updated successfully!');
-        
-        // Check if all approvals are done
-        this.checkProfileApprovalComplete();
-      },
-      error: () => {
-        this.showError('Failed to approve bio. Please try again.');
-      }
-    });
+    // TODO: Replace with direct user profile update if needed
+    this.profileApprovalData.approvedBio = updatedBio;
+    this.profileApprovalData.tempBio = '';
+    this.showSuccess('Bio approved locally!');
+    
+    // Check if all approvals are done
+    this.checkProfileApprovalComplete();
   }
 
   // Approve user's profile image
   approveProfileImage() {
-    this.backendService.approveUserProfileImage(this.userProfile._id).subscribe({
-      next: (response: any) => {
-        this.userProfile = response.user;
-        this.profileApprovalData.approvedImage = true;
-        this.profileApprovalData.tempProfileImage = '';
-        this.showSuccess('Profile image approved successfully!');
-        
-        // Check if all approvals are done
-        this.checkProfileApprovalComplete();
-      },
-      error: () => {
-        this.showError('Failed to approve profile image. Please try again.');
-      }
-    });
+    // TODO: Replace with direct user profile update if needed
+    this.profileApprovalData.approvedImage = true;
+    this.profileApprovalData.tempProfileImage = '';
+    this.showSuccess('Profile image approved locally!');
+    
+    // Check if all approvals are done
+    this.checkProfileApprovalComplete();
   }
 
   // Edit the bio before approving

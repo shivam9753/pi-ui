@@ -35,10 +35,10 @@
       </div>
     </div>
 
-    <!-- Main Footer Content - 5-Column Grid -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6 md:gap-8">
+    <!-- Main Footer Content - Responsive Grid Layout -->
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-6 md:gap-8 max-w-4xl mx-auto">
 
-      <!-- Explore Links -->
+      <!-- Primary Actions -->
       <div class="text-center md:text-left">
         <h4 class="text-sm font-semibold text-gray-900 uppercase tracking-wider mb-4">Explore</h4>
         <ul class="space-y-2">
@@ -50,7 +50,7 @@
         </ul>
       </div>
 
-      <!-- Community Links -->
+      <!-- Community & Support -->
       <div class="text-center md:text-left">
         <h4 class="text-sm font-semibold text-gray-900 uppercase tracking-wider mb-4">Community</h4>
         <ul class="space-y-2">
@@ -65,46 +65,37 @@
               About
             </a>
           </li>
-        </ul>
-      </div>
-
-      <!-- Resources Links -->
-      <div class="text-center md:text-left">
-        <h4 class="text-sm font-semibold text-gray-900 uppercase tracking-wider mb-4">Resources</h4>
-        <ul class="space-y-2">
           <li>
             <a routerLink="/contact-us" class="text-gray-900-secondary hover:text-gray-900 transition-colors text-sm block">
               Contact
             </a>
           </li>
+        </ul>
+      </div>
+
+      <!-- Legal & Resources -->
+      <div class="text-center md:text-left">
+        <h4 class="text-sm font-semibold text-gray-900 uppercase tracking-wider mb-4">Resources</h4>
+        <ul class="space-y-2">
           <li>
             <a routerLink="/privacy-policy" class="text-gray-900-secondary hover:text-gray-900 transition-colors text-sm block">
-              Privacy
+              Privacy Policy
             </a>
           </li>
           <li>
             <a routerLink="/terms-of-use" class="text-gray-900-secondary hover:text-gray-900 transition-colors text-sm block">
-              Terms
+              Terms of Use
             </a>
           </li>
-        </ul>
-      </div>
-
-      <!-- What's New -->
-      <div class="text-center md:text-left">
-        <h4 class="text-sm font-semibold text-gray-900 uppercase tracking-wider mb-4">What's New</h4>
-        <ul class="space-y-2">
           <li>
             <a routerLink="/whats-new" class="text-gray-900-secondary hover:text-gray-900 transition-colors text-sm block">
-              Latest Features
+              What's New
             </a>
           </li>
-          <li><a href="#" class="text-gray-900-secondary hover:text-gray-900 transition-colors text-sm block">Updates</a></li>
-          <li><a href="#" class="text-gray-900-secondary hover:text-gray-900 transition-colors text-sm block">Announcements</a></li>
         </ul>
       </div>
 
-      <!-- Newsletter & Connect -->
+      <!-- Connect & Updates -->
       <div class="text-center md:text-left">
         <h4 class="text-sm font-semibold text-gray-900 uppercase tracking-wider mb-4">Connect</h4>
         <ul class="space-y-2">
@@ -113,28 +104,28 @@
               Newsletter
             </a>
           </li>
-          <li><a href="#" class="text-gray-900-secondary hover:text-gray-900 transition-colors text-sm block">Join Discord</a></li>
-          <li><a href="#" class="text-gray-900-secondary hover:text-gray-900 transition-colors text-sm block">Follow Updates</a></li>
+          <li><a href="#" class="text-gray-900-secondary hover:text-gray-900 transition-colors text-sm block">Updates</a></li>
+          <li><a href="#" class="text-gray-900-secondary hover:text-gray-900 transition-colors text-sm block">Announcements</a></li>
         </ul>
       </div>
 
     </div>
 
     <!-- Bottom Bar -->
-    <div class="mt-8 pt-6 border-t border-gray-200 text-center">
-      <div class="text-gray-900-secondary text-xs mb-3">
-        &copy; {{ currentYear }} PoemsIndia. All rights reserved.
-      </div>
-      <div class="flex justify-center items-center gap-4 text-xs">
-        <a href="#" class="text-gray-900-secondary hover:text-gray-900 transition-colors">Privacy</a>
-        <a href="#" class="text-gray-900-secondary hover:text-gray-900 transition-colors">Terms</a>
-        <button (click)="scrollToTop()"
-          class="text-gray-900-secondary hover:text-gray-900 transition-colors flex items-center gap-1">
-          <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="right" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18" />
-          </svg>
-          Top
-        </button>
+    <div class="mt-8 pt-6 border-t border-gray-200">
+      <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
+        <div class="text-gray-900-secondary text-xs text-center sm:text-left">
+          &copy; {{ currentYear }} PoemsIndia. All rights reserved.
+        </div>
+        <div class="flex justify-center sm:justify-end items-center gap-4 text-xs">
+          <button (click)="scrollToTop()"
+            class="text-gray-900-secondary hover:text-gray-900 transition-colors flex items-center gap-1">
+            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="right" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18" />
+            </svg>
+            Back to Top
+          </button>
+        </div>
       </div>
     </div>
   </div>

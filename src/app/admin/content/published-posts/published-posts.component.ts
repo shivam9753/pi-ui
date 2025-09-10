@@ -182,16 +182,25 @@ export class PublishedPostsComponent implements OnInit {
     
     apiCall.subscribe({
       next: (data: any) => {
-        this.publishedSubmissions = data.submissions || data.data || [];
-        this.filteredSubmissions = data.submissions || data.data || [];
+        console.log('📊 API Response:', data);
+        const submissions = data.submissions || data.data || [];
+        console.log('🔢 Received submissions count:', submissions.length);
+        console.log('🏷️ Quick filter:', this.quickFilter);
+        
+        // Create new array references to ensure change detection
+        this.publishedSubmissions = [...submissions];
+        this.filteredSubmissions = [...submissions];
         this.totalCount = data.total || data.pagination?.total || 0;
         this.totalPages = Math.ceil(this.totalCount / this.itemsPerPage);
         this.hasMore = data.pagination?.hasMore || false;
         this.updatePaginationConfig();
         this.calculateStats();
         this.loading = false;
+        
+        console.log('✅ Updated filteredSubmissions length:', this.filteredSubmissions.length);
       },
       error: (err: any) => {
+        console.error('❌ API Error:', err);
         this.showError('Failed to load submissions');
         this.loading = false;
       }
@@ -199,8 +208,10 @@ export class PublishedPostsComponent implements OnInit {
   }
 
   setQuickFilter(filter: 'published' | 'all' | 'accepted') {
+    console.log('🎯 Quick filter changed to:', filter);
     this.quickFilter = filter;
     this.currentPage = 1; // Reset to first page
+    this.loading = true; // Show loading state
     this.loadPublishedSubmissions();
   }
 

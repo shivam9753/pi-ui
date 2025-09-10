@@ -21,11 +21,8 @@ interface Prompt {
   _id: string;
   title: string;
   description: string;
-  type: 'poem' | 'prose' | 'article' | 'cinema_essay';
   tags: string[];
-  difficulty: 'beginner' | 'intermediate' | 'advanced';
   picture?: string;
-  featured: boolean;
   isActive: boolean;
   usageCount: number;
   createdBy?: any;
@@ -68,6 +65,7 @@ export class PromptManagementComponent implements OnInit {
   promptForm: FormGroup;
   editingPrompt: Prompt | null = null;
   showCreateForm = false;
+  selectedTags: string[] = [];
   
   // Make Math available in template
   Math = Math;
@@ -80,11 +78,8 @@ export class PromptManagementComponent implements OnInit {
     this.promptForm = this.fb.group({
       title: ['', [Validators.required, Validators.maxLength(200)]],
       description: ['', [Validators.required, Validators.maxLength(1000)]],
-      type: ['', Validators.required],
       tags: [''],
-      difficulty: ['beginner', Validators.required],
       picture: [''],
-      featured: [false],
       isActive: [true]
     });
   }
@@ -98,7 +93,6 @@ export class PromptManagementComponent implements OnInit {
     this.actions = createPromptActions(
       (prompt) => this.editPrompt(prompt),
       (prompt) => this.togglePromptStatus(prompt),
-      (prompt) => this.toggleFeatured(prompt),
       (prompt) => this.deletePrompt(prompt)
     );
   }
@@ -127,11 +121,6 @@ export class PromptManagementComponent implements OnInit {
 
   applyFilters() {
     let prompts = [...this.allPrompts];
-    
-    // Apply type filter
-    if (this.currentFilters.type) {
-      prompts = prompts.filter(p => p.type === this.currentFilters.type);
-    }
     
     // Apply search filter
     if (this.currentFilters.search) {
@@ -185,9 +174,8 @@ export class PromptManagementComponent implements OnInit {
 
   createPrompt() {
     this.editingPrompt = null;
+    this.selectedTags = [];
     this.promptForm.reset({
-      difficulty: 'beginner',
-      featured: false,
       isActive: true
     });
     this.showCreateForm = true;
@@ -195,14 +183,12 @@ export class PromptManagementComponent implements OnInit {
 
   editPrompt(prompt: Prompt) {
     this.editingPrompt = prompt;
+    this.selectedTags = prompt.tags || [];
     this.promptForm.patchValue({
       title: prompt.title,
       description: prompt.description,
-      type: prompt.type,
-      tags: prompt.tags.join(', '),
-      difficulty: prompt.difficulty,
+      tags: '', // Clear the tags form control since we use selectedTags array
       picture: prompt.picture || '',
-      featured: prompt.featured,
       isActive: prompt.isActive
     });
     this.showCreateForm = true;
@@ -214,14 +200,9 @@ export class PromptManagementComponent implements OnInit {
     this.isSaving = true;
     const formData = this.promptForm.value;
     
-    // Process tags
-    const tags = formData.tags 
-      ? formData.tags.split(',').map((tag: string) => tag.trim()).filter((tag: string) => tag.length > 0)
-      : [];
-    
     const promptData = {
       ...formData,
-      tags
+      tags: this.selectedTags
     };
     
     const request = this.editingPrompt 
@@ -233,6 +214,7 @@ export class PromptManagementComponent implements OnInit {
         // Handle both success field and direct response
         if (response.success !== false) {
           this.showCreateForm = false;
+          this.selectedTags = [];
           this.loadAllPrompts();
         }
         this.isSaving = false;
@@ -259,39 +241,37 @@ export class PromptManagementComponent implements OnInit {
   }
 
   togglePromptStatus(prompt: Prompt) {
-    const updatedData = { isActive: !prompt.isActive };
-    
-    this.backendService.updatePrompt(prompt._id, updatedData).subscribe({
+    this.backendService.togglePromptStatus(prompt._id).subscribe({
       next: (response: any) => {
         if (response.success) {
-          prompt.isActive = !prompt.isActive;
+          prompt.isActive = response.isActive;
         }
       },
       error: (error: any) => {
-        // Error updating prompt status
+        console.error('Error toggling prompt status:', error);
       }
     });
   }
 
-  toggleFeatured(prompt: Prompt) {
-    const updatedData = { featured: !prompt.featured };
-    
-    this.backendService.updatePrompt(prompt._id, updatedData).subscribe({
-      next: (response: any) => {
-        if (response.success) {
-          prompt.featured = !prompt.featured;
-        }
-      },
-      error: (error: any) => {
-        // Error updating prompt featured status
-      }
-    });
-  }
 
   cancelEdit() {
     this.showCreateForm = false;
     this.editingPrompt = null;
+    this.selectedTags = [];
     this.promptForm.reset();
+  }
+
+  // Tag management methods
+  addTag(tagValue: string, inputElement: HTMLInputElement) {
+    const tag = tagValue.trim().toLowerCase();
+    if (tag && !this.selectedTags.includes(tag)) {
+      this.selectedTags.push(tag);
+    }
+    inputElement.value = '';
+  }
+
+  removeTag(tagToRemove: string) {
+    this.selectedTags = this.selectedTags.filter(tag => tag !== tagToRemove);
   }
 
   goToPage(page: number) {
@@ -318,19 +298,6 @@ export class PromptManagementComponent implements OnInit {
     return (this.badgeConfig as any)[key] || 'px-2 py-1 text-xs font-medium rounded-full bg-gray-50 text-gray-700';
   }
 
-  getTypeLabel(type: string): string {
-    const types: { [key: string]: string } = {
-      'poem': 'Poem',
-      'prose': 'Prose',
-      'article': 'Article',
-      'cinema_essay': 'Cinema Essay'
-    };
-    return types[type] || type;
-  }
-
-  getDifficultyLabel(difficulty: string): string {
-    return CommonUtils.capitalizeFirstOnly(difficulty);
-  }
 
   // New methods for mobile-optimized filters
   refreshPrompts(): void {

@@ -7,6 +7,7 @@ import { StudioGuard } from './guards/studio.guard';
 import { SubmissionEditorComponent } from './submit/submission-editor/submission-editor.component';
 import { UserLoginComponent } from './user-login/user-login.component';
 import { UserProfileComponent } from './user-profile/user-profile.component';
+import { UserSubmissionsComponent } from './user-submissions/user-submissions.component';
 import { PublicAuthorProfileComponent } from './public-author-profile/public-author-profile.component';
 import { ReadingInterfaceComponent } from './reading-interface/reading-interface.component';
 import { SimpleContentReaderComponent } from './simple-content-reader/simple-content-reader.component';
@@ -96,6 +97,12 @@ export const routes: Routes = [
     component: UserProfileComponent, 
     canActivate: [AuthGuard],
     title: 'My Profile - pi'
+  },
+  { 
+    path: 'my-submissions', 
+    component: UserSubmissionsComponent, 
+    canActivate: [AuthGuard],
+    title: 'My Submissions - pi'
   },
   // SSR-enabled reading interface route (primary)
   { 

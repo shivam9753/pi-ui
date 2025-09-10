@@ -74,7 +74,7 @@ export class PendingReviewsComponent implements OnInit, OnDestroy {
     dateTo: '',
     sortBy: 'createdAt',
     sortOrder: 'desc',
-    isTopicSubmission: '' // Filter for submissions from topic pitches
+    urgent: '' // Filter for urgent submissions (resubmitted + old pending)
   };
 
   // Filter configuration for FilterBarComponent
@@ -321,7 +321,7 @@ export class PendingReviewsComponent implements OnInit, OnDestroy {
     if (this.filters['wordLength']) params.wordLength = this.filters['wordLength'];
     if (this.filters['dateFrom']) params.dateFrom = this.filters['dateFrom'];
     if (this.filters['dateTo']) params.dateTo = this.filters['dateTo'];
-    if (this.filters['isTopicSubmission']) params.isTopicSubmission = this.filters['isTopicSubmission'];
+    if (this.filters['urgent']) params.urgent = this.filters['urgent'];
 
     return params;
   }
@@ -474,15 +474,11 @@ export class PendingReviewsComponent implements OnInit, OnDestroy {
     
     switch (filterType) {
       case 'urgent':
-        this.filters['type'] = isActive ? 'opinion' : '';
-        break;
-      
-      case 'resubmitted':
-        this.filters['status'] = isActive ? SUBMISSION_STATUS.RESUBMITTED : '';
-        break;
-      
-      case 'myReviews':
-        this.filters['status'] = isActive ? SUBMISSION_STATUS.IN_PROGRESS : '';
+        // Urgent filter now includes both resubmitted and old pending submissions
+        // This will be handled on the backend by checking for:
+        // 1. status === 'resubmitted' OR
+        // 2. status === 'pending_review' AND createdAt < 7 days ago
+        this.filters['urgent'] = isActive ? 'true' : '';
         break;
       
       case 'newAuthors':
@@ -491,10 +487,6 @@ export class PendingReviewsComponent implements OnInit, OnDestroy {
       
       case 'quickRead':
         this.filters['wordLength'] = isActive ? 'quick' : '';
-        break;
-      
-      case 'topicSubmissions':
-        this.filters['isTopicSubmission'] = isActive ? 'true' : '';
         break;
     }
   }
@@ -510,11 +502,9 @@ export class PendingReviewsComponent implements OnInit, OnDestroy {
   clearQuickFilters() {
     this.activeQuickFilters = [];
     // Reset all quick filter related filters
-    this.filters['type'] = '';
-    this.filters['status'] = '';
+    this.filters['urgent'] = '';
     this.filters['authorType'] = '';
     this.filters['wordLength'] = '';
-    this.filters['isTopicSubmission'] = '';
     this.loadSubmissions(1);
   }
 

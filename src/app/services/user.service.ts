@@ -202,17 +202,4 @@ export class UserService {
     return this.apiService.get<UserPublishedWorksResponse>(API_ENDPOINTS.USERS_NESTED.PUBLISHED_WORKS(userId), queryParams);
   }
 
-  /**
-   * Approve user bio (admin only)
-   */
-  approveUserBio(userId: string, approvedBio: string): Observable<{ message: string; user: User }> {
-    return this.apiService.post<{ message: string; user: User }>(API_ENDPOINTS.USERS_NESTED.APPROVE_BIO(userId), { approvedBio });
-  }
-
-  /**
-   * Approve user profile image (admin only)
-   */
-  approveUserProfileImage(userId: string): Observable<{ message: string; user: User }> {
-    return this.apiService.post<{ message: string; user: User }>(API_ENDPOINTS.USERS_NESTED.APPROVE_PROFILE_IMAGE(userId), {});
-  }
 }

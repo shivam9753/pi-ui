@@ -16,6 +16,25 @@ export interface SimpleFilterOptions {
   standalone: true,
   imports: [CommonModule, FormsModule],
   template: `
+    <style>
+      input, select {
+        -webkit-appearance: none !important;
+        -moz-appearance: none !important;
+        appearance: none !important;
+        background-image: none !important;
+        box-shadow: none !important;
+        -webkit-box-shadow: none !important;
+        background: white !important;
+        border-radius: 6px !important;
+      }
+      select {
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e") !important;
+        background-position: right 0.5rem center !important;
+        background-repeat: no-repeat !important;
+        background-size: 1.5em 1.5em !important;
+        padding-right: 2.5rem !important;
+      }
+    </style>
     <div class="bg-gray-50 border border-gray-200 rounded-lg mb-4 p-3">
       <!-- Mobile: Horizontal scroll for filters -->
       <div class="lg:hidden">
@@ -26,53 +45,58 @@ export interface SimpleFilterOptions {
             [(ngModel)]="currentFilters.search" 
             (ngModelChange)="onFilterChange()"
 [placeholder]="placeholder"
-            class="w-full text-sm border border-gray-300 rounded-md px-3 py-2 bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+            class="w-full text-sm border border-gray-300 rounded-md px-3 py-2 bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 appearance-none">
         </div>
         
-        <div class="flex gap-3 overflow-x-auto pb-1">
-          <!-- Type Filter -->
-          <div *ngIf="!hideTypes" class="flex-shrink-0">
-            <select 
-              [(ngModel)]="currentFilters.type" 
-              (ngModelChange)="onFilterChange()"
-              class="text-sm border border-gray-300 rounded-md px-3 py-2 bg-white min-w-[120px] focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-              <option *ngFor="let option of availableTypeOptions" [value]="option.value">
-                {{ option.label }}
-              </option>
-            </select>
-          </div>
-          
-          <!-- Status Filter (if status options available) -->
-          <div *ngIf="availableStatusOptions.length > 1" class="flex-shrink-0">
-            <select 
-              [(ngModel)]="currentFilters.status" 
-              (ngModelChange)="onFilterChange()"
-              class="text-sm border border-gray-300 rounded-md px-3 py-2 bg-white min-w-[120px] focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-              <option *ngFor="let option of availableStatusOptions" [value]="option.value">
-                {{ option.label }}
-              </option>
-            </select>
-          </div>
-
-          <!-- Sort Filter -->
-          <div *ngIf="showSortOptions" class="flex-shrink-0">
-            <select 
-              [(ngModel)]="currentFilters.order" 
-              (ngModelChange)="onSortChange()"
-              class="text-sm border border-gray-300 rounded-md px-3 py-2 bg-white min-w-[120px] focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-              <option *ngFor="let option of sortOptions" [value]="option.value">
-                {{ option.label }}
-              </option>
-            </select>
+        <!-- Mobile: Stacked vertical layout for better space usage -->
+        <div class="space-y-3">
+          <div class="flex gap-2">
+            <!-- Type Filter -->
+            <div *ngIf="!hideTypes" class="flex-1">
+              <select 
+                [(ngModel)]="currentFilters.type" 
+                (ngModelChange)="onFilterChange()"
+                class="w-full text-xs border border-gray-300 rounded-md px-2 py-2 bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 appearance-none">
+                <option *ngFor="let option of availableTypeOptions" [value]="option.value">
+                  {{ option.label }}
+                </option>
+              </select>
+            </div>
+            
+            <!-- Status Filter (if status options available) -->
+            <div *ngIf="availableStatusOptions.length > 1" class="flex-1">
+              <select 
+                [(ngModel)]="currentFilters.status" 
+                (ngModelChange)="onFilterChange()"
+                class="w-full text-xs border border-gray-300 rounded-md px-2 py-2 bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 appearance-none">
+                <option *ngFor="let option of availableStatusOptions" [value]="option.value">
+                  {{ option.label }}
+                </option>
+              </select>
+            </div>
           </div>
 
-          <!-- Clear Button -->
-          <div *ngIf="hasActiveFilters()" class="flex-shrink-0">
-            <button 
-              (click)="clearFilters()"
-              class="px-3 py-2 text-sm text-gray-600 hover:text-gray-800 underline whitespace-nowrap">
-              Clear
-            </button>
+          <div class="flex gap-2 items-center">
+            <!-- Sort Filter -->
+            <div *ngIf="showSortOptions" class="flex-1">
+              <select 
+                [(ngModel)]="currentFilters.order" 
+                (ngModelChange)="onSortChange()"
+                class="w-full text-xs border border-gray-300 rounded-md px-2 py-2 bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 appearance-none">
+                <option *ngFor="let option of sortOptions" [value]="option.value">
+                  {{ option.label }}
+                </option>
+              </select>
+            </div>
+
+            <!-- Clear Button -->
+            <div *ngIf="hasActiveFilters()" class="flex-shrink-0">
+              <button 
+                (click)="clearFilters()"
+                class="px-2 py-2 text-xs text-gray-600 hover:text-gray-800 underline whitespace-nowrap bg-gray-50 rounded border">
+                Clear
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -86,7 +110,7 @@ export interface SimpleFilterOptions {
             [(ngModel)]="currentFilters.search" 
             (ngModelChange)="onFilterChange()"
 [placeholder]="placeholder"
-            class="w-full text-sm border border-gray-300 rounded-md px-3 py-2 bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+            class="w-full text-sm border border-gray-300 rounded-md px-3 py-2 bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 appearance-none">
         </div>
         
         <div class="flex items-center gap-4">
@@ -96,7 +120,7 @@ export interface SimpleFilterOptions {
             <select 
               [(ngModel)]="currentFilters.type" 
               (ngModelChange)="onFilterChange()"
-              class="text-sm border border-gray-300 rounded-md px-3 py-1 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+              class="text-sm border border-gray-300 rounded-md px-3 py-1 bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 appearance-none">
               <option *ngFor="let option of availableTypeOptions" [value]="option.value">
                 {{ option.label }}
               </option>
@@ -109,7 +133,7 @@ export interface SimpleFilterOptions {
             <select 
               [(ngModel)]="currentFilters.status" 
               (ngModelChange)="onFilterChange()"
-              class="text-sm border border-gray-300 rounded-md px-3 py-1 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+              class="text-sm border border-gray-300 rounded-md px-3 py-1 bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 appearance-none">
               <option *ngFor="let option of availableStatusOptions" [value]="option.value">
                 {{ option.label }}
               </option>
@@ -122,7 +146,7 @@ export interface SimpleFilterOptions {
             <select 
               [(ngModel)]="currentFilters.order" 
               (ngModelChange)="onSortChange()"
-              class="text-sm border border-gray-300 rounded-md px-3 py-1 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+              class="text-sm border border-gray-300 rounded-md px-3 py-1 bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 appearance-none">
               <option *ngFor="let option of sortOptions" [value]="option.value">
                 {{ option.label }}
               </option>
