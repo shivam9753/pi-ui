@@ -97,9 +97,12 @@ export class ReadyToPublishComponent implements OnInit {
       apiParams.search = this.currentFilters.search.trim();
     }
     
-    // Use the new optimized publish-queue endpoint for better performance
-    this.backendService.getPublishQueue(apiParams).subscribe({
-      next: (data) => {
+    // Use the submissions endpoint for publish queue data
+    this.backendService.getSubmissions({
+      ...apiParams,
+      status: 'approved' // Ready to publish submissions are approved ones
+    }).subscribe({
+      next: (data: any) => {
         // Handle optimized response structure
         this.acceptedSubmissions = data.submissions || [];
         this.filteredSubmissions = this.acceptedSubmissions; // Use API response directly
@@ -116,7 +119,7 @@ export class ReadyToPublishComponent implements OnInit {
         
         this.loading = false;
       },
-      error: (err) => {
+      error: (err: any) => {
         this.showError('Failed to load submissions');
         this.loading = false;
       }

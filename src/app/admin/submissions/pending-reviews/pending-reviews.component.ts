@@ -270,9 +270,12 @@ export class PendingReviewsComponent implements OnInit, OnDestroy {
     
     const params = this.buildQueryParams(page);
     
-    // Use the new optimized review-queue endpoint for better performance
-    this.backendService.getReviewQueue(params).subscribe(
-      (data) => {
+    // Use the submissions endpoint for review queue data
+    this.backendService.getSubmissions({
+      ...params,
+      status: params.status || 'pending_review' // Default to pending_review if no specific status
+    }).subscribe(
+      (data: any) => {
         this.submissions = data.submissions || [];
         this.totalSubmissions = data.total || 0;
         this.hasMore = data.pagination?.hasMore || false;
@@ -288,7 +291,7 @@ export class PendingReviewsComponent implements OnInit, OnDestroy {
         
         this.loading = false;
       },
-      (error) => {
+      (error: any) => {
         this.loading = false;
       }
     );

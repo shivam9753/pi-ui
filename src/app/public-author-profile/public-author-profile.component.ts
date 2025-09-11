@@ -4,6 +4,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { BackendService } from '../services/backend.service';
 import { LoadingStateComponent } from '../shared/components/loading-state/loading-state.component';
 import { EmptyStateComponent } from '../shared/components/empty-state/empty-state.component';
+import { ButtonComponent } from '../shared/components';
 
 interface FeaturedWork {
   _id: string;
@@ -42,7 +43,7 @@ interface AuthorProfile {
 
 @Component({
   selector: 'app-public-author-profile',
-  imports: [CommonModule, TitleCasePipe, LoadingStateComponent, EmptyStateComponent],
+  imports: [CommonModule, TitleCasePipe, LoadingStateComponent, EmptyStateComponent, ButtonComponent],
   templateUrl: './public-author-profile.component.html',
   styleUrl: './public-author-profile.component.css'
 })

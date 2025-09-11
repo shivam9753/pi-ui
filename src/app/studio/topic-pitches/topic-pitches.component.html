@@ -19,14 +19,12 @@
             <p class="text-gray-600 mb-6">Pitch creative ideas and write compelling content for the community</p>
             
             <!-- Create Topic Button -->
-            <button
-              (click)="showCreateForm = !showCreateForm"
-              class="bg-orange-600 hover:bg-orange-700 text-white px-6 py-3 rounded-lg font-semibold inline-flex items-center gap-2 transition-colors shadow-lg">
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-              </svg>
+            <pi-button
+              variant="primary"
+              iconLeft='<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>'
+              (buttonClick)="showCreateForm = !showCreateForm">
               Pitch New Topic
-            </button>
+            </pi-button>
           </div>
 
           <!-- Quick Info -->
@@ -231,11 +229,11 @@
               </svg>
               <h3 class="text-xl font-semibold text-gray-900 mb-2">No topics found</h3>
               <p class="text-gray-600 mb-6">Be the first to pitch a topic for the community!</p>
-              <button
-                (click)="showCreateForm = true"
-                class="bg-orange-600 hover:bg-orange-700 text-white px-6 py-2 rounded-lg font-medium transition-colors">
+              <pi-button
+                variant="primary"
+                (buttonClick)="showCreateForm = true">
                 Create First Topic
-              </button>
+              </pi-button>
             </div>
           </div>
         }

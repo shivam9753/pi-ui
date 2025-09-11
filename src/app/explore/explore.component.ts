@@ -8,11 +8,12 @@ import { ViewTrackerService } from '../services/view-tracker.service';
 import { Router } from '@angular/router';
 import { PublishedContent } from '../utilities/published-content-card/published-content-card.component';
 import { PrettyLabelPipe } from '../pipes/pretty-label.pipe';
+import { ButtonComponent } from '../shared/components';
 // Removed rxjs imports for debouncing as we're not using real-time search
 
 @Component({
   selector: 'app-explore',
-  imports: [CommonModule, FormsModule, PrettyLabelPipe],
+  imports: [CommonModule, FormsModule, PrettyLabelPipe, ButtonComponent],
   templateUrl: './explore.component.html',
   styleUrl: './explore.component.css'
 })
@@ -228,7 +229,7 @@ export class ExploreComponent implements OnInit {
 
   performSearch(query: string) {
     this.isSearching = true;
-    this.backendService.searchSubmissions(query, { limit: 20 }).subscribe({
+    this.backendService.getSubmissions({ search: query, status: 'published', limit: 20 }).subscribe({
       next: (data) => {
         this.searchResults = data.submissions || [];
         this.showSearchResults = true;

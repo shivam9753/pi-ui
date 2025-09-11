@@ -2,10 +2,11 @@ import { CommonModule, JsonPipe } from '@angular/common';
 import { Component } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { StringUtils, CommonUtils } from '../../shared/utils';
+import { ButtonComponent } from '../../shared/components';
 
 @Component({
   selector: 'app-json-converter',
-  imports: [FormsModule, JsonPipe, ReactiveFormsModule, CommonModule] ,
+  imports: [FormsModule, JsonPipe, ReactiveFormsModule, CommonModule, ButtonComponent] ,
   templateUrl: './json-converter.component.html',
   styleUrls: ['./json-converter.component.css']
 })

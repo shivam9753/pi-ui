@@ -324,7 +324,7 @@ export class ExploreRevampedComponent implements OnInit {
     if (!this.searchQuery()) return;
     
     this.globalLoading.set(true);
-    this.backendService.searchSubmissions(this.searchQuery().trim(), { limit: 50 }).subscribe({
+    this.backendService.getSubmissions({ search: this.searchQuery().trim(), status: 'published', limit: 50 }).subscribe({
       next: (data) => {
         this.searchResults.set(data.submissions || []);
         this.showSearchResults.set(true);

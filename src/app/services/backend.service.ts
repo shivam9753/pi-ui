@@ -34,7 +34,6 @@ export class BackendService {
     @Inject(PLATFORM_ID) private platformId: Object
   ) {
     const platform = isPlatformServer(this.platformId) ? 'Server' : 'Browser';
-    console.log(`🔧 Backend Service initialized with API URL: ${this.API_URL} (${platform})`);
   }
 
   private handleApiCall<T>(url: string, method: string = 'GET'): (source: Observable<T>) => Observable<T> {
@@ -48,7 +47,6 @@ export class BackendService {
               if (retryCount >= 3) {
                 throw error; // Stop retrying after 3 attempts
               }
-              console.warn(`⏳ Retrying ${method} ${url} (attempt ${retryCount + 1}) due to ${error.status}`);
               return retryCount + 1;
             }
             throw error; // Don't retry other errors
@@ -246,19 +244,6 @@ export class BackendService {
     );
   }
 
-  // DEPRECATED: Use getSubmissions with search parameter
-  searchSubmissions(query: string, options: {
-    limit?: number;
-    skip?: number;
-    sortBy?: string;
-    order?: string;
-  } = {}): Observable<any> {
-    return this.getSubmissions({
-      search: query,
-      status: SUBMISSION_STATUS.PUBLISHED, // Search only published content for public users
-      ...options
-    });
-  }
 
   // Get submission with contents
   getSubmissionWithContents(id: string): Observable<any> {
@@ -286,17 +271,10 @@ export class BackendService {
       'Content-Type': 'application/json'
     });
     
-    // Debug: Backend should set status to pending_review automatically
-    console.log('📤 Backend service sending submission (no status - backend should default to pending_review)');
     
     const url = `${this.API_URL}${API_ENDPOINTS.SUBMISSIONS}`;
     return this.http.post<any>(url, submission, { headers }).pipe(
-      tap((response) => {
-        console.log('✅ Backend response:', response);
-        console.log('📋 Response status field:', response?.status);
-      }),
       catchError((error) => {
-        console.error('❌ Submission creation failed:', error);
         
         // Provide more user-friendly error messages
         if (error.error?.error === 'document must have an _id before saving') {
@@ -491,7 +469,6 @@ export class BackendService {
     );
   }
 
-  // REMOVED: This method is now handled by submitReviewAction
 
   // Get submission history
   getSubmissionHistory(submissionId: string): Observable<any> {
@@ -638,38 +615,7 @@ export class BackendService {
     return this.http.get<any>(`${this.API_URL}${API_ENDPOINTS.USERS_NESTED.PROFILE_BY_ID(id)}`, { headers });
   }
 
-  // Get user's published works
-  getUserPublishedWorks(userId: string, options: {
-    limit?: number;
-    skip?: number;
-    type?: string;
-    sortBy?: string;
-    order?: 'asc' | 'desc';
-  } = {}): Observable<{
-    works: PublishedWork[];
-    pagination: any;
-  }> {
-    let params = new HttpParams();
-    
-    if (options.limit) params = params.set('limit', options.limit.toString());
-    if (options.skip) params = params.set('skip', options.skip.toString());
-    if (options.type) params = params.set('type', options.type);
-    if (options.sortBy) params = params.set('sortBy', options.sortBy);
-    if (options.order) params = params.set('order', options.order);
 
-    return this.http.get<any>(`${this.API_URL}${API_ENDPOINTS.USERS_NESTED.PUBLISHED_WORKS(userId)}`, { params });
-  }
-
-  // Create new user
-  createUser(userData: {
-    email: string;
-    username: string;
-    password: string;
-    role?: string;
-    bio?: string;
-  }): Observable<{ message: string; user: UserProfile }> {
-    return this.http.post<any>(`${this.API_URL}${API_ENDPOINTS.USERS}`, userData);
-  }
 
   // Update user profile
   updateUserProfile(userId: string, updateData: {
@@ -692,64 +638,10 @@ export class BackendService {
     return this.http.put<any>(`${this.API_URL}${API_ENDPOINTS.USERS_NESTED.UPDATE(userId)}`, updateData, { headers });
   }
 
-  // Update user stats
-  updateUserStats(userId: string, stats: {
-    totalPublished?: number;
-    totalViews?: number;
-    totalLikes?: number;
-    followers?: number;
-    following?: number;
-  }): Observable<{ message: string }> {
-    return this.http.patch<any>(`${this.API_URL}${API_ENDPOINTS.USERS_NESTED.STATS(userId)}`, stats);
-  }
 
-  // Search users
-  searchUsers(query: string, options: {
-    limit?: number;
-    skip?: number;
-    sortBy?: string;
-    order?: 'asc' | 'desc';
-  } = {}): Observable<{ users: UserProfile[] }> {
-    let params = new HttpParams().set('q', query);
-    
-    if (options.limit) params = params.set('limit', options.limit.toString());
-    if (options.skip) params = params.set('skip', options.skip.toString());
-    if (options.sortBy) params = params.set('sortBy', options.sortBy);
-    if (options.order) params = params.set('order', options.order);
 
-    return this.http.get<any>(`${this.API_URL}${API_ENDPOINTS.USERS_NESTED.SEARCH}`, { params });
-  }
 
-  // Follow/Unfollow user
-  toggleFollowUser(targetUserId: string, action: 'follow' | 'unfollow'): Observable<{
-    message: string;
-    isFollowing: boolean;
-  }> {
-    const user = JSON.parse(localStorage.getItem('user') || '{}');
-    const followData = {
-      followerId: user.id || user._id,
-      action: action
-    };
 
-    return this.http.patch<any>(`${this.API_URL}${API_ENDPOINTS.USERS_NESTED.FOLLOW(targetUserId)}`, followData);
-  }
-
-  // Delete user (admin only)
-  deleteUser(userId: string): Observable<{ message: string }> {
-    const headers = this.getAuthHeaders();
-    return this.http.delete<any>(`${this.API_URL}${API_ENDPOINTS.USERS_NESTED.DELETE(userId)}`, { headers });
-  }
-
-  // Check if user is following another user
-  checkFollowStatus(targetUserId: string): Observable<{ isFollowing: boolean }> {
-    const user = JSON.parse(localStorage.getItem('user') || '{}');
-    // This would need to be implemented on the backend
-    // For now, returning a mock response
-    return new Observable(observer => {
-      observer.next({ isFollowing: false });
-      observer.complete();
-    });
-  }
 
   // Get current user profile (from localStorage or API)
   getCurrentUserProfile(): UserProfile | null {
@@ -763,23 +655,6 @@ export class BackendService {
     return currentUser ? currentUser._id === profileUserId : false;
   }
 
-  // DEPRECATED: Use getSubmissions with status: 'published' and type parameter
-  getPublishedContentByType(type: string, options: {
-    limit?: number;
-    skip?: number;
-    sortBy?: string;
-    order?: 'asc' | 'desc';
-  } = {}): Observable<{
-    submissions: any[];
-    total: number;
-    pagination: any;
-  }> {
-    return this.getSubmissions({
-      status: SUBMISSION_STATUS.PUBLISHED,
-      type,
-      ...options
-    });
-  }
 
   // Get published content by tag
   getPublishedContentByTag(tag: string, options: {
@@ -854,15 +729,6 @@ getPromptById(promptId: string): Observable<any> {
   return this.http.get<any>(`${this.API_URL}${API_ENDPOINTS.PROMPTS_NESTED.BY_ID(promptId)}`);
 }
 
-// Get prompt statistics (admin only)
-getPromptStats(): Observable<any> {
-  return this.http.get<any>(`${this.API_URL}${API_ENDPOINTS.PROMPTS_NESTED.STATS}`);
-}
-
-// Check if user is first-time submitter
-checkUserSubmissionHistory(userId: string): Observable<any> {
-  return this.http.get<any>(`${this.API_URL}${API_ENDPOINTS.USERS_NESTED.SUBMISSION_HISTORY(userId)}`);
-}
 
 // Profile image upload is handled separately in user profile management
 
@@ -1040,59 +906,7 @@ put<T = any>(endpoint: string, body: any = {}): Observable<T> {
 // NEW OPTIMIZED LIGHTWEIGHT ENDPOINTS
 // ========================================
 
-// Get review queue - lightweight cards for review workflow
-getReviewQueue(options: {
-  limit?: number;
-  skip?: number;
-  status?: string;
-  type?: string;
-  urgent?: boolean;
-  newAuthor?: boolean;
-  quickRead?: boolean;
-  topicSubmission?: boolean;
-  sortBy?: string;
-  order?: 'asc' | 'desc';
-} = {}): Observable<any> {
-  const headers = this.getAuthHeaders();
-  let params = new HttpParams();
-  
-  if (options.limit) params = params.set('limit', options.limit.toString());
-  if (options.skip) params = params.set('skip', options.skip.toString());
-  if (options.status) params = params.set('status', options.status);
-  if (options.type) params = params.set('type', options.type);
-  if (options.urgent) params = params.set('urgent', 'true');
-  if (options.newAuthor) params = params.set('newAuthor', 'true');
-  if (options.quickRead) params = params.set('quickRead', 'true');
-  if (options.topicSubmission) params = params.set('topicSubmission', 'true');
-  if (options.sortBy) params = params.set('sortBy', options.sortBy);
-  if (options.order) params = params.set('order', options.order);
 
-  return this.http.get(`${this.API_URL}/submissions/review-queue`, { headers, params }).pipe(
-    catchError(this.handleError)
-  );
-}
-
-// Get publish queue - lightweight cards for publish workflow  
-getPublishQueue(options: {
-  limit?: number;
-  skip?: number;
-  type?: string;
-  sortBy?: string;
-  order?: 'asc' | 'desc';
-} = {}): Observable<any> {
-  const headers = this.getAuthHeaders();
-  let params = new HttpParams();
-  
-  if (options.limit) params = params.set('limit', options.limit.toString());
-  if (options.skip) params = params.set('skip', options.skip.toString());
-  if (options.type) params = params.set('type', options.type);
-  if (options.sortBy) params = params.set('sortBy', options.sortBy);
-  if (options.order) params = params.set('order', options.order);
-
-  return this.http.get(`${this.API_URL}/submissions/publish-queue`, { headers, params }).pipe(
-    catchError(this.handleError)
-  );
-}
 
 // Get explore content - lightweight cards for public content
 getExploreContent(options: {
@@ -1117,48 +931,9 @@ getExploreContent(options: {
   );
 }
 
-// Get complete review data - full data for review workflow
-getCompleteReviewData(submissionId: string): Observable<any> {
-  const headers = this.getAuthHeaders();
-  return this.http.get(`${this.API_URL}/submissions/${submissionId}/review-data`, { headers }).pipe(
-    catchError(this.handleError)
-  );
-}
 
-// Get complete publish data - full data for publish workflow
-getCompletePublishData(submissionId: string): Observable<any> {
-  const headers = this.getAuthHeaders();
-  return this.http.get(`${this.API_URL}/submissions/${submissionId}/publish-data`, { headers }).pipe(
-    catchError(this.handleError)
-  );
-}
 
-// Get content view - optimized public reading experience
-getContentView(submissionId: string): Observable<any> {
-  return this.http.get(`${this.API_URL}/submissions/${submissionId}/content-view`).pipe(
-    catchError(this.handleError)
-  );
-}
 
-// Get admin purge candidates - cleanup management
-getAdminPurgeCandidates(options: {
-  limit?: number;
-  skip?: number;
-  type?: string;
-  daysOld?: number;
-} = {}): Observable<any> {
-  const headers = this.getAuthHeaders();
-  let params = new HttpParams();
-  
-  if (options.limit) params = params.set('limit', options.limit.toString());
-  if (options.skip) params = params.set('skip', options.skip.toString());
-  if (options.type) params = params.set('type', options.type);
-  if (options.daysOld) params = params.set('daysOld', options.daysOld.toString());
-
-  return this.http.get(`${this.API_URL}/submissions/admin/purge-candidates`, { headers, params }).pipe(
-    catchError(this.handleError)
-  );
-}
 
 // ========================================
 // NEW SEMANTIC REVIEW ENDPOINTS
@@ -1208,11 +983,121 @@ shortlistSubmissionSemantic(submissionId: string, reviewData: {
   );
 }
 
-delete<T = any>(endpoint: string): Observable<T> {
+// ========================================
+// ANALYTICS ENDPOINTS
+// ========================================
+
+// Get comprehensive analytics overview
+getAnalyticsOverview(): Observable<{
+  totalViews: number;
+  totalPosts: number;
+  totalUsers: number;
+  avgViewsPerPost: number;
+  publishedToday: number;
+  publishedThisWeek: number;
+  publishedThisMonth: number;
+}> {
   const headers = this.getAuthHeaders();
-  const url = `${this.API_URL}${endpoint}`;
-  return this.http.delete<T>(url, { headers }).pipe(
-    this.handleApiCall(url, 'DELETE')
+  const url = `${this.API_URL}/analytics/overview`;
+  return this.http.get<any>(url, { headers }).pipe(
+    this.handleApiCall(url, 'GET')
+  );
+}
+
+// Get top performing content
+getTopContent(options: {
+  period?: 'week' | 'month' | 'all';
+  limit?: number;
+  type?: string;
+} = {}): Observable<{
+  topByViews: any[];
+  topByEngagement: any[];
+  trending: any[];
+}> {
+  const headers = this.getAuthHeaders();
+  let params = new HttpParams();
+  
+  if (options.period) params = params.set('period', options.period);
+  if (options.limit) params = params.set('limit', options.limit.toString());
+  if (options.type) params = params.set('type', options.type);
+
+  const url = `${this.API_URL}/analytics/top-content`;
+  return this.http.get<any>(url, { headers, params }).pipe(
+    this.handleApiCall(url, 'GET')
+  );
+}
+
+// Get analytics by content type
+getContentTypeAnalytics(): Observable<{
+  types: Array<{
+    type: string;
+    count: number;
+    totalViews: number;
+    avgViews: number;
+    percentage: number;
+  }>;
+}> {
+  const headers = this.getAuthHeaders();
+  const url = `${this.API_URL}/analytics/content-types`;
+  return this.http.get<any>(url, { headers }).pipe(
+    this.handleApiCall(url, 'GET')
+  );
+}
+
+// Get time-series data for views
+getViewsTimeSeries(options: {
+  period?: 'week' | 'month' | 'quarter' | 'year';
+  groupBy?: 'day' | 'week' | 'month';
+} = {}): Observable<{
+  data: Array<{
+    date: string;
+    views: number;
+    posts: number;
+  }>;
+  total: number;
+  growth: number;
+}> {
+  const headers = this.getAuthHeaders();
+  let params = new HttpParams();
+  
+  if (options.period) params = params.set('period', options.period);
+  if (options.groupBy) params = params.set('groupBy', options.groupBy);
+
+  const url = `${this.API_URL}/analytics/views-time-series`;
+  return this.http.get<any>(url, { headers, params }).pipe(
+    this.handleApiCall(url, 'GET')
+  );
+}
+
+// Get user engagement analytics
+getUserEngagementAnalytics(): Observable<{
+  activeUsers: number;
+  newUsers: number;
+  returningUsers: number;
+  topContributors: any[];
+  userGrowth: any[];
+}> {
+  const headers = this.getAuthHeaders();
+  const url = `${this.API_URL}/analytics/user-engagement`;
+  return this.http.get<any>(url, { headers }).pipe(
+    this.handleApiCall(url, 'GET')
+  );
+}
+
+// Get submission workflow analytics
+getSubmissionAnalytics(): Observable<{
+  pending: number;
+  approved: number;
+  rejected: number;
+  published: number;
+  averageReviewTime: number;
+  rejectionReasons: any[];
+  monthlyTrends: any[];
+}> {
+  const headers = this.getAuthHeaders();
+  const url = `${this.API_URL}/analytics/submissions`;
+  return this.http.get<any>(url, { headers }).pipe(
+    this.handleApiCall(url, 'GET')
   );
 }
 

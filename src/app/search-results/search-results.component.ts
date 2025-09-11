@@ -48,7 +48,9 @@ export class SearchResultsComponent implements OnInit {
 
     const skip = (page - 1) * this.resultsPerPage;
 
-    this.backendService.searchSubmissions(query.trim(), {
+    this.backendService.getSubmissions({
+      search: query.trim(),
+      status: 'published',
       limit: this.resultsPerPage,
       skip: skip,
       sortBy: 'publishedAt',

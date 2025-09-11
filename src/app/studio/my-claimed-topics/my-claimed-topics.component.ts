@@ -48,16 +48,12 @@ export class MyClaimedTopicsComponent implements OnInit {
       next: (response: any) => {
         // Filter topics claimed by current user using the correct user ID
         const currentUserId = this.currentUser?.id || this.currentUser?._id;
-        console.log('Current user ID:', currentUserId);
-        console.log('All claimed topics:', response.topics);
         
         this.claimedTopics = response.topics?.filter((topic: TopicPitch) => {
-          console.log('Comparing topic.claimedBy:', topic.claimedBy, 'with user ID:', currentUserId, 'status:', topic.status);
           // Include both claimed and completed topics by this user
           return topic.claimedBy === currentUserId && (topic.status === 'claimed' || topic.status === 'completed');
         }) || [];
         
-        console.log('Filtered claimed topics:', this.claimedTopics);
         this.loading = false;
       },
       error: (error: any) => {
@@ -71,25 +67,21 @@ export class MyClaimedTopicsComponent implements OnInit {
     this.selectedTopic = topic;
     this.draftContent = '';
     this.draftId = null;
-    // TODO: Load existing draft if any
     this.loadExistingDraft(topic);
   }
 
   loadExistingDraft(topic: TopicPitch) {
     // Only load draft if we don't already know this topic has a draft
-    console.log('Checking for existing draft for topic:', topic._id);
     this.loadingDraft = true;
     
     // Quick check: if we already have this topic marked as having a draft, skip the API call
     if (this.topicsWithDrafts.has(topic._id)) {
-      console.log('Topic already marked as having draft, skip duplicate API call');
       this.loadingDraft = false;
       return;
     }
     
     this.backendService.get<any>('/submissions/drafts/my').subscribe({
       next: (response: any) => {
-        console.log('User drafts for topic selection:', response.drafts);
         
         // Try to find a draft that matches this topic
         const topicDraft = response.drafts?.find((draft: any) => 
@@ -98,12 +90,10 @@ export class MyClaimedTopicsComponent implements OnInit {
         );
         
         if (topicDraft) {
-          console.log('Found existing draft for topic:', topicDraft);
           this.draftId = topicDraft.id;
           this.topicsWithDrafts.add(topic._id); // Mark this topic as having a draft
           this.loadDraftContent(topicDraft.id);
         } else {
-          console.log('No existing draft found for this topic');
           this.loadingDraft = false;
         }
       },
@@ -118,7 +108,6 @@ export class MyClaimedTopicsComponent implements OnInit {
     // Load the full draft content with contents
     this.backendService.get<any>(`/submissions/${draftId}/contents`).subscribe({
       next: (response: any) => {
-        console.log('Draft content API response:', response);
         
         // Try multiple possible response structures
         let contentBody = '';
@@ -128,7 +117,6 @@ export class MyClaimedTopicsComponent implements OnInit {
           const firstContent = response.submission.contentIds[0];
           if (firstContent?.body) {
             contentBody = firstContent.body;
-            console.log('Found content via contentIds structure');
           }
         }
         
@@ -137,21 +125,17 @@ export class MyClaimedTopicsComponent implements OnInit {
           const firstContent = response.contents[0];
           if (firstContent?.body) {
             contentBody = firstContent.body;
-            console.log('Found content via contents array structure');
           }
         }
         
         // Try structure 3: direct response.body
         if (!contentBody && response.body) {
           contentBody = response.body;
-          console.log('Found content via direct body structure');
         }
         
         if (contentBody) {
           this.draftContent = contentBody;
-          console.log('✅ Draft content set successfully:', this.draftContent.substring(0, 100) + '...');
         } else {
-          console.warn('❌ No draft content found in API response. Response structure:', Object.keys(response));
           // Try alternative: load from drafts/my endpoint which includes content
           this.loadDraftContentFromDraftsAPI(draftId);
           return;
@@ -160,7 +144,6 @@ export class MyClaimedTopicsComponent implements OnInit {
         this.loadingDraft = false;
       },
       error: (error: any) => {
-        console.error('❌ Error loading draft content from /submissions/${draftId}/contents:', error);
         // Try alternative approach
         this.loadDraftContentFromDraftsAPI(draftId);
       }
@@ -168,38 +151,28 @@ export class MyClaimedTopicsComponent implements OnInit {
   }
   
   loadDraftContentFromDraftsAPI(draftId: string) {
-    console.log('🔄 Trying alternative: load from drafts/my endpoint');
     
     this.backendService.get<any>('/submissions/drafts/my').subscribe({
       next: (response: any) => {
-        console.log('Drafts/my API response:', response);
         
         const targetDraft = response.drafts?.find((draft: any) => draft.id === draftId);
         
         if (targetDraft) {
-          console.log('Found target draft:', targetDraft);
           
           // Try to extract content from the draft object
           if (targetDraft.contents && targetDraft.contents.length > 0) {
             const firstContent = targetDraft.contents[0];
             if (firstContent?.body) {
               this.draftContent = firstContent.body;
-              console.log('✅ Draft content loaded from drafts/my endpoint');
             }
           } else if (targetDraft.body) {
             this.draftContent = targetDraft.body;
-            console.log('✅ Draft content loaded from direct body in drafts/my');
-          } else {
-            console.warn('❌ No content found in draft object either');
           }
-        } else {
-          console.warn('❌ Draft not found in drafts/my response');
         }
         
         this.loadingDraft = false;
       },
       error: (error: any) => {
-        console.error('❌ Error loading from drafts/my endpoint too:', error);
         this.loadingDraft = false;
       }
     });
@@ -226,11 +199,9 @@ export class MyClaimedTopicsComponent implements OnInit {
       topicPitchId: this.selectedTopic._id
     };
 
-    console.log('Saving draft with data:', draftData);
 
     this.backendService.post('/submissions/drafts', draftData).subscribe({
       next: (response: any) => {
-        console.log('Draft saved successfully:', response);
         this.savingDraft = false;
         
         // Store the draft ID for future updates
@@ -305,7 +276,6 @@ export class MyClaimedTopicsComponent implements OnInit {
 
     this.backendService.post('/submissions', submissionData).subscribe({
       next: (response: any) => {
-        console.log('Submission created successfully:', response);
         this.submittingForReview = false;
         
         // Mark topic as completed
@@ -330,7 +300,6 @@ export class MyClaimedTopicsComponent implements OnInit {
 
     this.backendService.put(`/topic-pitches/${this.selectedTopic._id}`, updateData).subscribe({
       next: () => {
-        console.log('Topic marked as completed');
         // Refresh the claimed topics list
         this.loadClaimedTopics();
         

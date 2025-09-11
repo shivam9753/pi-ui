@@ -40,19 +40,19 @@
     </div>
 
     <div class="flex gap-4">
-      <button 
-        (click)="downloadHTMLFormat()" 
+      <pi-button 
+        variant="primary"
         [disabled]="!convertedHTMLData.length"
-        class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed">
+        (buttonClick)="downloadHTMLFormat()">
         Download HTML Format
-      </button>
+      </pi-button>
 
-      <button 
-        (click)="downloadModelFormat()" 
+      <pi-button 
+        variant="primary"
         [disabled]="!convertedModelData.length"
-        class="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed">
+        (buttonClick)="downloadModelFormat()">
         Download Model Format
-      </button>
+      </pi-button>
     </div>
   </div>
 

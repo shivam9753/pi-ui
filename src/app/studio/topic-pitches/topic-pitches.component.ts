@@ -5,11 +5,12 @@ import { Router } from '@angular/router';
 import { TopicPitch, CreateTopicPitchPayload, TopicPitchFilters, TopicPitchesResponse } from '../../models';
 import { AuthService } from '../../services/auth.service';
 import { BackendService } from '../../services/backend.service';
+import { ButtonComponent } from '../../shared/components';
 
 @Component({
   selector: 'app-topic-pitches',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, ButtonComponent],
   templateUrl: './topic-pitches.component.html',
   styleUrl: './topic-pitches.component.css'
 })

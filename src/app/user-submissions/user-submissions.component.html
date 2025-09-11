@@ -15,11 +15,11 @@
       <div class="text-red-500 text-6xl mb-4">⚠️</div>
       <h2 class="text-2xl font-bold text-gray-900 mb-2">Error Loading Submissions</h2>
       <p class="text-gray-600 mb-4">{{ error() }}</p>
-      <button 
-        (click)="router.navigate(['/profile'])"
-        class="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors">
+      <pi-button 
+        variant="primary"
+        (buttonClick)="router.navigate(['/profile'])">
         Back to Profile
-      </button>
+      </pi-button>
     </div>
   </div>
 }
@@ -60,14 +60,12 @@
           <div></div>
         }
         
-        <button
-          (click)="goToSubmit()"
-          class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-orange-500 to-orange-600 rounded-xl hover:from-orange-600 hover:to-orange-700 active:from-orange-700 active:to-orange-800 transition-all duration-200 shadow-sm">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
-          </svg>
+        <pi-button
+          variant="primary"
+          (buttonClick)="goToSubmit()"
+          iconLeft='<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>'>
           New Submission
-        </button>
+        </pi-button>
       </div>
 
       <!-- Status Tabs -->

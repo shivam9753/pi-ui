@@ -69,7 +69,9 @@ export class CategoryComponent implements OnInit {
       });
     } else {
       // Use regular content API for other categories
-      this.backendService.getPublishedContentByType(this.category, {
+      this.backendService.getSubmissions({
+        status: 'published',
+        type: this.category,
         limit: this.itemsPerPage,
         skip: skip,
         sortBy: 'createdAt',
@@ -131,7 +133,9 @@ export class CategoryComponent implements OnInit {
       });
     } else {
       // Use regular content API for other categories
-      this.backendService.getPublishedContentByType(this.category, {
+      this.backendService.getSubmissions({
+        status: 'published',
+        type: this.category,
         limit: this.itemsPerPage,
         skip: skip,
         sortBy: 'createdAt',

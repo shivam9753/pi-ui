@@ -5,12 +5,13 @@ import { Router } from '@angular/router';
 import { AuthService, GoogleUser } from '../services/auth.service';
 import { BackendService } from '../services/backend.service';
 import { ToastNotificationComponent } from '../shared/components/toast-notification/toast-notification.component';
+import { ButtonComponent } from '../shared/components';
 import { environment } from '../../environments/environment';
 
 @Component({
   selector: 'app-profile-completion',
   standalone: true,
-  imports: [CommonModule, FormsModule, ToastNotificationComponent],
+  imports: [CommonModule, FormsModule, ToastNotificationComponent, ButtonComponent],
   templateUrl: './profile-completion.component.html',
   styleUrls: ['./profile-completion.component.css']
 })

@@ -7,6 +7,7 @@ import { AuthService } from '../services/auth.service';
 import { ReadyToPublishComponent } from "../admin/submissions/ready-to-publish/ready-to-publish.component";
 import { PendingReviewsComponent } from "../admin/submissions/pending-reviews/pending-reviews.component";
 import { ShortlistedSubmissionsComponent } from '../admin/submissions/shortlisted/shortlisted-submissions.component';
+import { ButtonComponent } from '../shared/components';
 
 @Component({
   selector: 'app-workspace',
@@ -14,7 +15,8 @@ import { ShortlistedSubmissionsComponent } from '../admin/submissions/shortliste
   imports: [
     ReadyToPublishComponent,
     PendingReviewsComponent,
-    ShortlistedSubmissionsComponent
+    ShortlistedSubmissionsComponent,
+    ButtonComponent
 ],
   templateUrl: './workspace.component.html',
   styleUrl: './workspace.component.css'

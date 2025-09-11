@@ -5,6 +5,7 @@ import { RouterModule, Router } from '@angular/router';
 import { BackendService } from '../services/backend.service';
 import { PrettyLabelPipe } from '../pipes/pretty-label.pipe';
 import { SUBMISSION_STATUS, SubmissionStatus } from '../shared/constants/api.constants';
+import { ButtonComponent } from '../shared/components';
 
 // Interfaces
 interface Submission {
@@ -45,7 +46,7 @@ interface Draft {
 
 @Component({
   selector: 'app-user-submissions',
-  imports: [CommonModule, FormsModule, RouterModule, PrettyLabelPipe],
+  imports: [CommonModule, FormsModule, RouterModule, PrettyLabelPipe, ButtonComponent],
   templateUrl: './user-submissions.component.html',
   styleUrl: './user-submissions.component.css',
   styles: [`

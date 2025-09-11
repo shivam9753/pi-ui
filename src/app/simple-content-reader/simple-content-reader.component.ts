@@ -351,7 +351,6 @@ export class SimpleContentReaderComponent implements OnInit {
       // Copy link to clipboard
       navigator.clipboard.writeText(url).then(() => {
         // You could add a toast notification here
-        console.log('Link copied to clipboard');
       });
     } else if (type === 'whatsapp') {
       // Share on WhatsApp

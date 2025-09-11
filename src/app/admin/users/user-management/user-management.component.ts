@@ -17,7 +17,8 @@ import {
   createUserActions,
   USER_BADGE_CONFIG,
   ConsistentUserMobileCardComponent,
-  UserAction
+  UserAction,
+  ButtonComponent
 } from '../../../shared/components';
 import { SimpleSubmissionFilterComponent, SimpleFilterOptions } from '../../../shared/components/simple-submission-filter/simple-submission-filter.component';
 
@@ -35,7 +36,8 @@ interface Message {
     AdminPageHeaderComponent,
     DataTableComponent,
     SimpleSubmissionFilterComponent,
-    ConsistentUserMobileCardComponent
+    ConsistentUserMobileCardComponent,
+    ButtonComponent
   ],
   templateUrl: './user-management.component.html',
   styleUrls: ['./user-management.component.css']

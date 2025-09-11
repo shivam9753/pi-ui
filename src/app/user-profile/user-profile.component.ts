@@ -7,6 +7,7 @@ import { UserProfile, PublishedWork } from '../models';
 import { TypeBadgePipe } from '../pipes/type-badge.pipe';
 import { PrettyLabelPipe } from '../pipes/pretty-label.pipe';
 import { ProfileCompletionComponent } from '../profile-completion/profile-completion.component';
+import { ButtonComponent } from '../shared/components';
 import { SUBMISSION_STATUS, SubmissionStatus } from '../shared/constants/api.constants';
 
 // Interfaces
@@ -48,7 +49,7 @@ interface Draft {
 
 @Component({
   selector: 'app-user-profile',
-  imports: [CommonModule, FormsModule, RouterModule, ProfileCompletionComponent, PrettyLabelPipe],
+  imports: [CommonModule, FormsModule, RouterModule, ProfileCompletionComponent, PrettyLabelPipe, ButtonComponent],
   templateUrl: './user-profile.component.html',
   styleUrl: './user-profile.component.css',
   styles: [`

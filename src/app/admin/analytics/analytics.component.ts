@@ -81,128 +81,88 @@ export class AnalyticsComponent implements OnInit {
     this.loading = true;
     this.error = null;
 
-    // Use getPublishedContent method like published-posts component for published content
-    this.backendService.getPublishedContent('', { 
-      limit: 100,
-      skip: 0
+    // Use proper analytics endpoints instead of paginated submissions API
+    forkJoin({
+      overview: this.backendService.getAnalyticsOverview(),
+      topContent: this.backendService.getTopContent({ period: 'month', limit: 10 }),
+      contentTypes: this.backendService.getContentTypeAnalytics(),
+      timeSeries: this.backendService.getViewsTimeSeries({ period: 'month', groupBy: 'day' })
     }).subscribe({
-      next: (response) => {
-        this.processSubmissionsForAnalytics(response.submissions || []);
+      next: (data) => {
+        this.processAnalyticsData(data);
         this.loading = false;
       },
       error: (error) => {
         console.error('Error loading analytics data:', error);
+        
+        // Handle different error scenarios
         if (error.status === 401) {
           this.error = 'Authentication required. Please ensure you are logged in with admin/reviewer privileges.';
         } else if (error.status === 403) {
           this.error = 'Access denied. You need admin or reviewer permissions to view analytics.';
+        } else if (error.status === 404) {
+          this.error = 'Analytics endpoints not implemented yet. Please contact the development team to add proper analytics APIs to the backend.';
+          this.showFallbackMessage();
+        } else if (error.status === 500) {
+          this.error = 'Server error occurred while fetching analytics. Please try again later.';
         } else {
-          this.error = `Failed to load analytics data: ${error.message || 'Unknown error'}`;
+          this.error = `Failed to load analytics data: ${error.message || 'Unknown server error'}`;
         }
+        
         this.loading = false;
       }
     });
   }
 
-  private processSubmissionsForAnalytics(submissions: any[]) {
-    // Calculate total stats
-    const totalViews = submissions.reduce((sum: number, post: any) => sum + (post.viewCount || 0), 0);
-    const totalPosts = submissions.length;
-    const avgViewsPerPost = totalPosts > 0 ? Math.round(totalViews / totalPosts) : 0;
+  private processAnalyticsData(data: any) {
+    // Process data from dedicated analytics endpoints
+    const overview = data.overview;
+    const topContent = data.topContent;
+    const contentTypes = data.contentTypes;
+    const timeSeries = data.timeSeries;
 
-    // Get top posts by view count
-    const topPosts = [...submissions]
-      .sort((a: any, b: any) => (b.viewCount || 0) - (a.viewCount || 0))
-      .slice(0, 10)
-      .map((post: any) => ({
-        _id: post._id,
-        title: post.title,
-        author: post.userId?.name || post.userId?.username || 'Unknown',
-        viewCount: post.viewCount || 0,
-        recentViews: post.recentViews || 0,
-        submissionType: post.submissionType,
-        publishedAt: post.publishedAt,
-        slug: post.seo?.slug || post._id
-      }));
-
-    // Get recent trending posts (posts with high recent views)
-    const recentTrending = [...submissions]
-      .filter((post: any) => post.recentViews > 0)
-      .sort((a: any, b: any) => (b.recentViews || 0) - (a.recentViews || 0))
-      .slice(0, 10)
-      .map((post: any) => ({
-        _id: post._id,
-        title: post.title,
-        author: post.userId?.name || post.userId?.username || 'Unknown',
-        recentViews: post.recentViews || 0,
-        trendingScore: this.calculateTrendingScore(post.recentViews || 0, post.viewCount || 0),
-        submissionType: post.submissionType,
-        publishedAt: post.publishedAt,
-        slug: post.seo?.slug || post._id
-      }));
-
-    // Calculate post type statistics
-    const postTypeStats = this.calculatePostTypeStats(submissions);
-
-    // Generate views over time data (mock for now - would need historical data)
-    const viewsOverTime = this.generateViewsOverTimeData(submissions);
-
-    this.analyticsData = {
-      totalViews,
-      totalPosts,
-      avgViewsPerPost,
-      topPosts,
-      recentTrending,
-      viewsOverTime,
-      postTypeStats
-    };
-  }
-
-  private processBackendAnalyticsData(data: any) {
-    // Process data from the backend analytics overview API
-    const totalViews = data.totalViews || 0;
-    const totalPosts = data.totalPosts || 0;
-    const avgViewsPerPost = data.avgViewsPerPost || 0;
-
-    // Process top posts
-    const topPosts = (data.topPosts || []).map((post: any) => ({
+    // Top posts from analytics API
+    const topPosts = (topContent.topByViews || []).map((post: any) => ({
       _id: post._id,
       title: post.title,
-      author: post.userId?.name || post.userId?.username || 'Unknown',
-      viewCount: post.viewCount || 0,
+      author: post.author || post.userId?.name || post.userId?.username || 'Unknown',
+      viewCount: post.viewCount || post.totalViews || 0,
       recentViews: post.recentViews || 0,
-      submissionType: post.submissionType,
+      submissionType: post.submissionType || post.type,
       publishedAt: post.publishedAt,
-      slug: post.seo?.slug || post._id
+      slug: post.slug || post._id
     }));
 
-    // Process trending posts
-    const recentTrending = (data.trendingPosts || []).map((post: any) => ({
+    // Trending posts from analytics API
+    const recentTrending = (topContent.trending || []).map((post: any) => ({
       _id: post._id,
       title: post.title,
-      author: post.userId?.name || post.userId?.username || 'Unknown',
+      author: post.author || post.userId?.name || post.userId?.username || 'Unknown',
       recentViews: post.recentViews || 0,
       trendingScore: post.trendingScore || 0,
-      submissionType: post.submissionType,
+      submissionType: post.submissionType || post.type,
       publishedAt: post.publishedAt,
-      slug: post.seo?.slug || post._id
+      slug: post.slug || post._id
     }));
 
-    // Process post type statistics
-    const postTypeStats = (data.postTypeStats || []).map((stat: any) => ({
-      type: stat._id || 'Unknown',
-      count: stat.count || 0,
-      totalViews: stat.totalViews || 0,
-      avgViews: Math.round(stat.avgViews || 0)
+    // Content type statistics from analytics API
+    const postTypeStats = (contentTypes.types || []).map((type: any) => ({
+      type: type.type,
+      count: type.count,
+      totalViews: type.totalViews,
+      avgViews: type.avgViews
     }));
 
-    // Generate views over time data from recent activity or mock data
-    const viewsOverTime = this.processRecentActivityData(data.recentActivity || []);
+    // Time series data from analytics API
+    const viewsOverTime = (timeSeries.data || []).map((point: any) => ({
+      date: point.date,
+      views: point.views
+    }));
 
     this.analyticsData = {
-      totalViews,
-      totalPosts,
-      avgViewsPerPost,
+      totalViews: overview.totalViews || 0,
+      totalPosts: overview.totalPosts || 0,
+      avgViewsPerPost: overview.avgViewsPerPost || 0,
       topPosts,
       recentTrending,
       viewsOverTime,
@@ -210,76 +170,8 @@ export class AnalyticsComponent implements OnInit {
     };
   }
 
-  private processRecentActivityData(recentActivity: any[]): ViewsTimeData[] {
-    if (recentActivity.length > 0) {
-      // Convert backend activity data to chart format
-      return recentActivity.map(activity => ({
-        date: activity._id,
-        views: activity.views || 0
-      }));
-    }
 
-    // Fallback to mock data if no recent activity
-    return this.generateViewsOverTimeData([]);
-  }
 
-  private calculateTrendingScore(recentViews: number, totalViews: number): number {
-    if (totalViews === 0) return 0;
-    return Math.round((recentViews / totalViews) * 100);
-  }
-
-  private calculatePostTypeStats(submissions: any[]): PostTypeStats[] {
-    const typeMap = new Map<string, { count: number, totalViews: number }>();
-    
-    submissions.forEach(post => {
-      const type = post.submissionType || 'Unknown';
-      const views = post.viewCount || 0;
-      
-      if (!typeMap.has(type)) {
-        typeMap.set(type, { count: 0, totalViews: 0 });
-      }
-      
-      const stats = typeMap.get(type)!;
-      stats.count++;
-      stats.totalViews += views;
-    });
-
-    return Array.from(typeMap.entries()).map(([type, stats]) => ({
-      type,
-      count: stats.count,
-      totalViews: stats.totalViews,
-      avgViews: Math.round(stats.totalViews / stats.count)
-    })).sort((a, b) => b.totalViews - a.totalViews);
-  }
-
-  private generateViewsOverTimeData(submissions: any[]): ViewsTimeData[] {
-    // Generate last 30 days of data based on submission publish dates
-    const days = 30;
-    const data: ViewsTimeData[] = [];
-    const today = new Date();
-    
-    for (let i = days - 1; i >= 0; i--) {
-      const date = new Date(today);
-      date.setDate(date.getDate() - i);
-      const dateStr = date.toISOString().split('T')[0];
-      
-      // Calculate views for posts published on this date (simplified)
-      const postsOnDate = submissions.filter(sub => {
-        if (!sub.publishedAt) return false;
-        const pubDate = new Date(sub.publishedAt).toISOString().split('T')[0];
-        return pubDate === dateStr;
-      });
-      
-      const views = postsOnDate.reduce((sum, post) => sum + (post.viewCount || 0), 0);
-      
-      data.push({
-        date: dateStr,
-        views: views || Math.floor(Math.random() * 5) + 1 // Small fallback for empty days
-      });
-    }
-    
-    return data;
-  }
 
   // SVG Chart generation methods
   generateBarChart(data: PostTypeStats[]): string {
@@ -356,6 +248,32 @@ export class AnalyticsComponent implements OnInit {
     
     svg += '</svg>';
     return svg;
+  }
+
+  private showFallbackMessage() {
+    // Show additional context for developers
+    console.warn(`
+🚨 ANALYTICS MODULE ISSUE:
+The analytics module is currently trying to use dedicated analytics endpoints that don't exist yet.
+
+REQUIRED BACKEND ENDPOINTS:
+- GET /analytics/overview
+- GET /analytics/top-content
+- GET /analytics/content-types  
+- GET /analytics/views-time-series
+
+CURRENT PROBLEM:
+- Analytics was using paginated submissions API (only 100 records)
+- Frontend calculations were meaningless with partial data
+- Mock/fake data was being generated
+
+SOLUTION NEEDED:
+Backend team needs to implement proper analytics aggregation endpoints that:
+1. Calculate totals from ALL submissions (not paginated)
+2. Provide real time-series data
+3. Generate proper trending calculations
+4. Cache results for performance
+    `);
   }
 
   refresh() {
