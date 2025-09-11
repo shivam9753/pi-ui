@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
+import { forkJoin } from 'rxjs';
 import { TopicPitch, CreateTopicPitchPayload, TopicPitchFilters, TopicPitchesResponse } from '../../models';
 import { AuthService } from '../../services/auth.service';
 import { BackendService } from '../../services/backend.service';
@@ -40,6 +41,10 @@ export class TopicPitchesComponent implements OnInit {
   claimDeadline = '';
   claimingInProgress = false;
 
+  // Contributors (writers, reviewers, admins)
+  contributors: any[] = [];
+  contributorsLoading = false;
+
   constructor(
     private fb: FormBuilder,
     private authService: AuthService,
@@ -59,6 +64,7 @@ export class TopicPitchesComponent implements OnInit {
   ngOnInit() {
     this.currentUser = this.authService.getCurrentUser();
     this.loadTopics();
+    this.loadContributors();
   }
 
   loadTopics() {
@@ -86,6 +92,45 @@ export class TopicPitchesComponent implements OnInit {
       error: (error: any) => {
         console.error('Error loading topics:', error);
         this.loading = false;
+      }
+    });
+  }
+
+  loadContributors() {
+    this.contributorsLoading = true;
+    
+    // Load contributors with elevated roles (writer, reviewer, admin)
+    forkJoin({
+      writers: this.backendService.getUsers({ role: 'writer', limit: 50 }),
+      reviewers: this.backendService.getUsers({ role: 'reviewer', limit: 50 }),
+      admins: this.backendService.getUsers({ role: 'admin', limit: 50 })
+    }).subscribe({
+      next: (responses) => {
+        // Combine all users from different roles
+        const allUsers = [
+          ...(responses.writers.users || []),
+          ...(responses.reviewers.users || []),
+          ...(responses.admins.users || [])
+        ];
+        
+        // Remove duplicates based on user ID (in case a user has multiple roles)
+        const uniqueUsers = allUsers.filter((user, index, self) => 
+          index === self.findIndex(u => u._id === user._id)
+        );
+        
+        // Sort by name
+        this.contributors = uniqueUsers.sort((a, b) => {
+          const nameA = (a.name || a.username || 'Unknown').toLowerCase();
+          const nameB = (b.name || b.username || 'Unknown').toLowerCase();
+          return nameA.localeCompare(nameB);
+        });
+        
+        this.contributorsLoading = false;
+      },
+      error: (error) => {
+        console.error('Error loading contributors:', error);
+        this.contributors = [];
+        this.contributorsLoading = false;
       }
     });
   }
@@ -272,5 +317,36 @@ export class TopicPitchesComponent implements OnInit {
         this.claimingInProgress = false;
       }
     });
+  }
+
+  getRoleColor(role: string): string {
+    switch (role) {
+      case 'admin': return 'bg-red-100 text-red-800 border-red-200';
+      case 'reviewer': return 'bg-blue-100 text-blue-800 border-blue-200';
+      case 'writer': return 'bg-green-100 text-green-800 border-green-200';
+      default: return 'bg-gray-100 text-gray-800 border-gray-200';
+    }
+  }
+
+  getRoleIndicatorColor(role: string): string {
+    switch (role) {
+      case 'admin': return 'bg-red-500 text-white';
+      case 'reviewer': return 'bg-blue-500 text-white';
+      case 'writer': return 'bg-green-500 text-white';
+      default: return 'bg-gray-500 text-white';
+    }
+  }
+
+  getRoleIcon(role: string): string {
+    switch (role) {
+      case 'admin': return 'M12 4.354a4 4 0 110 8 4 4 0 010-8zM6 18a6 6 0 1112 0v1H6v-1z';
+      case 'reviewer': return 'M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z';
+      case 'writer': return 'M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z';
+      default: return 'M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z';
+    }
+  }
+
+  getContributorDisplayName(user: any): string {
+    return user.name || user.username || 'Unknown';
   }
 }

@@ -1101,4 +1101,114 @@ getSubmissionAnalytics(): Observable<{
   );
 }
 
+// Search Analytics Methods
+getSearchAnalyticsOverview(days: number = 30): Observable<{
+  overview: {
+    totalSearches: number;
+    uniqueQueries: number;
+    uniqueUsers: number;
+    avgResultsCount: number;
+    zeroResultSearches: number;
+    zeroResultRate: number;
+  };
+  topQueries: Array<{ query: string; count: number }>;
+  recentTrend: Array<{ date: string; count: number }>;
+  searchTypes: Array<{ type: string; count: number }>;
+}> {
+  const headers = this.getAuthHeaders();
+  let params = new HttpParams();
+  if (days) params = params.set('days', days.toString());
+  
+  const url = `${this.API_URL}/analytics/search/overview`;
+  return this.http.get<any>(url, { headers, params }).pipe(
+    this.handleApiCall(url, 'GET')
+  );
+}
+
+getPopularSearchQueries(options: {
+  days?: number;
+  limit?: number;
+} = {}): Observable<{
+  data: Array<{
+    query: string;
+    searchCount: number;
+    avgResults: number;
+    uniqueUsers: number;
+    lastSearched: Date;
+    searchTypes: string[];
+  }>;
+  metadata: {
+    period: string;
+    totalQueries: number;
+  };
+}> {
+  const headers = this.getAuthHeaders();
+  let params = new HttpParams();
+  if (options.days) params = params.set('days', options.days.toString());
+  if (options.limit) params = params.set('limit', options.limit.toString());
+  
+  const url = `${this.API_URL}/analytics/search/popular`;
+  return this.http.get<any>(url, { headers, params }).pipe(
+    this.handleApiCall(url, 'GET')
+  );
+}
+
+getZeroResultSearches(options: {
+  days?: number;
+  limit?: number;
+} = {}): Observable<{
+  data: Array<{
+    query: string;
+    searchCount: number;
+    uniqueUsers: number;
+    lastSearched: Date;
+    searchTypes: string[];
+  }>;
+  metadata: {
+    period: string;
+    totalQueries: number;
+    description: string;
+  };
+}> {
+  const headers = this.getAuthHeaders();
+  let params = new HttpParams();
+  if (options.days) params = params.set('days', options.days.toString());
+  if (options.limit) params = params.set('limit', options.limit.toString());
+  
+  const url = `${this.API_URL}/analytics/search/zero-results`;
+  return this.http.get<any>(url, { headers, params }).pipe(
+    this.handleApiCall(url, 'GET')
+  );
+}
+
+getSearchTrends(options: {
+  days?: number;
+  groupBy?: 'hour' | 'day' | 'week' | 'month';
+} = {}): Observable<{
+  data: Array<{
+    period: string;
+    totalSearches: number;
+    uniqueQueries: number;
+    uniqueUsers: number;
+    avgResultsCount: number;
+    zeroResultSearches: number;
+    zeroResultRate: number;
+  }>;
+  metadata: {
+    period: string;
+    groupBy: string;
+    totalPeriods: number;
+  };
+}> {
+  const headers = this.getAuthHeaders();
+  let params = new HttpParams();
+  if (options.days) params = params.set('days', options.days.toString());
+  if (options.groupBy) params = params.set('groupBy', options.groupBy);
+  
+  const url = `${this.API_URL}/analytics/search/trends`;
+  return this.http.get<any>(url, { headers, params }).pipe(
+    this.handleApiCall(url, 'GET')
+  );
+}
+
 }

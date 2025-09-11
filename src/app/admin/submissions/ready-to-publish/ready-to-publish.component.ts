@@ -68,7 +68,7 @@ export class ReadyToPublishComponent implements OnInit {
     this.consistentActions = [
       {
         label: 'Configure & Publish',
-        color: 'success',
+        color: 'primary',
         handler: (submission) => this.configurePublishing(submission._id || submission.id)
       }
     ];
@@ -150,7 +150,7 @@ export class ReadyToPublishComponent implements OnInit {
       {
         label: 'Configure Publishing',
         handler: (content: ContentCardData) => this.configurePublishing(content.id),
-        class: 'px-3 py-1 text-sm rounded border border-blue-600 text-blue-600 hover:bg-blue-50'
+        class: 'px-3 py-1 text-sm rounded border border-orange-600 text-orange-600 hover:bg-orange-50'
       }
     ];
   }

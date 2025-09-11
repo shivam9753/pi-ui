@@ -485,6 +485,60 @@
             </div>
           </div>
 
+          <!-- Contributors Section -->
+          <div class="bg-white rounded-lg shadow-sm border p-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+              <svg class="w-5 h-5 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+              </svg>
+              Contributors
+            </h3>
+            
+            @if (contributorsLoading) {
+              <div class="flex items-center justify-center py-8">
+                <div class="w-6 h-6 border-2 border-orange-500/20 border-t-orange-500 rounded-full animate-spin"></div>
+              </div>
+            }
+            
+            @if (!contributorsLoading && contributors.length === 0) {
+              <div class="text-center py-8">
+                <svg class="w-12 h-12 text-gray-300 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                </svg>
+                <p class="text-sm text-gray-500">No contributors found</p>
+              </div>
+            }
+            
+            @if (!contributorsLoading && contributors.length > 0) {
+              <div class="flex items-center gap-3">
+                <!-- Display first 4 contributors -->
+                @for (contributor of contributors.slice(0, 4); track contributor._id) {
+                  <div class="relative group">
+                    <!-- User Avatar with Role Indicator -->
+                    <div class="w-12 h-12 bg-gradient-to-br from-orange-400 to-orange-600 rounded-full flex items-center justify-center text-white font-semibold text-sm shadow-sm group-hover:shadow-md transition-all duration-200 cursor-pointer"
+                         [title]="getContributorDisplayName(contributor) + ' (' + (contributor.role | titlecase) + ')'">
+                      {{ getContributorDisplayName(contributor).charAt(0).toUpperCase() }}
+                    </div>
+                    <!-- Small Role Indicator Badge -->
+                    <div class="absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full border-2 border-white flex items-center justify-center" [class]="getRoleIndicatorColor(contributor.role)">
+                      <svg class="w-2 h-2" fill="currentColor" viewBox="0 0 24 24">
+                        <path [attr.d]="getRoleIcon(contributor.role)"></path>
+                      </svg>
+                    </div>
+                  </div>
+                }
+                
+                <!-- Show overflow count if more than 4 contributors -->
+                @if (contributors.length > 4) {
+                  <div class="w-12 h-12 bg-gray-200 rounded-full flex items-center justify-center text-gray-600 font-semibold text-sm cursor-pointer hover:bg-gray-300 transition-colors"
+                       [title]="'And ' + (contributors.length - 4) + ' more contributors'">
+                    +{{ contributors.length - 4 }}
+                  </div>
+                }
+              </div>
+            }
+          </div>
+
         </div>
       </div>
     </div>
