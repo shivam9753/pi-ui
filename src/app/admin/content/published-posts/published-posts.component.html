@@ -12,17 +12,6 @@
   <div class="mb-6">
     <div class="flex flex-wrap gap-2 sm:gap-4">
       <button
-        (click)="setQuickFilter('published')"
-        [class.bg-orange-500]="quickFilter === 'published'"
-        [class.text-white]="quickFilter === 'published'"
-        [class.border-orange-500]="quickFilter === 'published'"
-        [class.bg-white]="quickFilter !== 'published'"
-        [class.text-gray-700]="quickFilter !== 'published'"
-        [class.border-gray-300]="quickFilter !== 'published'"
-        class="px-4 py-2 rounded-lg border-2 font-medium text-sm transition-all duration-200 hover:border-orange-500 hover:text-orange-600">
-        Published Only
-      </button>
-      <button
         (click)="setQuickFilter('all')"
         [class.bg-orange-500]="quickFilter === 'all'"
         [class.text-white]="quickFilter === 'all'"
@@ -32,6 +21,17 @@
         [class.border-gray-300]="quickFilter !== 'all'"
         class="px-4 py-2 rounded-lg border-2 font-medium text-sm transition-all duration-200 hover:border-orange-500 hover:text-orange-600">
         All Submissions
+      </button>
+      <button
+        (click)="setQuickFilter('published')"
+        [class.bg-orange-500]="quickFilter === 'published'"
+        [class.text-white]="quickFilter === 'published'"
+        [class.border-orange-500]="quickFilter === 'published'"
+        [class.bg-white]="quickFilter !== 'published'"
+        [class.text-gray-700]="quickFilter !== 'published'"
+        [class.border-gray-300]="quickFilter !== 'published'"
+        class="px-4 py-2 rounded-lg border-2 font-medium text-sm transition-all duration-200 hover:border-orange-500 hover:text-orange-600">
+        Published Only
       </button>
       <button
         (click)="setQuickFilter('accepted')"

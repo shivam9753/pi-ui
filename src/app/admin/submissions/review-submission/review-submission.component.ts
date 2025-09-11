@@ -32,18 +32,131 @@ export class ReviewSubmissionComponent {
   showReviewForm: boolean = false;
   isSubmitting: boolean = false;
   
-  // Common rejection reasons
-  commonRejectionReasons = [
-    'Submitted in Hindi (English portal only)',
-    'AI Generated/Perfected content',
-    'Clichéd Language',
-    'Forced Rhyme',
-    'Poor grammar/spelling',
-    'Inappropriate content',
-    'Plagiarized content',
-    'Does not meet quality standards',
-    'Format not suitable for platform'
+  // Initial rejection reasons (shown when user taps)
+  initialRejectionReasons = [
+    'General: Does not meet quality standards',
+    'General: Poor grammar/spelling',
+    'General: Inappropriate content',
+    'General: Wrong category selected',
+    'General: Plagiarized content',
+    'Poem: Clichéd Language',
+    'Article: Too short - insufficient word count',
+    'Prose: Lacks narrative structure'
   ];
+
+  // All rejection reasons (for filtering as user types)
+  allRejectionReasons = [
+    'General: Wrong category selected',
+    'General: Too short for any meaningful content',
+    'General: Too long - exceeds platform limits',
+    'General: Incomplete submission',
+    'General: Submitted multiple times',
+    'General: Off-topic/irrelevant to platform',
+    'General: Hate speech/discriminatory content',
+    'General: Copyright violation',
+    'General: Factual inaccuracies',
+    'General: Poor formatting/presentation',
+    'General: No title provided',
+    'General: Spam/promotional content',
+    'General: Violates community guidelines',
+    'General: Previously published elsewhere',
+    'General: Author information missing/incomplete',
+    'General: Language barrier - unclear meaning',
+    'General: Seasonal/dated content submitted out of time',
+    'General: Technical submission errors',
+    'General: Content not aligned with platform values',
+    'General: Requires age verification/mature content warning',
+    'General: Submitted in Hindi (English portal only)',
+    'General: AI Generated/Perfected content',
+    'General: Poor grammar/spelling',
+    'General: Inappropriate content',
+    'General: Plagiarized content',
+
+    'Poem: Clichéd Language',
+    'Poem: Forced Rhyme',
+    'Poem: Does not meet quality standards',
+    'Poem: Format not suitable for platform',
+    
+    // ARTICLE-SPECIFIC REJECTIONS:
+    'Article: Not an article - reads like creative writing/poetry',
+    'Article: Too short - insufficient word count for article',
+    'Article: No research or data to support claims',
+    'Article: Lacks credible sources/citations',
+    'Article: Missing thesis/hypothesis',
+    'Article: No analytical framework',
+    'Article: Pure opinion piece without factual backing',
+    'Article: Lacks journalistic structure (lead, body, conclusion)',
+    'Article: No expert quotes or interviews',
+    'Article: Missing statistical evidence',
+    'Article: Anecdotal only - no broader analysis',
+    'Article: No clear argument or position',
+    'Article: Lacks methodology explanation',
+    'Article: Personal narrative instead of informative content',
+    'Article: No problem-solution structure',
+    'Article: Missing call-to-action or conclusion',
+    'Article: Insufficient background/context provided',
+    'Article: No current relevance or news angle',
+    'Article: Reads like blog post rather than article',
+    'Article: Lacks objectivity/too subjective',
+    'Article: No fact-checking evident',
+    'Article: Missing subheadings/poor structure',
+    'Article: No target audience consideration',
+
+    // CINEMA ESSAY REJECTIONS:
+    'Cinema Essay: Plot summary without analysis',
+    'Cinema Essay: No understanding of film theory/techniques',
+    'Cinema Essay: Missing historical/cultural context',
+    'Cinema Essay: Superficial character analysis',
+    'Cinema Essay: No discussion of cinematography/direction',
+    'Cinema Essay: Lacks comparison to other films/genres',
+    'Cinema Essay: Personal taste presented as objective critique',
+    'Cinema Essay: No thesis about film\'s significance',
+    'Cinema Essay: Spoilers without warning',
+    'Cinema Essay: Outdated references/no contemporary relevance',
+
+    // PROSE REJECTIONS:
+    'Prose: Lacks narrative structure',
+    'Prose: No character development',
+    'Prose: Weak dialogue/unrealistic conversations',
+    'Prose: Show don\'t tell violations',
+    'Prose: Inconsistent point of view',
+    'Prose: No clear conflict or tension',
+    'Prose: Rushed or unsatisfying ending',
+    'Prose: Too much exposition/info dumping',
+    'Prose: Flat or stereotypical characters',
+    'Prose: No distinct voice or style',
+
+    // BOOK REVIEW REJECTIONS:
+    'Book Review: Plot summary without critique',
+    'Book Review: No discussion of writing quality',
+    'Book Review: Missing genre context/comparisons',
+    'Book Review: Biased review (personal relationship with author)',
+    'Book Review: No target audience consideration',
+    'Book Review: Spoilers without proper warnings',
+    'Book Review: Too short - insufficient analysis',
+    'Book Review: No discussion of book\'s themes/significance',
+    'Book Review: Personal preference presented as objective flaw',
+    'Book Review: Missing publication details/context',
+
+    // OPINION/OP-ED REJECTIONS:
+    'Op-Ed: Weak or unclear thesis statement',
+    'Op-Ed: No counterargument acknowledgment',
+    'Op-Ed: Lacks topical relevance/timeliness',
+    'Op-Ed: Too preachy/condescending tone',
+    'Op-Ed: No call to action or solution proposed',
+    'Op-Ed: Personal anecdotes without broader relevance',
+    'Op-Ed: Inflammatory language without substance',
+    'Op-Ed: Rehashing common arguments without new perspective',
+    'Op-Ed: No credibility/expertise established',
+    'Op-Ed: Too long - exceeds typical op-ed length',
+    'Op-Ed: Not persuasive - weak argument structure',
+    'Op-Ed: No understanding of target publication\'s audience'
+  ];
+
+  // Dynamic rejection reasons state
+  filteredRejectionReasons: string[] = [];
+  showRejectionReasons = false;
+  rejectionReasonFilter = '';
   
   // History and status tracking
   submissionHistory: any[] = [];

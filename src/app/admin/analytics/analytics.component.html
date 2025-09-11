@@ -1,7 +1,58 @@
 <!-- Analytics Dashboard -->
 <div class="analytics-dashboard">
-  <!-- Loading State -->
-  @if (loading) {
+  <!-- Header with Tabs -->
+  <div class="flex justify-between items-center mb-6">
+    <div>
+      <h2 class="text-2xl font-bold text-gray-900">Analytics Dashboard</h2>
+      <p class="text-gray-600 mt-1">Overview of content performance and user engagement</p>
+    </div>
+    <button 
+      (click)="refresh()" 
+      class="flex items-center gap-2 px-4 py-2 text-orange-600 border border-orange-200 rounded-lg hover:bg-orange-50 transition-colors">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+      </svg>
+      Refresh
+    </button>
+  </div>
+
+  <!-- Tabs Navigation -->
+  <div class="border-b border-gray-200 mb-8">
+    <nav class="-mb-px flex space-x-8">
+      <button
+        (click)="switchTab('overview')"
+        [class]="activeTab === 'overview' ? 
+          'border-orange-500 text-orange-600 whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm' : 
+          'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm'"
+        >
+        <div class="flex items-center gap-2">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+          </svg>
+          Content Analytics
+        </div>
+      </button>
+      
+      <button
+        (click)="switchTab('search')"
+        [class]="activeTab === 'search' ? 
+          'border-orange-500 text-orange-600 whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm' : 
+          'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm'"
+        >
+        <div class="flex items-center gap-2">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          </svg>
+          Search Analytics
+        </div>
+      </button>
+    </nav>
+  </div>
+
+  <!-- Overview Tab Content -->
+  @if (activeTab === 'overview') {
+    <!-- Loading State -->
+    @if (loading) {
     <div class="flex items-center justify-center py-12">
       <div class="text-center">
         <div class="w-12 h-12 mx-auto mb-4 border-4 border-orange-500/20 border-t-orange-500 rounded-full animate-spin"></div>
@@ -222,5 +273,195 @@
         </div>
       </div>
     </div>
+    }
+  }
+
+  <!-- Search Analytics Tab Content -->
+  @if (activeTab === 'search') {
+    <!-- Loading State -->
+    @if (searchLoading) {
+      <div class="flex items-center justify-center py-12">
+        <div class="text-center">
+          <div class="w-12 h-12 mx-auto mb-4 border-4 border-orange-500/20 border-t-orange-500 rounded-full animate-spin"></div>
+          <p class="text-gray-600">Loading search analytics...</p>
+        </div>
+      </div>
+    }
+
+    <!-- Error State -->
+    @if (searchError && !searchLoading) {
+      <div class="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
+        <div class="w-12 h-12 mx-auto mb-4 bg-red-100 rounded-full flex items-center justify-center">
+          <svg class="w-6 h-6 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.664-.833-2.464 0L4.35 16.5c-.77.833.192 2.5 1.732 2.5z" />
+          </svg>
+        </div>
+        <h3 class="text-lg font-medium text-red-800 mb-2">Error Loading Search Analytics</h3>
+        <p class="text-red-600 mb-4">{{ searchError }}</p>
+        <button (click)="refresh()" class="btn-primary">Retry</button>
+      </div>
+    }
+
+    <!-- Search Analytics Content -->
+    @if (searchAnalyticsData && !searchLoading) {
+      <div class="space-y-8">
+        <!-- Search Overview Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-gray-600 text-sm font-medium">Total Searches</p>
+                <p class="text-3xl font-bold text-gray-900 mt-1">{{ formatNumber(searchAnalyticsData.overview.totalSearches) }}</p>
+              </div>
+              <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+              </div>
+            </div>
+          </div>
+
+          <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-gray-600 text-sm font-medium">Unique Queries</p>
+                <p class="text-3xl font-bold text-gray-900 mt-1">{{ formatNumber(searchAnalyticsData.overview.uniqueQueries) }}</p>
+              </div>
+              <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                </svg>
+              </div>
+            </div>
+          </div>
+
+          <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-gray-600 text-sm font-medium">Avg Results</p>
+                <p class="text-3xl font-bold text-gray-900 mt-1">{{ searchAnalyticsData.overview.avgResultsCount | number:'1.1-1' }}</p>
+              </div>
+              <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
+                <svg class="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                </svg>
+              </div>
+            </div>
+          </div>
+
+          <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-gray-600 text-sm font-medium">Zero Results</p>
+                <p class="text-3xl font-bold text-gray-900 mt-1">{{ searchAnalyticsData.overview.zeroResultRate | number:'1.0-0' }}%</p>
+              </div>
+              <div class="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center">
+                <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Charts and Lists Section -->
+        <div class="grid grid-cols-1 xl:grid-cols-2 gap-8">
+          <!-- Popular Search Queries -->
+          <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">Most Popular Queries</h3>
+            <div class="space-y-3">
+              @for (query of searchAnalyticsData.topQueries.slice(0, 10); track query.query) {
+                <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                  <div class="flex-1 min-w-0">
+                    <h4 class="font-medium text-gray-900 truncate">"{{ query.query }}"</h4>
+                    <div class="flex items-center gap-3 mt-1">
+                      <span class="text-sm text-gray-500">{{ query.uniqueUsers }} users</span>
+                      <span class="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full">{{ query.avgResults | number:'1.1-1' }} avg results</span>
+                    </div>
+                  </div>
+                  <div class="text-right">
+                    <div class="font-semibold text-blue-600">{{ formatNumber(query.searchCount) }}</div>
+                    <div class="text-xs text-gray-500">searches</div>
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+
+          <!-- Zero Result Searches -->
+          <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">Zero Result Queries</h3>
+            <p class="text-sm text-gray-600 mb-4">Potential content opportunities</p>
+            @if (searchAnalyticsData.zeroResults.length === 0) {
+              <div class="text-center text-gray-500 py-8">
+                <svg class="w-12 h-12 mx-auto mb-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
+                </svg>
+                <p>Great job! All searches are finding results</p>
+                <p class="text-sm mt-1">No queries with zero results in the last 30 days</p>
+              </div>
+            } @else {
+              <div class="space-y-3">
+                @for (query of searchAnalyticsData.zeroResults.slice(0, 8); track query.query) {
+                  <div class="flex items-center justify-between p-3 bg-red-50 rounded-lg hover:bg-red-100 transition-colors">
+                    <div class="flex-1 min-w-0">
+                      <h4 class="font-medium text-gray-900 truncate">"{{ query.query }}"</h4>
+                      <div class="flex items-center gap-3 mt-1">
+                        <span class="text-sm text-gray-500">{{ query.uniqueUsers }} users</span>
+                        <span class="text-xs bg-red-100 text-red-700 px-2 py-1 rounded-full">Content gap</span>
+                      </div>
+                    </div>
+                    <div class="text-right">
+                      <div class="font-semibold text-red-600">{{ formatNumber(query.searchCount) }}</div>
+                      <div class="text-xs text-gray-500">failed searches</div>
+                    </div>
+                  </div>
+                }
+              </div>
+            }
+          </div>
+        </div>
+
+        <!-- Search Trends Chart -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+          <h3 class="text-lg font-semibold text-gray-900 mb-4">Search Volume Trends (Last 30 Days)</h3>
+          @if (searchAnalyticsData.trends.length > 0) {
+            <div class="space-y-2">
+              @for (trend of searchAnalyticsData.trends.slice(-14); track trend.period) {
+                <div class="flex items-center justify-between py-2">
+                  <span class="text-sm text-gray-600">{{ formatDate(trend.period) }}</span>
+                  <div class="flex items-center gap-2">
+                    <div class="w-32 bg-gray-200 rounded-full h-2">
+                      <div class="bg-blue-500 h-2 rounded-full" 
+                           [style.width.%]="(trend.totalSearches / getMaxSearchVolume()) * 100"></div>
+                    </div>
+                    <span class="text-sm font-medium text-gray-900 w-8 text-right">{{ trend.totalSearches }}</span>
+                  </div>
+                </div>
+              }
+            </div>
+          } @else {
+            <div class="text-center text-gray-500 py-8">
+              <p>No search trend data available</p>
+            </div>
+          }
+        </div>
+
+        <!-- Search Types Breakdown -->
+        @if (searchAnalyticsData.searchTypes.length > 0) {
+          <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">Search Types Distribution</h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+              @for (type of searchAnalyticsData.searchTypes; track type.type) {
+                <div class="text-center p-4 bg-gray-50 rounded-lg">
+                  <div class="text-2xl font-bold text-gray-900">{{ formatNumber(type.count) }}</div>
+                  <div class="text-sm text-gray-600 capitalize">{{ type.type || 'Content' }} searches</div>
+                </div>
+              }
+            </div>
+          </div>
+        }
+      </div>
+    }
   }
 </div>

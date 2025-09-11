@@ -53,7 +53,7 @@ export class PublishedPostsComponent implements OnInit {
   
   // Filter properties
   currentFilters: SimpleFilterOptions = {};
-  quickFilter: 'published' | 'all' | 'accepted' = 'published';
+  quickFilter: 'published' | 'all' | 'accepted' = 'all';
 
   // Analytics stats
   stats: AdminPageStat[] = [];

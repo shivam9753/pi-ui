@@ -120,7 +120,7 @@ export class UserMobileCardComponent {
     const baseClasses = 'font-medium transition-colors duration-200';
     
     const colorClasses: { [key: string]: string } = {
-      'primary': 'text-blue-700 bg-blue-50 hover:bg-blue-100 border border-blue-200',
+      'primary': 'text-orange-700 bg-orange-50 hover:bg-orange-100 border border-orange-200',
       'warning': 'text-orange-700 bg-orange-50 hover:bg-orange-100 border border-orange-200',
       'success': 'text-green-700 bg-green-50 hover:bg-green-100 border border-green-200',
       'danger': 'text-red-700 bg-red-50 hover:bg-red-100 border border-red-200',

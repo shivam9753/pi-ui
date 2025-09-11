@@ -50,6 +50,54 @@ interface PostTypeStats {
   avgViews: number;
 }
 
+interface SearchAnalyticsData {
+  overview: {
+    totalSearches: number;
+    uniqueQueries: number;
+    uniqueUsers: number;
+    avgResultsCount: number;
+    zeroResultSearches: number;
+    zeroResultRate: number;
+  };
+  topQueries: PopularQuery[];
+  recentTrend: SearchTrendData[];
+  searchTypes: SearchTypeData[];
+  zeroResults: ZeroResultQuery[];
+  trends: SearchTrendData[];
+}
+
+interface PopularQuery {
+  query: string;
+  searchCount: number;
+  avgResults: number;
+  uniqueUsers: number;
+  lastSearched: Date;
+  searchTypes: string[];
+}
+
+interface ZeroResultQuery {
+  query: string;
+  searchCount: number;
+  uniqueUsers: number;
+  lastSearched: Date;
+  searchTypes: string[];
+}
+
+interface SearchTrendData {
+  period: string;
+  totalSearches: number;
+  uniqueQueries?: number;
+  uniqueUsers?: number;
+  avgResultsCount?: number;
+  zeroResultSearches?: number;
+  zeroResultRate?: number;
+}
+
+interface SearchTypeData {
+  type: string;
+  count: number;
+}
+
 @Component({
   selector: 'app-analytics',
   standalone: true,
@@ -59,8 +107,14 @@ interface PostTypeStats {
 })
 export class AnalyticsComponent implements OnInit {
   analyticsData: AnalyticsData | null = null;
+  searchAnalyticsData: SearchAnalyticsData | null = null;
   loading = true;
+  searchLoading = false;
   error: string | null = null;
+  searchError: string | null = null;
+  
+  // Tab management
+  activeTab: 'overview' | 'search' = 'overview';
 
   // Chart dimensions and settings
   chartWidth = 800;
@@ -75,6 +129,13 @@ export class AnalyticsComponent implements OnInit {
 
   ngOnInit() {
     this.loadAnalyticsData();
+  }
+
+  switchTab(tab: 'overview' | 'search') {
+    this.activeTab = tab;
+    if (tab === 'search' && !this.searchAnalyticsData) {
+      this.loadSearchAnalyticsData();
+    }
   }
 
   loadAnalyticsData() {
@@ -168,6 +229,64 @@ export class AnalyticsComponent implements OnInit {
       viewsOverTime,
       postTypeStats
     };
+  }
+
+  loadSearchAnalyticsData() {
+    this.searchLoading = true;
+    this.searchError = null;
+
+    // Load search analytics data
+    forkJoin({
+      overview: this.backendService.getSearchAnalyticsOverview(30),
+      popular: this.backendService.getPopularSearchQueries({ days: 30, limit: 20 }),
+      zeroResults: this.backendService.getZeroResultSearches({ days: 30, limit: 15 }),
+      trends: this.backendService.getSearchTrends({ days: 30, groupBy: 'day' })
+    }).subscribe({
+      next: (data) => {
+        this.processSearchAnalyticsData(data);
+        this.searchLoading = false;
+      },
+      error: (error) => {
+        console.error('Error loading search analytics data:', error);
+        
+        // Handle different error scenarios
+        if (error.status === 401) {
+          this.searchError = 'Authentication required. Please ensure you are logged in with admin/reviewer privileges.';
+        } else if (error.status === 403) {
+          this.searchError = 'Access denied. You need admin or reviewer permissions to view search analytics.';
+        } else if (error.status === 404) {
+          this.searchError = 'Search analytics endpoints not found. Please ensure the search analytics feature is properly configured.';
+        } else if (error.status === 500) {
+          this.searchError = 'Server error occurred while fetching search analytics. Please try again later.';
+        } else {
+          this.searchError = `Failed to load search analytics: ${error.message || 'Unknown server error'}`;
+        }
+        
+        this.searchLoading = false;
+      }
+    });
+  }
+
+  private processSearchAnalyticsData(data: any) {
+    console.log('Raw search analytics data:', data); // Debug log
+    
+    // Process data from search analytics endpoints
+    // The backend returns { success: true, data: {...} } structure
+    const overview = data.overview?.data || data.overview || {};
+    const popular = data.popular?.data || data.popular || [];
+    const zeroResults = data.zeroResults?.data || data.zeroResults || [];
+    const trends = data.trends?.data || data.trends || [];
+
+    this.searchAnalyticsData = {
+      overview: overview.overview || overview,
+      topQueries: Array.isArray(popular) ? popular : [],
+      recentTrend: overview.recentTrend || [],
+      searchTypes: overview.searchTypes || [],
+      zeroResults: Array.isArray(zeroResults) ? zeroResults : [],
+      trends: Array.isArray(trends) ? trends : []
+    };
+
+    console.log('Processed search analytics data:', this.searchAnalyticsData); // Debug log
   }
 
 
@@ -277,7 +396,11 @@ Backend team needs to implement proper analytics aggregation endpoints that:
   }
 
   refresh() {
-    this.loadAnalyticsData();
+    if (this.activeTab === 'overview') {
+      this.loadAnalyticsData();
+    } else if (this.activeTab === 'search') {
+      this.loadSearchAnalyticsData();
+    }
   }
 
   formatNumber(num: number): string {
@@ -310,5 +433,10 @@ Backend team needs to implement proper analytics aggregation endpoints that:
   getMaxTypeViews(): number {
     if (!this.analyticsData?.postTypeStats) return 1;
     return Math.max(...this.analyticsData.postTypeStats.map(s => s.totalViews), 1);
+  }
+
+  getMaxSearchVolume(): number {
+    if (!this.searchAnalyticsData?.trends) return 1;
+    return Math.max(...this.searchAnalyticsData.trends.map(t => t.totalSearches), 1);
   }
 }
