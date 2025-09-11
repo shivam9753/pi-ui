@@ -289,6 +289,70 @@ export class ReviewSubmissionComponent {
         this.reviewNotes = currentText + (currentText.endsWith('.') || currentText.endsWith(',') ? ' ' : '. ') + reason;
       }
     }
+    // Hide suggestions after selection
+    this.showRejectionReasons = false;
+    this.rejectionReasonFilter = '';
+  }
+
+  // Show initial rejection reasons when input is focused
+  onReviewNotesClick() {
+    if (this.reviewAction === 'reject' || this.reviewAction === 'revision') {
+      // Only show initial reasons if textarea is empty
+      if (!this.reviewNotes.trim()) {
+        this.showRejectionReasons = true;
+        this.filteredRejectionReasons = [...this.initialRejectionReasons];
+        this.rejectionReasonFilter = '';
+      }
+    }
+  }
+
+  // Filter rejection reasons as user types
+  onReviewNotesInput(event: any) {
+    const value = event.target.value;
+    this.reviewNotes = value;
+    
+    if (this.reviewAction === 'reject' || this.reviewAction === 'revision') {
+      if (value.trim().length > 2) { // Only start filtering after 3 characters
+        const searchTerm = value.trim().toLowerCase();
+        // Get last few words for better matching
+        const lastWords = searchTerm.split(' ').slice(-2).join(' ');
+        
+        this.filteredRejectionReasons = this.allRejectionReasons.filter(reason => 
+          reason.toLowerCase().includes(searchTerm) || 
+          reason.toLowerCase().includes(lastWords)
+        ).slice(0, 6); // Limit to 6 suggestions for filtered results
+        
+        this.showRejectionReasons = this.filteredRejectionReasons.length > 0;
+      } else if (value.trim().length === 0) {
+        // Show initial reasons only when completely empty
+        this.filteredRejectionReasons = [...this.initialRejectionReasons];
+        this.showRejectionReasons = true;
+      } else {
+        // Hide suggestions when typing but not enough characters yet
+        this.showRejectionReasons = false;
+        this.filteredRejectionReasons = [];
+      }
+    }
+  }
+
+  // Hide rejection reasons when clicking outside
+  hideRejectionReasons() {
+    setTimeout(() => {
+      this.showRejectionReasons = false;
+      this.rejectionReasonFilter = '';
+    }, 200); // Small delay to allow button clicks
+  }
+
+  // Get appropriate placeholder text for textarea
+  getPlaceholder(): string {
+    switch (this.reviewAction) {
+      case 'approve': return 'Share what you liked about this submission (optional)...';
+      case 'reject': return 'Click to see common reasons or type your feedback...';
+      case 'revision': return 'Click to see common reasons or type your feedback...';
+      case 'move_to_progress': return 'Add any initial notes before starting the review process (optional)...';
+      case 'shortlist': return 'Add notes about why this submission is being shortlisted (optional)...';
+      default: return 'Add your review comments...';
+    }
   }
 
   confirmReview() {
