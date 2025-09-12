@@ -311,26 +311,31 @@ export class ReviewSubmissionComponent {
     const value = event.target.value;
     this.reviewNotes = value;
     
+    console.log('Typing:', value, 'Review Action:', this.reviewAction);
+    
     if (this.reviewAction === 'reject' || this.reviewAction === 'revision') {
-      if (value.trim().length > 2) { // Only start filtering after 3 characters
+      if (value.trim().length >= 1) { // Start filtering after 1 character
         const searchTerm = value.trim().toLowerCase();
-        // Get last few words for better matching
-        const lastWords = searchTerm.split(' ').slice(-2).join(' ');
         
         this.filteredRejectionReasons = this.allRejectionReasons.filter(reason => 
-          reason.toLowerCase().includes(searchTerm) || 
-          reason.toLowerCase().includes(lastWords)
-        ).slice(0, 6); // Limit to 6 suggestions for filtered results
+          reason.toLowerCase().includes(searchTerm)
+        ).slice(0, 8); // Limit to 8 suggestions for filtered results
+        
+        console.log('Filtered reasons:', this.filteredRejectionReasons.length, this.filteredRejectionReasons);
         
         this.showRejectionReasons = this.filteredRejectionReasons.length > 0;
+        
+        console.log('Show dropdown:', this.showRejectionReasons);
       } else if (value.trim().length === 0) {
         // Show initial reasons only when completely empty
         this.filteredRejectionReasons = [...this.initialRejectionReasons];
         this.showRejectionReasons = true;
+        console.log('Showing initial reasons:', this.filteredRejectionReasons.length);
       } else {
-        // Hide suggestions when typing but not enough characters yet
+        // Hide suggestions when no match
         this.showRejectionReasons = false;
         this.filteredRejectionReasons = [];
+        console.log('Hiding suggestions');
       }
     }
   }

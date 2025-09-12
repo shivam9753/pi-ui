@@ -23,6 +23,16 @@ interface SimpleContent {
   slug?: string;
   isFeatured?: boolean;
   featuredAt?: string;
+  authorFeaturedContent?: AuthorFeaturedContent[];
+}
+
+interface AuthorFeaturedContent {
+  _id: string;
+  title: string;
+  viewCount: number;
+  featuredAt: string;
+  submissionType: string;
+  slug?: string;
 }
 
 @Component({
@@ -54,9 +64,14 @@ interface SimpleContent {
                   }
                   
                   <!-- Title -->
-                  <h1 class="text-2xl sm:text-3xl md:text-4xl font-serif font-bold text-gray-900 leading-tight mb-3 sm:mb-4">
+                  <h1 class="text-2xl sm:text-3xl md:text-4xl font-serif font-bold text-gray-900 leading-tight mb-2">
                     {{ content()!.title }}
                   </h1>
+                  
+                  <!-- Author Name -->
+                  <p class="text-lg text-gray-600 mb-3 sm:mb-4">
+                    by {{ content()!.author.name || content()!.author.username }}
+                  </p>
 
                 </div>
 
@@ -110,16 +125,8 @@ interface SimpleContent {
                         {{ content()!.author.name || content()!.author.username }}
                       </h4>
                       
-                      @if (content()!.author.name && content()!.author.username && content()!.author.name !== content()!.author.username) {
-                        <p class="text-sm text-gray-500">{{ '@' + content()!.author.username }}</p>
-                      }
                     </div>
                     
-                    <a 
-                      [routerLink]="['/profile', content()!.author._id]"
-                      class="px-3 py-1.5 bg-orange-600 text-white text-xs font-medium rounded-md hover:bg-orange-700 transition-colors flex-shrink-0">
-                      View Profile
-                    </a>
                   </div>
                   
                   <!-- Author Bio - Mobile -->
@@ -132,40 +139,24 @@ interface SimpleContent {
                   }
                 </div>
 
-                <!-- Content Stats & Share - Mobile -->
-                <div class="p-4">
-                  <div class="grid grid-cols-2 gap-4 mb-4">
-                    <div class="text-center">
-                      <div class="text-xs text-gray-500">Published</div>
-                      <div class="text-sm font-medium text-gray-900">
-                        {{ content()!.publishedAt | date:'MMM d, y' }}
-                      </div>
+                <!-- Other Works - Mobile -->
+                @if (content()!.authorFeaturedContent?.length) {
+                  <div class="p-4 border-t border-gray-100">
+                    <h4 class="text-sm font-semibold text-gray-900 mb-3">More by {{ content()!.author.name || content()!.author.username }}</h4>
+                    <div class="space-y-2">
+                      @for (work of content()!.authorFeaturedContent; track work._id) {
+                        <a 
+                          [routerLink]="['/content', work._id]"
+                          class="block p-2 rounded-lg hover:bg-gray-50 transition-colors">
+                          <div class="text-sm font-medium text-gray-900 line-clamp-2">{{ work.title }}</div>
+                          <div class="text-xs text-gray-500 mt-1">
+                            {{ work.submissionType }} • {{ work.viewCount | number }} views
+                          </div>
+                        </a>
+                      }
                     </div>
-                    
-                    @if (content()!.viewCount) {
-                      <div class="text-center">
-                        <div class="text-xs text-gray-500">Views</div>
-                        <div class="text-sm font-medium text-gray-900">
-                          {{ content()!.viewCount | number }}
-                        </div>
-                      </div>
-                    }
                   </div>
-                  
-                  <!-- Share Buttons - Mobile -->
-                  <div class="flex gap-2">
-                    <button 
-                      (click)="shareContent('link')"
-                      class="flex-1 px-3 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm rounded-lg transition-colors text-center">
-                      Copy Link
-                    </button>
-                    <button 
-                      (click)="shareContent('whatsapp')"
-                      class="flex-1 px-3 py-2 bg-green-600 hover:bg-green-700 text-white text-sm rounded-lg transition-colors text-center">
-                      WhatsApp
-                    </button>
-                  </div>
-                </div>
+                }
               </div>
             </div>
 
@@ -195,15 +186,7 @@ interface SimpleContent {
                       {{ content()!.author.name || content()!.author.username }}
                     </h4>
                     
-                    @if (content()!.author.name && content()!.author.username && content()!.author.name !== content()!.author.username) {
-                      <p class="text-sm text-gray-500 mb-3">{{ '@' + content()!.author.username }}</p>
-                    }
                     
-                    <a 
-                      [routerLink]="['/profile', content()!.author._id]"
-                      class="inline-block px-4 py-2 bg-orange-600 text-white text-sm font-medium rounded-lg hover:bg-orange-700 transition-colors">
-                      View Profile
-                    </a>
                   </div>
                   
                   <!-- Author Bio -->
@@ -216,52 +199,27 @@ interface SimpleContent {
                   }
                 </div>
 
-                <!-- Content Stats -->
-                <div class="p-6">
-                  <div class="space-y-3">
-                    <div class="flex justify-between items-center">
-                      <span class="text-sm text-gray-600">Published</span>
-                      <span class="text-sm font-medium text-gray-900">
-                        {{ content()!.publishedAt | date:'MMM d, y' }}
-                      </span>
+                <!-- Other Featured Works -->
+                @if (content()!.authorFeaturedContent?.length) {
+                  <div class="p-6 border-t border-gray-100">
+                    <h4 class="text-sm font-semibold text-gray-900 mb-4">More by {{ content()!.author.name || content()!.author.username }}</h4>
+                    <div class="space-y-3">
+                      @for (work of content()!.authorFeaturedContent; track work._id) {
+                        <a 
+                          [routerLink]="['/content', work._id]"
+                          class="block p-3 rounded-lg hover:bg-gray-50 transition-colors border border-gray-100">
+                          <div class="text-sm font-medium text-gray-900 mb-1 line-clamp-2">{{ work.title }}</div>
+                          <div class="text-xs text-gray-500">
+                            {{ work.submissionType }} • {{ work.viewCount | number }} views
+                          </div>
+                          <div class="text-xs text-gray-400 mt-1">
+                            Featured {{ work.featuredAt | date:'MMM d, y' }}
+                          </div>
+                        </a>
+                      }
                     </div>
-                    
-                    @if (content()!.viewCount) {
-                      <div class="flex justify-between items-center">
-                        <span class="text-sm text-gray-600">Views</span>
-                        <span class="text-sm font-medium text-gray-900">
-                          {{ content()!.viewCount | number }}
-                        </span>
-                      </div>
-                    }
-                    
-                    @if (content()!.tags && content()!.tags.length > 0) {
-                      <div class="flex justify-between items-center">
-                        <span class="text-sm text-gray-600">Tags</span>
-                        <span class="text-sm font-medium text-gray-900">
-                          {{ content()!.tags.length }}
-                        </span>
-                      </div>
-                    }
                   </div>
-                </div>
-
-                <!-- Share Section -->
-                <div class="p-6 border-t border-gray-100">
-                  <h4 class="text-sm font-semibold text-gray-900 mb-3">Share this content</h4>
-                  <div class="flex gap-2">
-                    <button 
-                      (click)="shareContent('link')"
-                      class="flex-1 px-3 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm rounded-lg transition-colors text-center">
-                      Copy Link
-                    </button>
-                    <button 
-                      (click)="shareContent('whatsapp')"
-                      class="flex-1 px-3 py-2 bg-green-600 hover:bg-green-700 text-white text-sm rounded-lg transition-colors text-center">
-                      WhatsApp
-                    </button>
-                  </div>
-                </div>
+                }
               </div>
             </div>
           </div>
@@ -339,24 +297,5 @@ export class SimpleContentReaderComponent implements OnInit {
     return text.length > 150 ? text.substring(0, 150) + '...' : text;
   }
 
-  shareContent(type: 'link' | 'whatsapp') {
-    const content = this.content();
-    if (!content) return;
-
-    const url = window.location.href;
-    const title = content.title;
-    const text = `Check out "${title}" by ${content.author.name || content.author.username}`;
-
-    if (type === 'link') {
-      // Copy link to clipboard
-      navigator.clipboard.writeText(url).then(() => {
-        // You could add a toast notification here
-      });
-    } else if (type === 'whatsapp') {
-      // Share on WhatsApp
-      const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(`${text} - ${url}`)}`;
-      window.open(whatsappUrl, '_blank');
-    }
-  }
 
 }

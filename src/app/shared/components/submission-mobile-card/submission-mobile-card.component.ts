@@ -135,35 +135,35 @@ export class SubmissionMobileCardComponent {
 
   getTypeBadgeClass(): string {
     const type = this.submission.submissionType;
-    const baseClasses = 'inline-flex items-center text-xs font-medium rounded-full';
+    const baseClasses = 'inline-flex items-center text-xs font-medium rounded-full px-3 py-1 border theme-aware-tag';
     
     const typeColors: { [key: string]: string } = {
-      'poem': 'bg-purple-100 text-purple-800 border border-purple-200',
-      'prose': 'bg-blue-100 text-blue-800 border border-blue-200',
-      'article': 'bg-green-100 text-green-800 border border-green-200',
-      'opinion': 'bg-orange-100 text-orange-800 border border-orange-200',
-      'book_review': 'bg-indigo-100 text-indigo-800 border border-indigo-200',
-      'cinema_essay': 'bg-pink-100 text-pink-800 border border-pink-200'
+      'poem': 'tag-purple',
+      'prose': 'tag-blue',
+      'article': 'tag-green',
+      'opinion': 'tag-orange',
+      'book_review': 'tag-indigo',
+      'cinema_essay': 'tag-pink'
     };
     
-    return `${baseClasses} ${typeColors[type] || 'bg-gray-100 text-gray-800 border border-gray-200'}`;
+    return `${baseClasses} ${typeColors[type] || 'tag-gray'}`;
   }
 
   getStatusBadgeClass(): string {
     const status = this.submission.status;
-    const baseClasses = 'inline-flex items-center text-xs font-medium rounded-full';
+    const baseClasses = 'inline-flex items-center text-xs font-medium rounded-full px-3 py-1 border theme-aware-tag';
     
     const statusColors: { [key: string]: string } = {
-      'pending_review': 'bg-yellow-100 text-yellow-800 border border-yellow-200',
-      'in_review': 'bg-blue-100 text-blue-800 border border-blue-200',
-      'shortlisted': 'bg-orange-100 text-orange-800 border border-orange-200',
-      'accepted': 'bg-green-100 text-green-800 border border-green-200',
-      'published': 'bg-green-100 text-green-800 border border-green-200',
-      'rejected': 'bg-red-100 text-red-800 border border-red-200',
-      'needs_revision': 'bg-amber-100 text-amber-800 border border-amber-200'
+      'pending_review': 'tag-yellow',
+      'in_review': 'tag-blue',
+      'shortlisted': 'tag-orange',
+      'accepted': 'tag-green',
+      'published': 'tag-green',
+      'rejected': 'tag-red',
+      'needs_revision': 'tag-amber'
     };
     
-    return `${baseClasses} ${statusColors[status] || 'bg-gray-100 text-gray-800 border border-gray-200'}`;
+    return `${baseClasses} ${statusColors[status] || 'tag-gray'}`;
   }
 
   getActionButtonClass(color: string): string {
