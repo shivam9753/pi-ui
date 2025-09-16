@@ -8,19 +8,19 @@ import { HtmlSanitizerService } from '../services/html-sanitizer.service';
 interface FeaturedPoem {
   _id: string;
   title: string;
-  body: string;
-  type: string;
+  body?: string;
+  type?: string;
   author: {
     _id: string;
     username: string;
     name: string;
     profileImage?: string;
   };
-  publishedAt: string;
-  viewCount: number;
-  tags: string[];
-  isFeatured: boolean;
-  featuredAt: string;
+  publishedAt?: string;
+  viewCount?: number;
+  tags?: string[];
+  isFeatured?: boolean;
+  featuredAt?: string;
 }
 
 @Component({
@@ -178,7 +178,8 @@ export class FeaturedPoemsComponent implements OnInit {
       limit: this.itemsPerPage,
       skip: skip,
       sortBy: 'featuredAt',
-      order: 'desc' as const
+      order: 'desc' as const,
+      fields: 'title,author,tags'
     };
 
     this.backendService.getContent(params).subscribe({

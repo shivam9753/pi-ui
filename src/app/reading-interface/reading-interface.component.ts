@@ -531,8 +531,14 @@ content = signal<PublishedContent | null>(null);
         });
       },
       error: (err: any) => {
-        this.error.set('Failed to load content. Please try again.');
-        this.loading.set(false);
+        console.error('Error loading content by slug:', err);
+        // If the post doesn't exist, redirect to 404 page
+        if (err.status === 404) {
+          this.router.navigate(['/not-found'], { replaceUrl: true });
+        } else {
+          this.error.set('Failed to load content. Please try again.');
+          this.loading.set(false);
+        }
       }
     });
   }

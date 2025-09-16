@@ -33,6 +33,7 @@ export { SimpleSubmissionFilterComponent } from './simple-submission-filter/simp
 export type { SimpleFilterOptions } from './simple-submission-filter/simple-submission-filter.component';
 export { SearchableUserSelectorComponent } from './searchable-user-selector/searchable-user-selector.component';
 export type { User } from './searchable-user-selector/searchable-user-selector.component';
+export { TrendingAuthorsComponent } from './trending-authors/trending-authors.component';
 
 // Re-export existing components
 export { ModalComponent } from '../../modal/modal.component';

@@ -192,7 +192,7 @@ export class UserService {
     order?: string;
   } = {}): Observable<UserPublishedWorksResponse> {
     const queryParams: any = {};
-    
+
     if (params.limit !== undefined) queryParams.limit = params.limit.toString();
     if (params.skip !== undefined) queryParams.skip = params.skip.toString();
     if (params.type) queryParams.type = params.type;
@@ -200,6 +200,39 @@ export class UserService {
     if (params.order) queryParams.order = params.order;
 
     return this.apiService.get<UserPublishedWorksResponse>(API_ENDPOINTS.USERS_NESTED.PUBLISHED_WORKS(userId), queryParams);
+  }
+
+  /**
+   * Mark user as featured (admin only)
+   */
+  markUserFeatured(userId: string): Observable<{ message: string; user: User }> {
+    return this.apiService.patch<{ message: string; user: User }>(`/api/users/${userId}/feature`, {});
+  }
+
+  /**
+   * Remove featured status from user (admin only)
+   */
+  unmarkUserFeatured(userId: string): Observable<{ message: string; user: User }> {
+    return this.apiService.patch<{ message: string; user: User }>(`/api/users/${userId}/unfeature`, {});
+  }
+
+  /**
+   * Get all featured users (public)
+   */
+  getFeaturedUsers(params: {
+    limit?: number;
+    skip?: number;
+    sortBy?: string;
+    order?: string;
+  } = {}): Observable<{ users: UserListItem[]; pagination: any }> {
+    const queryParams: any = {};
+
+    if (params.limit !== undefined) queryParams.limit = params.limit.toString();
+    if (params.skip !== undefined) queryParams.skip = params.skip.toString();
+    if (params.sortBy) queryParams.sortBy = params.sortBy;
+    if (params.order) queryParams.order = params.order;
+
+    return this.apiService.get<{ users: UserListItem[]; pagination: any }>('/api/users/featured', queryParams);
   }
 
 }

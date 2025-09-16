@@ -272,8 +272,8 @@ export class PendingReviewsComponent implements OnInit, OnDestroy {
     
     // Use the submissions endpoint for review queue data
     this.backendService.getSubmissions({
-      ...params,
-      status: params.status || 'pending_review' // Default to pending_review if no specific status
+      ...params
+      // No default status - let the backend handle showing all reviewable statuses
     }).subscribe(
       (data: any) => {
         this.submissions = data.submissions || [];

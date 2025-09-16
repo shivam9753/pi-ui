@@ -1,0 +1,166 @@
+<div class="w-full">
+  <!-- Standardized Header -->
+  <app-admin-page-header
+    title="Featured Users"
+    subtitle="View and manage users who have been automatically featured when their content was featured."
+    [loading]="loading"
+    [stats]="pageStats"
+    (onRefresh)="refreshList()">
+  </app-admin-page-header>
+
+  <!-- Data Table -->
+  <app-data-table
+    [columns]="columns"
+    [data]="featuredUsers"
+    [actions]="actions"
+    [loading]="loading"
+    loadingText="Loading featured users..."
+    [selectable]="false"
+    [rowClickable]="true"
+    [pagination]="paginationConfig"
+    itemLabel="featured users"
+    [trackByFn]="trackByUserId"
+    [badgeConfig]="badgeConfig"
+    (onPageChange)="onTablePageChange($event)"
+    (onSort)="onTableSort($event)">
+
+    <!-- Custom Cell Template -->
+    <ng-template #customCell let-item let-column="column">
+      @switch (column.key) {
+        @case ('user') {
+          <div class="flex items-center">
+            <div class="flex-shrink-0 w-12 h-12 rounded-full bg-gradient-to-br from-yellow-500 to-yellow-600 flex items-center justify-center relative">
+              @if (item.profileImage) {
+                <img
+                  [src]="item.profileImage"
+                  [alt]="item.username"
+                  class="w-12 h-12 rounded-full object-cover" />
+              } @else {
+                <span class="text-white font-medium text-base">
+                  {{ getUserDisplayName(item).charAt(0).toUpperCase() }}
+                </span>
+              }
+              <!-- Featured star badge -->
+              <div class="absolute -top-1 -right-1 w-5 h-5 bg-yellow-500 rounded-full flex items-center justify-center">
+                <svg class="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                </svg>
+              </div>
+            </div>
+            <div class="ml-4">
+              <div class="text-sm font-medium text-gray-900 flex items-center">
+                {{ getUserDisplayName(item) }}
+                <span class="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-yellow-100 text-yellow-800">
+                  Featured
+                </span>
+              </div>
+              <div class="text-sm text-gray-500">{{ '@' + item.username }} • {{ item.email }}</div>
+              @if (item.bio && item.bio.trim()) {
+                <div class="text-xs text-gray-400 mt-1 line-clamp-2">{{ item.bio }}</div>
+              }
+            </div>
+          </div>
+        }
+        @case ('role') {
+          <span [class]="getBadgeClass(item.role)">
+            {{ item.role | titlecase }}
+          </span>
+        }
+        @case ('publishedSubmissions') {
+          <div class="text-center">
+            <div class="text-lg font-semibold text-gray-900">{{ item.publishedSubmissions || 0 }}</div>
+            <div class="text-xs text-gray-500">works</div>
+          </div>
+        }
+        @case ('featuredAt') {
+          <div class="text-sm text-gray-900">
+            <div>{{ item.featuredAt | date:'MMM d, y' }}</div>
+            <div class="text-xs text-gray-500">{{ getTimeAgo(item.featuredAt) }}</div>
+          </div>
+        }
+      }
+    </ng-template>
+
+    <!-- Mobile Card Template -->
+    <ng-template #mobileCard let-user let-actions="actions">
+      <app-user-mobile-card
+        [user]="user"
+        [actions]="consistentActions"
+        [showRoleSelector]="false">
+      </app-user-mobile-card>
+    </ng-template>
+
+    <!-- Empty State Template -->
+    <ng-template #emptyState>
+      <svg class="w-12 h-12 mx-auto text-yellow-400 mb-4" fill="currentColor" viewBox="0 0 20 20">
+        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+      </svg>
+      <h3 class="text-lg font-medium text-gray-900 mb-2">No featured users yet</h3>
+      <p class="text-gray-500 mb-4">Users will automatically be featured when their content is marked as featured.</p>
+      <button
+        class="text-yellow-600 hover:text-yellow-700 font-medium"
+        (click)="router.navigate(['/admin/content/featured-content'])">
+        Manage Featured Content →
+      </button>
+    </ng-template>
+  </app-data-table>
+
+  <!-- Toast Notifications -->
+  @if (showToastFlag) {
+    <div class="fixed top-4 right-4 z-50 max-w-sm w-full">
+      <div class="rounded-lg p-4 shadow-lg border"
+           [ngClass]="{
+             'bg-green-50 border-green-200': toastType === 'success',
+             'bg-red-50 border-red-200': toastType === 'error',
+             'bg-blue-50 border-blue-200': toastType === 'info'
+           }">
+        <div class="flex items-start">
+          <div class="flex-shrink-0">
+            <!-- Success Icon -->
+            @if (toastType === 'success') {
+              <svg class="h-5 w-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+              </svg>
+            }
+            <!-- Error Icon -->
+            @if (toastType === 'error') {
+              <svg class="h-5 w-5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+              </svg>
+            }
+            <!-- Info Icon -->
+            @if (toastType === 'info') {
+              <svg class="h-5 w-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              </svg>
+            }
+          </div>
+          <div class="ml-3 flex-1">
+            <p class="text-sm font-medium"
+               [ngClass]="{
+                 'text-green-800': toastType === 'success',
+                 'text-red-800': toastType === 'error',
+                 'text-blue-800': toastType === 'info'
+               }">
+              {{ toastMessage }}
+            </p>
+          </div>
+          <div class="ml-4 flex-shrink-0">
+            <button type="button" class="inline-flex rounded-md p-1.5 focus:outline-none focus:ring-2 focus:ring-offset-2"
+                    [ngClass]="{
+                      'text-green-500 hover:bg-green-100 focus:ring-green-600': toastType === 'success',
+                      'text-red-500 hover:bg-red-100 focus:ring-red-600': toastType === 'error',
+                      'text-blue-500 hover:bg-blue-100 focus:ring-blue-600': toastType === 'info'
+                    }"
+                    (click)="hideToast()">
+              <span class="sr-only">Dismiss</span>
+              <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+</div>

@@ -1,9 +1,10 @@
-import { Component, OnInit, signal, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, OnInit, signal, inject, PLATFORM_ID, Inject } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { Title, Meta, SafeHtml } from '@angular/platform-browser';
 import { BackendService } from '../services/backend.service';
 import { HtmlSanitizerService } from '../services/html-sanitizer.service';
+import { ViewTrackerService } from '../services/view-tracker.service';
 
 interface SimpleContent {
   _id: string;
@@ -243,10 +244,13 @@ export class SimpleContentReaderComponent implements OnInit {
   private htmlSanitizer = inject(HtmlSanitizerService);
   private titleService = inject(Title);
   private metaService = inject(Meta);
+  private viewTracker = inject(ViewTrackerService);
 
   content = signal<SimpleContent | null>(null);
   loading = signal(true);
   sanitizedContent = signal<SafeHtml>('');
+
+  constructor(@Inject(PLATFORM_ID) private platformId: Object) {}
 
   ngOnInit() {
     this.route.params.subscribe(params => {
@@ -270,6 +274,28 @@ export class SimpleContentReaderComponent implements OnInit {
             this.htmlSanitizer.cleanContentPreservingBreaks(response.body)
           );
           this.updatePageMeta(response);
+
+          // Track view for this content (only in browser)
+          if (isPlatformBrowser(this.platformId)) {
+            this.viewTracker.logContentView(response._id).subscribe({
+              next: (viewResponse) => {
+                if (viewResponse.success) {
+                  // Update the content with latest view counts
+                  const currentContent = this.content();
+                  if (currentContent) {
+                    const updatedContent = {
+                      ...currentContent,
+                      viewCount: viewResponse.viewCount
+                    };
+                    this.content.set(updatedContent);
+                  }
+                }
+              },
+              error: (err) => {
+                console.warn('Failed to log content view:', err);
+              }
+            });
+          }
         } else {
           this.content.set(null);
         }

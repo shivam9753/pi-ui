@@ -8,12 +8,12 @@ import { ViewTrackerService } from '../services/view-tracker.service';
 import { Router } from '@angular/router';
 import { PublishedContent } from '../utilities/published-content-card/published-content-card.component';
 import { PrettyLabelPipe } from '../pipes/pretty-label.pipe';
-import { ButtonComponent } from '../shared/components';
+import { ButtonComponent, TrendingAuthorsComponent } from '../shared/components';
 // Removed rxjs imports for debouncing as we're not using real-time search
 
 @Component({
   selector: 'app-explore',
-  imports: [CommonModule, FormsModule, PrettyLabelPipe, ButtonComponent],
+  imports: [CommonModule, FormsModule, PrettyLabelPipe, ButtonComponent, TrendingAuthorsComponent],
   templateUrl: './explore.component.html',
   styleUrl: './explore.component.css'
 })

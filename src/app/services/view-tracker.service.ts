@@ -21,6 +21,33 @@ export class ViewTrackerService {
   constructor(private apiService: ApiService) {}
 
   /**
+   * Log a view for a content piece - implements rolling window trending logic
+   */
+  logContentView(contentId: string): Observable<ViewResponse> {
+    const viewKey = `${this.STORAGE_KEY_PREFIX}content_${contentId}`;
+
+    if (this.hasViewedInSession(viewKey)) {
+      return of({ success: false, viewCount: 0, recentViews: 0, windowStartTime: '' });
+    }
+
+    const payload = {
+      timestamp: new Date().toISOString(),
+      windowDays: this.TRENDING_WINDOW_DAYS
+    };
+
+    return this.apiService.post(`/api/content/${contentId}/view`, payload, false).pipe(
+      map((response: any) => ({
+        success: true,
+        viewCount: response.viewCount || 0,
+        recentViews: response.recentViews || 0,
+        windowStartTime: response.windowStartTime || ''
+      })),
+      tap(() => this.markAsViewed(viewKey)),
+      catchError(() => of({ success: false, viewCount: 0, recentViews: 0, windowStartTime: '' }))
+    );
+  }
+
+  /**
    * Log a view for a post - implements rolling window trending logic
    */
   logView(postId: string): Observable<ViewResponse> {

@@ -5,11 +5,11 @@
 <div class="min-h-screen bg-white">
   <div class="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 py-4 md:py-6">
 
-    <!-- Main Content Area -->
-    <div class="grid grid-cols-1 sm:grid-cols-4 gap-8 sm:gap-12">
+    <!-- Main Content Area - Full Width -->
+    <div class="w-full">
 
       <!-- PRIMARY CONTENT (Featured + Main Grid) -->
-      <div class="sm:col-span-3 space-y-4 md:space-y-6">
+      <div class="w-full space-y-4 md:space-y-6">
         <!-- Navigation Section -->
         <div class="space-y-3">
           <!-- Tab Navigation with Sort Dropdown -->
@@ -246,46 +246,43 @@
             }
           </div>
         }
-      </div>
 
-      <!-- SECONDARY SIDEBAR - Subtle and supportive -->
-      <div class="hidden sm:block sm:col-span-1 relative">
-        <!-- Vertical separator line -->
-        <div class="absolute left-0 top-0 bottom-0 w-px bg-gray-200"></div>
-
-        <!-- Sidebar content with left padding for separation -->
-        <div class="pl-8 space-y-8">
-
-
-          <!-- Popular Topics -->
-          <div class="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
-            <h3 class="text-sm font-bold text-gray-900 mb-3 uppercase tracking-wide">POPULAR TOPICS</h3>
-            @if (loadingTags) {
-              <div class="flex items-center justify-center py-4">
-                <div class="w-4 h-4 border-2 border-orange-500 border-t-transparent rounded-full animate-spin"></div>
-                <span class="ml-2 text-xs text-gray-500">Loading tags...</span>
-              </div>
-            }
-            @if (!loadingTags && trendingTags.length > 0) {
-              <div class="flex flex-wrap gap-2">
-                @for (tag of trendingTags.slice(0, 8); track tag) {
-                  <button
-                    (click)="onTagClick(tag, $event)"
-                    class="px-2 py-1 text-xs text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-full border border-gray-300 transition-colors cursor-pointer">
-                    #{{ tag }}
-                  </button>
-                }
-              </div>
-            }
-            @if (!loadingTags && trendingTags.length === 0) {
-              <div class="text-xs text-gray-500 italic">
-                No popular tags available yet
-              </div>
-            }
-          </div>
-
+        <!-- Trending Authors Section -->
+        <div class="mt-12">
+          <app-trending-authors></app-trending-authors>
         </div>
 
+        <!-- Popular Tags Section -->
+        <div class="mt-12">
+          <div class="text-center mb-8">
+            <h2 class="text-2xl font-bold text-gray-900 mb-2">Popular Topics</h2>
+          </div>
+
+          @if (loadingTags) {
+            <div class="flex items-center justify-center py-8">
+              <div class="w-6 h-6 border-2 border-orange-500 border-t-transparent rounded-full animate-spin"></div>
+              <span class="ml-3 text-gray-500">Loading popular topics...</span>
+            </div>
+          }
+
+          @if (!loadingTags && trendingTags.length > 0) {
+            <div class="flex flex-wrap justify-center gap-3 max-w-4xl mx-auto">
+              @for (tag of trendingTags.slice(0, 20); track tag) {
+                <button
+                  (click)="onTagClick(tag, $event)"
+                  class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-full hover:bg-gray-50 hover:border-gray-300 hover:shadow-sm transition-all duration-200 cursor-pointer">
+                  {{ tag }}
+                </button>
+              }
+            </div>
+          }
+
+          @if (!loadingTags && trendingTags.length === 0) {
+            <div class="text-center text-gray-500 py-8">
+              No popular topics available yet
+            </div>
+          }
+        </div>
       </div>
     </div>
   </div>

@@ -7,21 +7,29 @@ export const USER_TABLE_COLUMNS: TableColumn[] = [
     key: 'user',
     label: 'User',
     type: 'custom',
-    width: '40%',
+    width: '35%',
     sortable: false
   },
   {
     key: 'role',
     label: 'Role',
     type: 'custom',
-    width: '15%',
+    width: '12%',
+    sortable: true
+  },
+  {
+    key: 'isFeatured',
+    label: 'Featured',
+    type: 'custom',
+    width: '10%',
+    align: 'center',
     sortable: true
   },
   {
     key: 'createdAt',
     label: 'Joined',
     type: 'date',
-    width: '15%',
+    width: '13%',
     sortable: true
   },
   {

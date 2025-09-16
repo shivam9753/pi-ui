@@ -31,6 +31,7 @@ import { postSSRResolver } from './resolvers/post-ssr.resolver';
 import { AboutComponent } from './info/about/about.component';
 import { SearchResultsComponent } from './search-results/search-results.component';
 import { FeaturedPoemsComponent } from './featured-poems/featured-poems.component';
+import { NotFoundComponent } from './not-found/not-found.component';
 
 export const routes: Routes = [
   // Public routes - Use explore as homepage for now
@@ -233,10 +234,15 @@ export const routes: Routes = [
     canActivate: [AdminGuard],
     title: 'JOSNß Parser - pi'
   },
-  { 
-    path: 'about', 
+  {
+    path: 'about',
     component: AboutComponent,
     title: 'About - pi'
+  },
+  {
+    path: 'not-found',
+    component: NotFoundComponent,
+    title: 'Page Not Found - pi'
   },
 
   // Legacy route handler - redirect /:slug to /post/:slug
@@ -250,7 +256,7 @@ export const routes: Routes = [
         'login', 'explore', 'search', 'submit', 'admin', 'workspace', 'studio', 'profile', 'prompts',
         'faqs', 'contact-us', 'privacy-policy', 'terms-of-use', 'whats-new',
         'complete-profile', 'review', 'publish', 'users', 'poem-parser', 'json-parser',
-        'user-profile', 'pitches', 'about'
+        'user-profile', 'pitches', 'about', 'not-found'
       ];
       
       if (slug && !knownRoutes.includes(slug)) {
@@ -264,5 +270,5 @@ export const routes: Routes = [
   },
 
   // Fallback for unmatched routes
-  { path: '**', redirectTo: '' }
+  { path: '**', redirectTo: '/not-found' }
 ];

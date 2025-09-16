@@ -341,6 +341,7 @@ export class BackendService {
     tag?: string;
     author?: string;
     userId?: string;
+    fields?: string;
   } = {}): Observable<any> {
     let params = new HttpParams();
     
@@ -1206,6 +1207,25 @@ getSearchTrends(options: {
   if (options.groupBy) params = params.set('groupBy', options.groupBy);
   
   const url = `${this.API_URL}/analytics/search/trends`;
+  return this.http.get<any>(url, { headers, params }).pipe(
+    this.handleApiCall(url, 'GET')
+  );
+}
+
+// Get trending authors based on featured content views
+getTrendingAuthors(options: { limit?: number } = {}): Observable<any> {
+  let params = new HttpParams();
+
+  // Add filter options
+  Object.keys(options).forEach(key => {
+    const value = (options as any)[key];
+    if (value !== undefined && value !== null && value !== '') {
+      params = params.set(key, value.toString());
+    }
+  });
+
+  const headers = this.getPublicHeaders(); // Use public headers since this is for public display
+  const url = `${this.API_URL}/users/trending`;
   return this.http.get<any>(url, { headers, params }).pipe(
     this.handleApiCall(url, 'GET')
   );

@@ -7,6 +7,8 @@ export interface User {
   profileImage?: string;
   role: 'user' | 'writer' | 'reviewer' | 'admin';
   needsProfileCompletion?: boolean;
+  isFeatured?: boolean;
+  featuredAt?: string;
   socialLinks?: {
     website?: string;
     twitter?: string;
@@ -79,6 +81,8 @@ export interface UserListItem {
   bio?: string;
   role: 'user' | 'writer' | 'reviewer' | 'admin';
   profileImage?: string;
+  isFeatured?: boolean;
+  featuredAt?: string;
   createdAt: string;
   totalSubmissions?: number;
   acceptedSubmissions?: number;

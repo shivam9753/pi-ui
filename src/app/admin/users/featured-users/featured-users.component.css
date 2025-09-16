@@ -1,0 +1,33 @@
+/* Featured Users Component Styles */
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Featured star animation */
+@keyframes starPulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+}
+
+.featured-star {
+  animation: starPulse 2s infinite;
+}
+
+/* Hover effects for profile images */
+.profile-image-container:hover .featured-star {
+  transform: scale(1.2);
+  transition: transform 0.2s ease-in-out;
+}
+
+/* Custom table row hover effects */
+:host ::ng-deep .data-table-row:hover .profile-image-container img {
+  transform: scale(1.05);
+  transition: transform 0.2s ease-in-out;
+}
