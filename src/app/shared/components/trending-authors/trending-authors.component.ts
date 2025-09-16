@@ -29,19 +29,19 @@ interface TrendingAuthor {
     <div class="py-8">
       <!-- Section Header -->
       <div class="text-center mb-8">
-        <h2 class="text-2xl font-bold text-gray-900 mb-2">Trending Poets</h2>
+        <h2 class="text-2xl font-bold text-gray-900">Who people are reading</h2>
       </div>
 
       @if (loading()) {
         <div class="flex items-center justify-center py-12">
           <div class="w-6 h-6 border-2 border-orange-500 border-t-transparent rounded-full animate-spin"></div>
-          <span class="ml-3 text-gray-500">Loading trending poets...</span>
+          <span class="ml-3 text-gray-500">Loading authors...</span>
         </div>
       }
 
       @if (!loading() && trendingAuthors().length === 0) {
         <div class="text-center py-8 text-gray-500">
-          No trending authors available at the moment
+          No featured authors available at the moment
         </div>
       }
 
@@ -50,8 +50,15 @@ interface TrendingAuthor {
         <div class="hidden md:grid grid-cols-5 gap-6 max-w-6xl mx-auto">
           @for (authorData of trendingAuthors(); track authorData._id) {
             <div
-              class="bg-white rounded-lg border border-gray-200 p-4 hover:shadow-lg hover:border-orange-200 transition-all duration-300 cursor-pointer group"
+              class="bg-white rounded-xl border border-gray-100 p-6 hover:shadow-lg hover:border-orange-200 transition-all duration-300 cursor-pointer group relative"
               [routerLink]="['/author', authorData.author._id]">
+
+              <!-- Trending Icon - Top Right -->
+              <div class="absolute top-4 right-4">
+                <svg class="w-5 h-5 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
+                </svg>
+              </div>
 
               <!-- Author Avatar -->
               <div class="text-center mb-4">
@@ -59,41 +66,27 @@ interface TrendingAuthor {
                   <img
                     [src]="authorData.author.profileImage"
                     [alt]="authorData.author.name"
-                    class="w-16 h-16 rounded-full mx-auto object-cover border-2 border-gray-100 group-hover:border-orange-200 transition-colors">
+                    class="w-20 h-20 rounded-full mx-auto object-cover group-hover:scale-105 transition-transform duration-300">
                 } @else {
-                  <div class="w-16 h-16 rounded-full mx-auto bg-gradient-to-br from-orange-400 to-orange-600 flex items-center justify-center">
-                    <span class="text-white font-bold text-lg">{{ getInitials(authorData.author.name) }}</span>
+                  <div class="w-20 h-20 rounded-full mx-auto bg-gradient-to-br from-orange-400 to-orange-600 flex items-center justify-center group-hover:scale-105 transition-transform duration-300">
+                    <span class="text-white font-bold text-xl">{{ getInitials(authorData.author.name) }}</span>
                   </div>
                 }
               </div>
 
-              <!-- Author Info -->
+              <!-- Author Name -->
               <div class="text-center mb-4">
-                <h3 class="font-semibold text-gray-900 text-sm mb-1 group-hover:text-orange-600 transition-colors">
+                <h3 class="font-semibold text-gray-900 text-base group-hover:text-orange-600 transition-colors">
                   {{ authorData.author.name }}
                 </h3>
-                <p class="text-xs text-gray-500">&#64;{{ authorData.author.username }}</p>
               </div>
 
               <!-- Trending Content -->
               <div class="text-center">
-                <p class="text-xs text-gray-600 font-medium mb-1">Trending Poem:</p>
-                <p class="text-xs text-gray-800 font-semibold leading-tight"
+                <p class="text-sm text-gray-600 font-normal leading-tight"
                    style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
                   {{ authorData.trendingContent.title }}
                 </p>
-              </div>
-
-              <!-- Stats -->
-              <div class="flex justify-center gap-4 mt-4 pt-3 border-t border-gray-100">
-                <div class="text-center">
-                  <div class="text-xs font-bold text-orange-600">{{ formatNumber(authorData.totalViews) }}</div>
-                  <div class="text-xs text-gray-500">views</div>
-                </div>
-                <div class="text-center">
-                  <div class="text-xs font-bold text-orange-600">{{ authorData.featuredCount }}</div>
-                  <div class="text-xs text-gray-500">featured</div>
-                </div>
               </div>
             </div>
           }
@@ -104,49 +97,43 @@ interface TrendingAuthor {
           <div class="flex overflow-x-auto gap-4 pb-4 px-6 -mx-6" style="scrollbar-width: none; -ms-overflow-style: none;">
             @for (authorData of trendingAuthors(); track authorData._id) {
               <div
-                class="bg-white rounded-lg border border-gray-200 p-4 hover:shadow-lg hover:border-orange-200 transition-all duration-300 cursor-pointer group flex-shrink-0 w-64"
+                class="bg-white rounded-xl border border-gray-100 p-6 hover:shadow-lg hover:border-orange-200 transition-all duration-300 cursor-pointer group flex-shrink-0 w-56 relative"
                 [routerLink]="['/author', authorData.author._id]">
 
-                <!-- Author Info Horizontal Layout -->
-                <div class="flex items-center gap-3 mb-4">
+                <!-- Trending Icon - Top Right -->
+                <div class="absolute top-4 right-4">
+                  <svg class="w-4 h-4 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
+                  </svg>
+                </div>
+
+                <!-- Author Avatar -->
+                <div class="text-center mb-4">
                   @if (authorData.author.profileImage) {
                     <img
                       [src]="authorData.author.profileImage"
                       [alt]="authorData.author.name"
-                      class="w-12 h-12 rounded-full object-cover border-2 border-gray-100 group-hover:border-orange-200 transition-colors">
+                      class="w-16 h-16 rounded-full mx-auto object-cover group-hover:scale-105 transition-transform duration-300">
                   } @else {
-                    <div class="w-12 h-12 rounded-full bg-gradient-to-br from-orange-400 to-orange-600 flex items-center justify-center">
-                      <span class="text-white font-bold text-sm">{{ getInitials(authorData.author.name) }}</span>
+                    <div class="w-16 h-16 rounded-full mx-auto bg-gradient-to-br from-orange-400 to-orange-600 flex items-center justify-center group-hover:scale-105 transition-transform duration-300">
+                      <span class="text-white font-bold text-lg">{{ getInitials(authorData.author.name) }}</span>
                     </div>
                   }
+                </div>
 
-                  <div class="flex-1">
-                    <h3 class="font-semibold text-gray-900 text-sm mb-1 group-hover:text-orange-600 transition-colors">
-                      {{ authorData.author.name }}
-                    </h3>
-                    <p class="text-xs text-gray-500">&#64;{{ authorData.author.username }}</p>
-                  </div>
+                <!-- Author Name -->
+                <div class="text-center mb-4">
+                  <h3 class="font-semibold text-gray-900 text-sm group-hover:text-orange-600 transition-colors">
+                    {{ authorData.author.name }}
+                  </h3>
                 </div>
 
                 <!-- Trending Content -->
-                <div class="mb-4">
-                  <p class="text-xs text-gray-600 font-medium mb-1">Trending Poem:</p>
-                  <p class="text-xs text-gray-800 font-semibold leading-tight"
+                <div class="text-center">
+                  <p class="text-xs text-gray-600 font-normal leading-tight"
                      style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
                     {{ authorData.trendingContent.title }}
                   </p>
-                </div>
-
-                <!-- Stats -->
-                <div class="flex justify-center gap-4 pt-3 border-t border-gray-100">
-                  <div class="text-center">
-                    <div class="text-xs font-bold text-orange-600">{{ formatNumber(authorData.totalViews) }}</div>
-                    <div class="text-xs text-gray-500">views</div>
-                  </div>
-                  <div class="text-center">
-                    <div class="text-xs font-bold text-orange-600">{{ authorData.featuredCount }}</div>
-                    <div class="text-xs text-gray-500">featured</div>
-                  </div>
                 </div>
               </div>
             }

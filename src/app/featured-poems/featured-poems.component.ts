@@ -35,9 +35,6 @@ interface FeaturedPoem {
             <h1 class="text-4xl md:text-5xl font-serif font-bold text-gray-900 mb-4">
               Featured Poems
             </h1>
-            <p class="text-lg text-gray-600 max-w-2xl mx-auto">
-              Discover exceptional poetry handpicked by our editorial team. These featured works represent the finest voices and craftsmanship in contemporary poetry.
-            </p>
           </div>
         </div>
       </div>

@@ -191,14 +191,33 @@
                   </div>
                 </div>
               }
+
+              <!-- Load More Grid Item (Desktop Only) -->
+              @if (hasMoreItems && !showSearchResults && !isLoadingMore) {
+                <div
+                  class="cursor-pointer group bg-white hover:shadow-sm transition-all duration-300 rounded-lg overflow-hidden border-2 border-dashed border-gray-300 hover:border-orange-400 hover:bg-orange-50"
+                  (click)="loadMoreSubmissions()">
+                  <div class="aspect-[4/3] bg-gray-50 flex items-center justify-center group-hover:bg-orange-100 transition-colors duration-300">
+                    <div class="text-center">
+                      <svg class="w-8 h-8 text-gray-400 group-hover:text-orange-500 transition-colors duration-300 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                      </svg>
+                      <span class="text-sm font-medium text-gray-500 group-hover:text-orange-600 transition-colors duration-300">Load More</span>
+                    </div>
+                  </div>
+                  <div class="p-3 flex items-center justify-center">
+                    <span class="text-xs text-gray-400 group-hover:text-orange-500 transition-colors duration-300">Discover more</span>
+                  </div>
+                </div>
+              }
             </div>
-            <!-- Load More Button -->
+            <!-- Mobile Load More Button (Reduced Spacing) -->
             @if (hasMoreItems && !showSearchResults && !isLoadingMore) {
-              <div class="mt-8 text-center">
-                <pi-button 
-                  variant="primary"
+              <div class="md:hidden mt-4 text-center">
+                <pi-button
+                  variant="secondary"
                   size="sm"
-                  iconLeft='<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>'
+                  iconLeft='<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>'
                   (buttonClick)="loadMoreSubmissions()">
                   Load More
                 </pi-button>
@@ -212,7 +231,7 @@
                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                     <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                   </svg>
-                  <span class="ml-3 text-lg text-themed">Loading more stories...</span>
+                  <span class="ml-3 text-lg text-themed">Loading more...</span>
                 </div>
               </div>
             }

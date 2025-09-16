@@ -3,6 +3,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Title, Meta } from '@angular/platform-browser';
 import { BackendService } from '../services/backend.service';
 import { ViewTrackerService } from '../services/view-tracker.service';
 import { Router } from '@angular/router';
@@ -28,7 +29,7 @@ export class ExploreComponent implements OnInit {
   loading: boolean = false;
   
   // Load more properties
-  itemsPerPage: number = 12;
+  itemsPerPage: number = 11;
   totalItems: number = 0;
   hasMoreItems: boolean = true;
   isLoadingMore: boolean = false;
@@ -102,14 +103,33 @@ export class ExploreComponent implements OnInit {
 
 
   constructor(
-    private backendService: BackendService, 
+    private backendService: BackendService,
     private viewTrackerService: ViewTrackerService,
-    private router: Router
+    private router: Router,
+    private titleService: Title,
+    private metaService: Meta
   ) {}
 
   ngOnInit() {
+    this.setupPageMeta();
     this.getPublishedSubmissions();
     this.loadPopularTags();
+  }
+
+  private setupPageMeta() {
+    this.titleService.setTitle('PoemsIndia: Explore');
+    this.metaService.updateTag({
+      name: 'description',
+      content: 'PoemsIndia - Poetry, prose, articles, and cinema essays from contemporary voices. Year-round submissions accepted. Weekly newsletter on literature and culture.'
+    });
+    this.metaService.updateTag({
+      property: 'og:title',
+      content: 'PoemsIndia: Explore'
+    });
+    this.metaService.updateTag({
+      property: 'og:description',
+      content: 'Poetry, prose, articles, and cinema essays from contemporary voices. Year-round submissions accepted.'
+    });
   }
 
   // Load popular tags from the new backend API
