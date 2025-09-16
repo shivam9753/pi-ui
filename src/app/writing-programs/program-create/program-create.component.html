@@ -1,0 +1,314 @@
+<div class="max-w-4xl mx-auto p-6">
+  <div class="bg-white rounded-lg shadow-md">
+    <!-- Header -->
+    <div class="border-b border-gray-200 px-6 py-4">
+      <h1 class="text-2xl font-bold text-gray-900">Create Writing Program</h1>
+      <p class="text-sm text-gray-600 mt-1">Set up a new writing program with custom application criteria</p>
+    </div>
+
+    @if (programForm) {
+      <form [formGroup]="programForm" (ngSubmit)="onSubmit()" class="p-6">
+      <!-- Error Message -->
+      @if (error) {
+        <div class="mb-6 p-4 border border-red-300 rounded-md bg-red-50">
+          <div class="flex">
+            <div class="flex-shrink-0">
+              <svg class="h-5 w-5 text-red-400" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
+              </svg>
+            </div>
+            <div class="ml-3">
+              <h3 class="text-sm font-medium text-red-800">Error</h3>
+              <p class="text-sm text-red-700 mt-1">{{ error }}</p>
+            </div>
+          </div>
+        </div>
+      }
+
+      <div class="space-y-6">
+        <!-- Basic Information -->
+        <div class="bg-gray-50 p-4 rounded-lg">
+          <h3 class="text-lg font-medium text-gray-900 mb-4">Program Details</h3>
+          
+          <div class="grid grid-cols-1 gap-4">
+            <!-- Title -->
+            <div>
+              <label for="title" class="block text-sm font-medium text-gray-700 mb-1">
+                Program Title *
+              </label>
+              <input
+                type="text"
+                id="title"
+                formControlName="title"
+                [class.border-red-500]="isFieldInvalid('title')"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                placeholder="e.g., Young Writers Workshop 2024">
+              @if (getFieldError('title')) {
+                <p class="text-sm text-red-600 mt-1">{{ getFieldError('title') }}</p>
+              }
+            </div>
+
+            <!-- Description -->
+            <div>
+              <label for="description" class="block text-sm font-medium text-gray-700 mb-1">
+                Description *
+              </label>
+              <textarea
+                id="description"
+                formControlName="description"
+                rows="4"
+                [class.border-red-500]="isFieldInvalid('description')"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                placeholder="Provide a detailed description of the program, its goals, and what participants can expect..."></textarea>
+              @if (getFieldError('description')) {
+                <p class="text-sm text-red-600 mt-1">{{ getFieldError('description') }}</p>
+              }
+            </div>
+
+            <!-- Application Settings -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label for="applicationDeadline" class="block text-sm font-medium text-gray-700 mb-1">
+                  Application Deadline *
+                </label>
+                <input
+                  type="datetime-local"
+                  id="applicationDeadline"
+                  formControlName="applicationDeadline"
+                  [class.border-red-500]="isFieldInvalid('applicationDeadline')"
+                  class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500">
+                @if (getFieldError('applicationDeadline')) {
+                  <p class="text-sm text-red-600 mt-1">{{ getFieldError('applicationDeadline') }}</p>
+                }
+              </div>
+
+              <div>
+                <label for="maxApplications" class="block text-sm font-medium text-gray-700 mb-1">
+                  Maximum Applications *
+                </label>
+                <input
+                  type="number"
+                  id="maxApplications"
+                  formControlName="maxApplications"
+                  min="1"
+                  [class.border-red-500]="isFieldInvalid('maxApplications')"
+                  class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500">
+                @if (getFieldError('maxApplications')) {
+                  <p class="text-sm text-red-600 mt-1">{{ getFieldError('maxApplications') }}</p>
+                }
+              </div>
+            </div>
+
+            <!-- Public Program Toggle -->
+            <div class="flex items-center">
+              <input
+                type="checkbox"
+                id="isPublic"
+                formControlName="isPublic"
+                class="h-4 w-4 text-orange-600 focus:ring-orange-500 border-gray-300 rounded">
+              <label for="isPublic" class="ml-2 block text-sm text-gray-700">
+                Make this program publicly visible
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Writing Samples Configuration -->
+        <div class="bg-gray-50 p-4 rounded-lg" formGroupName="criteria">
+          <h3 class="text-lg font-medium text-gray-900 mb-4">Writing Samples</h3>
+          
+          <div class="space-y-4">
+            <div class="flex items-center">
+              <input
+                type="checkbox"
+                id="requiresWritingSamples"
+                formControlName="requiresWritingSamples"
+                (change)="onWritingSamplesToggle($event)"
+                class="h-4 w-4 text-orange-600 focus:ring-orange-500 border-gray-300 rounded">
+              <label for="requiresWritingSamples" class="ml-2 block text-sm text-gray-700">
+                Require writing samples from applicants
+              </label>
+            </div>
+
+            @if (criteriGroup.get('requiresWritingSamples')?.value) {
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-4 ml-6">
+                <div>
+                  <label for="minWritingSamples" class="block text-sm font-medium text-gray-700 mb-1">
+                    Minimum Samples
+                  </label>
+                  <input
+                    type="number"
+                    id="minWritingSamples"
+                    formControlName="minWritingSamples"
+                    min="1"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500">
+                </div>
+                <div>
+                  <label for="maxWritingSamples" class="block text-sm font-medium text-gray-700 mb-1">
+                    Maximum Samples
+                  </label>
+                  <input
+                    type="number"
+                    id="maxWritingSamples"
+                    formControlName="maxWritingSamples"
+                    min="1"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500">
+                </div>
+                <div>
+                  <label for="maxWordCount" class="block text-sm font-medium text-gray-700 mb-1">
+                    Max Word Count
+                  </label>
+                  <input
+                    type="number"
+                    id="maxWordCount"
+                    formControlName="maxWordCount"
+                    min="100"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500">
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+
+        <!-- Application Questions -->
+        <div class="bg-gray-50 p-4 rounded-lg">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="text-lg font-medium text-gray-900">Application Questions</h3>
+            <button
+              type="button"
+              (click)="addQuestion()"
+              class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-orange-600 hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500">
+              Add Question
+            </button>
+          </div>
+
+          <div formArrayName="questions" class="space-y-6">
+            @for (question of questions.controls; track $index; let i = $index) {
+              <div [formGroupName]="i" class="bg-white p-4 rounded-lg border border-gray-200">
+                <div class="flex items-center justify-between mb-3">
+                  <h4 class="text-sm font-medium text-gray-900">Question {{ i + 1 }}</h4>
+                  @if (questions.length > 1) {
+                    <button
+                      type="button"
+                      (click)="removeQuestion(i)"
+                      class="text-red-600 hover:text-red-800 text-sm font-medium">
+                      Remove
+                    </button>
+                  }
+                </div>
+
+                <div class="grid grid-cols-1 gap-4">
+                  <!-- Question Type -->
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label [for]="'type-' + i" class="block text-sm font-medium text-gray-700 mb-1">
+                        Question Type
+                      </label>
+                      <select
+                        [id]="'type-' + i"
+                        formControlName="type"
+                        (change)="onQuestionTypeChange(i, $event)"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500">
+                        @for (type of questionTypes; track type.value) {
+                          <option [value]="type.value">{{ type.label }}</option>
+                        }
+                      </select>
+                    </div>
+
+                    <div class="flex items-center mt-6">
+                      <input
+                        type="checkbox"
+                        [id]="'required-' + i"
+                        formControlName="required"
+                        class="h-4 w-4 text-orange-600 focus:ring-orange-500 border-gray-300 rounded">
+                      <label [for]="'required-' + i" class="ml-2 block text-sm text-gray-700">
+                        Required
+                      </label>
+                    </div>
+                  </div>
+
+                  <!-- Question Text -->
+                  <div>
+                    <label [for]="'question-' + i" class="block text-sm font-medium text-gray-700 mb-1">
+                      Question Text *
+                    </label>
+                    <textarea
+                      [id]="'question-' + i"
+                      formControlName="question"
+                      rows="2"
+                      [class.border-red-500]="isQuestionFieldInvalid(i, 'question')"
+                      class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                      placeholder="Enter the question text..."></textarea>
+                    @if (getQuestionError(i, 'question')) {
+                      <p class="text-sm text-red-600 mt-1">{{ getQuestionError(i, 'question') }}</p>
+                    }
+                  </div>
+
+                  <!-- Options for Select/Multiselect -->
+                  @if (question.get('type')?.value === 'select' || question.get('type')?.value === 'multiselect') {
+                    <div>
+                      <div class="flex items-center justify-between mb-2">
+                        <label class="block text-sm font-medium text-gray-700">Options</label>
+                        <button
+                          type="button"
+                          (click)="addOption(i)"
+                          class="text-sm text-orange-600 hover:text-orange-800 font-medium">
+                          Add Option
+                        </button>
+                      </div>
+                      <div formArrayName="options" class="space-y-2">
+                        @for (option of getQuestionOptions(i).controls; track $index; let j = $index) {
+                          <div class="flex items-center gap-2">
+                            <input
+                              type="text"
+                              [formControlName]="j"
+                              class="flex-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                              placeholder="Option text...">
+                            @if (getQuestionOptions(i).length > 1) {
+                              <button
+                                type="button"
+                                (click)="removeOption(i, j)"
+                                class="text-red-600 hover:text-red-800">
+                                ✕
+                              </button>
+                            }
+                          </div>
+                        }
+                      </div>
+                    </div>
+                  }
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="flex items-center justify-end gap-3 pt-6 border-t border-gray-200">
+        <button
+          type="button"
+          (click)="cancel()"
+          [disabled]="isSubmitting"
+          class="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 disabled:opacity-50">
+          Cancel
+        </button>
+        <button
+          type="submit"
+          [disabled]="isSubmitting"
+          class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-orange-600 hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 disabled:opacity-50 disabled:cursor-not-allowed">
+          @if (isSubmitting) {
+            <svg class="animate-spin -ml-1 mr-3 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            Creating...
+          } @else {
+            Create Program
+          }
+        </button>
+      </div>
+    </form>
+    }
+  </div>
+</div>

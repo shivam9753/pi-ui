@@ -1,0 +1,73 @@
+/* Component-specific styles for grievance form */
+
+.form-field-focused {
+  @apply ring-2 ring-orange-500 border-orange-500;
+}
+
+.form-field-error {
+  @apply border-red-300 ring-red-500;
+}
+
+.loading-spinner {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Custom textarea resize handle */
+textarea {
+  resize: vertical;
+  min-height: 150px;
+  max-height: 300px;
+}
+
+/* Character count animations */
+.char-count-warning {
+  @apply text-yellow-600;
+}
+
+.char-count-danger {
+  @apply text-red-600 font-medium;
+}
+
+/* Smooth transitions for form states */
+.form-transition {
+  transition: all 0.2s ease-in-out;
+}
+
+/* Success state animations */
+.success-fade-in {
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Focus styles for better accessibility */
+.focus-outline {
+  @apply focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent;
+}
+
+/* Button hover effects */
+.btn-primary-hover {
+  @apply hover:bg-orange-700 hover:shadow-md transition-all duration-200;
+}
+
+.btn-secondary-hover {
+  @apply hover:bg-gray-50 hover:border-gray-400 transition-all duration-200;
+}

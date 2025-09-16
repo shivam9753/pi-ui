@@ -1,0 +1,181 @@
+/* Program listing specific styles */
+
+.program-card {
+  transition: all 0.3s ease;
+}
+
+.program-card:hover {
+  transform: translateY(-2px);
+}
+
+.deadline-badge {
+  transition: all 0.2s ease;
+}
+
+.deadline-urgent {
+  animation: pulse-subtle 2s infinite;
+}
+
+@keyframes pulse-subtle {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.8;
+  }
+}
+
+/* Image placeholder gradient */
+.image-placeholder {
+  background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+}
+
+/* Card hover effects */
+.card-hover-shadow {
+  transition: box-shadow 0.3s ease;
+}
+
+.card-hover-shadow:hover {
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+/* Button animations */
+.btn-apply {
+  transition: all 0.2s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-apply:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(249, 115, 22, 0.4);
+}
+
+.btn-apply:active {
+  transform: translateY(0);
+}
+
+/* Pagination styles */
+.pagination-button {
+  transition: all 0.2s ease;
+}
+
+.pagination-button:hover {
+  transform: translateY(-1px);
+}
+
+.pagination-button:active {
+  transform: translateY(0);
+}
+
+/* Loading animation */
+.loading-spinner {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Progress bar for applications */
+.applications-progress {
+  height: 4px;
+  background-color: #f3f4f6;
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.applications-progress-fill {
+  height: 100%;
+  transition: width 0.3s ease;
+  border-radius: 2px;
+}
+
+.progress-low {
+  background-color: #10b981;
+}
+
+.progress-medium {
+  background-color: #f59e0b;
+}
+
+.progress-high {
+  background-color: #ef4444;
+}
+
+/* Responsive grid adjustments */
+@media (max-width: 768px) {
+  .program-card {
+    margin-bottom: 1.5rem;
+  }
+  
+  .program-grid {
+    gap: 1rem;
+  }
+}
+
+/* Meta information styling */
+.meta-info {
+  font-size: 0.875rem;
+  color: #6b7280;
+}
+
+.meta-icon {
+  flex-shrink: 0;
+  color: #9ca3af;
+}
+
+/* Deadline color classes */
+.deadline-expired {
+  background-color: #fef2f2;
+  color: #dc2626;
+  border: 1px solid #fecaca;
+}
+
+.deadline-today {
+  background-color: #fef2f2;
+  color: #dc2626;
+  border: 1px solid #fecaca;
+  animation: pulse-urgent 1.5s infinite;
+}
+
+.deadline-soon {
+  background-color: #fef3c7;
+  color: #d97706;
+  border: 1px solid #fed7aa;
+}
+
+.deadline-normal {
+  background-color: #f0fdf4;
+  color: #16a34a;
+  border: 1px solid #bbf7d0;
+}
+
+@keyframes pulse-urgent {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+/* Empty state styling */
+.empty-state {
+  padding: 3rem 1rem;
+}
+
+.empty-state svg {
+  opacity: 0.6;
+}
+
+/* Call to action section */
+.cta-section {
+  background: linear-gradient(135deg, #fefbff 0%, #f8fafc 100%);
+  border: 1px solid #e2e8f0;
+}

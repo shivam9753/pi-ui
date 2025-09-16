@@ -31,6 +31,11 @@ import { postSSRResolver } from './resolvers/post-ssr.resolver';
 import { AboutComponent } from './info/about/about.component';
 import { SearchResultsComponent } from './search-results/search-results.component';
 import { FeaturedPoemsComponent } from './featured-poems/featured-poems.component';
+import { NotFoundComponent } from './not-found/not-found.component';
+import { GrievanceFormComponent } from './submit/grievance-form/grievance-form.component';
+import { ProgramListingComponent } from './writing-programs/program-listing/program-listing.component';
+import { ProgramApplicationComponent } from './writing-programs/program-application/program-application.component';
+import { ProgramCreateComponent } from './writing-programs/program-create/program-create.component';
 
 export const routes: Routes = [
   // Public routes - Use explore as homepage for now
@@ -137,6 +142,31 @@ export const routes: Routes = [
     canActivate: [AuthGuard],
     title: 'Edit Submission - pi'
   },
+  
+  // Response Collection routes
+  { 
+    path: 'submit-grievance', 
+    component: GrievanceFormComponent, 
+    canActivate: [AuthGuard],
+    title: 'Submit Grievance - pi'
+  },
+  { 
+    path: 'writing-programs', 
+    component: ProgramListingComponent,
+    title: 'Writing Programs - pi'
+  },
+  { 
+    path: 'apply/:programId', 
+    component: ProgramApplicationComponent, 
+    canActivate: [AuthGuard],
+    title: 'Apply to Program - pi'
+  },
+  { 
+    path: 'create-program', 
+    component: ProgramCreateComponent, 
+    canActivate: [AdminGuard],
+    title: 'Create Writing Program - pi'
+  },
 
   // Admin and Reviewer routes
   { 
@@ -239,30 +269,30 @@ export const routes: Routes = [
     title: 'About - pi'
   },
 
-  // Legacy route handler - redirect /:slug to /post/:slug
-  { 
-    path: ':slug', 
-    redirectTo: (route) => {
-      const slug = route.params['slug'];
-      
-      // Skip known application routes that aren't post slugs
-      const knownRoutes = [
-        'login', 'explore', 'search', 'submit', 'admin', 'workspace', 'studio', 'profile', 'prompts',
-        'faqs', 'contact-us', 'privacy-policy', 'terms-of-use', 'whats-new',
-        'complete-profile', 'review', 'publish', 'users', 'poem-parser', 'json-parser',
-        'user-profile', 'pitches', 'about'
-      ];
-      
-      if (slug && !knownRoutes.includes(slug)) {
-        // This is likely a legacy post URL, redirect to new format
-        return `/post/${slug}`;
-      }
-      
-      // For known routes or invalid slugs, redirect to home
-      return '/explore';
-    }
-  },
+  // Legacy route handler - temporarily disabled to allow 404 page to work
+  // TODO: Re-enable if you need legacy slug support for existing posts
+  // { 
+  //   path: ':slug', 
+  //   redirectTo: (route) => {
+  //     const slug = route.params['slug'];
+  //     // Only redirect valid-looking slugs to /post/:slug
+  //     if (slug && /^[a-zA-Z][a-zA-Z0-9\-_]*$/.test(slug)) {
+  //       return `/post/${slug}`;
+  //     }
+  //     return '/404'; // Invalid slugs go to 404
+  //   }
+  // },
 
-  // Fallback for unmatched routes
-  { path: '**', redirectTo: '' }
+  // Explicit 404 route for programmatic navigation
+  { 
+    path: 'not-found', 
+    component: NotFoundComponent,
+    title: 'Page Not Found - pi'
+  },
+  // Fallback for unmatched routes - 404 page
+  { 
+    path: '**', 
+    component: NotFoundComponent,
+    title: 'Page Not Found - pi'
+  }
 ];

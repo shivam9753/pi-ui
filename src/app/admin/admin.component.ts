@@ -10,6 +10,7 @@ import { UserManagementComponent } from './users/user-management/user-management
 import { CreateUsersComponent } from './users/create-users/create-users.component';
 import { PurgeManagementComponent } from './purge/purge-management.component';
 import { AnalyticsComponent } from './analytics/analytics.component';
+import { ResponseManagementComponent } from './responses/response-management.component';
 
 @Component({
   selector: 'app-admin',
@@ -20,7 +21,8 @@ import { AnalyticsComponent } from './analytics/analytics.component';
     UserManagementComponent,
     CreateUsersComponent,
     PurgeManagementComponent,
-    AnalyticsComponent
+    AnalyticsComponent,
+    ResponseManagementComponent
 ],
   templateUrl: './admin.component.html',
   styleUrl: './admin.component.css'
@@ -28,7 +30,7 @@ import { AnalyticsComponent } from './analytics/analytics.component';
 export class AdminComponent implements OnInit, AfterViewInit {
   @ViewChild('tabNavigation') tabNavigation!: ElementRef;
   
-  activeTab: 'submissions' | 'content' | 'users' | 'purge' | 'analytics' = 'submissions';
+  activeTab: 'submissions' | 'content' | 'users' | 'purge' | 'analytics' | 'responses' = 'submissions';
   userSubTab: 'manage' | 'create' = 'manage';
   isAdmin = false;
   isReviewer = false;
@@ -46,8 +48,8 @@ export class AdminComponent implements OnInit, AfterViewInit {
     
     // Handle URL fragments for direct tab navigation
     this.route.fragment.subscribe(fragment => {
-      if (fragment && ['submissions', 'content', 'users', 'purge', 'analytics'].includes(fragment)) {
-        const tab = fragment as 'submissions' | 'content' | 'users' | 'purge' | 'analytics';
+      if (fragment && ['submissions', 'content', 'users', 'purge', 'analytics', 'responses'].includes(fragment)) {
+        const tab = fragment as 'submissions' | 'content' | 'users' | 'purge' | 'analytics' | 'responses';
         // Only set tab if user has permission to access it
         if (this.canAccessTab(tab)) {
           this.activeTab = tab;
@@ -87,7 +89,7 @@ export class AdminComponent implements OnInit, AfterViewInit {
     }, 100);
   }
 
-  setActiveTab(tab: 'submissions' | 'content' | 'users' | 'purge' | 'analytics') {
+  setActiveTab(tab: 'submissions' | 'content' | 'users' | 'purge' | 'analytics' | 'responses') {
     // Check if user has permission to access this tab
     if (!this.canAccessTab(tab)) {
       return; // Prevent access to unauthorized tabs
@@ -134,8 +136,8 @@ export class AdminComponent implements OnInit, AfterViewInit {
     }
     
     if (this.isReviewer) {
-      // Reviewers and writers can access submissions, content management, and analytics
-      return tab === 'submissions' || tab === 'content' || tab === 'analytics';
+      // Reviewers and writers can access submissions, content management, analytics, and responses
+      return tab === 'submissions' || tab === 'content' || tab === 'analytics' || tab === 'responses';
     }
     
     return false;

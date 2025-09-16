@@ -1211,4 +1211,179 @@ getSearchTrends(options: {
   );
 }
 
+// ================================
+// RESPONSE COLLECTION METHODS
+// ================================
+
+/**
+ * Submit a grievance
+ */
+submitGrievance(grievanceData: any): Observable<ApiResponse<any>> {
+  const headers = this.getAuthHeaders();
+  const url = `${this.API_URL}/submissions/grievance`;
+  return this.http.post<ApiResponse<any>>(url, grievanceData, { headers }).pipe(
+    this.handleApiCall(url, 'POST')
+  );
+}
+
+/**
+ * Get active writing programs (public)
+ */
+getActiveWritingPrograms(page: number = 1, limit: number = 20): Observable<any> {
+  let params = new HttpParams()
+    .set('page', page.toString())
+    .set('limit', limit.toString());
+  
+  const url = `${this.API_URL}/writing-programs`;
+  return this.http.get<any>(url, { params }).pipe(
+    this.handleApiCall(url, 'GET')
+  );
+}
+
+/**
+ * Get writing program by slug (public)
+ */
+getWritingProgramBySlug(slug: string): Observable<any> {
+  const url = `${this.API_URL}/writing-programs/${slug}`;
+  return this.http.get<any>(url).pipe(
+    this.handleApiCall(url, 'GET')
+  );
+}
+
+/**
+ * Submit writing program application
+ */
+submitWritingProgramApplication(programId: string, applicationData: any): Observable<ApiResponse<any>> {
+  const headers = this.getAuthHeaders();
+  const url = `${this.API_URL}/submissions/writing-program/${programId}/apply`;
+  return this.http.post<ApiResponse<any>>(url, applicationData, { headers }).pipe(
+    this.handleApiCall(url, 'POST')
+  );
+}
+
+/**
+ * Get all writing programs for admin
+ */
+getAdminWritingPrograms(options: {
+  page?: number;
+  limit?: number;
+  status?: string;
+  createdBy?: string;
+} = {}): Observable<any> {
+  const headers = this.getAuthHeaders();
+  let params = new HttpParams();
+  if (options.page) params = params.set('page', options.page.toString());
+  if (options.limit) params = params.set('limit', options.limit.toString());
+  if (options.status) params = params.set('status', options.status);
+  if (options.createdBy) params = params.set('createdBy', options.createdBy);
+  
+  const url = `${this.API_URL}/writing-programs/admin/all`;
+  return this.http.get<any>(url, { headers, params }).pipe(
+    this.handleApiCall(url, 'GET')
+  );
+}
+
+/**
+ * Create new writing program (admin)
+ */
+createWritingProgram(programData: any): Observable<ApiResponse<any>> {
+  const headers = this.getAuthHeaders();
+  const url = `${this.API_URL}/writing-programs`;
+  return this.http.post<ApiResponse<any>>(url, programData, { headers }).pipe(
+    this.handleApiCall(url, 'POST')
+  );
+}
+
+/**
+ * Update writing program (admin)
+ */
+updateWritingProgram(programId: string, programData: any): Observable<ApiResponse<any>> {
+  const headers = this.getAuthHeaders();
+  const url = `${this.API_URL}/writing-programs/${programId}`;
+  return this.http.put<ApiResponse<any>>(url, programData, { headers }).pipe(
+    this.handleApiCall(url, 'PUT')
+  );
+}
+
+/**
+ * Update writing program status (admin)
+ */
+updateWritingProgramStatus(programId: string, status: string): Observable<ApiResponse<any>> {
+  const headers = this.getAuthHeaders();
+  const url = `${this.API_URL}/writing-programs/${programId}/status`;
+  return this.http.patch<ApiResponse<any>>(url, { status }, { headers }).pipe(
+    this.handleApiCall(url, 'PATCH')
+  );
+}
+
+/**
+ * Get grievance submissions (admin)
+ */
+getGrievanceSubmissions(options: {
+  page?: number;
+  limit?: number;
+  status?: string;
+  sortBy?: string;
+  sortOrder?: 'asc' | 'desc';
+} = {}): Observable<any> {
+  const headers = this.getAuthHeaders();
+  let params = new HttpParams();
+  if (options.page) params = params.set('page', options.page.toString());
+  if (options.limit) params = params.set('limit', options.limit.toString());
+  if (options.status) params = params.set('status', options.status);
+  if (options.sortBy) params = params.set('sortBy', options.sortBy);
+  if (options.sortOrder) params = params.set('sortOrder', options.sortOrder);
+  
+  const url = `${this.API_URL}/submissions/responses/grievances`;
+  return this.http.get<any>(url, { headers, params }).pipe(
+    this.handleApiCall(url, 'GET')
+  );
+}
+
+/**
+ * Get writing program applications (admin)
+ */
+getWritingProgramApplications(options: {
+  page?: number;
+  limit?: number;
+  status?: string;
+  programId?: string;
+  sortBy?: string;
+  sortOrder?: 'asc' | 'desc';
+} = {}): Observable<any> {
+  const headers = this.getAuthHeaders();
+  let params = new HttpParams();
+  if (options.page) params = params.set('page', options.page.toString());
+  if (options.limit) params = params.set('limit', options.limit.toString());
+  if (options.status) params = params.set('status', options.status);
+  if (options.programId) params = params.set('programId', options.programId);
+  if (options.sortBy) params = params.set('sortBy', options.sortBy);
+  if (options.sortOrder) params = params.set('sortOrder', options.sortOrder);
+  
+  const url = `${this.API_URL}/submissions/responses/applications`;
+  return this.http.get<any>(url, { headers, params }).pipe(
+    this.handleApiCall(url, 'GET')
+  );
+}
+
+/**
+ * Get applications for specific program (admin)
+ */
+getProgramApplications(programId: string, options: {
+  page?: number;
+  limit?: number;
+  status?: string;
+} = {}): Observable<any> {
+  const headers = this.getAuthHeaders();
+  let params = new HttpParams();
+  if (options.page) params = params.set('page', options.page.toString());
+  if (options.limit) params = params.set('limit', options.limit.toString());
+  if (options.status) params = params.set('status', options.status);
+  
+  const url = `${this.API_URL}/writing-programs/${programId}/applications`;
+  return this.http.get<any>(url, { headers, params }).pipe(
+    this.handleApiCall(url, 'GET')
+  );
+}
+
 }

@@ -11,6 +11,7 @@ export * from './review.model';
 export * from './prompt.model';
 export * from './purge.model';
 export * from './topic-pitch.model';
+export * from './writing-program.model';
 
 // Re-export commonly used types for convenience
 export type {
@@ -85,3 +86,22 @@ export type {
   TopicPitchesResponse,
   TopicPitchStats
 } from './topic-pitch.model';
+
+export type {
+  WritingProgram,
+  WritingProgramCriteria,
+  CriteriaQuestion,
+  WritingSample,
+  ProgramApplication,
+  GrievanceSubmission,
+  WritingProgramListResponse,
+  ProgramApplicationsResponse,
+  WritingProgramForm,
+  ProgramApplicationForm,
+  GrievanceForm,
+  ProgramStatus,
+  QuestionType,
+  FormValidationError,
+  ResponseType,
+  ResponseFilter
+} from './writing-program.model';

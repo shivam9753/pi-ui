@@ -7,7 +7,7 @@ export interface Submission {
   description?: string;
   contentIds: string[];
   contents?: Content[];
-  submissionType: 'poem' | 'story' | 'article' | 'cinema_essay' | 'opinion';
+  submissionType: 'poem' | 'story' | 'article' | 'cinema_essay' | 'opinion' | 'prose' | 'book_review' | 'books' | 'napoWrimo' | 'interview' | 'grievance' | 'writing_program_application';
   status: 'draft' | 'submitted' | 'in_progress' | 'shortlisted' | 'needs_changes' | 'approved' | 'rejected' | 'published' | 'archived';
   imageUrl?: string;
   excerpt?: string;
@@ -46,6 +46,16 @@ export interface Submission {
   // Trending tracking
   recentViews: number;
   windowStartTime: string;
+  
+  // Response Collection specific fields
+  metadata?: {
+    programId?: string;
+    programTitle?: string;
+    criteriaResponses?: { [key: string]: any };
+    adminResponse?: string;
+    respondedBy?: string;
+    respondedAt?: string;
+  };
 }
 
 export interface Content {
@@ -54,7 +64,7 @@ export interface Content {
   submissionId?: string;
   title: string;
   body: string;
-  type: string;
+  type: 'poem' | 'story' | 'article' | 'grievance_message' | 'application_criteria' | 'writing_sample' | string;
   tags: string[];
   footnotes?: string;
   metadata?: any;

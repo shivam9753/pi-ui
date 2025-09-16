@@ -1,0 +1,466 @@
+<div class="space-y-6">
+  <!-- Page Header -->
+  <div class="flex items-center justify-between">
+    <div>
+      <h1 class="text-2xl font-semibold text-gray-900">Response Management</h1>
+      <p class="mt-1 text-sm text-gray-600">
+        Manage grievances, writing program applications, and other user responses
+      </p>
+    </div>
+  </div>
+
+  <!-- Sub-navigation -->
+  <div class="border-b border-gray-200">
+    <nav class="-mb-px flex space-x-8">
+      <button
+        (click)="setActiveSubTab('grievances')"
+        [class.border-orange-500]="activeSubTab === 'grievances'"
+        [class.text-orange-600]="activeSubTab === 'grievances'"
+        [class.border-transparent]="activeSubTab !== 'grievances'"
+        [class.text-gray-500]="activeSubTab !== 'grievances'"
+        [class.hover:text-gray-700]="activeSubTab !== 'grievances'"
+        [class.hover:border-gray-300]="activeSubTab !== 'grievances'"
+        class="whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm transition-colors duration-200"
+      >
+        <span class="flex items-center">
+          <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+          </svg>
+          Grievances
+        </span>
+      </button>
+      
+      <button
+        (click)="setActiveSubTab('writing-programs')"
+        [class.border-orange-500]="activeSubTab === 'writing-programs'"
+        [class.text-orange-600]="activeSubTab === 'writing-programs'"
+        [class.border-transparent]="activeSubTab !== 'writing-programs'"
+        [class.text-gray-500]="activeSubTab !== 'writing-programs'"
+        [class.hover:text-gray-700]="activeSubTab !== 'writing-programs'"
+        [class.hover:border-gray-300]="activeSubTab !== 'writing-programs'"
+        class="whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm transition-colors duration-200"
+      >
+        <span class="flex items-center">
+          <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+          </svg>
+          Writing Programs
+        </span>
+      </button>
+      
+      <button
+        (click)="setActiveSubTab('applications')"
+        [class.border-orange-500]="activeSubTab === 'applications'"
+        [class.text-orange-600]="activeSubTab === 'applications'"
+        [class.border-transparent]="activeSubTab !== 'applications'"
+        [class.text-gray-500]="activeSubTab !== 'applications'"
+        [class.hover:text-gray-700]="activeSubTab !== 'applications'"
+        [class.hover:border-gray-300]="activeSubTab !== 'applications'"
+        class="whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm transition-colors duration-200"
+      >
+        <span class="flex items-center">
+          <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+          </svg>
+          Program Applications
+        </span>
+      </button>
+    </nav>
+  </div>
+
+  <!-- Filters -->
+  @if (activeSubTab === 'grievances' || activeSubTab === 'applications') {
+    <div class="bg-white p-4 rounded-lg border border-gray-200">
+      <form [formGroup]="filterForm" class="flex flex-wrap gap-4 items-end">
+        <div class="flex-1 min-w-48">
+          <label for="status" class="block text-sm font-medium text-gray-700 mb-1">Status</label>
+          <select formControlName="status" id="status" class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-orange-500 focus:border-orange-500">
+            <option value="all">All Statuses</option>
+            <option value="submitted">Submitted</option>
+            <option value="under_review">Under Review</option>
+            <option value="in_progress">In Progress</option>
+            <option value="responded">Responded</option>
+            <option value="resolved">Resolved</option>
+            <option value="closed">Closed</option>
+          </select>
+        </div>
+        
+        <div class="flex-1 min-w-40">
+          <label for="sortBy" class="block text-sm font-medium text-gray-700 mb-1">Sort By</label>
+          <select formControlName="sortBy" id="sortBy" class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-orange-500 focus:border-orange-500">
+            <option value="createdAt">Date Created</option>
+            <option value="updatedAt">Date Updated</option>
+            <option value="title">Title</option>
+            <option value="status">Status</option>
+          </select>
+        </div>
+        
+        <div class="min-w-32">
+          <label for="sortOrder" class="block text-sm font-medium text-gray-700 mb-1">Order</label>
+          <select formControlName="sortOrder" id="sortOrder" class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-orange-500 focus:border-orange-500">
+            <option value="desc">Newest First</option>
+            <option value="asc">Oldest First</option>
+          </select>
+        </div>
+      </form>
+    </div>
+  }
+
+  <!-- Content Area -->
+  <div class="bg-white rounded-lg border border-gray-200">
+    
+    <!-- Grievances Tab -->
+    @if (activeSubTab === 'grievances') {
+      <div class="p-6">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-lg font-medium text-gray-900">Grievance Submissions</h2>
+          <span class="text-sm text-gray-500">{{ grievancesPagination.total }} total</span>
+        </div>
+
+        <!-- Loading State -->
+        @if (grievancesLoading) {
+          <div class="text-center py-12">
+            <div class="w-8 h-8 mx-auto mb-4 border-4 border-orange-500/20 border-t-orange-500 rounded-full animate-spin"></div>
+            <p class="text-gray-600">Loading grievances...</p>
+          </div>
+        }
+
+        <!-- Error State -->
+        @if (grievancesError && !grievancesLoading) {
+          <div class="text-center py-12">
+            <div class="text-red-600 mb-2">{{ grievancesError }}</div>
+            <button 
+              (click)="loadGrievances()"
+              class="px-4 py-2 bg-orange-600 text-white rounded-md hover:bg-orange-700 transition-colors"
+            >
+              Retry
+            </button>
+          </div>
+        }
+
+        <!-- Grievances Table -->
+        @if (!grievancesLoading && !grievancesError) {
+          @if (grievances.length > 0) {
+            <div class="overflow-x-auto">
+              <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                  <tr>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Title</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Created</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                  </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                  @for (grievance of grievances; track grievance._id) {
+                    <tr class="hover:bg-gray-50">
+                      <td class="px-6 py-4">
+                        <div class="max-w-xs">
+                          <div class="text-sm font-medium text-gray-900">{{ grievance.title }}</div>
+                          <div class="text-sm text-gray-500">{{ truncateText(grievance.description || '') }}</div>
+                        </div>
+                      </td>
+                      <td class="px-6 py-4">
+                        <div class="text-sm text-gray-900">{{ grievance.userId || 'Unknown' }}</div>
+                      </td>
+                      <td class="px-6 py-4">
+                        <span [class]="getStatusClass(grievance.status)" class="inline-flex px-2 py-1 text-xs font-semibold rounded-full">
+                          {{ grievance.status | titlecase }}
+                        </span>
+                      </td>
+                      <td class="px-6 py-4 text-sm text-gray-500">
+                        {{ formatDate(grievance.createdAt) }}
+                      </td>
+                      <td class="px-6 py-4 text-sm font-medium space-x-2">
+                        <button 
+                          (click)="viewSubmissionDetails(grievance._id)"
+                          class="text-orange-600 hover:text-orange-900 transition-colors"
+                        >
+                          View
+                        </button>
+                        <button 
+                          (click)="respondToSubmission(grievance._id)"
+                          class="text-green-600 hover:text-green-900 transition-colors"
+                        >
+                          Respond
+                        </button>
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Pagination -->
+            @if (grievancesPagination.pages > 1) {
+              <div class="flex items-center justify-center space-x-2 mt-6 pt-6 border-t border-gray-200">
+                <button
+                  (click)="goToPage(grievancesPagination.page - 1, 'grievances')"
+                  [disabled]="grievancesPagination.page === 1"
+                  class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:bg-gray-50 disabled:text-gray-300 disabled:cursor-not-allowed"
+                >
+                  Previous
+                </button>
+
+                @for (page of getPaginationPages(grievancesPagination); track page) {
+                  <button
+                    (click)="goToPage(page, 'grievances')"
+                    [class.bg-orange-600]="page === grievancesPagination.page"
+                    [class.text-white]="page === grievancesPagination.page"
+                    [class.bg-white]="page !== grievancesPagination.page"
+                    [class.text-gray-900]="page !== grievancesPagination.page"
+                    [class.hover:bg-gray-50]="page !== grievancesPagination.page"
+                    class="px-3 py-2 text-sm font-medium border border-gray-300 rounded-md"
+                  >
+                    {{ page }}
+                  </button>
+                }
+
+                <button
+                  (click)="goToPage(grievancesPagination.page + 1, 'grievances')"
+                  [disabled]="grievancesPagination.page === grievancesPagination.pages"
+                  class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:bg-gray-50 disabled:text-gray-300 disabled:cursor-not-allowed"
+                >
+                  Next
+                </button>
+              </div>
+            }
+          } @else {
+            <div class="text-center py-12">
+              <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+              </svg>
+              <h3 class="mt-2 text-sm font-medium text-gray-900">No grievances found</h3>
+              <p class="mt-1 text-sm text-gray-500">No grievance submissions match your current filters.</p>
+            </div>
+          }
+        }
+      </div>
+    }
+
+    <!-- Writing Programs Tab -->
+    @if (activeSubTab === 'writing-programs') {
+      <div class="p-6">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-lg font-medium text-gray-900">Writing Programs</h2>
+          <button 
+            (click)="createProgram()"
+            class="px-4 py-2 bg-orange-600 text-white rounded-md hover:bg-orange-700 transition-colors">
+            Create Program
+          </button>
+        </div>
+
+        <!-- Loading State -->
+        @if (programsLoading) {
+          <div class="text-center py-12">
+            <div class="w-8 h-8 mx-auto mb-4 border-4 border-orange-500/20 border-t-orange-500 rounded-full animate-spin"></div>
+            <p class="text-gray-600">Loading programs...</p>
+          </div>
+        }
+
+        <!-- Error State -->
+        @if (programsError && !programsLoading) {
+          <div class="text-center py-12">
+            <div class="text-red-600 mb-2">{{ programsError }}</div>
+            <button 
+              (click)="loadWritingPrograms()"
+              class="px-4 py-2 bg-orange-600 text-white rounded-md hover:bg-orange-700 transition-colors"
+            >
+              Retry
+            </button>
+          </div>
+        }
+
+        <!-- Programs Grid -->
+        @if (!programsLoading && !programsError) {
+          @if (writingPrograms.length > 0) {
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              @for (program of writingPrograms; track program._id) {
+                <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+                  <div class="flex items-start justify-between mb-3">
+                    <h3 class="text-lg font-medium text-gray-900">{{ program.title }}</h3>
+                    <select 
+                      [value]="program.status"
+                      (change)="updateProgramStatus(program._id, $any($event.target).value)"
+                      class="text-sm border border-gray-300 rounded px-2 py-1"
+                    >
+                      <option value="draft">Draft</option>
+                      <option value="active">Active</option>
+                      <option value="closed">Closed</option>
+                      <option value="archived">Archived</option>
+                    </select>
+                  </div>
+                  
+                  <div class="text-sm text-gray-600 mb-3">
+                    {{ truncateText(program.description, 120) }}
+                  </div>
+                  
+                  <div class="space-y-2 text-xs text-gray-500">
+                    <div class="flex justify-between">
+                      <span>Applications:</span>
+                      <span>{{ program.applicationsReceived }}/{{ program.maxApplications }}</span>
+                    </div>
+                    <div class="flex justify-between">
+                      <span>Deadline:</span>
+                      <span>{{ formatDate(program.applicationDeadline) }}</span>
+                    </div>
+                    <div class="flex justify-between">
+                      <span>Created:</span>
+                      <span>{{ formatDate(program.createdAt) }}</span>
+                    </div>
+                  </div>
+                  
+                  <div class="flex justify-between items-center mt-4 pt-4 border-t border-gray-200">
+                    <span [class]="getStatusClass(program.status)" class="inline-flex px-2 py-1 text-xs font-semibold rounded-full">
+                      {{ program.status | titlecase }}
+                    </span>
+                    <div class="space-x-2">
+                      <button class="text-orange-600 hover:text-orange-900 text-sm">Edit</button>
+                      <button class="text-blue-600 hover:text-blue-900 text-sm">View Applications</button>
+                    </div>
+                  </div>
+                </div>
+              }
+            </div>
+          } @else {
+            <div class="text-center py-12">
+              <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+              </svg>
+              <h3 class="mt-2 text-sm font-medium text-gray-900">No writing programs</h3>
+              <p class="mt-1 text-sm text-gray-500">Create your first writing program to get started.</p>
+            </div>
+          }
+        }
+      </div>
+    }
+
+    <!-- Applications Tab -->
+    @if (activeSubTab === 'applications') {
+      <div class="p-6">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-lg font-medium text-gray-900">Program Applications</h2>
+          <span class="text-sm text-gray-500">{{ applicationsPagination.total }} total</span>
+        </div>
+
+        <!-- Loading State -->
+        @if (applicationsLoading) {
+          <div class="text-center py-12">
+            <div class="w-8 h-8 mx-auto mb-4 border-4 border-orange-500/20 border-t-orange-500 rounded-full animate-spin"></div>
+            <p class="text-gray-600">Loading applications...</p>
+          </div>
+        }
+
+        <!-- Error State -->
+        @if (applicationsError && !applicationsLoading) {
+          <div class="text-center py-12">
+            <div class="text-red-600 mb-2">{{ applicationsError }}</div>
+            <button 
+              (click)="loadApplications()"
+              class="px-4 py-2 bg-orange-600 text-white rounded-md hover:bg-orange-700 transition-colors"
+            >
+              Retry
+            </button>
+          </div>
+        }
+
+        <!-- Applications Table -->
+        @if (!applicationsLoading && !applicationsError) {
+          @if (applications.length > 0) {
+            <div class="overflow-x-auto">
+              <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                  <tr>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Program</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Applicant</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Submitted</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                  </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                  @for (application of applications; track application._id) {
+                    <tr class="hover:bg-gray-50">
+                      <td class="px-6 py-4">
+                        <div class="text-sm font-medium text-gray-900">{{ application.metadata?.programTitle || 'Unknown Program' }}</div>
+                      </td>
+                      <td class="px-6 py-4">
+                        <div class="text-sm text-gray-900">{{ application.userId || 'Unknown' }}</div>
+                      </td>
+                      <td class="px-6 py-4">
+                        <span [class]="getStatusClass(application.status)" class="inline-flex px-2 py-1 text-xs font-semibold rounded-full">
+                          {{ application.status | titlecase }}
+                        </span>
+                      </td>
+                      <td class="px-6 py-4 text-sm text-gray-500">
+                        {{ formatDate(application.createdAt) }}
+                      </td>
+                      <td class="px-6 py-4 text-sm font-medium space-x-2">
+                        <button 
+                          (click)="viewSubmissionDetails(application._id)"
+                          class="text-orange-600 hover:text-orange-900 transition-colors"
+                        >
+                          Review
+                        </button>
+                        <button 
+                          (click)="respondToSubmission(application._id)"
+                          class="text-green-600 hover:text-green-900 transition-colors"
+                        >
+                          Respond
+                        </button>
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Pagination -->
+            @if (applicationsPagination.pages > 1) {
+              <div class="flex items-center justify-center space-x-2 mt-6 pt-6 border-t border-gray-200">
+                <button
+                  (click)="goToPage(applicationsPagination.page - 1, 'applications')"
+                  [disabled]="applicationsPagination.page === 1"
+                  class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:bg-gray-50 disabled:text-gray-300 disabled:cursor-not-allowed"
+                >
+                  Previous
+                </button>
+
+                @for (page of getPaginationPages(applicationsPagination); track page) {
+                  <button
+                    (click)="goToPage(page, 'applications')"
+                    [class.bg-orange-600]="page === applicationsPagination.page"
+                    [class.text-white]="page === applicationsPagination.page"
+                    [class.bg-white]="page !== applicationsPagination.page"
+                    [class.text-gray-900]="page !== applicationsPagination.page"
+                    [class.hover:bg-gray-50]="page !== applicationsPagination.page"
+                    class="px-3 py-2 text-sm font-medium border border-gray-300 rounded-md"
+                  >
+                    {{ page }}
+                  </button>
+                }
+
+                <button
+                  (click)="goToPage(applicationsPagination.page + 1, 'applications')"
+                  [disabled]="applicationsPagination.page === applicationsPagination.pages"
+                  class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:bg-gray-50 disabled:text-gray-300 disabled:cursor-not-allowed"
+                >
+                  Next
+                </button>
+              </div>
+            }
+          } @else {
+            <div class="text-center py-12">
+              <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+              </svg>
+              <h3 class="mt-2 text-sm font-medium text-gray-900">No applications found</h3>
+              <p class="mt-1 text-sm text-gray-500">No program applications match your current filters.</p>
+            </div>
+          }
+        }
+      </div>
+    }
+  </div>
+</div>

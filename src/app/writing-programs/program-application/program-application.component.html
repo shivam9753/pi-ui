@@ -1,0 +1,367 @@
+<div class="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
+  <div class="max-w-4xl mx-auto">
+    
+    <!-- Loading State -->
+    @if (loading) {
+      <div class="flex items-center justify-center py-12">
+        <div class="text-center">
+          <div class="w-12 h-12 mx-auto mb-4 border-4 border-orange-500/20 border-t-orange-500 rounded-full animate-spin"></div>
+          <p class="text-gray-600">Loading program details...</p>
+        </div>
+      </div>
+    }
+
+    <!-- Error State -->
+    @if (error && !loading && !program) {
+      <div class="bg-red-50 border border-red-200 rounded-lg p-6 mb-8">
+        <div class="flex items-center">
+          <div class="flex-shrink-0">
+            <svg class="h-5 w-5 text-red-400" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+            </svg>
+          </div>
+          <div class="ml-3">
+            <h3 class="text-sm font-medium text-red-800">Program not available</h3>
+            <p class="mt-1 text-sm text-red-700">{{ error }}</p>
+            <div class="mt-3">
+              <a
+                routerLink="/writing-programs"
+                class="bg-red-100 px-3 py-1 rounded text-sm font-medium text-red-800 hover:bg-red-200 transition-colors"
+              >
+                Browse other programs
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    }
+
+    <!-- Program Content -->
+    @if (!loading && program) {
+      
+      <!-- Program Header -->
+      <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-8">
+        <div class="flex items-start justify-between">
+          <div class="flex-1">
+            <h1 class="text-3xl font-bold text-gray-900 mb-2">{{ program.title }}</h1>
+            <div class="prose max-w-none mb-4" [innerHTML]="program.description"></div>
+            
+            <div class="flex flex-wrap gap-4 text-sm text-gray-600">
+              <div class="flex items-center">
+                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                </svg>
+                Deadline: <strong>{{ formatDeadline(program.applicationDeadline) }}</strong>
+              </div>
+              <div class="flex items-center">
+                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+                </svg>
+                {{ program.applicationsReceived }}/{{ program.maxApplications }} applications
+              </div>
+            </div>
+          </div>
+          
+          @if (program.imageUrl) {
+            <div class="ml-6 flex-shrink-0">
+              <img [src]="program.imageUrl" [alt]="program.title" class="w-24 h-24 rounded-lg object-cover">
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- Authentication Check -->
+      @if (!isAuthenticated) {
+        <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-8">
+          <div class="flex">
+            <div class="flex-shrink-0">
+              <svg class="h-5 w-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+              </svg>
+            </div>
+            <div class="ml-3">
+              <p class="text-sm text-yellow-700">
+                <strong>Sign in required:</strong> You must be logged in to submit an application.
+                <a routerLink="/user-login" class="font-medium underline hover:text-yellow-600 ml-1">
+                  Sign in here
+                </a>
+              </p>
+            </div>
+          </div>
+        </div>
+      }
+
+      <!-- Success Message -->
+      @if (submitted && isAuthenticated) {
+        <div class="bg-green-50 border-l-4 border-green-400 p-4 mb-8">
+          <div class="flex">
+            <div class="flex-shrink-0">
+              <svg class="h-5 w-5 text-green-400" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+              </svg>
+            </div>
+            <div class="ml-3">
+              <h3 class="text-sm font-medium text-green-800">Application submitted successfully!</h3>
+              <p class="mt-1 text-sm text-green-700">
+                Thank you for your application to {{ program.title }}. 
+                We'll review your submission and get back to you soon.
+              </p>
+              <div class="mt-3 flex space-x-3">
+                <a
+                  routerLink="/writing-programs"
+                  class="bg-green-100 px-3 py-1 rounded text-sm font-medium text-green-800 hover:bg-green-200 transition-colors"
+                >
+                  Browse other programs
+                </a>
+                <a
+                  routerLink="/user-profile"
+                  class="bg-green-100 px-3 py-1 rounded text-sm font-medium text-green-800 hover:bg-green-200 transition-colors"
+                >
+                  View my applications
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      }
+
+      <!-- Application Form -->
+      @if (isAuthenticated && !submitted) {
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-8">
+          <h2 class="text-2xl font-semibold text-gray-900 mb-6">Submit Your Application</h2>
+
+          <!-- Form Error -->
+          @if (error && !loading) {
+            <div class="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+              <div class="flex">
+                <div class="flex-shrink-0">
+                  <svg class="h-5 w-5 text-red-400" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                  </svg>
+                </div>
+                <div class="ml-3">
+                  <h3 class="text-sm font-medium text-red-800">Submission Error</h3>
+                  <p class="mt-1 text-sm text-red-700">{{ error }}</p>
+                </div>
+              </div>
+            </div>
+          }
+
+          <form [formGroup]="applicationForm" (ngSubmit)="onSubmit()">
+            
+            <!-- Criteria Questions -->
+            @if (program.criteria?.questions && program.criteria.questions.length > 0) {
+              <div class="mb-8">
+                <h3 class="text-lg font-medium text-gray-900 mb-4">Application Questions</h3>
+                <div class="space-y-6">
+                  @for (question of program.criteria.questions; track question.id) {
+                    <div>
+                      <label [for]="question.id" class="block text-sm font-medium text-gray-700 mb-2">
+                        {{ question.question }}
+                        @if (question.required) {
+                          <span class="text-red-500 ml-1">*</span>
+                        }
+                      </label>
+
+                      <!-- Text Input -->
+                      @if (question.type === 'text') {
+                        <input
+                          type="text"
+                          [id]="question.id"
+                          [formControlName]="question.id"
+                          [class.border-red-300]="isFieldInvalid(question.id)"
+                          [class.focus:border-red-500]="isFieldInvalid(question.id)"
+                          class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-orange-500 focus:border-orange-500"
+                        />
+                      }
+
+                      <!-- Textarea -->
+                      @if (question.type === 'textarea') {
+                        <textarea
+                          [id]="question.id"
+                          [formControlName]="question.id"
+                          rows="4"
+                          [class.border-red-300]="isFieldInvalid(question.id)"
+                          [class.focus:border-red-500]="isFieldInvalid(question.id)"
+                          class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-orange-500 focus:border-orange-500 resize-vertical"
+                        ></textarea>
+                      }
+
+                      <!-- Select -->
+                      @if (question.type === 'select') {
+                        <select
+                          [id]="question.id"
+                          [formControlName]="question.id"
+                          [class.border-red-300]="isFieldInvalid(question.id)"
+                          [class.focus:border-red-500]="isFieldInvalid(question.id)"
+                          class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-orange-500 focus:border-orange-500"
+                        >
+                          <option value="">Please select...</option>
+                          @for (option of question.options; track option) {
+                            <option [value]="option">{{ option }}</option>
+                          }
+                        </select>
+                      }
+
+                      <!-- Multiselect (checkboxes) -->
+                      @if (question.type === 'multiselect' && question.options) {
+                        <div class="space-y-2">
+                          @for (option of question.options; track option) {
+                            <label class="flex items-center">
+                              <input
+                                type="checkbox"
+                                [value]="option"
+                                class="h-4 w-4 text-orange-600 focus:ring-orange-500 border-gray-300 rounded"
+                              />
+                              <span class="ml-2 text-sm text-gray-700">{{ option }}</span>
+                            </label>
+                          }
+                        </div>
+                      }
+
+                      <!-- Field Error -->
+                      @if (isFieldInvalid(question.id)) {
+                        <p class="mt-1 text-sm text-red-600">{{ getFieldError(question) }}</p>
+                      }
+                    </div>
+                  }
+                </div>
+              </div>
+            }
+
+            <!-- Writing Samples -->
+            @if (program.criteria?.requiresWritingSamples) {
+              <div class="mb-8">
+                <div class="flex items-center justify-between mb-4">
+                  <div>
+                    <h3 class="text-lg font-medium text-gray-900">Writing Samples</h3>
+                    <p class="text-sm text-gray-600">
+                      Submit {{ program.criteria.minWritingSamples }}-{{ program.criteria.maxWritingSamples }} 
+                      writing samples (max {{ program.criteria.maxWordCount }} words each)
+                    </p>
+                  </div>
+                  @if (canAddMoreSamples()) {
+                    <button
+                      type="button"
+                      (click)="addWritingSample()"
+                      class="px-3 py-1 text-sm font-medium text-orange-600 border border-orange-200 rounded-md hover:bg-orange-50 transition-colors"
+                    >
+                      Add Sample
+                    </button>
+                  }
+                </div>
+
+                <div class="space-y-6">
+                  @for (sampleControl of writingSamplesForm.controls; track $index; let i = $index) {
+                    <div class="border border-gray-200 rounded-lg p-4">
+                      <div class="flex items-center justify-between mb-4">
+                        <h4 class="text-md font-medium text-gray-900">Sample {{ i + 1 }}</h4>
+                        @if (canRemoveSample()) {
+                          <button
+                            type="button"
+                            (click)="removeWritingSample(i)"
+                            class="text-sm text-red-600 hover:text-red-800 transition-colors"
+                          >
+                            Remove
+                          </button>
+                        }
+                      </div>
+
+                      <div class="space-y-4">
+                        <!-- Sample Title -->
+                        <div>
+                          <label class="block text-sm font-medium text-gray-700 mb-1">
+                            Title <span class="text-red-500">*</span>
+                          </label>
+                          <input
+                            type="text"
+                            formControlName="title"
+                            placeholder="Give your writing sample a title"
+                            [class.border-red-300]="isSampleFieldInvalid(i, 'title')"
+                            class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-orange-500 focus:border-orange-500"
+                          />
+                          @if (isSampleFieldInvalid(i, 'title')) {
+                            <p class="mt-1 text-sm text-red-600">{{ getSampleFieldError(i, 'title') }}</p>
+                          }
+                        </div>
+
+                        <!-- Sample Content -->
+                        <div>
+                          <label class="block text-sm font-medium text-gray-700 mb-1">
+                            Content <span class="text-red-500">*</span>
+                          </label>
+                          <textarea
+                            formControlName="content"
+                            rows="12"
+                            placeholder="Paste or type your writing sample here..."
+                            [class.border-red-300]="isSampleFieldInvalid(i, 'content') || !isWordCountValid(sampleControl.get('content')?.value)"
+                            class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-orange-500 focus:border-orange-500 resize-vertical font-mono text-sm"
+                          ></textarea>
+                          
+                          <div class="flex justify-between items-center mt-1">
+                            <div>
+                              @if (isSampleFieldInvalid(i, 'content')) {
+                                <p class="text-sm text-red-600">{{ getSampleFieldError(i, 'content') }}</p>
+                              } @else if (!isWordCountValid(sampleControl.get('content')?.value)) {
+                                <p class="text-sm text-red-600">
+                                  Exceeds maximum word count of {{ program.criteria?.maxWordCount }} words
+                                </p>
+                              }
+                            </div>
+                            <p [class]="getWordCountClass(sampleControl.get('content')?.value)" class="text-sm">
+                              {{ getWordCount(sampleControl.get('content')?.value) }}/{{ program.criteria?.maxWordCount }} words
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  }
+                </div>
+              </div>
+            }
+
+            <!-- Guidelines -->
+            <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+              <h3 class="text-sm font-medium text-blue-800 mb-2">Application Guidelines</h3>
+              <ul class="text-sm text-blue-700 space-y-1">
+                <li>• Ensure all required fields are completed accurately</li>
+                <li>• Writing samples should be your original work</li>
+                <li>• Review your application carefully before submitting</li>
+                <li>• Applications are reviewed in the order they're received</li>
+                <li>• We'll notify you of our decision within 2-3 weeks</li>
+              </ul>
+            </div>
+
+            <!-- Form Actions -->
+            <div class="flex items-center justify-between pt-6 border-t border-gray-200">
+              <a
+                routerLink="/writing-programs"
+                class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 transition-colors"
+              >
+                Back to Programs
+              </a>
+              
+              <button
+                type="submit"
+                [disabled]="!applicationForm.valid || submitting"
+                class="px-6 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-orange-600 hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
+              >
+                @if (submitting) {
+                  <span class="flex items-center">
+                    <svg class="animate-spin -ml-1 mr-3 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+                      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                      <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Submitting Application...
+                  </span>
+                } @else {
+                  Submit Application
+                }
+              </button>
+            </div>
+          </form>
+        </div>
+      }
+    }
+  </div>
+</div>
