@@ -298,8 +298,8 @@ export class PendingReviewsComponent implements OnInit, OnDestroy {
   }
 
   private buildQueryParams(page: number = 1) {
-    const [sortBy, order] = this.filters['sortBy'].includes('-') 
-      ? this.filters['sortBy'].split('-') 
+    const [sortBy, order] = this.filters['sortBy'].includes('-')
+      ? this.filters['sortBy'].split('-')
       : [this.filters['sortBy'], this.filters['sortOrder']];
 
     const params: any = {
@@ -310,12 +310,14 @@ export class PendingReviewsComponent implements OnInit, OnDestroy {
       includeStats: true  // Request stats from backend
     };
 
-    // Let the review-queue endpoint handle status filtering logic
-    // Only add status param when specifically filtering (e.g., quick filters)
+    // Default to pending review statuses for pending-reviews component
     if (this.filters['status'] && this.filters['status'].trim()) {
+      // Use specific status filter if set
       params.status = this.filters['status'];
+    } else {
+      // Default to only show reviewable pending statuses
+      params.status = `${SUBMISSION_STATUS.PENDING_REVIEW},${SUBMISSION_STATUS.IN_PROGRESS},${SUBMISSION_STATUS.RESUBMITTED}`;
     }
-    // Remove default status logic - let backend review-queue endpoint decide
 
     // Add other filters only if they have values
     if (this.filters['type']) params.type = this.filters['type'];

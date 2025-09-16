@@ -147,7 +147,7 @@ export class AnalyticsComponent implements OnInit {
       overview: this.backendService.getAnalyticsOverview(),
       topContent: this.backendService.getTopContent({ period: 'month', limit: 10 }),
       contentTypes: this.backendService.getContentTypeAnalytics(),
-      timeSeries: this.backendService.getViewsTimeSeries({ period: 'month', groupBy: 'day' })
+      timeSeries: this.backendService.getViewsTimeSeries({ period: 'week', groupBy: 'day' })
     }).subscribe({
       next: (data) => {
         this.processAnalyticsData(data);
@@ -235,12 +235,12 @@ export class AnalyticsComponent implements OnInit {
     this.searchLoading = true;
     this.searchError = null;
 
-    // Load search analytics data
+    // Load search analytics data filtered to only search-results page
     forkJoin({
-      overview: this.backendService.getSearchAnalyticsOverview(30),
-      popular: this.backendService.getPopularSearchQueries({ days: 30, limit: 20 }),
-      zeroResults: this.backendService.getZeroResultSearches({ days: 30, limit: 15 }),
-      trends: this.backendService.getSearchTrends({ days: 30, groupBy: 'day' })
+      overview: this.backendService.getSearchAnalyticsOverview(30, 'search-results'),
+      popular: this.backendService.getPopularSearchQueries({ days: 30, limit: 20, source: 'search-results' }),
+      zeroResults: this.backendService.getZeroResultSearches({ days: 30, limit: 15, source: 'search-results' }),
+      trends: this.backendService.getSearchTrends({ days: 30, groupBy: 'day', source: 'search-results' })
     }).subscribe({
       next: (data) => {
         this.processSearchAnalyticsData(data);
@@ -422,7 +422,28 @@ Backend team needs to implement proper analytics aggregation endpoints that:
 
   getRecentDaysData(): ViewsTimeData[] {
     if (!this.analyticsData?.viewsOverTime) return [];
-    return this.analyticsData.viewsOverTime.slice(-7); // Last 7 days
+
+    // Generate last 7 days from today
+    const today = new Date();
+    const last7Days: ViewsTimeData[] = [];
+
+    for (let i = 6; i >= 0; i--) {
+      const date = new Date(today);
+      date.setDate(today.getDate() - i);
+      const dateStr = date.toISOString().split('T')[0]; // YYYY-MM-DD format
+
+      // Find data for this date or default to 0
+      const existingData = this.analyticsData.viewsOverTime.find(d =>
+        new Date(d.date).toISOString().split('T')[0] === dateStr
+      );
+
+      last7Days.push({
+        date: dateStr,
+        views: existingData?.views || 0
+      });
+    }
+
+    return last7Days;
   }
 
   getMaxDayViews(): number {

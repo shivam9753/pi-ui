@@ -1103,7 +1103,7 @@ getSubmissionAnalytics(): Observable<{
 }
 
 // Search Analytics Methods
-getSearchAnalyticsOverview(days: number = 30): Observable<{
+getSearchAnalyticsOverview(days: number = 30, source?: string): Observable<{
   overview: {
     totalSearches: number;
     uniqueQueries: number;
@@ -1119,7 +1119,8 @@ getSearchAnalyticsOverview(days: number = 30): Observable<{
   const headers = this.getAuthHeaders();
   let params = new HttpParams();
   if (days) params = params.set('days', days.toString());
-  
+  if (source) params = params.set('source', source);
+
   const url = `${this.API_URL}/analytics/search/overview`;
   return this.http.get<any>(url, { headers, params }).pipe(
     this.handleApiCall(url, 'GET')
@@ -1129,6 +1130,7 @@ getSearchAnalyticsOverview(days: number = 30): Observable<{
 getPopularSearchQueries(options: {
   days?: number;
   limit?: number;
+  source?: string;
 } = {}): Observable<{
   data: Array<{
     query: string;
@@ -1147,7 +1149,8 @@ getPopularSearchQueries(options: {
   let params = new HttpParams();
   if (options.days) params = params.set('days', options.days.toString());
   if (options.limit) params = params.set('limit', options.limit.toString());
-  
+  if (options.source) params = params.set('source', options.source);
+
   const url = `${this.API_URL}/analytics/search/popular`;
   return this.http.get<any>(url, { headers, params }).pipe(
     this.handleApiCall(url, 'GET')
@@ -1157,6 +1160,7 @@ getPopularSearchQueries(options: {
 getZeroResultSearches(options: {
   days?: number;
   limit?: number;
+  source?: string;
 } = {}): Observable<{
   data: Array<{
     query: string;
@@ -1175,7 +1179,8 @@ getZeroResultSearches(options: {
   let params = new HttpParams();
   if (options.days) params = params.set('days', options.days.toString());
   if (options.limit) params = params.set('limit', options.limit.toString());
-  
+  if (options.source) params = params.set('source', options.source);
+
   const url = `${this.API_URL}/analytics/search/zero-results`;
   return this.http.get<any>(url, { headers, params }).pipe(
     this.handleApiCall(url, 'GET')
@@ -1185,6 +1190,7 @@ getZeroResultSearches(options: {
 getSearchTrends(options: {
   days?: number;
   groupBy?: 'hour' | 'day' | 'week' | 'month';
+  source?: string;
 } = {}): Observable<{
   data: Array<{
     period: string;
@@ -1205,10 +1211,41 @@ getSearchTrends(options: {
   let params = new HttpParams();
   if (options.days) params = params.set('days', options.days.toString());
   if (options.groupBy) params = params.set('groupBy', options.groupBy);
-  
+  if (options.source) params = params.set('source', options.source);
+
   const url = `${this.API_URL}/analytics/search/trends`;
   return this.http.get<any>(url, { headers, params }).pipe(
     this.handleApiCall(url, 'GET')
+  );
+}
+
+// Track search queries for analytics
+trackSearch(data: {
+  query: string;
+  source: string;
+  resultsCount?: number;
+  userId?: string;
+}): Observable<any> {
+  const headers = this.getAuthHeaders();
+  const url = `${this.API_URL}/analytics/search/track`;
+  return this.http.post<any>(url, data, { headers }).pipe(
+    this.handleApiCall(url, 'POST')
+  );
+}
+
+// Track content view with enhanced metadata for analytics
+trackContentView(data: {
+  contentId: string;
+  source: string;
+  contentType?: string;
+  userId?: string;
+  sessionId?: string;
+  timeOnPage?: number;
+}): Observable<any> {
+  const headers = this.getAuthHeaders();
+  const url = `${this.API_URL}/analytics/content/track-view`;
+  return this.http.post<any>(url, data, { headers }).pipe(
+    this.handleApiCall(url, 'POST')
   );
 }
 

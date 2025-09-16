@@ -57,16 +57,27 @@ export class SearchResultsComponent implements OnInit {
       order: 'desc'
     }).subscribe({
       next: (response) => {
+        const resultsCount = response.total || 0;
         this.searchResults.set(response.submissions || []);
-        this.totalResults.set(response.total || 0);
+        this.totalResults.set(resultsCount);
         this.currentPage.set(page);
         this.isLoading.set(false);
+
+        // Track the search for analytics (only on first page to avoid duplicates)
+        if (page === 1) {
+          this.trackSearchAnalytics(query, resultsCount);
+        }
       },
       error: (error) => {
         console.error('Search error:', error);
         this.hasError.set(true);
         this.errorMessage.set('Failed to perform search. Please try again.');
         this.isLoading.set(false);
+
+        // Track failed search as well
+        if (page === 1) {
+          this.trackSearchAnalytics(query, 0);
+        }
       }
     });
   }
@@ -119,5 +130,22 @@ export class SearchResultsComponent implements OnInit {
     // Navigate to reading interface using slug if available, otherwise use ID
     const route = content.slug ? `/post/${content.slug}` : `/read/${content._id}`;
     this.router.navigate([route]);
+  }
+
+  private trackSearchAnalytics(query: string, resultsCount: number) {
+    // Track search for analytics purposes
+    this.backendService.trackSearch({
+      query: query.trim(),
+      source: 'search-results',
+      resultsCount: resultsCount
+    }).subscribe({
+      next: () => {
+        // Search tracked successfully (silent success)
+      },
+      error: (error) => {
+        // Silently handle tracking errors to not disrupt user experience
+        console.warn('Search tracking failed:', error);
+      }
+    });
   }
 }

@@ -289,6 +289,21 @@ content = signal<PublishedContent | null>(null);
             console.warn('Failed to log view:', err);
           }
         });
+
+        // Enhanced analytics tracking for detailed content analytics
+        this.backendService.trackContentView({
+          contentId: data._id,
+          source: 'reading-interface-ssr',
+          contentType: data.submissionType,
+          sessionId: this.generateSessionId()
+        }).subscribe({
+          next: () => {
+            // Enhanced tracking successful (silent)
+          },
+          error: (error) => {
+            console.warn('Enhanced content tracking failed:', error);
+          }
+        });
       }
       
     } catch (error) {
@@ -426,6 +441,21 @@ content = signal<PublishedContent | null>(null);
             console.warn('Failed to log view:', err);
           }
         });
+
+        // Enhanced analytics tracking for detailed content analytics
+        this.backendService.trackContentView({
+          contentId: data._id,
+          source: 'reading-interface-direct',
+          contentType: data.submissionType,
+          sessionId: this.generateSessionId()
+        }).subscribe({
+          next: () => {
+            // Enhanced tracking successful (silent)
+          },
+          error: (error) => {
+            console.warn('Enhanced content tracking failed:', error);
+          }
+        });
       },
       error: (err: any) => {
         this.error.set('Failed to load content');
@@ -527,6 +557,21 @@ content = signal<PublishedContent | null>(null);
           },
           error: (err) => {
             console.warn('Failed to log view:', err);
+          }
+        });
+
+        // Enhanced analytics tracking for detailed content analytics
+        this.backendService.trackContentView({
+          contentId: data._id,
+          source: 'reading-interface-direct',
+          contentType: data.submissionType,
+          sessionId: this.generateSessionId()
+        }).subscribe({
+          next: () => {
+            // Enhanced tracking successful (silent)
+          },
+          error: (error) => {
+            console.warn('Enhanced content tracking failed:', error);
           }
         });
       },
@@ -957,6 +1002,13 @@ content = signal<PublishedContent | null>(null);
     console.log('🔗 Debug URLs:');
     console.log('Facebook Debugger: https://developers.facebook.com/tools/debug/?q=' + encodeURIComponent(window.location.href));
     console.log('LinkedIn Inspector: https://www.linkedin.com/post-inspector/inspect/' + encodeURIComponent(window.location.href));
+  }
+
+  private generateSessionId(): string {
+    // Generate a session ID for analytics tracking
+    const timestamp = Date.now();
+    const random = Math.random().toString(36).substring(2);
+    return `session_${timestamp}_${random}`;
   }
 
   loadAuthorDetails(authorId: string) {
