@@ -587,27 +587,21 @@ export class UserProfileComponent implements OnInit {
     this.router.navigate(['/my-submissions']);
   }
 
-  // Get submission summary messages with priority (last 7 days only)
+  // Get submission summary messages - show all submission updates
   getSubmissionSummaryMessages() {
     const submissions = this.submissions();
     const messages: { message: string; type: string; priority: number; date?: Date; submissionType?: string }[] = [];
-    const now = new Date();
-    const sevenDaysAgo = new Date(now.getTime() - (7 * 24 * 60 * 60 * 1000));
 
     console.log('🔍 Processing submissions for summary:', submissions.length);
 
     submissions.forEach(submission => {
-      // Use updatedAt for filtering (most relevant for status changes)
+      // Use updatedAt for display date (most relevant for status changes)
       const updateDate = new Date(submission.updatedAt || submission.reviewedAt || submission.submittedAt);
       const submissionTypeFormatted = submission.submissionType.replace('_', ' ').toLowerCase();
-      
+
       console.log(`📝 Processing: ${submission.title} - Status: ${submission.status} - Updated: ${updateDate.toISOString()}`);
-      
-      // Only include submissions updated in the last 7 days
-      if (updateDate < sevenDaysAgo) {
-        console.log(`⏰ Skipping ${submission.title} - too old (${updateDate.toDateString()})`);
-        return;
-      }
+
+      // Show all submissions regardless of date
 
       // Priority 1: Recent publications
       if (submission.status === 'published') {
