@@ -167,22 +167,17 @@ export class FeaturedPoemsComponent implements OnInit {
     this.loading.set(true);
 
     const skip = loadMore ? (this.currentPage - 1) * this.itemsPerPage : 0;
-    
-    const params = {
-      published: true,
-      featured: true,
-      type: 'poem',
-      limit: this.itemsPerPage,
-      skip: skip,
-      sortBy: 'featuredAt',
-      order: 'desc' as const,
-      fields: 'title,author,tags'
-    };
 
-    this.backendService.getContent(params).subscribe({
+    // First get featured content, then filter for poems
+    this.backendService.getFeaturedContent('poem').subscribe({
       next: (response) => {
-        const newPoems = response.contents || [];
-        
+        const allFeaturedPoems = response.submissions || response.contents || response || [];
+
+        // Apply pagination manually since getFeaturedContent doesn't support it
+        const startIndex = skip;
+        const endIndex = startIndex + this.itemsPerPage;
+        const newPoems = allFeaturedPoems.slice(startIndex, endIndex);
+
         if (loadMore) {
           this.featuredPoems.update(poems => [...poems, ...newPoems]);
         } else {
@@ -190,7 +185,8 @@ export class FeaturedPoemsComponent implements OnInit {
           this.currentPage = 1;
         }
 
-        this.hasMore.set(response.pagination?.hasMore || false);
+        // Check if there are more poems to load
+        this.hasMore.set(endIndex < allFeaturedPoems.length);
         this.loading.set(false);
       },
       error: (err) => {

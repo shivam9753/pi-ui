@@ -381,16 +381,24 @@ export class BackendService {
     if (jwtToken) {
       return new HttpHeaders({
         'Authorization': `Bearer ${jwtToken}`,
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0',
+        'X-Build-Version': environment.buildVersion || Date.now().toString()
       });
     }
-    
+
     // Fallback: try Google token (though backend may not accept it)
     const googleToken = this.safeGetLocalStorage('google_token');
     if (googleToken) {
       return new HttpHeaders({
         'Authorization': `Bearer ${googleToken}`,
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0',
+        'X-Build-Version': environment.buildVersion || Date.now().toString()
       });
     }
     
@@ -415,7 +423,11 @@ export class BackendService {
   // Get headers for public API calls (no auth required)
   private getPublicHeaders(): HttpHeaders {
     return new HttpHeaders({
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
+      'Cache-Control': 'no-cache, no-store, must-revalidate',
+      'Pragma': 'no-cache',
+      'Expires': '0',
+      'X-Build-Version': environment.buildVersion || Date.now().toString()
     });
   }
 

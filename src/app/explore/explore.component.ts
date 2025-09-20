@@ -116,6 +116,16 @@ export class ExploreComponent implements OnInit {
     this.loadPopularTags();
   }
 
+  // Force refresh data (useful after deployment)
+  forceRefresh() {
+    // Clear local cache and reload data
+    this.submissions = [];
+    this.trendingTags = [];
+    this.hasMoreItems = true;
+    this.getPublishedSubmissions(this.selectedType);
+    this.loadPopularTags();
+  }
+
   private setupPageMeta() {
     this.titleService.setTitle('PoemsIndia: Explore');
     this.metaService.updateTag({
@@ -135,7 +145,10 @@ export class ExploreComponent implements OnInit {
   // Load popular tags from the new backend API
   loadPopularTags() {
     this.loadingTags = true;
-    this.backendService.getPopularTags({ limit: 8 }).subscribe({
+    this.backendService.getPopularTags({
+      limit: 8,
+      _t: Date.now() // Cache-busting timestamp
+    }).subscribe({
       next: (data) => {
         // Extract tag names from the response
         this.trendingTags = data.tags || [];
@@ -168,9 +181,10 @@ export class ExploreComponent implements OnInit {
       limit: this.itemsPerPage,
       skip: skip,
       sortBy: this.sortBy === 'latest' ? 'publishedAt' : this.sortBy,
-      order: 'desc' as 'desc'
+      order: 'desc' as 'desc',
+      _t: Date.now() // Cache-busting timestamp
     };
-    
+
     if (type && type !== 'popular') {
       params.type = type;
     }
@@ -249,7 +263,12 @@ export class ExploreComponent implements OnInit {
 
   performSearch(query: string) {
     this.isSearching = true;
-    this.backendService.getSubmissions({ search: query, status: 'published', limit: 20 }).subscribe({
+    this.backendService.getSubmissions({
+      search: query,
+      status: 'published',
+      limit: 20,
+      _t: Date.now() // Cache-busting timestamp
+    }).subscribe({
       next: (data) => {
         this.searchResults = data.submissions || [];
         this.showSearchResults = true;
