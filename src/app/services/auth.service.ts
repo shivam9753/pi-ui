@@ -159,31 +159,35 @@ export class AuthService {
     if (isPlatformBrowser(this.platformId)) {
       const storedUser = localStorage.getItem('google_user');
       const storedJwt = localStorage.getItem('jwt_token');
-      
+
       if (storedUser && storedJwt) {
         try {
           const existingUser: GoogleUser = JSON.parse(storedUser);
-          
+
           // If it's the same user email, check if JWT is still valid
           if (existingUser.email === baseUser.email) {
             const tokenPayload = this.decodeJWT(storedJwt);
             const currentTime = Math.floor(Date.now() / 1000);
-            
+
             // If JWT is still valid (not expired), use existing session
             if (tokenPayload && tokenPayload.exp && tokenPayload.exp > currentTime) {
               this.userSubject.next(existingUser);
               this.isLoggedInSubject.next(true);
               this.navigateAfterLogin();
-              
+
               // Optionally refresh role in background (less frequently)
               if (Math.random() < 0.1) { // Only 10% of the time to reduce API calls
                 this.refreshUserRole(existingUser);
               }
               return;
+            } else {
+              // JWT token is expired - clear it before re-authenticating
+              this.clearSession();
             }
           }
         } catch (error) {
-          // Error parsing stored user session
+          // Error parsing stored user session - clear it
+          this.clearSession();
         }
       }
     }
@@ -376,48 +380,48 @@ export class AuthService {
     if (storedUser) {
       try {
         const user: GoogleUser = JSON.parse(storedUser);
-        
+
         // If we have a JWT token from backend, check its validity
         if (storedJwtToken) {
           const tokenPayload = this.decodeJWT(storedJwtToken);
           const currentTime = Math.floor(Date.now() / 1000);
-          
+
           if (tokenPayload && tokenPayload.exp && tokenPayload.exp > currentTime) {
             this.userSubject.next(user);
             this.isLoggedInSubject.next(true);
-            
+
             // Refresh user role from backend to ensure it's up to date
             this.refreshUserRole(user);
             return;
+          } else {
+            // JWT token is expired - clear session
+            this.clearSession();
+            return;
           }
         }
-        
+
         // If no JWT or JWT expired, but we have Google token, check it
         if (storedToken) {
           const googleTokenPayload = this.decodeJWT(storedToken);
           const currentTime = Math.floor(Date.now() / 1000);
-          
+
           if (googleTokenPayload && googleTokenPayload.exp && googleTokenPayload.exp > currentTime) {
             this.userSubject.next(user);
             this.isLoggedInSubject.next(true);
-            
+
             // Refresh user role from backend to ensure it's up to date
             this.refreshUserRole(user);
             return;
+          } else {
+            // Google token is expired - clear session
+            this.clearSession();
+            return;
           }
         }
-        
-        // DEVELOPMENT FALLBACK: If we have user data, keep session during hot reloads
-        // This prevents constant logout during development
-        if (user.email && user.name) {
-          this.userSubject.next(user);
-          this.isLoggedInSubject.next(true);
-          
-          // Refresh user role from backend to ensure it's up to date
-          this.refreshUserRole(user);
-          return;
-        }
-        
+
+        // If we have user data but no valid tokens, clear session
+        this.clearSession();
+
       } catch (error) {
         this.clearSession();
       }

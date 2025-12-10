@@ -171,7 +171,8 @@ export class FeaturedPoemsComponent implements OnInit {
     // First get featured content, then filter for poems
     this.backendService.getFeaturedContent('poem').subscribe({
       next: (response) => {
-        const allFeaturedPoems = response.submissions || response.contents || response || [];
+        // Extract featured poems from the known API response format
+        const allFeaturedPoems = response?.featured || [];
 
         // Apply pagination manually since getFeaturedContent doesn't support it
         const startIndex = skip;
@@ -191,6 +192,8 @@ export class FeaturedPoemsComponent implements OnInit {
       },
       error: (err) => {
         console.error('Error loading featured poems:', err);
+        this.featuredPoems.set([]);
+        this.hasMore.set(false);
         this.loading.set(false);
       }
     });

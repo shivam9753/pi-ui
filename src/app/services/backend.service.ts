@@ -2,7 +2,8 @@ import { Injectable, Inject, PLATFORM_ID } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams, HttpErrorResponse } from '@angular/common/http';
 import { Observable, throwError, timer } from 'rxjs';
 import { tap, catchError, timeout, retry, map, retryWhen, scan, mergeMap } from 'rxjs/operators';
-import { isPlatformServer } from '@angular/common';
+import { isPlatformServer, isPlatformBrowser } from '@angular/common';
+import { Router } from '@angular/router';
 import { environment } from '../../environments/environment';
 import {
   UpdateStatusPayload,
@@ -31,7 +32,8 @@ export class BackendService {
 
   constructor(
     private http: HttpClient,
-    @Inject(PLATFORM_ID) private platformId: Object
+    @Inject(PLATFORM_ID) private platformId: Object,
+    private router: Router
   ) {
     const platform = isPlatformServer(this.platformId) ? 'Server' : 'Browser';
   }
@@ -65,6 +67,19 @@ export class BackendService {
   }
 
   private handleError(error: HttpErrorResponse): Observable<never> {
+    // Handle 401 Unauthorized - Session Expired
+    if (error.status === HTTP_STATUS.UNAUTHORIZED) {
+      this.handleSessionExpired();
+      const enhancedError = {
+        ...error,
+        message: 'Your session has expired. Please log in again.',
+        mobileMessage: 'Session expired',
+        details: 'Please log in to continue',
+        sessionExpired: true
+      };
+      return throwError(() => enhancedError);
+    }
+
     // For validation errors and other API errors, preserve the original error structure
     if (error.status === HTTP_STATUS.BAD_REQUEST && error.error) {
       // Enhance error with mobile-friendly details
@@ -75,11 +90,11 @@ export class BackendService {
       };
       return throwError(() => enhancedError);
     }
-    
+
     let errorMessage = 'An unknown error occurred';
     let mobileMessage = 'Something went wrong';
     let details = '';
-    
+
     if (typeof ErrorEvent !== 'undefined' && error.error instanceof ErrorEvent) {
       // Client-side error
       errorMessage = `Client Error: ${error.error.message}`;
@@ -108,11 +123,6 @@ export class BackendService {
           mobileMessage = 'Service unavailable';
           details = 'We\'re temporarily down for maintenance. Try again soon';
           break;
-        case HTTP_STATUS.UNAUTHORIZED:
-          errorMessage = 'Unauthorized access';
-          mobileMessage = 'Access denied';
-          details = 'Please log in and try again';
-          break;
         case HTTP_STATUS.FORBIDDEN:
           errorMessage = 'Forbidden access';
           mobileMessage = 'Permission denied';
@@ -124,15 +134,41 @@ export class BackendService {
           details = `Status: ${error.status}`;
       }
     }
-    
+
     const enhancedError = {
       ...error,
       message: errorMessage,
       mobileMessage,
       details
     };
-    
+
     return throwError(() => enhancedError);
+  }
+
+  /**
+   * Handle session expiry - clear authentication state and redirect to login
+   */
+  private handleSessionExpired(): void {
+    if (isPlatformBrowser(this.platformId)) {
+      // Store current URL for redirect after re-login
+      const currentUrl = this.router.url;
+      if (currentUrl && currentUrl !== '/login' && currentUrl !== '/') {
+        localStorage.setItem('returnUrl', currentUrl);
+      }
+
+      // Clear all authentication data
+      localStorage.removeItem('google_user');
+      localStorage.removeItem('google_token');
+      localStorage.removeItem('jwt_token');
+      localStorage.removeItem('google_access_token');
+      localStorage.removeItem('google_user_hint');
+
+      // Show alert to user
+      alert('Your session has expired. Please log in again to continue.');
+
+      // Redirect to login page
+      this.router.navigate(['/login']);
+    }
   }
 
   private getMobileFriendlyMessage(error: HttpErrorResponse): string {
@@ -185,6 +221,7 @@ export class BackendService {
     wordLength?: string;
     dateFrom?: string;
     dateTo?: string;
+    _t?: number;
   } = {}): Observable<any> {
     let params = new HttpParams();
     
@@ -430,20 +467,6 @@ export class BackendService {
       'X-Build-Version': environment.buildVersion || Date.now().toString()
     });
   }
-
-  // Safe method to get auth headers without throwing errors
-  private getSafeAuthHeaders(): HttpHeaders {
-    try {
-      return this.getAuthHeaders();
-    } catch (error) {
-      // If auth fails, return public headers
-      console.warn('Auth headers not available, using public headers:', error);
-      return this.getPublicHeaders();
-    }
-  }
-
-  
-
 
   // Use semantic endpoints for review actions
   approveSubmission(submissionId: string, reviewData: { reviewNotes: string }) {
@@ -821,7 +844,7 @@ deleteDraft(draftId: string): Observable<any> {
 }
 
 // Get popular tags from trending submissions
-getPopularTags(options: { limit?: number; windowDays?: number } = {}): Observable<{
+getPopularTags(options: { limit?: number; windowDays?: number; _t?: number } = {}): Observable<{
   tags: string[];
 }> {
   let params = new HttpParams();
