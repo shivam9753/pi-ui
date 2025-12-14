@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { RichTextEditorComponent } from '../../../submit/rich-text-editor/rich-text-editor.component';
+import { ProseMirrorEditorComponent } from '../../../submit/rich-text-editor/prosemirror-editor.component';
 import { BadgeLabelComponent } from '../../../utilities/badge-label/badge-label.component';
 import { TagInputComponent } from '../../../utilities/tag-input/tag-input.component';
 import { BackendService } from '../../../services/backend.service';
@@ -21,7 +22,7 @@ interface SEOConfig {
 
 @Component({
   selector: 'app-publish-submission',
-  imports: [CommonModule, FormsModule, RichTextEditorComponent, BadgeLabelComponent, TagInputComponent],
+  imports: [CommonModule, FormsModule, RichTextEditorComponent, ProseMirrorEditorComponent, BadgeLabelComponent, TagInputComponent],
   templateUrl: './publish-submission.component.html',
   styleUrl: './publish-submission.component.css',
   encapsulation: ViewEncapsulation.None
@@ -95,19 +96,20 @@ export class PublishSubmissionComponent implements OnInit {
 
   loadSubmission(submissionId: string) {
     this.loading = true;
-    
+
     this.backendService.getSubmissionWithContents(submissionId).subscribe({
       next: (data) => {
         this.submission = data;
-        
-        // Clean content when loading
+
+        // Store original content for preview (preserve &nbsp; entities)
+        // The editor's two-way binding will modify content.body, so we need a separate copy for preview
         if (this.submission.contents && this.submission.contents.length > 0) {
           this.submission.contents = this.submission.contents.map((content: any) => ({
             ...content,
-            body: this.cleanContentForEditing(content.body)
+            originalBody: content.body // Keep original with &nbsp; for preview
           }));
         }
-        
+
         this.initializeSEOConfig();
         
         // Extract userId as string (could be object with _id field)
@@ -338,7 +340,8 @@ export class PublishSubmissionComponent implements OnInit {
       .replace(/<\/div>/g, '<br>')               // Convert closing div tags to line breaks
       // PRESERVE ALL LINE BREAKS - Don't limit them at all when loading for editing
       // .replace(/(<br\s*\/?>\s*){4,}/g, '<br><br><br>')  // REMOVED: Don't limit br tags
-      .replace(/&nbsp;/g, ' ')                   // Convert non-breaking spaces
+      // DON'T convert &nbsp; here - ProseMirror editor handles this conversion internally
+      // .replace(/&nbsp;/g, ' ')                   // REMOVED: ProseMirror handles this
       .replace(/&amp;/g, '&')                    // Convert HTML entities
       .replace(/&lt;/g, '<')
       .replace(/&gt;/g, '>')

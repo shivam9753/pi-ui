@@ -50,17 +50,15 @@
           </div>
         }
       </div>
-      <!-- Content Body with Rich Text Editor -->
+      <!-- Content Body with ProseMirror Editor (Poetry Mode) -->
       <div>
         <label class="block text-sm font-medium text-gray-900 mb-2">
           {{ getSingleContentTypeDisplayName() }} Content
         </label>
-        <app-rich-text-editor
+        <app-prosemirror-editor
           [formControl]="content.get('body')"
           [placeholder]="getContentPlaceholder()"
-          [allowImages]="shouldAllowImages()"
-          (imageUpload)="onImageUpload($event, i)"
-        ></app-rich-text-editor>
+        ></app-prosemirror-editor>
         @if (content.get('body')?.invalid && content.get('body')?.touched) {
           <div
             class="text-red-500 text-sm mt-2 flex items-center">

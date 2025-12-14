@@ -5,11 +5,12 @@ import { TopicPitch } from '../../models';
 import { AuthService } from '../../services/auth.service';
 import { BackendService } from '../../services/backend.service';
 import { RichTextEditorComponent } from '../../submit/rich-text-editor/rich-text-editor.component';
+import { ProseMirrorEditorComponent } from '../../submit/rich-text-editor/prosemirror-editor.component';
 
 @Component({
   selector: 'app-my-claimed-topics',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, RichTextEditorComponent],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, RichTextEditorComponent, ProseMirrorEditorComponent],
   templateUrl: './my-claimed-topics.component.html',
   styleUrl: './my-claimed-topics.component.css'
 })

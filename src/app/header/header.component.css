@@ -34,6 +34,14 @@ header a:active {
   text-decoration: none !important;
 }
 
+/* Add cursor pointer to all clickable elements */
+nav a,
+nav button,
+header a,
+header button {
+  cursor: pointer;
+}
+
 /* Ensure navigation items use proper themed colors and no unwanted backgrounds */
 nav button, nav a {
   background: transparent !important;
@@ -41,6 +49,11 @@ nav button, nav a {
 
 nav button:hover, nav a:hover {
   background: transparent !important;
+}
+
+/* Make nav buttons match nav links color */
+nav button {
+  color: var(--text-accent);
 }
 
 /* Ensure no default button styling interferes */

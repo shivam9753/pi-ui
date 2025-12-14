@@ -2,12 +2,13 @@
 import { Component, EventEmitter, Input, Output, ViewEncapsulation, OnChanges, SimpleChanges } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RichTextEditorComponent } from '../rich-text-editor/rich-text-editor.component';
+import { ProseMirrorEditorComponent } from '../rich-text-editor/prosemirror-editor.component';
 import { TagInputComponent } from '../../utilities/tag-input/tag-input.component';
 import { CompressedImage } from '../../shared/utils/image-compression.util';
 
 @Component({
   selector: 'app-content-editor',
-  imports: [ReactiveFormsModule, FormsModule, RichTextEditorComponent, TagInputComponent],
+  imports: [ReactiveFormsModule, FormsModule, RichTextEditorComponent, ProseMirrorEditorComponent, TagInputComponent],
   templateUrl: './content-editor.component.html',
   styleUrl: './content-editor.component.css',
   encapsulation: ViewEncapsulation.None

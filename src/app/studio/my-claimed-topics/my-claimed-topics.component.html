@@ -201,11 +201,10 @@
                       </div>
                     </div>
                   } @else {
-                    <app-rich-text-editor
+                    <app-prosemirror-editor
                       [(ngModel)]="draftContent"
-                      [allowImages]="true"
                       placeholder="Start writing your content based on the topic description above...">
-                    </app-rich-text-editor>
+                    </app-prosemirror-editor>
                   }
                 </div>
 
@@ -436,11 +435,10 @@
                     </div>
                   </div>
                 } @else {
-                  <app-rich-text-editor
+                  <app-prosemirror-editor
                     [(ngModel)]="draftContent"
-                    [allowImages]="true"
                     placeholder="Start writing your content based on the topic description above...">
-                  </app-rich-text-editor>
+                  </app-prosemirror-editor>
                 }
               </div>
 

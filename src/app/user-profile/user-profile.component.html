@@ -140,7 +140,7 @@
           <div class="bg-surface border border-border rounded-3xl p-5 shadow-sm">
             <div class="space-y-3">
               @for (message of getSubmissionSummaryMessages(); track message.message) {
-                <div class="group flex items-center gap-4 p-3 rounded-2xl hover:bg-themed-hover hover:shadow-sm transition-all duration-200 border border-transparent hover:border-border">
+                <div class="group flex items-center gap-4 p-3 rounded-2xl hover:bg-themed-hover hover:shadow-sm transition-all duration-200 border border-transparent hover:border-border cursor-pointer">
                   <!-- Status Icon -->
                   <div class="flex-shrink-0 w-5 h-5 flex items-center justify-center">
                     @if (message.type === 'published') {

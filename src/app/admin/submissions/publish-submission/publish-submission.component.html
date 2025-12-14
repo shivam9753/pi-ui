@@ -367,12 +367,11 @@
                               <!-- Content Body -->
                               <div>
                                 <label class="block text-sm font-medium text-gray-900 mb-2">Content Body</label>
-                                <app-rich-text-editor
+                                <app-prosemirror-editor
                                   [(ngModel)]="content.body"
                                   [placeholder]="'Enter your content here...'"
-                                  [allowImages]="true"
                                   class="min-h-64">
-                                </app-rich-text-editor>
+                                </app-prosemirror-editor>
                                 <div class="flex justify-between text-xs text-gray-500 mt-2">
                                   <span>Use formatting tools above for better presentation</span>
                                   <span>{{ calculateWordCount(content.body) }} words</span>
@@ -474,7 +473,7 @@
                         @if (content.title) {
                           <h2 class="text-2xl font-semibold text-gray-900 mb-4">{{ content.title }}</h2>
                         }
-                        <div class="content-body prose prose-lg max-w-none" [innerHTML]="cleanContent(content.body)"></div>
+                        <div class="content-body prose prose-lg max-w-none" [innerHTML]="content.originalBody || content.body"></div>
                         <!-- Footnotes -->
                         @if (content.footnotes) {
                           <div class="mt-4 p-3 bg-gray-50 rounded-lg border-l-4 border-blue-200">
