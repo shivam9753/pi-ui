@@ -38,6 +38,16 @@ import { FormsModule } from '@angular/forms';
           </svg>
           Ask for Revision
         </button>
+
+        <button
+          (click)="sendEmail.emit()"
+          [disabled]="isSubmitting"
+          class="w-full sm:w-auto px-6 py-3 text-sm font-semibold text-blue-800 bg-blue-100 rounded-lg hover:bg-blue-200 transition-colors duration-200 disabled:opacity-50 flex items-center gap-2 shadow-sm hover:shadow-md">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+          </svg>
+          Send Email
+        </button>
       </div>
     }
 
@@ -129,6 +139,7 @@ export class ReviewActionsComponent {
   @Output() notesChange = new EventEmitter<string>();
   @Output() confirm = new EventEmitter<void>();
   @Output() cancel = new EventEmitter<void>();
+  @Output() sendEmail = new EventEmitter<void>();
 
   setAction(action: string) {
     this.actionSet.emit(action);

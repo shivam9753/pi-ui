@@ -1019,6 +1019,18 @@ shortlistSubmissionSemantic(submissionId: string, reviewData: {
   );
 }
 
+// Send custom email to submission author
+sendReviewEmail(submissionId: string, emailData: {
+  subject: string;
+  message: string;
+  template?: string
+}): Observable<any> {
+  const headers = this.getAuthHeaders();
+  return this.http.post(`${this.API_URL}/reviews/${submissionId}/send-email`, emailData, { headers }).pipe(
+    catchError(this.handleError)
+  );
+}
+
 // ========================================
 // ANALYTICS ENDPOINTS
 // ========================================

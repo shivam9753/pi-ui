@@ -11,11 +11,13 @@ import { StatusBadgeComponent } from '../../../shared/components/status-badge/st
 import { environment } from '../../../../environments/environment';
 import { AnalysisPanelComponent } from './analysis-panel.component';
 import { EditorialCriteriaComponent } from './editorial-criteria.component';
+import { SendEmailModalComponent, EmailData } from './send-email-modal.component';
 import { REVIEW_ACTIONS, ReviewAction, API_ENDPOINTS, SUBMISSION_STATUS } from '../../../shared/constants/api.constants';
+import { ToastService } from '../../../services/toast.service';
 
 @Component({
   selector: 'app-review-submission',
-  imports: [DatePipe, TitleCasePipe, CommonModule, FormsModule, ToastNotificationComponent, StatusBadgeComponent, AnalysisPanelComponent, EditorialCriteriaComponent],
+  imports: [DatePipe, TitleCasePipe, CommonModule, FormsModule, ToastNotificationComponent, StatusBadgeComponent, AnalysisPanelComponent, EditorialCriteriaComponent, SendEmailModalComponent],
   templateUrl: './review-submission.component.html',
   styleUrl: './review-submission.component.css'
 })
@@ -31,6 +33,10 @@ export class ReviewSubmissionComponent {
   reviewAction: 'approve' | 'reject' | 'revision' | 'move_to_progress' | 'shortlist' | null = null;
   showReviewForm: boolean = false;
   isSubmitting: boolean = false;
+
+  // Email modal state
+  showEmailModal: boolean = false;
+  isSendingEmail: boolean = false;
   
   // Initial rejection reasons (shown when user taps)
   initialRejectionReasons = [
@@ -196,6 +202,7 @@ export class ReviewSubmissionComponent {
   constructor(
     private http: HttpClient, 
     private backendService: BackendService, 
+    private toastService: ToastService,
     private authService: AuthService,
     private router: Router,
     private sanitizer: DomSanitizer
@@ -274,6 +281,39 @@ export class ReviewSubmissionComponent {
     this.reviewAction = null;
     this.showReviewForm = false;
     this.reviewNotes = '';
+  }
+
+  // Email modal methods
+  openEmailModal() {
+    this.showEmailModal = true;
+  }
+
+  closeEmailModal() {
+    this.showEmailModal = false;
+  }
+
+  sendEmailToAuthor(emailData: EmailData) {
+    this.isSendingEmail = true;
+
+    const payload = {
+      subject: emailData.subject,
+      message: emailData.message,
+      ...(emailData.template && { template: emailData.template })
+    };
+
+    this.backendService.sendReviewEmail(this.id, payload).subscribe({
+      next: () => {
+        this.toastService.showSuccess('Email sent successfully!');
+        this.closeEmailModal();
+        this.isSendingEmail = false;
+      },
+      error: (error) => {
+        this.toastService.showError(
+          error?.error?.message || 'Failed to send email. Please try again.'
+        );
+        this.isSendingEmail = false;
+      }
+    });
   }
 
   // Method to handle common rejection reason selection
