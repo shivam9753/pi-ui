@@ -1,14 +1,13 @@
 
 import { Component, EventEmitter, Input, Output, ViewEncapsulation, OnChanges, SimpleChanges } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
-import { RichTextEditorComponent } from '../rich-text-editor/rich-text-editor.component';
 import { ProseMirrorEditorComponent } from '../rich-text-editor/prosemirror-editor.component';
 import { TagInputComponent } from '../../utilities/tag-input/tag-input.component';
 import { CompressedImage } from '../../shared/utils/image-compression.util';
 
 @Component({
   selector: 'app-content-editor',
-  imports: [ReactiveFormsModule, FormsModule, RichTextEditorComponent, ProseMirrorEditorComponent, TagInputComponent],
+  imports: [ReactiveFormsModule, FormsModule, ProseMirrorEditorComponent, TagInputComponent],
   templateUrl: './content-editor.component.html',
   styleUrl: './content-editor.component.css',
   encapsulation: ViewEncapsulation.None
@@ -23,6 +22,7 @@ export class ContentEditorComponent implements OnChanges {
   @Output() prevStep = new EventEmitter<void>();
   @Output() nextStep = new EventEmitter<void>();
   @Output() imageUploaded = new EventEmitter<{contentIndex: number, image: CompressedImage}>();
+  @Output() imageDeleted = new EventEmitter<string>(); // Emits image URL to delete from S3
 
   uploadedImages: Map<number, CompressedImage[]> = new Map();
 
@@ -170,9 +170,14 @@ This could be:
     if (!this.uploadedImages.has(contentIndex)) {
       this.uploadedImages.set(contentIndex, []);
     }
-    
+
     this.uploadedImages.get(contentIndex)!.push(image);
     this.imageUploaded.emit({ contentIndex, image });
+  }
+
+  onImageDelete(imageUrl: string): void {
+    // Emit event to parent component to handle S3 deletion
+    this.imageDeleted.emit(imageUrl);
   }
 
   getContentImages(contentIndex: number): CompressedImage[] {

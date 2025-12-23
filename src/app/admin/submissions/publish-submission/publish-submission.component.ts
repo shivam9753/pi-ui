@@ -1090,9 +1090,59 @@ export class PublishSubmissionComponent implements OnInit {
     this.showToast(message, 'success');
   }
 
-  // Show error message  
+  // Show error message
   showError(message: string) {
     this.showToast(message, 'error');
+  }
+
+  // Handle image deletion from editor
+  onImageDelete(imageUrl: string) {
+    if (!imageUrl) return;
+
+    // Extract S3 key from URL
+    // URL format: http://localhost:3000/uploads/temp/articles/filename.jpg
+    // or https://cloudfront.net/uploads/temp/articles/filename.jpg
+    const s3Key = this.extractS3KeyFromUrl(imageUrl);
+
+    if (!s3Key) {
+      console.error('❌ Could not extract S3 key from URL:', imageUrl);
+      return;
+    }
+
+    console.log('🗑️ Deleting image with S3 key:', s3Key);
+
+    // Call backend to delete image from S3
+    this.backendService.deleteImageByS3Key(s3Key).subscribe({
+      next: (response) => {
+        console.log('✅ Image deleted from S3:', response);
+        // Don't show toast as image is already removed from editor
+      },
+      error: (err: any) => {
+        console.error('❌ Failed to delete image from S3:', err);
+        // Silently fail - image is already removed from editor
+      }
+    });
+  }
+
+  // Extract S3 key from image URL
+  private extractS3KeyFromUrl(url: string): string | null {
+    try {
+      // Handle both local and CDN URLs
+      // Local: http://localhost:3000/uploads/temp/articles/filename.jpg
+      // CDN: https://cloudfront.net/uploads/temp/articles/filename.jpg
+
+      const urlObj = new URL(url);
+      const pathname = urlObj.pathname;
+
+      // Remove leading slash and extract the S3 key
+      // S3 key format: uploads/temp/articles/filename.jpg
+      const s3Key = pathname.startsWith('/') ? pathname.substring(1) : pathname;
+
+      return s3Key || null;
+    } catch (error) {
+      console.error('Error parsing image URL:', error);
+      return null;
+    }
   }
 
   // Load user profile to check for pending approval data

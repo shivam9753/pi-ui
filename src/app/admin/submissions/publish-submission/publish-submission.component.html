@@ -370,6 +370,8 @@
                                 <app-prosemirror-editor
                                   [(ngModel)]="content.body"
                                   [placeholder]="'Enter your content here...'"
+                                  [allowImages]="submission.submissionType !== 'poem'"
+                                  (imageDelete)="onImageDelete($event)"
                                   class="min-h-64">
                                 </app-prosemirror-editor>
                                 <div class="flex justify-between text-xs text-gray-500 mt-2">

@@ -350,9 +350,25 @@ export class BackendService {
     const headers = new HttpHeaders({
       'Authorization': `Bearer ${jwtToken}`
     });
-    
-    
+
+
     return this.http.delete(`${this.API_URL}${API_ENDPOINTS.SUBMISSIONS_NESTED.IMAGE(submissionId)}`, { headers }).pipe(
+      catchError(this.handleError)
+    );
+  }
+
+  // Delete image by S3 key (for rich text editor)
+  deleteImageByS3Key(s3Key: string): Observable<any> {
+    const jwtToken = localStorage.getItem('jwt_token');
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${jwtToken}`,
+      'Content-Type': 'application/json'
+    });
+
+    return this.http.delete(`${this.API_URL}/images/delete`, {
+      headers,
+      body: { s3Key }
+    }).pipe(
       catchError(this.handleError)
     );
   }

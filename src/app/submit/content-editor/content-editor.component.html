@@ -50,7 +50,7 @@
           </div>
         }
       </div>
-      <!-- Content Body with ProseMirror Editor (Poetry Mode) -->
+      <!-- Content Body with ProseMirror Editor -->
       <div>
         <label class="block text-sm font-medium text-gray-900 mb-2">
           {{ getSingleContentTypeDisplayName() }} Content
@@ -58,6 +58,9 @@
         <app-prosemirror-editor
           [formControl]="content.get('body')"
           [placeholder]="getContentPlaceholder()"
+          [allowImages]="selectedType !== 'poem'"
+          (imageUpload)="onImageUpload($event, i)"
+          (imageDelete)="onImageDelete($event)"
         ></app-prosemirror-editor>
         @if (content.get('body')?.invalid && content.get('body')?.touched) {
           <div
