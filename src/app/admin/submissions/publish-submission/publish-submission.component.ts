@@ -1276,4 +1276,78 @@ export class PublishSubmissionComponent implements OnInit {
     if (!imagePath) return '';
     return imagePath.startsWith('http') ? imagePath : `${window.location.origin}${imagePath}`;
   }
+
+  // Extract all images from submission content
+  getContentImages(): string[] {
+    if (!this.submission?.contents || this.submission.contents.length === 0) {
+      return [];
+    }
+
+    const images: string[] = [];
+    const tempDiv = document.createElement('div');
+
+    this.submission.contents.forEach((content: any) => {
+      if (content.body) {
+        tempDiv.innerHTML = content.body;
+        const imgElements = tempDiv.querySelectorAll('img');
+
+        imgElements.forEach((img: HTMLImageElement) => {
+          const src = img.getAttribute('src');
+          if (src && !images.includes(src)) {
+            images.push(src);
+          }
+        });
+      }
+    });
+
+    // Debug: log the extracted images
+    if (images.length > 0) {
+      console.log('📸 Content images found:', images);
+    }
+
+    return images;
+  }
+
+  // Handle image load error
+  onImageError(event: Event): void {
+    const img = event.target as HTMLImageElement;
+    img.src = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIj48cmVjdCBmaWxsPSIjZGRkIiB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkeT0iLjNlbSIgZmlsbD0iIzk5OSI+SW1hZ2UgRXJyb3I8L3RleHQ+PC9zdmc+';
+  }
+
+  // Use content image as cover
+  useContentImageAsCover(imageUrl: string) {
+    if (!imageUrl) {
+      this.showError('No image URL provided.');
+      return;
+    }
+
+    this.submission.imageUrl = imageUrl;
+
+    // Immediately save the change to persist it
+    const updateData = {
+      imageUrl: imageUrl
+    };
+
+    this.backendService.updateSubmission(this.submission._id, updateData).subscribe({
+      next: (response) => {
+        this.showSuccess('Content image has been set as cover image and saved successfully!');
+      },
+      error: (err) => {
+        // Revert the change if saving failed
+        this.submission.imageUrl = '';
+        this.showError('Failed to save content image as cover. Please try again.');
+      }
+    });
+  }
+
+  // Use content image as social media image
+  useContentImageAsSocial(imageUrl: string) {
+    if (!imageUrl) {
+      this.showError('No image URL provided.');
+      return;
+    }
+
+    this.seoConfig.ogImage = imageUrl;
+    this.showSuccess('Content image set as social media image.');
+  }
 }
