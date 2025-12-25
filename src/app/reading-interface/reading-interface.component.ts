@@ -67,7 +67,7 @@ content = signal<PublishedContent | null>(null);
   authorDetails = signal<User | null>(null);
   
   // Reading settings
-  fontSize = signal(16);
+  fontSize = signal(20); // Match CSS default font-size for consistent typography
   lineHeight = signal(1.6);
   isReaderMode = signal(false);
   readingProgress = signal(0);
