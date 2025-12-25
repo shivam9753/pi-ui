@@ -1152,7 +1152,7 @@ h6 {
 }
 
 p {
-  font-size: 16px;
+  /* font-size removed - components control their own font sizes */
   line-height: 1.6;
   color: var(--text-primary);
   margin-bottom: 14px;
