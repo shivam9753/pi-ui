@@ -507,8 +507,8 @@
   transform: scale(1.05);
 }
 
-.magazine-layout .group:hover .group-hover\:text-orange-400 {
-  color: rgb(251 146 60);
+.magazine-layout .group:hover .group-hover\:text-primary {
+  color: #FF6100;
 }
 
 /* Breadcrumb navigation */

@@ -142,7 +142,7 @@ export class ToastNotificationComponent implements OnInit, OnDestroy, OnChanges 
       case 'error':
         return 'text-red-600 bg-red-100';
       case 'warning':
-        return 'text-orange-600 bg-amber-100';
+        return 'text-primary bg-amber-100';
       case 'info':
       default:
         return 'text-blue-600 bg-blue-100';

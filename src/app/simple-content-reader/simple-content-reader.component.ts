@@ -114,8 +114,8 @@ interface AuthorFeaturedContent {
                         [alt]="content()!.author.name || content()!.author.username"
                         class="w-12 h-12 rounded-full object-cover border-2 border-gray-200 flex-shrink-0">
                     } @else {
-                      <div class="w-12 h-12 rounded-full bg-orange-100 flex items-center justify-center border-2 border-gray-200 flex-shrink-0">
-                        <span class="text-sm font-semibold text-orange-600">
+                      <div class="w-12 h-12 rounded-full bg-primary-light flex items-center justify-center border-2 border-gray-200 flex-shrink-0">
+                        <span class="text-sm font-semibold text-primary">
                           {{ (content()!.author.name || content()!.author.username).charAt(0).toUpperCase() }}
                         </span>
                       </div>
@@ -176,8 +176,8 @@ interface AuthorFeaturedContent {
                         [alt]="content()!.author.name || content()!.author.username"
                         class="w-20 h-20 rounded-full mx-auto mb-3 object-cover border-2 border-gray-200">
                     } @else {
-                      <div class="w-20 h-20 rounded-full mx-auto mb-3 bg-orange-100 flex items-center justify-center border-2 border-gray-200">
-                        <span class="text-xl font-semibold text-orange-600">
+                      <div class="w-20 h-20 rounded-full mx-auto mb-3 bg-primary-light flex items-center justify-center border-2 border-gray-200">
+                        <span class="text-xl font-semibold text-primary">
                           {{ (content()!.author.name || content()!.author.username).charAt(0).toUpperCase() }}
                         </span>
                       </div>

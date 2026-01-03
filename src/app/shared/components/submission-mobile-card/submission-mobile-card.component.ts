@@ -22,7 +22,7 @@ export interface SubmissionAction {
               type="checkbox" 
               [checked]="selected" 
               (change)="onSelectionChange($event)"
-              class="h-5 w-5 text-orange-600 focus:ring-orange-500 border-gray-300 rounded">
+              class="h-5 w-5 text-primary focus:ring-primary border-gray-300 rounded">
           </div>
         </div>
       }
@@ -170,8 +170,8 @@ export class SubmissionMobileCardComponent {
     const baseClasses = 'shadow-sm font-semibold';
     
     const colorClasses: { [key: string]: string } = {
-      'primary': 'text-white bg-orange-600 hover:bg-orange-700 focus:ring-orange-500',
-      'warning': 'text-white bg-orange-600 hover:bg-orange-700 focus:ring-orange-500',
+      'primary': 'text-white bg-primary hover:bg-primary-hover focus:ring-primary',
+      'warning': 'text-white bg-primary hover:bg-primary-hover focus:ring-primary',
       'success': 'text-white bg-green-600 hover:bg-green-700 focus:ring-green-500',
       'danger': 'text-white bg-red-600 hover:bg-red-700 focus:ring-red-500',
       'secondary': 'text-gray-700 bg-gray-100 hover:bg-gray-200 border border-gray-300 focus:ring-gray-500'

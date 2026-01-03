@@ -34,7 +34,7 @@ interface TrendingAuthor {
 
       @if (loading()) {
         <div class="flex items-center justify-center py-12">
-          <div class="w-6 h-6 border-2 border-orange-500 border-t-transparent rounded-full animate-spin"></div>
+          <div class="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
           <span class="ml-3 text-gray-500">Loading authors...</span>
         </div>
       }
@@ -50,12 +50,12 @@ interface TrendingAuthor {
         <div class="hidden md:grid grid-cols-5 gap-6 max-w-6xl mx-auto">
           @for (authorData of trendingAuthors(); track authorData._id) {
             <div
-              class="bg-white rounded-xl border border-gray-100 p-6 hover:shadow-lg hover:border-orange-200 transition-all duration-300 cursor-pointer group relative"
+              class="bg-white rounded-xl border border-gray-100 p-6 hover:shadow-lg hover:border-neutral-200 transition-all duration-300 cursor-pointer group relative"
               [routerLink]="['/author', authorData.author._id]">
 
               <!-- Trending Icon - Top Right -->
               <div class="absolute top-4 right-4">
-                <svg class="w-5 h-5 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg class="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
                 </svg>
               </div>
@@ -68,7 +68,7 @@ interface TrendingAuthor {
                     [alt]="authorData.author.name"
                     class="w-20 h-20 rounded-full mx-auto object-cover group-hover:scale-105 transition-transform duration-300">
                 } @else {
-                  <div class="w-20 h-20 rounded-full mx-auto bg-gradient-to-br from-orange-400 to-orange-600 flex items-center justify-center group-hover:scale-105 transition-transform duration-300">
+                  <div class="w-20 h-20 rounded-full mx-auto bg-gradient-to-br from-primary to-primary-hover flex items-center justify-center group-hover:scale-105 transition-transform duration-300">
                     <span class="text-white font-bold text-xl">{{ getInitials(authorData.author.name) }}</span>
                   </div>
                 }
@@ -76,7 +76,7 @@ interface TrendingAuthor {
 
               <!-- Author Name -->
               <div class="text-center mb-4">
-                <h3 class="font-semibold text-gray-900 text-base group-hover:text-orange-600 transition-colors">
+                <h3 class="font-semibold text-gray-900 text-base group-hover:text-primary transition-colors">
                   {{ authorData.author.name }}
                 </h3>
               </div>
@@ -97,12 +97,12 @@ interface TrendingAuthor {
           <div class="flex overflow-x-auto gap-4 pb-4 px-6 -mx-6" style="scrollbar-width: none; -ms-overflow-style: none;">
             @for (authorData of trendingAuthors(); track authorData._id) {
               <div
-                class="bg-white rounded-xl border border-gray-100 p-6 hover:shadow-lg hover:border-orange-200 transition-all duration-300 cursor-pointer group flex-shrink-0 w-56 relative"
+                class="bg-white rounded-xl border border-gray-100 p-6 hover:shadow-lg hover:border-neutral-200 transition-all duration-300 cursor-pointer group flex-shrink-0 w-56 relative"
                 [routerLink]="['/author', authorData.author._id]">
 
                 <!-- Trending Icon - Top Right -->
                 <div class="absolute top-4 right-4">
-                  <svg class="w-4 h-4 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg class="w-4 h-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
                   </svg>
                 </div>
@@ -115,7 +115,7 @@ interface TrendingAuthor {
                       [alt]="authorData.author.name"
                       class="w-16 h-16 rounded-full mx-auto object-cover group-hover:scale-105 transition-transform duration-300">
                   } @else {
-                    <div class="w-16 h-16 rounded-full mx-auto bg-gradient-to-br from-orange-400 to-orange-600 flex items-center justify-center group-hover:scale-105 transition-transform duration-300">
+                    <div class="w-16 h-16 rounded-full mx-auto bg-gradient-to-br from-primary to-primary-hover flex items-center justify-center group-hover:scale-105 transition-transform duration-300">
                       <span class="text-white font-bold text-lg">{{ getInitials(authorData.author.name) }}</span>
                     </div>
                   }
@@ -123,7 +123,7 @@ interface TrendingAuthor {
 
                 <!-- Author Name -->
                 <div class="text-center mb-4">
-                  <h3 class="font-semibold text-gray-900 text-sm group-hover:text-orange-600 transition-colors">
+                  <h3 class="font-semibold text-gray-900 text-sm group-hover:text-primary transition-colors">
                     {{ authorData.author.name }}
                   </h3>
                 </div>

@@ -18,7 +18,7 @@
 
   <!-- Selection Info -->
   @if (selectedSubmissions.size > 0) {
-    <div class="mb-4 text-sm text-gray-600 bg-orange-50 p-3 rounded-lg">
+    <div class="mb-4 text-sm text-gray-600 bg-primary-light p-3 rounded-lg">
       {{ selectedSubmissions.size }} submission(s) selected
     </div>
   }
@@ -36,7 +36,7 @@
 
   <!-- Bulk Actions Bar -->
   @if (showBulkActions) {
-    <div class="mb-6 p-4 bg-orange-50 border border-orange-300 rounded-lg">
+    <div class="mb-6 p-4 bg-primary-light border border-neutral-300 rounded-lg">
       <div class="flex items-center justify-between flex-wrap gap-4">
         <div class="flex items-center gap-4">
           <span class="text-sm font-medium text-amber-800">
@@ -44,7 +44,7 @@
           </span>
           <button 
             (click)="clearSelection()" 
-            class="text-sm text-orange-600 hover:text-amber-800 underline">
+            class="text-sm text-primary hover:text-amber-800 underline">
             Clear Selection
           </button>
         </div>
@@ -60,7 +60,7 @@
                 (focus)="onBulkUserInputFocus()"
                 (blur)="hideBulkDropdown()"
                 placeholder="Search and select user..."
-                class="w-full text-sm border border-orange-300 rounded px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-orange-200 focus:border-orange-300"
+                class="w-full text-sm border border-neutral-300 rounded px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-neutral-300"
                 autocomplete="off">
                 
               <!-- Dropdown -->
@@ -101,7 +101,7 @@
           <button 
             (click)="bulkReassignUser()" 
             [disabled]="!bulkSelectedUserId || bulkActionLoading"
-            class="px-4 py-2 bg-orange-600 text-white rounded-md hover:bg-orange-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2">
+            class="px-4 py-2 bg-primary text-white rounded-md hover:bg-primary-hover disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2">
             @if (bulkActionLoading) {
               <div class="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin"></div>
             }
@@ -174,7 +174,7 @@
                   (focus)="showEditDropdown = true"
                   (blur)="hideEditDropdown()"
                   placeholder="Search and select new author..."
-                  class="w-full text-sm border border-gray-300 rounded px-2 py-1 pr-8 bg-white focus:outline-none focus:ring-2 focus:ring-orange-200 focus:border-orange-300"
+                  class="w-full text-sm border border-gray-300 rounded px-2 py-1 pr-8 bg-white focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-neutral-300"
                   autocomplete="off">
                 
                 <!-- Dropdown -->
@@ -216,7 +216,7 @@
             </div>
           } @else {
             <div class="flex gap-2">
-              <button (click)="startEdit(item)" class="text-orange-600 hover:text-orange-900 text-sm">
+              <button (click)="startEdit(item)" class="text-primary hover:text-primary-dark text-sm">
                 Change Author
               </button>
               <button (click)="deleteSubmission(item)" class="text-red-600 hover:text-red-900 text-sm font-medium">

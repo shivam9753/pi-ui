@@ -83,7 +83,7 @@ export interface User {
                 type="button"
                 (click)="selectUser(user)"
                 class="w-full px-4 py-3 text-left hover:bg-gray-50 focus:bg-gray-50 focus:outline-none border-b border-gray-100 last:border-b-0"
-                [class.bg-orange-50]="selectedUser?._id === user._id">
+                [class.bg-primary-light]="selectedUser?._id === user._id">
                 <div class="font-medium text-gray-900">{{ user.name }}</div>
                 <div class="text-sm text-gray-500">{{ user.email }}</div>
               </button>
@@ -112,7 +112,7 @@ export class SearchableUserSelectorComponent implements OnInit, ControlValueAcce
   @Input() placeholder = 'Select a user...';
   @Input() disabled = false;
   @Input() loading = false;
-  @Input() inputClass = 'w-full px-4 py-2 pr-8 text-sm border border-gray-300 rounded bg-white focus:outline-none focus:ring-2 focus:ring-orange-200 focus:border-orange-300';
+  @Input() inputClass = 'w-full px-4 py-2 pr-8 text-sm border border-gray-300 rounded bg-white focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-neutral-300';
   @Input() maxDisplayCount = 50; // Show max 50 users initially
 
   @Output() userSelected = new EventEmitter<User>();

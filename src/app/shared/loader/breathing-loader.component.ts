@@ -19,7 +19,7 @@ import { Subject, takeUntil } from 'rxjs';
         <div 
           class="absolute inset-0 transition-all duration-700"
           [ngClass]="{
-            'bg-gradient-to-br from-white/80 via-gray-50/90 to-orange-50/80': showLoader && !isDark,
+            'bg-gradient-to-br from-white/80 via-gray-50/90 to-primary-light/80': showLoader && !isDark,
             'bg-gradient-to-br from-gray-900/80 via-gray-800/90 to-gray-700/80': showLoader && isDark
           }"
           style="backdrop-filter: blur(2px);"></div>
@@ -39,24 +39,24 @@ import { Subject, takeUntil } from 'rxjs';
               class="absolute w-24 h-24 border-2 rounded-full breathing-ring transition-colors duration-300"
               [ngClass]="{
                 'border-amber-200': !isDark,
-                'border-orange-300': isDark
+                'border-neutral-300': isDark
               }"></div>
             
             <!-- Middle ring -->
-            <div 
-              class="absolute w-16 h-16 border-2 rounded-full breathing-ring transition-colors duration-300" 
+            <div
+              class="absolute w-16 h-16 border-2 rounded-full breathing-ring transition-colors duration-300"
               style="animation-delay: -0.5s;"
               [ngClass]="{
-                'border-orange-400': !isDark,
-                'border-orange-500': isDark
+                'border-primary': !isDark,
+                'border-primary-hover': isDark
               }"></div>
             
             <!-- Inner circle -->
-            <div 
+            <div
               class="w-8 h-8 rounded-full breathing-circle shadow-lg transition-colors duration-300"
               [ngClass]="{
-                'bg-gradient-to-br from-orange-400 to-orange-600': !isDark,
-                'bg-gradient-to-br from-orange-500 to-orange-700': isDark
+                'bg-gradient-to-br from-primary to-primary-hover': !isDark,
+                'bg-gradient-to-br from-primary-hover to-primary-dark': isDark
               }"></div>
             
             <!-- Floating particles -->
@@ -64,29 +64,29 @@ import { Subject, takeUntil } from 'rxjs';
               class="absolute w-2 h-2 rounded-full floating-particle transition-colors duration-300" 
               style="top: 10px; left: 50%; transform: translateX(-50%); animation-delay: 0s;"
               [ngClass]="{
-                'bg-orange-300': !isDark,
-                'bg-orange-400': isDark
+                'bg-primary-light': !isDark,
+                'bg-primary': isDark
               }"></div>
-            <div 
-              class="absolute w-1.5 h-1.5 rounded-full floating-particle transition-colors duration-300" 
+            <div
+              class="absolute w-1.5 h-1.5 rounded-full floating-particle transition-colors duration-300"
               style="top: 50%; right: 10px; transform: translateY(-50%); animation-delay: 1s;"
               [ngClass]="{
-                'bg-orange-400': !isDark,
-                'bg-orange-500': isDark
+                'bg-primary': !isDark,
+                'bg-primary-hover': isDark
               }"></div>
             <div 
               class="absolute w-2 h-2 rounded-full floating-particle transition-colors duration-300" 
               style="bottom: 10px; left: 50%; transform: translateX(-50%); animation-delay: 2s;"
               [ngClass]="{
-                'bg-orange-300': !isDark,
-                'bg-orange-400': isDark
+                'bg-primary-light': !isDark,
+                'bg-primary': isDark
               }"></div>
-            <div 
-              class="absolute w-1.5 h-1.5 rounded-full floating-particle transition-colors duration-300" 
+            <div
+              class="absolute w-1.5 h-1.5 rounded-full floating-particle transition-colors duration-300"
               style="top: 50%; left: 10px; transform: translateY(-50%); animation-delay: 1.5s;"
               [ngClass]="{
-                'bg-orange-400': !isDark,
-                'bg-orange-500': isDark
+                'bg-primary': !isDark,
+                'bg-primary-hover': isDark
               }"></div>
           </div>
           

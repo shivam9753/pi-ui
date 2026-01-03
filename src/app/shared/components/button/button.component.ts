@@ -1,7 +1,7 @@
 import { Component, Input, Output, EventEmitter, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
-export type ButtonVariant = 'primary' | 'secondary' | 'ghost';
+export type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'success' | 'destructive' | 'info' | 'warning' | 'success-soft' | 'destructive-soft' | 'info-soft' | 'warning-soft';
 export type ButtonSize = 'sm' | 'md' | 'lg';
 
 @Component({
@@ -110,11 +110,19 @@ export class ButtonComponent {
   get buttonClasses(): string {
     const baseClasses = 'btn-feedback inline-flex items-center justify-center font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed';
     
-    // Variant classes - using existing working CSS classes
+    // Variant classes - using design system CSS classes
     const variantClasses = {
       primary: 'btn-primary',
       secondary: 'btn-secondary',
-      ghost: 'btn-ghost'
+      ghost: 'btn-ghost',
+      success: 'btn-success',
+      destructive: 'btn-destructive',
+      info: 'btn-info',
+      warning: 'btn-warning',
+      'success-soft': 'btn-success-soft',
+      'destructive-soft': 'btn-destructive-soft',
+      'info-soft': 'btn-info-soft',
+      'warning-soft': 'btn-warning-soft'
     };
     
     // Size classes

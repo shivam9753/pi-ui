@@ -5,7 +5,7 @@
   @if (loading) {
     <div class="flex items-center justify-center min-h-screen">
       <div class="text-center">
-        <div class="w-12 h-12 mx-auto mb-4 border-4 border-orange-500/20 border-t-orange-500 rounded-full animate-spin"></div>
+        <div class="w-12 h-12 mx-auto mb-4 border-4 border-primary/20 border-t-primary rounded-full animate-spin"></div>
         <p class="text-gray-600">Loading studio...</p>
       </div>
     </div>
@@ -24,8 +24,8 @@
               @if (canAccessTab('pitches')) {
                 <button
                   (click)="setActiveTab('pitches')"
-                  [class.border-orange-500]="activeTab === 'pitches'"
-                  [class.text-orange-600]="activeTab === 'pitches'"
+                  [class.border-primary]="activeTab === 'pitches'"
+                  [class.text-primary]="activeTab === 'pitches'"
                   [class.border-transparent]="activeTab !== 'pitches'"
                   [class.text-gray-600]="activeTab !== 'pitches'"
                   [class.hover:text-gray-900]="activeTab !== 'pitches'"
@@ -42,8 +42,8 @@
               @if (canAccessTab('claimed')) {
                 <button
                   (click)="setActiveTab('claimed')"
-                  [class.border-orange-500]="activeTab === 'claimed'"
-                  [class.text-orange-600]="activeTab === 'claimed'"
+                  [class.border-primary]="activeTab === 'claimed'"
+                  [class.text-primary]="activeTab === 'claimed'"
                   [class.border-transparent]="activeTab !== 'claimed'"
                   [class.text-gray-600]="activeTab !== 'claimed'"
                   [class.hover:text-gray-900]="activeTab !== 'claimed'"
@@ -60,8 +60,8 @@
               @if (canAccessTab('prompts')) {
                 <button
                   (click)="setActiveTab('prompts')"
-                  [class.border-orange-500]="activeTab === 'prompts'"
-                  [class.text-orange-600]="activeTab === 'prompts'"
+                  [class.border-primary]="activeTab === 'prompts'"
+                  [class.text-primary]="activeTab === 'prompts'"
                   [class.border-transparent]="activeTab !== 'prompts'"
                   [class.text-gray-600]="activeTab !== 'prompts'"
                   [class.hover:text-gray-900]="activeTab !== 'prompts'"
@@ -106,8 +106,8 @@
   @if (!loading && !isLoggedIn) {
     <div class="flex items-center justify-center min-h-screen bg-white">
       <div class="text-center max-w-md mx-auto p-8">
-        <div class="w-16 h-16 mx-auto mb-4 bg-orange-100 rounded-full flex items-center justify-center">
-          <svg class="w-8 h-8 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div class="w-16 h-16 mx-auto mb-4 bg-primary-light rounded-full flex items-center justify-center">
+          <svg class="w-8 h-8 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
           </svg>
         </div>

@@ -14,10 +14,11 @@ import { EditorialCriteriaComponent } from './editorial-criteria.component';
 import { SendEmailModalComponent, EmailData } from './send-email-modal.component';
 import { REVIEW_ACTIONS, ReviewAction, API_ENDPOINTS, SUBMISSION_STATUS } from '../../../shared/constants/api.constants';
 import { ToastService } from '../../../services/toast.service';
+import { ButtonComponent } from '../../../shared/components/button/button.component';
 
 @Component({
   selector: 'app-review-submission',
-  imports: [DatePipe, TitleCasePipe, CommonModule, FormsModule, ToastNotificationComponent, StatusBadgeComponent, AnalysisPanelComponent, EditorialCriteriaComponent, SendEmailModalComponent],
+  imports: [DatePipe, TitleCasePipe, CommonModule, FormsModule, ToastNotificationComponent, StatusBadgeComponent, AnalysisPanelComponent, EditorialCriteriaComponent, SendEmailModalComponent, ButtonComponent],
   templateUrl: './review-submission.component.html',
   styleUrl: './review-submission.component.css'
 })

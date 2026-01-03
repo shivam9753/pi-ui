@@ -173,8 +173,8 @@
 }
 
 .type-badge.feature {
-  background-color: var(--color-orange-100, #ffedd5);
-  color: var(--color-orange-700, #c2410c);
+  background-color: var(--color-primary-light, #FFF3ED);
+  color: var(--color-primary-dark, #B33D00);
 }
 
 .type-badge.defect {

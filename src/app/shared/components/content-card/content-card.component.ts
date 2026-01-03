@@ -32,12 +32,12 @@ export interface ContentCardData {
   imports: [CommonModule, StatusBadgeComponent],
   template: `
     <div class="bg-white rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 border border-gray-200 dark:border-gray-700 overflow-hidden group"
-      [ngClass]="{ 'ring-2 ring-orange-400 shadow-orange-100': isFeatured }"
+      [ngClass]="{ 'ring-2 ring-primary shadow-primary-light': isFeatured }"
       style="min-height: 320px;">
     
       <!-- Featured Badge -->
       @if (content.isFeatured) {
-        <div class="bg-gradient-to-r from-orange-500 to-orange-600 px-4 py-2">
+        <div class="bg-gradient-to-r from-primary to-primary-hover px-4 py-2">
           <div class="flex items-center text-white text-xs font-medium">
             <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
               <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
@@ -54,7 +54,7 @@ export interface ContentCardData {
           <div class="flex items-center gap-2">
             <!-- Trending Badge -->
             @if (isTrending()) {
-              <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-gradient-to-r from-orange-500 to-red-500 text-white animate-pulse">
+              <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-gradient-to-r from-primary to-error text-white animate-pulse">
                 🔥 Trending
               </span>
             }
@@ -81,7 +81,7 @@ export interface ContentCardData {
         </div>
     
         <!-- Title -->
-        <h3 class="ext-lg font-bold text-gray-900 dark:text-gray-100 mb-3 line-clamp-2 min-h-[3rem] group-hover:text-orange-600 dark:group-hover:text-orange-400 transition-colors duration-200"
+        <h3 class="ext-lg font-bold text-gray-900 dark:text-gray-100 mb-3 line-clamp-2 min-h-[3rem] group-hover:text-primary dark:group-hover:text-primary transition-colors duration-200"
           [class.cursor-pointer]="clickable"
           (click)="onTitleClick()">
           {{ content.title }}
@@ -90,7 +90,7 @@ export interface ContentCardData {
         <!-- Author Info -->
         @if (content.author) {
           <div class="flex items-center mb-3">
-            <div class="w-8 h-8 bg-gradient-to-br from-orange-400 to-orange-600 rounded-full flex items-center justify-center text-white text-xs font-bold mr-3">
+            <div class="w-8 h-8 bg-gradient-to-br from-primary to-primary-hover rounded-full flex items-center justify-center text-white text-xs font-bold mr-3">
               {{ getAuthorInitials() }}
             </div>
             <div>

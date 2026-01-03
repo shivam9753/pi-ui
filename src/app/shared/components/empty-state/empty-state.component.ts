@@ -25,7 +25,7 @@ import { CommonModule } from '@angular/common';
       @if (actionText) {
         <div class="mt-6">
           <button (click)="onAction?.()"
-            class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-orange-600 hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500">
+            class="inline-flex items-center px-4 py-2 border-2 border-primary text-sm font-medium rounded-md shadow-sm text-primary bg-white hover:bg-primary hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-colors">
             {{ actionText }}
           </button>
         </div>
@@ -87,7 +87,7 @@ export class EmptyStateComponent {
       case 'heart':
         return 'text-red-600';
       case 'star':
-        return 'text-orange-600';
+        return 'text-primary';
       case 'user':
         return 'text-purple-600';
       case 'pencil':

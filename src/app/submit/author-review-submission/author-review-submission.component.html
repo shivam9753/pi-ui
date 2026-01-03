@@ -6,10 +6,10 @@
   </div>
 
   <!-- Edit Notice -->
-  <div class="bg-white-secondary border-l-4 border-orange-400 p-4 mb-8 rounded-lg">
+  <div class="bg-white-secondary border-l-4 border-primary p-4 mb-8 rounded-lg">
     <div class="flex">
       <div class="flex-shrink-0">
-        <svg class="h-5 w-5 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg class="h-5 w-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
         </svg>
       </div>
@@ -19,7 +19,7 @@
           <button
             type="button"
             (click)="editContent.emit()"
-            class="underline font-medium text-orange-600 hover:text-amber-700"
+            class="underline font-medium text-primary hover:text-amber-700"
             >
             go back and edit your content
           </button>
@@ -73,7 +73,7 @@
               <button
                 type="button"
                 (click)="editContent.emit()"
-                class="text-orange-600 hover:text-amber-700 font-medium"
+                class="text-primary hover:text-amber-700 font-medium"
                 >
                 Edit
               </button>
@@ -120,7 +120,7 @@
     <!-- Checklist Items -->
     <div class="space-y-3 mb-6">
       <div class="flex items-start">
-        <div class="w-5 h-5 rounded-full bg-orange-500 text-white flex items-center justify-center flex-shrink-0 mt-0.5">
+        <div class="w-5 h-5 rounded-full bg-primary text-white flex items-center justify-center flex-shrink-0 mt-0.5">
           <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path>
           </svg>
@@ -128,7 +128,7 @@
         <span class="ml-3 text-sm text-gray-900">Review your content for spelling and grammar</span>
       </div>
       <div class="flex items-start">
-        <div class="w-5 h-5 rounded-full bg-orange-500 text-white flex items-center justify-center flex-shrink-0 mt-0.5">
+        <div class="w-5 h-5 rounded-full bg-primary text-white flex items-center justify-center flex-shrink-0 mt-0.5">
           <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path>
           </svg>
@@ -136,7 +136,7 @@
         <span class="ml-3 text-sm text-gray-900">Read and follow the submission guidelines</span>
       </div>
       <div class="flex items-start">
-        <div class="w-5 h-5 rounded-full bg-orange-500 text-white flex items-center justify-center flex-shrink-0 mt-0.5">
+        <div class="w-5 h-5 rounded-full bg-primary text-white flex items-center justify-center flex-shrink-0 mt-0.5">
           <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path>
           </svg>
@@ -144,7 +144,7 @@
         <span class="ml-3 text-sm text-gray-900">Ensure this is your original work and you own the rights</span>
       </div>
       <div class="flex items-start">
-        <div class="w-5 h-5 rounded-full bg-orange-500 text-white flex items-center justify-center flex-shrink-0 mt-0.5">
+        <div class="w-5 h-5 rounded-full bg-primary text-white flex items-center justify-center flex-shrink-0 mt-0.5">
           <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path>
           </svg>
@@ -156,7 +156,7 @@
     <!-- Single Confirmation Checkbox -->
     <label class="flex items-start p-4 bg-white border border-gray-200 rounded-lg">
       <input type="checkbox" [(ngModel)]="checklist.allConfirmed"
-        class="rounded border-gray-200 text-orange-600 focus:ring-orange-500 mt-1">
+        class="rounded border-gray-200 text-primary focus:ring-primary mt-1">
       <span class="ml-3 text-sm text-gray-900">
         <strong>I confirm that I have completed all the above requirements</strong> and my submission is ready for review.
       </span>

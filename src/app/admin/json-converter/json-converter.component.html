@@ -12,7 +12,7 @@
         type="file" 
         (change)="onFileUpload($event)" 
         accept=".json,.csv"
-        class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-orange-50 file:text-amber-700 hover:file:bg-amber-100" />
+        class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary-light file:text-amber-700 hover:file:bg-amber-100" />
     </div>
 
     @if (originalData.length > 0) {
@@ -32,7 +32,7 @@
         id="category" 
         [(ngModel)]="selectedCategory" 
         (change)="applyFilter()"
-        class="block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500">
+        class="block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary">
         <option *ngFor="let cat of categories" [value]="cat.id">
           {{ cat.label }}
         </option>

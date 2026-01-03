@@ -121,7 +121,7 @@ export interface PaginationConfig {
                       [checked]="isAllSelected()" 
                       (change)="toggleSelectAll($event)"
                       (click)="$event.stopPropagation()"
-                      class="h-4 w-4 text-orange-600 focus:ring-orange-500 border-gray-300 rounded">
+                      class="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded">
                   </th>
                 }
                 @for (column of columns; track column.key) {
@@ -164,7 +164,7 @@ export interface PaginationConfig {
                         [checked]="isItemSelected(item)" 
                         (change)="toggleItemSelection(item)"
                         (click)="$event.stopPropagation()"
-                        class="h-4 w-4 text-orange-600 focus:ring-orange-500 border-gray-300 rounded">
+                        class="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded">
                     </td>
                   }
                   @for (column of columns; track column.key) {
@@ -175,7 +175,7 @@ export interface PaginationConfig {
                       [class.text-right]="column.align === 'right'">
                       @switch (column.type) {
                         @case ('image') {
-                          <div class="w-10 h-10 rounded-full bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center">
+                          <div class="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-primary-hover flex items-center justify-center">
                             @if (getNestedValue(item, column.key)) {
                               <img
                                 [src]="getNestedValue(item, column.key)"
@@ -243,7 +243,7 @@ export interface PaginationConfig {
                   type="checkbox" 
                   [checked]="isAllSelected()" 
                   (change)="toggleSelectAll($event)"
-                  class="h-5 w-5 text-orange-600 focus:ring-orange-500 border-gray-300 rounded">
+                  class="h-5 w-5 text-primary focus:ring-primary border-gray-300 rounded">
               </div>
             </div>
           }
@@ -252,8 +252,8 @@ export interface PaginationConfig {
             <div 
               [class]="mobileCardTemplate ? 'mb-4' : 'bg-white border border-gray-200 rounded-lg p-5 shadow-sm'"
               [class.cursor-pointer]="rowClickable"
-              [class.bg-orange-50]="selectable && isItemSelected(item) && !mobileCardTemplate"
-              [class.border-orange-300]="selectable && isItemSelected(item) && !mobileCardTemplate"
+              [class.bg-primary-light]="selectable && isItemSelected(item) && !mobileCardTemplate"
+              [class.border-neutral-300]="selectable && isItemSelected(item) && !mobileCardTemplate"
               (click)="onRowClickHandler(item, $event)">
               
               <!-- Mobile Selection Checkbox - only show when not using custom template -->
@@ -265,7 +265,7 @@ export interface PaginationConfig {
                     [checked]="isItemSelected(item)" 
                     (change)="toggleItemSelection(item)"
                     (click)="$event.stopPropagation()"
-                    class="h-5 w-5 text-orange-600 focus:ring-orange-500 border-gray-300 rounded">
+                    class="h-5 w-5 text-primary focus:ring-primary border-gray-300 rounded">
                 </div>
               }
               
@@ -281,7 +281,7 @@ export interface PaginationConfig {
                         <div class="mt-2">
                           @switch (column.type) {
                             @case ('image') {
-                              <div class="w-10 h-10 rounded-full bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center">
+                              <div class="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-primary-hover flex items-center justify-center">
                                 @if (getNestedValue(item, column.key)) {
                                   <img [src]="getNestedValue(item, column.key)" alt="Image" class="w-10 h-10 rounded-full object-cover" />
                                 } @else {
@@ -438,13 +438,13 @@ export class DataTableComponent<T = any> implements OnInit {
   }
 
   getActionButtonClass(color?: string): string {
-    const baseClass = 'inline-flex items-center px-3 py-1 border border-transparent text-xs font-medium rounded-md focus:outline-none focus:ring-2 transition-all duration-150';
+    const baseClass = 'inline-flex items-center px-3 py-2 text-sm font-medium rounded-md focus:outline-none focus:ring-2 transition-all duration-150';
     switch (color) {
-      case 'primary': return `${baseClass} text-white bg-themed-accent hover:bg-themed-accent-hover shadow-sm font-semibold focus:ring-orange-500`;
+      case 'primary': return `${baseClass} text-white bg-themed-accent hover:bg-themed-accent-hover shadow-sm font-semibold focus:ring-primary`;
       case 'danger': return `${baseClass} action-btn-danger`;
       case 'warning': return `${baseClass} action-btn-warning`;
       case 'success': return `${baseClass} action-btn-success`;
-      default: return `${baseClass} text-themed-secondary bg-themed-tertiary hover:bg-themed-hover font-medium focus:ring-gray-500`;
+      default: return `${baseClass} text-themed-secondary hover:bg-themed-tertiary hover:text-themed font-medium focus:ring-gray-500`;
     }
   }
 

@@ -3,13 +3,13 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
-import { RichTextEditorComponent } from '../../../submit/rich-text-editor/rich-text-editor.component';
 import { ProseMirrorEditorComponent } from '../../../submit/rich-text-editor/prosemirror-editor.component';
 import { BadgeLabelComponent } from '../../../utilities/badge-label/badge-label.component';
 import { TagInputComponent } from '../../../utilities/tag-input/tag-input.component';
 import { BackendService } from '../../../services/backend.service';
 import { SUBMISSION_STATUS, UPLOAD_CONFIG } from '../../../shared/constants/api.constants';
 import { compressImageForUpload } from '../../../shared/utils/image-compression.util';
+import { ButtonComponent } from '../../../shared/components/button/button.component';
 
 interface SEOConfig {
   slug: string;
@@ -22,7 +22,7 @@ interface SEOConfig {
 
 @Component({
   selector: 'app-publish-submission',
-  imports: [CommonModule, FormsModule, RichTextEditorComponent, ProseMirrorEditorComponent, BadgeLabelComponent, TagInputComponent],
+  imports: [CommonModule, FormsModule, ProseMirrorEditorComponent, BadgeLabelComponent, TagInputComponent, ButtonComponent],
   templateUrl: './publish-submission.component.html',
   styleUrl: './publish-submission.component.css',
   encapsulation: ViewEncapsulation.None

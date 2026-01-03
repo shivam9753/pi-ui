@@ -6,19 +6,7 @@
 /* Accessibility fixes for tab navigation */
 @import "./app/shared/styles/accessibility-fixes.css";
 
-@theme {
-  --color-orange-50: #fff7ed;
-  --color-orange-100: #ffedd5;
-  --color-orange-200: #fed7aa;
-  --color-orange-300: #fdba74;
-  --color-orange-400: #fb923c;
-  --color-orange-500: #f97316;
-  --color-orange-600: #ea580c;
-  --color-orange-700: #c2410c;
-  --color-orange-800: #9a3412;
-  --color-orange-900: #7c2d12;
-  --color-orange-950: #ea580c;
-}
+/* Design tokens defined in tailwind.config.js */
 
 /* Prevent mobile zoom on input focus */
 @media (max-width: 768px) {
@@ -591,46 +579,256 @@
   box-shadow: var(--shadow-sm);
 }
 
-/* CSS Variables for theming */
+.btn-success {
+  background-color: var(--bg-success);
+  color: var(--text-inverse);
+  border: none;
+  border-radius: var(--radius-md);
+  padding: 12px 24px;
+  font-weight: 500;
+  transition: all 0.15s ease;
+  box-shadow: var(--shadow-sm);
+}
+
+.btn-success:hover {
+  background-color: color-mix(in srgb, var(--bg-success) 90%, black);
+  box-shadow: var(--shadow-md);
+}
+
+.btn-destructive {
+  background-color: var(--bg-error);
+  color: var(--text-inverse);
+  border: none;
+  border-radius: var(--radius-md);
+  padding: 12px 24px;
+  font-weight: 500;
+  transition: all 0.15s ease;
+  box-shadow: var(--shadow-sm);
+}
+
+.btn-destructive:hover {
+  background-color: color-mix(in srgb, var(--bg-error) 90%, black);
+  box-shadow: var(--shadow-md);
+}
+
+.btn-info {
+  background-color: var(--color-info);
+  color: var(--text-inverse);
+  border: none;
+  border-radius: var(--radius-md);
+  padding: 12px 24px;
+  font-weight: 500;
+  transition: all 0.15s ease;
+  box-shadow: var(--shadow-sm);
+}
+
+.btn-info:hover {
+  background-color: color-mix(in srgb, var(--color-info) 90%, black);
+  box-shadow: var(--shadow-md);
+}
+
+.btn-warning {
+  background-color: var(--bg-warning);
+  color: var(--text-inverse);
+  border: none;
+  border-radius: var(--radius-md);
+  padding: 12px 24px;
+  font-weight: 500;
+  transition: all 0.15s ease;
+  box-shadow: var(--shadow-sm);
+}
+
+.btn-warning:hover {
+  background-color: color-mix(in srgb, var(--bg-warning) 90%, black);
+  box-shadow: var(--shadow-md);
+}
+
+.btn-ghost {
+  background-color: transparent;
+  color: var(--text-primary);
+  border: 1px solid var(--border-primary);
+  border-radius: var(--radius-md);
+  padding: 12px 24px;
+  font-weight: 500;
+  transition: all 0.15s ease;
+}
+
+.btn-ghost:hover {
+  background-color: var(--bg-hover);
+  box-shadow: var(--shadow-sm);
+}
+
+/* Soft/Outline variants with light backgrounds - for subtle actions */
+.btn-success-soft {
+  background-color: #F0FDF4;  /* green-50 */
+  color: #15803D;  /* green-700 */
+  border: 1px solid #BBF7D0;  /* green-200 */
+  border-radius: var(--radius-md);
+  padding: 12px 24px;
+  font-weight: 500;
+  transition: all 0.15s ease;
+}
+
+.btn-success-soft:hover {
+  background-color: #DCFCE7;  /* green-100 */
+}
+
+.btn-destructive-soft {
+  background-color: #FEF2F2;  /* red-50 */
+  color: #B91C1C;  /* red-700 */
+  border: 1px solid #FECACA;  /* red-200 */
+  border-radius: var(--radius-md);
+  padding: 12px 24px;
+  font-weight: 500;
+  transition: all 0.15s ease;
+}
+
+.btn-destructive-soft:hover {
+  background-color: #FEE2E2;  /* red-100 */
+}
+
+.btn-info-soft {
+  background-color: #EFF6FF;  /* blue-50 */
+  color: #1D4ED8;  /* blue-700 */
+  border: 1px solid #BFDBFE;  /* blue-200 */
+  border-radius: var(--radius-md);
+  padding: 12px 24px;
+  font-weight: 500;
+  transition: all 0.15s ease;
+}
+
+.btn-info-soft:hover {
+  background-color: #DBEAFE;  /* blue-100 */
+}
+
+.btn-warning-soft {
+  background-color: #FFFBEB;  /* amber-50 */
+  color: #B45309;  /* amber-700 */
+  border: 1px solid #FDE68A;  /* amber-200 */
+  border-radius: var(--radius-md);
+  padding: 12px 24px;
+  font-weight: 500;
+  transition: all 0.15s ease;
+}
+
+.btn-warning-soft:hover {
+  background-color: #FEF3C7;  /* amber-100 */
+}
+
+/* Dark mode styles for soft button variants */
+.dark .btn-success-soft {
+  background-color: rgba(34, 197, 94, 0.15);  /* green with transparency */
+  color: #86EFAC;  /* green-300 - lighter for dark mode */
+  border-color: rgba(34, 197, 94, 0.3);
+}
+
+.dark .btn-success-soft:hover {
+  background-color: rgba(34, 197, 94, 0.25);
+  border-color: rgba(34, 197, 94, 0.4);
+}
+
+.dark .btn-destructive-soft {
+  background-color: rgba(239, 68, 68, 0.15);  /* red with transparency */
+  color: #FCA5A5;  /* red-300 */
+  border-color: rgba(239, 68, 68, 0.3);
+}
+
+.dark .btn-destructive-soft:hover {
+  background-color: rgba(239, 68, 68, 0.25);
+  border-color: rgba(239, 68, 68, 0.4);
+}
+
+.dark .btn-info-soft {
+  background-color: rgba(59, 130, 246, 0.15);  /* blue with transparency */
+  color: #93C5FD;  /* blue-300 */
+  border-color: rgba(59, 130, 246, 0.3);
+}
+
+.dark .btn-info-soft:hover {
+  background-color: rgba(59, 130, 246, 0.25);
+  border-color: rgba(59, 130, 246, 0.4);
+}
+
+.dark .btn-warning-soft {
+  background-color: rgba(245, 158, 11, 0.15);  /* amber with transparency */
+  color: #FCD34D;  /* amber-300 */
+  border-color: rgba(245, 158, 11, 0.3);
+}
+
+.dark .btn-warning-soft:hover {
+  background-color: rgba(245, 158, 11, 0.25);
+  border-color: rgba(245, 158, 11, 0.4);
+}
+
+/* CSS Variables for theming - Design System v2.0 */
 :root {
-  /* Modern LinkedIn-inspired light theme */
-  --bg-primary: #ffffff;
-  --bg-secondary: #f3f2ef;
-  --bg-tertiary: #f5f5f5;
-  --bg-elevated: #ffffff;
-  --bg-card: #ffffff;
-  --bg-hover: #f3f2ef;
-  --bg-accent: #ff6100;
-  --bg-accent-hover: #cc4e00;
-  --bg-accent-light: #cce7ff;
-  --bg-success: #057642;
-  --bg-warning: #f5c75d;
-  --bg-error: #cc1016;
-  
+  /* Primary Brand Colors */
+  --color-primary: #FF6100;
+  --color-primary-hover: #CC4E00;
+  --color-primary-light: #FFF3ED;
+  --color-primary-dark: #B33D00;
+
+  /* Background Colors */
+  --bg-primary: #FFFFFF;
+  --bg-secondary: #F9FAFB;
+  --bg-tertiary: #F3F4F6;
+  --bg-elevated: #FFFFFF;
+  --bg-card: #FFFFFF;
+  --bg-hover: #F3F2EF;
+
+  /* Legacy accent aliases (will be deprecated) */
+  --bg-accent: #FF6100;
+  --bg-accent-hover: #CC4E00;
+  --bg-accent-light: #FFF3ED;
+
+  /* Semantic Colors */
+  --color-success: #10B981;
+  --color-error: #EF4444;
+  --color-warning: #F59E0B;
+  --color-info: #3B82F6;
+  --bg-success: #10B981;
+  --bg-warning: #F59E0B;
+  --bg-error: #EF4444;
+
+  /* Text Colors */
   --text-primary: #000000;
-  --text-secondary: #666666;
-  --text-tertiary: #999999;
-  --text-inverse: #ffffff;
-  --text-accent: #ff6100;
-  --text-accent-hover: #cc4e00;
-  --text-muted: #8c8c8c;
-  
-  --border-primary: #e0e0e0;
-  --border-secondary: #d0d0d0;
-  --border-accent: #ff6100;
-  --border-focus: #ff6100;
-  --border-light: #f0f0f0;
-  
-  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08);
-  --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.1);
-  --shadow-lg: 0 4px 16px rgba(0, 0, 0, 0.12);
-  --shadow-xl: 0 8px 32px rgba(0, 0, 0, 0.15);
-  
-  --ring-color: rgba(10, 102, 194, 0.2);
-  --radius-sm: 4px;
-  --radius-md: 8px;
-  --radius-lg: 12px;
-  --radius-xl: 16px;
+  --text-secondary: #4B5563;
+  --text-tertiary: #9CA3AF;
+  --text-inverse: #FFFFFF;
+  --text-muted: #6B7280;
+
+  /* Legacy text accent aliases (will be deprecated) */
+  --text-accent: #FF6100;
+  --text-accent-hover: #CC4E00;
+
+  /* Border Colors */
+  --border-primary: #E5E7EB;
+  --border-secondary: #D1D5DB;
+  --border-light: #F3F4F6;
+
+  /* Legacy border accent aliases (will be deprecated) */
+  --border-accent: #FF6100;
+  --border-focus: #FF6100;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+
+  /* Border Radius */
+  --radius-sm: 0.25rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+
+  /* Spacing */
+  --spacing-page-mobile: 1rem;
+  --spacing-page-tablet: 1.5rem;
+  --spacing-page-desktop: 2rem;
+
+  /* Ring/Focus Colors */
+  --ring-color: rgba(255, 97, 0, 0.2);
 
   --tag-purple-bg: #f3e8ff; /* Tailwind purple-100 */
   --tag-purple-text: #6b21a8; /* Tailwind purple-800 */
@@ -668,37 +866,64 @@
 
 /* Add this to your src/styles.css or main CSS file */
 
-/* Your existing Valentin-style dark theme variables */
+/* Dark Mode Theme - Design System v2.0 */
 .dark {
-  --bg-primary: #0d0d0d;
-  --bg-secondary: #161616;
-  --bg-tertiary: #1f1f1f;
+  /* Primary Brand Colors (same in dark mode) */
+  --color-primary: #FF6100;
+  --color-primary-hover: #CC4E00;
+  --color-primary-light: rgba(255, 97, 0, 0.15);
+  --color-primary-dark: #B33D00;
+
+  /* Background Colors */
+  --bg-primary: #111827;
+  --bg-secondary: #1F2937;
+  --bg-tertiary: #374151;
   --bg-elevated: #141414;
-  --bg-card: #171717;
-  --bg-hover: #222222;
-  --bg-accent: #ff6100;
-  --bg-accent-hover: #cc4e00;
-  --bg-accent-light: rgba(255, 97, 0, 0.08);
-  
-  --text-primary: #f8f8f8;
-  --text-secondary: #b4b4b4;
-  --text-tertiary: #7a7a7a;
-  --text-accent: #ff6100;
-  --text-accent-hover: #cc4e00;
-  --text-muted: #5a5a5a;
-  
-  --border-primary: #2a2a2a;
-  --border-secondary: #333333;
-  --border-accent: #ff6100;
-  --border-focus: #ff6100;
-  --border-light: #1e1e1e;
-  
+  --bg-card: #1F2937;
+  --bg-hover: #374151;
+
+  /* Legacy accent aliases (will be deprecated) */
+  --bg-accent: #FF6100;
+  --bg-accent-hover: #CC4E00;
+  --bg-accent-light: rgba(255, 97, 0, 0.15);
+
+  /* Semantic Colors (adjusted for dark mode) */
+  --color-success: #10B981;
+  --color-error: #EF4444;
+  --color-warning: #F59E0B;
+  --color-info: #3B82F6;
+  --bg-success: #10B981;
+  --bg-warning: #F59E0B;
+  --bg-error: #EF4444;
+
+  /* Text Colors */
+  --text-primary: #FFFFFF;
+  --text-secondary: #D1D5DB;
+  --text-tertiary: #9CA3AF;
+  --text-inverse: #000000;
+  --text-muted: #6B7280;
+
+  /* Legacy text accent aliases (will be deprecated) */
+  --text-accent: #FF6100;
+  --text-accent-hover: #CC4E00;
+
+  /* Border Colors */
+  --border-primary: #374151;
+  --border-secondary: #4B5563;
+  --border-light: #1F2937;
+
+  /* Legacy border accent aliases (will be deprecated) */
+  --border-accent: #FF6100;
+  --border-focus: #FF6100;
+
+  /* Shadows (stronger in dark mode) */
   --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.4);
-  --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.5);
-  --shadow-lg: 0 4px 16px rgba(0, 0, 0, 0.6);
-  --shadow-xl: 0 8px 32px rgba(0, 0, 0, 0.7);
-  
-  --ring-color: rgba(255, 97, 0, 0.2);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.5), 0 2px 4px -2px rgba(0, 0, 0, 0.5);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.6), 0 4px 6px -4px rgba(0, 0, 0, 0.6);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.7), 0 8px 10px -6px rgba(0, 0, 0, 0.7);
+
+  /* Ring/Focus Colors */
+  --ring-color: rgba(255, 97, 0, 0.3);
   
   /* Dark theme tag colors */
   --tag-purple-bg: rgba(147, 51, 234, 0.35);
@@ -739,7 +964,7 @@
   background-color: var(--bg-hover) !important;
 }
 
-.dark .hover\:bg-orange-600:hover {
+.dark .hover\:bg-primary-hover:hover {
   background-color: var(--bg-accent-hover) !important;
 }
 
@@ -776,14 +1001,15 @@
 .dark .border-gray-200 { border-color: var(--border-primary) !important; }
 .dark .border-gray-300 { border-color: var(--border-secondary) !important; }
 
-.dark .text-orange-500 { color: var(--text-accent) !important; }
-.dark .text-orange-600 { color: var(--text-accent) !important; }
-.dark .text-orange-400 { color: #fb923c !important; }
-.dark .bg-orange-500 { background-color: var(--bg-accent) !important; }
-.dark .bg-orange-50 { background-color: rgba(255, 97, 0, 0.05) !important; }
-.dark .bg-orange-950 { background-color: rgba(255, 97, 0, 0.08) !important; }
-.dark .border-orange-500 { border-color: var(--border-accent) !important; }
-.dark .border-orange-400 { border-color: #fb923c !important; }
+/* Primary color utilities for dark mode - using design tokens */
+.dark .text-primary { color: var(--text-accent) !important; }
+.dark .text-primary-hover { color: var(--text-accent-hover) !important; }
+.dark .text-primary-dark { color: var(--text-accent) !important; }
+.dark .bg-primary { background-color: var(--bg-accent) !important; }
+.dark .bg-primary-light { background-color: rgba(255, 97, 0, 0.15) !important; }
+.dark .bg-primary-hover { background-color: var(--bg-accent-hover) !important; }
+.dark .border-primary { border-color: var(--border-accent) !important; }
+.dark .border-primary-light { border-color: rgba(255, 97, 0, 0.3) !important; }
 
 /* Dark mode button background overrides with reduced opacity */
 .dark .bg-green-50 { background-color: rgba(34, 197, 94, 0.1) !important; }
@@ -2209,37 +2435,47 @@ a:hover {
   color: white;
 }
 
+/* Grid action buttons - simple link-style actions */
 .action-btn-success {
-  background-color: var(--tag-green-bg);
-  color: var(--tag-green-text);
-  border-color: var(--tag-green-border);
+  background-color: transparent;
+  color: #15803D;
+  border: none;
+  text-decoration: underline;
+  text-underline-offset: 2px;
 }
 
 .action-btn-success:hover {
-  background-color: var(--tag-green-text);
-  color: white;
+  color: #166534;
+  background-color: #F0FDF4;
+  text-decoration: none;
 }
 
 .action-btn-warning {
-  background-color: var(--tag-orange-bg);
-  color: var(--tag-orange-text);
-  border-color: var(--tag-orange-border);
+  background-color: transparent;
+  color: #EA580C;
+  border: none;
+  text-decoration: underline;
+  text-underline-offset: 2px;
 }
 
 .action-btn-warning:hover {
-  background-color: var(--tag-orange-text);
-  color: white;
+  color: #C2410C;
+  background-color: #FFF7ED;
+  text-decoration: none;
 }
 
 .action-btn-danger {
-  background-color: var(--tag-red-bg);
-  color: var(--tag-red-text);
-  border-color: var(--tag-red-border);
+  background-color: transparent;
+  color: #DC2626;
+  border: none;
+  text-decoration: underline;
+  text-underline-offset: 2px;
 }
 
 .action-btn-danger:hover {
-  background-color: var(--tag-red-text);
-  color: white;
+  color: #B91C1C;
+  background-color: #FEF2F2;
+  text-decoration: none;
 }
 
 .action-btn-secondary {

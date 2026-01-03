@@ -12,7 +12,7 @@
         placeholder="Search questions..."
         [(ngModel)]="searchQuery"
         (input)="filterQuestions()"
-        class="w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-orange-400 transition-colors"
+        class="w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-colors"
         autocomplete="off"
         aria-describedby="search-desc"
         />
@@ -69,13 +69,13 @@
           name="customQuestion"
           required
           placeholder="Type your question here..."
-          class="w-full px-4 py-3 border border-gray-300 rounded-lg resize-none text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-orange-400 transition-colors"
+          class="w-full px-4 py-3 border border-gray-300 rounded-lg resize-none text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-colors"
         ></textarea>
 
         <button
           type="submit"
           [disabled]="loading || !customQuestion.trim()"
-          class="w-full bg-orange-500 hover:bg-orange-600 disabled:bg-orange-300 text-white font-semibold py-3 rounded-lg transition-colors"
+          class="w-full bg-primary hover:bg-primary disabled:bg-neutral-300 text-white font-semibold py-3 rounded-lg transition-colors"
           >
           {{ loading ? 'Sending...' : 'Send Question' }}
         </button>

@@ -5,7 +5,7 @@
   @if (loading) {
     <div class="flex items-center justify-center min-h-screen">
       <div class="text-center">
-        <div class="w-12 h-12 mx-auto mb-4 border-4 border-orange-500/20 border-t-orange-500 rounded-full animate-spin"></div>
+        <div class="w-12 h-12 mx-auto mb-4 border-4 border-primary/20 border-t-primary rounded-full animate-spin"></div>
         <p class="text-gray-600">Loading {{ getCategoryDisplayName().toLowerCase() }}...</p>
       </div>
     </div>
@@ -67,7 +67,7 @@
                   </div>
                   <div class="flex-1 min-w-0 space-y-2">
                     <!-- Type badge -->
-                    <div class="text-orange-500 text-xs font-medium uppercase tracking-wide">
+                    <div class="text-primary text-xs font-medium uppercase tracking-wide">
                       {{ submission.submissionType | titlecase }}
                     </div>
                     <!-- Title -->
@@ -123,7 +123,7 @@
                   }
                 </div>
                 <div class="space-y-2">
-                  <div class="text-orange-500 text-xs font-medium">
+                  <div class="text-primary text-xs font-medium">
                     {{ submission.submissionType | titlecase }}
                   </div>
                   <h3 class="font-bold text-gray-900 text-base leading-tight group-hover:text-gray-700 transition-colors"
@@ -170,7 +170,7 @@
                   <button
                     (click)="goToPage(page)"
                     [ngClass]="{
-                      'bg-orange-500 text-white border-orange-500': page === currentPage,
+                      'bg-primary text-white border-primary': page === currentPage,
                       'bg-white text-gray-700 border-gray-300 hover:bg-gray-50': page !== currentPage
                     }"
                     class="px-4 py-2 text-sm font-medium border rounded-lg transition-colors duration-200"

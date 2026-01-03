@@ -13,35 +13,35 @@
     <div class="flex flex-wrap gap-2 sm:gap-4">
       <button
         (click)="setQuickFilter('all')"
-        [class.bg-orange-500]="quickFilter === 'all'"
+        [class.bg-primary]="quickFilter === 'all'"
         [class.text-white]="quickFilter === 'all'"
-        [class.border-orange-500]="quickFilter === 'all'"
-        [class.bg-white]="quickFilter !== 'all'"
+        [class.border-primary]="quickFilter === 'all'"
+        [class.bg-gray-100]="quickFilter !== 'all'"
         [class.text-gray-700]="quickFilter !== 'all'"
-        [class.border-gray-300]="quickFilter !== 'all'"
-        class="px-4 py-2 rounded-lg border-2 font-medium text-sm transition-all duration-200 hover:border-orange-500 hover:text-orange-600">
+        [class.border-gray-400]="quickFilter !== 'all'"
+        class="px-4 py-2 rounded-lg border-2 font-medium text-sm transition-all duration-200 hover:border-primary hover:text-primary hover:bg-gray-50">
         All Submissions
       </button>
       <button
         (click)="setQuickFilter('published')"
-        [class.bg-orange-500]="quickFilter === 'published'"
+        [class.bg-primary]="quickFilter === 'published'"
         [class.text-white]="quickFilter === 'published'"
-        [class.border-orange-500]="quickFilter === 'published'"
-        [class.bg-white]="quickFilter !== 'published'"
+        [class.border-primary]="quickFilter === 'published'"
+        [class.bg-gray-100]="quickFilter !== 'published'"
         [class.text-gray-700]="quickFilter !== 'published'"
-        [class.border-gray-300]="quickFilter !== 'published'"
-        class="px-4 py-2 rounded-lg border-2 font-medium text-sm transition-all duration-200 hover:border-orange-500 hover:text-orange-600">
+        [class.border-gray-400]="quickFilter !== 'published'"
+        class="px-4 py-2 rounded-lg border-2 font-medium text-sm transition-all duration-200 hover:border-primary hover:text-primary hover:bg-gray-50">
         Published Only
       </button>
       <button
         (click)="setQuickFilter('accepted')"
-        [class.bg-orange-500]="quickFilter === 'accepted'"
+        [class.bg-primary]="quickFilter === 'accepted'"
         [class.text-white]="quickFilter === 'accepted'"
-        [class.border-orange-500]="quickFilter === 'accepted'"
-        [class.bg-white]="quickFilter !== 'accepted'"
+        [class.border-primary]="quickFilter === 'accepted'"
+        [class.bg-gray-100]="quickFilter !== 'accepted'"
         [class.text-gray-700]="quickFilter !== 'accepted'"
-        [class.border-gray-300]="quickFilter !== 'accepted'"
-        class="px-4 py-2 rounded-lg border-2 font-medium text-sm transition-all duration-200 hover:border-orange-500 hover:text-orange-600">
+        [class.border-gray-400]="quickFilter !== 'accepted'"
+        class="px-4 py-2 rounded-lg border-2 font-medium text-sm transition-all duration-200 hover:border-primary hover:text-primary hover:bg-gray-50">
         Ready to Publish
       </button>
     </div>
@@ -58,7 +58,7 @@
 
   <!-- Selection Info -->
   @if (selectedSubmissions.size > 0) {
-    <div class="mb-4 text-sm text-gray-600 bg-orange-50 p-3 rounded-lg">
+    <div class="mb-4 text-sm text-gray-600 bg-primary-light p-3 rounded-lg">
       {{ selectedSubmissions.size }} submission(s) selected
     </div>
   }
@@ -76,7 +76,7 @@
 
   <!-- Bulk Actions Bar (Only show when "All Submissions" filter is active) -->
   @if (showBulkActions && quickFilter === 'all') {
-    <div class="mb-6 p-4 bg-orange-50 border border-orange-300 rounded-lg">
+    <div class="mb-6 p-4 bg-primary-light border border-neutral-300 rounded-lg">
       <div class="flex items-center justify-between flex-wrap gap-4">
         <div class="flex items-center gap-4">
           <span class="text-sm font-medium text-amber-800">
@@ -84,7 +84,7 @@
           </span>
           <button 
             (click)="clearSelection()" 
-            class="text-sm text-orange-600 hover:text-amber-800 underline">
+            class="text-sm text-primary hover:text-amber-800 underline">
             Clear Selection
           </button>
         </div>
@@ -98,7 +98,7 @@
                 [(ngModel)]="bulkSelectedUserId"
                 (searchQuery)="onUserSearch($event)"
                 placeholder="Search and select user..."
-                inputClass="text-sm border border-orange-300 rounded px-3 py-1 pr-8 bg-white focus:outline-none focus:ring-2 focus:ring-orange-200 focus:border-orange-300">
+                inputClass="text-sm border border-neutral-300 rounded px-3 py-1 pr-8 bg-white focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-neutral-300">
               </app-searchable-user-selector>
             </div>
           </div>
@@ -106,7 +106,7 @@
           <button 
             (click)="bulkReassignUser()" 
             [disabled]="!bulkSelectedUserId || bulkActionLoading"
-            class="px-4 py-2 bg-orange-600 text-white rounded-md hover:bg-orange-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2">
+            class="px-4 py-2 bg-primary text-white rounded-md hover:bg-primary-hover disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2">
             @if (bulkActionLoading) {
               <div class="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin"></div>
             }

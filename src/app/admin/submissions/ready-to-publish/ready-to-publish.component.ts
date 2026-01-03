@@ -150,7 +150,7 @@ export class ReadyToPublishComponent implements OnInit {
       {
         label: 'Configure Publishing',
         handler: (content: ContentCardData) => this.configurePublishing(content.id),
-        class: 'px-3 py-1 text-sm rounded border border-orange-600 text-orange-600 hover:bg-orange-50'
+        class: 'px-3 py-1 text-sm rounded border border-primary text-primary hover:bg-primary-light'
       }
     ];
   }
