@@ -9,9 +9,16 @@ interface FeaturedPoem {
   _id: string;
   title: string;
   body?: string;
-  type?: string;
+  submission?: {
+    _id: string;
+    title: string;
+    type: string;
+    slug?: string;
+  };
+  submissionType?: string;
   author: {
     _id: string;
+    id?: string;
     username: string;
     name: string;
     profileImage?: string;
@@ -66,8 +73,8 @@ interface FeaturedPoem {
           <!-- Featured Poems Grid -->
           <div class="grid gap-4 md:gap-6">
             @for (poem of featuredPoems(); track poem._id) {
-              <div 
-                (click)="readPoem(poem._id)"
+              <div
+                (click)="readPoem(poem)"
                 class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 cursor-pointer hover:shadow-md hover:border-gray-300 transition-all">
                 
                 <!-- Title -->
@@ -80,7 +87,7 @@ interface FeaturedPoem {
                   <a 
                     [routerLink]="['/author', poem.author._id]" 
                     (click)="$event.stopPropagation()"
-                    class="text-orange-600 hover:text-orange-700 font-medium transition-colors cursor-pointer">
+                    class="text-primary hover:text-primary-dark font-medium transition-colors cursor-pointer">
                     {{ poem.author.name || poem.author.username }}
                   </a>
                 </div>
@@ -168,16 +175,20 @@ export class FeaturedPoemsComponent implements OnInit {
 
     const skip = loadMore ? (this.currentPage - 1) * this.itemsPerPage : 0;
 
-    // First get featured content, then filter for poems
-    this.backendService.getFeaturedContent('poem').subscribe({
+    // Use getContent endpoint with featured flag for poems
+    this.backendService.getContent({
+      published: true,
+      featured: true,
+      type: 'poem',
+      limit: this.itemsPerPage,
+      skip: skip,
+      sortBy: 'featuredAt',
+      order: 'desc'
+    }).subscribe({
       next: (response) => {
-        // Extract featured poems from the known API response format
-        const allFeaturedPoems = response?.featured || [];
-
-        // Apply pagination manually since getFeaturedContent doesn't support it
-        const startIndex = skip;
-        const endIndex = startIndex + this.itemsPerPage;
-        const newPoems = allFeaturedPoems.slice(startIndex, endIndex);
+        // Extract contents from response
+        const newPoems = response?.contents || [];
+        const total = response?.total || 0;
 
         if (loadMore) {
           this.featuredPoems.update(poems => [...poems, ...newPoems]);
@@ -187,7 +198,7 @@ export class FeaturedPoemsComponent implements OnInit {
         }
 
         // Check if there are more poems to load
-        this.hasMore.set(endIndex < allFeaturedPoems.length);
+        this.hasMore.set((skip + this.itemsPerPage) < total);
         this.loading.set(false);
       },
       error: (err) => {
@@ -206,8 +217,9 @@ export class FeaturedPoemsComponent implements OnInit {
     }
   }
 
-  readPoem(poemId: string) {
-    this.router.navigate(['/content', poemId]);
+  readPoem(poem: FeaturedPoem) {
+    // Use the content _id to navigate to the content reader
+    this.router.navigate(['/content', poem._id]);
   }
 
 }

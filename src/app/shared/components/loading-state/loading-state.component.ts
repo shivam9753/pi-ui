@@ -12,7 +12,7 @@ import { CommonModule } from '@angular/common';
         <div class="relative">
           <div class="animate-spin rounded-full border-4 border-gray-200"
             [ngClass]="getSpinnerSizeClass()">
-            <div class="border-t-4 border-orange-600 rounded-full"
+            <div class="border-t-4 border-primary rounded-full"
             [ngClass]="getSpinnerSizeClass()"></div>
           </div>
         </div>
@@ -21,13 +21,13 @@ import { CommonModule } from '@angular/common';
       <!-- Dots Variant -->
       @if (type === 'dots') {
         <div class="flex space-x-2">
-          <div class="animate-bounce bg-orange-500 rounded-full"
+          <div class="animate-bounce bg-primary rounded-full"
             [ngClass]="getDotSizeClass()"
           style="animation-delay: 0ms;"></div>
-          <div class="animate-bounce bg-orange-500 rounded-full"
+          <div class="animate-bounce bg-primary rounded-full"
             [ngClass]="getDotSizeClass()"
           style="animation-delay: 150ms;"></div>
-          <div class="animate-bounce bg-orange-500 rounded-full"
+          <div class="animate-bounce bg-primary rounded-full"
             [ngClass]="getDotSizeClass()"
           style="animation-delay: 300ms;"></div>
         </div>

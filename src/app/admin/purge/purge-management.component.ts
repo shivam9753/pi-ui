@@ -33,7 +33,7 @@ import { Author, AuthorUtils } from '../../models/author.model';
                 </svg>
               }
               @if (loadingDrafts || loadingRejected) {
-                <div class="w-4 h-4 mr-2 border-2 border-gray-300 border-t-orange-500 rounded-full animate-spin"></div>
+                <div class="w-4 h-4 mr-2 border-2 border-gray-300 border-t-primary rounded-full animate-spin"></div>
               }
               Refresh Data
             </button>
@@ -47,8 +47,8 @@ import { Author, AuthorUtils } from '../../models/author.model';
           <nav class="-mb-px flex space-x-8" aria-label="Tabs">
             <button
               (click)="setActiveTab('drafts')"
-              [class.border-orange-500]="activeTab === 'drafts'"
-              [class.text-orange-600]="activeTab === 'drafts'"
+              [class.border-primary]="activeTab === 'drafts'"
+              [class.text-primary]="activeTab === 'drafts'"
               [class.border-transparent]="activeTab !== 'drafts'"
               [class.text-gray-500]="activeTab !== 'drafts'"
               [class.hover:text-gray-700]="activeTab !== 'drafts'"
@@ -66,8 +66,8 @@ import { Author, AuthorUtils } from '../../models/author.model';
             </button>
             <button
               (click)="setActiveTab('rejected')"
-              [class.border-orange-500]="activeTab === 'rejected'"
-              [class.text-orange-600]="activeTab === 'rejected'"
+              [class.border-primary]="activeTab === 'rejected'"
+              [class.text-primary]="activeTab === 'rejected'"
               [class.border-transparent]="activeTab !== 'rejected'"
               [class.text-gray-500]="activeTab !== 'rejected'"
               [class.hover:text-gray-700]="activeTab !== 'rejected'"
@@ -196,7 +196,7 @@ import { Author, AuthorUtils } from '../../models/author.model';
                             [checked]="selectedRejected.length === rejectedSubmissions.length && rejectedSubmissions.length > 0"
                             [indeterminate]="selectedRejected.length > 0 && selectedRejected.length < rejectedSubmissions.length"
                             (change)="toggleSelectAllRejected($event)"
-                            class="h-4 w-4 text-orange-600 focus:ring-orange-500 border-gray-300 rounded">
+                            class="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded">
                         </th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Title</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Author</th>
@@ -215,7 +215,7 @@ import { Author, AuthorUtils } from '../../models/author.model';
                               [value]="submission._id"
                               [checked]="selectedRejected.includes(submission._id)"
                               (change)="toggleRejectedSelection(submission._id, $event)"
-                              class="h-4 w-4 text-orange-600 focus:ring-orange-500 border-gray-300 rounded">
+                              class="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded">
                           </td>
                           <td class="px-6 py-4">
                             <div class="text-sm font-medium text-gray-900 max-w-xs truncate" [title]="submission.title">
@@ -308,7 +308,7 @@ import { Author, AuthorUtils } from '../../models/author.model';
             <!-- Loading State -->
             @if (loadingSubmissionDetails) {
               <div class="text-center py-12">
-                <div class="w-8 h-8 mx-auto border-4 border-orange-500/20 border-t-orange-500 rounded-full animate-spin"></div>
+                <div class="w-8 h-8 mx-auto border-4 border-primary/20 border-t-primary rounded-full animate-spin"></div>
                 <p class="mt-2 text-sm text-gray-500">Loading submission details...</p>
               </div>
             }

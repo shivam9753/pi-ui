@@ -9,7 +9,7 @@ import { TableAction } from '../data-table.component';
   template: `
     <div class="flex items-start space-x-4">
       <!-- Avatar -->
-      <div class="flex-shrink-0 w-12 h-12 rounded-full bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center">
+      <div class="flex-shrink-0 w-12 h-12 rounded-full bg-gradient-to-br from-primary to-primary-hover flex items-center justify-center">
         @if (user.profileImage) {
           <img
             [src]="user.profileImage"
@@ -47,7 +47,7 @@ import { TableAction } from '../data-table.component';
             [value]="user.role"
             (change)="onRoleChange.emit({user, event: $event})"
             [disabled]="user.role === 'admin' || changingRoles?.has(user._id)"
-            class="text-xs px-2 py-1 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent disabled:opacity-50">
+            class="text-xs px-2 py-1 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent disabled:opacity-50">
             <option value="user">User</option>
             <option value="reviewer">Reviewer</option>
             <option value="admin" disabled>Admin</option>

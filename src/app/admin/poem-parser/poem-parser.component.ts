@@ -30,7 +30,7 @@ interface ParsedPoem {
             <h2 class="text-xl font-semibold text-gray-900 mb-4">Input Text</h2>
             <textarea
               [(ngModel)]="inputText"
-              class="w-full h-96 p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 font-mono text-sm"
+              class="w-full h-96 p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary font-mono text-sm"
               placeholder="Paste your poems here. Each poem should start with ## followed by the title..."
             ></textarea>
     
@@ -38,7 +38,7 @@ interface ParsedPoem {
               <button
                 (click)="parsePoems()"
                 [disabled]="!inputText.trim()"
-                class="px-6 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 disabled:opacity-50 disabled:cursor-not-allowed"
+                class="px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                 Parse Poems
               </button>

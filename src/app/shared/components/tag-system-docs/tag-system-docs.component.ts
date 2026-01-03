@@ -217,9 +217,9 @@ import { StatusBadgeComponent } from '../status-badge/status-badge.component';
             <h3 class="font-medium text-purple-800 mb-2">🔧 Maintainable</h3>
             <p class="text-purple-700 text-sm">Centralized mapping makes it easy to update display names and colors.</p>
           </div>
-          <div class="bg-orange-50 p-4 rounded-lg">
-            <h3 class="font-medium text-orange-800 mb-2">📱 Responsive</h3>
-            <p class="text-orange-700 text-sm">Multiple size variants for different screen sizes and contexts.</p>
+          <div class="bg-primary-light p-4 rounded-lg">
+            <h3 class="font-medium text-primary-dark mb-2">📱 Responsive</h3>
+            <p class="text-primary-dark text-sm">Multiple size variants for different screen sizes and contexts.</p>
           </div>
         </div>
       </section>

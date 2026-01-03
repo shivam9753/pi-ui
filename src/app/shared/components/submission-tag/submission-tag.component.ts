@@ -100,7 +100,7 @@ export class SubmissionTagComponent {
       'tag-green': 'border border-green-300 text-green-700 bg-transparent dark:border-green-600 dark:text-green-300',
       'tag-emerald': 'border border-emerald-300 text-emerald-700 bg-transparent dark:border-emerald-600 dark:text-emerald-300',
       'tag-purple': 'border border-purple-300 text-purple-700 bg-transparent dark:border-purple-600 dark:text-purple-300',
-      'tag-orange': 'border border-orange-300 text-orange-700 bg-transparent dark:border-orange-600 dark:text-orange-300',
+      'tag-orange': 'border border-neutral-300 text-primary-dark bg-transparent dark:border-primary-light dark:text-primary-light-light',
       'tag-yellow': 'border border-yellow-300 text-yellow-700 bg-transparent dark:border-yellow-600 dark:text-yellow-300',
       'tag-red': 'border border-red-300 text-red-700 bg-transparent dark:border-red-600 dark:text-red-300'
     };
@@ -115,7 +115,7 @@ export class SubmissionTagComponent {
       'tag-green': 'bg-green-500 text-white dark:bg-green-600',
       'tag-emerald': 'bg-emerald-500 text-white dark:bg-emerald-600',
       'tag-purple': 'bg-purple-500 text-white dark:bg-purple-600',
-      'tag-orange': 'bg-orange-500 text-white dark:bg-orange-600',
+      'tag-orange': 'bg-primary text-white dark:bg-primary',
       'tag-yellow': 'bg-yellow-500 text-white dark:bg-yellow-600',
       'tag-red': 'bg-red-500 text-white dark:bg-red-600'
     };

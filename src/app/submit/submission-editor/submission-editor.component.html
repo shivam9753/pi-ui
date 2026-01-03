@@ -192,7 +192,7 @@
                           class="flex-1 font-medium py-3 px-6 rounded-2xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center border-2 bg-transparent border-themed-accent text-themed-accent hover:bg-themed-hover btn-feedback touch-target"
                           >
                           @if (isSavingDraft) {
-                            <div class="w-4 h-4 border-2 border-orange-500 border-t-transparent rounded-full animate-spin mr-2"></div>
+                            <div class="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin mr-2"></div>
                           }
                           @if (!isSavingDraft) {
                             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -205,7 +205,7 @@
                         <button
                           type="submit"
                           [disabled]="!validateForm() || isSubmitting"
-                          class="flex-1 font-medium py-4 px-6 rounded-2xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center bg-themed-accent text-themed-inverse hover:bg-orange-600 btn-feedback touch-target"
+                          class="flex-1 font-medium py-4 px-6 rounded-2xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center bg-themed-accent text-themed-inverse hover:bg-primary btn-feedback touch-target"
                           >
                           @if (isSubmitting) {
                             <div class="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-3"></div>
@@ -333,7 +333,7 @@
             <button
               (click)="activeTab = 'submit'"
               [class.border-amber-200-accent]="activeTab === 'submit'"
-              [class.text-orange-900-accent]="activeTab === 'submit'"
+              [class.text-primary-dark-accent]="activeTab === 'submit'"
               [class.border-transparent]="activeTab !== 'submit'"
               [class.text-gray-900-secondary]="activeTab !== 'submit'"
               [class.hover:text-gray-900]="activeTab !== 'submit'"
@@ -347,7 +347,7 @@
             <button
               (click)="activeTab = 'drafts'"
               [class.border-amber-200-accent]="activeTab === 'drafts'"
-              [class.text-orange-900-accent]="activeTab === 'drafts'"
+              [class.text-primary-dark-accent]="activeTab === 'drafts'"
               [class.border-transparent]="activeTab !== 'drafts'"
               [class.text-gray-900-secondary]="activeTab !== 'drafts'"
               [class.hover:text-gray-900]="activeTab !== 'drafts'"
@@ -364,7 +364,7 @@
             <button
               (click)="activeTab = 'guidelines'"
               [class.border-amber-200-accent]="activeTab === 'guidelines'"
-              [class.text-orange-900-accent]="activeTab === 'guidelines'"
+              [class.text-primary-dark-accent]="activeTab === 'guidelines'"
               [class.border-transparent]="activeTab !== 'guidelines'"
               [class.text-gray-900-secondary]="activeTab !== 'guidelines'"
               [class.hover:text-gray-900]="activeTab !== 'guidelines'"
@@ -524,7 +524,7 @@
                             <button
                               type="submit"
                               [disabled]="!validateForm() || isSubmitting"
-                              class="px-8 py-4 font-medium rounded-system-lg shadow-system-lg transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center bg-themed-accent text-themed-inverse hover:bg-orange-600 btn-feedback touch-target"
+                              class="px-8 py-4 font-medium rounded-system-lg shadow-system-lg transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center bg-themed-accent text-themed-inverse hover:bg-primary btn-feedback touch-target"
                               >
                               @if (isSubmitting) {
                                 <div class="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-3"></div>

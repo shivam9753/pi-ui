@@ -419,7 +419,7 @@ export class PendingReviewsComponent implements OnInit, OnDestroy {
       {
         label: 'Review',
         handler: (content: ContentCardData) => this.router.navigate(['/review-submission', content.id]),
-        class: 'px-3 py-1 text-sm rounded bg-orange-600 text-white hover:bg-orange-700'
+        class: 'px-3 py-1 text-sm rounded bg-primary text-white hover:bg-primary-hover'
       }
     ];
   }

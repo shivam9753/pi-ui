@@ -156,7 +156,7 @@ export class PublicAuthorProfileComponent implements OnInit {
     const typeColors: { [key: string]: string } = {
       'poetry': 'bg-purple-100 text-purple-800',
       'prose': 'bg-blue-100 text-blue-800',
-      'opinion': 'bg-orange-100 text-orange-800',
+      'opinion': 'bg-primary-light text-primary-dark',
       'story': 'bg-green-100 text-green-800',
       'essay': 'bg-indigo-100 text-indigo-800'
     };

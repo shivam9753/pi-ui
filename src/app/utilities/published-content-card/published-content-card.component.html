@@ -26,7 +26,7 @@
     </div>
 
     <!-- Reading Time Badge - Prominent -->
-    <div class="reading-time-badge absolute top-3 right-3 bg-orange-500 text-white text-xs font-medium px-2.5 py-1.5 rounded-full shadow-md transition-all duration-300">
+    <div class="reading-time-badge absolute top-3 right-3 bg-primary text-white text-xs font-medium px-2.5 py-1.5 rounded-full shadow-md transition-all duration-300">
       {{ getReadingTime() }}min read
     </div>
 
@@ -37,7 +37,7 @@
         <!-- Bookmark -->
         <button
           (click)="onBookmarkClick($event)"
-          [class.text-orange-400]="content.isBookmarked"
+          [class.text-primary]="content.isBookmarked"
           [class.text-white]="!content.isBookmarked"
           class="p-2 rounded-full bg-white bg-opacity-20 backdrop-blur-sm hover:bg-opacity-30 transition-all duration-200 transform hover:scale-110"
           title="Bookmark">
@@ -96,7 +96,7 @@
   <!-- Content Section -->
   <div class="p-5">
     <!-- Title -->
-    <h3 class="text-lg font-semibold text-gray-900 leading-tight mb-3 group-hover:text-orange-600 transition-colors duration-300 line-clamp-2">
+    <h3 class="text-lg font-semibold text-gray-900 leading-tight mb-3 group-hover:text-primary transition-colors duration-300 line-clamp-2">
       {{ content.title }}
     </h3>
 
@@ -112,7 +112,7 @@
         @for (tag of getDisplayTags(); track tag) {
           <button
             (click)="onTagClick($event, tag)"
-            class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-orange-50 text-amber-700 border border-amber-200 hover:bg-amber-100 hover:border-orange-300 transition-colors duration-200">
+            class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-primary-light text-amber-700 border border-amber-200 hover:bg-amber-100 hover:border-neutral-300 transition-colors duration-200">
             #{{ tag }}
           </button>
         }
@@ -123,13 +123,13 @@
     <div class="flex items-center justify-between">
       <!-- Author Info -->
       <div class="flex items-center space-x-3">
-        <div class="w-8 h-8 rounded-full bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center flex-shrink-0 group-hover:shadow-lg transition-shadow duration-300">
+        <div class="w-8 h-8 rounded-full bg-gradient-to-br from-primary to-primary-hover flex items-center justify-center flex-shrink-0 group-hover:shadow-lg transition-shadow duration-300">
           <span class="text-white text-sm font-medium">
             {{ getAuthorInitials() }}
           </span>
         </div>
         <div>
-          <p class="text-sm font-medium text-gray-900 group-hover:text-orange-600 transition-colors duration-300">
+          <p class="text-sm font-medium text-gray-900 group-hover:text-primary transition-colors duration-300">
             {{ getAuthorName() }}
           </p>
           <p class="text-xs text-gray-900-tertiary">
@@ -142,7 +142,7 @@
       <div class="flex items-center gap-2 md:hidden">
         <button
           (click)="onBookmarkClick($event)"
-          [class.text-orange-500]="content.isBookmarked"
+          [class.text-primary]="content.isBookmarked"
           [class.text-gray-400]="!content.isBookmarked"
           class="p-1.5 hover:bg-gray-50 rounded-lg transition-all duration-200"
           title="Bookmark">
@@ -174,7 +174,7 @@
           Edit
         </button>
         <button (click)="onUnpublishClick($event)"
-          class="flex-1 inline-flex items-center justify-center px-3 py-2 text-xs font-medium text-amber-700 bg-orange-50 border border-orange-300 rounded-lg hover:bg-amber-100 transition-colors duration-200">
+          class="flex-1 inline-flex items-center justify-center px-3 py-2 text-xs font-medium text-amber-700 bg-primary-light border border-neutral-300 rounded-lg hover:bg-amber-100 transition-colors duration-200">
           <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"/>
           </svg>

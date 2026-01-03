@@ -5,7 +5,7 @@
   @if (loading) {
     <div class="flex items-center justify-center min-h-screen">
       <div class="text-center">
-        <div class="w-12 h-12 mx-auto mb-4 border-4 border-orange-500/20 border-t-orange-500 rounded-full animate-spin"></div>
+        <div class="w-12 h-12 mx-auto mb-4 border-4 border-primary/20 border-t-primary rounded-full animate-spin"></div>
         <p class="text-gray-600">Loading workspace...</p>
       </div>
     </div>
@@ -23,8 +23,8 @@
               @if (canAccessTab('review')) {
                 <button
                   (click)="setActiveTab('review')"
-                  [class.border-orange-500]="activeTab === 'review'"
-                  [class.text-orange-600]="activeTab === 'review'"
+                  [class.border-primary]="activeTab === 'review'"
+                  [class.text-primary]="activeTab === 'review'"
                   [class.border-transparent]="activeTab !== 'review'"
                   [class.text-gray-600]="activeTab !== 'review'"
                   [class.hover:text-gray-900]="activeTab !== 'review'"
@@ -41,8 +41,8 @@
               @if (canAccessTab('shortlisted')) {
                 <button
                   (click)="setActiveTab('shortlisted')"
-                  [class.border-orange-500]="activeTab === 'shortlisted'"
-                  [class.text-orange-600]="activeTab === 'shortlisted'"
+                  [class.border-primary]="activeTab === 'shortlisted'"
+                  [class.text-primary]="activeTab === 'shortlisted'"
                   [class.border-transparent]="activeTab !== 'shortlisted'"
                   [class.text-gray-600]="activeTab !== 'shortlisted'"
                   [class.hover:text-gray-900]="activeTab !== 'shortlisted'"
@@ -59,8 +59,8 @@
               @if (canAccessTab('publish')) {
                 <button
                   (click)="setActiveTab('publish')"
-                  [class.border-orange-500]="activeTab === 'publish'"
-                  [class.text-orange-600]="activeTab === 'publish'"
+                  [class.border-primary]="activeTab === 'publish'"
+                  [class.text-primary]="activeTab === 'publish'"
                   [class.border-transparent]="activeTab !== 'publish'"
                   [class.text-gray-600]="activeTab !== 'publish'"
                   [class.hover:text-gray-900]="activeTab !== 'publish'"

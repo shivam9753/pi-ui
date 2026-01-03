@@ -8,7 +8,7 @@
     </div>
     <button 
       (click)="refresh()" 
-      class="flex items-center gap-2 px-4 py-2 text-orange-600 border border-orange-200 rounded-lg hover:bg-orange-50 transition-colors">
+      class="flex items-center gap-2 px-4 py-2 text-primary border border-neutral-200 rounded-lg hover:bg-primary-light transition-colors">
       <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
       </svg>
@@ -22,7 +22,7 @@
       <button
         (click)="switchTab('overview')"
         [class]="activeTab === 'overview' ? 
-          'border-orange-500 text-orange-600 whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm' : 
+          'border-primary text-primary whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm' : 
           'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm'"
         >
         <div class="flex items-center gap-2">
@@ -36,7 +36,7 @@
       <button
         (click)="switchTab('search')"
         [class]="activeTab === 'search' ? 
-          'border-orange-500 text-orange-600 whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm' : 
+          'border-primary text-primary whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm' : 
           'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm'"
         >
         <div class="flex items-center gap-2">
@@ -55,7 +55,7 @@
     @if (loading) {
     <div class="flex items-center justify-center py-12">
       <div class="text-center">
-        <div class="w-12 h-12 mx-auto mb-4 border-4 border-orange-500/20 border-t-orange-500 rounded-full animate-spin"></div>
+        <div class="w-12 h-12 mx-auto mb-4 border-4 border-primary/20 border-t-primary rounded-full animate-spin"></div>
         <p class="text-gray-600">Loading analytics...</p>
       </div>
     </div>
@@ -86,7 +86,7 @@
         </div>
         <button 
           (click)="refresh()" 
-          class="flex items-center gap-2 px-4 py-2 text-orange-600 border border-orange-200 rounded-lg hover:bg-orange-50 transition-colors">
+          class="flex items-center gap-2 px-4 py-2 text-primary border border-neutral-200 rounded-lg hover:bg-primary-light transition-colors">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
           </svg>
@@ -131,8 +131,8 @@
               <p class="text-gray-600 text-sm font-medium">Avg Views/Post</p>
               <p class="text-3xl font-bold text-gray-900 mt-1">{{ analyticsData.avgViewsPerPost }}</p>
             </div>
-            <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
-              <svg class="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div class="w-12 h-12 bg-primary-light rounded-lg flex items-center justify-center">
+              <svg class="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
               </svg>
             </div>
@@ -167,14 +167,14 @@
             @for (stat of analyticsData.postTypeStats; track stat.type) {
               <div class="flex items-center justify-between">
                 <div class="flex items-center gap-3">
-                  <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300">
+                  <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-primary-light text-primary-dark dark:bg-primary-dark/30 dark:text-primary-light-light">
                     {{ stat.type | prettyLabel }}
                   </span>
                   <span class="text-sm text-gray-600">{{ stat.count }} posts</span>
                 </div>
                 <div class="flex items-center gap-2">
                   <div class="w-24 bg-gray-200 rounded-full h-2">
-                    <div class="bg-orange-500 h-2 rounded-full" [style.width.%]="(stat.totalViews / getMaxTypeViews()) * 100"></div>
+                    <div class="bg-primary h-2 rounded-full" [style.width.%]="(stat.totalViews / getMaxTypeViews()) * 100"></div>
                   </div>
                   <span class="text-sm font-medium text-gray-900 w-12 text-right">{{ stat.totalViews }}</span>
                 </div>
@@ -196,7 +196,7 @@
                   <h4 class="font-medium text-gray-900 truncate">{{ post.title }}</h4>
                   <div class="flex items-center gap-3 mt-1">
                     <span class="text-sm text-gray-500">by {{ post.author }}</span>
-                    <span class="text-xs bg-orange-100 text-orange-700 px-2 py-1 rounded-full dark:bg-orange-900/30 dark:text-orange-300">{{ post.submissionType | prettyLabel }}</span>
+                    <span class="text-xs bg-primary-light text-primary-dark px-2 py-1 rounded-full dark:bg-primary-dark/30 dark:text-primary-light-light">{{ post.submissionType | prettyLabel }}</span>
                   </div>
                 </div>
                 <div class="text-right">
@@ -227,13 +227,13 @@
                   <h4 class="font-medium text-gray-900 truncate">{{ post.title }}</h4>
                   <div class="flex items-center gap-3 mt-1">
                     <span class="text-sm text-gray-500">by {{ post.author }}</span>
-                    <span class="text-xs bg-orange-100 text-orange-700 px-2 py-1 rounded-full dark:bg-orange-900/30 dark:text-orange-300">{{ post.submissionType | prettyLabel }}</span>
+                    <span class="text-xs bg-primary-light text-primary-dark px-2 py-1 rounded-full dark:bg-primary-dark/30 dark:text-primary-light-light">{{ post.submissionType | prettyLabel }}</span>
                   </div>
                 </div>
                 <div class="text-right">
                   <div class="font-semibold text-green-600">{{ post.recentViews }}</div>
                   <div class="text-xs text-gray-500">recent views</div>
-                  <div class="text-xs text-orange-600">{{ post.trendingScore }}% trending</div>
+                  <div class="text-xs text-primary">{{ post.trendingScore }}% trending</div>
                 </div>
               </div>
             }
@@ -259,7 +259,7 @@
               @for (stat of analyticsData.postTypeStats; track stat.type) {
                 <tr class="border-b border-gray-100 hover:bg-gray-50">
                   <td class="py-3 px-4">
-                    <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300">
+                    <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-primary-light text-primary-dark dark:bg-primary-dark/30 dark:text-primary-light-light">
                       {{ stat.type | prettyLabel }}
                     </span>
                   </td>
@@ -282,7 +282,7 @@
     @if (searchLoading) {
       <div class="flex items-center justify-center py-12">
         <div class="text-center">
-          <div class="w-12 h-12 mx-auto mb-4 border-4 border-orange-500/20 border-t-orange-500 rounded-full animate-spin"></div>
+          <div class="w-12 h-12 mx-auto mb-4 border-4 border-primary/20 border-t-primary rounded-full animate-spin"></div>
           <p class="text-gray-600">Loading search analytics...</p>
         </div>
       </div>
@@ -341,8 +341,8 @@
                 <p class="text-gray-600 text-sm font-medium">Avg Results</p>
                 <p class="text-3xl font-bold text-gray-900 mt-1">{{ searchAnalyticsData.overview.avgResultsCount | number:'1.1-1' }}</p>
               </div>
-              <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
-                <svg class="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div class="w-12 h-12 bg-primary-light rounded-lg flex items-center justify-center">
+                <svg class="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                 </svg>
               </div>

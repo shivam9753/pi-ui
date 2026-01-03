@@ -98,7 +98,7 @@ export interface PaginationInfo {
             <select id="items-per-page"
               [ngModel]="itemsPerPage"
               (ngModelChange)="changeItemsPerPage(+$event)"
-              class="mt-1 block w-full rounded-md border-gray-300 py-2 pl-3 pr-10 text-base focus:border-orange-500 focus:outline-none focus:ring-orange-500 sm:mt-0 sm:ml-2 sm:w-auto sm:text-sm">
+              class="mt-1 block w-full rounded-md border-gray-300 py-2 pl-3 pr-10 text-base focus:border-primary focus:outline-none focus:ring-primary sm:mt-0 sm:ml-2 sm:w-auto sm:text-sm">
               @for (size of itemsPerPageOptions; track size) {
                 <option [value]="size">{{ size }}</option>
               }
@@ -208,7 +208,7 @@ export class PaginationComponent implements OnChanges {
     const baseClasses = 'relative inline-flex items-center px-4 py-2 text-sm font-semibold ring-1 ring-inset focus:z-20 focus:outline-offset-0';
     
     if (page === this.currentPage) {
-      return `${baseClasses} bg-orange-600 text-white ring-orange-600 focus:ring-orange-600`;
+      return `${baseClasses} bg-primary text-white ring-primary focus:ring-primary`;
     } else {
       return `${baseClasses} text-gray-900 ring-gray-300 hover:bg-gray-50 focus:ring-gray-300`;
     }

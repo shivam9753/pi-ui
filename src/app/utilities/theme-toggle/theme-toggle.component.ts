@@ -16,7 +16,7 @@ import { ThemingService } from '../../services/theming.service';
       <!-- Sun icon for light mode -->
       <svg 
         *ngIf="!isDark"
-        class="w-4 h-4 text-orange-500" 
+        class="w-4 h-4 text-primary" 
         fill="none" 
         viewBox="0 0 24 24" 
         stroke="currentColor" 

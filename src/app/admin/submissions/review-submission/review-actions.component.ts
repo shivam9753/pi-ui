@@ -56,7 +56,7 @@ import { FormsModule } from '@angular/forms';
         <div class="bg-gray-50 rounded-lg p-6 border border-gray-200">
           <label for="reviewNotes" class="block text-base font-semibold text-gray-900 mb-3">
             <span class="flex items-center gap-2">
-              <svg class="w-5 h-5 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg class="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/>
               </svg>
               Review Comments
@@ -70,7 +70,7 @@ import { FormsModule } from '@angular/forms';
             [(ngModel)]="reviewNotes"
             (ngModelChange)="notesChange.emit($event)"
             rows="5"
-            class="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-orange-300 focus:border-orange-500 resize-vertical shadow-sm"
+            class="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary resize-vertical shadow-sm"
             [placeholder]="getPlaceholder()"
             [class.border-red-300]="(reviewAction === 'reject' || reviewAction === 'revision') && !reviewNotes.trim()">
           </textarea>
@@ -167,7 +167,7 @@ export class ReviewActionsComponent {
     switch (this.reviewAction) {
       case 'approve': return 'text-green-600';
       case 'reject': return 'text-red-600';
-      case 'revision': return 'text-orange-600';
+      case 'revision': return 'text-primary';
       default: return 'text-blue-600';
     }
   }
@@ -194,7 +194,7 @@ export class ReviewActionsComponent {
     switch (this.reviewAction) {
       case 'approve': return 'bg-green-600 hover:bg-green-700 focus:ring-green-200';
       case 'reject': return 'bg-red-600 hover:bg-red-700 focus:ring-red-200';
-      case 'revision': return 'bg-orange-600 hover:bg-orange-700 focus:ring-orange-200';
+      case 'revision': return 'bg-primary hover:bg-primary-hover focus:ring-primary/50';
       default: return 'bg-blue-600 hover:bg-blue-700 focus:ring-blue-200';
     }
   }

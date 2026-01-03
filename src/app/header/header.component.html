@@ -14,51 +14,51 @@
       
         <a routerLink="/explore"
           (click)="clearSearchAndNavigate()"
-          routerLinkActive="text-orange-600 font-semibold"
+          routerLinkActive="text-primary font-semibold"
           [routerLinkActiveOptions]="{exact: false}"
-          class="text-md font-semibold text-themed hover:text-orange-600 transition-colors duration-200">
+          class="text-md font-semibold text-themed hover:text-primary transition-colors duration-200">
           Explore
         </a>
         <a routerLink="/featured-poems"
-          routerLinkActive="text-orange-600 font-semibold"
+          routerLinkActive="text-primary font-semibold"
           [routerLinkActiveOptions]="{exact: false}"
-          class="text-md font-semibold text-themed hover:text-orange-600 transition-colors duration-200">
+          class="text-md font-semibold text-themed hover:text-primary transition-colors duration-200">
           Featured
         </a>
         <button (click)="handleSubmitClick()"
-          [class]="isSubmitActive() ? 'text-md font-semibold text-orange-600 hover:text-orange-600 transition-colors duration-200' : 'text-md text-themed hover:text-orange-600 transition-colors duration-200'">
+          [class]="isSubmitActive() ? 'text-md font-semibold text-primary hover:text-primary transition-colors duration-200' : 'text-md text-themed hover:text-primary transition-colors duration-200'">
           Submit
         </button>
         @if (canAccessStudio()) {
           <a
             routerLink="/studio"
-            routerLinkActive="text-orange-600 font-semibold"
+            routerLinkActive="text-primary font-semibold"
             [routerLinkActiveOptions]="{exact: false}"
-            class="text-md font-semibold text-themed hover:text-orange-600 transition-colors duration-200">
+            class="text-md font-semibold text-themed hover:text-primary transition-colors duration-200">
             Studio
           </a>
         }
         @if (canAccessWorkspace()) {
           <a
             routerLink="/workspace"
-            routerLinkActive="text-orange-600 font-semibold"
+            routerLinkActive="text-primary font-semibold"
             [routerLinkActiveOptions]="{exact: false}"
-            class="text-md font-semibold text-themed hover:text-orange-600 transition-colors duration-200">
+            class="text-md font-semibold text-themed hover:text-primary transition-colors duration-200">
             Workspace
           </a>
         }
         @if (isAdmin()) {
           <a
             routerLink="/admin"
-            routerLinkActive="text-orange-600 font-semibold"
+            routerLinkActive="text-primary font-semibold"
             [routerLinkActiveOptions]="{exact: false}"
-            class="text-md font-semibold text-themed hover:text-orange-600 transition-colors duration-200">
+            class="text-md font-semibold text-themed hover:text-primary transition-colors duration-200">
             Admin
           </a>
         }
         <!-- <a routerLink="/prompts"
-          routerLinkActive="text-orange-600 font-semibold"
-          class="text-sm font-medium text-themed hover:text-orange-600 transition-colors duration-200">
+          routerLinkActive="text-primary font-semibold"
+          class="text-sm font-medium text-themed hover:text-primary transition-colors duration-200">
           Prompts
         </a> -->
       </nav>
@@ -129,22 +129,22 @@
                   <div class="flex items-center space-x-1.5 mt-1">
                     @switch (loggedInUser()!.role) {
                       @case ('admin') {
-                        <svg class="w-3.5 h-3.5 text-orange-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                        <svg class="w-3.5 h-3.5 text-admin flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                           <path fill-rule="evenodd" d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" clip-rule="evenodd" />
                         </svg>
-                        <span class="text-sm text-orange-500 font-medium capitalize">{{ loggedInUser()!.role }}</span>
+                        <span class="text-sm text-admin font-medium capitalize">{{ loggedInUser()!.role }}</span>
                       }
                       @case ('reviewer') {
-                        <svg class="w-3.5 h-3.5 text-blue-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg class="w-3.5 h-3.5 text-reviewer flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
-                        <span class="text-sm text-blue-500 font-medium capitalize">{{ loggedInUser()!.role }}</span>
+                        <span class="text-sm text-reviewer font-medium capitalize">{{ loggedInUser()!.role }}</span>
                       }
                       @case ('writer') {
-                        <svg class="w-3.5 h-3.5 text-purple-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg class="w-3.5 h-3.5 text-studio flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
                         </svg>
-                        <span class="text-sm text-purple-500 font-medium capitalize">{{ loggedInUser()!.role }}</span>
+                        <span class="text-sm text-studio font-medium capitalize">{{ loggedInUser()!.role }}</span>
                       }
                       @default {
                         <span class="text-sm text-themed-secondary capitalize">{{ loggedInUser()!.role }}</span>
@@ -243,7 +243,7 @@
           (click)="closeMobileMenu()"
           class="w-full flex items-center justify-between hover:bg-themed-hover rounded-lg p-2 -m-2 transition-colors duration-200 group cursor-pointer">
           <div class="flex items-center">
-            <div class="w-12 h-12 rounded-full bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center text-white font-medium text-lg">
+            <div class="w-12 h-12 rounded-full bg-gradient-to-br from-primary to-primary-hover flex items-center justify-center text-white font-medium text-lg">
               {{ getUserInitials(loggedInUser()!.name) }}
             </div>
             <div class="ml-4">
@@ -252,22 +252,22 @@
                 <div class="flex items-center space-x-1.5 mt-1">
                   @switch (loggedInUser()!.role) {
                     @case ('admin') {
-                      <svg class="w-3.5 h-3.5 text-orange-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                      <svg class="w-3.5 h-3.5 text-admin flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                         <path fill-rule="evenodd" d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" clip-rule="evenodd" />
                       </svg>
-                      <span class="text-sm text-orange-500 font-medium capitalize">{{ loggedInUser()!.role }}</span>
+                      <span class="text-sm text-admin font-medium capitalize">{{ loggedInUser()!.role }}</span>
                     }
                     @case ('reviewer') {
-                      <svg class="w-3.5 h-3.5 text-blue-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg class="w-3.5 h-3.5 text-reviewer flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                       </svg>
-                      <span class="text-sm text-blue-500 font-medium capitalize">{{ loggedInUser()!.role }}</span>
+                      <span class="text-sm text-reviewer font-medium capitalize">{{ loggedInUser()!.role }}</span>
                     }
                     @case ('writer') {
-                      <svg class="w-3.5 h-3.5 text-purple-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg class="w-3.5 h-3.5 text-studio flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
                       </svg>
-                      <span class="text-sm text-purple-500 font-medium capitalize">{{ loggedInUser()!.role }}</span>
+                      <span class="text-sm text-studio font-medium capitalize">{{ loggedInUser()!.role }}</span>
                     }
                     @default {
                       <span class="text-sm text-themed-secondary capitalize">{{ loggedInUser()!.role }}</span>

@@ -17,7 +17,7 @@ export interface UserAction {
     <div class="bg-white border border-gray-200 rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow duration-200">
       <div class="flex items-start space-x-4">
         <!-- Avatar -->
-        <div class="flex-shrink-0 w-12 h-12 rounded-full bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center">
+        <div class="flex-shrink-0 w-12 h-12 rounded-full bg-gradient-to-br from-primary to-primary-hover flex items-center justify-center">
           @if (user.profileImage) {
             <img
               [src]="user.profileImage"
@@ -54,7 +54,7 @@ export interface UserAction {
                 [value]="user.role"
                 (change)="onRoleChange($event)"
                 [disabled]="user.role === 'admin' || isChangingRole"
-                class="text-xs px-2 py-1 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed">
+                class="text-xs px-2 py-1 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed">
                 <option value="user">User</option>
                 <option value="writer">Writer</option>
                 <option value="reviewer">Reviewer</option>
@@ -120,8 +120,8 @@ export class UserMobileCardComponent {
     const baseClasses = 'font-medium transition-colors duration-200';
     
     const colorClasses: { [key: string]: string } = {
-      'primary': 'text-orange-700 bg-orange-50 hover:bg-orange-100 border border-orange-200',
-      'warning': 'text-orange-700 bg-orange-50 hover:bg-orange-100 border border-orange-200',
+      'primary': 'text-primary-dark bg-primary-light hover:bg-primary-light border border-neutral-200',
+      'warning': 'text-primary-dark bg-primary-light hover:bg-primary-light border border-neutral-200',
       'success': 'text-green-700 bg-green-50 hover:bg-green-100 border border-green-200',
       'danger': 'text-red-700 bg-red-50 hover:bg-red-100 border border-red-200',
       'secondary': 'text-gray-700 bg-gray-50 hover:bg-gray-100 border border-gray-200'

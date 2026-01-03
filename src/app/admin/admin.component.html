@@ -5,7 +5,7 @@
   @if (loading) {
     <div class="flex items-center justify-center min-h-screen">
       <div class="text-center">
-        <div class="w-12 h-12 mx-auto mb-4 border-4 border-orange-500/20 border-t-orange-500 rounded-full animate-spin"></div>
+        <div class="w-12 h-12 mx-auto mb-4 border-4 border-primary/20 border-t-primary rounded-full animate-spin"></div>
         <p class="text-gray-600">Loading admin dashboard...</p>
       </div>
     </div>
@@ -24,8 +24,8 @@
                 <button
                   data-tab="submissions"
                   (click)="setActiveTab('submissions')"
-                  [class.border-orange-500]="activeTab === 'submissions'"
-                  [class.text-orange-600]="activeTab === 'submissions'"
+                  [class.border-primary]="activeTab === 'submissions'"
+                  [class.text-primary]="activeTab === 'submissions'"
                   [class.border-transparent]="activeTab !== 'submissions'"
                   [class.text-gray-600]="activeTab !== 'submissions'"
                   [class.hover:text-gray-900]="activeTab !== 'submissions'"
@@ -43,8 +43,8 @@
                 <button
                   data-tab="content"
                   (click)="setActiveTab('content')"
-                  [class.border-orange-500]="activeTab === 'content'"
-                  [class.text-orange-600]="activeTab === 'content'"
+                  [class.border-primary]="activeTab === 'content'"
+                  [class.text-primary]="activeTab === 'content'"
                   [class.border-transparent]="activeTab !== 'content'"
                   [class.text-gray-600]="activeTab !== 'content'"
                   [class.hover:text-gray-900]="activeTab !== 'content'"
@@ -62,8 +62,8 @@
                 <button
                   data-tab="users"
                   (click)="setActiveTab('users')"
-                  [class.border-orange-500]="activeTab === 'users'"
-                  [class.text-orange-600]="activeTab === 'users'"
+                  [class.border-primary]="activeTab === 'users'"
+                  [class.text-primary]="activeTab === 'users'"
                   [class.border-transparent]="activeTab !== 'users'"
                   [class.text-gray-600]="activeTab !== 'users'"
                   [class.hover:text-gray-900]="activeTab !== 'users'"
@@ -81,8 +81,8 @@
                 <button
                   data-tab="analytics"
                   (click)="setActiveTab('analytics')"
-                  [class.border-orange-500]="activeTab === 'analytics'"
-                  [class.text-orange-600]="activeTab === 'analytics'"
+                  [class.border-primary]="activeTab === 'analytics'"
+                  [class.text-primary]="activeTab === 'analytics'"
                   [class.border-transparent]="activeTab !== 'analytics'"
                   [class.text-gray-600]="activeTab !== 'analytics'"
                   [class.hover:text-gray-900]="activeTab !== 'analytics'"
@@ -100,8 +100,8 @@
                 <button
                   data-tab="purge"
                   (click)="setActiveTab('purge')"
-                  [class.border-orange-500]="activeTab === 'purge'"
-                  [class.text-orange-600]="activeTab === 'purge'"
+                  [class.border-primary]="activeTab === 'purge'"
+                  [class.text-primary]="activeTab === 'purge'"
                   [class.border-transparent]="activeTab !== 'purge'"
                   [class.text-gray-600]="activeTab !== 'purge'"
                   [class.hover:text-gray-900]="activeTab !== 'purge'"
@@ -141,20 +141,20 @@
                   <div class="flex space-x-6">
                     <button
                       (click)="setUserSubTab('manage')"
-                      [class.border-orange-500]="userSubTab === 'manage'"
-                      [class.text-orange-600]="userSubTab === 'manage'"
+                      [class.border-primary]="userSubTab === 'manage'"
+                      [class.text-primary]="userSubTab === 'manage'"
                       [class.border-transparent]="userSubTab !== 'manage'"
                       [class.text-gray-600]="userSubTab !== 'manage'"
-                      class="py-2 px-1 border-b-2 font-medium text-sm transition-colors duration-200 hover:text-orange-600 hover:border-orange-300">
+                      class="py-2 px-1 border-b-2 font-medium text-sm transition-colors duration-200 hover:text-primary hover:border-neutral-300">
                       Manage Users
                     </button>
                     <button
                       (click)="setUserSubTab('create')"
-                      [class.border-orange-500]="userSubTab === 'create'"
-                      [class.text-orange-600]="userSubTab === 'create'"
+                      [class.border-primary]="userSubTab === 'create'"
+                      [class.text-primary]="userSubTab === 'create'"
                       [class.border-transparent]="userSubTab !== 'create'"
                       [class.text-gray-600]="userSubTab !== 'create'"
-                      class="py-2 px-1 border-b-2 font-medium text-sm transition-colors duration-200 hover:text-orange-600 hover:border-orange-300">
+                      class="py-2 px-1 border-b-2 font-medium text-sm transition-colors duration-200 hover:text-primary hover:border-neutral-300">
                       Create Users
                     </button>
                   </div>
