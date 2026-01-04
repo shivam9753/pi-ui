@@ -58,54 +58,19 @@ export class HtmlSanitizerService {
   cleanContentPreservingBreaks(content: string): SafeHtml {
     if (!content) return '';
 
-    // First, ensure inline styles are preserved by normalizing them
+    // IMPORTANT: Preserve ALL inline styles from the editor
+    // Content comes from our trusted ProseMirror editor and should render exactly as stored
+    // We only clean toolbar elements, but preserve all formatting (alignment, italic, bold, etc.)
     let processedContent = content;
 
-    // Preserve text-align styles by ensuring BOTH data-align attributes AND inline styles exist
-    // This ensures SSR compatibility: if SSR strips inline styles, data-align survives for client-side restoration
-    processedContent = processedContent.replace(/<p([^>]*?)data-align="([^"]+)"([^>]*?)>/gi, (match, before, align, after) => {
-      // Check if style attribute already exists
-      if (match.includes('style=')) {
-        // Ensure text-align is in the style, but keep data-align attribute
-        const withStyle = match.replace(/style="([^"]*?)"/i, (styleMatch, styleContent) => {
-          if (styleContent.includes('text-align:')) {
-            return styleMatch; // Already has text-align, keep as is
-          }
-          return `style="${styleContent}; text-align: ${align}"`;
-        });
-        return withStyle;
-      } else {
-        // Add new style attribute, keep data-align
-        return `<p${before}data-align="${align}" style="text-align: ${align}"${after}>`;
+    // Add data-align attributes alongside inline styles for SSR fallback
+    // SSR may strip inline styles, so data-align ensures CSS can style the element
+    processedContent = processedContent.replace(/<p([^>]*?)style="[^"]*text-align:\s*([^;"]+)[^"]*"([^>]*?)>/gi, (match, _before, align) => {
+      // Add data-align if it doesn't exist, but KEEP the inline style
+      if (!match.includes('data-align=')) {
+        return match.replace('<p', `<p data-align="${align.trim()}"`);
       }
-    });
-
-    // Filter inline styles to only allow: text-align, font-style (italic), font-weight (bold)
-    processedContent = processedContent.replace(/style="([^"]*?)"/gi, (match, styleContent) => {
-      // Parse individual style rules
-      const allowedStyles: string[] = [];
-      const styleRules = styleContent.split(';').map((s: string) => s.trim()).filter((s: string) => s);
-
-      styleRules.forEach((rule: string) => {
-        const [property, value] = rule.split(':').map((s: string) => s.trim());
-
-        // Only allow specific style properties
-        if (property === 'text-align') {
-          allowedStyles.push(`text-align: ${value}`);
-        } else if (property === 'font-style' && value === 'italic') {
-          allowedStyles.push(`font-style: italic`);
-        } else if (property === 'font-weight' && (value === 'bold' || value === '600' || value === '700')) {
-          allowedStyles.push(`font-weight: ${value}`);
-        }
-      });
-
-      // If no allowed styles, remove the style attribute entirely
-      if (allowedStyles.length === 0) {
-        return '';
-      }
-
-      // Return cleaned style attribute
-      return `style="${allowedStyles.join('; ')}"`;
+      return match;
     });
 
     const cleanedContent = processedContent

@@ -810,8 +810,41 @@ body.focus-mode {
   .mobile-nav-button {
     -webkit-tap-highlight-color: transparent;
   }
-  
+
   .mobile-nav-button:active {
     transform: scale(0.95);
   }
+}
+
+/* ========================================
+   TEXT ALIGNMENT STYLES (SSR-COMPATIBLE)
+   ======================================== */
+/* Use data attributes for alignment to avoid SSR inline style stripping */
+:host ::ng-deep [data-align="left"],
+:host ::ng-deep p[data-align="left"] {
+  text-align: left !important;
+}
+
+:host ::ng-deep [data-align="center"],
+:host ::ng-deep p[data-align="center"] {
+  text-align: center !important;
+}
+
+:host ::ng-deep [data-align="right"],
+:host ::ng-deep p[data-align="right"] {
+  text-align: right !important;
+}
+
+/* Italic styling via data attributes */
+:host ::ng-deep [data-italic="true"],
+:host ::ng-deep span[data-italic="true"],
+:host ::ng-deep em {
+  font-style: italic !important;
+}
+
+/* Bold styling via data attributes */
+:host ::ng-deep [data-bold="true"],
+:host ::ng-deep span[data-bold="true"],
+:host ::ng-deep strong {
+  font-weight: 600 !important;
 }

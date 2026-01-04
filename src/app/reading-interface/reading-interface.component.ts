@@ -169,35 +169,9 @@ content = signal<PublishedContent | null>(null);
   }
 
   ngAfterViewInit() {
-    // Restore inline styles from data-align attributes (fixes SSR stripping inline styles)
-    // This runs only on the client side after the view is initialized
-    if (isPlatformBrowser(this.platformId)) {
-      setTimeout(() => {
-        this.restoreAlignmentStyles();
-      }, 0);
-    }
-  }
-
-  /**
-   * Restore inline styles from data-align attributes
-   * This fixes the issue where Angular SSR strips inline styles but preserves data attributes
-   */
-  private restoreAlignmentStyles() {
-    const contentElements = this.elementRef.nativeElement.querySelectorAll('[data-align]');
-
-    contentElements.forEach((element: HTMLElement) => {
-      const alignment = element.getAttribute('data-align');
-      if (alignment) {
-        // Check if style attribute exists
-        const currentStyle = element.getAttribute('style') || '';
-
-        // Only add text-align if it's not already present
-        if (!currentStyle.includes('text-align')) {
-          const newStyle = currentStyle ? `${currentStyle}; text-align: ${alignment}` : `text-align: ${alignment}`;
-          element.setAttribute('style', newStyle);
-        }
-      }
-    });
+    // Note: Text alignment and formatting styles are now handled via CSS attribute selectors
+    // in reading-interface.component.css, which works seamlessly with SSR
+    // No client-side restoration needed!
   }
 
   private handleSSRData(ssrData: PostSSRData) {
