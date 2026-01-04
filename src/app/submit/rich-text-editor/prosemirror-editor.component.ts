@@ -7,7 +7,7 @@ import { Schema, DOMParser, DOMSerializer, Node as PMNode } from 'prosemirror-mo
 import { schema as basicSchema } from 'prosemirror-schema-basic';
 import { keymap } from 'prosemirror-keymap';
 import { history, undo, redo } from 'prosemirror-history';
-import { toggleMark, setBlockType } from 'prosemirror-commands';
+import { toggleMark, baseKeymap } from 'prosemirror-commands';
 import { environment } from '../../../environments/environment';
 import { API_ENDPOINTS } from '../../shared/constants/api.constants';
 import { ThemingService } from '../../services/theming.service';
@@ -19,8 +19,24 @@ const poetrySchemaSpec = {
     paragraph: {
       content: 'inline*',
       group: 'block',
-      parseDOM: [{ tag: 'p' }],
-      toDOM() { return ['p', 0] as const; }
+      attrs: {
+        textAlign: { default: null }
+      },
+      parseDOM: [{
+        tag: 'p',
+        getAttrs(dom: any) {
+          const align = dom.style.textAlign || dom.getAttribute('data-align');
+          return { textAlign: align || null };
+        }
+      }],
+      toDOM(node: any) {
+        const attrs: any = {};
+        if (node.attrs['textAlign']) {
+          attrs.style = `text-align: ${node.attrs['textAlign']}`;
+          attrs['data-align'] = node.attrs['textAlign'];
+        }
+        return ['p', attrs, 0] as const;
+      }
     },
     text: { group: 'inline' },
     hard_break: {
@@ -46,7 +62,10 @@ const poetrySchemaSpec = {
 // Schema with image support
 const richSchemaSpec = {
   nodes: {
-    ...poetrySchemaSpec.nodes,
+    doc: poetrySchemaSpec.nodes.doc,
+    paragraph: poetrySchemaSpec.nodes.paragraph,
+    text: poetrySchemaSpec.nodes.text,
+    hard_break: poetrySchemaSpec.nodes.hard_break,
     image: {
       inline: false,
       attrs: {
@@ -285,11 +304,6 @@ const richSchema = new Schema(richSchemaSpec as any);
       font-style: italic;
     }
 
-    /* Poetry alignment styles */
-    .ProseMirror p.align-left { text-align: left; }
-    .ProseMirror p.align-center { text-align: center; }
-    .ProseMirror p.align-right { text-align: right; }
-
     /* Image and Figure styles */
     .ProseMirror img {
       max-width: 100%;
@@ -495,7 +509,7 @@ export class ProseMirrorEditorComponent implements ControlValueAccessor, AfterVi
         return true;
       },
       'Backspace': (state, dispatch) => {
-        // Check if selection is on an image node
+        // Only handle backspace for image nodes - let baseKeymap handle everything else
         const { selection } = state;
         if (selection instanceof NodeSelection && selection.node.type.name === 'image') {
           const imageUrl = selection.node.attrs['src'];
@@ -512,10 +526,11 @@ export class ProseMirrorEditorComponent implements ControlValueAccessor, AfterVi
           }
           return true;
         }
+        // Return false to allow baseKeymap to handle normal backspace
         return false;
       },
       'Delete': (state, dispatch) => {
-        // Check if selection is on an image node
+        // Only handle delete for image nodes - let baseKeymap handle everything else
         const { selection } = state;
         if (selection instanceof NodeSelection && selection.node.type.name === 'image') {
           const imageUrl = selection.node.attrs['src'];
@@ -532,6 +547,7 @@ export class ProseMirrorEditorComponent implements ControlValueAccessor, AfterVi
           }
           return true;
         }
+        // Return false to allow baseKeymap to handle normal delete
         return false;
       },
       'Mod-b': (state, dispatch) => {
@@ -550,6 +566,7 @@ export class ProseMirrorEditorComponent implements ControlValueAccessor, AfterVi
         schema: this.currentSchema,
         plugins: [
           history(),
+          keymap(baseKeymap),
           editorKeymap
         ]
       }),
@@ -689,7 +706,7 @@ export class ProseMirrorEditorComponent implements ControlValueAccessor, AfterVi
     const tr = state.tr;
     state.doc.nodesBetween(from, to, (node, pos) => {
       if (node.type === this.currentSchema.nodes['paragraph']) {
-        const attrs = { ...node.attrs, class: `align-${align}` };
+        const attrs = { ...node.attrs, textAlign: align };
         tr.setNodeMarkup(pos, null, attrs);
       }
     });
@@ -704,12 +721,19 @@ export class ProseMirrorEditorComponent implements ControlValueAccessor, AfterVi
 
     let tr = state.tr;
 
-    // Remove all marks
+    // Remove all marks and reset alignment
     state.doc.nodesBetween(from, to, (node, pos) => {
+      // Remove marks
       if (node.marks.length > 0) {
         node.marks.forEach(mark => {
           tr = tr.removeMark(pos, pos + node.nodeSize, mark);
         });
+      }
+
+      // Reset paragraph alignment
+      if (node.type === this.currentSchema.nodes['paragraph'] && node.attrs['textAlign']) {
+        const attrs = { ...node.attrs, textAlign: null };
+        tr = tr.setNodeMarkup(pos, null, attrs);
       }
     });
 
