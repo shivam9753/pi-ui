@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, SecurityContext } from '@angular/core';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 
 @Injectable({
@@ -61,15 +61,22 @@ export class HtmlSanitizerService {
     // First, ensure inline styles are preserved by normalizing them
     let processedContent = content;
 
-    // Preserve text-align styles by converting data-align attributes to inline styles if needed
+    // Preserve text-align styles by ensuring BOTH data-align attributes AND inline styles exist
+    // This ensures SSR compatibility: if SSR strips inline styles, data-align survives for client-side restoration
     processedContent = processedContent.replace(/<p([^>]*?)data-align="([^"]+)"([^>]*?)>/gi, (match, before, align, after) => {
       // Check if style attribute already exists
       if (match.includes('style=')) {
-        // Add text-align to existing style
-        return match.replace(/style="([^"]*?)"/i, `style="$1; text-align: ${align}"`);
+        // Ensure text-align is in the style, but keep data-align attribute
+        const withStyle = match.replace(/style="([^"]*?)"/i, (styleMatch, styleContent) => {
+          if (styleContent.includes('text-align:')) {
+            return styleMatch; // Already has text-align, keep as is
+          }
+          return `style="${styleContent}; text-align: ${align}"`;
+        });
+        return withStyle;
       } else {
-        // Add new style attribute
-        return `<p${before}style="text-align: ${align}"${after}>`;
+        // Add new style attribute, keep data-align
+        return `<p${before}data-align="${align}" style="text-align: ${align}"${after}>`;
       }
     });
 

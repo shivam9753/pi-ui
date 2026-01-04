@@ -1,4 +1,4 @@
-import { Component, OnInit, signal, computed, inject, PLATFORM_ID, Inject } from '@angular/core';
+import { Component, OnInit, AfterViewInit, signal, computed, inject, PLATFORM_ID, Inject, ElementRef } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
@@ -60,7 +60,7 @@ interface Comment {
   templateUrl: './reading-interface.component.html',
   styleUrl: './reading-interface.component.css'
 })
-export class ReadingInterfaceComponent {
+export class ReadingInterfaceComponent implements AfterViewInit {
 content = signal<PublishedContent | null>(null);
   comments = signal<Comment[]>([]);
   relatedContent = signal<PublishedContent[]>([]);
@@ -133,6 +133,7 @@ content = signal<PublishedContent | null>(null);
     private viewTracker: ViewTrackerService,
     private ssrDataService: SsrDataService,
     private userService: UserService,
+    private elementRef: ElementRef,
     @Inject(PLATFORM_ID) private platformId: Object
   ) {}
 
@@ -165,6 +166,38 @@ content = signal<PublishedContent | null>(null);
     if (isPlatformBrowser(this.platformId)) {
       window.addEventListener('scroll', () => this.updateReadingProgress());
     }
+  }
+
+  ngAfterViewInit() {
+    // Restore inline styles from data-align attributes (fixes SSR stripping inline styles)
+    // This runs only on the client side after the view is initialized
+    if (isPlatformBrowser(this.platformId)) {
+      setTimeout(() => {
+        this.restoreAlignmentStyles();
+      }, 0);
+    }
+  }
+
+  /**
+   * Restore inline styles from data-align attributes
+   * This fixes the issue where Angular SSR strips inline styles but preserves data attributes
+   */
+  private restoreAlignmentStyles() {
+    const contentElements = this.elementRef.nativeElement.querySelectorAll('[data-align]');
+
+    contentElements.forEach((element: HTMLElement) => {
+      const alignment = element.getAttribute('data-align');
+      if (alignment) {
+        // Check if style attribute exists
+        const currentStyle = element.getAttribute('style') || '';
+
+        // Only add text-align if it's not already present
+        if (!currentStyle.includes('text-align')) {
+          const newStyle = currentStyle ? `${currentStyle}; text-align: ${alignment}` : `text-align: ${alignment}`;
+          element.setAttribute('style', newStyle);
+        }
+      }
+    });
   }
 
   private handleSSRData(ssrData: PostSSRData) {
