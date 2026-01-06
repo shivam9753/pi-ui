@@ -1,37 +1,34 @@
 import { Routes } from '@angular/router';
-import { ExploreComponent } from './explore/explore.component';
+import { ExploreComponent } from './main-explore/explore/explore.component';
 import { AdminGuard } from './guards/admin.guard';
 import { AuthGuard } from './guards/authguard';
 import { ReviewerGuard } from './guards/reviewer.guard';
 import { StudioGuard } from './guards/studio.guard';
-import { SubmissionEditorComponent } from './submit/submission-editor/submission-editor.component';
+import { SubmissionEditorComponent } from './main-submission/submission-editor.component';
 import { UserLoginComponent } from './user-login/user-login.component';
-import { UserProfileComponent } from './user-profile/user-profile.component';
-import { UserSubmissionsComponent } from './user-submissions/user-submissions.component';
-import { PublicAuthorProfileComponent } from './public-author-profile/public-author-profile.component';
-import { ReadingInterfaceComponent } from './reading-interface/reading-interface.component';
-import { SimpleContentReaderComponent } from './simple-content-reader/simple-content-reader.component';
+import { UserProfileComponent } from './main-user-profile/user-profile.component';
+import { UserSubmissionsComponent } from './main-user-profile/user-submissions/user-submissions.component';
 import { PromptsComponent } from './prompts/prompts.component';
-import { AdminComponent } from './admin/admin.component';
-import { WorkspaceComponent } from './workspace/workspace.component';
-import { StudioComponent } from './studio/studio.component';
-import { PublishSubmissionComponent } from './admin/submissions/publish-submission/publish-submission.component';
-import { ReviewSubmissionComponent } from './admin/submissions/review-submission/review-submission.component';
-import { ProfileCompletionComponent } from './profile-completion/profile-completion.component';
+import { AdminComponent } from './main-admin/admin.component';
+import { WorkspaceComponent } from './main-workspace/workspace.component';
+import { PublishSubmissionComponent } from './main-admin/submissions/publish-submission/publish-submission.component';
+import { ReviewSubmissionComponent } from './main-admin/submissions/review-submission/review-submission.component';
+import { ProfileCompletionComponent } from './main-user-profile/profile-completion/profile-completion.component';
 import { FaqsComponent } from './info/faqs/faqs.component';
 import { ContactComponent } from './info/contact/contact.component';
 import { PrivacyPolicyComponent } from './info/privacy-policy/privacy-policy.component';
 import { TermsOfUseComponent } from './info/terms-of-use/terms-of-use.component';
-import { PoemParserComponent } from './admin/poem-parser/poem-parser.component';
 import { CategoryComponent } from './category/category.component';
 import { TagComponent } from './tag/tag.component';
-import { JsonConverterComponent } from './admin/json-converter/json-converter.component';
 import { WhatsNewComponent } from './whats-new/whats-new.component';
 import { postSSRResolver } from './resolvers/post-ssr.resolver';
 import { AboutComponent } from './info/about/about.component';
 import { SearchResultsComponent } from './search-results/search-results.component';
-import { FeaturedPoemsComponent } from './featured-poems/featured-poems.component';
+import { FeaturedPoemsComponent } from './main-featured/featured-poems/featured-poems.component';
 import { NotFoundComponent } from './not-found/not-found.component';
+import { MainStudioComponent } from './main-studio/main-studio.component';
+import { ReadingInterfaceComponent } from './main-reading/reading-interface/reading-interface.component';
+import { PublicAuthorProfileComponent } from './main-user-profile/public-author-profile/public-author-profile.component';
 
 export const routes: Routes = [
   // Public routes - Use explore as homepage for now
@@ -120,12 +117,6 @@ export const routes: Routes = [
     component: ReadingInterfaceComponent,
     title: 'Post - pi'
   },
-  // Simple content reader route
-  { 
-    path: 'content/:id', 
-    component: SimpleContentReaderComponent,
-    title: 'Content - pi'
-  },
   { 
     path: 'submission', 
     component: SubmissionEditorComponent, 
@@ -154,7 +145,7 @@ export const routes: Routes = [
   },
   { 
     path: 'studio', 
-    component: StudioComponent, 
+    component: MainStudioComponent, 
     canActivate: [StudioGuard],
     title: 'Creative Studio'
   },
@@ -221,18 +212,6 @@ export const routes: Routes = [
     path: 'terms-of-use', 
     component: TermsOfUseComponent,
     title: 'Contact - pi'
-  },
-  { 
-    path: 'poem-parser', 
-    component: PoemParserComponent,
-    canActivate: [AdminGuard],
-    title: 'Poem Parser - pi'
-  },
-  { 
-    path: 'json-parser', 
-    component: JsonConverterComponent,
-    canActivate: [AdminGuard],
-    title: 'JOSNß Parser - pi'
   },
   {
     path: 'about',

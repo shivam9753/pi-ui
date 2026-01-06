@@ -5,7 +5,7 @@ import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } 
 import { BackendService } from '../services/backend.service';
 import { AuthService } from '../services/auth.service';
 import { Router } from '@angular/router';
-import { GuidelinesOverlayComponent } from '../submit/guidelines-overlay/guidelines-overlay.component';
+import { GuidelinesOverlayComponent } from '../main-submission/guidelines-overlay/guidelines-overlay.component';
 import { CommonUtils } from '../shared/utils';
 
 interface Prompt {

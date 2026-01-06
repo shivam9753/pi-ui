@@ -1,0 +1,26 @@
+/* Submit Form Component Styles */
+
+.submit-form-container {
+  /* Container styles if needed */
+}
+
+/* Touch feedback for buttons */
+.btn-feedback:active {
+  transform: scale(0.98);
+}
+
+.touch-target {
+  min-height: 44px;
+  min-width: 44px;
+}
+
+/* Custom animations */
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}

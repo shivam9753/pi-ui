@@ -1,0 +1,686 @@
+
+import { Component, OnInit, OnDestroy } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { Router, NavigationEnd } from '@angular/router';
+import { filter } from 'rxjs/operators';
+import { Subscription } from 'rxjs';
+import { ContentCardData } from '../../shared/components/content-card/content-card.component';
+import { AdminPageHeaderComponent, AdminPageStat } from '../../shared/components/admin-page-header/admin-page-header.component';
+import { BackendService } from '../../services/backend.service';
+import { AuthorService } from '../../services/author.service';
+import { SUBMISSION_STATUS } from '../../shared/constants/api.constants';
+import {
+  DataTableComponent,
+  TableColumn,
+  TableAction,
+  PaginationConfig,
+  PENDING_REVIEWS_TABLE_COLUMNS,
+  createPendingReviewActions,
+  SUBMISSION_BADGE_CONFIG,
+  AdvancedSubmissionFilterComponent,
+  AdvancedFilterOptions,
+  QuickFilterEvent,
+  ConsistentSubmissionMobileCardComponent,
+  SubmissionAction,
+  SubmissionMobileCardComponent
+} from '../../shared/components';
+
+@Component({
+  selector: 'app-pending-reviews',
+  imports: [CommonModule, FormsModule, AdminPageHeaderComponent, DataTableComponent, AdvancedSubmissionFilterComponent, ConsistentSubmissionMobileCardComponent, SubmissionMobileCardComponent],
+  templateUrl: './pending-reviews.component.html',
+  styleUrl: './pending-reviews.component.css'
+})
+export class PendingReviewsComponent implements OnInit, OnDestroy {
+  // Table configuration
+  columns: TableColumn[] = PENDING_REVIEWS_TABLE_COLUMNS;
+  actions: TableAction[] = [];
+  consistentActions: SubmissionAction[] = [];
+  badgeConfig = SUBMISSION_BADGE_CONFIG;
+  paginationConfig: PaginationConfig = {
+    currentPage: 1,
+    totalPages: 1,
+    pageSize: 12,
+    totalItems: 0
+  };
+
+  submissions: any[] = [];
+  currentPage: number = 1;
+  pageSize: number = 12;
+  totalSubmissions: number = 0;
+  totalPages: number = 0;
+  hasMore: boolean = false;
+  loading: boolean = false;
+
+  // New component properties
+  headerStats: AdminPageStat[] = [];
+  currentSearch = '';
+  currentStatus = '';
+  currentType = '';
+  currentAuthor = '';
+  fromDate = '';
+  toDate = '';
+  lengthFilter = '';
+  activeQuickFilters: string[] = [];
+
+  // Enhanced filtering options
+  filters: any = {
+    type: '',
+    status: '', // 'pending_review' or 'in_progress' or both
+    search: '',
+    authorType: '', // 'new' or 'returning'
+    wordLength: '', // 'quick', 'medium', 'long'
+    dateFrom: '',
+    dateTo: '',
+    sortBy: 'createdAt',
+    sortOrder: 'desc',
+    urgent: '' // Filter for urgent submissions (resubmitted + old pending)
+  };
+
+  // Filter configuration for FilterBarComponent
+  filterConfigs: any[] = [
+    {
+      key: 'search',
+      label: 'Search',
+      type: 'search',
+      placeholder: 'Search submissions...'
+    },
+    {
+      key: 'status',
+      label: 'Status',
+      type: 'select',
+      options: [
+        { value: '', label: 'All Statuses' },
+        { value: SUBMISSION_STATUS.PENDING_REVIEW, label: 'Pending Review' },
+        { value: SUBMISSION_STATUS.SHORTLISTED, label: 'Shortlisted' },
+        { value: SUBMISSION_STATUS.IN_PROGRESS, label: 'In Progress' },
+        { value: SUBMISSION_STATUS.NEEDS_REVISION, label: 'Needs Revision' },
+        { value: SUBMISSION_STATUS.RESUBMITTED, label: 'Resubmitted' }
+      ]
+    },
+    {
+      key: 'type',
+      label: 'Type',
+      type: 'select',
+      options: [
+        { label: 'All Types', value: '' },
+        { label: 'Poem', value: 'poem' },
+        { label: 'Prose', value: 'prose' },
+        { label: 'Article', value: 'article' },
+        { label: 'Opinion', value: 'opinion' },
+        { label: 'Book Review', value: 'book_review' },
+        { label: 'Cinema Essay', value: 'cinema_essay' }
+      ]
+    },
+    {
+      key: 'authorType',
+      label: 'Author Type',
+      type: 'select',
+      options: [
+        { label: 'All Authors', value: '' },
+        { label: 'New Authors', value: 'new' },
+        { label: 'Returning Authors', value: 'returning' }
+      ]
+    },
+    {
+      key: 'wordLength',
+      label: 'Length',
+      type: 'select',
+      options: [
+        { label: 'All Lengths', value: '' },
+        { label: 'Quick Read', value: 'quick' },
+        { label: 'Medium Read', value: 'medium' },
+        { label: 'Long Read', value: 'long' }
+      ]
+    },
+    {
+      key: 'createdAt',
+      label: 'Date Range',
+      type: 'date-range'
+    }
+  ];
+
+  // Quick filters configuration
+  quickFilters: any[] = [
+    {
+      key: 'urgent',
+      label: 'Urgent',
+      color: 'red'
+    },
+    {
+      key: 'resubmitted', 
+      label: 'Resubmitted',
+      color: 'blue'
+    },
+    {
+      key: 'myReviews',
+      label: 'My Reviews', 
+      color: 'purple'
+    },
+    {
+      key: 'newAuthors',
+      label: 'New Authors',
+      color: 'green'
+    },
+    {
+      key: 'quickRead',
+      label: 'Quick Read',
+      color: 'yellow'
+    },
+    {
+      key: 'topicSubmissions',
+      label: 'Topic Submissions',
+      color: 'orange'
+    }
+  ];
+
+  filterOptions = {
+    types: [
+      { label: 'All Types', value: '' },
+      { label: 'Poem', value: 'poem' },
+      { label: 'Prose', value: 'prose' },
+      { label: 'Article', value: 'article' },
+      { label: 'Opinion', value: 'opinion' },
+      { label: 'Book Review', value: 'book_review' },
+      { label: 'Cinema Essay', value: 'cinema_essay' }
+    ],
+    statuses: [
+      { label: 'All Statuses', value: '' },
+      { label: 'Pending Review', value: 'pending_review' },
+      { label: 'Shortlisted', value: 'shortlisted' },
+      { label: 'In Progress', value: 'in_progress' },
+      { label: 'Needs Revision', value: 'needs_revision' },
+      { label: 'Resubmitted', value: 'resubmitted' }
+    ],
+    authorTypes: [
+      { label: 'All Authors', value: '' },
+      { label: 'New Authors', value: 'new' },
+      { label: 'Returning Authors', value: 'returning' }
+    ],
+    wordLengths: [
+      { label: 'All Lengths', value: '' },
+      { label: 'Quick Read', value: 'quick' },
+      { label: 'Medium Read', value: 'medium' },
+      { label: 'Long Read', value: 'long' }
+    ],
+    sortOptions: [
+      { label: 'Newest First', value: 'createdAt-desc' },
+      { label: 'Oldest First', value: 'createdAt-asc' },
+      { label: 'Title A-Z', value: 'title-asc' },
+      { label: 'Title Z-A', value: 'title-desc' }
+    ]
+  };
+
+  showAdvancedFilters = false;
+  private routerSubscription: Subscription = new Subscription();
+  private readonly PAGINATION_STORAGE_KEY = 'pending-reviews-pagination';
+
+  constructor(
+    private backendService: BackendService,
+    private router: Router,
+    private authorService: AuthorService
+  ) {
+    // Listen for navigation events to restore pagination state
+    this.routerSubscription = this.router.events
+      .pipe(filter(event => event instanceof NavigationEnd))
+      .subscribe((event: NavigationEnd) => {
+        if (event.url.includes('/admin/pending-reviews')) {
+          this.restorePaginationState();
+        }
+      });
+  }
+
+  ngOnInit() {
+    this.restorePaginationState();
+    this.setupTableActions();
+    this.loadSubmissions();
+    this.calculateStats(); // Initialize with empty stats
+  }
+
+  ngOnDestroy() {
+    if (this.routerSubscription) {
+      this.routerSubscription.unsubscribe();
+    }
+  }
+
+  setupTableActions() {
+    this.actions = createPendingReviewActions(
+      (submission) => this.reviewSubmission(submission)
+    );
+    
+    // Setup consistent actions for mobile cards
+    this.consistentActions = [
+      {
+        label: 'Review',
+        color: 'primary',
+        handler: (submission) => this.reviewSubmission(submission)
+      }
+    ];
+  }
+
+  reviewSubmission(submission: any) {
+    // Save current pagination state before navigating
+    this.savePaginationState();
+    this.router.navigate(['/review-submission', submission._id]);
+  }
+
+  loadSubmissions(page: number = 1) {
+    this.currentPage = page;
+    this.loading = true;
+    
+    const params = this.buildQueryParams(page);
+    
+    // Use the submissions endpoint for review queue data
+    this.backendService.getSubmissions({
+      ...params
+      // No default status - let the backend handle showing all reviewable statuses
+    }).subscribe(
+      (data: any) => {
+        this.submissions = data.submissions || [];
+        this.totalSubmissions = data.total || 0;
+        this.hasMore = data.pagination?.hasMore || false;
+        this.totalPages = Math.ceil(this.totalSubmissions / this.pageSize);
+        this.updatePaginationConfig();
+        
+        // Use backend stats if available, otherwise fallback to page-based calculation
+        if (data.stats) {
+          this.calculateStatsFromBackend(data.stats);
+        } else {
+          this.calculateStats(); // Fallback to page-based stats
+        }
+        
+        this.loading = false;
+      },
+      (error: any) => {
+        this.loading = false;
+      }
+    );
+  }
+
+  private buildQueryParams(page: number = 1) {
+    const [sortBy, order] = this.filters['sortBy'].includes('-')
+      ? this.filters['sortBy'].split('-')
+      : [this.filters['sortBy'], this.filters['sortOrder']];
+
+    const params: any = {
+      limit: this.pageSize,
+      skip: (page - 1) * this.pageSize,
+      sortBy,
+      order,
+      includeStats: true  // Request stats from backend
+    };
+
+    // Default to pending review statuses for pending-reviews component
+    if (this.filters['status'] && this.filters['status'].trim()) {
+      // Use specific status filter if set
+      params.status = this.filters['status'];
+    } else {
+      // Default to only show reviewable pending statuses
+      params.status = `${SUBMISSION_STATUS.PENDING_REVIEW},${SUBMISSION_STATUS.IN_PROGRESS},${SUBMISSION_STATUS.RESUBMITTED}`;
+    }
+
+    // Add other filters only if they have values
+    if (this.filters['type']) params.type = this.filters['type'];
+    if (this.filters['search']) params.search = this.filters['search'];
+    if (this.filters['authorType']) params.authorType = this.filters['authorType'];
+    if (this.filters['wordLength']) params.wordLength = this.filters['wordLength'];
+    if (this.filters['dateFrom']) params.dateFrom = this.filters['dateFrom'];
+    if (this.filters['dateTo']) params.dateTo = this.filters['dateTo'];
+    if (this.filters['urgent']) params.urgent = this.filters['urgent'];
+
+    return params;
+  }
+
+  onFilterChange() {
+    this.loadSubmissions(1); // Reset to first page when filtering
+  }
+
+  // Handle filter changes from AdvancedSubmissionFilterComponent
+  onFiltersChange(newFilters: AdvancedFilterOptions) {
+    this.filters = { ...this.filters, ...newFilters };
+    this.loadSubmissions(1);
+  }
+
+  // Handle quick filter toggle from AdvancedSubmissionFilterComponent
+  onQuickFilterToggle(event: QuickFilterEvent) {
+    // Update active quick filters array
+    if (event.active) {
+      if (!this.activeQuickFilters.includes(event.key)) {
+        this.activeQuickFilters.push(event.key);
+      }
+    } else {
+      this.activeQuickFilters = this.activeQuickFilters.filter(f => f !== event.key);
+    }
+    
+    this.applyQuickFilterLogic(event.key, event.active);
+    this.loadSubmissions(1);
+  }
+
+  onPageChange(page: number) {
+    if (page >= 1 && page <= this.totalPages) {
+      this.loadSubmissions(page);
+    }
+  }
+
+
+  toggleAdvancedFilters() {
+    this.showAdvancedFilters = !this.showAdvancedFilters;
+  }
+
+  moveToProgress(submissionId: string) {
+    this.backendService.moveSubmissionToProgress(submissionId, 'Moving to in progress for detailed review').subscribe(
+      (response) => {
+        console.log('✅ Successfully moved submission to progress:', response);
+        // Refresh the list
+        this.loadSubmissions(this.currentPage);
+      },
+      (error) => {
+        console.error('❌ Error moving submission to progress:', error);
+        console.error('Error details:', {
+          status: error.status,
+          message: error.error?.message,
+          details: error.error?.details,
+          submissionId: error.error?.submissionId,
+          currentStatus: error.error?.currentStatus,
+          requiredStatus: error.error?.requiredStatus
+        });
+        
+        // Show user-friendly error message
+        let errorMessage = 'Failed to move submission to progress';
+        if (error.error?.details) {
+          errorMessage += ': ' + error.error.details;
+        }
+        
+        // TODO: Use toast service to show error message
+        alert(errorMessage);
+      }
+    );
+  }
+
+  get pages(): number[] {
+    const pages = [];
+    const start = Math.max(1, this.currentPage - 2);
+    const end = Math.min(this.totalPages, this.currentPage + 2);
+    
+    for (let i = start; i <= end; i++) {
+      pages.push(i);
+    }
+    return pages;
+  }
+
+  trackSubmission(index: number, submission: any): any {
+    return submission._id || index;
+  }
+
+
+  // Get card actions for content cards
+  getCardActions() {
+    return [
+      {
+        label: 'Review',
+        handler: (content: ContentCardData) => this.router.navigate(['/review-submission', content.id]),
+        class: 'px-3 py-1 text-sm rounded bg-primary text-white hover:bg-primary-hover'
+      }
+    ];
+  }
+
+  // Convert submission to ContentCardData format
+  convertToContentCardData(submission: any): ContentCardData {
+    return {
+      id: submission._id,
+      title: submission.title,
+      description: submission?.description || submission?.excerpt,
+      excerpt: submission?.excerpt,
+      author: this.authorService.normalizeAuthor(submission),
+      submissionType: submission.submissionType,
+      status: submission.status,
+      createdAt: submission.createdAt,
+      publishedAt: submission.publishedAt,
+      imageUrl: submission.imageUrl,
+      tags: submission.tags,
+      readingTime: submission.readingTime,
+      isFeatured: submission.isFeatured,
+      wordCount: submission.wordCount || this.calculateWordCount(submission?.description || submission?.excerpt || '')
+    };
+  }
+
+  // Calculate word count from text
+  private calculateWordCount(text: string): number {
+    if (!text) return 0;
+    // Remove HTML tags and clean up text
+    const cleanText = text
+      .replace(/<[^>]*>/g, ' ')  // Remove HTML tags
+      .replace(/\s+/g, ' ')      // Normalize whitespace
+      .trim();
+    
+    if (!cleanText) return 0;
+    
+    // Count words by splitting on whitespace
+    return cleanText.split(' ').filter(word => word.length > 0).length;
+  }
+
+  // Quick filter methods
+  applyQuickFilter(filterType: string) {
+    // Toggle filter
+    const index = this.activeQuickFilters.indexOf(filterType);
+    if (index > -1) {
+      this.activeQuickFilters.splice(index, 1);
+    } else {
+      this.activeQuickFilters.push(filterType);
+    }
+    
+    // Apply filter logic
+    this.applyQuickFilterLogic(filterType);
+    this.loadSubmissions(1);
+  }
+
+  private applyQuickFilterLogic(filterType: string, active?: boolean) {
+    const isActive = active !== undefined ? active : this.activeQuickFilters.includes(filterType);
+    
+    switch (filterType) {
+      case 'urgent':
+        // Urgent filter now includes both resubmitted and old pending submissions
+        // This will be handled on the backend by checking for:
+        // 1. status === 'resubmitted' OR
+        // 2. status === 'pending_review' AND createdAt < 7 days ago
+        this.filters['urgent'] = isActive ? 'true' : '';
+        break;
+      
+      case 'newAuthors':
+        this.filters['authorType'] = isActive ? 'new' : '';
+        break;
+      
+      case 'quickRead':
+        this.filters['wordLength'] = isActive ? 'quick' : '';
+        break;
+    }
+  }
+
+  getQuickFilterClass(filterType: string): string {
+    const isActive = this.activeQuickFilters.includes(filterType);
+    const baseClasses = 'border-gray-200 bg-white text-gray-700 hover:bg-gray-50 hover:border-gray-300';
+    const activeClasses = 'border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100';
+    
+    return isActive ? activeClasses : baseClasses;
+  }
+
+  clearQuickFilters() {
+    this.activeQuickFilters = [];
+    // Reset all quick filter related filters
+    this.filters['urgent'] = '';
+    this.filters['authorType'] = '';
+    this.filters['wordLength'] = '';
+    this.loadSubmissions(1);
+  }
+
+  // Get card action for move to progress
+  getMoveToProgressAction() {
+    return {
+      label: 'Start Review',
+      variant: 'secondary'
+    };
+  }
+
+  // Make Math available in template
+  Math = Math;
+
+  // New methods for mobile-optimized filters
+  onRefresh(): void {
+    this.loadSubmissions(this.currentPage);
+  }
+
+  // Table management methods
+  updatePaginationConfig() {
+    this.paginationConfig = {
+      currentPage: this.currentPage,
+      totalPages: this.totalPages,
+      pageSize: this.pageSize,
+      totalItems: this.totalSubmissions
+    };
+  }
+
+  onTablePageChange(page: number) {
+    this.currentPage = page;
+    this.loadSubmissions(page);
+  }
+
+  onTableSort(event: {column: string, direction: 'asc' | 'desc'}) {
+    // Update sorting if needed
+    this.filters.sortBy = event.column;
+    this.filters.sortOrder = event.direction;
+    this.loadSubmissions(1);
+  }
+
+  // Helper methods for table display
+  getAuthorName(submission: any): string {
+    return submission.author?.name || 
+    submission.authorName || 
+    submission.username || 
+           submission.author?.username || 
+           submission.submitterName || 
+           'Unknown Author';
+  }
+
+  getTruncatedDescription(submission: any, maxLength: number = 100): string {
+    const desc = submission?.description || submission?.excerpt || '';
+    if (!desc) return 'No description available';
+    return desc.length > maxLength ? desc.substring(0, maxLength) + '...' : desc;
+  }
+
+  trackBySubmissionId(index: number, submission: any): string {
+    return submission._id;
+  }
+
+  getBadgeClass(key: string): string {
+    return (this.badgeConfig as any)[key] || 'px-2 py-1 text-xs font-medium rounded-full bg-gray-50 text-gray-700';
+  }
+
+  // Pagination state persistence methods
+  private savePaginationState() {
+    const state = {
+      currentPage: this.currentPage,
+      filters: this.filters,
+      activeQuickFilters: this.activeQuickFilters,
+      timestamp: Date.now()
+    };
+    sessionStorage.setItem(this.PAGINATION_STORAGE_KEY, JSON.stringify(state));
+  }
+
+  private restorePaginationState() {
+    try {
+      const savedState = sessionStorage.getItem(this.PAGINATION_STORAGE_KEY);
+      if (savedState) {
+        const state = JSON.parse(savedState);
+        // Only restore if the state is recent (within last 30 minutes)
+        const thirtyMinutesAgo = Date.now() - (30 * 60 * 1000);
+        if (state.timestamp && state.timestamp > thirtyMinutesAgo) {
+          this.currentPage = state.currentPage || 1;
+          this.filters = { ...this.filters, ...state.filters };
+          this.activeQuickFilters = state.activeQuickFilters || [];
+        }
+      }
+    } catch (error) {
+      // If there's any error in parsing, just start fresh
+      console.warn('Could not restore pagination state:', error);
+    }
+  }
+
+  // Calculate stats from backend-provided stats (PREFERRED)
+  private calculateStatsFromBackend(backendStats: any) {
+    const typeBreakdown = backendStats.typeBreakdown || {};
+    const total = this.totalSubmissions;
+
+    this.headerStats = [
+      {
+        label: 'Total Pending',
+        value: total.toLocaleString(),
+        color: '#3b82f6'
+      },
+      {
+        label: 'Poems',
+        value: (typeBreakdown.poem || 0).toLocaleString(),
+        color: '#10b981'
+      },
+      {
+        label: 'Articles',
+        value: (typeBreakdown.article || 0).toLocaleString(),
+        color: '#f59e0b'
+      },
+      {
+        label: 'Prose',
+        value: (typeBreakdown.prose || 0).toLocaleString(),
+        color: '#ef4444'
+      },
+      {
+        label: 'Opinions',
+        value: (typeBreakdown.opinion || 0).toLocaleString(),
+        color: '#8b5cf6'
+      }
+    ];
+  }
+
+  // Calculate stats from currently loaded submissions (FALLBACK)
+  private calculateStats() {
+    if (!this.submissions || this.submissions.length === 0) {
+      this.headerStats = [];
+      return;
+    }
+
+    // Count submissions by type from current page only
+    const typeCounts = this.submissions.reduce((acc, submission) => {
+      const type = submission.submissionType || 'unknown';
+      acc[type] = (acc[type] || 0) + 1;
+      return acc;
+    }, {} as { [key: string]: number });
+
+    // Build stats array (note: these are page-based, not total counts)
+    this.headerStats = [
+      {
+        label: 'Total Pending',
+        value: this.totalSubmissions.toLocaleString(), // This is accurate from API
+        color: '#3b82f6'
+      },
+      {
+        label: 'Poems (Page)',
+        value: (typeCounts.poem || 0).toLocaleString(), // Page-based count
+        color: '#10b981'
+      },
+      {
+        label: 'Articles (Page)',
+        value: (typeCounts.article || 0).toLocaleString(), // Page-based count
+        color: '#f59e0b'
+      },
+      {
+        label: 'Prose (Page)',
+        value: (typeCounts.prose || 0).toLocaleString(), // Page-based count
+        color: '#ef4444'
+      },
+      {
+        label: 'Opinions (Page)',
+        value: (typeCounts.opinion || 0).toLocaleString(), // Page-based count
+        color: '#8b5cf6'
+      }
+    ];
+  }
+}

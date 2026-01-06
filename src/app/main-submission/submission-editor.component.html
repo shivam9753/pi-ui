@@ -1,0 +1,156 @@
+<!-- Submission Editor - Tab Container -->
+<div class="min-h-screen bg-white-secondary transition-all duration-500">
+
+  <!-- Mobile Experience -->
+  <div class="lg:hidden">
+    <!-- Clean Header -->
+    <div class="bg-white border border-gray-200 px-6 py-6">
+      <div class="text-center">
+        <h1 class="text-2xl text-gray-900">{{ pageTitle }}</h1>
+        <p class="text-gray-900-secondary text-sm mt-1">{{ pageSubtitle }}</p>
+      </div>
+    </div>
+
+    <!-- Tab Content -->
+    @if (activeTab === 'submit') {
+      <app-submit-form
+        [mode]="mode"
+        [submissionId]="submissionId"
+        [currentDraft]="currentDraft"
+        [relatedTopicPitchId]="relatedTopicPitchId"
+        (toastMessage)="onToastMessage($event)"
+        (formSubmitted)="onFormSubmitted()"
+        (draftSaved)="onDraftSaved($event)"
+        (cancelled)="onFormCancelled()"
+      ></app-submit-form>
+    }
+
+    @if (isCreateMode && activeTab === 'drafts') {
+      <div class="px-6 py-6 pb-32">
+        <app-drafts-list
+          [drafts]="drafts"
+          [isInline]="true"
+          (loadDraft)="loadDraftAndSwitchToSubmit($event)"
+          (deleteDraft)="deleteDraft($event)"
+          (createNew)="activeTab = 'submit'"
+        ></app-drafts-list>
+      </div>
+    }
+
+    @if (isCreateMode && activeTab === 'guidelines') {
+      <div class="px-6 py-6 pb-32">
+        <app-guidelines-overlay
+          [isInline]="true"
+        ></app-guidelines-overlay>
+      </div>
+    }
+
+    <!-- Bottom Navigation (Create mode only) -->
+    @if (isCreateMode) {
+      <div class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-6 py-3 safe-area-inset-bottom">
+        <div class="flex justify-center space-x-16">
+          <button (click)="activeTab = 'submit'"
+            class="flex flex-col items-center space-y-1 py-2 transition-colors duration-200 btn-feedback touch-target"
+            [style.color]="activeTab === 'submit' ? 'var(--text-accent)' : 'var(--text-tertiary)'">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path>
+            </svg>
+            <span class="text-xs font-medium">Write</span>
+          </button>
+          <button (click)="activeTab = 'drafts'"
+            class="flex flex-col items-center space-y-1 py-2 relative transition-colors duration-200 btn-feedback touch-target"
+            [style.color]="activeTab === 'drafts' ? 'var(--text-accent)' : 'var(--text-tertiary)'">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+            </svg>
+            <span class="text-xs font-medium">My Drafts</span>
+            @if (drafts.length > 0) {
+              <div class="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">{{ drafts.length }}</div>
+            }
+          </button>
+          <button (click)="activeTab = 'guidelines'"
+            class="flex flex-col items-center space-y-1 py-2 transition-colors duration-200 btn-feedback touch-target"
+            [style.color]="activeTab === 'guidelines' ? 'var(--text-accent)' : 'var(--text-tertiary)'">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            <span class="text-xs font-medium">Guide</span>
+          </button>
+        </div>
+      </div>
+    }
+  </div>
+
+  <!-- Desktop Experience -->
+  <div class="hidden lg:block">
+    <div class="max-w-4xl mx-auto px-8 py-16">
+      <!-- Elegant Header -->
+      <div class="text-center mb-16">
+        <h1 class="text-2xl md:text-3xl font-bold text-gray-900 mb-2">
+          {{ pageTitle }}
+        </h1>
+        <p class="text-gray-900-secondary">
+          {{ pageSubtitle }}
+        </p>
+      </div>
+
+      <!-- Navigation Tabs (Create mode only) -->
+      @if (isCreateMode) {
+        <div class="mb-12">
+          <app-tabs [(activeTab)]="activeTab">
+            <app-tab-item tabId="submit" label="Write"></app-tab-item>
+            <app-tab-item tabId="drafts" label="My Drafts"></app-tab-item>
+            <app-tab-item tabId="guidelines" label="Guidelines"></app-tab-item>
+          </app-tabs>
+        </div>
+      }
+
+      <!-- Tab Content -->
+      @if (activeTab === 'submit') {
+        <app-submit-form
+          [mode]="mode"
+          [submissionId]="submissionId"
+          [currentDraft]="currentDraft"
+          [relatedTopicPitchId]="relatedTopicPitchId"
+          (toastMessage)="onToastMessage($event)"
+          (formSubmitted)="onFormSubmitted()"
+          (draftSaved)="onDraftSaved($event)"
+          (cancelled)="onFormCancelled()"
+        ></app-submit-form>
+      }
+
+      @if (isCreateMode && activeTab === 'drafts') {
+        <div class="px-6 py-8 lg:px-8">
+          <app-drafts-list
+            [drafts]="drafts"
+            [isInline]="true"
+            (loadDraft)="loadDraftAndSwitchToSubmit($event)"
+            (deleteDraft)="deleteDraft($event)"
+            (createNew)="activeTab = 'submit'"
+          ></app-drafts-list>
+        </div>
+      }
+
+      @if (isCreateMode && activeTab === 'guidelines') {
+        <div class="px-6 py-8 lg:px-8">
+          <div class="max-w-4xl mx-auto">
+            <app-guidelines-overlay
+              [isInline]="true"
+            ></app-guidelines-overlay>
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+
+  <!-- Toast Notifications -->
+  <app-toast-notification
+    [message]="toastMessage"
+    [type]="toastType"
+    [isVisible]="showToastFlag"
+    [autoClose]="true"
+    [duration]="5000"
+    (closed)="hideToast()">
+  </app-toast-notification>
+
+</div>

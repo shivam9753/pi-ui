@@ -1,0 +1,117 @@
+<!-- Admin Dashboard Layout -->
+<div class="min-h-screen bg-white transition-colors duration-300">
+
+  <!-- Loading State -->
+  @if (loading) {
+    <div class="flex items-center justify-center min-h-screen">
+      <div class="text-center">
+        <div class="w-12 h-12 mx-auto mb-4 border-4 border-primary/20 border-t-primary rounded-full animate-spin"></div>
+        <p class="text-gray-600">Loading admin dashboard...</p>
+      </div>
+    </div>
+  }
+
+  <!-- Main Admin Dashboard -->
+  @if (!loading && (isAdmin || isReviewer)) {
+    <div class="bg-white pb-10">
+      <!-- Tab Navigation -->
+      <app-tabs [(activeTab)]="activeTab">
+        @if (canAccessTab('submissions')) {
+          <app-tab-item tabId="submissions" label="Submissions"></app-tab-item>
+        }
+        @if (canAccessTab('content')) {
+          <app-tab-item tabId="content" label="Content"></app-tab-item>
+        }
+        @if (canAccessTab('users')) {
+          <app-tab-item tabId="users" label="Users"></app-tab-item>
+        }
+        @if (canAccessTab('analytics')) {
+          <app-tab-item tabId="analytics" label="Analytics"></app-tab-item>
+        }
+        @if (canAccessTab('purge')) {
+          <app-tab-item tabId="purge" label="Purge Data"></app-tab-item>
+        }
+      </app-tabs>
+      <!-- Tab Content (White Background) -->
+      <!-- Full-width white background -->
+      <div class="bg-white w-full">
+        <!-- Centered inner content -->
+        <div class="pt-6 max-w-screen-xl mx-auto px-4 sm:px-6 md:px-10">
+          @if (activeTab === 'submissions') {
+            <div class="animate-fade-in">
+              <app-published-posts></app-published-posts>
+            </div>
+          }
+          @if (activeTab === 'content') {
+            <div class="animate-fade-in">
+              <app-featured-content></app-featured-content>
+            </div>
+          }
+          @if (activeTab === 'users') {
+            <div class="animate-fade-in">
+              <!-- User Management Sub-tabs -->
+              <div class="mb-6">
+                <div class="border-b border-gray-200">
+                  <div class="flex space-x-6">
+                    <button
+                      (click)="setUserSubTab('manage')"
+                      [class.border-primary]="userSubTab === 'manage'"
+                      [class.text-primary]="userSubTab === 'manage'"
+                      [class.border-transparent]="userSubTab !== 'manage'"
+                      [class.text-gray-600]="userSubTab !== 'manage'"
+                      class="py-2 px-1 border-b-2 font-medium text-sm transition-colors duration-200 hover:text-primary hover:border-neutral-300">
+                      Manage Users
+                    </button>
+                    <button
+                      (click)="setUserSubTab('create')"
+                      [class.border-primary]="userSubTab === 'create'"
+                      [class.text-primary]="userSubTab === 'create'"
+                      [class.border-transparent]="userSubTab !== 'create'"
+                      [class.text-gray-600]="userSubTab !== 'create'"
+                      class="py-2 px-1 border-b-2 font-medium text-sm transition-colors duration-200 hover:text-primary hover:border-neutral-300">
+                      Create Users
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- User Sub-tab Content -->
+              @if (userSubTab === 'manage') {
+                <app-user-management></app-user-management>
+              }
+              @if (userSubTab === 'create') {
+                <app-create-users></app-create-users>
+              }
+            </div>
+          }
+          @if (activeTab === 'analytics') {
+            <div class="animate-fade-in">
+              <app-analytics></app-analytics>
+            </div>
+          }
+          @if (activeTab === 'purge') {
+            <div class="animate-fade-in">
+              <app-purge-management></app-purge-management>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Access Denied -->
+  @if (!loading && !isAdmin && !isReviewer) {
+    <div class="flex items-center justify-center min-h-screen bg-white">
+      <div class="text-center max-w-md mx-auto p-8">
+        <div class="w-16 h-16 mx-auto mb-4 bg-red-100 rounded-full flex items-center justify-center">
+          <svg class="w-8 h-8 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.664-.833-2.464 0L4.35 16.5c-.77.833.192 2.5 1.732 2.5z" />
+          </svg>
+        </div>
+        <h2 class="text-xl font-semibold text-gray-800 mb-2">Access Denied</h2>
+        <p class="text-gray-600 mb-4">You don't have permission to access the admin dashboard.</p>
+        <button (click)="router.navigate(['/'])" class="btn-primary">Go Home</button>
+      </div>
+    </div>
+  }
+</div>

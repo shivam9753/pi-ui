@@ -10,8 +10,6 @@ export { StatusBadgeComponent } from './status-badge/status-badge.component';
 export type { StatusType } from './status-badge/status-badge.component';
 export { SubmissionTagComponent } from './submission-tag/submission-tag.component';
 export type { TagType } from './submission-tag/submission-tag.component';
-export { PaginationComponent } from './pagination/pagination.component';
-export type { PaginationInfo } from './pagination/pagination.component';
 export { DataTableComponent } from './data-table/data-table.component';
 export type { 
   TableColumn, 
