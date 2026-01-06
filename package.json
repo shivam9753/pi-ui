@@ -38,6 +38,7 @@
     "@tailwindcss/postcss": "^4.1.11",
     "@types/node-fetch": "^2.6.13",
     "express": "^4.18.2",
+    "heroicons": "^2.2.0",
     "node-fetch": "^3.3.2",
     "prosemirror-commands": "^1.7.1",
     "prosemirror-history": "^1.5.0",

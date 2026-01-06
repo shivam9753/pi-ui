@@ -4,6 +4,7 @@ import { CommonModule } from '@angular/common';
 import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
 import { CommonUtils, StringUtils } from '../../shared/utils';
 import { ButtonComponent } from '../../shared/components/button/button.component';
+import { AlertBannerComponent } from '../../ui-components/alert-banner/alert-banner.component';
 
 export interface Draft {
   id: string;
@@ -17,7 +18,7 @@ export interface Draft {
 
 @Component({
   selector: 'app-drafts-list',
-  imports: [CommonModule, EmptyStateComponent, ButtonComponent],
+  imports: [CommonModule, EmptyStateComponent, ButtonComponent, AlertBannerComponent],
   templateUrl: './drafts-list.component.html',
   styleUrl: './drafts-list.component.css'
 })

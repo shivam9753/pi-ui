@@ -3,409 +3,249 @@
     <div class="flex items-center justify-between h-16 lg:h-20">
 
       <!-- Logo -->
-      <div class="flex items-center flex-shrink-0">
-        <a routerLink="/" class="inline-flex items-center">
-          <img src="assets/poemsindia-logo.png" alt="PoemsIndia" class="w-auto" style="height: 120px;">
-        </a>
-      </div>
+      <a routerLink="/" class="flex items-center">
+        <img src="assets/poemsindia-logo.png" alt="PoemsIndia" class="h-30 w-auto" />
+      </a>
 
-      <!-- Desktop Navigation -->
-      <nav class="hidden lg:flex lg:flex-1 lg:justify-center lg:space-x-4 xl:space-x-6 items-center">
-      
-        <a routerLink="/explore"
-          (click)="clearSearchAndNavigate()"
-          routerLinkActive="text-primary font-semibold"
-          [routerLinkActiveOptions]="{exact: false}"
-          class="text-md font-semibold text-themed hover:text-primary transition-colors duration-200">
+      <!-- ================= DESKTOP NAV ================= -->
+      <nav class="hidden lg:flex flex-1 justify-center items-center space-x-6">
+        <a routerLink="/explore" routerLinkActive="text-primary font-semibold"
+          class="font-semibold text-themed hover:text-primary">
           Explore
         </a>
-        <a routerLink="/featured-poems"
-          routerLinkActive="text-primary font-semibold"
-          [routerLinkActiveOptions]="{exact: false}"
-          class="text-md font-semibold text-themed hover:text-primary transition-colors duration-200">
+
+        <a routerLink="/featured-poems" routerLinkActive="text-primary font-semibold"
+          class="font-semibold text-themed hover:text-primary">
           Featured
         </a>
-        <button (click)="handleSubmitClick()"
-          [class]="isSubmitActive() ? 'text-md font-semibold text-primary hover:text-primary transition-colors duration-200' : 'text-md text-themed hover:text-primary transition-colors duration-200'">
+
+        <button (click)="handleSubmitClick()" class="font-semibold text-themed hover:text-primary">
           Submit
         </button>
+
         @if (canAccessStudio()) {
-          <a
-            routerLink="/studio"
-            routerLinkActive="text-primary font-semibold"
-            [routerLinkActiveOptions]="{exact: false}"
-            class="text-md font-semibold text-themed hover:text-primary transition-colors duration-200">
-            Studio
-          </a>
+        <a routerLink="/studio" class="font-semibold text-themed hover:text-primary">
+          Studio
+        </a>
         }
+
         @if (canAccessWorkspace()) {
-          <a
-            routerLink="/workspace"
-            routerLinkActive="text-primary font-semibold"
-            [routerLinkActiveOptions]="{exact: false}"
-            class="text-md font-semibold text-themed hover:text-primary transition-colors duration-200">
-            Workspace
-          </a>
+        <a routerLink="/workspace" class="font-semibold text-themed hover:text-primary">
+          Workspace
+        </a>
         }
+
         @if (isAdmin()) {
-          <a
-            routerLink="/admin"
-            routerLinkActive="text-primary font-semibold"
-            [routerLinkActiveOptions]="{exact: false}"
-            class="text-md font-semibold text-themed hover:text-primary transition-colors duration-200">
-            Admin
-          </a>
+        <a routerLink="/admin" class="font-semibold text-themed hover:text-primary">
+          Admin
+        </a>
         }
-        <!-- <a routerLink="/prompts"
-          routerLinkActive="text-primary font-semibold"
-          class="text-sm font-medium text-themed hover:text-primary transition-colors duration-200">
-          Prompts
-        </a> -->
       </nav>
 
-      <!-- Desktop User Section -->
-      <div class="hidden lg:flex lg:items-center lg:space-x-3 lg:flex-shrink-0">
-        <!-- Search Button -->
-        <button (click)="openSearchPage()" 
-                aria-label="Search content"
-                class="p-1.5 text-gray-500 hover:text-gray-400 transition-colors duration-200">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+      <!-- ================= RIGHT ACTIONS ================= -->
+      <div class="flex items-center gap-3">
+
+        <!-- DESKTOP SEARCH -->
+        <button (click)="openSearchPage()" aria-label="Search"
+          class="hidden lg:inline-flex p-2 text-themed-secondary hover:text-themed">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
           </svg>
         </button>
-        <!-- Settings Dropdown -->
-        <div class="relative" data-dropdown="settings">
-          <button type="button" 
-                  (click)="toggleSettingsDropdown()" 
-                  [attr.aria-expanded]="showSettingsDropdown()"
-                  aria-haspopup="true"
-                  aria-controls="settings-dropdown-menu"
-                  aria-label="Settings menu"
-                  class="p-1.5 text-gray-500 hover:text-gray-400 transition-colors duration-200">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+
+        <!-- AUTH (DESKTOP) -->
+        @if (isBrowser() && authChecked()) {
+          @if (!isAuthenticated()) {
+
+          <!-- Login -->
+          <a routerLink="/login" class="hidden lg:inline-flex px-5 py-2 text-sm font-semibold
+                     rounded-full border border-themed hover:bg-themed-hover">
+            Login
+          </a>
+
+          } @else {
+
+          <!-- User Dropdown -->
+          <div class="relative hidden lg:block" data-dropdown="user">
+          <button (click)="toggleDropdown(); $event.stopPropagation()"
+            class="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-themed-hover" aria-haspopup="true"
+            [attr.aria-expanded]="showDropdown()">
+            <span class="text-sm font-medium">
+              {{ loggedInUser()!.name }}
+            </span>
+
+            <svg class="w-4 h-4 transition-transform" [ngClass]="{ 'rotate-180': showDropdown() }" fill="none"
+              stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
             </svg>
           </button>
-          @if (showSettingsDropdown()) {
-            <div id="settings-dropdown-menu" 
-                 role="menu" 
-                 aria-labelledby="settings-menu-button"
-                 class="absolute right-0 mt-2 w-48 bg-themed-card border border-themed rounded-lg shadow-lg overflow-hidden transition-all duration-200">
-              <a routerLink="/whats-new" 
-                 (click)="closeSettingsDropdown()" 
-                 role="menuitem"
-                 class="flex items-center px-4 py-2 text-sm text-themed hover:bg-themed-hover focus:bg-themed-hover focus:outline-none">
-                <svg class="w-4 h-4 mr-3 text-themed-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
-                </svg>
-                What's New
-              </a>
-              <div class="flex items-center justify-between px-4 py-2 text-sm text-themed hover:bg-themed-hover">
-                <div class="flex items-center">
-                  <svg class="w-4 h-4 mr-3 text-themed-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/>
+
+          @if (showDropdown()) {
+          <div class="absolute right-0 mt-2 w-56 bg-themed-card
+                       border border-themed rounded-lg shadow-lg overflow-hidden">
+
+            <!-- User Info -->
+            <div class="px-4 py-3 border-b border-themed">
+              <p class="text-lg font-semibold">{{ loggedInUser()!.name }}</p>
+
+              @if (shouldShowRoleChip()) {
+                <div [class]="getRoleChipClasses()">
+                  <svg class="w-4 h-4 mr-1.5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" [attr.d]="getRoleIconPath()"/>
                   </svg>
-                  <span>Theme</span>
+                  {{ loggedInUser()!.role | titlecase }}
                 </div>
-                <app-theme-toggle></app-theme-toggle>
-              </div>
+              }
             </div>
+
+            <a [routerLink]="['/user-profile', userId]" (click)="closeDropdown()"
+              class="block px-4 py-2 text-sm hover:bg-themed-hover">
+              My Profile
+            </a>
+
+            <a routerLink="/whats-new" (click)="closeDropdown()" class="block px-4 py-2 text-sm hover:bg-themed-hover">
+              What’s New
+            </a>
+
+            <div class="flex items-center justify-between px-4 py-2 hover:bg-themed-hover">
+              <span class="text-sm">Theme</span>
+              <app-theme-toggle></app-theme-toggle>
+            </div>
+
+            <div class="border-t border-themed my-1"></div>
+
+            <button (click)="logout()" class="w-full text-left px-4 py-2 text-sm
+                         text-red-600 hover:bg-themed-hover">
+              Logout
+            </button>
+          </div>
           }
         </div>
 
-        @if (loggedInUser()) {
-          <div class="relative" data-dropdown="user">
-            <button type="button" 
-                    (click)="toggleDropdown()" 
-                    [attr.aria-expanded]="showDropdown()"
-                    aria-haspopup="true"
-                    aria-controls="user-dropdown-menu"
-                    [attr.aria-label]="'User menu for ' + loggedInUser()!.name"
-                    class="flex items-center px-2 py-1.5 text-sm font-medium text-themed hover:text-themed transition-colors duration-200 rounded-lg hover:bg-themed-hover btn-feedback touch-target">
-              <div class="flex flex-col items-start">
-                <span class="text-sm">{{ loggedInUser()!.name }}</span>
-                @if (hasElevatedRole()) {
-                  <div class="flex items-center space-x-1.5 mt-1">
-                    @switch (loggedInUser()!.role) {
-                      @case ('admin') {
-                        <svg class="w-3.5 h-3.5 text-admin flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                          <path fill-rule="evenodd" d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" clip-rule="evenodd" />
-                        </svg>
-                        <span class="text-sm text-admin font-medium capitalize">{{ loggedInUser()!.role }}</span>
-                      }
-                      @case ('reviewer') {
-                        <svg class="w-3.5 h-3.5 text-reviewer flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                        <span class="text-sm text-reviewer font-medium capitalize">{{ loggedInUser()!.role }}</span>
-                      }
-                      @case ('writer') {
-                        <svg class="w-3.5 h-3.5 text-studio flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-                        </svg>
-                        <span class="text-sm text-studio font-medium capitalize">{{ loggedInUser()!.role }}</span>
-                      }
-                      @default {
-                        <span class="text-sm text-themed-secondary capitalize">{{ loggedInUser()!.role }}</span>
-                      }
-                    }
-                  </div>
-                }
-              </div>
-              <svg class="w-3 h-3 ml-1.5 transition-transform duration-200" [ngClass]="{ 'rotate-180': showDropdown() }" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-              </svg>
-            </button>
-            @if (showDropdown()) {
-              <div id="user-dropdown-menu" 
-                   role="menu" 
-                   aria-labelledby="user-menu-button"
-                   class="absolute right-0 mt-2 w-48 bg-themed-card border border-themed rounded-lg shadow-lg overflow-hidden transition-all duration-200">
-                <a [routerLink]="['/user-profile', userId]" 
-                   (click)="closeDropdown()" 
-                   role="menuitem"
-                   class="block px-4 py-2 text-sm text-themed hover:bg-themed-hover focus:bg-themed-hover focus:outline-none">
-                  My Profile
-                </a>
-                <div class="border-t border-themed my-1" aria-hidden="true"></div>
-                <button (click)="logout()" 
-                        role="menuitem"
-                        class="w-full text-left block px-4 py-2 text-sm text-red-600 hover:bg-themed-hover hover:text-red-500 focus:bg-themed-hover focus:outline-none">
-                  Logout
-                </button>
-              </div>
-            }
-          </div>
         }
-      </div>
+        }
 
-      <!-- Mobile Menu Buttons (VISIBLE ONLY BELOW LG) -->
-      <div class="mobile-buttons-container flex items-center space-x-2 lg:hidden">
-        <!-- Search Button -->
-        <button (click)="openSearchPage()" 
-                aria-label="Search content"
-                class="p-2 text-themed-secondary hover:text-themed hover:bg-themed-hover rounded-lg transition-all duration-200">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+        <!-- MOBILE SEARCH -->
+        <button (click)="openSearchPage()" aria-label="Search"
+          class="lg:hidden p-2 text-themed-secondary hover:text-themed">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
           </svg>
         </button>
-        @if (!loggedInUser() && !isOnLoginPage()) {
-          <a routerLink="/login" 
-             aria-label="Login or Sign up"
-             class="p-2 text-themed-secondary hover:text-themed hover:bg-themed-hover rounded-lg transition-all duration-200">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-            </svg>
-          </a>
-        }
-        <button (click)="toggleMobileMenu()" 
-                [attr.aria-expanded]="isMobileMenuOpen()"
-                aria-controls="mobile-navigation-menu"
-                aria-label="Toggle navigation menu"
-                class="mobile-hamburger-button p-2 text-themed-secondary hover:text-themed hover:bg-themed-hover rounded-lg transition-all duration-200">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M4 6h16M4 12h16M4 18h16" />
+
+        <!-- MOBILE HAMBURGER -->
+        <button (click)="toggleMobileMenu()" aria-label="Open menu"
+          class="lg:hidden p-2 text-themed-secondary hover:text-themed">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
           </svg>
         </button>
-      </div>
 
+      </div>
     </div>
   </div>
 </header>
 
-
-<!-- Mobile Menu Overlay (Only show on mobile and when menu is open) -->
+<!-- ================= MOBILE OVERLAY ================= -->
 @if (isMobileMenuOpen()) {
-  <div class="mobile-overlay fixed inset-0 bg-black/60 backdrop-blur-sm z-40 lg:hidden transition-all duration-300" (click)="closeMobileMenu()"></div>
+<div class="fixed inset-0 bg-black/60 z-40 lg:hidden" (click)="closeMobileMenu()"></div>
 }
 
-<!-- Mobile Slide-In Menu -->
-<div [ngClass]="{ 'translate-x-0': isMobileMenuOpen(), 'translate-x-full': !isMobileMenuOpen() }" class="mobile-menu fixed top-0 right-0 h-full w-80 bg-themed border-l border-themed z-50 transform transition-all duration-300 ease-in-out lg:hidden shadow-2xl">
-
-  <!-- Mobile Menu Header -->
-  <div class="p-4 border-b border-themed flex items-center justify-between">
-    <button (click)="closeMobileMenu()" class="p-2 flex items-center justify-center border border-themed rounded-full hover:bg-themed-hover transition-colors">
-        <svg class="w-5 h-5 text-themed" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-        </svg>
-      </button>
+<!-- ================= MOBILE MENU ================= -->
+<div class="fixed top-0 right-0 w-80 h-full bg-themed border-l border-themed z-50
+         transform transition-transform duration-300 lg:hidden" [ngClass]="{
+    'translate-x-0': isMobileMenuOpen(),
+    'translate-x-full': !isMobileMenuOpen()
+  }">
+  <div class="p-4 border-b border-themed flex justify-between">
+    <span class="font-semibold">Menu</span>
+    <button (click)="closeMobileMenu()" aria-label="Close menu">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+      </svg>
+    </button>
   </div>
 
-  <!-- Mobile Menu Content -->
-  <div class="flex flex-col h-full">
-    <!-- User Section (if logged in) -->
-    @if (loggedInUser()) {
-      <div class="p-6 bg-themed-secondary border-b border-themed">
-        <button 
-          [routerLink]="['/user-profile', userId]"
-          (click)="closeMobileMenu()"
-          class="w-full flex items-center justify-between hover:bg-themed-hover rounded-lg p-2 -m-2 transition-colors duration-200 group cursor-pointer">
-          <div class="flex items-center">
-            <div class="w-12 h-12 rounded-full bg-gradient-to-br from-primary to-primary-hover flex items-center justify-center text-white font-medium text-lg">
-              {{ getUserInitials(loggedInUser()!.name) }}
-            </div>
-            <div class="ml-4">
-              <p class="text-lg font-medium text-themed group-hover:text-themed">{{ loggedInUser()!.name }}</p>
-              @if (hasElevatedRole()) {
-                <div class="flex items-center space-x-1.5 mt-1">
-                  @switch (loggedInUser()!.role) {
-                    @case ('admin') {
-                      <svg class="w-3.5 h-3.5 text-admin flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" clip-rule="evenodd" />
-                      </svg>
-                      <span class="text-sm text-admin font-medium capitalize">{{ loggedInUser()!.role }}</span>
-                    }
-                    @case ('reviewer') {
-                      <svg class="w-3.5 h-3.5 text-reviewer flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                      </svg>
-                      <span class="text-sm text-reviewer font-medium capitalize">{{ loggedInUser()!.role }}</span>
-                    }
-                    @case ('writer') {
-                      <svg class="w-3.5 h-3.5 text-studio flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-                      </svg>
-                      <span class="text-sm text-studio font-medium capitalize">{{ loggedInUser()!.role }}</span>
-                    }
-                    @default {
-                      <span class="text-sm text-themed-secondary capitalize">{{ loggedInUser()!.role }}</span>
-                    }
-                  }
-                </div>
-              }
-            </div>
-          </div>
-          <svg class="w-4 h-4 text-themed-secondary group-hover:text-themed transition-colors duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+  <div class="p-6 space-y-6">
+
+    <!-- User Info -->
+    @if (isAuthenticated()) {
+    <div>
+      <p class="text-lg font-semibold">{{ loggedInUser()!.name }}</p>
+
+      @if (shouldShowRoleChip()) {
+        <div [class]="getRoleChipClasses()">
+          <svg class="w-4 h-4 mr-1.5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" [attr.d]="getRoleIconPath()"/>
           </svg>
-        </button>
-      </div>
+          {{ loggedInUser()!.role | titlecase }}
+        </div>
+      }
+
+    </div>
     }
 
-    <!-- Navigation Links -->
-    <nav class="flex-1 px-6 py-6 space-y-2">
-
-      <a routerLink="/explore"
-        (click)="clearSearchAndNavigate(); closeMobileMenu()"
-        class="nav-link btn-feedback flex items-center px-4 py-3 text-themed hover:bg-themed-hover hover:text-themed rounded-lg transition-colors duration-200 group">
-        <svg class="w-5 h-5 mr-3 text-themed-secondary group-hover:text-themed" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-        </svg>
-        <span class="text-base font-bold">Explore</span>
+    <!-- Navigation -->
+    <nav class="flex flex-col space-y-4">
+      <a routerLink="/explore" (click)="closeMobileMenu()" class="block text-lg font-medium">
+        Explore
       </a>
 
-      <a routerLink="/featured-poems"
-        (click)="closeMobileMenu()"
-        class="nav-link btn-feedback flex items-center px-4 py-3 text-themed hover:bg-themed-hover hover:text-themed rounded-lg transition-colors duration-200 group">
-        <svg class="w-5 h-5 mr-3 text-themed-secondary group-hover:text-themed" fill="currentColor" viewBox="0 0 20 20">
-          <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-        </svg>
-        <span class="text-base font-bold">Featured</span>
+      <a routerLink="/featured-poems" (click)="closeMobileMenu()" class="block text-lg font-medium">
+        Featured
       </a>
 
-      @if (loggedInUser()) {
-        <button
-          (click)="handleSubmitClick(); closeMobileMenu()"
-          class="nav-link btn-feedback w-full flex items-center px-4 py-3 text-themed hover:bg-themed-hover hover:text-themed rounded-lg transition-colors duration-200 group">
-          <svg class="w-5 h-5 mr-3 text-themed-secondary group-hover:text-themed" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-          </svg>
-          <span class="text-base font-bold">Submit</span>
-        </button>
-      }
-      
+      <button (click)="handleSubmitClick(); closeMobileMenu()" class="block text-left text-lg font-medium">
+        Submit
+      </button>
+
       @if (canAccessStudio()) {
-        <a
-          routerLink="/studio"
-          (click)="closeMobileMenu()"
-          class="flex items-center px-4 py-3 text-themed hover:bg-themed-hover hover:text-themed rounded-lg transition-colors duration-200 group">
-          <svg class="w-5 h-5 mr-3 text-themed-secondary group-hover:text-themed" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
-          </svg>
-          <span class="text-base font-bold">Studio</span>
-        </a>
+      <a routerLink="/studio" (click)="closeMobileMenu()" class="block text-lg font-medium">
+        Studio
+      </a>
       }
 
       @if (canAccessWorkspace()) {
-        <a
-          routerLink="/workspace"
-          (click)="closeMobileMenu()"
-          class="flex items-center px-4 py-3 text-themed hover:bg-themed-hover hover:text-themed rounded-lg transition-colors duration-200 group">
-          <svg class="w-5 h-5 mr-3 text-themed-secondary group-hover:text-themed" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
-          </svg>
-          <span class="text-base font-bold">Workspace</span>
-        </a>
+      <a routerLink="/workspace" (click)="closeMobileMenu()" class="block text-lg font-medium">
+        Workspace
+      </a>
       }
 
       @if (isAdmin()) {
-        <a
-          routerLink="/admin"
-          (click)="closeMobileMenu()"
-          class="flex items-center px-4 py-3 text-themed hover:bg-themed-hover hover:text-themed rounded-lg transition-colors duration-200 group">
-          <svg class="w-5 h-5 mr-3 text-themed-secondary group-hover:text-themed" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-          </svg>
-          <span class="text-base font-bold">Admin</span>
-        </a>
+      <a routerLink="/admin" (click)="closeMobileMenu()" class="block text-lg font-medium">
+        Admin
+      </a>
+      }
+    </nav>
+
+    <div class="border-t border-themed"></div>
+
+    <!-- User Actions -->
+    <div class="flex flex-col space-y-4">
+
+      @if (isAuthenticated()) {
+      <a [routerLink]="['/user-profile', userId]" (click)="closeMobileMenu()" class="block text-base">
+        My Profile
+      </a>
       }
 
-      <!-- <a routerLink="/prompts"
-        (click)="closeMobileMenu()"
-        class="flex items-center px-4 py-3 text-themed hover:bg-themed-hover hover:text-themed rounded-lg transition-colors duration-200 group">
-        <svg class="w-5 h-5 mr-3 text-themed-secondary group-hover:text-themed" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
-        </svg>
-        <span class="text-base font-medium">Prompts</span>
-      </a> -->
-
-      <a routerLink="/whats-new"
-        (click)="closeMobileMenu()"
-        class="flex items-center px-4 py-3 text-themed hover:bg-themed-hover hover:text-themed rounded-lg transition-colors duration-200 group">
-        <svg class="w-5 h-5 mr-3 text-themed-secondary group-hover:text-themed" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
-        </svg>
-        <span class="text-base font-bold">What's New</span>
+      <a routerLink="/whats-new" (click)="closeMobileMenu()" class="block text-base text-primary">
+        What’s New
       </a>
 
-      <!-- Universal Theme Toggle (visible to all users) -->
-      <div class="flex items-center justify-between px-4 py-3 text-themed">
-        <div class="flex items-center">
-          <svg class="w-5 h-5 mr-3 text-themed-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/>
-          </svg>
-          <span class="text-base font-medium">Theme</span>
-        </div>
+      <div class="flex items-center justify-between">
+        <span class="text-base">Theme</span>
         <app-theme-toggle></app-theme-toggle>
       </div>
 
-      <!-- Submit button for non-logged users -->
-      @if (!loggedInUser()) {
-        <button
-          (click)="handleSubmitClick(); closeMobileMenu()"
-          class="w-full flex items-center px-4 py-3 text-themed hover:bg-themed-hover hover:text-themed rounded-lg transition-colors duration-200 group">
-          <svg class="w-5 h-5 mr-3 text-themed-secondary group-hover:text-themed" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-          </svg>
-          <span class="text-base font-bold">Submit</span>
-        </button>
+      @if (isAuthenticated()) {
+      <button (click)="logout(); closeMobileMenu()" class="text-left text-red-600 text-base">
+        Logout
+      </button>
       }
+    </div>
 
-      <!-- Mobile User Actions -->
-      @if (loggedInUser()) {
-        <div class="pt-4 mt-4 border-t border-themed">
-          <a (click)="logout(); closeMobileMenu()"
-            class="flex items-center px-4 py-3 text-themed hover:bg-themed-hover hover:text-red-400 rounded-lg transition-colors duration-200 group cursor-pointer">
-            <svg class="w-5 h-5 mr-3 text-themed-secondary group-hover:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-            </svg>
-            <span class="text-base font-medium">Logout</span>
-          </a>
-        </div>
-      }
-    </nav>
-    
   </div>
 </div>

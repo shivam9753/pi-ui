@@ -10,6 +10,19 @@ import { ModalService } from './services/modal.service';
 import { AuthService } from './services/auth.service';
 import { isPlatformBrowser } from '@angular/common';
 
+// Auth initializer factory to restore session before app renders
+function authInitializerFactory(authService: AuthService, platformId: Object) {
+  return () => {
+    // Only restore session in browser environment
+    if (isPlatformBrowser(platformId)) {
+      // Force restore session synchronously
+      authService.forceRestoreSession();
+    }
+    // Return resolved promise to complete initialization
+    return Promise.resolve();
+  };
+}
+
 // Functional interceptor for Angular 17+
 function loaderInterceptor(req: any, next: any) {
   const loaderService = inject(LoaderService);
@@ -75,6 +88,12 @@ export const appConfig: ApplicationConfig = {
       provide: APP_INITIALIZER,
       useFactory: metaInitializerFactory,
       deps: [MetaInitializerService],
+      multi: true
+    },
+    {
+      provide: APP_INITIALIZER,
+      useFactory: authInitializerFactory,
+      deps: [AuthService, PLATFORM_ID],
       multi: true
     }
   ]

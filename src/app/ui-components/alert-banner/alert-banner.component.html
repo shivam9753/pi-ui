@@ -1,0 +1,79 @@
+@if (isVisible()) {
+<div class="relative flex items-start gap-3 rounded-lg border p-4 shadow-sm my-2" [ngClass]="containerClasses" role="alert">
+
+    <!-- ICON (RAW HEROICONS SVGs) -->
+    <div class="mt-0.5">
+
+        <!-- SUCCESS -->
+        @if (tone === 'success') {
+        <svg class="h-6 w-6" [ngClass]="iconClasses" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+            stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        }
+
+        <!-- INFO -->
+        @if (tone === 'info') {
+        <svg class="h-6 w-6" [ngClass]="iconClasses" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+            stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round"
+                d="M13 16h-1v-4h-1m1-4h.01M12 2a10 10 0 100 20 10 10 0 000-20z" />
+        </svg>
+        }
+
+        <!-- WARNING -->
+        @if (tone === 'warning') {
+        <svg class="h-6 w-6" [ngClass]="iconClasses" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+            stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round"
+                d="M12 9v3m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
+        </svg>
+        }
+
+        <!-- ERROR -->
+        @if (tone === 'error') {
+        <svg class="h-6 w-6" [ngClass]="iconClasses" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+            stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round"
+                d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        }
+
+    </div>
+
+    <!-- CONTENT -->
+    <div class="flex-1 space-y-1">
+        @if (title) {
+        <p class="font-semibold leading-snug">
+            {{ title }}
+        </p>
+        }
+
+        @if (description) {
+        <p class="text-sm leading-relaxed opacity-90">
+            {{ description }}
+        </p>
+        }
+
+        @if (ctaLabel && ctaAction) {
+        <button (click)="ctaAction()" class="mt-2 inline-flex text-sm font-medium underline
+                 underline-offset-4 hover:opacity-80">
+            {{ ctaLabel }}
+        </button>
+        }
+    </div>
+
+    <!-- DISMISS -->
+    @if (dismissible) {
+    <button (click)="close()" aria-label="Dismiss" class="absolute right-3 top-3 p-1 rounded
+         opacity-60 hover:opacity-100 hover:bg-black/5
+         focus:outline-none focus:ring-2 focus:ring-black/20">
+        <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+    </button>
+
+    }
+
+</div>
+}
