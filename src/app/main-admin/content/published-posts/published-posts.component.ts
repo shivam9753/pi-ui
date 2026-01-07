@@ -25,11 +25,12 @@ import {
 import { SimpleSubmissionFilterComponent, SimpleFilterOptions } from '../../../shared/components/simple-submission-filter/simple-submission-filter.component';
 import { SUBMISSION_STATUS, API_ENDPOINTS } from '../../../shared/constants/api.constants';
 import { environment } from '../../../../environments/environment';
+import { ButtonComponent } from '../../../ui-components/button/button.component';
 
 
 @Component({
   selector: 'app-published-posts',
-  imports: [CommonModule, FormsModule, PrettyLabelPipe, TypeBadgePipe, AdminPageHeaderComponent, DataTableComponent, SimpleSubmissionFilterComponent, SearchableUserSelectorComponent, ConsistentSubmissionMobileCardComponent, SubmissionMobileCardComponent],
+  imports: [CommonModule, FormsModule, ButtonComponent, PrettyLabelPipe, TypeBadgePipe, AdminPageHeaderComponent, DataTableComponent, SimpleSubmissionFilterComponent, SearchableUserSelectorComponent, ConsistentSubmissionMobileCardComponent, SubmissionMobileCardComponent],
   templateUrl: './published-posts.component.html',
   styleUrl: './published-posts.component.css'
 })

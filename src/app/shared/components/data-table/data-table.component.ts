@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { PrettyLabelPipe } from '../../../pipes/pretty-label.pipe';
 import { StatusBadgeComponent } from '../status-badge/status-badge.component';
 import { StringUtils, CommonUtils } from '../../utils';
+import { ButtonComponent } from '../../../ui-components/button/button.component';
 
 export interface TableColumn {
   key: string;
@@ -34,7 +35,7 @@ export interface PaginationConfig {
 @Component({
   selector: 'app-data-table',
   standalone: true,
-  imports: [CommonModule, PrettyLabelPipe, StatusBadgeComponent],
+  imports: [CommonModule, PrettyLabelPipe, StatusBadgeComponent, ButtonComponent],
   template: `
     <div class="w-full">
       <!-- Loading State -->

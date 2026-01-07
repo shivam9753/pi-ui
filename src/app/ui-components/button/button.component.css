@@ -1,0 +1,84 @@
+.btn {
+  border-radius: 10px;
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  white-space: nowrap;
+}
+
+/* Sizes */
+.btn--sm {
+  padding: 6px 14px;
+  font-size: 12px;
+}
+
+.btn--md {
+  padding: 8px 18px;
+  font-size: 14px;
+}
+
+.btn--lg {
+  padding: 10px 22px;
+  font-size: 16px;
+}
+
+/* Variants */
+.btn--primary {
+  background-color: var(--text-accent);
+  color: var(--text-inverse, #ffffff);
+}
+
+.btn--secondary {
+  background: #f1f1f1;
+  color: #111;
+}
+
+.btn--tertiary {
+  background: #fff;
+  color: #111;
+  border-color: #e5e5e5;
+}
+
+.btn--quaternary {
+  background: transparent;
+  color: #111;
+}
+
+.btn--destructive {
+  background: #fff;
+  color: #d92d20;
+  border-color: #f2b8b5;
+}
+
+/* States */
+.btn:not(.btn--disabled):hover {
+  filter: brightness(0.95);
+}
+
+.btn--disabled,
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Spinner */
+.btn__spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(0, 0, 0, 0.2);
+  border-top-color: currentColor;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

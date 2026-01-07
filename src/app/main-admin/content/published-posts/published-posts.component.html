@@ -11,39 +11,10 @@
   <!-- Quick Filter Tabs -->
   <div class="mb-6">
     <div class="flex flex-wrap gap-2 sm:gap-4">
-      <button
-        (click)="setQuickFilter('all')"
-        [class.bg-primary]="quickFilter === 'all'"
-        [class.text-white]="quickFilter === 'all'"
-        [class.border-primary]="quickFilter === 'all'"
-        [class.bg-gray-100]="quickFilter !== 'all'"
-        [class.text-gray-700]="quickFilter !== 'all'"
-        [class.border-gray-400]="quickFilter !== 'all'"
-        class="px-4 py-2 rounded-lg border-2 font-medium text-sm transition-all duration-200 hover:border-primary hover:text-primary hover:bg-gray-50">
-        All Submissions
-      </button>
-      <button
-        (click)="setQuickFilter('published')"
-        [class.bg-primary]="quickFilter === 'published'"
-        [class.text-white]="quickFilter === 'published'"
-        [class.border-primary]="quickFilter === 'published'"
-        [class.bg-gray-100]="quickFilter !== 'published'"
-        [class.text-gray-700]="quickFilter !== 'published'"
-        [class.border-gray-400]="quickFilter !== 'published'"
-        class="px-4 py-2 rounded-lg border-2 font-medium text-sm transition-all duration-200 hover:border-primary hover:text-primary hover:bg-gray-50">
-        Published Only
-      </button>
-      <button
-        (click)="setQuickFilter('accepted')"
-        [class.bg-primary]="quickFilter === 'accepted'"
-        [class.text-white]="quickFilter === 'accepted'"
-        [class.border-primary]="quickFilter === 'accepted'"
-        [class.bg-gray-100]="quickFilter !== 'accepted'"
-        [class.text-gray-700]="quickFilter !== 'accepted'"
-        [class.border-gray-400]="quickFilter !== 'accepted'"
-        class="px-4 py-2 rounded-lg border-2 font-medium text-sm transition-all duration-200 hover:border-primary hover:text-primary hover:bg-gray-50">
-        Ready to Publish
-      </button>
+      <app-button variant="tertiary" (click)="setQuickFilter('all')">All</app-button>
+      <app-button variant="tertiary" (click)="setQuickFilter('published')">Published</app-button>
+      <app-button variant="tertiary" (click)="setQuickFilter('accepted')">Accepted</app-button>
+      
     </div>
   </div>
 

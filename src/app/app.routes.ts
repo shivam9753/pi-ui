@@ -29,6 +29,7 @@ import { NotFoundComponent } from './not-found/not-found.component';
 import { MainStudioComponent } from './main-studio/main-studio.component';
 import { ReadingInterfaceComponent } from './main-reading/reading-interface/reading-interface.component';
 import { PublicAuthorProfileComponent } from './main-user-profile/public-author-profile/public-author-profile.component';
+import { SimpleContentReaderComponent } from './main-reading/simple-content-reader/simple-content-reader.component';
 
 export const routes: Routes = [
   // Public routes - Use explore as homepage for now
@@ -110,6 +111,11 @@ export const routes: Routes = [
       postData: postSSRResolver
     },
     title: 'Post - pi'
+  },
+  { 
+    path: 'content/:id', 
+    component: SimpleContentReaderComponent,
+    title: 'Content - pi'
   },
   // Legacy reading interface route (fallback for ID-based navigation)
   { 

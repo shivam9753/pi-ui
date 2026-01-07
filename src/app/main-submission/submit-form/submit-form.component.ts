@@ -7,6 +7,7 @@ import { BackendService } from '../../services/backend.service';
 import { ContentEditorComponent } from '../../submit/content-editor/content-editor.component';
 import { SUBMISSION_STATUS, SubmissionStatus, HTTP_STATUS } from '../../shared/constants/api.constants';
 import { Subscription } from 'rxjs';
+import { ButtonComponent } from '../../ui-components/button/button.component';
 
 export type SubmissionMode = 'create' | 'edit' | 'resubmit' | 'view';
 
@@ -43,7 +44,8 @@ export interface Draft {
     ReactiveFormsModule,
     FormsModule,
     CommonModule,
-    ContentEditorComponent
+    ContentEditorComponent,
+    ButtonComponent
   ]
 })
 export class SubmitFormComponent implements OnInit, OnDestroy {
