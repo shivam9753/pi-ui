@@ -9,7 +9,7 @@ import { TagInputComponent } from '../../../utilities/tag-input/tag-input.compon
 import { BackendService } from '../../../services/backend.service';
 import { SUBMISSION_STATUS, UPLOAD_CONFIG } from '../../../shared/constants/api.constants';
 import { compressImageForUpload } from '../../../shared/utils/image-compression.util';
-import { ButtonComponent } from '../../../shared/components/button/button.component';
+import { ButtonComponent } from '../../../ui-components/button/button.component';
 
 interface SEOConfig {
   slug: string;
@@ -22,7 +22,7 @@ interface SEOConfig {
 
 @Component({
   selector: 'app-publish-submission',
-  imports: [CommonModule, FormsModule, ProseMirrorEditorComponent, BadgeLabelComponent, TagInputComponent, ButtonComponent],
+  imports: [CommonModule, FormsModule, ProseMirrorEditorComponent, BadgeLabelComponent, TagInputComponent, ButtonComponent, ButtonComponent],
   templateUrl: './publish-submission.component.html',
   styleUrl: './publish-submission.component.css',
   encapsulation: ViewEncapsulation.None
@@ -37,6 +37,11 @@ export class PublishSubmissionComponent implements OnInit {
   selectedSocialImageFile: File | null = null;
   isUploadingCoverImage = false;
   isUploadingSocialImage = false;
+
+  // Transient previews for newly selected local files (shown in gallery before upload)
+  transientUploadedImages: string[] = [];
+  lastSelectedCoverPreviewUrl?: string | null = null;
+  lastSelectedSocialPreviewUrl?: string | null = null;
 
   // Content expansion state
   contentExpanded: boolean[] = [];
@@ -443,7 +448,7 @@ export class PublishSubmissionComponent implements OnInit {
     const file = event.target.files[0];
     if (file) {
       if (!this.validateImageFile(file, event.target)) return;
-      
+
       try {
         this.showSuccess('Compressing cover image to WebP format...');
         const compressed = await compressImageForUpload(file, {
@@ -451,20 +456,33 @@ export class PublishSubmissionComponent implements OnInit {
           maxWidth: UPLOAD_CONFIG.MAX_DIMENSIONS.width,
           maxHeight: UPLOAD_CONFIG.MAX_DIMENSIONS.height
         });
-        
+
         this.selectedCoverImageFile = compressed.file;
-        
+
+        // Create transient preview URL for the selected file so it appears in the gallery
+        if (this.lastSelectedCoverPreviewUrl) {
+          URL.revokeObjectURL(this.lastSelectedCoverPreviewUrl);
+        }
+        this.lastSelectedCoverPreviewUrl = URL.createObjectURL(this.selectedCoverImageFile);
+        this.transientUploadedImages = [this.lastSelectedCoverPreviewUrl, ...this.transientUploadedImages];
+
         const originalSize = (file.size / 1024).toFixed(1);
         const compressedSize = (compressed.file.size / 1024).toFixed(1);
         this.showSuccess(
           `Cover image compressed: ${originalSize}KB → ${compressedSize}KB (${compressed.compressionRatio}% reduction)`
         );
-        
+
         // Dismiss profile image reuse suggestion when user selects a different file
         this.showProfileImageReuse = false;
       } catch (error) {
         this.showError('Failed to compress image. Using original.');
         this.selectedCoverImageFile = file;
+
+        if (this.lastSelectedCoverPreviewUrl) {
+          URL.revokeObjectURL(this.lastSelectedCoverPreviewUrl);
+        }
+        this.lastSelectedCoverPreviewUrl = URL.createObjectURL(file);
+        this.transientUploadedImages = [this.lastSelectedCoverPreviewUrl, ...this.transientUploadedImages];
       }
     }
   }
@@ -474,7 +492,7 @@ export class PublishSubmissionComponent implements OnInit {
     const file = event.target.files[0];
     if (file) {
       if (!this.validateImageFile(file, event.target)) return;
-      
+
       try {
         this.showSuccess('Compressing social image to WebP format...');
         const compressed = await compressImageForUpload(file, {
@@ -482,9 +500,16 @@ export class PublishSubmissionComponent implements OnInit {
           maxWidth: UPLOAD_CONFIG.MAX_DIMENSIONS.width,
           maxHeight: UPLOAD_CONFIG.MAX_DIMENSIONS.height
         });
-        
+
         this.selectedSocialImageFile = compressed.file;
-        
+
+        // Create transient preview URL for the selected social file
+        if (this.lastSelectedSocialPreviewUrl) {
+          URL.revokeObjectURL(this.lastSelectedSocialPreviewUrl);
+        }
+        this.lastSelectedSocialPreviewUrl = URL.createObjectURL(this.selectedSocialImageFile);
+        this.transientUploadedImages = [this.lastSelectedSocialPreviewUrl, ...this.transientUploadedImages];
+
         const originalSize = (file.size / 1024).toFixed(1);
         const compressedSize = (compressed.file.size / 1024).toFixed(1);
         this.showSuccess(
@@ -493,6 +518,12 @@ export class PublishSubmissionComponent implements OnInit {
       } catch (error) {
         this.showError('Failed to compress image. Using original.');
         this.selectedSocialImageFile = file;
+
+        if (this.lastSelectedSocialPreviewUrl) {
+          URL.revokeObjectURL(this.lastSelectedSocialPreviewUrl);
+        }
+        this.lastSelectedSocialPreviewUrl = URL.createObjectURL(file);
+        this.transientUploadedImages = [this.lastSelectedSocialPreviewUrl, ...this.transientUploadedImages];
       }
     }
   }
@@ -526,14 +557,22 @@ export class PublishSubmissionComponent implements OnInit {
 
     this.backendService.uploadSubmissionImage(this.submission._id, this.selectedCoverImageFile).subscribe({
       next: (response) => {
-        
         // Update submission with new cover image URL
         this.submission.imageUrl = response.imageUrl;
-        
+
         this.showSuccess('Cover image uploaded successfully!');
         this.selectedCoverImageFile = null;
         this.isUploadingCoverImage = false;
-        
+
+        // Remove transient preview if present
+        if (this.lastSelectedCoverPreviewUrl) {
+          // Ensure the uploaded URL is present in gallery; revoke local URL
+          const index = this.transientUploadedImages.indexOf(this.lastSelectedCoverPreviewUrl as string);
+          if (index !== -1) this.transientUploadedImages.splice(index, 1);
+          URL.revokeObjectURL(this.lastSelectedCoverPreviewUrl as string);
+          this.lastSelectedCoverPreviewUrl = null;
+        }
+
         // Clear the file input
         const fileInput = document.querySelector('input[data-type="cover"]') as HTMLInputElement;
         if (fileInput) {
@@ -557,14 +596,21 @@ export class PublishSubmissionComponent implements OnInit {
 
     this.backendService.uploadSubmissionImage(this.submission._id, this.selectedSocialImageFile).subscribe({
       next: (response) => {
-        
         // Update SEO config with new social media image URL
         this.seoConfig.ogImage = response.imageUrl;
-        
+
         this.showSuccess('Social media image uploaded successfully!');
         this.selectedSocialImageFile = null;
         this.isUploadingSocialImage = false;
-        
+
+        // Remove transient preview if present
+        if (this.lastSelectedSocialPreviewUrl) {
+          const index = this.transientUploadedImages.indexOf(this.lastSelectedSocialPreviewUrl as string);
+          if (index !== -1) this.transientUploadedImages.splice(index, 1);
+          URL.revokeObjectURL(this.lastSelectedSocialPreviewUrl as string);
+          this.lastSelectedSocialPreviewUrl = null;
+        }
+
         // Clear the file input
         const fileInput = document.querySelector('input[data-type="social"]') as HTMLInputElement;
         if (fileInput) {
@@ -1279,30 +1325,44 @@ export class PublishSubmissionComponent implements OnInit {
 
   // Extract all images from submission content
   getContentImages(): string[] {
-    if (!this.submission?.contents || this.submission.contents.length === 0) {
-      return [];
-    }
-
     const images: string[] = [];
     const tempDiv = document.createElement('div');
 
-    this.submission.contents.forEach((content: any) => {
-      if (content.body) {
-        tempDiv.innerHTML = content.body;
-        const imgElements = tempDiv.querySelectorAll('img');
+    // Gather images from content bodies
+    if (this.submission?.contents && this.submission.contents.length > 0) {
+      this.submission.contents.forEach((content: any) => {
+        if (content.body) {
+          tempDiv.innerHTML = content.body;
+          const imgElements = tempDiv.querySelectorAll('img');
 
-        imgElements.forEach((img: HTMLImageElement) => {
-          const src = img.getAttribute('src');
-          if (src && !images.includes(src)) {
-            images.push(src);
-          }
-        });
+          imgElements.forEach((img: HTMLImageElement) => {
+            const src = img.getAttribute('src');
+            if (src && !images.includes(src)) {
+              images.push(src);
+            }
+          });
+        }
+      });
+    }
+
+    // Also include the current cover image and social (og) image so recently uploaded images are visible
+    try {
+      const cover = this.submission?.imageUrl;
+      const og = this.seoConfig?.ogImage;
+
+      if (cover && typeof cover === 'string' && !images.includes(cover)) {
+        images.unshift(cover); // show cover first
       }
-    });
+      if (og && typeof og === 'string' && !images.includes(og)) {
+        images.unshift(og); // show social image near the front
+      }
+    } catch (e) {
+      // noop
+    }
 
     // Debug: log the extracted images
     if (images.length > 0) {
-      console.log('📸 Content images found:', images);
+      console.log('📸 Content images found (including cover/og):', images);
     }
 
     return images;

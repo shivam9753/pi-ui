@@ -13,7 +13,7 @@ import { StringUtils } from '../shared/utils';
   selector: 'app-header',
   imports: [CommonModule, RouterModule, ThemeToggleComponent],
   templateUrl: './header.component.html',
-  styleUrl: './header.component.css'
+  styleUrls: ['./header.component.css']
 })
 export class HeaderComponent implements OnInit, OnDestroy {
   themeService = inject(ThemingService);

@@ -406,8 +406,8 @@ export class BackendService {
       }
     });
     
-    // Use auth headers for admin access to all content
-    const headers = this.getAuthHeaders();
+    // Use public headers for published content (no auth required), otherwise use auth headers
+    const headers = (options && (options as any).published) ? this.getPublicHeaders() : this.getAuthHeaders();
     
     const url = `${this.API_URL}${API_ENDPOINTS.CONTENT}`;
     return this.http.get<any>(url, { headers, params }).pipe(

@@ -9,34 +9,37 @@
 
       <!-- ================= DESKTOP NAV ================= -->
       <nav class="hidden lg:flex flex-1 justify-center items-center space-x-6">
-        <a routerLink="/explore" routerLinkActive="text-primary font-semibold"
-          class="font-semibold text-themed hover:text-primary">
+        <a routerLink="/explore" routerLinkActive="nav-active" [routerLinkActiveOptions]="{ exact: true }"
+          class="nav-item">
           Explore
         </a>
 
-        <a routerLink="/featured-poems" routerLinkActive="text-primary font-semibold"
-          class="font-semibold text-themed hover:text-primary">
+        <a routerLink="/featured-poems" routerLinkActive="nav-active" [routerLinkActiveOptions]="{ exact: true }"
+          class="nav-item">
           Featured
         </a>
 
-        <button (click)="handleSubmitClick()" class="font-semibold text-themed hover:text-primary">
+        <a routerLink="/submission" routerLinkActive="nav-active" [routerLinkActiveOptions]="{ exact: true }" class="nav-item">
           Submit
-        </button>
+        </a>
 
         @if (canAccessStudio()) {
-        <a routerLink="/studio" class="font-semibold text-themed hover:text-primary">
+        <a routerLink="/studio" routerLinkActive="nav-active" [routerLinkActiveOptions]="{ exact: true }"
+          class="nav-item">
           Studio
         </a>
         }
 
         @if (canAccessWorkspace()) {
-        <a routerLink="/workspace" class="font-semibold text-themed hover:text-primary">
+        <a routerLink="/workspace" routerLinkActive="nav-active" [routerLinkActiveOptions]="{ exact: true }"
+          class="nav-item">
           Workspace
         </a>
         }
 
         @if (isAdmin()) {
-        <a routerLink="/admin" class="font-semibold text-themed hover:text-primary">
+        <a routerLink="/admin" routerLinkActive="nav-active" [routerLinkActiveOptions]="{ exact: true }"
+          class="nav-item">
           Admin
         </a>
         }
@@ -56,18 +59,18 @@
 
         <!-- AUTH (DESKTOP) -->
         @if (isBrowser() && authChecked()) {
-          @if (!isAuthenticated()) {
+        @if (!isAuthenticated()) {
 
-          <!-- Login -->
-          <a routerLink="/login" class="hidden lg:inline-flex px-5 py-2 text-sm font-semibold
+        <!-- Login -->
+        <a routerLink="/login" class="hidden lg:inline-flex px-5 py-2 text-sm font-semibold
                      rounded-full border border-themed hover:bg-themed-hover">
-            Login
-          </a>
+          Login
+        </a>
 
-          } @else {
+        } @else {
 
-          <!-- User Dropdown -->
-          <div class="relative hidden lg:block" data-dropdown="user">
+        <!-- User Dropdown -->
+        <div class="relative hidden lg:block" data-dropdown="user">
           <button (click)="toggleDropdown(); $event.stopPropagation()"
             class="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-themed-hover" aria-haspopup="true"
             [attr.aria-expanded]="showDropdown()">
@@ -90,12 +93,12 @@
               <p class="text-lg font-semibold">{{ loggedInUser()!.name }}</p>
 
               @if (shouldShowRoleChip()) {
-                <div [class]="getRoleChipClasses()">
-                  <svg class="w-4 h-4 mr-1.5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" [attr.d]="getRoleIconPath()"/>
-                  </svg>
-                  {{ loggedInUser()!.role | titlecase }}
-                </div>
+              <div [class]="getRoleChipClasses()">
+                <svg class="w-4 h-4 mr-1.5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" [attr.d]="getRoleIconPath()" />
+                </svg>
+                {{ loggedInUser()!.role | titlecase }}
+              </div>
               }
             </div>
 
@@ -176,12 +179,12 @@
       <p class="text-lg font-semibold">{{ loggedInUser()!.name }}</p>
 
       @if (shouldShowRoleChip()) {
-        <div [class]="getRoleChipClasses()">
-          <svg class="w-4 h-4 mr-1.5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" [attr.d]="getRoleIconPath()"/>
-          </svg>
-          {{ loggedInUser()!.role | titlecase }}
-        </div>
+      <div [class]="getRoleChipClasses()">
+        <svg class="w-4 h-4 mr-1.5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" [attr.d]="getRoleIconPath()" />
+        </svg>
+        {{ loggedInUser()!.role | titlecase }}
+      </div>
       }
 
     </div>
@@ -189,32 +192,32 @@
 
     <!-- Navigation -->
     <nav class="flex flex-col space-y-4">
-      <a routerLink="/explore" (click)="closeMobileMenu()" class="block text-lg font-medium">
+      <a routerLink="/explore" routerLinkActive="nav-active" (click)="closeMobileMenu()" class="nav-item block text-lg font-medium">
         Explore
       </a>
 
-      <a routerLink="/featured-poems" (click)="closeMobileMenu()" class="block text-lg font-medium">
+      <a routerLink="/featured-poems" routerLinkActive="nav-active" (click)="closeMobileMenu()" class="nav-item block text-lg font-medium">
         Featured
       </a>
 
-      <button (click)="handleSubmitClick(); closeMobileMenu()" class="block text-left text-lg font-medium">
+      <a routerLink="/submission" routerLinkActive="nav-active" (click)="closeMobileMenu()" class="nav-item block text-lg font-medium">
         Submit
-      </button>
+      </a>
 
       @if (canAccessStudio()) {
-      <a routerLink="/studio" (click)="closeMobileMenu()" class="block text-lg font-medium">
+      <a routerLink="/studio" routerLinkActive="nav-active" (click)="closeMobileMenu()" class="nav-item block text-lg font-medium">
         Studio
       </a>
       }
 
       @if (canAccessWorkspace()) {
-      <a routerLink="/workspace" (click)="closeMobileMenu()" class="block text-lg font-medium">
+      <a routerLink="/workspace" routerLinkActive="nav-active" (click)="closeMobileMenu()" class="nav-item block text-lg font-medium">
         Workspace
       </a>
       }
 
       @if (isAdmin()) {
-      <a routerLink="/admin" (click)="closeMobileMenu()" class="block text-lg font-medium">
+      <a routerLink="/admin" routerLinkActive="nav-active" (click)="closeMobileMenu()" class="nav-item block text-lg font-medium">
         Admin
       </a>
       }

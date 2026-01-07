@@ -1,4 +1,7 @@
-/* Ensure mobile menu and hamburger button are hidden on desktop screens */
+/* =========================================================
+   DESKTOP vs MOBILE VISIBILITY
+   ========================================================= */
+
 @media (min-width: 1024px) {
   .mobile-overlay,
   .mobile-menu,
@@ -9,88 +12,146 @@
   }
 }
 
-/* Remove all underlines from navigation links */
-nav a,
-nav button,
-header a {
-  text-decoration: none !important;
-}
+/* =========================================================
+   RESET & NORMALIZATION
+   ========================================================= */
 
-nav a:hover,
-nav button:hover,
-header a:hover {
-  text-decoration: none !important;
-}
-
-nav a:focus,
-nav button:focus,
-header a:focus {
-  text-decoration: none !important;
-}
-
-nav a:active,
-nav button:active,
-header a:active {
-  text-decoration: none !important;
-}
-
-/* Add cursor pointer to all clickable elements */
-nav a,
-nav button,
 header a,
-header button {
+header button,
+nav a,
+nav button {
+  text-decoration: none !important;
+  background: transparent !important;
+  border: none;
   cursor: pointer;
 }
 
-/* Ensure navigation items use proper themed colors and no unwanted backgrounds */
-nav button, nav a {
-  background: transparent !important;
-}
-
-nav button:hover, nav a:hover {
-  background: transparent !important;
-}
-
-/* Make nav buttons match nav links color */
-nav button {
-  color: var(--text-accent);
-}
-
-/* Ensure no default button styling interferes */
-button {
-  background: none;
-  border: none;
-}
-
-/* Remove any focus outlines that might interfere */
-button:focus, a:focus {
+/* Remove default focus/active browser styles */
+header a:focus,
+header button:focus,
+nav a:focus,
+nav button:focus {
   outline: none;
   box-shadow: none;
 }
 
-/* Ensure active states don't have unwanted backgrounds */
-button:active, a:active {
+header a:active,
+header button:active,
+nav a:active,
+nav button:active {
   background: transparent !important;
 }
 
-/* Mobile menu overlay improvements */
+/* =========================================================
+   DESKTOP NAV — CORE TYPOGRAPHY
+   ========================================================= */
+
+/* Single source of truth for ALL nav items */
+nav .nav-item {
+  position: relative;
+  font-weight: 500;               /* CONSTANT weight */
+  color: var(--text-themed);
+  transition: color 150ms ease;
+  padding: 2px 0;                 /* space for underline */
+}
+
+/* Hover */
+nav .nav-item:hover {
+  color: var(--text-primary);
+}
+
+/* =========================================================
+   ACTIVE ROUTE (DESKTOP)
+   ========================================================= */
+
+/* Applied via routerLinkActive="nav-active" */
+nav .nav-item.nav-active {
+  color: var(--text-primary);
+}
+
+/* Show focus/hover state with accessible indicator */
+nav .nav-item,
+nav button.nav-item {
+  display: inline-block;
+  padding-bottom: 4px; /* space for focus indicator */
+}
+
+/* Remove inset underline and use site accent color on hover/focus */
+nav .nav-item:hover,
+nav .nav-item:focus,
+nav .nav-item:focus-visible,
+nav button.nav-item:hover,
+nav button.nav-item:focus,
+nav button.nav-item:focus-visible {
+  /* Use global accent color defined in styles.css */
+  color: var(--text-accent);
+  outline: none;
+  box-shadow: none; /* ensure no underline */
+}
+
+/* Stronger visible ring for keyboard focus users */
+nav .nav-item:focus-visible,
+nav button.nav-item:focus-visible {
+  outline: 2px solid var(--text-accent-hover);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+/* Keep button active color but no persistent underline */
+nav button.nav-item.is-active {
+  color: var(--text-primary);
+}
+
+/* =========================================================
+   NAV BUTTONS (Submit behaves like links)
+   ========================================================= */
+
+nav button.nav-item {
+  color: var(--text-themed);
+}
+
+/* If you manually mark Submit active */
+nav button.nav-item.is-active {
+  color: var(--text-primary);
+}
+
+/* =========================================================
+   MOBILE OVERLAY & MENU (UNCHANGED / SAFE)
+   ========================================================= */
+
 .mobile-overlay {
   backdrop-filter: blur(4px);
   -webkit-backdrop-filter: blur(4px);
-  transition: opacity 300ms ease-in-out, backdrop-filter 300ms ease-in-out;
+  transition:
+    opacity 300ms ease-in-out,
+    backdrop-filter 300ms ease-in-out;
 }
 
-/* Enhanced mobile menu shadow and animation */
 .mobile-menu {
-  box-shadow: -10px 0 25px -5px rgba(0, 0, 0, 0.1), -10px 0 10px -5px rgba(0, 0, 0, 0.04);
+  box-shadow:
+    -10px 0 25px -5px rgba(0, 0, 0, 0.1),
+    -10px 0 10px -5px rgba(0, 0, 0, 0.04);
 }
 
-/* Smooth transitions for menu items */
-.mobile-menu .nav-link {
-  transition: all 200ms ease-in-out;
+/* Mobile menu links */
+.mobile-menu nav a,
+.mobile-menu nav button {
+  font-weight: 500;
+  color: var(--text-themed);
+  transition: color 150ms ease;
 }
 
-/* Better visual separation */
+.mobile-menu nav a:hover,
+.mobile-menu nav button:hover {
+  color: var(--text-primary);
+}
+
+/* Active route in mobile */
+.mobile-menu nav a.router-link-active {
+  color: var(--text-primary);
+}
+
+/* Divider consistency */
 .mobile-menu .border-themed {
   border-color: rgb(229 231 235 / 0.3);
 }
