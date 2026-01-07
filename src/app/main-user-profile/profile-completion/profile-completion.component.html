@@ -55,14 +55,14 @@
       <!-- Bio Field -->
       <div class="mb-6">
         <label for="bio" class="block text-sm font-medium text-themed mb-2">
-          Professional Bio <span class="text-red-500">*</span>
+          Professional Bio @if (mode === 'completion') {<span class="text-red-500">*</span>}
         </label>
         <textarea
           id="bio"
           name="bio"
           [(ngModel)]="profileData.bio"
-          required
-          minlength="20"
+          [required]="mode === 'completion'"
+          [minlength]="profileData.bio.trim() ? 20 : 0"
           maxlength="500"
           rows="4"
           class="w-full px-4 py-3 border border-themed rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-colors resize-none bg-themed text-themed"
@@ -70,7 +70,11 @@
         ></textarea>
         <div class="flex justify-between items-center mt-2">
           <p class="text-sm text-themed">
-            Minimum 20 characters. Tell readers about your writing background, interests, or expertise.
+            @if (mode === 'completion') {
+              Minimum 20 characters. Tell readers about your writing background, interests, or expertise.
+            } @else {
+              Optional. If provided, minimum 20 characters. Tell readers about your writing background, interests, or expertise.
+            }
           </p>
           <p class="text-sm" [ngClass]="{
             'text-gray-500': getBioCharacterCount() < 20,

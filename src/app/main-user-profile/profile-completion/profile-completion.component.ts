@@ -224,6 +224,7 @@ export class ProfileCompletionComponent implements OnInit {
 
     const formData = new FormData();
     formData.append('image', this.profileData.profileImage);
+    formData.append('folder', 'profiles'); // Identify as profile upload for 100KB minimum compression
 
     const jwtToken = localStorage.getItem('jwt_token');
     const headers: { [key: string]: string } = jwtToken ? { Authorization: `Bearer ${jwtToken}` } : {};
@@ -240,6 +241,12 @@ export class ProfileCompletionComponent implements OnInit {
       }
 
       const result = await response.json();
+
+      // Log compression metadata for debugging
+      if (result.image?.qualityUsed) {
+        console.log(`Profile image compressed with ${result.image.qualityUsed}% quality (size: ${result.image.size} bytes)`);
+      }
+
       return result.image?.url || result.url || result.imageUrl || '';
     } catch (error) {
       throw new Error('Failed to upload profile image');
@@ -331,19 +338,26 @@ export class ProfileCompletionComponent implements OnInit {
       return false;
     }
 
-    if (!this.profileData.bio.trim()) {
-      this.showToast('Please enter your bio', 'error');
-      return false;
+    // In completion mode, bio is required
+    // In edit mode, bio is optional but must meet length requirements if provided
+    if (this.mode === 'completion') {
+      if (!this.profileData.bio.trim()) {
+        this.showToast('Please enter your bio', 'error');
+        return false;
+      }
     }
 
-    if (this.profileData.bio.trim().length < 20) {
-      this.showToast('Bio must be at least 20 characters long', 'error');
-      return false;
-    }
+    // If bio is provided (in any mode), validate length
+    if (this.profileData.bio.trim()) {
+      if (this.profileData.bio.trim().length < 20) {
+        this.showToast('Bio must be at least 20 characters long', 'error');
+        return false;
+      }
 
-    if (this.profileData.bio.trim().length > 500) {
-      this.showToast('Bio must be less than 500 characters', 'error');
-      return false;
+      if (this.profileData.bio.trim().length > 500) {
+        this.showToast('Bio must be less than 500 characters', 'error');
+        return false;
+      }
     }
 
     return true;
