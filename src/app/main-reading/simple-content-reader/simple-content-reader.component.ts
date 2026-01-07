@@ -280,7 +280,6 @@ export class SimpleContentReaderComponent implements OnInit {
             this.viewTracker.logContentView(response._id).subscribe({
               next: (viewResponse) => {
                 if (viewResponse.success) {
-                  // Update the content with latest view counts
                   const currentContent = this.content();
                   if (currentContent) {
                     const updatedContent = {
@@ -310,18 +309,19 @@ export class SimpleContentReaderComponent implements OnInit {
   }
 
   private updatePageMeta(content: SimpleContent) {
-    this.titleService.setTitle(`${content.title} - PoemsIndia`);
-    this.metaService.updateTag({ 
-      name: 'description', 
-      content: this.getContentExcerpt(content.body) 
-    });
+    try {
+      this.titleService.setTitle(`${content.title} - PoemsIndia`);
+      this.metaService.updateTag({ name: 'description', content: this.getContentExcerpt(content.body) });
+    } catch (e) {
+      // safe no-op during SSR or if services are unavailable
+      console.warn('updatePageMeta failed:', e);
+    }
   }
 
   private getContentExcerpt(html: string): string {
     // Strip HTML and get first 150 characters
-    const text = html.replace(/<[^>]*>/g, '');
+    const text = html ? String(html).replace(/<[^>]*>/g, '') : '';
     return text.length > 150 ? text.substring(0, 150) + '...' : text;
   }
-
 
 }

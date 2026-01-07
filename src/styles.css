@@ -1036,6 +1036,23 @@
 .dark .border-blue-200 { border-color: rgba(59, 130, 246, 0.25) !important; }
 .dark .hover\:bg-blue-100:hover { background-color: rgba(59, 130, 246, 0.2) !important; }
 
+/* Enforce global app typography (sans) to ensure consistent UI across components.
+   This uses !important to override inline overrides; the ProseMirror editor uses
+   the .poem-font class to opt out and apply serif poetry typography. */
+html, body, app-root, #app, .app-root {
+  font-family: 'Source Sans Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important;
+}
+
+/* Force all text to use global sans font unless inside .poem-font (editor) */
+body * {
+  font-family: 'Source Sans Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important;
+}
+
+/* Ensure the poem editor retains its serif typography even with global enforcement */
+.poem-font, .poem-font * {
+  font-family: 'Crimson Text', Georgia, serif !important;
+}
+
 /* Base styles */
 * {
   box-sizing: border-box;

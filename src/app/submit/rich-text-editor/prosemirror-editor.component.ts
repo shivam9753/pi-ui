@@ -175,7 +175,7 @@ const richSchema = new Schema(richSchemaSpec as any);
   standalone: true,
   imports: [],
   template: `
-    <div class="prosemirror-editor rounded-xl border transition-all"
+    <div class="prosemirror-editor poem-font rounded-xl border transition-all"
          [class.bg-white]="themingService.isLight()"
          [class.bg-gray-800]="themingService.isDark()"
          [class.border-gray-200]="themingService.isLight()"
@@ -279,6 +279,30 @@ const richSchema = new Schema(richSchemaSpec as any);
   styles: [`
     .prosemirror-editor {
       font-family: inherit;
+    }
+
+    /* Force poem typography inside the editor (serif, slightly larger, poetic spacing)
+       Use high-specificity selectors with !important to override global font settings. */
+    .poem-font, .poem-font .prose-editor-content, .poem-font .ProseMirror {
+      font-family: 'Crimson Text', Georgia, serif !important;
+      font-size: 18px !important; /* slightly larger for readability */
+      line-height: 1.75 !important; /* airy spacing for poetry */
+      letter-spacing: 0.01em !important;
+      color: inherit;
+    }
+
+    .poem-font .ProseMirror p {
+      margin: 0 0 0.6em 0;
+      white-space: pre-wrap; /* preserve intentional line breaks */
+      text-indent: 0; /* poems usually don't indent */
+    }
+
+    .poem-font .ProseMirror p:first-child {
+      margin-top: 0;
+    }
+
+    .poem-font .ProseMirror em {
+      font-style: italic;
     }
 
     .prose-editor-content {

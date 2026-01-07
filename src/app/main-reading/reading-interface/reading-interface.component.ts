@@ -1,4 +1,4 @@
-import { Component, OnInit, AfterViewInit, signal, computed, inject, PLATFORM_ID, Inject, ElementRef } from '@angular/core';
+import { Component, OnInit, AfterViewInit, signal, computed, inject, PLATFORM_ID, Inject, ElementRef, HostBinding } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
@@ -12,6 +12,8 @@ import { HtmlSanitizerService } from '../../services/html-sanitizer.service';
 import { ViewTrackerService } from '../../services/view-tracker.service';
 import { PostSSRData, SsrDataService } from '../../services/ssr-data.service';
 import { UserService } from '../../services/user.service';
+import { ContentRendererComponent } from '../content-renderer/content-renderer.component';
+import { ButtonComponent } from '../../ui-components/button/button.component';
 
 interface PublishedContent {
   _id: string;
@@ -53,7 +55,7 @@ interface Comment {
 }
 @Component({
   selector: 'app-reading-interface',
-  imports: [CommonModule, FormsModule, RouterLink, BadgeLabelComponent, RelatedContentComponent],
+  imports: [CommonModule, FormsModule, RouterLink, BadgeLabelComponent, RelatedContentComponent, ContentRendererComponent, ButtonComponent],
   templateUrl: './reading-interface.component.html',
   styleUrl: './reading-interface.component.css'
 })
@@ -120,6 +122,9 @@ content = signal<PublishedContent | null>(null);
 
   themeService = inject(ThemingService);
   router = inject(Router); // Make router public for template access
+
+  // Expose a small config for the renderer
+  rendererWidthCh = 60;
 
   constructor(
     private route: ActivatedRoute,
@@ -592,8 +597,11 @@ content = signal<PublishedContent | null>(null);
     });
   }
 
-  // ... keep all your existing methods (goBack, toggleLike, etc.) ...
-
+  // Always apply the poem serif font for the reading interface host
+  @HostBinding('class.poem-font')
+  get applyPoemFont(): boolean {
+    return true;
+  }
 
   // Navigate to category page
   navigateToCategory(category: string) {

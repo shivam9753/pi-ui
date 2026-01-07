@@ -1,0 +1,37 @@
+:host{display:block}
+/* Allow the renderer to fill the available column width */
+.content-renderer{
+  max-width: none !important;
+  width: 100% !important;
+  margin: 0 !important;
+  padding: 1rem !important;
+}
+
+.rendered-content{font-family: var(--poem-font, 'Merriweather', serif);line-height:1.7;color:var(--text-color,#111)}
+.rendered-content p{margin:0 0 1.2rem}
+.rendered-content h1, .rendered-content h2, .rendered-content h3{margin:1rem 0 0.5rem}
+.rendered-content img{max-width:100%;height:auto}
+
+/* Keep only visual inline tags allowed */
+.rendered-content b, .rendered-content strong{font-weight:700}
+.rendered-content i, .rendered-content em{font-style:italic}
+
+/* Remove inherited inline styles by forcing sensible defaults */
+.rendered-content *{all:unset;display:inherit}
+.rendered-content p, .rendered-content h1, .rendered-content h2, .rendered-content h3, .rendered-content li, .rendered-content blockquote{all:initial}
+
+/* Re-apply typographic rules */
+.rendered-content p{font-family:var(--poem-font,'Merriweather',serif);font-size:18px;line-height:1.7;color:var(--text-color,#111);margin:0 0 1.2rem}
+.rendered-content h1{font-size:28px;margin:0 0 0.6rem}
+.rendered-content h2{font-size:22px;margin:0 0 0.5rem}
+.rendered-content blockquote{border-left:3px solid #ddd;padding-left:1rem;color:#444;margin:0 0 1rem}
+
+/* Allow bold/italic */
+.rendered-content b, .rendered-content strong{font-weight:700}
+.rendered-content i, .rendered-content em{font-style:italic}
+
+/* Make inline links look sensible */
+.rendered-content a{color:var(--link-color,#0a58ca);text-decoration:underline}
+
+/* Ensure pre/code are monospaced and preserved */
+.rendered-content pre, .rendered-content code{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace;white-space:pre-wrap}
