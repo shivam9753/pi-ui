@@ -2,13 +2,12 @@
 
 
   @if (content()) {
-    <div
-      class="magazine-layout">
+    <main class="w-full lg:w-2/3 xl:w-3/5 mx-auto px-2 sm:px-4 md:px-6 lg:px-8">
       <!-- Main Content Grid -->
-      <div class="w-full mx-auto px-6 mt-4 pb-4" style="max-width: calc(66.666% + 50px);">
+      <div class="w-full mt-4 pb-4">
         <div class="flex flex-col gap-8">
           <!-- Main Content Column -->
-          <main class="col-span-12 lg:col-span-8">
+          <div role="main" class="col-span-12 lg:col-span-8 mx-auto">
             <!-- Article Header -->
             <header class="mb-4 relative reading-header">
               <!-- Desktop Controls - Positioned relative to content -->
@@ -38,15 +37,18 @@
                   [class.cursor-default]="!content()!.author?.id">
                   {{ content()!.author?.name || 'Anonymous' | titlecase}}
                 </a>
-                <div class="text-sm text-gray-500 mt-2">{{ content()!.readingTime }}min read</div>
+                <div class="text-sm text-gray-500 mt-2">{{ content()!.readingTime }} min read</div>
               </div>
               
               <!-- Description -->
               @if (content()!.description) {
                 <div class="mb-6 sm:mb-10">
-                  <p class="text-lg sm:text-xl text-gray-600 leading-relaxed font-light italic font-serif border-l-4 border-gray-300 pl-4 sm:pl-6">
-                    {{ content()!.description }}
-                  </p>
+                  <!-- Center and constrain description width: 85% on mobile, ~60-66% on larger screens -->
+                  <div class="mx-auto w-[85%] lg:w-3/5 xl:w-2/3">
+                    <p class="text-lg sm:text-xl text-gray-600 leading-relaxed font-light italic font-serif border-l-4 border-gray-300 px-4 sm:px-8 lg:px-12">
+                      {{ content()!.description }}
+                    </p>
+                  </div>
                 </div>
               }
             </header>
@@ -70,7 +72,7 @@
                       @if (content()!.contents.length > 1) {
                         <h2
                           class="content-title">
-                          {{ i + 1 }}. {{ item.title }}
+                          {{ item.title }}
                         </h2>
                       }
                       <!-- Content Body -->
@@ -94,7 +96,7 @@
                   }
                 </div>
               } @else {
-                <div class="bg-white border border-gray-200 rounded-lg p-12 text-center">
+                <div class="bg-white border border-gray-200 rounded-lg p-6 sm:p-12 text-center">
                   <div class="w-16 h-16 mx-auto mb-4 bg-white-secondary rounded-full flex items-center justify-center">
                     <svg class="w-8 h-8 text-gray-900-tertiary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -218,53 +220,53 @@
                 </div>
               </div>
             }
-          </main>
+          </div>
         </div>
       </div>
 
       <!-- Related Content Section (stacked below main content for all viewports) -->
-      <div class="max-w-3xl mx-auto px-6 pb-12">
-        @if (content()) {
-          <app-related-content
-            [currentPostId]="content()!._id"
-            [contentType]="content()!.submissionType"
-            [currentTags]="content()!.tags"
-            [layout]="'bottom'">
-          </app-related-content>
-        }
+      <div class="max-w-3xl mx-auto px-2 sm:px-4 lg:px-6 pb-12">
+        <app-related-content
+          [currentPostId]="content()!._id"
+          [contentType]="content()!.submissionType"
+          [currentTags]="content()!.tags"
+          [layout]="'bottom'">
+        </app-related-content>
       </div>
-      <!-- Loading State -->
-      @if (!content() && !error()) {
-        <div class="flex items-center justify-center min-h-screen">
-          <div class="text-center">
-            <div class="w-12 h-12 mx-auto mb-4 border-4 border-primary/20 border-t-primary rounded-full animate-spin"></div>
-            <p class="text-gray-900-secondary">Loading content...</p>
-          </div>
-        </div>
-      }
-      <!-- Error State -->
-      @if (error()) {
-        <div class="flex items-center justify-center min-h-screen">
-          <div class="text-center max-w-md mx-auto p-8">
-            <div class="w-16 h-16 mx-auto mb-4 bg-red-100 dark:bg-red-900/20 rounded-full flex items-center justify-center">
-              <svg class="w-8 h-8 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-            </div>
-            <h2 class="text-xl font-semibold text-gray-900 mb-2">Failed to Load Content</h2>
-            <p class="text-gray-900-secondary mb-4">{{ error() }}</p>
-            <button
-              (click)="retry()"
-              class="btn-primary">
-              <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-              </svg>
-              Try Again
-            </button>
-          </div>
-        </div>
-      }
-    </div>
-  }
+    </main>
+    }
 
-</div>
+    <!-- Loading State (show when there's no content and no error) -->
+    @if (!content() && !error()) {
+      <div class="flex items-center justify-center min-h-screen">
+        <div class="text-center">
+          <div class="w-12 h-12 mx-auto mb-4 border-4 border-primary/20 border-t-primary rounded-full animate-spin"></div>
+          <p class="text-gray-900-secondary">Loading content...</p>
+        </div>
+      </div>
+    }
+
+    <!-- Error State (only show when there's no content) -->
+    @if (!content() && error()) {
+      <div class="flex items-center justify-center min-h-screen">
+        <div class="text-center max-w-md mx-auto p-8">
+          <div class="w-16 h-16 mx-auto mb-4 bg-red-100 dark:bg-red-900/20 rounded-full flex items-center justify-center">
+            <svg class="w-8 h-8 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          <h2 class="text-xl font-semibold text-gray-900 mb-2">Failed to Load Content</h2>
+          <p class="text-gray-900-secondary mb-4">{{ error() }}</p>
+          <button
+            (click)="retry()"
+            class="btn-primary">
+            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+            Try Again
+          </button>
+        </div>
+      </div>
+    }
+
+  </div>
