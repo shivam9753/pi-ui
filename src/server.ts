@@ -6,6 +6,11 @@ import { fileURLToPath } from 'node:url';
 import bootstrap from './main.server';
 import fetch from 'node-fetch';
 
+// New dependencies for safer SSR meta handling
+import * as cheerio from 'cheerio';
+import { LRUCache } from 'lru-cache';
+import pLimit from 'p-limit';
+
 const serverDistFolder = dirname(fileURLToPath(import.meta.url));
 const browserDistFolder = resolve(serverDistFolder, '../browser');
 const indexHtml = join(serverDistFolder, 'index.server.html');
@@ -13,88 +18,155 @@ const indexHtml = join(serverDistFolder, 'index.server.html');
 const app = express();
 const commonEngine = new CommonEngine();
 
-// Helper function to fetch post data and generate meta tags
-async function generatePostMetaTags(slug: string): Promise<{ title: string; html: string } | null> {
+// Small in-memory cache for meta data to avoid repeated remote fetches during SSR
+const metaCacheOptions = {
+  max: 1000,
+  // ttl in ms (10 minutes)
+  ttl: 1000 * 60 * 10,
+};
+const metaCache: any = new LRUCache(metaCacheOptions);
+
+// Limit concurrent remote requests during SSR to avoid overload
+const fetchLimit = pLimit(5);
+
+// Simple HTML escape for text fields used inside tags
+function escapeHtml(str: string): string {
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+// Validate slug against conservative pattern (alphanumeric, dashes, underscores)
+function isValidSlug(slug: string): boolean {
+  return /^[a-zA-Z0-9-_]+$/.test(slug);
+}
+
+// Validate image URL (basic) and return a safe fallback if invalid
+function sanitizeImageUrl(url: any): string {
   try {
-    const apiUrl = `https://app.poemsindia.in/api/submissions/by-slug/${slug}`;
-    const response = await fetch(apiUrl);
-    
-    if (!response.ok) {
-      console.log(`[Meta] API error for ${slug}:`, response.status);
-      return null;
+    if (!url || typeof url !== 'string') return 'https://poemsindia.in/assets/loginimage.jpeg';
+    const parsed = new URL(url, 'https://poemsindia.in');
+    // Only allow http(s)
+    if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') {
+      return 'https://poemsindia.in/assets/loginimage.jpeg';
     }
-    
-    const postData = await response.json() as any;
-    console.log(`[Meta] Fetched data for: ${postData.title}`);
-    
-    const title = `${postData.title} — Poems by ${postData.authorName || 'Anonymous'} - pi`;
-    const description = postData.description || postData.excerpt || 
-      `Read "${postData.title}" by ${postData.authorName || 'Anonymous'} on Poems in India - a curated collection of poetry and literature.`;
-    
-    const imageUrl = postData.ogImage || postData.imageUrl || 'https://poemsindia.in/assets/loginimage.jpeg';
-    const canonicalUrl = `https://app.poemsindia.in/post/${slug}`;
-    
-    const metaTags = `
-    <title>${title}</title>
-    <meta name="description" content="${description}">
-    <meta name="keywords" content="poetry, literature, ${postData.authorName || 'Anonymous'}, Poems in India">
-    
-    <meta property="og:title" content="${postData.title}">
-    <meta property="og:description" content="${description}">
-    <meta property="og:type" content="article">
-    <meta property="og:url" content="${canonicalUrl}">
-    <meta property="og:site_name" content="Poems in India">
-    <meta property="og:image" content="${imageUrl}">
-    <meta property="og:image:secure_url" content="${imageUrl}">
-    <meta property="og:image:width" content="1200">
-    <meta property="og:image:height" content="630">
-    <meta property="og:image:alt" content="Cover image for ${postData.title}">
-    <meta property="og:image:type" content="image/jpeg">
-    <meta property="og:locale" content="en_US">
-    
-    <!-- Additional image meta tags for better compatibility -->
-    <meta name="image" content="${imageUrl}">
-    <meta itemprop="image" content="${imageUrl}">
-    <link rel="image_src" href="${imageUrl}">
-    
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="${postData.title}">
-    <meta name="twitter:description" content="${description}">
-    <meta name="twitter:site" content="@poemsindia">
-    <meta name="twitter:creator" content="@${postData.authorName || 'Anonymous'}">
-    <meta name="twitter:image" content="${imageUrl}">
-    <meta name="twitter:image:alt" content="Cover image for ${postData.title}">
-    
-    <meta name="author" content="${postData.authorName || 'Anonymous'}">
-    <meta name="robots" content="index,follow">
-    <link rel="canonical" href="${canonicalUrl}">
-    `;
-    
-    console.log(`[Meta] Generated meta tags for: ${postData.title}, Image: ${imageUrl}`);
-    return { title, html: metaTags };
-    
-  } catch (error) {
-    console.error(`[Meta] Error fetching data for ${slug}:`, error);
+    return parsed.toString();
+  } catch (err) {
+    return 'https://poemsindia.in/assets/loginimage.jpeg';
+  }
+}
+
+// Fetch with timeout (uses AbortController)
+async function fetchWithTimeout(url: string, timeoutMs = 3000): Promise<any> {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    const res: any = await fetch(url, { signal: controller.signal });
+    return res;
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
+// Helper function to fetch post data and generate sanitized meta tags with caching
+async function generatePostMetaTags(slug: string): Promise<{ title: string; html: string } | null> {
+  // Validate slug early
+  if (!slug || !isValidSlug(slug)) {
+    console.log(`[Meta] Invalid slug provided: ${slug}`);
     return null;
   }
+
+  // Return cached value if present
+  const cached = metaCache.get(slug);
+  if (cached) {
+    return cached;
+  }
+
+  // Use concurrency limiter to avoid many simultaneous remote calls
+  return fetchLimit(async () => {
+    try {
+      const apiUrl = `https://app.poemsindia.in/api/submissions/by-slug/${encodeURIComponent(slug)}`;
+      const response = await fetchWithTimeout(apiUrl, 3000);
+
+      if (!response.ok) {
+        console.log(`[Meta] API error for ${slug}:`, response.status);
+        return null;
+      }
+
+      const postData = await response.json() as any;
+
+      const rawTitle = postData?.title || 'Untitled';
+      const rawAuthor = postData?.authorName || 'Anonymous';
+      const rawDescription = postData?.description || postData?.excerpt || '';
+      const rawImage = postData?.ogImage || postData?.imageUrl || '';
+
+      const title = `${rawTitle} — Poems by ${rawAuthor} - pi`;
+      const description = rawDescription || `Read "${rawTitle}" by ${rawAuthor} on Poems in India - a curated collection of poetry and literature.`;
+      const imageUrl = sanitizeImageUrl(rawImage);
+      const canonicalUrl = `https://app.poemsindia.in/post/${slug}`;
+
+      // Build sanitized meta tags (text fields escaped)
+      const metaTags = `
+    <title>${escapeHtml(title)}</title>
+    <meta name="description" content="${escapeHtml(description)}">
+    <meta name="keywords" content="poetry, literature, ${escapeHtml(rawAuthor)} , Poems in India">
+
+    <meta property="og:title" content="${escapeHtml(rawTitle)}">
+    <meta property="og:description" content="${escapeHtml(description)}">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="${escapeHtml(canonicalUrl)}">
+    <meta property="og:site_name" content="Poems in India">
+    <meta property="og:image" content="${escapeHtml(imageUrl)}">
+    <meta property="og:image:secure_url" content="${escapeHtml(imageUrl)}">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="Cover image for ${escapeHtml(rawTitle)}">
+    <meta property="og:image:type" content="image/jpeg">
+    <meta property="og:locale" content="en_US">
+
+    <meta name="image" content="${escapeHtml(imageUrl)}">
+    <meta itemprop="image" content="${escapeHtml(imageUrl)}">
+    <link rel="image_src" href="${escapeHtml(imageUrl)}">
+
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="${escapeHtml(rawTitle)}">
+    <meta name="twitter:description" content="${escapeHtml(description)}">
+    <meta name="twitter:site" content="@poemsindia">
+    <meta name="twitter:creator" content="@${escapeHtml(rawAuthor)}">
+    <meta name="twitter:image" content="${escapeHtml(imageUrl)}">
+    <meta name="twitter:image:alt" content="Cover image for ${escapeHtml(rawTitle)}">
+
+    <meta name="author" content="${escapeHtml(rawAuthor)}">
+    <meta name="robots" content="index,follow">
+    <link rel="canonical" href="${escapeHtml(canonicalUrl)}">
+    `;
+
+      const result = { title, html: metaTags };
+      // Cache result
+      metaCache.set(slug, result);
+      console.log(`[Meta] Cached meta for: ${slug}, Image: ${imageUrl}`);
+      return result;
+    } catch (error) {
+      // Distinguish aborts/timeouts from other errors
+      if ((error as any)?.name === 'AbortError') {
+        console.warn(`[Meta] Timeout fetching meta for ${slug}`);
+      } else {
+        console.error(`[Meta] Error fetching data for ${slug}:`, error);
+      }
+      return null;
+    }
+  });
 }
 
 /**
  * Example Express Rest API endpoints can be defined here.
- * Uncomment and define endpoints as necessary.
- *
- * Example:
- * ```ts
- * app.get('/api/**', (req, res) => {
- *   // Handle API request
- * });
- * ```
  */
 
 /**
  * Serve static files from /browser with careful cache headers.
- * - Keep long caching for immutable assets (js/css/images with hashed names)
- * - Ensure index.html is served with no-cache so SPA shell updates are picked up immediately
  */
 app.use(express.static(browserDistFolder, {
   index: false,
@@ -117,53 +189,47 @@ app.use(express.static(browserDistFolder, {
  */
 app.get('/:slug', (req, res, next) => {
   const slug = req.params.slug;
-  
+
   // Known application routes that aren't post slugs
   const knownRoutes = [
     'login', 'explore', 'submit', 'admin', 'profile', 'prompts',
     'faqs', 'contact-us', 'privacy-policy', 'terms-of-use',
     'complete-profile', 'review', 'publish', 'users', 'poem-parser', 'json-parser'
   ];
-  
-  // If this looks like a post slug (not a known app route), redirect
+
   if (slug && !knownRoutes.includes(slug) && !slug.includes('.')) {
     console.log(`[Legacy Redirect] ${req.originalUrl} -> /post/${slug}`);
     return res.redirect(301, `/post/${slug}`);
   }
-  
-  // Continue to main handler for known routes
+
   next();
 });
 
 /**
  * Hybrid SSR: Only render specific routes server-side
  */
-app.get('**', (req, res, next) => {
+app.get('*', (req, res, next) => {
   const { protocol, originalUrl, baseUrl, headers } = req;
-  
-  // Routes that should be server-side rendered
+
   const ssrRoutes = [
-    /^\/post\/[^\/]+$/, // /post/:slug
+    /^\/post\/[^\/]+$/,
   ];
-  
-  // Check if current route should be SSR
+
   const shouldSSR = ssrRoutes.some(pattern => pattern.test(originalUrl));
-  
-  // Bot detection for better SEO coverage
+
   const userAgent = headers['user-agent'] || '';
   const isBot = /bot|crawler|spider|crawling|facebookexternalhit|twitterbot|linkedinbot|whatsapp/i.test(userAgent);
-  
+
   if (shouldSSR || isBot) {
     console.log(`[SSR] Rendering: ${originalUrl} (Bot: ${isBot})`);
-    
-    // Check if this is a post route that needs dynamic meta tags
+
     const postMatch = originalUrl.match(/^\/post\/(.+)$/);
-    
+
     if (postMatch) {
       const slug = postMatch[1];
       console.log(`[SSR] Post detected, generating meta tags for: ${slug}`);
-      
-      // Generate meta tags asynchronously
+
+      // Generate meta tags asynchronously with safe fallback
       generatePostMetaTags(slug)
         .then(metaData => {
           // Render the Angular app
@@ -176,31 +242,40 @@ app.get('**', (req, res, next) => {
               { provide: APP_BASE_HREF, useValue: baseUrl },
             ],
           }).then(html => {
+            // If we have metaData, use cheerio to manipulate head safely
             if (metaData) {
-              // Replace default title
-              html = html.replace(/<title>.*?<\/title>/, `<title>${metaData.title}</title>`);
-              
-              // Remove existing og:image tags to prevent duplicates
-              html = html.replace(/<meta property="og:image"[^>]*>/g, '');
-              html = html.replace(/<meta property="og:image:secure_url"[^>]*>/g, '');
-              html = html.replace(/<meta property="og:image:width"[^>]*>/g, '');
-              html = html.replace(/<meta property="og:image:height"[^>]*>/g, '');
-              html = html.replace(/<meta property="og:image:alt"[^>]*>/g, '');
-              html = html.replace(/<meta property="og:image:type"[^>]*>/g, '');
-              
-              // Remove existing og:title and og:description to prevent duplicates
-              html = html.replace(/<meta property="og:title"[^>]*>/g, '');
-              html = html.replace(/<meta property="og:description"[^>]*>/g, '');
-              html = html.replace(/<meta name="description"[^>]*>/g, '');
-              
-              // Remove existing Twitter meta tags
-              html = html.replace(/<meta name="twitter:image"[^>]*>/g, '');
-              html = html.replace(/<meta name="twitter:title"[^>]*>/g, '');
-              html = html.replace(/<meta name="twitter:description"[^>]*>/g, '');
-              
-              // Add our clean meta tags
-              html = html.replace(/<head>/, `<head>\n${metaData.html}`);
-              console.log(`[SSR] Replaced meta tags for: ${slug}`);
+              try {
+                const $ = cheerio.load(html);
+
+                // Remove existing meta tags that we will replace
+                $('meta[property="og:image"]').remove();
+                $('meta[property="og:image:secure_url"]').remove();
+                $('meta[property="og:image:width"]').remove();
+                $('meta[property="og:image:height"]').remove();
+                $('meta[property="og:image:alt"]').remove();
+                $('meta[property="og:image:type"]').remove();
+                $('meta[property="og:title"]').remove();
+                $('meta[property="og:description"]').remove();
+                $('meta[name="description"]').remove();
+                $('meta[name="twitter:image"]').remove();
+                $('meta[name="twitter:title"]').remove();
+                $('meta[name="twitter:description"]').remove();
+
+                // Replace title
+                if ($('title').length) {
+                  $('title').first().text(metaData.title);
+                } else {
+                  $('head').prepend(`<title>${escapeHtml(metaData.title)}</title>`);
+                }
+
+                // Inject our meta tags into head (as HTML string; values already escaped)
+                $('head').append(metaData.html);
+
+                html = $.html();
+                console.log(`[SSR] Injected meta tags for: ${slug}`);
+              } catch (err) {
+                console.error('[SSR] Error injecting meta tags via cheerio:', err);
+              }
             }
             return html;
           });
@@ -214,7 +289,19 @@ app.get('**', (req, res, next) => {
         })
         .catch((err) => {
           console.error('[SSR] Error with post meta tags:', err);
-          next(err);
+          // On error, render without meta replacement as a safe fallback
+          commonEngine
+            .render({
+              bootstrap,
+              documentFilePath: indexHtml,
+              url: `${protocol}://${headers.host}${originalUrl}`,
+              publicPath: browserDistFolder,
+              providers: [
+                { provide: APP_BASE_HREF, useValue: baseUrl },
+              ],
+            })
+            .then(html => res.send(html))
+            .catch(innerErr => next(innerErr));
         });
     } else {
       // Regular SSR for non-post routes
@@ -247,7 +334,6 @@ app.get('**', (req, res, next) => {
 
 /**
  * Start the server if this module is the main entry point.
- * The server listens on the port defined by the `PORT` environment variable, or defaults to 4000.
  */
 if (isMainModule(import.meta.url)) {
   const port = process.env['PORT'] || 4000;
