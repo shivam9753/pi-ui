@@ -483,31 +483,42 @@ export class PublishSubmissionComponent implements OnInit {
         if (this.submission && this.selectedCoverImageFile) {
           this.isUploadingCoverImage = true;
           this.backendService.uploadSubmissionImage(this.submission._id, this.selectedCoverImageFile).subscribe({
-            next: (response: any) => {
+             next: (response: any) => {
               const url = this.normalizeImageUrl(response?.imageUrl || response?.submission?.imageUrl || '');
               if (url) {
-                // add to uploadedImages for gallery
-                if (!this.uploadedImages.includes(url)) this.uploadedImages.unshift(url);
-                // set as current cover preview (do not auto-save as cover, let user choose)
-                this.submission.imageUrl = url;
+                // Attempt to verify the returned public URL is actually reachable.
+                this.verifyImageAccessible(url).then(isAccessible => {
+                  if (isAccessible) {
+                    if (!this.uploadedImages.includes(url)) this.uploadedImages.unshift(url);
+                    // set as current cover preview (do not auto-save as cover, let user choose)
+                    this.submission.imageUrl = url;
+                  } else {
+                    // Backend-returned URL not reachable. Keep transient preview visible and add URL to gallery for inspection.
+                    console.warn('[Publish] Uploaded image URL is not reachable:', url);
+                    if (!this.uploadedImages.includes(url)) this.uploadedImages.unshift(url);
+                    this.showToast('Image uploaded but public URL not reachable yet. Keeping local preview.', 'info');
+                  }
+                }).catch(err => {
+                  console.warn('verifyImageAccessible error:', err);
+                });
               }
-              this.selectedCoverImageFile = null;
-              this.isUploadingCoverImage = false;
+               this.selectedCoverImageFile = null;
+               this.isUploadingCoverImage = false;
 
-              // Remove transient preview if present and revoke URL
-              if (this.lastSelectedCoverPreviewUrl) {
-                const index = this.transientUploadedImages.indexOf(this.lastSelectedCoverPreviewUrl as string);
-                if (index !== -1) this.transientUploadedImages.splice(index, 1);
-                try { URL.revokeObjectURL(this.lastSelectedCoverPreviewUrl as string); } catch (e) {}
-                this.lastSelectedCoverPreviewUrl = null;
-              }
-            },
-            error: (err) => {
-              this.handleUploadError(err);
-              this.isUploadingCoverImage = false;
-            }
-          });
-        }
+               // Remove transient preview if present and revoke URL
+               if (this.lastSelectedCoverPreviewUrl) {
+                 const index = this.transientUploadedImages.indexOf(this.lastSelectedCoverPreviewUrl as string);
+                 if (index !== -1) this.transientUploadedImages.splice(index, 1);
+                 try { URL.revokeObjectURL(this.lastSelectedCoverPreviewUrl as string); } catch (e) {}
+                 this.lastSelectedCoverPreviewUrl = null;
+               }
+             },
+             error: (err) => {
+               this.handleUploadError(err);
+               this.isUploadingCoverImage = false;
+             }
+           });
+         }
       } catch (error) {
         this.showError('Failed to compress image. Using original.');
         this.selectedCoverImageFile = file;
@@ -554,28 +565,36 @@ export class PublishSubmissionComponent implements OnInit {
         if (this.submission && this.selectedSocialImageFile) {
           this.isUploadingSocialImage = true;
           this.backendService.uploadSubmissionImage(this.submission._id, this.selectedSocialImageFile).subscribe({
-            next: (response: any) => {
+             next: (response: any) => {
               const url = this.normalizeImageUrl(response?.imageUrl || response?.submission?.seo?.ogImage || response?.submission?.imageUrl || '');
               if (url) {
-                if (!this.uploadedImages.includes(url)) this.uploadedImages.unshift(url);
-                this.seoConfig.ogImage = url;
+                this.verifyImageAccessible(url).then(isAccessible => {
+                  if (isAccessible) {
+                    if (!this.uploadedImages.includes(url)) this.uploadedImages.unshift(url);
+                    this.seoConfig.ogImage = url;
+                  } else {
+                    console.warn('[Publish] Uploaded social image URL not reachable:', url);
+                    if (!this.uploadedImages.includes(url)) this.uploadedImages.unshift(url);
+                    this.showToast('Social image uploaded but public URL not reachable yet. Keeping local preview.', 'info');
+                  }
+                }).catch(err => console.warn('verifyImageAccessible error:', err));
               }
-              this.selectedSocialImageFile = null;
-              this.isUploadingSocialImage = false;
+               this.selectedSocialImageFile = null;
+               this.isUploadingSocialImage = false;
 
-              if (this.lastSelectedSocialPreviewUrl) {
-                const index = this.transientUploadedImages.indexOf(this.lastSelectedSocialPreviewUrl as string);
-                if (index !== -1) this.transientUploadedImages.splice(index, 1);
-                try { URL.revokeObjectURL(this.lastSelectedSocialPreviewUrl as string); } catch (e) {}
-                this.lastSelectedSocialPreviewUrl = null;
-              }
-            },
-            error: (err) => {
-              this.handleUploadError(err);
-              this.isUploadingSocialImage = false;
-            }
-          });
-        }
+               if (this.lastSelectedSocialPreviewUrl) {
+                 const index = this.transientUploadedImages.indexOf(this.lastSelectedSocialPreviewUrl as string);
+                 if (index !== -1) this.transientUploadedImages.splice(index, 1);
+                 try { URL.revokeObjectURL(this.lastSelectedSocialPreviewUrl as string); } catch (e) {}
+                 this.lastSelectedSocialPreviewUrl = null;
+               }
+             },
+             error: (err) => {
+               this.handleUploadError(err);
+               this.isUploadingSocialImage = false;
+             }
+           });
+         }
       } catch (error) {
         this.showError('Failed to compress image. Using original.');
         this.selectedSocialImageFile = file;
@@ -705,23 +724,53 @@ export class PublishSubmissionComponent implements OnInit {
     }
   }
 
-  // Extract plain text from HTML content (used for auto-generating description)
+  // Verify that an image URL is reachable (loads successfully) before using it as a live preview
+  private verifyImageAccessible(url: string, timeoutMs: number = 5000): Promise<boolean> {
+    return new Promise(resolve => {
+      if (!url || typeof url !== 'string') return resolve(false);
+      try {
+        const img = new Image();
+        let settled = false;
+        const onSuccess = () => { if (!settled) { settled = true; cleanup(); resolve(true); } };
+        const onFail = () => { if (!settled) { settled = true; cleanup(); resolve(false); } };
+        const cleanup = () => {
+          img.onload = null; img.onerror = null; try { clearTimeout(timer); } catch(e){}
+        };
+        img.onload = onSuccess;
+        img.onerror = onFail;
+        img.src = url;
+        const timer = setTimeout(() => { if (!settled) { settled = true; cleanup(); resolve(false); } }, timeoutMs);
+      } catch (e) {
+        return resolve(false);
+      }
+    });
+  }
+
+  // Extract plain text from HTML content (used for auto-generated descriptions/excerpts)
   private extractPlainText(html: string): string {
+    if (!html) return '';
     try {
-      if (!html) return '';
-      const temp = document.createElement('div');
-      temp.innerHTML = html;
-      // Use textContent to preserve spaces/newlines reasonably
-      return (temp.textContent || temp.innerText || '').trim();
+      // If running in Node/SSR, document won't exist — use simple regex-based stripping
+      if (typeof document === 'undefined') {
+        let text = html.replace(/<[^>]+>/g, ' ');
+        text = text.replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"');
+        return text.replace(/\s+/g, ' ').trim();
+      }
+
+      const div = document.createElement('div');
+      div.innerHTML = html;
+      const text = div.textContent || div.innerText || '';
+      // Normalize non-breaking spaces and trim
+      return text.replace(/\u00A0/g, ' ').trim();
     } catch (e) {
-      return html || '';
+      return '';
     }
   }
-  
-  // Generic upload error handler used by cover/social upload flows
+
+  // Centralized upload error handler to show friendly messages
   private handleUploadError(err: any): void {
-    console.error('Upload failed:', err);
-    const message = err?.message || err?.error?.message || 'Image upload failed. Please try again.';
+    console.error('Upload error:', err);
+    const message = err?.error?.message || err?.message || 'Failed to upload image. Please try again.';
     this.showError(message);
   }
 

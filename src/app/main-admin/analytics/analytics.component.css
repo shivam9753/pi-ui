@@ -1,9 +1,10 @@
 .analytics-dashboard {
-  @apply max-w-full;
+  max-width: 100%;
 }
 
 .analytics-chart {
-  @apply w-full h-auto;
+  width: 100%;
+  height: auto;
 }
 
 .analytics-chart text {
@@ -13,7 +14,7 @@
 /* Responsive adjustments for charts */
 @media (max-width: 768px) {
   .analytics-chart {
-    @apply text-xs;
+    font-size: 12px; /* text-xs */
   }
 }
 
@@ -23,15 +24,17 @@
 }
 
 .overflow-x-auto::-webkit-scrollbar-track {
-  @apply bg-gray-100 rounded-full;
+  background-color: #f3f4f6; /* bg-gray-100 */
+  border-radius: 9999px; /* rounded-full */
 }
 
 .overflow-x-auto::-webkit-scrollbar-thumb {
-  @apply bg-gray-300 rounded-full;
+  background-color: #e5e7eb; /* bg-gray-300 */
+  border-radius: 9999px; /* rounded-full */
 }
 
 .overflow-x-auto::-webkit-scrollbar-thumb:hover {
-  @apply bg-gray-400;
+  background-color: #9ca3af; /* bg-gray-400 */
 }
 
 /* Animation for loading state */
@@ -52,18 +55,26 @@
 
 /* Card hover effects */
 .bg-white.rounded-xl:hover {
-  @apply shadow-md;
+  box-shadow: var(--shadow-md);
   transition: box-shadow 0.2s ease-in-out;
 }
 
 /* Chart container styling */
 .chart-container {
-  @apply relative overflow-hidden;
+  position: relative; /* relative */
+  overflow: hidden; /* overflow-hidden */
 }
 
 .chart-container::before {
   content: '';
-  @apply absolute inset-0 bg-gradient-to-r from-transparent via-white/50 to-transparent pointer-events-none opacity-0;
+  position: absolute; /* absolute */
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0; /* inset-0 */
+  background: linear-gradient(to right, transparent, rgba(255,255,255,0.5) 50%, transparent);
+  pointer-events: none;
+  opacity: 0;
   animation: shimmer 2s infinite;
 }
 
@@ -83,20 +94,20 @@
 
 /* Table styling enhancements */
 table {
-  @apply border-collapse;
+  border-collapse: collapse; /* border-collapse */
 }
 
 tbody tr:last-child {
-  @apply border-b-0;
+  border-bottom: 0; /* border-b-0 */
 }
 
 /* Mobile responsiveness for metrics cards */
 @media (max-width: 640px) {
-  .grid-cols-1.md\\:grid-cols-3 {
-    @apply gap-4;
+  .grid-cols-1.md\:grid-cols-3 {
+    gap: 16px; /* gap-4 */
   }
   
   .bg-white.rounded-xl.shadow-sm.border.border-gray-100.p-6 {
-    @apply p-4;
+    padding: 16px; /* p-4 */
   }
 }

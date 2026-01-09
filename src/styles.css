@@ -2248,7 +2248,17 @@ a:hover {
 
 /* Global Tag Utility Classes */
 .tag {
-  @apply inline-flex items-center px-2 py-1 rounded-md text-xs font-medium transition-colors cursor-default;
+  display: inline-flex;
+  align-items: center;
+  padding-left: 8px; /* px-2 */
+  padding-right: 8px; /* px-2 */
+  padding-top: 4px; /* py-1 */
+  padding-bottom: 4px; /* py-1 */
+  border-radius: var(--radius-md); /* rounded-md */
+  font-size: 12px; /* text-xs */
+  font-weight: 500; /* font-medium */
+  transition: color 150ms ease, background-color 150ms ease; /* transition-colors */
+  cursor: default;
 }
 
 .tag-purple {
