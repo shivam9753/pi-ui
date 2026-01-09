@@ -371,9 +371,20 @@ export class BackendService {
             try {
               const parsed = new URL(url);
               const host = parsed.host || '';
-              if (runningOrigin && (host.includes('localhost') || host.includes('127.0.0.1'))) {
+
+              // Only rewrite localhost URLs when:
+              // 1. We're running in production (non-localhost origin)
+              // 2. AND the URL is pointing to localhost
+              // Don't rewrite in development where both frontend and backend are on localhost
+              const isRunningOnLocalhost = runningOrigin && (runningOrigin.includes('localhost') || runningOrigin.includes('127.0.0.1'));
+              const urlIsLocalhost = host.includes('localhost') || host.includes('127.0.0.1');
+
+              if (runningOrigin && urlIsLocalhost && !isRunningOnLocalhost) {
+                // Production case: rewrite localhost URLs to use production origin
                 return `${runningOrigin}${parsed.pathname}${parsed.search}${parsed.hash}`;
               }
+
+              // Development case: keep localhost URLs as-is (don't rewrite port 3000 to 4200)
               return url;
             } catch (e) {
               return url;

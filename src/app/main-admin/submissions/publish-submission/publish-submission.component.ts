@@ -715,7 +715,7 @@ export class PublishSubmissionComponent implements OnInit {
     });
   }
 
-  // Normalize backend-returned image URLs: replace localhost or 127.0.0.1 with current origin when running in browser
+  // Normalize backend-returned image URLs: replace localhost with current origin ONLY in production
   private normalizeImageUrl(url: string): string {
     if (!url || typeof url !== 'string') return url;
     try {
@@ -723,12 +723,23 @@ export class PublishSubmissionComponent implements OnInit {
       if (url.startsWith('blob:') || url.startsWith('data:')) return url;
       const parsed = new URL(url);
       const host = parsed.host || '';
-      if ((host.includes('localhost') || host.includes('127.0.0.1')) && typeof window !== 'undefined') {
-        // Replace host with current origin
-        const newUrl = `${window.location.origin}${parsed.pathname}${parsed.search}${parsed.hash}`;
-        console.warn(`[Publish] Rewriting returned image URL from ${url} to ${newUrl}`);
-        return newUrl;
+
+      // Only rewrite localhost URLs when running in production (non-localhost origin)
+      // Don't rewrite in development where both frontend and backend use localhost
+      if (typeof window !== 'undefined') {
+        const currentOrigin = window.location.origin;
+        const isRunningOnLocalhost = currentOrigin.includes('localhost') || currentOrigin.includes('127.0.0.1');
+        const urlIsLocalhost = host.includes('localhost') || host.includes('127.0.0.1');
+
+        if (urlIsLocalhost && !isRunningOnLocalhost) {
+          // Production case: rewrite localhost URLs to use production origin
+          const newUrl = `${currentOrigin}${parsed.pathname}${parsed.search}${parsed.hash}`;
+          console.warn(`[Publish] Rewriting returned image URL from ${url} to ${newUrl}`);
+          return newUrl;
+        }
       }
+
+      // Development case: keep localhost URLs as-is (e.g., localhost:3000 stays localhost:3000)
       return url;
     } catch (e) {
       return url;
@@ -1297,10 +1308,10 @@ export class PublishSubmissionComponent implements OnInit {
       });
     }
 
-    // Debug: log the extracted images
-    if (images.length > 0) {
-      console.log('📸 Content images found (including cover/og):', images);
-    }
+    // Debug: log the extracted images (commented out to reduce console noise)
+    // if (images.length > 0) {
+    //   console.log('📸 Content images found (including cover/og):', images);
+    // }
 
     return images;
   }
