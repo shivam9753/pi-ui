@@ -51,22 +51,21 @@ git pull origin main || echo "⚠️  Git pull failed or no changes for pi-backe
 echo "📂 Extracting new build files..."
 cd /home/ubuntu
 
-# Extract to pi-ui directory (for SSR server)
-echo "   - Extracting to pi-ui directory..."
-sudo tar -xzf dist.tar.gz --strip-components=1 -C /home/ubuntu/pi-ui/ --exclude='**/._*'
+# Extract everything from tarball to temp location
+echo "   - Extracting build files to temp location..."
+sudo tar -xzf dist.tar.gz --exclude='**/._*'
 
-# Extract browser files to nginx directory  
+# Copy browser files to nginx directory FIRST (before moving dist/)
 echo "   - Cleaning old files from nginx directory..."
 sudo rm -f /var/www/html/main-*.js /var/www/html/polyfills-*.js /var/www/html/styles-*.css
 
-echo "   - Extracting browser files to nginx directory..."
-sudo tar -xzf dist.tar.gz dist/pi/browser/ --exclude='**/._*'
+echo "   - Copying browser files to nginx directory..."
 sudo cp -r dist/pi/browser/* /var/www/html/
 
-# Also copy all browser files to SSR directory to ensure consistency
-echo "   - Syncing browser files to SSR directory..."
-sudo cp -r dist/pi/browser/* /home/ubuntu/pi-ui/dist/pi/browser/
-sudo rm -rf dist/
+# Move dist directory to SSR server location (preserves dist/pi structure)
+echo "   - Moving dist to SSR server location..."
+sudo rm -rf /home/ubuntu/pi-ui/dist/
+sudo mv dist /home/ubuntu/pi-ui/
 
 # Set proper permissions
 echo "🔐 Setting proper permissions..."
@@ -83,6 +82,17 @@ pm2 restart ui-ssr || echo "⚠️  ui-ssr process not found or failed to restar
 # Restart backend if needed
 echo "   - Restarting backend server..."
 pm2 restart backend || echo "⚠️  backend process not found or failed to restart"
+
+# Clear nginx proxy cache
+echo "   - Clearing nginx proxy cache..."
+if [ -d "/var/lib/nginx/proxy" ]; then
+    sudo rm -rf /var/lib/nginx/proxy/*
+    echo "     ✓ Nginx proxy cache cleared"
+fi
+if [ -d "/var/cache/nginx" ]; then
+    sudo rm -rf /var/cache/nginx/*
+    echo "     ✓ Nginx cache cleared"
+fi
 
 # Reload nginx
 echo "   - Reloading nginx..."

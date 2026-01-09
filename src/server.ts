@@ -207,7 +207,7 @@ app.get('**', (req, res, next) => {
         })
         .then((html) => {
           res.set({
-            'Cache-Control': 'public, max-age=300, s-maxage=600',
+            'Cache-Control': 'public, max-age=60, s-maxage=300, must-revalidate',
             'Vary': 'User-Agent',
           });
           res.send(html);
@@ -230,7 +230,7 @@ app.get('**', (req, res, next) => {
         })
         .then((html) => {
           res.set({
-            'Cache-Control': 'public, max-age=300, s-maxage=600',
+            'Cache-Control': 'public, max-age=60, s-maxage=300, must-revalidate',
             'Vary': 'User-Agent',
           });
           res.send(html);
