@@ -339,8 +339,24 @@ export class BackendService {
     
     const formData = new FormData();
     formData.append('image', imageFile);
+
+    // Defensive check: if the configured API_URL points to localhost but the app is
+    // running on a non-localhost origin (production), rewrite the base to use the
+    // current window origin + /api so uploads do not go to developer localhost.
+    let uploadBase = this.API_URL;
+    try {
+      if (!isPlatformServer(this.platformId) && typeof window !== 'undefined') {
+        const runningHost = window.location.host || '';
+        if (uploadBase.includes('localhost') && !runningHost.includes('localhost')) {
+          console.warn(`[BackendService] Rewriting upload base from ${uploadBase} to use current origin ${window.location.origin}`);
+          uploadBase = `${window.location.origin.replace(/\/$/, '')}/api`;
+        }
+      }
+    } catch (e) {
+      // noop - keep configured API_URL
+    }
     
-    return this.http.post(`${this.API_URL}${API_ENDPOINTS.SUBMISSIONS_NESTED.UPLOAD_IMAGE(submissionId)}`, formData, { headers }).pipe(
+    return this.http.post(`${uploadBase}${API_ENDPOINTS.SUBMISSIONS_NESTED.UPLOAD_IMAGE(submissionId)}`, formData, { headers }).pipe(
       catchError(this.handleError)
     );
   }
@@ -352,7 +368,19 @@ export class BackendService {
     });
 
 
-    return this.http.delete(`${this.API_URL}${API_ENDPOINTS.SUBMISSIONS_NESTED.IMAGE(submissionId)}`, { headers }).pipe(
+    // Apply same defensive rewrite for deletes to ensure correct host
+    let deleteBase = this.API_URL;
+    try {
+      if (!isPlatformServer(this.platformId) && typeof window !== 'undefined') {
+        const runningHost = window.location.host || '';
+        if (deleteBase.includes('localhost') && !runningHost.includes('localhost')) {
+          deleteBase = `${window.location.origin.replace(/\/$/, '')}/api`;
+        }
+      }
+    } catch (e) {
+      // noop
+    }
+    return this.http.delete(`${deleteBase}${API_ENDPOINTS.SUBMISSIONS_NESTED.IMAGE(submissionId)}`, { headers }).pipe(
       catchError(this.handleError)
     );
   }
