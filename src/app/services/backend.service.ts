@@ -356,7 +356,48 @@ export class BackendService {
       // noop - keep configured API_URL
     }
     
+    // Normalize any returned image URLs that still point to localhost so consumers
+    // of this method receive URLs that are fetchable from the current origin.
     return this.http.post(`${uploadBase}${API_ENDPOINTS.SUBMISSIONS_NESTED.UPLOAD_IMAGE(submissionId)}`, formData, { headers }).pipe(
+      map((resp: any) => {
+        try {
+          // Only perform normalization when running in a browser environment
+          const runningOrigin = (!isPlatformServer(this.platformId) && typeof window !== 'undefined') ? window.location.origin.replace(/\/$/, '') : null;
+
+          const normalize = (url: string) => {
+            if (!url || typeof url !== 'string') return url;
+            // don't touch blob/data URLs
+            if (url.startsWith('blob:') || url.startsWith('data:')) return url;
+            try {
+              const parsed = new URL(url);
+              const host = parsed.host || '';
+              if (runningOrigin && (host.includes('localhost') || host.includes('127.0.0.1'))) {
+                return `${runningOrigin}${parsed.pathname}${parsed.search}${parsed.hash}`;
+              }
+              return url;
+            } catch (e) {
+              return url;
+            }
+          };
+
+          if (resp) {
+            if (resp.imageUrl) {
+              resp.imageUrl = normalize(resp.imageUrl);
+            }
+            if (resp.submission) {
+              if (resp.submission.imageUrl) {
+                resp.submission.imageUrl = normalize(resp.submission.imageUrl);
+              }
+              if (resp.submission.seo && resp.submission.seo.ogImage) {
+                resp.submission.seo.ogImage = normalize(resp.submission.seo.ogImage);
+              }
+            }
+          }
+        } catch (e) {
+          // noop - return original response if normalization fails
+        }
+        return resp;
+      }),
       catchError(this.handleError)
     );
   }

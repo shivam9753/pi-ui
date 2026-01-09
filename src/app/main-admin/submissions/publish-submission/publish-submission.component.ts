@@ -558,8 +558,8 @@ export class PublishSubmissionComponent implements OnInit {
 
     this.backendService.uploadSubmissionImage(this.submission._id, this.selectedCoverImageFile).subscribe({
       next: (response) => {
-        // Update submission with new cover image URL
-        this.submission.imageUrl = response.imageUrl;
+        // Normalize returned URL to avoid localhost references in prod
+        this.submission.imageUrl = this.normalizeImageUrl(response.imageUrl);
 
         this.showSuccess('Cover image uploaded successfully!');
         this.selectedCoverImageFile = null;
@@ -597,8 +597,8 @@ export class PublishSubmissionComponent implements OnInit {
 
     this.backendService.uploadSubmissionImage(this.submission._id, this.selectedSocialImageFile).subscribe({
       next: (response) => {
-        // Update SEO config with new social media image URL
-        this.seoConfig.ogImage = response.imageUrl;
+        // Update SEO config with new social media image URL (normalize to avoid localhost)
+        this.seoConfig.ogImage = this.normalizeImageUrl(response.imageUrl);
 
         this.showSuccess('Social media image uploaded successfully!');
         this.selectedSocialImageFile = null;
@@ -625,544 +625,63 @@ export class PublishSubmissionComponent implements OnInit {
     });
   }
 
-  // Handle upload errors (shared logic)
-  private handleUploadError(err: any) {
-    let errorMessage = 'Failed to upload image';
-    if (err.status === 404) {
-      errorMessage = 'Upload endpoint not found. Please check server configuration.';
-    } else if (err.status === 401) {
-      errorMessage = 'Not authorized to upload images.';
-    } else if (err.status === 413) {
-      errorMessage = 'Image file too large (max 2MB).';
-    } else if (err.error && err.error.error) {
-      errorMessage = err.error.error;
-    }
-    this.showError(errorMessage);
-  }
-
-  // Remove cover image with confirmation and S3 deletion
-  removeCoverImage() {
-    const confirmed = confirm('Are you sure you want to remove the cover image? This will permanently delete it from S3 storage and cannot be undone.');
-    
-    if (!confirmed) {
-      return;
-    }
-
-    // Call backend to delete image from S3 and database
-    this.backendService.deleteSubmissionImage(this.submission._id).subscribe({
-      next: (response) => {
-        this.submission.imageUrl = '';
-        this.showSuccess('Cover image removed and deleted from S3 successfully!');
-      },
-      error: (error) => {
-        this.showError('Failed to remove cover image. Please try again.');
-      }
-    });
-  }
-
-  // Remove social media image
-  removeSocialImage() {
-    const confirmed = confirm('Are you sure you want to remove the social media image?');
-    
-    if (!confirmed) {
-      return;
-    }
-
-    this.seoConfig.ogImage = '';
-    this.showSuccess('Social media image removed successfully!');
-  }
-
-  // Use cover image as social media image
-  useCoverImageAsSocial() {
-    if (this.submission.imageUrl) {
-      this.seoConfig.ogImage = this.submission.imageUrl;
-      this.showSuccess('Cover image set as social media image.');
-    } else {
-      this.showError('No cover image available to use.');
-    }
-  }
-
-  // Use social media image as cover image
-  useSocialImageAsCover() {
-    if (this.seoConfig.ogImage) {
-      this.submission.imageUrl = this.seoConfig.ogImage;
-      this.showSuccess('Social media image set as cover image.');
-    } else {
-      this.showError('No social media image available to use.');
-    }
-  }
-
-  // Auto-fill description from content
-  autoFillDescription() {
-    if (!this.submission.contents || this.submission.contents.length === 0) {
-      this.showError('No content available to generate description from.');
-      return;
-    }
-
-    // Extract text from the first content item
-    const firstContent = this.submission.contents[0];
-    const plainText = this.extractPlainText(firstContent.body);
-    
-    // Create a compelling description (first 200 characters)
-    const description = plainText.substring(0, 200).trim();
-    const finalDescription = description.length === 200 ? description + '...' : description;
-    
-    this.submission.description = finalDescription;
-    this.showSuccess('Description auto-filled from content.');
-  }
-
-  // Auto-fill excerpt from description or content
-  autoFillExcerpt() {
-    // Use description if available, otherwise use content
-    if (this.submission?.description && this.submission?.description.trim()) {
-      const excerpt = this.submission.description.substring(0, 150).trim();
-      this.submission.excerpt = excerpt.length === 150 ? excerpt + '...' : excerpt;
-      this.showSuccess('Excerpt auto-filled from description.');
-    } else if (this.submission.contents && this.submission.contents.length > 0) {
-      // Extract text from the first content item
-      const firstContent = this.submission.contents[0];
-      const plainText = this.extractPlainText(firstContent.body);
-      
-      // Create a short excerpt (first 150 characters for cards)
-      const excerpt = plainText.substring(0, 150).trim();
-      const finalExcerpt = excerpt.length === 150 ? excerpt + '...' : excerpt;
-      
-      this.submission.excerpt = finalExcerpt;
-      this.showSuccess('Excerpt auto-filled from content.');
-    } else {
-      this.showError('No description or content available to generate excerpt from.');
-    }
-  }
-
-  // Get auto-generated excerpt for display
-  getAutoGeneratedExcerpt(): string {
-    if (this.submission?.description && this.submission?.description.trim()) {
-      const excerpt = this.submission.description.substring(0, 150).trim();
-      return excerpt.length === 150 ? excerpt + '...' : excerpt;
-    } else if (this.submission.contents && this.submission.contents.length > 0) {
-      const firstContent = this.submission.contents[0];
-      const plainText = this.extractPlainText(firstContent.body);
-      const excerpt = plainText.substring(0, 150).trim();
-      return excerpt.length === 150 ? excerpt + '...' : excerpt;
-    }
-    return 'No content available for preview';
-  }
-
-  // Enable custom excerpt editing
-  enableCustomExcerpt() {
-    // Set current auto-generated excerpt as starting point
-    this.submission.excerpt = this.getAutoGeneratedExcerpt();
-  }
-
-  // Auto-fill meta description from content or description
-  autoFillMetaDescription() {
-    let sourceText = '';
-    
-    // Use existing description if available, otherwise use content
-    if (this.submission?.description && this.submission?.description.trim()) {
-      sourceText = this.submission?.description;
-    } else if (this.submission.contents && this.submission.contents.length > 0) {
-      const firstContent = this.submission.contents[0];
-      sourceText = this.extractPlainText(firstContent.body);
-    } else {
-      this.showError('No content or description available to generate meta description from.');
-      return;
-    }
-
-    // Create SEO-optimized meta description (150-160 characters)
-    const metaDescription = sourceText.substring(0, 155).trim();
-    const finalMetaDescription = metaDescription.length === 155 ? metaDescription + '...' : metaDescription;
-    
-    this.seoConfig.metaDescription = finalMetaDescription;
-    this.showSuccess('Meta description auto-filled.');
-  }
-
-  // Helper method to extract plain text from HTML content
-  private extractPlainText(htmlContent: string): string {
-    // Create a temporary div to parse HTML
-    const tempDiv = document.createElement('div');
-    tempDiv.innerHTML = htmlContent;
-    
-    // Get text content and clean it up
-    const plainText = tempDiv.textContent || tempDiv.innerText || '';
-    
-    // Remove extra whitespace and line breaks
-    return plainText.replace(/\s+/g, ' ').trim();
-  }
-
-  isFormValid(): boolean {
-    this.validateSlug();
-    return !this.slugError && 
-           this.seoConfig.slug.trim().length > 0 && 
-           this.seoConfig.metaTitle.trim().length > 0 && 
-           this.seoConfig.metaDescription.trim().length > 0;
-  }
-
-  saveChanges() {
-    if (!this.submission) return;
-
-    // Separate existing and new content
-    const existingContent = this.submission.contents.filter((content: any) => 
-      content._id && !content._id.startsWith('temp_')
-    );
-    const newContent = this.submission.contents.filter((content: any) => 
-      !content._id || content._id.startsWith('temp_')
-    );
-
-    // First, handle new content creation via backend
-    if (newContent.length > 0) {
-      this.createNewContentAndUpdateSubmission(existingContent, newContent);
-    } else {
-      // No new content, just update existing
-      this.updateExistingSubmission();
-    }
-  }
-
-  private createNewContentAndUpdateSubmission(existingContent: any[], newContent: any[]) {
-    // Prepare all content (existing + new) for submission update
-    const allContent = [
-      ...existingContent.map((content: any) => ({
-        _id: content._id,
-        title: content.title,
-        body: this.prepareContentForSaving(content.body),
-        wordCount: this.calculateWordCount(content.body),
-        tags: (content.tags || []).filter((tag: string) => tag?.trim().length > 0),
-        footnotes: content.footnotes || ''
-      })),
-      ...newContent.map((content: any) => ({
-        // Don't include _id for new content - backend will create it
-        title: content.title || '',
-        body: this.prepareContentForSaving(content.body || ''),
-        wordCount: this.calculateWordCount(content.body || ''),
-        tags: (content.tags || []).filter((tag: string) => tag?.trim().length > 0),
-        footnotes: content.footnotes || ''
-      }))
-    ];
-
-    // Collect all tags from content items to create submission-level tags
-    const allContentTags = new Set<string>();
-    allContent.forEach((content: any) => {
-      if (content.tags && Array.isArray(content.tags)) {
-        content.tags.forEach((tag: string) => {
-          const cleanTag = tag?.trim();
-          if (cleanTag && cleanTag.length > 0) {
-            allContentTags.add(cleanTag);
-          }
-        });
-      }
-    });
-
-    const updateData: any = {
-      title: this.submission.title,
-      description: this.submission?.description,
-      excerpt: this.submission?.excerpt,
-      tags: Array.from(allContentTags),
-      contents: allContent
-    };
-
-    if (this.submission.imageUrl && this.submission.imageUrl.trim()) {
-      updateData.imageUrl = this.submission.imageUrl;
-    }
-
-    this.backendService.updateSubmission(this.submission._id, updateData).subscribe({
-      next: (response) => {
-        this.showSuccess('Changes saved successfully, including new content!');
-        
-        // Update local submission with response data to get real content IDs
-        if (response.submission && response.submission.contents) {
-          this.submission.contents = response.submission.contents;
-          // Reset expansion state for updated content
-          this.contentExpanded = new Array(this.submission.contents.length).fill(false);
-          if (this.submission.contents.length > 0) {
-            this.contentExpanded[0] = true;
-          }
-        }
-      },
-      error: (err) => {
-        this.showError('Failed to save changes. Please try again.');
-      }
-    });
-  }
-
-  private updateExistingSubmission() {
-    // Collect all tags from content items to create submission-level tags
-    const allContentTags = new Set<string>();
-    this.submission.contents.forEach((content: any) => {
-      if (content.tags && Array.isArray(content.tags)) {
-        content.tags.forEach((tag: string) => {
-          const cleanTag = tag?.trim();
-          if (cleanTag && cleanTag.length > 0) {
-            allContentTags.add(cleanTag);
-          }
-        });
-      }
-    });
-
-    const updateData: any = {
-      title: this.submission.title,
-      description: this.submission?.description,
-      excerpt: this.submission?.excerpt,
-      tags: Array.from(allContentTags),
-      contents: this.submission.contents.map((content: any) => ({
-        _id: content._id,
-        title: content.title,
-        body: this.prepareContentForSaving(content.body),
-        wordCount: this.calculateWordCount(content.body),
-        tags: (content.tags || []).filter((tag: string) => tag?.trim().length > 0),
-        footnotes: content.footnotes || ''
-      }))
-    };
-
-    if (this.submission.imageUrl && this.submission.imageUrl.trim()) {
-      updateData.imageUrl = this.submission.imageUrl;
-    }
-
-    this.backendService.updateSubmission(this.submission._id, updateData).subscribe({
-      next: (response) => {
-        this.showSuccess('Changes saved successfully!');
-      },
-      error: (err) => {
-        this.showError('Failed to save changes. Please try again.');
-      }
-    });
-  }
-
-  private saveChangesForPublish() {
-    if (!this.submission) return;
-
-    // Collect all tags from content items to create submission-level tags
-    const allContentTags = new Set<string>();
-    this.submission.contents.forEach((content: any) => {
-      if (content.tags && Array.isArray(content.tags)) {
-        content.tags.forEach((tag: string) => {
-          // Filter out empty strings and whitespace-only tags
-          const cleanTag = tag?.trim();
-          if (cleanTag && cleanTag.length > 0) {
-            allContentTags.add(cleanTag);
-          }
-        });
-      }
-    });
-
-    const updateData: any = {
-      title: this.submission.title,
-      description: this.submission?.description,
-      excerpt: this.submission?.excerpt,
-      tags: Array.from(allContentTags), // Use actual content tags, not SEO keywords
-      contents: this.submission.contents.map((content: any) => {
-        const contentData: any = {
-          title: content.title,
-          body: this.prepareContentForSaving(content.body),
-          wordCount: this.calculateWordCount(content.body),
-          tags: (content.tags || []).filter((tag: string) => tag?.trim().length > 0),
-          footnotes: content.footnotes || ''
-        };
-        
-        // Only include _id if it's not a temporary ID (new content shouldn't have _id)
-        if (content._id && !content._id.startsWith('temp_')) {
-          contentData._id = content._id;
-        }
-        
-        return contentData;
-      }),
-      // Include SEO data in the main update request
-      seo: {
-        slug: this.seoConfig.slug.trim(),
-        metaTitle: this.seoConfig.metaTitle,
-        metaDescription: this.seoConfig.metaDescription,
-        keywords: this.seoConfig.keywords,
-        ogImage: this.seoConfig.ogImage,
-        featuredOnHomepage: this.seoConfig.featuredPost
-      }
-    };
-
-    // Only include imageUrl if it's not empty/null to avoid validation errors
-    if (this.submission.imageUrl && this.submission.imageUrl.trim()) {
-      updateData.imageUrl = this.submission.imageUrl;
-    }
-
-    return this.backendService.updateSubmission(this.submission._id, updateData);
-  }
-
-  saveAndPublish() {
-    if (!this.isFormValid() || !this.submission) {
-      return;
-    }
-
-    this.isPublishing = true;
-
-    // Check if submission is already published
-    // For already published posts, we should only update content, not republish
-    const isAlreadyPublished = this.submission.status === SUBMISSION_STATUS.PUBLISHED || 
-                               this.submission.publishedAt || 
-                               this.submission.isPublished;
-
-    // Prevent publishing if image fields contain transient blob/data URLs and no corresponding uploaded file exists
-    if (!isAlreadyPublished) {
-      const hasBlobImage = (this.submission.imageUrl && (this.submission.imageUrl.startsWith('blob:') || this.submission.imageUrl.startsWith('data:')))
-        || (this.seoConfig.ogImage && (this.seoConfig.ogImage.startsWith('blob:') || this.seoConfig.ogImage.startsWith('data:')));
-
-      // If there are blob URLs but no selected files to upload, block and ask user to upload
-      if (hasBlobImage && !this.selectedCoverImageFile && !this.selectedSocialImageFile) {
-        this.showError('Please upload the selected image(s) before publishing. Blob/local preview URLs cannot be used as live cover images.');
-        this.isPublishing = false;
-        return;
-      }
-    }
-
-    if (isAlreadyPublished) {
-      // For already published content, only save content changes via PATCH
-      this.saveChangesForPublish()?.subscribe({
-        next: (response) => {
-          // Content updated successfully - no need to call publish API
-          this.showSuccess(`"${this.submission.title}" has been updated successfully!`);
-          this.isPublishing = false;
-          
-          // Redirect back to return URL with page parameter or default admin page
-          setTimeout(() => {
-            this.goBack();
-          }, 2000);
-        },
-        error: (err) => {
-          this.showError('Failed to save content changes. Please try again.');
-          this.isPublishing = false;
-        }
-      });
-    } else {
-      // For first-time publishing, use the publish endpoint
-      this.publishWithSEO();
-    }
-  }
-
-  private async uploadPendingImagesIfAny(): Promise<void> {
-    // Upload cover if selected
+  // Normalize backend-returned image URLs: replace localhost or 127.0.0.1 with current origin when running in browser
+  private normalizeImageUrl(url: string): string {
+    if (!url || typeof url !== 'string') return url;
     try {
-      if (this.selectedCoverImageFile && this.submission) {
-        this.isUploadingCoverImage = true;
-        const resp = await lastValueFrom(this.backendService.uploadSubmissionImage(this.submission._id, this.selectedCoverImageFile));
-        this.submission.imageUrl = resp.imageUrl;
-        this.selectedCoverImageFile = null;
-        this.isUploadingCoverImage = false;
+      // If it's a blob/data url, we should not normalize here (should be uploaded instead)
+      if (url.startsWith('blob:') || url.startsWith('data:')) return url;
+      const parsed = new URL(url);
+      const host = parsed.host || '';
+      if ((host.includes('localhost') || host.includes('127.0.0.1')) && typeof window !== 'undefined') {
+        // Replace host with current origin
+        const newUrl = `${window.location.origin}${parsed.pathname}${parsed.search}${parsed.hash}`;
+        console.warn(`[Publish] Rewriting returned image URL from ${url} to ${newUrl}`);
+        return newUrl;
       }
-
-      if (this.selectedSocialImageFile && this.submission) {
-        this.isUploadingSocialImage = true;
-        const resp2 = await lastValueFrom(this.backendService.uploadSubmissionImage(this.submission._id, this.selectedSocialImageFile));
-        this.seoConfig.ogImage = resp2.imageUrl;
-        this.selectedSocialImageFile = null;
-        this.isUploadingSocialImage = false;
-      }
-    } catch (err) {
-      // Surface upload error to user and rethrow so publish can stop
-      this.isUploadingCoverImage = false;
-      this.isUploadingSocialImage = false;
-      this.showError('Failed to upload selected image(s). Please try again.');
-      throw err;
+      return url;
+    } catch (e) {
+      return url;
     }
   }
 
-  private publishWithSEO() {
-    // First save the submission changes (description, excerpt, etc.), then publish with SEO
-    const saveObservable = this.saveChangesForPublish();
-    
-    if (!saveObservable) {
-      this.isPublishing = false;
-      return;
-    }
-
-    saveObservable.subscribe({
-      next: async (response) => {
-        try {
-          // If user selected local files but hasn't uploaded them yet, upload now before publishing
-          await this.uploadPendingImagesIfAny();
-        } catch (err) {
-          this.isPublishing = false;
-          return;
-        }
-
-        // Now that changes are saved and pending uploads completed, proceed with publishing
-        const seoData = {
-          slug: this.seoConfig.slug.trim(),
-          metaTitle: this.seoConfig.metaTitle,
-          metaDescription: this.seoConfig.metaDescription,
-          keywords: this.seoConfig.keywords,
-          ogImage: this.seoConfig.ogImage,
-          featuredOnHomepage: this.seoConfig.featuredPost
-        };
-
-        // Use the SEO-enabled publishing endpoint
-        this.backendService.publishSubmissionWithSEO(this.submission._id, seoData).subscribe({
-          next: (publishResponse) => {
-            const publishedUrl = publishResponse.url || `/post/${seoData.slug}`;
-            this.showSuccess(`"${this.submission.title}" has been published successfully! Available at: ${publishedUrl}`);
-            
-            // Redirect back to return URL with page parameter or default admin page
-            setTimeout(() => {
-              this.goBack();
-            }, 2000);
-            
-            this.isPublishing = false;
-          },
-          error: (err) => {
-            // Check if the error is slug-related
-            if (err.message?.includes('Slug already exists')) {
-              this.slugError = 'This slug is already taken. Please choose a different one.';
-              this.showError('Slug already exists. Please choose a different slug.');
-            } else {
-              this.showError('Failed to publish submission. Please try again.');
-            }
-            
-            this.isPublishing = false;
-          }
-        });
-      },
-      error: (err) => {
-        this.showError('Failed to save submission changes before publishing. Please try again.');
-        this.isPublishing = false;
-      }
-    });
-  }
-
-  goBack() {
-    const returnUrl = this.route.snapshot.queryParams['returnUrl'];
-    const returnPage = this.route.snapshot.queryParams['returnPage'];
-    
-    if (returnUrl && returnPage) {
-      // Navigate back to the specific URL with the page parameter
-      const urlParts = returnUrl.split('#');
-      const path = urlParts[0];
-      const fragment = urlParts[1];
-      
-      this.router.navigate([path], { 
-        fragment: fragment,
-        queryParams: { returnPage: returnPage }
-      });
-    } else if (returnUrl) {
-      // Navigate back to the specific URL without page
-      const urlParts = returnUrl.split('#');
-      const path = urlParts[0];
-      const fragment = urlParts[1];
-      
-      this.router.navigate([path], { fragment: fragment });
-    } else {
-      // Default fallback
-      this.router.navigate(['/admin'], { fragment: 'publish' });
+  // Extract plain text from HTML content (used for auto-generating description)
+  private extractPlainText(html: string): string {
+    try {
+      if (!html) return '';
+      const temp = document.createElement('div');
+      temp.innerHTML = html;
+      // Use textContent to preserve spaces/newlines reasonably
+      return (temp.textContent || temp.innerText || '').trim();
+    } catch (e) {
+      return html || '';
     }
   }
-
-  getPublishButtonText(): string {
-    const isAlreadyPublished = this.submission?.status === SUBMISSION_STATUS.PUBLISHED || 
-                               this.submission?.publishedAt || 
-                               this.submission?.isPublished;
-    return isAlreadyPublished ? 'Save & Update' : 'Save & Publish';
+  
+  // Generic upload error handler used by cover/social upload flows
+  private handleUploadError(err: any): void {
+    console.error('Upload failed:', err);
+    const message = err?.message || err?.error?.message || 'Image upload failed. Please try again.';
+    this.showError(message);
   }
 
-  getPublishingText(): string {
-    const isAlreadyPublished = this.submission?.status === SUBMISSION_STATUS.PUBLISHED || 
-                               this.submission?.publishedAt || 
-                               this.submission?.isPublished;
-    return isAlreadyPublished ? 'Updating...' : 'Publishing...';
-  }
+   // Use content image as social media image
+   useContentImageAsSocial(imageUrl: string) {
+     if (!imageUrl) {
+       this.showError('No image URL provided.');
+       return;
+     }
+
+     // Prevent setting blob/data preview URLs directly as the live social image
+     if (imageUrl.startsWith('blob:') || imageUrl.startsWith('data:')) {
+       this.showError('This is a local preview URL. Please upload this image first before using it as the social image.');
+       return;
+     }
+
+     // Normalize if backend returned a localhost URL
+     this.seoConfig.ogImage = this.normalizeImageUrl(imageUrl);
+     this.showSuccess('Content image set as social media image.');
+   }
 
   // Toast notification methods
   showToast(message: string, type: 'success' | 'error' | 'info'): void {
@@ -1456,7 +975,14 @@ export class PublishSubmissionComponent implements OnInit {
       return;
     }
 
-    this.seoConfig.ogImage = imageUrl;
+    // Prevent setting blob/data preview URLs directly as the live social image
+    if (imageUrl.startsWith('blob:') || imageUrl.startsWith('data:')) {
+      this.showError('This is a local preview URL. Please upload this image first before using it as the social image.');
+      return;
+    }
+
+    // Normalize if backend returned a localhost URL
+    this.seoConfig.ogImage = this.normalizeImageUrl(imageUrl);
     this.showSuccess('Content image set as social media image.');
   }
 }
