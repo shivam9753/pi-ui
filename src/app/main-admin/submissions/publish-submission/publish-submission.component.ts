@@ -450,17 +450,23 @@ export class PublishSubmissionComponent implements OnInit {
   // Handle cover image file selection with compression
   async onCoverImageSelect(event: any) {
     const file = event.target.files[0];
+    console.log('[Publish] onCoverImageSelect triggered, file:', file);
     if (file) {
-      if (!this.validateImageFile(file, event.target)) return;
+      if (!this.validateImageFile(file, event.target)) {
+        console.log('[Publish] onCoverImageSelect - validation failed');
+        return;
+      }
 
       try {
         this.showSuccess('Compressing cover image to WebP format...');
+        console.log('[Publish] Compressing cover image...', { name: file.name, size: file.size });
         const compressed = await compressImageForUpload(file, {
           targetSizeKB: 250,
           maxWidth: UPLOAD_CONFIG.MAX_DIMENSIONS.width,
           maxHeight: UPLOAD_CONFIG.MAX_DIMENSIONS.height
         });
 
+        console.log('[Publish] Compression complete', { originalSize: file.size, compressedSize: compressed.file.size, compressionRatio: compressed.compressionRatio });
         this.selectedCoverImageFile = compressed.file;
 
         // Create transient preview URL for the selected file so it appears in the gallery
@@ -470,36 +476,33 @@ export class PublishSubmissionComponent implements OnInit {
         this.lastSelectedCoverPreviewUrl = URL.createObjectURL(this.selectedCoverImageFile);
         this.transientUploadedImages = [this.lastSelectedCoverPreviewUrl, ...this.transientUploadedImages];
 
-        const originalSize = (file.size / 1024).toFixed(1);
-        const compressedSize = (compressed.file.size / 1024).toFixed(1);
-        this.showSuccess(
-          `Cover image compressed: ${originalSize}KB → ${compressedSize}KB (${compressed.compressionRatio}% reduction)`
-        );
-
         // Dismiss profile image reuse suggestion when user selects a different file
         this.showProfileImageReuse = false;
 
         // Immediately upload the compressed cover image to backend so it becomes a public URL
         if (this.submission && this.selectedCoverImageFile) {
           this.isUploadingCoverImage = true;
+          console.log('[Publish] Starting cover image upload to backend for submission:', this.submission._id);
           this.backendService.uploadSubmissionImage(this.submission._id, this.selectedCoverImageFile).subscribe({
              next: (response: any) => {
+               console.log('[Publish] Cover upload response:', response);
               const url = this.normalizeImageUrl(response?.imageUrl || response?.submission?.imageUrl || '');
+              console.log('[Publish] Normalized cover image URL:', url);
               if (url) {
                 // Attempt to verify the returned public URL is actually reachable.
                 this.verifyImageAccessible(url).then(isAccessible => {
+                  console.log('[Publish] verifyImageAccessible (cover) =>', isAccessible, url);
                   if (isAccessible) {
                     if (!this.uploadedImages.includes(url)) this.uploadedImages.unshift(url);
                     // set as current cover preview (do not auto-save as cover, let user choose)
                     this.submission.imageUrl = url;
                   } else {
-                    // Backend-returned URL not reachable. Keep transient preview visible and add URL to gallery for inspection.
                     console.warn('[Publish] Uploaded image URL is not reachable:', url);
                     if (!this.uploadedImages.includes(url)) this.uploadedImages.unshift(url);
                     this.showToast('Image uploaded but public URL not reachable yet. Keeping local preview.', 'info');
                   }
                 }).catch(err => {
-                  console.warn('verifyImageAccessible error:', err);
+                  console.warn('verifyImageAccessible error (cover):', err);
                 });
               }
                this.selectedCoverImageFile = null;
@@ -514,12 +517,14 @@ export class PublishSubmissionComponent implements OnInit {
                }
              },
              error: (err) => {
+               console.error('[Publish] Cover upload error:', err);
                this.handleUploadError(err);
                this.isUploadingCoverImage = false;
              }
            });
          }
       } catch (error) {
+        console.error('[Publish] Compression failed for cover image, using original file:', error);
         this.showError('Failed to compress image. Using original.');
         this.selectedCoverImageFile = file;
 
@@ -535,17 +540,23 @@ export class PublishSubmissionComponent implements OnInit {
   // Handle social media image file selection with compression  
   async onSocialImageSelect(event: any) {
     const file = event.target.files[0];
+    console.log('[Publish] onSocialImageSelect triggered, file:', file);
     if (file) {
-      if (!this.validateImageFile(file, event.target)) return;
+      if (!this.validateImageFile(file, event.target)) {
+        console.log('[Publish] onSocialImageSelect - validation failed');
+        return;
+      }
 
       try {
         this.showSuccess('Compressing social image to WebP format...');
+        console.log('[Publish] Compressing social image...', { name: file.name, size: file.size });
         const compressed = await compressImageForUpload(file, {
           targetSizeKB: 250,
           maxWidth: UPLOAD_CONFIG.MAX_DIMENSIONS.width,
           maxHeight: UPLOAD_CONFIG.MAX_DIMENSIONS.height
         });
 
+        console.log('[Publish] Social compression complete', { originalSize: file.size, compressedSize: compressed.file.size, compressionRatio: compressed.compressionRatio });
         this.selectedSocialImageFile = compressed.file;
 
         // Create transient preview URL for the selected social file
@@ -555,20 +566,18 @@ export class PublishSubmissionComponent implements OnInit {
         this.lastSelectedSocialPreviewUrl = URL.createObjectURL(this.selectedSocialImageFile);
         this.transientUploadedImages = [this.lastSelectedSocialPreviewUrl, ...this.transientUploadedImages];
 
-        const originalSize = (file.size / 1024).toFixed(1);
-        const compressedSize = (compressed.file.size / 1024).toFixed(1);
-        this.showSuccess(
-          `Social image compressed: ${originalSize}KB → ${compressedSize}KB (${compressed.compressionRatio}% reduction)`
-        );
-
         // Immediately upload the compressed social image so it becomes a public URL
         if (this.submission && this.selectedSocialImageFile) {
           this.isUploadingSocialImage = true;
+          console.log('[Publish] Starting social image upload to backend for submission:', this.submission._id);
           this.backendService.uploadSubmissionImage(this.submission._id, this.selectedSocialImageFile).subscribe({
              next: (response: any) => {
+               console.log('[Publish] Social upload response:', response);
               const url = this.normalizeImageUrl(response?.imageUrl || response?.submission?.seo?.ogImage || response?.submission?.imageUrl || '');
+              console.log('[Publish] Normalized social image URL:', url);
               if (url) {
                 this.verifyImageAccessible(url).then(isAccessible => {
+                  console.log('[Publish] verifyImageAccessible (social) =>', isAccessible, url);
                   if (isAccessible) {
                     if (!this.uploadedImages.includes(url)) this.uploadedImages.unshift(url);
                     this.seoConfig.ogImage = url;
@@ -577,7 +586,7 @@ export class PublishSubmissionComponent implements OnInit {
                     if (!this.uploadedImages.includes(url)) this.uploadedImages.unshift(url);
                     this.showToast('Social image uploaded but public URL not reachable yet. Keeping local preview.', 'info');
                   }
-                }).catch(err => console.warn('verifyImageAccessible error:', err));
+                }).catch(err => console.warn('verifyImageAccessible error (social):', err));
               }
                this.selectedSocialImageFile = null;
                this.isUploadingSocialImage = false;
@@ -590,12 +599,14 @@ export class PublishSubmissionComponent implements OnInit {
                }
              },
              error: (err) => {
+               console.error('[Publish] Social upload error:', err);
                this.handleUploadError(err);
                this.isUploadingSocialImage = false;
              }
            });
          }
       } catch (error) {
+        console.error('[Publish] Compression failed for social image, using original file:', error);
         this.showError('Failed to compress image. Using original.');
         this.selectedSocialImageFile = file;
 
@@ -781,20 +792,27 @@ export class PublishSubmissionComponent implements OnInit {
     try {
       // Upload cover image if selected
       if (this.selectedCoverImageFile) {
+        console.log('[Publish] uploadPendingImagesIfAny - uploading cover image', this.selectedCoverImageFile);
         const resp: any = await lastValueFrom(this.backendService.uploadSubmissionImage(this.submission._id, this.selectedCoverImageFile));
-        const imageUrl = resp?.imageUrl || resp?.submission?.imageUrl || '';
+        console.log('[Publish] uploadPendingImagesIfAny - cover upload response:', resp);
+        const imageUrl = resp?.imageUrl || resp?.submission?.imageUrl || resp?.image?.url || '';
+        console.log('[Publish] uploadPendingImagesIfAny - cover returned imageUrl:', imageUrl);
         this.submission.imageUrl = this.normalizeImageUrl(imageUrl);
         this.selectedCoverImageFile = null;
       }
 
       // Upload social image if selected
       if (this.selectedSocialImageFile) {
+        console.log('[Publish] uploadPendingImagesIfAny - uploading social image', this.selectedSocialImageFile);
         const resp: any = await lastValueFrom(this.backendService.uploadSubmissionImage(this.submission._id, this.selectedSocialImageFile));
-        const socUrl = resp?.imageUrl || resp?.submission?.seo?.ogImage || resp?.submission?.imageUrl || '';
+        console.log('[Publish] uploadPendingImagesIfAny - social upload response:', resp);
+        const socUrl = resp?.imageUrl || resp?.submission?.seo?.ogImage || resp?.submission?.imageUrl || resp?.image?.url || '';
+        console.log('[Publish] uploadPendingImagesIfAny - social returned imageUrl:', socUrl);
         this.seoConfig.ogImage = this.normalizeImageUrl(socUrl);
         this.selectedSocialImageFile = null;
       }
     } catch (e: any) {
+      console.error('[Publish] uploadPendingImagesIfAny error:', e);
       // Re-throw to let caller handle UI state
       throw e;
     }
