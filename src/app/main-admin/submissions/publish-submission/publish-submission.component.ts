@@ -39,6 +39,9 @@ export class PublishSubmissionComponent implements OnInit {
   isUploadingCoverImage = false;
   isUploadingSocialImage = false;
 
+  // Persisted uploaded images (public URLs returned by backend) that should appear in gallery
+  uploadedImages: string[] = [];
+
   // Transient previews for newly selected local files (shown in gallery before upload)
   transientUploadedImages: string[] = [];
   lastSelectedCoverPreviewUrl?: string | null = null;
@@ -475,6 +478,36 @@ export class PublishSubmissionComponent implements OnInit {
 
         // Dismiss profile image reuse suggestion when user selects a different file
         this.showProfileImageReuse = false;
+
+        // Immediately upload the compressed cover image to backend so it becomes a public URL
+        if (this.submission && this.selectedCoverImageFile) {
+          this.isUploadingCoverImage = true;
+          this.backendService.uploadSubmissionImage(this.submission._id, this.selectedCoverImageFile).subscribe({
+            next: (response: any) => {
+              const url = this.normalizeImageUrl(response?.imageUrl || response?.submission?.imageUrl || '');
+              if (url) {
+                // add to uploadedImages for gallery
+                if (!this.uploadedImages.includes(url)) this.uploadedImages.unshift(url);
+                // set as current cover preview (do not auto-save as cover, let user choose)
+                this.submission.imageUrl = url;
+              }
+              this.selectedCoverImageFile = null;
+              this.isUploadingCoverImage = false;
+
+              // Remove transient preview if present and revoke URL
+              if (this.lastSelectedCoverPreviewUrl) {
+                const index = this.transientUploadedImages.indexOf(this.lastSelectedCoverPreviewUrl as string);
+                if (index !== -1) this.transientUploadedImages.splice(index, 1);
+                try { URL.revokeObjectURL(this.lastSelectedCoverPreviewUrl as string); } catch (e) {}
+                this.lastSelectedCoverPreviewUrl = null;
+              }
+            },
+            error: (err) => {
+              this.handleUploadError(err);
+              this.isUploadingCoverImage = false;
+            }
+          });
+        }
       } catch (error) {
         this.showError('Failed to compress image. Using original.');
         this.selectedCoverImageFile = file;
@@ -516,6 +549,33 @@ export class PublishSubmissionComponent implements OnInit {
         this.showSuccess(
           `Social image compressed: ${originalSize}KB → ${compressedSize}KB (${compressed.compressionRatio}% reduction)`
         );
+
+        // Immediately upload the compressed social image so it becomes a public URL
+        if (this.submission && this.selectedSocialImageFile) {
+          this.isUploadingSocialImage = true;
+          this.backendService.uploadSubmissionImage(this.submission._id, this.selectedSocialImageFile).subscribe({
+            next: (response: any) => {
+              const url = this.normalizeImageUrl(response?.imageUrl || response?.submission?.seo?.ogImage || response?.submission?.imageUrl || '');
+              if (url) {
+                if (!this.uploadedImages.includes(url)) this.uploadedImages.unshift(url);
+                this.seoConfig.ogImage = url;
+              }
+              this.selectedSocialImageFile = null;
+              this.isUploadingSocialImage = false;
+
+              if (this.lastSelectedSocialPreviewUrl) {
+                const index = this.transientUploadedImages.indexOf(this.lastSelectedSocialPreviewUrl as string);
+                if (index !== -1) this.transientUploadedImages.splice(index, 1);
+                try { URL.revokeObjectURL(this.lastSelectedSocialPreviewUrl as string); } catch (e) {}
+                this.lastSelectedSocialPreviewUrl = null;
+              }
+            },
+            error: (err) => {
+              this.handleUploadError(err);
+              this.isUploadingSocialImage = false;
+            }
+          });
+        }
       } catch (error) {
         this.showError('Failed to compress image. Using original.');
         this.selectedSocialImageFile = file;
@@ -1104,6 +1164,13 @@ export class PublishSubmissionComponent implements OnInit {
       // noop
     }
 
+    // Include any images uploaded via this UI (public URLs returned by backend)
+    if (this.uploadedImages && this.uploadedImages.length > 0) {
+      this.uploadedImages.forEach(u => {
+        if (u && !images.includes(u)) images.unshift(u);
+      });
+    }
+
     // Debug: log the extracted images
     if (images.length > 0) {
       console.log('📸 Content images found (including cover/og):', images);
@@ -1112,53 +1179,28 @@ export class PublishSubmissionComponent implements OnInit {
     return images;
   }
 
-  // Handle image load error
-  onImageError(event: Event): void {
-    const img = event.target as HTMLImageElement;
-    img.src = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIj48cmVjdCBmaWxsPSIjZGRkIiB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkeT0iLjNlbSIgZmlsbD0iIzk5OSI+SW1hZ2UgRXJyb3I8L3RleHQ+PC9zdmc+';
-  }
-
-  // Use content image as cover
-  useContentImageAsCover(imageUrl: string) {
-    if (!imageUrl) {
-      this.showError('No image URL provided.');
+  // Delete an uploaded image (by removing S3 key via backend and removing it from gallery)
+  deleteUploadedImage(imageUrl: string) {
+    if (!imageUrl) return;
+    const s3Key = this.extractS3KeyFromUrl(imageUrl);
+    if (!s3Key) {
+      // If we cannot extract S3 key, just remove it from client-side gallery
+      this.uploadedImages = this.uploadedImages.filter(u => u !== imageUrl);
+      this.transientUploadedImages = this.transientUploadedImages.filter(t => t !== imageUrl);
+      this.showSuccess('Image removed locally');
       return;
     }
 
-    this.submission.imageUrl = imageUrl;
-
-    // Immediately save the change to persist it
-    const updateData = {
-      imageUrl: imageUrl
-    };
-
-    this.backendService.updateSubmission(this.submission._id, updateData).subscribe({
-      next: (response) => {
-        this.showSuccess('Content image has been set as cover image and saved successfully!');
+    this.backendService.deleteImageByS3Key(s3Key).subscribe({
+      next: () => {
+        this.uploadedImages = this.uploadedImages.filter(u => u !== imageUrl);
+        this.transientUploadedImages = this.transientUploadedImages.filter(t => t !== imageUrl);
+        this.showSuccess('Image deleted');
       },
       error: (err) => {
-        // Revert the change if saving failed
-        this.submission.imageUrl = '';
-        this.showError('Failed to save content image as cover. Please try again.');
+        console.warn('Failed to delete uploaded image:', err);
+        this.showError('Failed to delete image.');
       }
     });
-  }
-
-  // Use content image as social media image
-  useContentImageAsSocial(imageUrl: string) {
-    if (!imageUrl) {
-      this.showError('No image URL provided.');
-      return;
-    }
-
-    // Prevent setting blob/data preview URLs directly as the live social image
-    if (imageUrl.startsWith('blob:') || imageUrl.startsWith('data:')) {
-      this.showError('This is a local preview URL. Please upload this image first before using it as the social image.');
-      return;
-    }
-
-    // Normalize if backend returned a localhost URL
-    this.seoConfig.ogImage = this.normalizeImageUrl(imageUrl);
-    this.showSuccess('Content image set as social media image.');
   }
 }
