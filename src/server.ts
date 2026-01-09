@@ -92,15 +92,25 @@ async function generatePostMetaTags(slug: string): Promise<{ title: string; html
  */
 
 /**
- * Serve static files from /browser
+ * Serve static files from /browser with careful cache headers.
+ * - Keep long caching for immutable assets (js/css/images with hashed names)
+ * - Ensure index.html is served with no-cache so SPA shell updates are picked up immediately
  */
-app.get(
-  '**',
-  express.static(browserDistFolder, {
-    maxAge: '1y',
-    index: 'index.html'
-  }),
-);
+app.use(express.static(browserDistFolder, {
+  index: false,
+  setHeaders: (res, filePath) => {
+    if (filePath.endsWith('index.html')) {
+      // Prevent aggressive caching of index.html (SPA shell)
+      res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+    } else if (/[.](?:js|css|png|jpg|jpeg|svg|webp|woff2?|map)$/.test(filePath)) {
+      // Long cache for fingerprinted assets
+      res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+    } else {
+      // Conservative default
+      res.setHeader('Cache-Control', 'public, max-age=600');
+    }
+  }
+}));
 
 /**
  * Legacy URL redirects - Handle /:slug -> /post/:slug server-side
@@ -228,8 +238,9 @@ app.get('**', (req, res, next) => {
         .catch((err) => next(err));
     }
   } else {
-    // For non-SSR routes, serve the regular SPA
+    // For non-SSR routes, serve the regular SPA shell (index.html) with no-cache header
     console.log(`[CSR] Serving SPA: ${originalUrl}`);
+    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
     res.sendFile(join(browserDistFolder, 'index.html'));
   }
 });

@@ -121,6 +121,12 @@ export class AnalyticsComponent implements OnInit {
   chartHeight = 400;
   barChartHeight = 300;
 
+  // Expose Math to the template (Angular templates can't access global Math directly)
+  readonly Math = Math;
+
+  // Expose a CSS-friendly primary color used by templates (fallback)
+  readonly primaryColor = '#0ea5a0';
+
   constructor(
     private backendService: BackendService,
     private viewTracker: ViewTrackerService,
@@ -176,54 +182,74 @@ export class AnalyticsComponent implements OnInit {
   }
 
   private processAnalyticsData(data: any) {
-    // Process data from dedicated analytics endpoints
-    const overview = data.overview;
-    const topContent = data.topContent;
-    const contentTypes = data.contentTypes;
-    const timeSeries = data.timeSeries;
+    console.log('Raw analytics response:', data);
 
-    // Top posts from analytics API
-    const topPosts = (topContent.topByViews || []).map((post: any) => ({
-      _id: post._id,
-      title: post.title,
-      author: post.author || post.userId?.name || post.userId?.username || 'Unknown',
-      viewCount: post.viewCount || post.totalViews || 0,
-      recentViews: post.recentViews || 0,
-      submissionType: post.submissionType || post.type,
-      publishedAt: post.publishedAt,
-      slug: post.slug || post._id
+    // Support multiple backend response shapes (envelope: { data: ... } or direct properties)
+    const overview = data?.overview?.data || data?.overview || data?.data?.overview || {};
+    const topContentRaw = data?.topContent?.data || data?.topContent || data?.data?.topContent || {};
+    const contentTypesRaw = data?.contentTypes?.data || data?.contentTypes || data?.data?.contentTypes || {};
+    const timeSeriesRaw = data?.timeSeries?.data || data?.timeSeries || data?.data?.timeSeries || {};
+
+    // Normalize arrays/structures
+    const topByViews = Array.isArray(topContentRaw.topByViews)
+      ? topContentRaw.topByViews
+      : Array.isArray(topContentRaw)
+        ? topContentRaw
+        : (topContentRaw.topByViews || []);
+
+    const trendingRaw = Array.isArray(topContentRaw.trending)
+      ? topContentRaw.trending
+      : (topContentRaw.trending || []);
+
+    const typesArr = Array.isArray(contentTypesRaw.types)
+      ? contentTypesRaw.types
+      : Array.isArray(contentTypesRaw)
+        ? contentTypesRaw
+        : (contentTypesRaw.types || []);
+
+    const timeSeriesData = Array.isArray(timeSeriesRaw)
+      ? timeSeriesRaw
+      : (timeSeriesRaw.data || []);
+
+    // Map to our UI models with defensive defaults
+    const topPosts = (topByViews || []).map((post: any) => ({
+      _id: post._id || post.id || post.slug || 'unknown',
+      title: post.title || post.name || 'Untitled',
+      author: post.author || post.userName || post.userId?.name || post.userId?.username || 'Unknown',
+      viewCount: post.viewCount || post.totalViews || post.views || 0,
+      recentViews: post.recentViews || post.viewsLastPeriod || 0,
+      submissionType: post.submissionType || post.type || post.contentType || 'unknown',
+      publishedAt: post.publishedAt || post.published || post.date,
+      slug: post.slug || post._id || ''
     }));
 
-    // Trending posts from analytics API
-    const recentTrending = (topContent.trending || []).map((post: any) => ({
-      _id: post._id,
-      title: post.title,
-      author: post.author || post.userId?.name || post.userId?.username || 'Unknown',
-      recentViews: post.recentViews || 0,
-      trendingScore: post.trendingScore || 0,
-      submissionType: post.submissionType || post.type,
-      publishedAt: post.publishedAt,
-      slug: post.slug || post._id
+    const recentTrending = (trendingRaw || []).map((post: any) => ({
+      _id: post._id || post.id || post.slug || 'unknown',
+      title: post.title || post.name || 'Untitled',
+      author: post.author || post.userName || post.userId?.name || post.userId?.username || 'Unknown',
+      recentViews: post.recentViews || post.viewsLastPeriod || 0,
+      trendingScore: post.trendingScore || post.score || 0,
+      submissionType: post.submissionType || post.type || post.contentType || 'unknown',
+      publishedAt: post.publishedAt || post.published || post.date,
+      slug: post.slug || post._id || ''
     }));
 
-    // Content type statistics from analytics API
-    const postTypeStats = (contentTypes.types || []).map((type: any) => ({
-      type: type.type,
-      count: type.count,
-      totalViews: type.totalViews,
-      avgViews: type.avgViews
+    const postTypeStats = (typesArr || []).map((type: any) => ({
+      type: type.type || type.name || 'unknown',
+      count: type.count || type.num || 0,
+      totalViews: type.totalViews || type.views || 0,
+      avgViews: type.avgViews || type.avg || 0
     }));
 
-    // Time series data from analytics API
-    const viewsOverTime = (timeSeries.data || []).map((point: any) => ({
-      date: point.date,
-      views: point.views
+    const viewsOverTime = (timeSeriesData || []).map((point: any) => ({
+      date: point.date || point.period || point.label,
+      views: point.views || point.count || 0
     }));
 
     this.analyticsData = {
-      totalViews: overview.totalViews || 0,
-      totalPosts: overview.totalPosts || 0,
-      avgViewsPerPost: overview.avgViewsPerPost || 0,
+      totalViews: overview.totalViews || overview.views || 0,
+      totalPosts: overview.totalPosts || overview.posts || overview.total || 0,
+      avgViewsPerPost: overview.avgViewsPerPost || overview.avgViews || 0,
       topPosts,
       recentTrending,
       viewsOverTime,
@@ -369,6 +395,12 @@ export class AnalyticsComponent implements OnInit {
     return svg;
   }
 
+  // Helper to provide search trends data as ViewsTimeData[] for generateLineChart
+  getSearchTrendsChartData(): ViewsTimeData[] {
+    if (!this.searchAnalyticsData?.trends) return [];
+    return (this.searchAnalyticsData.trends || []).map((t: any) => ({ date: t.period || t.date, views: t.totalSearches || t.count || 0 }));
+  }
+
   private showFallbackMessage() {
     // Show additional context for developers
     console.warn(`
@@ -418,6 +450,17 @@ Backend team needs to implement proper analytics aggregation endpoints that:
       month: 'short', 
       day: 'numeric' 
     });
+  }
+
+  // Return a comma-separated string of top post types (used in template)
+  getTopTypes(): string {
+    if (!this.analyticsData?.postTypeStats || this.analyticsData.postTypeStats.length === 0) return '';
+    try {
+      return this.analyticsData.postTypeStats.slice(0, 5).map(s => s.type).join(', ');
+    } catch (e) {
+      console.error('Error building top types string', e);
+      return '';
+    }
   }
 
   getRecentDaysData(): ViewsTimeData[] {
