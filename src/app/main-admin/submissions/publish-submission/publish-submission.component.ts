@@ -1,4 +1,5 @@
 import { Component, OnInit, ViewEncapsulation } from '@angular/core';
+import { lastValueFrom } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -996,6 +997,19 @@ export class PublishSubmissionComponent implements OnInit {
                                this.submission.publishedAt || 
                                this.submission.isPublished;
 
+    // Prevent publishing if image fields contain transient blob/data URLs and no corresponding uploaded file exists
+    if (!isAlreadyPublished) {
+      const hasBlobImage = (this.submission.imageUrl && (this.submission.imageUrl.startsWith('blob:') || this.submission.imageUrl.startsWith('data:')))
+        || (this.seoConfig.ogImage && (this.seoConfig.ogImage.startsWith('blob:') || this.seoConfig.ogImage.startsWith('data:')));
+
+      // If there are blob URLs but no selected files to upload, block and ask user to upload
+      if (hasBlobImage && !this.selectedCoverImageFile && !this.selectedSocialImageFile) {
+        this.showError('Please upload the selected image(s) before publishing. Blob/local preview URLs cannot be used as live cover images.');
+        this.isPublishing = false;
+        return;
+      }
+    }
+
     if (isAlreadyPublished) {
       // For already published content, only save content changes via PATCH
       this.saveChangesForPublish()?.subscribe({
@@ -1020,6 +1034,33 @@ export class PublishSubmissionComponent implements OnInit {
     }
   }
 
+  private async uploadPendingImagesIfAny(): Promise<void> {
+    // Upload cover if selected
+    try {
+      if (this.selectedCoverImageFile && this.submission) {
+        this.isUploadingCoverImage = true;
+        const resp = await lastValueFrom(this.backendService.uploadSubmissionImage(this.submission._id, this.selectedCoverImageFile));
+        this.submission.imageUrl = resp.imageUrl;
+        this.selectedCoverImageFile = null;
+        this.isUploadingCoverImage = false;
+      }
+
+      if (this.selectedSocialImageFile && this.submission) {
+        this.isUploadingSocialImage = true;
+        const resp2 = await lastValueFrom(this.backendService.uploadSubmissionImage(this.submission._id, this.selectedSocialImageFile));
+        this.seoConfig.ogImage = resp2.imageUrl;
+        this.selectedSocialImageFile = null;
+        this.isUploadingSocialImage = false;
+      }
+    } catch (err) {
+      // Surface upload error to user and rethrow so publish can stop
+      this.isUploadingCoverImage = false;
+      this.isUploadingSocialImage = false;
+      this.showError('Failed to upload selected image(s). Please try again.');
+      throw err;
+    }
+  }
+
   private publishWithSEO() {
     // First save the submission changes (description, excerpt, etc.), then publish with SEO
     const saveObservable = this.saveChangesForPublish();
@@ -1030,8 +1071,16 @@ export class PublishSubmissionComponent implements OnInit {
     }
 
     saveObservable.subscribe({
-      next: (response) => {
-        // Now that changes are saved, proceed with publishing
+      next: async (response) => {
+        try {
+          // If user selected local files but hasn't uploaded them yet, upload now before publishing
+          await this.uploadPendingImagesIfAny();
+        } catch (err) {
+          this.isPublishing = false;
+          return;
+        }
+
+        // Now that changes are saved and pending uploads completed, proceed with publishing
         const seoData = {
           slug: this.seoConfig.slug.trim(),
           metaTitle: this.seoConfig.metaTitle,

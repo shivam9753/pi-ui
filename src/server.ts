@@ -48,6 +48,12 @@ function isValidSlug(slug: string): boolean {
 function sanitizeImageUrl(url: any): string {
   try {
     if (!url || typeof url !== 'string') return 'https://poemsindia.in/assets/loginimage.jpeg';
+    // Detect blob: or data: URLs which are browser-only and cannot be fetched by the server
+    if (url.startsWith('blob:') || url.startsWith('data:')) {
+      console.warn(`[Meta] Received non-fetchable image URL (blob/data) for SSR: ${url}`);
+      // Return a public fallback — client should upload such images to a public host before publishing
+      return 'https://poemsindia.in/assets/loginimage.jpeg';
+    }
     const parsed = new URL(url, 'https://poemsindia.in');
     // Only allow http(s)
     if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') {
