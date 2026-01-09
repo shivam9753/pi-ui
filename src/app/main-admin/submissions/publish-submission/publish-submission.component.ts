@@ -846,6 +846,65 @@ export class PublishSubmissionComponent implements OnInit {
     this.showSuccess('Social image set as cover.');
   }
 
+  // Template image error handler (fallback image)
+  onImageError(event: Event): void {
+    const img = event.target as HTMLImageElement;
+    img.src = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIj48cmVjdCBmaWxsPSIjZGRkIiB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkeT0iLjNlbSIgZmlsbD0iIzk5OSI+Image Error</dGV4dD48L3N2Zz4=';
+  }
+
+  // Use an image from content/gallery as the cover and persist immediately
+  useContentImageAsCover(imageUrl: string) {
+    if (!imageUrl) {
+      this.showError('No image URL provided.');
+      return;
+    }
+    if (imageUrl.startsWith('blob:') || imageUrl.startsWith('data:')) {
+      this.showError('This is a local preview URL. Please upload this image first before using it as the cover.');
+      return;
+    }
+
+    const normalized = this.normalizeImageUrl(imageUrl);
+    this.submission.imageUrl = normalized;
+
+    // Persist the change immediately
+    const updateData = { imageUrl: normalized };
+    this.backendService.updateSubmission(this.submission._id, updateData).subscribe({
+      next: () => {
+        this.showSuccess('Cover image set and saved.');
+      },
+      error: (err) => {
+        console.error('Failed to save cover image:', err);
+        this.showError('Failed to save cover image.');
+      }
+    });
+  }
+
+  // Use an image from content/gallery as the social (og) image and persist immediately
+  useContentImageAsSocial(imageUrl: string) {
+    if (!imageUrl) {
+      this.showError('No image URL provided.');
+      return;
+    }
+    if (imageUrl.startsWith('blob:') || imageUrl.startsWith('data:')) {
+      this.showError('This is a local preview URL. Please upload this image first before using it as the social image.');
+      return;
+    }
+
+    const normalized = this.normalizeImageUrl(imageUrl);
+    this.seoConfig.ogImage = normalized;
+
+    // Persist SEO change
+    this.backendService.updateSEOConfiguration(this.submission._id, { ogImage: normalized }).subscribe({
+      next: () => {
+        this.showSuccess('Social image set and saved.');
+      },
+      error: (err) => {
+        console.error('Failed to save social image:', err);
+        this.showError('Failed to save social image.');
+      }
+    });
+  }
+
   goBack() {
     // Navigate back to admin submissions list
     try {
