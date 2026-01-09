@@ -127,7 +127,8 @@
           <app-content-card 
             [content]="result"
             [showActions]="false"
-            (titleClick)="onCardClick($event)">
+            (titleClick)="onCardClick($event)"
+            (cardClick)="onCardClick($event)">
           </app-content-card>
         }
       </div>

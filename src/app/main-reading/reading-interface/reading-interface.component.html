@@ -18,15 +18,15 @@
               <!-- Mobile Controls - Moved to bottom -->
               <div class="md:hidden"></div>
               <!-- Category badge -->
-              <div class="mb-4">
+              <div class="mb-4 flex justify-center">
                 <app-badge-label
                   [type]="content()!.submissionType"
                   [clickable]="true"
-                  (badgeClick)="navigateToCategory($event)"
-                  class="inline-block">
+                  variant="big-red"
+                  (badgeClick)="navigateToCategory($event)">
                 </app-badge-label>
               </div>
-              <h1 class="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-serif font-bold text-gray-900 leading-tight mb-3 sm:mb-6">
+              <h1 class="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-serif font-bold text-gray-900 leading-tight mb-3 sm:mb-6 text-center">
                 {{ content()!.title }}
               </h1>
               <!-- Centered author & metadata -->

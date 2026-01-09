@@ -6,7 +6,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { BackendService } from '../../../services/backend.service';
 import { HtmlSanitizerService } from '../../../services/html-sanitizer.service';
 import { PrettyLabelPipe } from '../../../pipes/pretty-label.pipe';
-import { TypeBadgePipe } from '../../../pipes/type-badge.pipe';
+import { BadgeLabelComponent } from '../../../utilities/badge-label/badge-label.component';
 import { AdminPageHeaderComponent, AdminPageStat } from '../../../shared/components/admin-page-header/admin-page-header.component';
 import {
   DataTableComponent,
@@ -30,7 +30,7 @@ import { ButtonComponent } from '../../../ui-components/button/button.component'
 
 @Component({
   selector: 'app-published-posts',
-  imports: [CommonModule, FormsModule, ButtonComponent, PrettyLabelPipe, TypeBadgePipe, AdminPageHeaderComponent, DataTableComponent, SimpleSubmissionFilterComponent, SearchableUserSelectorComponent, ConsistentSubmissionMobileCardComponent, SubmissionMobileCardComponent],
+  imports: [CommonModule, FormsModule, ButtonComponent, PrettyLabelPipe, BadgeLabelComponent, AdminPageHeaderComponent, DataTableComponent, SimpleSubmissionFilterComponent, SearchableUserSelectorComponent, ConsistentSubmissionMobileCardComponent, SubmissionMobileCardComponent],
   templateUrl: './published-posts.component.html',
   styleUrl: './published-posts.component.css'
 })

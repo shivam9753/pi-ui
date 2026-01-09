@@ -10,11 +10,13 @@ import { Router } from '@angular/router';
 import { PrettyLabelPipe } from '../../pipes/pretty-label.pipe';
 import { ButtonComponent, TrendingAuthorsComponent } from '../../shared/components';
 import { TabsComponent, TabItemComponent } from '../../ui-components';
+import { BadgeLabelComponent } from '../../utilities/badge-label/badge-label.component';
+import { ContentCardComponent } from '../../shared/components/content-card/content-card.component';
 // Removed rxjs imports for debouncing as we're not using real-time search
 
 @Component({
   selector: 'app-explore',
-  imports: [CommonModule, FormsModule, PrettyLabelPipe, ButtonComponent, TrendingAuthorsComponent, TabsComponent, TabItemComponent],
+  imports: [CommonModule, FormsModule, PrettyLabelPipe, ButtonComponent, TrendingAuthorsComponent, TabsComponent, TabItemComponent, BadgeLabelComponent, ContentCardComponent],
   templateUrl: './explore.component.html',
   styleUrl: './explore.component.css'
 })

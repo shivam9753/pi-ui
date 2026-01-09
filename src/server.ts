@@ -110,7 +110,6 @@ async function generatePostMetaTags(slug: string): Promise<{ title: string; html
 
       // Build sanitized meta tags (text fields escaped)
       const metaTags = `
-    <title>${escapeHtml(title)}</title>
     <meta name="description" content="${escapeHtml(description)}">
     <meta name="keywords" content="poetry, literature, ${escapeHtml(rawAuthor)} , Poems in India">
 

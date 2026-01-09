@@ -14,7 +14,7 @@
           <div class="text-xs text-gray-500">{{ submission?.createdAt | date:'MMMM d, y' }}</div>
         </div>
         <div class="text-xs text-gray-500">
-          <app-badge-label [type]="submission?.submissionType"></app-badge-label>
+          <app-badge-label [type]="submission?.submissionType" variant="big-red"></app-badge-label>
         </div>
         @if (submission?.readingTime) {
           <div class="text-xs text-gray-500">{{ submission?.readingTime }} min read</div>
@@ -272,7 +272,7 @@
                 <h1 class="text-2xl font-bold text-gray-900 mb-2">{{ submission.title }}</h1>
                 <div class="flex items-center gap-4 text-sm text-gray-600 mb-3">
                   <span>By {{ submission.username }}</span>
-                  <app-badge-label [type]="submission.submissionType"></app-badge-label>
+                  <app-badge-label [type]="submission.submissionType" variant="big-red"></app-badge-label>
                   @if (submission.readingTime) { <span>{{ submission.readingTime }} min read</span> }
                 </div>
                 @if (submission?.description) { <p class="text-gray-600 italic">{{ submission?.description }}</p> }

@@ -1,8 +1,10 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { StatusBadgeComponent } from '../status-badge/status-badge.component';
 import { CommonUtils, StringUtils } from '../../utils';
 import { Author } from '../../../models/author.model';
+import { BadgeLabelComponent } from '../../../utilities/badge-label/badge-label.component';
+import { Router } from '@angular/router';
 
 export interface ContentCardData {
   id: string;
@@ -29,171 +31,76 @@ export interface ContentCardData {
 @Component({
   selector: 'app-content-card',
   standalone: true,
-  imports: [CommonModule, StatusBadgeComponent],
+  imports: [CommonModule, StatusBadgeComponent, BadgeLabelComponent],
   template: `
-    <div class="bg-white rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 border border-gray-200 dark:border-gray-700 overflow-hidden group"
-      [ngClass]="{ 'ring-2 ring-primary shadow-primary-light': isFeatured }"
-      style="min-height: 320px;">
-    
-      <!-- Featured Badge -->
-      @if (content.isFeatured) {
-        <div class="bg-gradient-to-r from-primary to-primary-hover px-4 py-2">
-          <div class="flex items-center text-white text-xs font-medium">
-            <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
-              <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+    <div class="bg-white rounded-none transform transition-all duration-200 overflow-hidden group"
+      role="button" tabindex="0"
+      [ngClass]="{ 'ring-2 ring-primary shadow-primary-light': isFeatured, 'hover:shadow-xl hover:-translate-y-1 cursor-pointer': clickable }"
+      (click)="onCardClick()" (keydown.enter)="onCardClick()" (keydown.space)="$event.preventDefault(); onCardClick()">
+
+      <!-- Image / Media -->
+      <div class="aspect-[5/3] bg-gray-100 overflow-hidden relative">
+        @if (content.imageUrl) {
+          <img [src]="content.imageUrl" [alt]="content.title" loading="lazy" class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" />
+        } @else {
+          <div class="w-full h-full bg-gray-100 flex items-center justify-center">
+            <svg class="w-8 h-8 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
             </svg>
-            Featured
-          </div>
-        </div>
-      }
-    
-      <!-- Card Content -->
-      <div class="p-6">
-        <!-- Header with Type and Status -->
-        <div class="flex items-center justify-between mb-4">
-          <div class="flex items-center gap-2">
-            <!-- Trending Badge -->
-            @if (isTrending()) {
-              <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-gradient-to-r from-primary to-error text-white animate-pulse">
-                🔥 Trending
-              </span>
-            }
-            
-            <span class="tag"
-              [ngClass]="getTypeClasses()">
-              {{ getTypeLabel() }}
-            </span>
-            
-            <!-- Word Count for Opinion pieces -->
-            @if (isOpinionPiece() && content.wordCount) {
-              <span class="tag tag-yellow">
-                {{ content.wordCount }} words
-              </span>
-            }
-          </div>
-    
-          @if (showStatus && content.status) {
-            <app-status-badge 
-              [status]="content.status" 
-              size="sm">
-            </app-status-badge>
-          }
-        </div>
-    
-        <!-- Title -->
-        <h3 class="ext-lg font-bold text-gray-900 dark:text-gray-100 mb-3 line-clamp-2 min-h-[3rem] group-hover:text-primary dark:group-hover:text-primary transition-colors duration-200"
-          [class.cursor-pointer]="clickable"
-          (click)="onTitleClick()">
-          {{ content.title }}
-        </h3>
-    
-        <!-- Author Info -->
-        @if (content.author) {
-          <div class="flex items-center mb-3">
-            <div class="w-8 h-8 bg-gradient-to-br from-primary to-primary-hover rounded-full flex items-center justify-center text-white text-xs font-bold mr-3">
-              {{ getAuthorInitials() }}
-            </div>
-            <div>
-              <div class="text-sm font-medium text-gray-900 dark:text-gray-100">
-                {{ content.author?.name || content.authorName || 'Anonymous' }}
-              </div>
-            </div>
-          </div>
-        }
-    
-        <!-- Description/Excerpt -->
-        @if (content.description || content.excerpt) {
-          <p class="text-gray-600 dark:text-gray-300 text-sm mb-4 leading-normal line-clamp-3">
-            {{ sanitizeHtml(content.description || content.excerpt) }}
-          </p>
-        }
-    
-        <!-- Tags -->
-        @if (content.tags && content.tags.length > 0) {
-          <div class="flex flex-wrap gap-1 mb-4">
-            @for (tag of content.tags.slice(0, 2); track tag) {
-              <span class="tag content-tag">
-                #{{ tag }}
-              </span>
-            }
-            @if (content.tags.length > 2) {
-              <span class="text-xs text-gray-400 dark:text-gray-500 px-2 py-1">
-                +{{ content.tags.length - 2 }} more
-              </span>
-            }
-          </div>
-        }
-    
-        <!-- Footer -->
-        <div class="flex items-center justify-between text-sm text-gray-500 dark:text-gray-400 pt-3 border-t border-gray-100 dark:border-gray-700">
-          <div class="flex items-center space-x-3">
-            <!-- Reading Time -->
-            @if (content.readingTime) {
-              <span class="flex items-center">
-                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                </svg>
-                {{ content.readingTime }}m
-              </span>
-            }
-            
-            <!-- View Count -->
-            @if (content.viewCount) {
-              <span class="flex items-center">
-                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
-                </svg>
-                {{ formatNumber(content.viewCount) }}
-              </span>
-            }
-            
-            <!-- Date -->
-            <span class="flex items-center">
-              <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-              </svg>
-              {{ getDisplayDate() }}
-            </span>
-          </div>
-        </div>
-    
-        <!-- Action Buttons -->
-        @if (showActions && actions.length > 0) {
-          <div class="flex items-center justify-end space-x-2 mt-4 pt-4 border-t border-gray-100 dark:border-gray-700">
-            @for (action of actions; track action) {
-              <button
-                (click)="action.handler(content)"
-                [ngClass]="action.class || 'px-4 py-2 text-sm font-medium rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 hover:border-gray-400 transition-all duration-200'"
-                class="transition-all duration-200">
-                {{ action.label }}
-              </button>
-            }
           </div>
         }
       </div>
+
+      <!-- Card Body -->
+      <div class="p-6 md:p-6 space-y-3">
+        <!-- Type label (always shown, small uppercase red) -->
+        <div>
+          <app-badge-label [type]="content.submissionType" variant="big-red"></app-badge-label>
+        </div>
+
+        <!-- Title -->
+        <h3 (click)="onTitleClick()" [class.cursor-pointer]="clickable" class="font-serif font-extrabold text-gray-900 text-2xl md:text-3xl lg:text-4xl leading-tight group-hover:text-primary transition-colors" style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+          {{ content.title }}
+        </h3>
+
+        <!-- Author (uppercase, muted) -->
+        <div class="text-xs uppercase text-gray-500 font-semibold">
+          By {{ content.author?.name || content.authorName || 'The Editors' }}
+        </div>
+
+        <!-- Excerpt (larger, more leading) -->
+        <p *ngIf="content.description || content.excerpt" class="content-body font-serif prose-custom text-gray-700 text-base md:text-lg leading-relaxed mb-2" style="font-family: 'Crimson Text', Georgia, serif !important; font-style: italic !important; font-weight: 300 !important;">
+          {{ sanitizeHtml(content.description || content.excerpt) }}
+        </p>
+
+        <div class="flex items-center gap-3 text-gray-500 text-xs">
+          <!-- Meta (date & reading time) shown only when configured -->
+          <ng-container *ngIf="showMeta">
+            <span>{{ getDisplayDate() }}</span>
+            <span *ngIf="content.readingTime">•</span>
+            <span *ngIf="content.readingTime">{{ content.readingTime }} min read</span>
+          </ng-container>
+        </div>
+      </div>
     </div>
-    `,
-  styles: [`
+  `,
+  styles: [
+    `
     .line-clamp-2 {
       display: -webkit-box;
       -webkit-line-clamp: 2;
       -webkit-box-orient: vertical;
       overflow: hidden;
     }
-    .line-clamp-3 {
-      display: -webkit-box;
-      -webkit-line-clamp: 3;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
+
+    /* focus styles for keyboard users */
+    :host [role="button"]:focus {
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(59,130,246,0.25);
+      border-radius: 0;
     }
-    .line-clamp-4 {
-      display: -webkit-box;
-      -webkit-line-clamp: 4;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
-    }
-  `]
+    `
+  ]
 })
 export class ContentCardComponent {
   @Input() content!: ContentCardData;
@@ -206,16 +113,36 @@ export class ContentCardComponent {
     class?: string;
   }> = [];
 
-  @Output() titleClick = new EventEmitter<ContentCardData>();
-  @Output() cardClick = new EventEmitter<ContentCardData>();
+  // New input to control visibility of publish date and reading time
+  @Input() showMeta: boolean = false;
+
+  // Internal navigation: accept optional slug override. Component will navigate when clicked.
+  @Input() slug?: string;
+
+  constructor(private router: Router) {}
 
   get isFeatured(): boolean {
     return this.content.isFeatured || false;
   }
 
   onTitleClick(): void {
-    if (this.clickable) {
-      this.titleClick.emit(this.content);
+    // Title click navigates same as card click
+    this.onCardClick();
+  }
+
+  onCardClick(): void {
+    if (!this.clickable) return;
+
+    const slugToUse = this.slug || this.content.slug;
+    if (slugToUse && slugToUse !== '') {
+      this.router.navigate(['/post', slugToUse]);
+      return;
+    }
+
+    // Fallback to id-based route if slug not available
+    const id = (this.content as any)._id || (this.content as any).id || this.content.id;
+    if (id) {
+      this.router.navigate(['/read', id]);
     }
   }
 

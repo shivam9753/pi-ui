@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { RouterModule, ActivatedRoute, Router } from '@angular/router';
 import { BackendService } from '../services/backend.service';
 import { UserProfile, PublishedWork } from '../models';
-import { TypeBadgePipe } from '../pipes/type-badge.pipe';
+import { BadgeLabelComponent } from '../utilities/badge-label/badge-label.component';
 import { PrettyLabelPipe } from '../pipes/pretty-label.pipe';
 import { ProfileCompletionComponent } from './profile-completion/profile-completion.component';
 import { ButtonComponent } from '../shared/components';
@@ -49,7 +49,7 @@ interface Draft {
 
 @Component({
   selector: 'app-user-profile',
-  imports: [CommonModule, FormsModule, RouterModule, ProfileCompletionComponent, PrettyLabelPipe, ButtonComponent],
+  imports: [CommonModule, FormsModule, RouterModule, ProfileCompletionComponent, PrettyLabelPipe, ButtonComponent, BadgeLabelComponent],
   templateUrl: './user-profile.component.html',
   styleUrl: './user-profile.component.css',
   styles: [`
