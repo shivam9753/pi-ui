@@ -552,7 +552,7 @@
               @if (!isPublishing) { {{ getPublishButtonText() }} }
               @if (isPublishing) { {{ getPublishingText() }} }
             </app-button>
-            <app-button variant="secondary" size="sm" (click)="saveChanges()">Save Changes</app-button>
+            <!-- Removed duplicate 'Save Changes' button — publishing now updates all fields in one call -->
           
         </div>
         @if (showProfileApproval) {

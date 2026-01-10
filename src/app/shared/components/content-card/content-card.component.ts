@@ -15,11 +15,12 @@ export interface ContentCardData {
   author?: Author;
   submissionType: string;
   status?: string;
-  createdAt: string;
+  // Optional metadata fields — kept optional so callers may pass them without forcing display
+  createdAt?: string;
   publishedAt?: string;
+  readingTime?: number;
   imageUrl?: string;
   tags?: string[];
-  readingTime?: number;
   isFeatured?: boolean;
   slug?: string;
   wordCount?: number;
@@ -73,14 +74,8 @@ export interface ContentCardData {
           {{ sanitizeHtml(content.description || content.excerpt) }}
         </p>
 
-        <div class="flex items-center gap-3 text-gray-500 text-xs">
-          <!-- Meta (date & reading time) shown only when configured -->
-          <ng-container *ngIf="showMeta">
-            <span>{{ getDisplayDate() }}</span>
-            <span *ngIf="content.readingTime">•</span>
-            <span *ngIf="content.readingTime">{{ content.readingTime }} min read</span>
-          </ng-container>
-        </div>
+        <!-- Removed meta block (date & reading time) per design change -->
+
       </div>
     </div>
   `,
@@ -106,15 +101,14 @@ export class ContentCardComponent {
   @Input() content!: ContentCardData;
   @Input() showStatus = false;
   @Input() showActions = false;
+  // Keep a simple showMeta input for backward compatibility with templates
+  @Input() showMeta = false;
   @Input() clickable = true;
   @Input() actions: Array<{
     label: string;
     handler: (content: ContentCardData) => void;
     class?: string;
   }> = [];
-
-  // New input to control visibility of publish date and reading time
-  @Input() showMeta: boolean = false;
 
   // Internal navigation: accept optional slug override. Component will navigate when clicked.
   @Input() slug?: string;
@@ -174,11 +168,6 @@ export class ContentCardComponent {
     }
   }
 
-
-  getDisplayDate(): string {
-    const date = this.content.publishedAt || this.content.createdAt;
-    return CommonUtils.formatDate(date);
-  }
 
   sanitizeHtml(html: string | undefined): string {
     if (!html) return '';

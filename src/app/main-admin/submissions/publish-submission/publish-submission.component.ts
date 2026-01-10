@@ -1033,17 +1033,30 @@ export class PublishSubmissionComponent implements OnInit {
 
     this.isPublishing = true;
     try {
+      // Ensure any selected images are uploaded first so URLs are available
       await this.uploadPendingImagesIfAny();
 
-      const seoPayload: any = {
-        slug: this.seoConfig.slug,
-        metaTitle: this.seoConfig.metaTitle || this.submission.title,
-        metaDescription: this.seoConfig.metaDescription || this.submission.description,
-        keywords: this.seoConfig.keywords,
-        ogImage: this.seoConfig.ogImage || this.submission.imageUrl || ''
+      // Build a single payload that updates the full submission and marks it published
+      const fullUpdatePayload: any = {
+        title: this.submission.title,
+        description: this.submission.description,
+        excerpt: this.submission.excerpt,
+        tags: this.submission.tags || [],
+        contents: this.submission.contents || [],
+        imageUrl: this.submission.imageUrl || '',
+        seo: {
+          slug: this.seoConfig.slug,
+          metaTitle: this.seoConfig.metaTitle || this.submission.title,
+          metaDescription: this.seoConfig.metaDescription || this.submission.description,
+          keywords: this.seoConfig.keywords,
+          ogImage: this.seoConfig.ogImage || this.submission.imageUrl || ''
+        },
+        // Set status to published in the same request. Backend should handle state transition.
+        status: 'published'
       };
 
-      await lastValueFrom(this.backendService.publishSubmissionWithSEO(this.submission._id, seoPayload));
+      // Single API call: update the submission with full payload (will also mark as published)
+      await lastValueFrom(this.backendService.updateSubmission(this.submission._id, fullUpdatePayload));
 
       this.showSuccess('Submission published successfully');
       this.isPublishing = false;

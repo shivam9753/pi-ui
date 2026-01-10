@@ -46,62 +46,19 @@
         @for (post of relatedPosts; track trackByPostId($index, post)) {
           <!-- Bottom layout - keep cards -->
           @if (layout === 'bottom') {
-            <article class="related-post-card bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-md transition-all duration-300 cursor-pointer group"
-              (click)="navigateToPost(post)">
-              
-              <!-- Post Image (if available) -->
-              @if (post.imageUrl) {
-                <div class="aspect-video bg-white-tertiary overflow-hidden">
-                  <img [src]="post.imageUrl"
-                    [alt]="post.title"
-                    class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                    loading="lazy">
-                </div>
-              }
-              
-              <!-- Post Content -->
-              <div class="p-4">
-                <!-- Content Type Badge -->
-                <div class="flex items-center justify-between mb-2">
-                  <span class="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium"
-                    [ngClass]="{
-                      'bg-amber-100 text-amber-600': post.submissionType === 'article',
-                      'bg-blue-100 text-blue-600': post.submissionType === 'poem',
-                      'bg-green-100 text-green-600': post.submissionType === 'story',
-                      'bg-purple-100 text-purple-600': post.submissionType === 'cinema_essay',
-                      'bg-yellow-100 text-yellow-600': post.submissionType === 'opinion'
-                    }">
-                    {{ getContentTypeLabel(post.submissionType) }}
-                  </span>
-                  <span class="text-xs text-gray-900-tertiary">
-                    {{ post.readingTime }} min read
-                  </span>
-                </div>
-                
-                <!-- Post Title -->
-                <h4 class="font-semibold text-gray-900 text-sm line-clamp-2 mb-2 group-hover:text-gray-900-accent transition-colors">
-                  {{ post.title }}
-                </h4>
-                
-                <!-- Post Excerpt -->
-                <p class="text-gray-900-secondary text-xs line-clamp-2 mb-3 leading-relaxed">
-                  {{ truncateExcerpt(post.excerpt, 100) }}
-                </p>
-                
-                <!-- Post Meta -->
-                <div class="flex items-center justify-between text-xs text-gray-900-tertiary">
-                  <button
-                    (click)="navigateToAuthor(post.authorId)"
-                    (click)="$event.stopPropagation()"
-                    class="hover:text-gray-900-accent transition-colors font-medium">
-                    {{ post.authorName }}
-                  </button>
-                  <div class="flex items-center space-x-2">
-                    <span>{{ getTimeAgo(post.publishedAt) }}</span>
-                  </div>
-                </div>
-              </div>
-            </article>
+            <app-content-card
+              [content]="{
+                id: post._id || post.id || '',
+                title: post.title || '',
+                submissionType: post.submissionType || '',
+                createdAt: post.createdAt || post.publishedAt || '',
+                imageUrl: post.imageUrl || '',
+                excerpt: post.excerpt || '',
+                slug: post.slug || (post.seo && post.seo.slug) || ''
+              }"
+              [slug]="post.slug || (post.seo && post.seo.slug) || ''"
+              class="group cursor-pointer"
+            ></app-content-card>
           }
           
           <!-- Sidebar layout - compact list -->

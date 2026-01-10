@@ -3,26 +3,30 @@ import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { BackendService } from '../../services/backend.service';
 import { HtmlSanitizerService } from '../../services/html-sanitizer.service';
+import { ContentCardComponent } from '../../shared/components';
 
 interface RelatedPost {
   _id: string;
+  id?: string;
   title: string;
   excerpt: string;
   authorName: string;
   authorId: string;
   publishedAt: string;
+  createdAt?: string;
   readingTime: number;
   viewCount: number;
   tags: string[];
   imageUrl?: string;
   slug?: string;
+  seo?: { slug?: string };
   submissionType: string;
 }
 
 @Component({
   selector: 'app-related-content',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, ContentCardComponent],
   templateUrl: './related-content.component.html',
   styleUrl: './related-content.component.css'
 })
