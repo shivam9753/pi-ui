@@ -898,6 +898,14 @@ body.focus-mode {
   --bg-secondary: #f8fafc;
 }
 
+/* Theme-aware overrides: when a .dark class exists on an ancestor (documentElement), switch variables */
+:host-context(.dark) {
+  --text-primary: #f8fafc; /* near-white for dark backgrounds */
+  --text-secondary: #cbd5e1; /* lighter secondary color */
+  --border-accent: #374151; /* darker border accent for dark mode */
+  --bg-secondary: #0b1220; /* dark background for code/pre */
+}
+
 /* Strong global override inside content renderer area */
 .content-body,
 .prose-custom,
