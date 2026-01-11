@@ -9,6 +9,7 @@ import { ToastNotificationComponent } from '../shared/components/toast-notificat
 import { Subscription } from 'rxjs';
 import { DraftsListComponent } from './drafts-list/drafts-list.component';
 import { TabsComponent, TabItemComponent } from '../ui-components';
+import { ButtonComponent } from '../ui-components/button/button.component';
 
 @Component({
   selector: 'app-submission-editor',
@@ -21,7 +22,8 @@ import { TabsComponent, TabItemComponent } from '../ui-components';
     GuidelinesOverlayComponent,
     ToastNotificationComponent,
     TabsComponent,
-    TabItemComponent
+    TabItemComponent,
+    ButtonComponent
   ]
 })
 export class SubmissionEditorComponent implements OnInit, OnDestroy {
@@ -111,6 +113,9 @@ export class SubmissionEditorComponent implements OnInit, OnDestroy {
       default: return '';
     }
   }
+
+  // expose view mode check for templates
+  get isViewMode(): boolean { return this.mode === 'view'; }
 
   // Draft Management
   loadDrafts(): void {

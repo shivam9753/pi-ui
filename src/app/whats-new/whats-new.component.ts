@@ -4,10 +4,12 @@ import { FormsModule } from '@angular/forms';
 import { AuthService } from '../services/auth.service';
 import { Router } from '@angular/router';
 import { WhatsNewItem, WHATS_NEW_DATA } from './whats-new.data';
+import { ContentCardComponent, ContentCardData } from '../shared/components/content-card/content-card.component';
+import { ButtonComponent } from '../ui-components/button/button.component';
 
 @Component({
   selector: 'app-whats-new',
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, ContentCardComponent, ButtonComponent],
   templateUrl: './whats-new.component.html',
   styleUrl: './whats-new.component.css'
 })
@@ -81,21 +83,23 @@ export class WhatsNewComponent implements OnInit {
     }
   }
 
-  formatDate(dateString: string): string {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    });
+  /** Map a WhatsNewItem into the ContentCardData shape expected by app-content-card */
+  mapToContent(item: WhatsNewItem): ContentCardData {
+    return {
+      id: item.id,
+      title: item.title,
+      description: item.description,
+      excerpt: item.description,
+      submissionType: (item.type || '').toLowerCase(),
+      createdAt: item.dateAdded,
+      slug: this.slugFromLink(item.link),
+      link: item.link
+    } as ContentCardData;
   }
 
-  getTypeClass(type: string): string {
-    return type === 'Feature' ? 'feature' : 'defect';
-  }
-
-  getTypeIcon(type: string): string {
-    return type === 'Feature' 
-      ? 'M13 10V3L4 14h7v7l9-11h-7z'
-      : 'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z';
+  slugFromLink(link?: string): string | undefined {
+    if (!link) return undefined;
+    if (link === '#') return undefined;
+    return link.replace(/^\//, '');
   }
 }

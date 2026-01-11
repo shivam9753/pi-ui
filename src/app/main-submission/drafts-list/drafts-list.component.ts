@@ -4,7 +4,9 @@ import { EmptyStateComponent } from '../../shared/components/empty-state/empty-s
 import { CommonUtils, StringUtils } from '../../shared/utils';
 import { ButtonComponent } from '../../shared/components/button/button.component';
 import { CardComponent } from '../../ui-components/card/card.component';
+import { ThemingService } from '../../services/theming.service';
 import { HtmlSanitizerService } from '../../services/html-sanitizer.service';
+import { SimpleAlertComponent } from '../../ui-components/simple-alert/simple-alert.component';
 
 export interface Draft {
   id: string;
@@ -18,12 +20,12 @@ export interface Draft {
 
 @Component({
   selector: 'app-drafts-list',
-  imports: [CommonModule, EmptyStateComponent, ButtonComponent, CardComponent],
+  imports: [CommonModule, EmptyStateComponent, ButtonComponent, CardComponent, SimpleAlertComponent],
   templateUrl: './drafts-list.component.html',
-  styleUrl: './drafts-list.component.css'
+  styleUrls: ['./drafts-list.component.css']
 })
 export class DraftsListComponent {
-  constructor(private htmlSanitizer: HtmlSanitizerService) {}
+  constructor(private htmlSanitizer: HtmlSanitizerService, public themingService: ThemingService) {}
   @Input() drafts: Draft[] = [];
   @Input() isInline: boolean = false;
   @Output() loadDraft = new EventEmitter<Draft>();

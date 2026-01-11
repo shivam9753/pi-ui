@@ -4,11 +4,9 @@
     <p class="subtitle">Latest features and improvements to enhance your experience</p>
     
     <div *ngIf="isAdmin" class="admin-controls">
-      <button 
-        class="add-item-btn"
-        (click)="showAddForm = !showAddForm">
+      <app-button variant="secondary" size="md" (click)="showAddForm = !showAddForm">
         {{ showAddForm ? 'Cancel' : '+ Add New Item' }}
-      </button>
+      </app-button>
     </div>
   </div>
 
@@ -62,8 +60,8 @@
       </div>
       
       <div class="form-actions">
-        <button type="submit" class="submit-btn">Add Item</button>
-        <button type="button" class="cancel-btn" (click)="showAddForm = false">Cancel</button>
+        <app-button type="submit" variant="primary" size="md">Add Item</app-button>
+        <app-button type="button" variant="secondary" size="md" (click)="showAddForm = false">Cancel</app-button>
       </div>
     </form>
   </div>
@@ -80,36 +78,8 @@
       </div>
     </div>
     
-    <div *ngFor="let item of items" class="item-card">
-      <!-- Card Content -->
-      <div class="card-content">
-        <!-- Header with Type and Date -->
-        <div class="card-header">
-          <span class="type-badge" [ngClass]="getTypeClass(item.type)">
-            <svg class="type-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path [attr.d]="getTypeIcon(item.type)" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
-            </svg>
-            {{ item.type }}
-          </span>
-          <span class="date-text">{{ formatDate(item.dateAdded) }}</span>
-        </div>
-        
-        <!-- Title -->
-        <h3 class="card-title">{{ item.title }}</h3>
-        
-        <!-- Description -->
-        <p class="card-description">{{ item.description }}</p>
-        
-        <!-- Learn More Button -->
-        <div *ngIf="item.link && item.link !== '#'" class="card-actions">
-          <button class="learn-more-button" (click)="navigateToLink(item.link)">
-            Learn More
-            <svg class="arrow-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
-            </svg>
-          </button>
-        </div>
-      </div>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <app-content-card *ngFor="let item of items" [content]="mapToContent(item)" [clickable]="true"></app-content-card>
     </div>
   </div>
 </div>

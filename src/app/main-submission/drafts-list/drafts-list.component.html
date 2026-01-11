@@ -78,7 +78,14 @@
 <!-- Inline Mode -->
 @if (isInline) {
 <div class="w-full">
-  
+  <!-- Auto-deletion Banner -->
+  <!-- @if (drafts.length > 0) {
+  <app-alert-banner tone="warning" title="Auto-deletion"
+    description="These drafts will be automatically deleted after 7 days of inactivity."></app-alert-banner>
+  } -->
+    <div class="mt-4 mb-4">
+      <app-simple-alert title="Auto-deletion in 7 days" message="Inactive drafts will be removed automatically." type="warning" [forceDark]="themingService.isDark()"></app-simple-alert>
+    </div>
   <!-- Empty State -->
   @if (drafts.length === 0) {
   <app-empty-state title="No drafts yet"

@@ -8,10 +8,11 @@ import { Subscription } from 'rxjs';
 import { filter } from 'rxjs/operators';
 import { ThemeToggleComponent } from '../utilities/theme-toggle/theme-toggle.component';
 import { StringUtils } from '../shared/utils';
+import { SearchOverlayComponent } from '../ui-components/search-overlay/search-overlay.component';
 
 @Component({
   selector: 'app-header',
-  imports: [CommonModule, RouterModule, ThemeToggleComponent],
+  imports: [CommonModule, RouterModule, ThemeToggleComponent, SearchOverlayComponent],
   templateUrl: './header.component.html',
   styleUrls: ['./header.component.css']
 })
@@ -32,6 +33,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   userId = '';
   currentRoute = signal('');
   isDark = signal(false);
+  showSearchDrawer = signal(false);
 
 
 
@@ -276,6 +278,21 @@ export class HeaderComponent implements OnInit, OnDestroy {
   clearSearchAndNavigate() {
     // Force navigation to explore page without search params
     this.router.navigate(['/explore']);
+  }
+
+  openSearchDrawer() {
+    this.showSearchDrawer.update(v => !v);
+  }
+
+  openSearchWithQuery(q: string) {
+    const query = q?.trim();
+    if (!query) return;
+    this.router.navigate(['/search'], { queryParams: { q: query } });
+  }
+
+  onSearchFromOverlay(q: string) {
+    this.openSearchWithQuery(q);
+    this.showSearchDrawer.set(false);
   }
 
   // Role chip helper methods

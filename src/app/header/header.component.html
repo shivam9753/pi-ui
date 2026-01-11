@@ -49,13 +49,15 @@
       <div class="flex items-center gap-3">
 
         <!-- DESKTOP SEARCH -->
-        <button (click)="openSearchPage()" aria-label="Search"
-          class="hidden lg:inline-flex p-2 text-themed-secondary hover:text-themed">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-          </svg>
-        </button>
+        <div class="hidden lg:flex items-center bg-themed-card rounded-md px-3 py-1 border border-themed">
+          <form (submit)="openSearchWithQuery(searchInput.value); $event.preventDefault()" class="flex items-center gap-2">
+            <svg class="w-4 h-4 text-themed-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+            <input #searchInput type="search" placeholder="Search poems, authors..." class="ml-2 bg-transparent outline-none text-sm w-64" />
+          </form>
+        </div>
 
         <!-- AUTH (DESKTOP) -->
         @if (isBrowser() && authChecked()) {
@@ -130,7 +132,7 @@
         }
 
         <!-- MOBILE SEARCH -->
-        <button (click)="openSearchPage()" aria-label="Search"
+        <button (click)="openSearchDrawer()" aria-label="Search"
           class="lg:hidden p-2 text-themed-secondary hover:text-themed">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
@@ -150,6 +152,17 @@
     </div>
   </div>
 </header>
+
+<!-- Mobile Search Drawer (mobile only) -->
+<div *ngIf="showSearchDrawer()" class="fixed inset-0 z-50 lg:hidden">
+  <div class="absolute inset-0 bg-black/60" (click)="showSearchDrawer.set(false)"></div>
+  <!-- Anchor the panel under the header (top-16 matches header height) -->
+  <div class="absolute top-16 left-0 right-0 bg-themed-card border-b border-themed p-4 shadow-md">
+    <app-search-overlay placeholder="Search poems, authors..." [showClose]="true"
+      (search)="onSearchFromOverlay($event)" (close)="showSearchDrawer.set(false)">
+    </app-search-overlay>
+  </div>
+</div>
 
 <!-- ================= MOBILE OVERLAY ================= -->
 @if (isMobileMenuOpen()) {
