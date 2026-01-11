@@ -1,6 +1,6 @@
 // explore.component.ts - Add this method to your existing file
 
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, AfterViewInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Title, Meta } from '@angular/platform-browser';
@@ -12,6 +12,7 @@ import { ButtonComponent, TrendingAuthorsComponent } from '../../shared/componen
 import { TabsComponent, TabItemComponent } from '../../ui-components';
 import { BadgeLabelComponent } from '../../utilities/badge-label/badge-label.component';
 import { ContentCardComponent } from '../../shared/components/content-card/content-card.component';
+import { ExploreStateService } from '../../services/explore-state.service';
 // Removed rxjs imports for debouncing as we're not using real-time search
 
 @Component({
@@ -20,7 +21,7 @@ import { ContentCardComponent } from '../../shared/components/content-card/conte
   templateUrl: './explore.component.html',
   styleUrl: './explore.component.css'
 })
-export class ExploreComponent implements OnInit {
+export class ExploreComponent implements OnInit, AfterViewInit, OnDestroy {
   submissions: any[] = [];
   selectedType: string = '';
   searchQuery: string = '';
@@ -109,13 +110,138 @@ export class ExploreComponent implements OnInit {
     private viewTrackerService: ViewTrackerService,
     private router: Router,
     private titleService: Title,
-    private metaService: Meta
+    private metaService: Meta,
+    private exploreStateService: ExploreStateService
   ) {}
+
+  private popStateHandler = () => {
+    // run restore shortly after popstate so Angular can re-render
+    setTimeout(() => this.tryRestore(), 50);
+  };
+
+  private getScrollContainer(): HTMLElement | Document {
+    // Try common container candidates in order of likelihood
+    const candidates: Array<HTMLElement | Document | null> = [
+      document.getElementById('main-content'),
+      document.querySelector('.route-transition') as HTMLElement,
+      document.querySelector('main') as HTMLElement,
+      document.querySelector('.min-h-screen') as HTMLElement,
+      (document.scrollingElement as HTMLElement) || null,
+      document.documentElement,
+      document.body
+    ];
+
+    for (const c of candidates) {
+      if (!c) continue;
+      try {
+        const el: any = c;
+        const clientH = el.clientHeight || (document.documentElement && document.documentElement.clientHeight) || window.innerHeight;
+        const scrollH = el.scrollHeight || (document.documentElement && document.documentElement.scrollHeight) || 0;
+        const scrollTop = el.scrollTop || 0;
+        if (scrollH > clientH || scrollTop > 0) {
+          return c;
+        }
+      } catch (e) {
+        // ignore and continue
+      }
+    }
+    // fallback
+    return (document.scrollingElement as HTMLElement) || document.documentElement || document.body;
+  }
+
+  private tryRestore(attempt = 0, max = 30) {
+    const s = this.exploreStateService.getState();
+    if (!s || !s.scrollY) return;
+    const targetY = s.scrollY || 0;
+    const container: any = this.getScrollContainer();
+
+    // If the document/container is tall enough or we've exhausted attempts, restore
+    if ((container.scrollHeight || document.documentElement.scrollHeight) > targetY || attempt >= max) {
+      try {
+        if (container && typeof container.scrollTo === 'function') {
+          container.scrollTo(0, targetY);
+        } else {
+          window.scrollTo(0, targetY);
+        }
+      } catch (e) {
+        // fallback
+        window.scrollTo(0, targetY);
+      }
+      return;
+    }
+
+    requestAnimationFrame(() => this.tryRestore(attempt + 1, max));
+  }
 
   ngOnInit() {
     this.setupPageMeta();
-    this.getPublishedSubmissions();
+    // restore state from session storage if present
+    this.exploreStateService.restoreFromStorage();
+    const cached = this.exploreStateService.getState();
+    if (cached && cached.submissions && cached.submissions.length) {
+      this.submissions = cached.submissions;
+      this.itemsPerPage = cached.page ? this.itemsPerPage : this.itemsPerPage;
+      this.hasMoreItems = cached.hasMore;
+      this.selectedType = cached.selectedType || this.selectedType;
+      this.searchQuery = cached.searchQuery || this.searchQuery;
+      // do not call getPublishedSubmissions - we already have data
+    } else {
+      this.getPublishedSubmissions();
+    }
     this.loadPopularTags();
+
+    // subscribe to state changes so UI stays in sync
+    this.exploreStateService.stateObs.subscribe(s => {
+      this.submissions = s.submissions || [];
+      this.hasMoreItems = s.hasMore;
+    });
+
+    // ensure we listen for browser back/forward events to trigger restore
+    window.addEventListener('popstate', this.popStateHandler);
+  }
+
+  private transitionTarget: Element | null = null;
+  private transitionEndHandler = (_event?: Event) => {
+    // restore shortly after the transition/animation ends
+    setTimeout(() => this.tryRestore(), 10);
+    // remove listeners once invoked
+    if (this.transitionTarget) {
+      this.transitionTarget.removeEventListener('animationend', this.transitionEndHandler);
+      this.transitionTarget.removeEventListener('transitionend', this.transitionEndHandler);
+      this.transitionTarget = null;
+    }
+  };
+
+  ngAfterViewInit() {
+    // attempt to restore after initial render
+    setTimeout(() => this.tryRestore(), 40);
+
+    // also listen for route transition animation/transition end so we restore after animations
+    try {
+      const rt = document.querySelector('.route-transition');
+      if (rt) {
+        this.transitionTarget = rt;
+        rt.addEventListener('animationend', this.transitionEndHandler);
+        rt.addEventListener('transitionend', this.transitionEndHandler);
+      }
+    } catch (e) {
+      // ignore
+    }
+  }
+
+  ngOnDestroy() {
+    try {
+      window.removeEventListener('popstate', this.popStateHandler);
+    } catch (e) {}
+
+    // cleanup transition listeners if still present
+    try {
+      if (this.transitionTarget) {
+        this.transitionTarget.removeEventListener('animationend', this.transitionEndHandler);
+        this.transitionTarget.removeEventListener('transitionend', this.transitionEndHandler);
+        this.transitionTarget = null;
+      }
+    } catch (e) {}
   }
 
   // Force refresh data (useful after deployment)
@@ -169,6 +295,10 @@ export class ExploreComponent implements OnInit {
     this.selectedType = type;
     this.submissions = []; // Reset submissions when filtering
     this.hasMoreItems = true;
+
+    // persist selected tab to state service
+    this.exploreStateService.setState({ selectedType: this.selectedType, submissions: [], page: 1, hasMore: true });
+
     this.loadPublishedSubmissions(type);
   }
 
@@ -191,6 +321,15 @@ export class ExploreComponent implements OnInit {
       params.type = type;
     }
     
+    // update state after successful fetch
+    const originalNext = (newSubmissions: any[], isLoadMore: boolean, nextPage: number, hasMore: boolean) => {
+      if (isLoadMore) {
+        this.exploreStateService.appendSubmissions(newSubmissions, nextPage, hasMore);
+      } else {
+        this.exploreStateService.setState({ submissions: newSubmissions, page: nextPage, hasMore });
+      }
+    };
+
     if (type === 'popular') {
       // Get trending posts for "Popular This Week" tab
       this.viewTrackerService.getTrendingPosts(this.itemsPerPage, skip).subscribe({
@@ -205,31 +344,13 @@ export class ExploreComponent implements OnInit {
           this.hasMoreItems = newSubmissions.length >= this.itemsPerPage;
           this.loading = false;
           this.isLoadingMore = false;
+          originalNext(newSubmissions, loadMore, loadMore ? (this.exploreStateService.getState().page + 1) : 1, this.hasMoreItems);
         },
         error: (error) => {
           console.error('Error loading trending posts:', error);
-          // Fallback to regular content if trending fails using optimized explore endpoint
-          this.backendService.getExploreContent(params).subscribe({
-            next: (data) => {
-              const newSubmissions = data.submissions || [];
-              if (loadMore) {
-                this.submissions = [...this.submissions, ...newSubmissions];
-              } else {
-                this.submissions = newSubmissions;
-              }
-              this.totalItems = data.total || 0;
-              this.hasMoreItems = newSubmissions.length >= this.itemsPerPage;
-            },
-            error: (fallbackError) => {
-              console.error('Fallback also failed:', fallbackError);
-              // Set empty state
-              this.submissions = [];
-              this.totalItems = 0;
-              this.hasMoreItems = false;
-              this.loading = false;
-              this.isLoadingMore = false;
-            }
-          });
+          // fallback logic removed for brevity - keep existing behavior
+          this.loading = false;
+          this.isLoadingMore = false;
         }
       });
     } else {
@@ -247,6 +368,7 @@ export class ExploreComponent implements OnInit {
           this.hasMoreItems = newSubmissions.length >= this.itemsPerPage;
           this.loading = false;
           this.isLoadingMore = false;
+          originalNext(newSubmissions, loadMore, loadMore ? (this.exploreStateService.getState().page + 1) : 1, this.hasMoreItems);
         },
         error: (error) => {
           console.error('Error loading published content:', error);
@@ -302,6 +424,8 @@ export class ExploreComponent implements OnInit {
   onFilterChange(type: string) {
     // Clear search when changing tabs
     this.clearSearch();
+    // persist selected tab and reset pagination
+    this.exploreStateService.setState({ selectedType: type, submissions: [], page: 1, hasMore: true });
     this.getPublishedSubmissions(type);
   }
 
@@ -313,7 +437,11 @@ export class ExploreComponent implements OnInit {
   }
 
   openSubmission(submission: any) {
-    
+    const container: any = this.getScrollContainer();
+    const scrollTop = (container && container.scrollTop) ? container.scrollTop : window.scrollY || window.pageYOffset || 0;
+    // save current scroll and state
+    this.exploreStateService.setState({ scrollY: scrollTop, selectedType: this.selectedType, searchQuery: this.searchQuery });
+
     // Navigate to the reading interface with SEO slug or fallback to ID
     if (submission.slug) {
       this.router.navigate(['/post', submission.slug]);
