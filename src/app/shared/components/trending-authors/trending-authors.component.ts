@@ -162,7 +162,9 @@ export class TrendingAuthorsComponent implements OnInit {
   private loadTrendingAuthors() {
     this.loading.set(true);
 
-    this.backendService.getTrendingAuthors({ limit: 5 }).subscribe({
+    const options = { limit: 5, windowDays: 7 };
+
+    this.backendService.getTrendingAuthors(options).subscribe({
       next: (response) => {
         this.trendingAuthors.set(response.authors || []);
         this.loading.set(false);
