@@ -141,6 +141,16 @@ export const SUBMISSION_STATUSES: Record<string, SubmissionStatusMapping> = {
 
 // Helper functions
 export function getSubmissionTypeMapping(type: string): SubmissionTypeMapping {
+  if (!type || typeof type !== 'string') {
+    return {
+      id: 'unknown',
+      displayName: 'Unknown',
+      icon: 'M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z',
+      color: 'tag-gray',
+      description: 'Unknown type'
+    };
+  }
+
   return SUBMISSION_TYPES[type] || {
     id: type,
     displayName: type.charAt(0).toUpperCase() + type.slice(1),
