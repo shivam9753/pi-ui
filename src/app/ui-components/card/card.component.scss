@@ -1,0 +1,137 @@
+/* Use design tokens (CSS variables) so styles can be tuned to the design system */
+:root {
+  --card-bg: #ffffff;
+  --card-radius: 8px;
+  --card-shadow: 0 6px 18px rgba(14, 21, 47, 0.06);
+  --card-border: rgba(0, 0, 0, 0.06);
+  --card-border-dashed: rgba(0, 0, 0, 0.08);
+  --text-primary: #0f172a;
+  --text-muted: #334155;
+  --accent: #4f46e5;
+  --badge-bg: #ff2d6d;
+  --tag-border: rgba(15, 23, 42, 0.12);
+}
+
+/* Basic, reusable card styles with configurable variants */
+.card {
+  background: var(--card-bg);
+  border-radius: var(--card-radius);
+  overflow: hidden;
+  box-shadow: var(--card-shadow);
+  display: flex;
+  flex-direction: column;
+}
+
+.card--border {
+  border: 1px solid var(--card-border);
+}
+
+.card--dashed {
+  border: 1px dashed var(--card-border-dashed);
+}
+
+.card--noborder {
+  border: none;
+}
+
+/* Sizes */
+.card--sm .card-body {
+  padding: 12px;
+}
+.card--sm .card-title { font-size: 16px; }
+
+.card--md .card-body {
+  padding: 18px;
+}
+.card--md .card-title { font-size: 20px; }
+
+.card--lg .card-body {
+  padding: 24px;
+}
+.card--lg .card-title { font-size: 22px; }
+
+.card-figure {
+  width: 100%;
+  background: #f6f6f6;
+}
+.card-figure img {
+  display: block;
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+}
+.card-figure--bottom img { border-top-left-radius: 0; border-top-right-radius: 0; }
+
+.card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.card-title-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.card-title {
+  margin: 0;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.card-badge {
+  background: var(--badge-bg);
+  color: #fff;
+  padding: 6px 10px;
+  border-radius: 16px;
+  font-weight: 700;
+  font-size: 12px;
+}
+
+.card-description {
+  margin: 0;
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+
+.card-tags {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.card-tag {
+  border: 1px solid var(--tag-border);
+  padding: 6px 10px;
+  border-radius: 16px;
+  font-size: 13px;
+}
+
+.card-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.card-actions__buttons {
+  display: flex;
+  gap: 12px; /* space between primary and secondary */
+  align-items: center;
+}
+
+.card-button {
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 8px;
+  box-shadow: 0 6px 10px rgba(79, 70, 229, 0.18);
+  cursor: pointer;
+}
+.card-button:active { transform: translateY(1px); }
+
+/* responsive tweaks */
+@media (max-width: 480px) {
+  .card--lg .card-body { padding: 16px; }
+}

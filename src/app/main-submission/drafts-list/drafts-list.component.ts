@@ -1,10 +1,10 @@
-
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
 import { CommonUtils, StringUtils } from '../../shared/utils';
 import { ButtonComponent } from '../../shared/components/button/button.component';
-import { AlertBannerComponent } from '../../ui-components/alert-banner/alert-banner.component';
+import { CardComponent } from '../../ui-components/card/card.component';
+import { HtmlSanitizerService } from '../../services/html-sanitizer.service';
 
 export interface Draft {
   id: string;
@@ -18,12 +18,12 @@ export interface Draft {
 
 @Component({
   selector: 'app-drafts-list',
-  imports: [CommonModule, EmptyStateComponent, ButtonComponent, AlertBannerComponent],
+  imports: [CommonModule, EmptyStateComponent, ButtonComponent, CardComponent],
   templateUrl: './drafts-list.component.html',
   styleUrl: './drafts-list.component.css'
 })
-
 export class DraftsListComponent {
+  constructor(private htmlSanitizer: HtmlSanitizerService) {}
   @Input() drafts: Draft[] = [];
   @Input() isInline: boolean = false;
   @Output() loadDraft = new EventEmitter<Draft>();
@@ -50,6 +50,23 @@ export class DraftsListComponent {
   getContentPreview(content: string): string {
     if (!content) return 'No content';
     return CommonUtils.truncateText(content, 100);
+  }
+
+  /**
+   * Return a sanitized, truncated excerpt for a draft's preview.
+   * Uses HtmlSanitizerService to strip HTML and entities before truncation.
+   */
+  getSanitizedExcerpt(draft: Draft, maxLength: number = 150): string {
+    const source = (draft.contents && draft.contents.length > 0) ? draft.contents[0].body : (draft.description || '');
+    // First run the cleaner to convert entities and remove easy tags,
+    // then defensively strip any remaining literal tags (handles escaped HTML cases),
+    // finally truncate the plain text.
+    const cleanedOnce = this.htmlSanitizer.cleanHtml(source);
+    const noTags = cleanedOnce.replace(/<[^>]*>/g, '');
+    // Truncate without re-running cleanHtml (already plain text)
+    if (!noTags) return '';
+    if (noTags.length <= maxLength) return noTags;
+    return noTags.substring(0, maxLength).trim() + '...';
   }
 
   formatDate(date: Date): string {

@@ -23,12 +23,6 @@
     </div>
     <!-- Content -->
     <div class="overflow-y-auto max-h-[calc(90vh-120px)]">
-      <!-- Auto-deletion Banner -->
-      @if (drafts.length > 0) {
-      <app-alert-banner tone="warning" title="Auto-deletion"
-        description="These drafts will be automatically deleted after 7 days of inactivity."></app-alert-banner>
-
-      }
       <!-- Empty State -->
       @if (drafts.length === 0) {
       <app-empty-state title="No drafts yet"
@@ -44,70 +38,22 @@
           <div
             class="group bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-all duration-200 hover:border-neutral-300">
             <div class="flex items-start justify-between">
-              <!-- Draft Info -->
-              <div class="flex-1 min-w-0">
-                <div class="flex items-center space-x-3 mb-2">
-                  <!-- Type Badge -->
-                  <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
-                    [class.bg-blue-100]="draft.submissionType === 'poem'"
-                    [class.text-blue-800]="draft.submissionType === 'poem'"
-                    [class.bg-green-100]="draft.submissionType === 'article'"
-                    [class.text-green-800]="draft.submissionType === 'article'"
-                    [class.bg-purple-100]="draft.submissionType === 'cinema_essay'"
-                    [class.text-purple-800]="draft.submissionType === 'cinema_essay'"
-                    [class.bg-amber-100]="draft.submissionType === 'prose'"
-                    [class.text-amber-800]="draft.submissionType === 'prose'">
-                    {{ getTypeDisplayName(draft.submissionType) }}
-                  </span>
-                  <!-- Content Count -->
-                  <span class="text-sm text-gray-900-secondary">
-                    {{ draft.contents.length }} {{ draft.contents.length === 1 ? 'item' : 'items' }}
-                  </span>
-                  <!-- Word Count -->
-                  <span class="text-sm text-gray-900-secondary">
-                    {{ draft.wordCount }} words
-                  </span>
-                </div>
-                <h3 class="text-lg font-semibold text-gray-900 mb-1 truncate">
-                  {{ draft.title || 'Untitled Draft' }}
-                </h3>
-                @if (draft.description) {
-                <p class="text-sm text-gray-900-secondary mb-2 line-clamp-2">
-                  {{ draft.description }}
-                </p>
-                }
-                <div class="text-xs text-gray-900-tertiary">
-                  Last modified {{ formatDate(draft.lastModified) }}
-                </div>
-              </div>
-              <!-- Actions -->
-              <div class="flex items-center space-x-2 ml-4">
-                <button (click)="loadDraft.emit(draft)" class="btn-primary text-sm">
-                  Continue
-                </button>
-                <pi-button variant="ghost" size="sm" (buttonClick)="confirmDelete(draft)" ariaLabel="Delete draft"
-                  class="!px-3 !py-2">
-                  <svg class="w-4 h-4 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                      d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16">
-                    </path>
-                  </svg>
-                </pi-button>
-              </div>
+              <!-- Card showing title/description/badge and preview -->
+              <app-card class="flex-1 mr-4"
+                        [title]="draft.title || 'Untitled Draft'"
+                        [description]="getSanitizedExcerpt(draft, 120)"
+                        [badgeType]="draft.submissionType"
+                        [size]="'sm'"
+                        [border]="'default'"
+                        [showButton]="true"
+                        [buttonLabel]="'Edit'"
+                        (buttonClick)="loadDraft.emit(draft)"
+                        [showSecondaryButton]="true"
+                        [secondaryLabel]="'Delete'"
+                        [secondaryButtonVariant]="'destructive'"
+                        (secondaryClick)="confirmDelete(draft)">
+              </app-card>
             </div>
-            <!-- Preview of first content -->
-            @if (draft.contents.length > 0) {
-            <div class="mt-4 pt-4 border-t border-gray-200">
-              <div class="bg-white-secondary rounded-lg p-3 border border-gray-200">
-                <div class="text-sm font-medium text-gray-900 mb-1">
-                  {{ draft.contents[0].title || 'Untitled' }}
-                </div>
-                <div class="text-xs text-gray-900-secondary line-clamp-2 font-mono">
-                  {{ getContentPreview(draft.contents[0].body) }}
-                </div>
-              </div>
-            </div>
-            }
           </div>
           }
         </div>
@@ -132,11 +78,7 @@
 <!-- Inline Mode -->
 @if (isInline) {
 <div class="w-full">
-  <!-- Auto-deletion Banner -->
-  @if (drafts.length > 0) {
-  <app-alert-banner tone="warning" title="Auto-deletion"
-    description="These drafts will be automatically deleted after 7 days of inactivity."></app-alert-banner>
-  }
+  
   <!-- Empty State -->
   @if (drafts.length === 0) {
   <app-empty-state title="No drafts yet"
@@ -151,70 +93,22 @@
     <div
       class="group bg-white-secondary border border-gray-200 rounded-lg p-6 hover:shadow-md transition-all duration-200 hover:border-neutral-300">
       <div class="flex items-start justify-between">
-        <!-- Draft Info -->
-        <div class="flex-1 min-w-0">
-          <div class="flex items-center space-x-3 mb-2">
-            <!-- Type Badge -->
-            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
-              [class.bg-blue-100]="draft.submissionType === 'poem'"
-              [class.text-blue-800]="draft.submissionType === 'poem'"
-              [class.bg-green-100]="draft.submissionType === 'article'"
-              [class.text-green-800]="draft.submissionType === 'article'"
-              [class.bg-purple-100]="draft.submissionType === 'cinema_essay'"
-              [class.text-purple-800]="draft.submissionType === 'cinema_essay'"
-              [class.bg-amber-100]="draft.submissionType === 'prose'"
-              [class.text-amber-800]="draft.submissionType === 'prose'">
-              {{ getTypeDisplayName(draft.submissionType) }}
-            </span>
-            <!-- Content Count -->
-            <span class="text-sm text-gray-900-secondary">
-              {{ draft.contents.length }} {{ draft.contents.length === 1 ? 'item' : 'items' }}
-            </span>
-            <!-- Word Count -->
-            <span class="text-sm text-gray-900-secondary">
-              {{ draft.wordCount }} words
-            </span>
-          </div>
-          <h3 class="text-lg font-semibold text-gray-900 mb-1 truncate">
-            {{ draft.title || 'Untitled Draft' }}
-          </h3>
-          @if (draft.description) {
-          <p class="text-sm text-gray-900-secondary mb-2 line-clamp-2">
-            {{ draft.description }}
-          </p>
-          }
-          <div class="text-xs text-gray-900-tertiary">
-            Last modified {{ formatDate(draft.lastModified) }}
-          </div>
-        </div>
-        <!-- Actions -->
-        <div class="flex items-center space-x-2 ml-4">
-          <button (click)="loadDraft.emit(draft)" class="btn-primary text-sm">
-            Continue
-          </button>
-          <pi-button variant="ghost" size="sm" (buttonClick)="confirmDelete(draft)" ariaLabel="Delete draft"
-            class="!px-3 !py-2">
-            <svg class="w-4 h-4 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16">
-              </path>
-            </svg>
-          </pi-button>
-        </div>
+        <!-- Card showing title/description/badge and preview -->
+        <app-card class="flex-1 mr-4"
+                  [title]="draft.title || 'Untitled Draft'"
+                  [description]="getSanitizedExcerpt(draft, 120)"
+                  [badgeType]="draft.submissionType"
+                  [size]="'sm'"
+                  [border]="'default'"
+                  [showButton]="true"
+                  [buttonLabel]="'Edit'"
+                  (buttonClick)="loadDraft.emit(draft)"
+                  [showSecondaryButton]="true"
+                  [secondaryLabel]="'Delete'"
+                  [secondaryButtonVariant]="'destructive'"
+                  (secondaryClick)="confirmDelete(draft)">
+        </app-card>
       </div>
-      <!-- Preview of first content -->
-      @if (draft.contents.length > 0) {
-      <div class="mt-4 pt-4 border-t border-gray-200">
-        <div class="bg-white rounded-lg p-3 border border-gray-200">
-          <div class="text-sm font-medium text-gray-900 mb-1">
-            {{ draft.contents[0].title || 'Untitled' }}
-          </div>
-          <div class="text-xs text-gray-900-secondary line-clamp-2 font-mono">
-            {{ getContentPreview(draft.contents[0].body) }}
-          </div>
-        </div>
-      </div>
-      }
     </div>
     }
   </div>

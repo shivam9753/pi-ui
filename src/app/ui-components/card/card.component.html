@@ -1,0 +1,51 @@
+<div class="card" [ngClass]="[sizeClass, borderClass]">
+  <ng-container *ngIf="imageSrc && imagePosition === 'top'">
+    <figure class="card-figure">
+      <img [src]="imageSrc" [alt]="imageAlt || title" />
+    </figure>
+  </ng-container>
+
+  <div class="card-body">
+    <div class="card-title-row">
+      <h3 class="card-title">{{ title }}</h3>
+      <ng-container *ngIf="badgeType; else textBadge">
+        <app-badge-label [type]="badgeType" [variant]="badgeVariant || 'soft'" (badgeClick)="$event"></app-badge-label>
+      </ng-container>
+      <ng-template #textBadge>
+        <span *ngIf="badgeText" class="card-badge">{{ badgeText }}</span>
+      </ng-template>
+    </div>
+
+    <p class="card-description" *ngIf="description">{{ description }}</p>
+
+    <!-- preview area (replaces projected card-content) -->
+    <div *ngIf="previewTitle || previewBody">
+      <div *ngIf="previewTitle" class="text-sm font-medium text-gray-900 mb-1">{{ previewTitle }}</div>
+      <div *ngIf="previewBody" class="text-xs text-gray-900-secondary line-clamp-2 font-mono">{{ previewBody }}</div>
+    </div>
+
+    <div class="card-actions">
+      <div class="card-tags" *ngIf="tags?.length">
+        <span class="card-tag" *ngFor="let t of tags">{{ t }}</span>
+      </div>
+
+      <div class="card-actions__buttons">
+        <!-- Primary button first -->
+        <app-button *ngIf="showButton" [variant]="buttonVariant" [size]="size === 'sm' ? 'sm' : 'md'" (click)="onButtonClick()" [attr.aria-label]="buttonAriaLabel">
+          {{ buttonLabel }}
+        </app-button>
+
+        <!-- Secondary button next -->
+        <app-button *ngIf="showSecondaryButton" [variant]="secondaryButtonVariant" [size]="size === 'sm' ? 'sm' : 'md'" (click)="onSecondaryClick()" [attr.aria-label]="secondaryAriaLabel">
+          {{ secondaryLabel }}
+        </app-button>
+      </div>
+    </div>
+  </div>
+
+  <ng-container *ngIf="imageSrc && imagePosition === 'bottom'">
+    <figure class="card-figure card-figure--bottom">
+      <img [src]="imageSrc" [alt]="imageAlt || title" />
+    </figure>
+  </ng-container>
+</div>
