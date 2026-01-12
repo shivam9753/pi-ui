@@ -11,6 +11,9 @@ import * as cheerio from 'cheerio';
 import { LRUCache } from 'lru-cache';
 import pLimit from 'p-limit';
 
+// Use SITE_HOST env if provided to standardize canonical URLs and API host
+const SITE_HOST = process.env['SITE_HOST'] || 'https://poemsindia.in';
+
 const serverDistFolder = dirname(fileURLToPath(import.meta.url));
 const browserDistFolder = resolve(serverDistFolder, '../browser');
 const indexHtml = join(serverDistFolder, 'index.server.html');
@@ -47,21 +50,21 @@ function isValidSlug(slug: string): boolean {
 // Validate image URL (basic) and return a safe fallback if invalid
 function sanitizeImageUrl(url: any): string {
   try {
-    if (!url || typeof url !== 'string') return 'https://poemsindia.in/assets/loginimage.jpeg';
+    if (!url || typeof url !== 'string') return `${SITE_HOST}/assets/loginimage.jpeg`;
     // Detect blob: or data: URLs which are browser-only and cannot be fetched by the server
     if (url.startsWith('blob:') || url.startsWith('data:')) {
       console.warn(`[Meta] Received non-fetchable image URL (blob/data) for SSR: ${url}`);
       // Return a public fallback — client should upload such images to a public host before publishing
-      return 'https://poemsindia.in/assets/loginimage.jpeg';
+      return `${SITE_HOST}/assets/loginimage.jpeg`;
     }
     const parsed = new URL(url, 'https://poemsindia.in');
     // Only allow http(s)
     if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') {
-      return 'https://poemsindia.in/assets/loginimage.jpeg';
+      return `${SITE_HOST}/assets/loginimage.jpeg`;
     }
     return parsed.toString();
   } catch (err) {
-    return 'https://poemsindia.in/assets/loginimage.jpeg';
+    return `${SITE_HOST}/assets/loginimage.jpeg`;
   }
 }
 
@@ -94,7 +97,7 @@ async function generatePostMetaTags(slug: string): Promise<{ title: string; html
   // Use concurrency limiter to avoid many simultaneous remote calls
   return fetchLimit(async () => {
     try {
-      const apiUrl = `https://app.poemsindia.in/api/submissions/by-slug/${encodeURIComponent(slug)}`;
+      const apiUrl = `${SITE_HOST}/api/submissions/by-slug/${encodeURIComponent(slug)}`;
       const response = await fetchWithTimeout(apiUrl, 3000);
 
       if (!response.ok) {
@@ -112,7 +115,7 @@ async function generatePostMetaTags(slug: string): Promise<{ title: string; html
       const title = `${rawTitle} — Poems by ${rawAuthor} - pi`;
       const description = rawDescription || `Read "${rawTitle}" by ${rawAuthor} on Poems in India - a curated collection of poetry and literature.`;
       const imageUrl = sanitizeImageUrl(rawImage);
-      const canonicalUrl = `https://app.poemsindia.in/post/${slug}`;
+      const canonicalUrl = `${SITE_HOST}/post/${slug}`;
 
       // Build sanitized meta tags (text fields escaped)
       const metaTags = `
