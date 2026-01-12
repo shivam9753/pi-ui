@@ -30,6 +30,7 @@ import { MainStudioComponent } from './main-studio/main-studio.component';
 import { ReadingInterfaceComponent } from './main-reading/reading-interface/reading-interface.component';
 import { PublicAuthorProfileComponent } from './main-user-profile/public-author-profile/public-author-profile.component';
 import { SimpleContentReaderComponent } from './main-reading/simple-content-reader/simple-content-reader.component';
+import { ManageSubmissionsComponent } from './main-admin/content/published-posts/published-posts.component';
 
 export const routes: Routes = [
   // Public routes - Use explore as homepage for now
@@ -137,6 +138,13 @@ export const routes: Routes = [
   },
 
   // Admin and Reviewer routes
+  // Dedicated submissions management route (allows reviewers/admins/writers)
+  { 
+    path: 'admin/submissions',
+    component: ManageSubmissionsComponent,
+    canActivate: [ReviewerGuard],
+    title: 'Submissions - Admin'
+  },
   { 
     path: 'admin', 
     component: AdminComponent, 

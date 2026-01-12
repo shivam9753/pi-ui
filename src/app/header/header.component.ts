@@ -30,6 +30,10 @@ export class HeaderComponent implements OnInit, OnDestroy {
   isMobileMenuOpen = signal(false);
   showWhatsNewDropdown = signal(false);
   showSettingsDropdown = signal(false);
+  // Editorial dropdown (desktop & mobile)
+  showEditorialDropdown = signal(false);
+  // Mobile editorial accordion state
+  showEditorialMobile = signal(false);
   userId = '';
   currentRoute = signal('');
   isDark = signal(false);
@@ -69,7 +73,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
     }
   ];
   
-  private subscriptions: Subscription[] = [];
+  private readonly subscriptions: Subscription[] = [];
 
   ngOnInit() {
     // Check current auth state immediately (synchronously)
@@ -220,6 +224,26 @@ export class HeaderComponent implements OnInit, OnDestroy {
     this.showSettingsDropdown.set(false);
   }
 
+  toggleEditorialDropdown() {
+    this.showEditorialDropdown.update(v => !v);
+  }
+
+  closeEditorialDropdown() {
+    this.showEditorialDropdown.set(false);
+  }
+
+  toggleEditorialMobile() {
+    this.showEditorialMobile.update(v => !v);
+  }
+
+  closeEditorialMobile() {
+    this.showEditorialMobile.set(false);
+  }
+
+  hasEditorialItems(): boolean {
+    return this.canAccessWorkspace() || this.canAccessStudio() || this.isAdmin();
+  }
+
   // What's New dropdown methods
   toggleWhatsNewDropdown() {
     this.showWhatsNewDropdown.update(value => !value);
@@ -266,7 +290,17 @@ export class HeaderComponent implements OnInit, OnDestroy {
     if (!target.closest('[data-dropdown="user"]')) {
       this.closeDropdown();
     }
-  }
+
+    // Close editorial dropdown if clicked outside
+    if (!target.closest('[data-dropdown="editorial"]')) {
+      this.closeEditorialDropdown();
+    }
+
+    // Close mobile editorial accordion if clicked outside mobile area
+    if (!target.closest('[data-mobile-editorial]')) {
+      this.closeEditorialMobile();
+    }
+   }
 
   // Simple search functionality - navigate to search page
   openSearchPage() {
@@ -298,7 +332,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   // Role chip helper methods
   shouldShowRoleChip(): boolean {
     const user = this.loggedInUser();
-    if (!user || !user.role) return false;
+    if (!user?.role) return false;
     return ['admin', 'reviewer', 'writer'].includes(user.role);
   }
 

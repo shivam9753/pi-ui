@@ -16,9 +16,7 @@
     <div class="bg-white pb-10">
       <!-- Tab Navigation -->
       <app-tabs [(activeTab)]="activeTab">
-        @if (canAccessTab('submissions')) {
-          <app-tab-item tabId="submissions" label="Submissions"></app-tab-item>
-        }
+        <!-- 'Submissions' tab moved to header navigation; intentionally omitted here -->
         @if (canAccessTab('content')) {
           <app-tab-item tabId="content" label="Content"></app-tab-item>
         }

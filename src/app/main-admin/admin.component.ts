@@ -4,7 +4,7 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { AuthService } from '../services/auth.service';
 
 // Import individual admin tab components
-import { PublishedPostsComponent } from "./content/published-posts/published-posts.component";
+import { ManageSubmissionsComponent } from "./content/published-posts/published-posts.component";
 import { FeaturedContentComponent } from "./content/featured-content/featured-content.component";
 import { UserManagementComponent } from './users/user-management/user-management.component';
 import { CreateUsersComponent } from './users/create-users/create-users.component';
@@ -16,7 +16,7 @@ import { TabsComponent, TabItemComponent } from '../ui-components';
   selector: 'app-admin',
   standalone: true,
   imports: [
-    PublishedPostsComponent,
+    ManageSubmissionsComponent,
     FeaturedContentComponent,
     UserManagementComponent,
     CreateUsersComponent,
@@ -79,7 +79,20 @@ export class AdminComponent implements OnInit, AfterViewInit {
       return;
     }
     
-    this.activeTab = 'submissions';
+    // Default to the first tab the user can access. 'submissions' has been moved out to header,
+    // so prefer 'content' for admins/reviewers when available.
+    if (this.canAccessTab('content')) {
+      this.activeTab = 'content';
+    } else if (this.canAccessTab('users')) {
+      this.activeTab = 'users';
+    } else if (this.canAccessTab('analytics')) {
+      this.activeTab = 'analytics';
+    } else if (this.canAccessTab('purge')) {
+      this.activeTab = 'purge';
+    } else if (this.canAccessTab('submissions')) {
+      // fallback only if nothing else is accessible
+      this.activeTab = 'submissions';
+    }
     this.loading = false;
   }
 

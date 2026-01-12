@@ -4,6 +4,7 @@ import { PrettyLabelPipe } from '../../../pipes/pretty-label.pipe';
 import { StatusBadgeComponent } from '../status-badge/status-badge.component';
 import { StringUtils, CommonUtils } from '../../utils';
 import { ButtonComponent } from '../../../ui-components/button/button.component';
+import { CardComponent } from '../../../ui-components/card/card.component';
 
 export interface TableColumn {
   key: string;
@@ -35,9 +36,41 @@ export interface PaginationConfig {
 @Component({
   selector: 'app-data-table',
   standalone: true,
-  imports: [CommonModule, PrettyLabelPipe, StatusBadgeComponent, ButtonComponent],
+  imports: [CommonModule, PrettyLabelPipe, StatusBadgeComponent, ButtonComponent, CardComponent],
   template: `
     <div class="w-full">
+
+      <!-- Reusable cell renderer used for both desktop cells and mobile metadata -->
+      <ng-template #cellRenderer let-item let-column="column">
+        <ng-container [ngSwitch]="column.type">
+          <ng-container *ngSwitchCase="'image'">
+            <div class="flex items-center">
+              @if (getNestedValue(item, column.key)) {
+                <img [src]="getNestedValue(item, column.key)" alt="Image" class="w-10 h-10 rounded-full object-cover" />
+              } @else {
+                <div class="w-10 h-10 rounded-full bg-themed-accent flex items-center justify-center text-white font-medium">{{ getInitials(item) }}</div>
+              }
+            </div>
+          </ng-container>
+
+          <ng-container *ngSwitchCase="'badge'">
+            <app-status-badge [status]="getNestedValue(item, column.key)" size="sm"></app-status-badge>
+          </ng-container>
+
+          <ng-container *ngSwitchCase="'date'">
+            <span class="text-sm text-themed-secondary">{{ getNestedValue(item, column.key) | date:'MMM d, y' }}</span>
+          </ng-container>
+
+          <ng-container *ngSwitchCase="'custom'">
+            <ng-container *ngTemplateOutlet="customCellTemplate; context: { $implicit: item, column: column }"></ng-container>
+          </ng-container>
+
+          <ng-container *ngSwitchDefault>
+            <div class="text-sm text-themed leading-normal">{{ getNestedValue(item, column.key) }}</div>
+          </ng-container>
+        </ng-container>
+      </ng-template>
+
       <!-- Loading State -->
       @if (loading) {
         <!-- Desktop Skeleton Loading -->
@@ -174,55 +207,26 @@ export interface PaginationConfig {
                       [class.text-left]="column.align === 'left' || !column.align"
                       [class.text-center]="column.align === 'center'"
                       [class.text-right]="column.align === 'right'">
-                      @switch (column.type) {
-                        @case ('image') {
-                          <div class="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-primary-hover flex items-center justify-center">
-                            @if (getNestedValue(item, column.key)) {
-                              <img
-                                [src]="getNestedValue(item, column.key)"
-                                alt="Image"
-                                class="w-10 h-10 rounded-full object-cover" />
-                            } @else {
-                              <span class="text-white font-medium text-sm">
-                                {{ getInitials(item) }}
-                              </span>
-                            }
-                          </div>
-                        }
-                        @case ('badge') {
-                          <app-status-badge [status]="getNestedValue(item, column.key)"></app-status-badge>
 
-                        }
-                        @case ('date') {
-                          <span class="text-sm text-themed-secondary">
-                            {{ getNestedValue(item, column.key) | date:'MMM d, y' }}
-                          </span>
-                        }
-                        @case ('custom') {
-                          <ng-container *ngTemplateOutlet="customCellTemplate; context: { $implicit: item, column: column }"></ng-container>
-                        }
-                        @default {
-                          <div class="text-sm text-themed leading-normal">
-                            {{ getNestedValue(item, column.key) }}
-                          </div>
-                        }
-                      }
+                      <ng-container *ngTemplateOutlet="cellRenderer; context: { $implicit: item, column: column }"></ng-container>
+
                     </td>
                   }
                   @if (actions && actions.length > 0) {
                     <td class="px-6 py-4">
                       <div class="flex items-center space-x-2">
                         @for (action of getVisibleActions(item); track action.label) {
-                          <button
+                          <app-button
                             (click)="action.handler(item); $event.stopPropagation()"
-                            [class]="getActionButtonClass(action.color) + ' table-action-btn btn-feedback'"
-                            [title]="action.label">
+                            [variant]="mapActionVariant(action.color)"
+                            size="sm"
+                            [attr.title]="action.label">
                             @if (action.icon) {
-                              <svg class="w-4 h-4" [innerHTML]="action.icon"></svg>
+                              <span [innerHTML]="action.icon"></span>
                             } @else {
                               {{ action.label }}
                             }
-                          </button>
+                          </app-button>
                         }
                       </div>
                     </td>
@@ -233,98 +237,89 @@ export interface PaginationConfig {
           </table>
         </div>
 
-        <!-- Mobile Cards -->
+        <!-- Mobile Cards: use shared Card component and the same cell renderer to avoid duplicated rendering logic -->
         <div class="md:hidden space-y-4 px-4">
           <!-- Mobile Select All -->
           @if (selectable && data.length > 0) {
-            <div class="bg-gray-50 border border-gray-200 rounded-lg p-4 mx-2 mb-4">
-              <div class="flex items-center justify-between">
-                <span class="text-sm font-medium text-gray-700">Select All Items</span>
+            <div class="data-table-select-all compact-inline mx-2 mb-4">
+              <label class="flex items-center gap-3 text-sm text-gray-700">
                 <input 
                   type="checkbox" 
                   [checked]="isAllSelected()" 
                   (change)="toggleSelectAll($event)"
-                  class="h-5 w-5 text-primary focus:ring-primary border-gray-300 rounded">
-              </div>
+                  aria-label="Select all submissions"
+                  class="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded">
+                <span class="text-sm">Select all</span>
+                <button *ngIf="selectedItems && selectedItems.length > 0" (click)="clearSelection(); $event.stopPropagation()" class="ml-2 text-xs text-gray-500 underline">Clear</button>
+              </label>
             </div>
           }
-          
+
           @for (item of data; track trackByFn ? trackByFn($index, item) : $index) {
-            <div 
-              [class]="mobileCardTemplate ? 'mb-4' : 'bg-white border border-gray-200 rounded-lg p-5 shadow-sm'"
-              [class.cursor-pointer]="rowClickable"
-              [class.bg-primary-light]="selectable && isItemSelected(item) && !mobileCardTemplate"
-              [class.border-neutral-300]="selectable && isItemSelected(item) && !mobileCardTemplate"
-              (click)="onRowClickHandler(item, $event)">
-              
-              <!-- Mobile Selection Checkbox - only show when not using custom template -->
-              @if (selectable && !mobileCardTemplate) {
-                <div class="flex items-center justify-between mb-3 pb-3 border-b border-gray-100">
-                  <span class="text-sm font-medium text-gray-700">Select Item</span>
-                  <input 
-                    type="checkbox" 
-                    [checked]="isItemSelected(item)" 
-                    (change)="toggleItemSelection(item)"
-                    (click)="$event.stopPropagation()"
-                    class="h-5 w-5 text-primary focus:ring-primary border-gray-300 rounded">
-                </div>
-              }
-              
-              @if (mobileCardTemplate) {
-                <ng-container *ngTemplateOutlet="mobileCardTemplate; context: { $implicit: item, actions: getVisibleActions(item) }"></ng-container>
-              } @else {
-                <!-- Default Mobile Card Template -->
-                <div class="mb-4 p-4 bg-white rounded-lg border border-gray-200">
-                  @for (column of columns; track column.key) {
-                    @if (!column.mobileHidden) {
-                      <div class="mb-4">
-                        <span class="text-sm font-semibold text-gray-700 uppercase tracking-wide">{{ column.label }}:</span>
-                        <div class="mt-2">
-                          @switch (column.type) {
-                            @case ('image') {
-                              <div class="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-primary-hover flex items-center justify-center">
-                                @if (getNestedValue(item, column.key)) {
-                                  <img [src]="getNestedValue(item, column.key)" alt="Image" class="w-10 h-10 rounded-full object-cover" />
-                                } @else {
-                                  <span class="text-white font-medium text-sm">{{ getInitials(item) }}</span>
-                                }
-                              </div>
-                            }
-                            @case ('badge') {
-                              <span [class]="getBadgeClass(getNestedValue(item, column.key)) + ' text-sm px-3 py-1'">
-                                {{ getNestedValue(item, column.key) | prettyLabel }}
-                              </span>
-                            }
-                            @case ('date') {
-                              <span class="text-base text-gray-800">{{ getNestedValue(item, column.key) | date:'MMM d, y' }}</span>
-                            }
-                            @case ('custom') {
-                              <ng-container *ngTemplateOutlet="customCellTemplate; context: { $implicit: item, column: column }"></ng-container>
-                            }
-                            @default {
-                              <div class="text-base text-gray-800 leading-relaxed">{{ getNestedValue(item, column.key) }}</div>
-                            }
-                          }
-                        </div>
-                      </div>
-                    }
-                  }
-                </div>
-                
-                <!-- Mobile Action Buttons -->
-                @if (actions && actions.length > 0) {
-                  <div class="flex flex-wrap gap-3 mt-4 p-4 border-t border-gray-200">
-                    @for (action of getVisibleActions(item); track action.label) {
-                      <button
-                        (click)="action.handler(item); $event.stopPropagation()"
-                        [class]="'flex-1 px-4 py-3 text-sm font-semibold rounded-lg btn-feedback ' + getActionButtonClass(action.color)"
-                        style="min-height: 44px;">
-                        {{ action.label }}
-                      </button>
+            <!-- Inline mobile card (does not use app-card) -->
+            <div class="bg-white rounded-lg border border-gray-200 shadow-sm p-6 mx-2" [class.bg-themed-accent-light]="isItemSelected(item)" (click)="onRowClickHandler(item, $event)">
+
+              <!-- header: avatar + title + badges -->
+              <ng-container *ngIf="getPrimary() as primary">
+                <div class="flex items-start gap-4">
+                  <div class="flex-shrink-0">
+                    @if (primary.type === 'image' && getNestedValue(item, primary.key)) {
+                      <img [src]="getNestedValue(item, primary.key)" class="w-12 h-12 rounded-full object-cover" alt="avatar" />
+                    } @else {
+                      <div class="w-12 h-12 rounded-full bg-themed-accent flex items-center justify-center text-white font-medium">{{ getInitials(item) }}</div>
                     }
                   </div>
-                }
-              }
+
+                  <div class="flex-1">
+                    <div class="flex items-center gap-3">
+                      <div class="text-lg font-semibold text-themed">{{ getPrimaryTitle(item) }}</div>
+                      <ng-container *ngFor="let tag of getPrimaryTags(item)">
+                        <app-status-badge [status]="tag" size="sm" tagType="type"></app-status-badge>
+                      </ng-container>
+                    </div>
+
+                    <div class="text-sm text-themed-secondary mt-1" *ngIf="getAuthorName(item)">By {{ getAuthorName(item) }}</div>
+
+                    <p class="mt-4 text-base text-gray-700 line-clamp-3">{{ getPrimarySubtitle(item) }}</p>
+                  </div>
+                </div>
+              </ng-container>
+
+              <!-- Secondary metadata rows (re-used renderer) -->
+              <div class="mt-4">
+                <ng-container *ngFor="let column of getSecondaryColumns()">
+                  <div *ngIf="!column.mobileHidden" class="mb-2 flex justify-between items-start border-t border-transparent pt-2">
+                    <div class="text-xs font-semibold text-themed-secondary uppercase">{{ column.label }}</div>
+                    <div class="ml-4 text-sm text-gray-800">
+                      <ng-container *ngTemplateOutlet="cellRenderer; context: { $implicit: item, column: column }"></ng-container>
+                    </div>
+                  </div>
+                </ng-container>
+              </div>
+
+              <!-- Actions footer -->
+              <div class="mt-5 flex items-center gap-3">
+                <ng-container *ngIf="getMainAction(item) as primaryAction">
+                  <app-button
+                    (click)="primaryAction.handler(item); $event.stopPropagation()"
+                    [variant]="mapActionVariant(primaryAction.color)"
+                    size="md">
+                    {{ primaryAction.label }}
+                  </app-button>
+                </ng-container>
+
+                <div class="flex-1"></div>
+
+                <ng-container *ngFor="let action of getSecondaryActions(item)">
+                  <app-button
+                    (click)="action.handler(item); $event.stopPropagation()"
+                    [variant]="mapActionVariant(action.color)"
+                    size="sm">
+                    {{ action.label }}
+                  </app-button>
+                </ng-container>
+              </div>
+
             </div>
           }
         </div>
@@ -367,6 +362,8 @@ export interface PaginationConfig {
     </div>
   `,
   styles: [`
+    .data-table-select-all.compact-inline { padding: 0; background: transparent; border: 0; }
+    .data-table-select-all.compact-inline label { align-items: center; }
     .spinner {
       width: 2rem;
       height: 2rem;
@@ -433,22 +430,6 @@ export class DataTableComponent<T = any> implements OnInit {
     return StringUtils.getInitialsWithFallback(name);
   }
 
-  getBadgeClass(value: string): string {
-    const defaultClass = 'tag tag-gray';
-    return this.badgeConfig[value?.toLowerCase()] || defaultClass;
-  }
-
-  getActionButtonClass(color?: string): string {
-    const baseClass = 'inline-flex items-center px-3 py-2 text-sm font-medium rounded-md focus:outline-none focus:ring-2 transition-all duration-150';
-    switch (color) {
-      case 'primary': return `${baseClass} text-white bg-themed-accent hover:bg-themed-accent-hover shadow-sm font-semibold focus:ring-primary`;
-      case 'danger': return `${baseClass} action-btn-danger`;
-      case 'warning': return `${baseClass} action-btn-warning`;
-      case 'success': return `${baseClass} action-btn-success`;
-      default: return `${baseClass} text-themed-secondary hover:bg-themed-tertiary hover:text-themed font-medium focus:ring-gray-500`;
-    }
-  }
-
   getVisibleActions(item: T): TableAction[] {
     return this.actions.filter(action => !action.condition || action.condition(item));
   }
@@ -477,6 +458,12 @@ export class DataTableComponent<T = any> implements OnInit {
     } else {
       this.selectedItems.push(item);
     }
+    this.onSelectionChange.emit(this.selectedItems);
+  }
+
+  // Clear all selections (used by mobile inline control)
+  clearSelection(): void {
+    this.selectedItems = [];
     this.onSelectionChange.emit(this.selectedItems);
   }
 
@@ -520,4 +507,110 @@ export class DataTableComponent<T = any> implements OnInit {
     const widths = ['60%', '80%', '70%', '90%', '75%'];
     return widths[Math.floor(Math.random() * widths.length)];
   }
+
+  // Map action color to the app-button variant so buttons follow design system
+  mapActionVariant(color?: string): 'primary' | 'secondary' | 'tertiary' | 'quaternary' | 'destructive' {
+    switch (color) {
+      case 'primary': return 'primary';
+      case 'danger': return 'destructive';
+      case 'warning': return 'secondary';
+      case 'success': return 'secondary';
+      default: return 'tertiary';
+    }
+  }
+
+  // Mobile helpers: determine primary and secondary columns for card layout
+  getPrimaryColumn(): TableColumn | null {
+    if (!this.columns || this.columns.length === 0) return null;
+    // prefer a column named 'title' or 'name' or first visible
+    const titleCandidate = this.columns.find(c => ['title', 'name'].includes(c.key));
+    if (titleCandidate) return titleCandidate;
+    return this.columns.find(c => !c.mobileHidden) || this.columns[0] || null;
+  }
+
+  getPrimaryTitle(item: any): string {
+    const primary = this.getPrimaryColumn();
+    if (!primary) return '';
+    const value = this.getNestedValue(item, primary.key);
+    if (primary.type === 'image') {
+      return this.getInitials(item);
+    }
+    return value || this.getInitials(item) || '';
+  }
+
+  getPrimarySubtitle(item: any): string {
+    const primary = this.getPrimaryColumn();
+    if (!primary) return '';
+    // show a short subtitle composed of another column if available (date or badge)
+    const subtitleCandidate = this.columns.find(c => c !== primary && !c.mobileHidden && (c.type === 'date' || c.type === 'badge' || c.key === 'subtitle'));
+    if (subtitleCandidate) {
+      const val = this.getNestedValue(item, subtitleCandidate.key);
+      return val ? String(val) : '';
+    }
+    return '';
+  }
+
+  getPrimaryTags(item: any): string[] {
+    // expose type/status as tags for the card if available
+    const typeCol = this.columns.find(c => c.type === 'badge');
+    if (typeCol) {
+      const val = this.getNestedValue(item, typeCol.key);
+      return val ? [val] : [];
+    }
+    return [];
+  }
+
+  getSecondaryColumns(): TableColumn[] {
+    const primary = this.getPrimaryColumn();
+    return this.columns.filter(c => c !== primary && !c.mobileHidden);
+  }
+
+  // Return visible actions except the main action. Kept as a method so template bindings remain valid.
+  getSecondaryActions(item: T): TableAction[] {
+    const visible = this.getVisibleActions(item);
+    // Determine the main action (prefer explicit isMainAction, otherwise first visible)
+    const main = visible.find(a => a.isMainAction) || (visible.length ? visible[0] : null);
+    // Exclude the main action from the secondary list to avoid duplicate rendering
+    return visible.filter(a => a !== main);
+  }
+
+  // Extract author name from common nested fields used across the app
+  getAuthorName(item: any): string {
+    return this.getNestedValue(item, 'author.name') || this.getNestedValue(item, 'author') || this.getNestedValue(item, 'user.name') || this.getNestedValue(item, 'createdBy.name') || this.getNestedValue(item, 'by') || '';
+  }
+
+  getPrimaryImage(item: any): string | undefined {
+    const primary = this.getPrimaryColumn();
+    if (!primary) return undefined;
+    if (primary.type === 'image') {
+      return this.getNestedValue(item, primary.key) as string | undefined;
+    }
+    return undefined;
+  }
+
+  onCardPrimaryClick(item: T) {
+    const main = this.getMainAction(item);
+    if (main) main.handler(item);
+  }
+
+  onCardSecondaryClick(item: T) {
+    const first = this.getFirstSecondaryAction(item);
+    if (first) first.handler(item);
+  }
+
+  getFirstSecondaryAction(item: T): TableAction | null {
+    const secs = this.getSecondaryActions(item);
+    return secs.length ? secs[0] : null;
+  }
+
+  getRemainingSecondaryActions(item: T): TableAction[] {
+    const secs = this.getSecondaryActions(item);
+    return secs.length > 1 ? secs.slice(1) : [];
+  }
+
+  // Return the primary column object for template use (avoids optional chaining when key is passed to helpers)
+  getPrimary(): TableColumn | null {
+    return this.getPrimaryColumn();
+  }
+
 }

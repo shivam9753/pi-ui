@@ -35,9 +35,9 @@ export interface ContentCardData {
   standalone: true,
   imports: [CommonModule, StatusBadgeComponent, BadgeLabelComponent],
   template: `
-    <div class="bg-white rounded-none transform transition-all duration-200 overflow-hidden group border border-gray-200 dark:border-gray-700"
+    <div class="bg-white rounded-none transform transition-all duration-200 overflow-hidden group"
+      [ngClass]="{ 'border border-gray-200 dark:border-gray-700': !noBorder, 'ring-2 ring-primary shadow-primary-light': isFeatured, 'hover:shadow-xl hover:-translate-y-1 cursor-pointer': clickable }"
       [attr.role]="clickable ? 'button' : null" [attr.tabindex]="clickable ? 0 : null"
-      [ngClass]="{ 'ring-2 ring-primary shadow-primary-light': isFeatured, 'hover:shadow-xl hover:-translate-y-1 cursor-pointer': clickable }"
       (click)="onCardClick()" (keydown.enter)="onCardClick()" (keydown.space)="$event.preventDefault(); onCardClick()">
 
       <!-- Image / Media -->
@@ -113,6 +113,9 @@ export class ContentCardComponent {
 
   // Internal navigation: accept optional slug override. Component will navigate when clicked.
   @Input() slug?: string;
+
+  // When true, hide the outer border (used by other templates via [noBorder])
+  @Input() noBorder = false;
 
   constructor(private router: Router) {}
 

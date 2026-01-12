@@ -26,17 +26,19 @@ import { SimpleSubmissionFilterComponent, SimpleFilterOptions } from '../../../s
 import { SUBMISSION_STATUS, API_ENDPOINTS } from '../../../shared/constants/api.constants';
 import { environment } from '../../../../environments/environment';
 import { ButtonComponent } from '../../../ui-components/button/button.component';
-
+import { TabsComponent, TabItemComponent } from '../../../ui-components';
 
 @Component({
-  selector: 'app-published-posts',
-  imports: [CommonModule, FormsModule, ButtonComponent, PrettyLabelPipe, BadgeLabelComponent, AdminPageHeaderComponent, DataTableComponent, SimpleSubmissionFilterComponent, SearchableUserSelectorComponent, ConsistentSubmissionMobileCardComponent, SubmissionMobileCardComponent],
+  selector: 'app-manage-submissions',
+  imports: [CommonModule, FormsModule, ButtonComponent, PrettyLabelPipe, BadgeLabelComponent, AdminPageHeaderComponent, DataTableComponent, SimpleSubmissionFilterComponent, SearchableUserSelectorComponent, ConsistentSubmissionMobileCardComponent, SubmissionMobileCardComponent, TabsComponent, TabItemComponent],
   templateUrl: './published-posts.component.html',
   styleUrl: './published-posts.component.css'
 })
-export class PublishedPostsComponent implements OnInit {
+export class ManageSubmissionsComponent implements OnInit {
   // Table configuration
-  columns: TableColumn[] = PUBLISHED_POSTS_TABLE_COLUMNS;
+  // keep a base copy to derive tab-specific column sets
+  private baseColumns: TableColumn[] = PUBLISHED_POSTS_TABLE_COLUMNS;
+  columns: TableColumn[] = [...this.baseColumns];
   actions: TableAction[] = [];
   consistentActions: SubmissionAction[] = [];
   badgeConfig = SUBMISSION_BADGE_CONFIG;
@@ -54,7 +56,10 @@ export class PublishedPostsComponent implements OnInit {
   
   // Filter properties
   currentFilters: SimpleFilterOptions = {};
-  quickFilter: 'published' | 'all' | 'accepted' = 'all';
+  // Tabs: 'published', 'accepted', 'rejected', 'draft', 'submitted'
+  quickFilter: 'published' | 'accepted' | 'rejected' | 'draft' | 'submitted' = 'published';
+  // Two-way bound tab state for the UI component
+  activeTab: string = 'submitted';
 
   // Analytics stats
   stats: AdminPageStat[] = [];
@@ -69,6 +74,20 @@ export class PublishedPostsComponent implements OnInit {
   message = '';
   messageType: 'success' | 'error' | 'info' = 'info';
 
+  // Toast notification properties
+  toastMessage = '';
+  toastType: 'success' | 'error' | 'info' = 'info';
+  showToastFlag = false;
+
+  // Track counts per tab so UI can show small chips on the tabs
+  tabCounts: { [key: string]: number } = {
+    published: 0,
+    accepted: 0,
+    rejected: 0,
+    draft: 0,
+    submitted: 0
+  };
+
   // Constants for template usage
   readonly SUBMISSION_STATUS = SUBMISSION_STATUS;
 
@@ -79,11 +98,6 @@ export class PublishedPostsComponent implements OnInit {
   totalPages = 0;
   hasMore = false;
 
-  // Toast notification properties
-  toastMessage = '';
-  toastType: 'success' | 'error' | 'info' = 'info';
-  showToastFlag = false;
-
   constructor(
     private backendService: BackendService,
     private http: HttpClient,
@@ -93,6 +107,11 @@ export class PublishedPostsComponent implements OnInit {
   ) {}
 
   ngOnInit() {
+    // Set quickFilter from activeTab default so New tab is selected on load
+    if (this.activeTab) {
+      this.quickFilter = this.activeTab as any;
+    }
+
     // Check for returnPage parameter in query params (for page restoration after navigation)
     this.route.queryParams.subscribe(params => {
       if (params['returnPage']) {
@@ -111,8 +130,97 @@ export class PublishedPostsComponent implements OnInit {
     });
     
     this.setupTableActions();
+    // Ensure actions reflect the currently active tab
+    this.updateActionsForTab();
     this.loadUsers();
     this.loadPublishedSubmissions();
+  }
+
+  // Called when the top-level tab changes
+  onTabChange(tabId: string) {
+    // tabId expected to be one of: 'published'|'accepted'|'rejected'|'draft'|'submitted'
+    console.log('🔁 Tab changed to:', tabId);
+    this.quickFilter = tabId as any;
+    // reset paging and filters when switching
+    this.currentPage = 1;
+    this.currentFilters = {};
+    // clear any selected items when switching tabs
+    this.clearSelection();
+    this.updateActionsForTab();
+    this.loadPublishedSubmissions();
+  }
+
+  updateActionsForTab() {
+    // reset to base columns as a starting point
+    this.columns = [...this.baseColumns];
+
+    switch (this.quickFilter) {
+      case 'published':
+        // Published: Primary = Edit, Secondary = Unpublish (move back to Accepted)
+        this.actions = [
+          { label: 'Edit', color: 'primary', isMainAction: true, handler: (post:any) => this.editPublishedPost(post._id) },
+          { label: 'Unpublish', color: 'danger', handler: (post:any) => this.unpublishSubmission(post._id, post.title) }
+        ];
+        this.consistentActions = [
+          { label: 'Edit', color: 'primary', handler: (p:any)=> this.editPublishedPost(p._id) },
+          { label: 'Unpublish', color: 'danger', handler: (p:any)=> this.unpublishSubmission(p._id, p.title) }
+        ];
+        break;
+
+      case 'accepted':
+        // Accepted: show status column and primary Publish, secondary Back to Review
+        // Remove stats column but keep status visible
+        this.columns = this.baseColumns.filter(c => c.key !== 'stats');
+        this.actions = [
+          { label: 'Publish', color: 'primary', isMainAction: true, handler: (post:any) => this.configureAndPublish(post._id) },
+          { label: 'Back to Review', color: 'secondary', handler: (post:any) => this.backToReview(post._id, post.title) }
+        ];
+        this.consistentActions = [
+          { label: 'Publish', color: 'primary', handler: (p:any)=> this.configureAndPublish(p._id) },
+          { label: 'Back to Review', color: 'secondary', handler: (p:any)=> this.backToReview(p._id, p.title) }
+        ];
+        break;
+
+      case 'draft':
+        // Drafts: Edit, Delete
+        this.actions = [
+          { label: 'Edit', color: 'primary', isMainAction: true, handler: (post:any) => this.editPublishedPost(post._id) },
+          { label: 'Delete', color: 'danger', handler: (post:any) => this.deleteSubmission(post._id, post.title) }
+        ];
+        this.consistentActions = [
+          { label: 'Edit', color: 'primary', handler: (p:any)=> this.editPublishedPost(p._id) },
+          { label: 'Delete', color: 'danger', handler: (p:any)=> this.deleteSubmission(p._id, p.title) }
+        ];
+        break;
+
+      case 'rejected':
+        // Rejected: View, Delete
+        this.actions = [
+          { label: 'View', color: 'secondary', isMainAction: true, handler: (post:any) => this.viewSubmission(post) },
+          { label: 'Delete', color: 'danger', handler: (post:any) => this.deleteSubmission(post._id, post.title) }
+        ];
+        this.consistentActions = [
+          { label: 'View', color: 'secondary', handler: (p:any)=> this.viewSubmission(p) },
+          { label: 'Delete', color: 'danger', handler: (p:any)=> this.deleteSubmission(p._id, p.title) }
+        ];
+        break;
+
+      case 'submitted':
+        // New/submitted: Review (open in review-submission), Delete
+        this.actions = [
+          { label: 'Review', color: 'primary', isMainAction: true, handler: (post:any) => this.reviewSubmission(post) },
+          { label: 'Delete', color: 'danger', handler: (post:any) => this.deleteSubmission(post._id, post.title) }
+        ];
+        this.consistentActions = [
+          { label: 'Review', color: 'primary', handler: (p:any)=> this.reviewSubmission(p) },
+          { label: 'Delete', color: 'danger', handler: (p:any)=> this.deleteSubmission(p._id, p.title) }
+        ];
+        break;
+
+      default:
+        this.actions = [];
+        this.consistentActions = [];
+    }
   }
 
   setupTableActions() {
@@ -168,16 +276,25 @@ export class PublishedPostsComponent implements OnInit {
       params.search = this.currentFilters.search.trim();
     }
 
-    // Add status filter based on quick filter
+    // Map tab to API status filter
     if (this.quickFilter === 'published') {
-      params.status = 'published';
+      params.status = SUBMISSION_STATUS.PUBLISHED;
     } else if (this.quickFilter === 'accepted') {
-      params.status = 'accepted';
+      params.status = SUBMISSION_STATUS.ACCEPTED;
+    } else if (this.quickFilter === 'rejected') {
+      params.status = SUBMISSION_STATUS.REJECTED;
+    } else if (this.quickFilter === 'draft') {
+      params.status = SUBMISSION_STATUS.DRAFT;
+    } else if (this.quickFilter === 'submitted') {
+      // The backend groups new/submitted and under-review statuses under several DB values
+      // Use the same multi-status query used by the pending-review list: pending_review,in_progress,resubmitted
+      params.status = `${SUBMISSION_STATUS.PENDING_REVIEW},${SUBMISSION_STATUS.IN_PROGRESS},${SUBMISSION_STATUS.RESUBMITTED}`;
     }
-    // For 'all', don't add status filter to get all submissions
-    
-    // Choose the appropriate API endpoint based on quick filter
-    const apiCall = this.quickFilter === 'published' 
+
+    // Debug: ensure params include expected status for submitted tab
+    console.log('📡 Loading submissions — quickFilter:', this.quickFilter, 'params:', params);
+
+    const apiCall = (this.quickFilter === 'published')
       ? this.backendService.getPublishedContent(params.type || '', params)
       : this.backendService.getSubmissions(params);
     
@@ -192,6 +309,11 @@ export class PublishedPostsComponent implements OnInit {
         this.publishedSubmissions = [...submissions];
         this.filteredSubmissions = [...submissions];
         this.totalCount = data.total || data.pagination?.total || 0;
+
+        // Update per-tab counts so the template can show a small Total chip
+        // Use the returned total if provided, otherwise fall back to the page's array length
+        this.tabCounts[this.quickFilter] = this.totalCount || submissions.length || 0;
+
         this.totalPages = Math.ceil(this.totalCount / this.itemsPerPage);
         this.hasMore = data.pagination?.hasMore || false;
         this.updatePaginationConfig();
@@ -208,33 +330,35 @@ export class PublishedPostsComponent implements OnInit {
     });
   }
 
+  // Helper used by the template to render per-tab counts (safe fallback to 0)
+  getTabCount(tabId: string): number {
+    return this.tabCounts[tabId] || 0;
+  }
+
   setQuickFilter(filter: 'published' | 'all' | 'accepted') {
-    console.log('🎯 Quick filter changed to:', filter);
-    this.quickFilter = filter;
-    this.currentPage = 1; // Reset to first page
-    this.loading = true; // Show loading state
-    this.loadPublishedSubmissions();
+    console.log('🎯 Quick filter changed to legacy filter:', filter);
+    // legacy helper — map to supported tab values when used
+    if (filter === 'published') this.onTabChange('published');
+    else if (filter === 'accepted') this.onTabChange('accepted');
+    else this.onTabChange('published');
   }
 
   getAvailableStatuses() {
+    // Return an array of statuses to populate the status filter. Empty array hides the status filter.
     switch (this.quickFilter) {
       case 'published':
-        return [SUBMISSION_STATUS.PUBLISHED];
+        return []; // all rows are published — no status filter
       case 'accepted':
-        return [SUBMISSION_STATUS.ACCEPTED];
-      case 'all':
-        return [
-          SUBMISSION_STATUS.SUBMITTED,
-          SUBMISSION_STATUS.PENDING_REVIEW,
-          SUBMISSION_STATUS.IN_PROGRESS,
-          SUBMISSION_STATUS.SHORTLISTED,
-          SUBMISSION_STATUS.ACCEPTED,
-          SUBMISSION_STATUS.PUBLISHED,
-          SUBMISSION_STATUS.REJECTED,
-          SUBMISSION_STATUS.NEEDS_REVISION
-        ];
+        return []; // accepted list shouldn't surface a status filter
+      case 'draft':
+        return [SUBMISSION_STATUS.DRAFT];
+      case 'rejected':
+        return [SUBMISSION_STATUS.REJECTED];
+      case 'submitted':
+        // Show the underlying statuses covered by the "New" tab so the status filter can be adjusted
+        return [SUBMISSION_STATUS.PENDING_REVIEW, SUBMISSION_STATUS.IN_PROGRESS, SUBMISSION_STATUS.RESUBMITTED];
       default:
-        return [SUBMISSION_STATUS.PUBLISHED, SUBMISSION_STATUS.ACCEPTED];
+        return [];
     }
   }
 
@@ -521,56 +645,12 @@ export class PublishedPostsComponent implements OnInit {
   }
 
   calculateStats() {
-    // Note: In the future, these stats should come from the API response
-    // For now, we calculate basic stats from the current page data
-    if (!this.publishedSubmissions.length) {
-      this.stats = [];
-      return;
-    }
-
-    const totalViews = this.publishedSubmissions.reduce((sum, submission) => {
-      return sum + (submission.viewCount || 0);
-    }, 0);
-
-    const averageViews = this.publishedSubmissions.length > 0 
-      ? Math.round(totalViews / this.publishedSubmissions.length) 
-      : 0;
-
-    const trendingPosts = this.publishedSubmissions.filter(submission => {
-      const recentViews = submission.recentViews || 0;
-      const totalViews = submission.viewCount || 0;
-      return recentViews >= 10 && totalViews > 0 && (recentViews / totalViews) >= 0.3;
-    }).length;
-
-    const featuredCount = this.publishedSubmissions.filter(submission => 
-      submission.featured === true
-    ).length;
-
+    // Simplify stats to a single Total metric per tab
     this.stats = [
       {
-        label: 'Total Published',
+        label: 'Total',
         value: this.totalCount.toLocaleString(),
         color: '#3b82f6'
-      },
-      {
-        label: 'Total Views',
-        value: totalViews.toLocaleString(),
-        color: '#10b981'
-      },
-      {
-        label: 'Avg Views/Post',
-        value: averageViews.toLocaleString(),
-        color: '#f59e0b'
-      },
-      {
-        label: 'Trending Posts',
-        value: trendingPosts.toString(),
-        color: '#ef4444'
-      },
-      {
-        label: 'Featured Content',
-        value: featuredCount.toString(),
-        color: '#8b5cf6'
       }
     ];
   }
@@ -772,6 +852,32 @@ export class PublishedPostsComponent implements OnInit {
         console.error('❌ User search error:', err);
         console.error('❌ Full error:', JSON.stringify(err, null, 2));
         // Keep existing users on error
+      }
+    });
+  }
+
+  // Navigate to review interface for a submission
+  reviewSubmission(submission: any) {
+    // submission can be an object or id
+    const id = typeof submission === 'string' ? submission : submission._id;
+    this.router.navigate(['/review-submission', id]);
+  }
+
+  // Move an accepted submission back to review (pending_review)
+  backToReview(submissionId: string, title: string) {
+    if (!confirm(`Move "${title}" back to review? This will set the submission status to Under Review.`)) {
+      return;
+    }
+
+    this.backendService.updateSubmissionStatus(submissionId, SUBMISSION_STATUS.PENDING_REVIEW).subscribe({
+      next: (res:any) => {
+        this.showSuccess('Submission moved back to review');
+        // Update local state if present
+        const sub = this.publishedSubmissions.find(s => s._id === submissionId);
+        if (sub) sub.status = SUBMISSION_STATUS.PENDING_REVIEW;
+      },
+      error: (err:any) => {
+        this.showError('Failed to move submission back to review');
       }
     });
   }

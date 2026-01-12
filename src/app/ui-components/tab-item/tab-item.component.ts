@@ -21,6 +21,8 @@ import { TabsComponent } from '../tabs/tabs.component';
       [class.hover:border-primary]="!disabled && !isActive">
       <ng-content select="[icon]"></ng-content>
       <span>{{ label }}</span>
+      <!-- allow additional projected content (e.g. a small count chip) -->
+      <ng-content></ng-content>
     </button>
   `,
   styles: []

@@ -1,4 +1,4 @@
-<div class="w-full">
+<div class="w-full max-w-screen-xl mx-auto px-6 sm:px-8 md:px-10 mt-6"> 
   <!-- Standardized Header -->
   <app-admin-page-header
     title="Submissions Management"
@@ -8,24 +8,28 @@
     (onRefresh)="onRefresh()">
   </app-admin-page-header>
 
-  <!-- Quick Filter Tabs -->
-  <div class="mb-6">
-    <div class="flex flex-wrap gap-2 sm:gap-4">
-      <app-button variant="tertiary" (click)="setQuickFilter('all')">All</app-button>
-      <app-button variant="tertiary" (click)="setQuickFilter('published')">Published</app-button>
-      <app-button variant="tertiary" (click)="setQuickFilter('accepted')">Accepted</app-button>
-      
-    </div>
+  <!-- Top Tabs: New / Accepted / Published / Drafts / Rejected -->
+  <div class="mb-6 published-posts-tabs">
+    <app-tabs [(activeTab)]="activeTab" (tabChange)="onTabChange($event)">
+      <app-tab-item tabId="submitted" label="New"></app-tab-item>
+      <app-tab-item tabId="accepted" label="Accepted"></app-tab-item>
+      <app-tab-item tabId="published" label="Published"></app-tab-item>
+      <app-tab-item tabId="draft" label="Drafts"></app-tab-item>
+      <app-tab-item tabId="rejected" label="Rejected"></app-tab-item>
+    </app-tabs>
   </div>
 
   <!-- Filter Component -->
-  <app-simple-submission-filter 
-    [availableStatuses]="getAvailableStatuses()"
-    [availableTypes]="['opinion', 'poem', 'prose', 'article', 'book_review', 'cinema_essay']"
-    [showSortOptions]="true"
-    [sortField]="'reviewedAt'"
-    (filterChange)="onFilterChange($event)">
-  </app-simple-submission-filter>
+  <div class="published-posts-filters mb-4">
+    <app-simple-submission-filter 
+      [compact]="true"
+      [availableStatuses]="getAvailableStatuses()"
+      [availableTypes]="['opinion', 'poem', 'prose', 'article', 'book_review', 'cinema_essay']"
+      [showSortOptions]="true"
+      [sortField]="'reviewedAt'"
+      (filterChange)="onFilterChange($event)">
+    </app-simple-submission-filter>
+  </div>
 
   <!-- Selection Info -->
   @if (selectedSubmissions.size > 0) {
@@ -33,7 +37,7 @@
       {{ selectedSubmissions.size }} submission(s) selected
     </div>
   }
-  
+
   <!-- Message -->
   @if (message) {
     <div class="mb-6 p-4 rounded-lg" [ngClass]="{
@@ -45,8 +49,8 @@
     </div>
   }
 
-  <!-- Bulk Actions Bar (Only show when "All Submissions" filter is active) -->
-  @if (showBulkActions && quickFilter === 'all') {
+  <!-- Bulk Actions Bar (Only show when certain tabs allow bulk actions) -->
+  @if (showBulkActions && quickFilter === 'published') {
     <div class="mb-6 p-4 bg-primary-light border border-neutral-300 rounded-lg">
       <div class="flex items-center justify-between flex-wrap gap-4">
         <div class="flex items-center gap-4">
@@ -95,7 +99,7 @@
     [actions]="actions"
     [loading]="loading"
     loadingText="Loading submissions..."
-    [selectable]="quickFilter === 'all'"
+    [selectable]="true"
     [selectedItems]="selectedSubmissionsArray"
     [rowClickable]="true"
     [pagination]="paginationConfig"
@@ -105,7 +109,7 @@
     (onSelectionChange)="onSelectionChange($event)"
     (onPageChange)="onTablePageChange($event)"
     (onSort)="onTableSort($event)">
-    
+
     <!-- Custom Cell Template -->
     <ng-template #customCell let-item let-column="column">
       @switch (column.key) {
@@ -124,7 +128,8 @@
         }
         @case ('submissionType') {
           <div class="flex flex-col gap-1">
-            <app-badge-label [type]="item.submissionType" variant="big-red"></app-badge-label>
+            <!-- Use a smaller 'soft' variant for the Published tab list to match the submission-type badge style -->
+            <app-badge-label [type]="item.submissionType" variant="soft"></app-badge-label>
              @if (item.isFeatured) {
                <span class="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-yellow-50 text-amber-700 border border-yellow-200">
                  ⭐
@@ -133,8 +138,9 @@
            </div>
          }
         @case ('status') {
-          <span [class]="getBadgeClass(item.status)">
-            {{ (item.status | prettyLabel) || 'Unknown' }}
+          <!-- Ensure published rows always show Published status when the API omits status -->
+          <span [class]="getBadgeClass(item.status || (quickFilter === 'published' ? SUBMISSION_STATUS.PUBLISHED : ''))">
+            {{ ((item.status || (quickFilter === 'published' ? SUBMISSION_STATUS.PUBLISHED : '')) | prettyLabel) || 'Unknown' }}
           </span>
         }
         @case ('stats') {
