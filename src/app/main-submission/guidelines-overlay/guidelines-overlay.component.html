@@ -1,1052 +1,152 @@
-<!-- Overlay Mode -->
-@if (!isInline) {
-  <div class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4"
-    (click)="closeOverlay($event)">
-    <!-- Modal Container -->
-    <div class="bg-white border border-gray-200 rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden"
-      (click)="$event.stopPropagation()">
-      <!-- Header -->
-      <div class="bg-gradient-to-r from-primary-hover to-error text-white p-6">
-        <div class="flex items-center justify-between">
-          <div>
-            <h2 class="text-2xl font-bold">Welcome to Poems India!</h2>
-            <p class="text-primary-light mt-1">
-              We're excited to read your work! Here's everything you need to know about submitting.
-            </p>
+<div class="max-w-5xl w-full mx-auto px-4 sm:px-6 md:px-6 lg:px-8 py-12 text-gray-800 leading-relaxed space-y-12">
+
+  <!-- General Rules -->
+  <section class="bg-white shadow-sm rounded-lg p-6">
+    <h2 class="guideline-heading flex items-center gap-2 text-lg font-semibold">
+      <svg class="h-5 w-5 text-indigo-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M12 20v-6" />
+        <path d="M21 7L12 2 3 7v11a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2z" />
+      </svg>
+      General Rules
+    </h2>
+    <ul class="guideline-list mt-4 space-y-2 list-inside list-disc text-gray-700">
+      <li><strong>Original work only</strong>. All submissions must be original and unpublished.</li>
+      <li><em>Simultaneous submissions are allowed</em>. Please <strong>inform us</strong> if accepted elsewhere.</li>
+      <li>Please <strong>proofread</strong> your work before submitting.</li>
+    </ul>
+  </section>
+
+  <!-- Word Limits -->
+  <section>
+    <h2 class="guideline-heading flex items-center gap-2 text-lg font-semibold">
+      <svg class="h-5 w-5 text-yellow-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M8 6h13" />
+        <path d="M8 12h13" />
+        <path d="M8 18h13" />
+        <path d="M3 6h.01M3 12h.01M3 18h.01" />
+      </svg>
+      Word Limits
+    </h2>
+
+    <div class="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div class="bg-white shadow-sm rounded-lg p-4">
+        <dl class="divide-y divide-gray-100">
+          <div class="py-3 flex justify-between text-gray-700">
+            <dt class="font-medium">Poetry</dt>
+            <dd class="font-semibold">Up to 3 poems</dd>
           </div>
-          <button
-            (click)="close.emit()"
-            class="text-white hover:text-primary-light transition-colors duration-200"
-            >
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-            </svg>
-          </button>
-        </div>
+          <div class="py-3 flex justify-between text-gray-700">
+            <dt class="font-medium">Prose</dt>
+            <dd>No word limit</dd>
+          </div>
+          <div class="py-3 flex justify-between text-gray-700">
+            <dt class="font-medium">Articles & Cinema Essays</dt>
+            <dd class="font-semibold">Min 1,000 words</dd>
+          </div>
+          <div class="py-3 flex justify-between text-gray-700">
+            <dt class="font-medium">Opinion</dt>
+            <dd class="font-semibold">Min 500 words</dd>
+          </div>
+        </dl>
       </div>
-      <!-- Content -->
-      <div class="overflow-y-auto max-h-[calc(90vh-140px)] p-6">
-        <!-- General Guidelines -->
-        <section class="mb-8">
-          <h3 class="text-xl font-semibold text-gray-900 mb-4 flex items-center">
-            <svg class="w-6 h-6 mr-2 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-            </svg>
-            General Guidelines
-          </h3>
-          <div class="space-y-3 text-gray-900-secondary">
-            <p>• All submissions must be <strong>original work</strong> by the author</p>
-            <p>• Previously published work will not be accepted</p>
-            <p>• Please ensure your work is properly proofread before submission</p>
-            <p>• We accept simultaneous submissions but please notify us if your work is accepted elsewhere</p>
-            <p>• <strong>Response times:</strong></p>
-            <div class="ml-4 space-y-1">
-              <p>- Poetry & Prose: <strong>3 weeks</strong></p>
-              <p>- Articles & Cinema Essays: <strong>1 week</strong></p>
-              <p>- Opinion pieces: <strong class="text-primary">24-48 hours</strong></p>
-            </div>
-          </div>
-        </section>
-        <!-- Content-Specific Guidelines -->
-        <section class="mb-8">
-          <h3 class="text-xl font-semibold text-gray-900 mb-4 flex items-center">
-            <svg class="w-6 h-6 mr-2 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
-            </svg>
-            Content-Specific Guidelines
-          </h3>
-          <div class="grid md:grid-cols-2 gap-6">
-            <!-- Poetry -->
-            <div class="bg-white-secondary rounded-lg p-4 border border-gray-200">
-              <h4 class="font-semibold text-primary mb-2 flex items-center">
-                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
-                </svg>
-                Poetry
-              </h4>
-              <ul class="text-sm text-gray-900-secondary space-y-1">
-                <li>• Submit up to <strong>3 poems</strong> per submission</li>
-                <li>• Any style or form welcome</li>
-                <li>• No maximum line limit per poem</li>
-              </ul>
-            </div>
-            <!-- Articles -->
-            <div class="bg-white-secondary rounded-lg p-4 border border-gray-200">
-              <h4 class="font-semibold text-primary mb-2 flex items-center">
-                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4 0V6a2 2 0 00-2-2H5a2 2 0 00-2 2v3m2 5h10m-5-3h5"></path>
-                </svg>
-                Articles
-              </h4>
-              <ul class="text-sm text-gray-900-secondary space-y-1">
-                <li>• Minimum <strong>1,000 words</strong> (no maximum limit)</li>
-                <li>• Well-researched and fact-checked</li>
-                <li>• Include citations for sources</li>
-              </ul>
-            </div>
-            <!-- Cinema Essays -->
-            <div class="bg-white-secondary rounded-lg p-4 border border-gray-200">
-              <h4 class="font-semibold text-primary mb-2 flex items-center">
-                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 4V2a1 1 0 011-1h8a1 1 0 011 1v2h3a2 2 0 012 2v11a3 3 0 01-3 3H5a3 3 0 01-3-3V6a2 2 0 012-2h3z"></path>
-                </svg>
-                Cinema Essays
-              </h4>
-              <ul class="text-sm text-gray-900-secondary space-y-1">
-                <li>• Minimum <strong>1,000 words</strong> (no maximum limit)</li>
-                <li>• Focus on film analysis and critique</li>
-                <li>• Academic or journalistic style</li>
-              </ul>
-            </div>
-            <!-- Prose -->
-            <div class="bg-white-secondary rounded-lg p-4 border border-gray-200">
-              <h4 class="font-semibold text-primary mb-2 flex items-center">
-                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                </svg>
-                Prose
-              </h4>
-              <ul class="text-sm text-gray-900-secondary space-y-1">
-                <li>• No word limit restrictions</li>
-                <li>• Creative non-fiction</li>
-                <li>• Strong narrative voice</li>
-              </ul>
-            </div>
-            <!-- Opinion -->
-            <div class="bg-white-secondary rounded-lg p-4 border border-gray-200">
-              <h4 class="font-semibold text-primary mb-2 flex items-center">
-                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
-                </svg>
-                Opinion
-              </h4>
-              <ul class="text-sm text-gray-900-secondary space-y-1">
-                <li>• Minimum <strong>500 words</strong></li>
-                <li>• Personal perspectives and viewpoints</li>
-                <li>• Contemporary issues and topics</li>
-                <li>• <strong class="text-primary">Fast track: 24-48 hours response</strong></li>
-              </ul>
-            </div>
-          </div>
-        </section>
-        <!-- Submission Process -->
-        <section class="mb-8">
-          <h3 class="text-xl font-semibold text-gray-900 mb-4 flex items-center">
-            <svg class="w-6 h-6 mr-2 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
-            </svg>
-            Submission Process
-          </h3>
-          <div class="bg-white-secondary rounded-lg p-4 border border-gray-200">
-            <ol class="text-gray-900-secondary space-y-2">
-              <li class="flex items-start">
-                <span class="flex-shrink-0 w-6 h-6 bg-primary text-white text-sm rounded-full flex items-center justify-center mr-3 mt-0.5">1</span>
-                <span>Complete the submission form and submit your work</span>
-              </li>
-              <li class="flex items-start">
-                <span class="flex-shrink-0 w-6 h-6 bg-primary text-white text-sm rounded-full flex items-center justify-center mr-3 mt-0.5">2</span>
-                <span>Track your submission status through <strong>"My Submissions"</strong> in your profile</span>
-              </li>
-              <li class="flex items-start">
-                <span class="flex-shrink-0 w-6 h-6 bg-primary text-white text-sm rounded-full flex items-center justify-center mr-3 mt-0.5">3</span>
-                <span>Our editorial team will carefully evaluate your submission</span>
-              </li>
-              <li class="flex items-start">
-                <span class="flex-shrink-0 w-6 h-6 bg-primary text-white text-sm rounded-full flex items-center justify-center mr-3 mt-0.5">4</span>
-                <span>Upon acceptance, you'll receive an email notification</span>
-              </li>
-              <li class="flex items-start">
-                <span class="flex-shrink-0 w-6 h-6 bg-primary text-white text-sm rounded-full flex items-center justify-center mr-3 mt-0.5">5</span>
-                <span>If revisions are requested, please respond within <strong>72 hours</strong></span>
-              </li>
-            </ol>
-          </div>
-        </section>
-        <!-- Rights and Legal -->
-        <section class="mb-8">
-          <h3 class="text-xl font-semibold text-gray-900 mb-4 flex items-center">
-            <svg class="w-6 h-6 mr-2 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
-            </svg>
-            Rights & Legal
-          </h3>
-          <div class="space-y-3 text-gray-900-secondary">
-            <p>• By submitting, you confirm that you own the rights to your work</p>
-            <p>• You retain copyright to your work</p>
-            <p>• If accepted, we request first publication rights</p>
-            <p>• You may withdraw your submission at any time before publication</p>
-            <p>• We reserve the right to make minor editorial changes</p>
-          </div>
-        </section>
-        <!-- Editorial Guidelines -->
-        <section class="mb-8">
-          <h3 class="text-xl font-semibold text-gray-900 mb-4 flex items-center">
-            <svg class="w-6 h-6 mr-2 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-            </svg>
-            Editorial Guidelines
-          </h3>
-          
-          <!-- Tabs -->
-          <div class="flex space-x-1 mb-6 bg-gray-100 dark:bg-gray-800 rounded-lg p-1">
-            <button 
-              class="flex-1 py-2 px-4 text-sm font-medium rounded-md transition-colors duration-200"
-              [class.bg-green-600]="activeTab === 'green'"
-              [class.text-white]="activeTab === 'green'"
-              [class.text-gray-600]="activeTab !== 'green'"
-              [class.hover:text-gray-900]="activeTab !== 'green'"
-              [class.dark:text-gray-300]="activeTab !== 'green'"
-              [class.dark:hover:text-white]="activeTab !== 'green'"
-              (click)="switchTab('green')"
-            >
-              <span class="flex items-center justify-center">
-                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                </svg>
-                What We Look For
-              </span>
-            </button>
-            <button 
-              class="flex-1 py-2 px-4 text-sm font-medium rounded-md transition-colors duration-200"
-              [class.bg-red-600]="activeTab === 'red'"
-              [class.text-white]="activeTab === 'red'"
-              [class.text-gray-600]="activeTab !== 'red'"
-              [class.hover:text-gray-900]="activeTab !== 'red'"
-              [class.dark:text-gray-300]="activeTab !== 'red'"
-              [class.dark:hover:text-white]="activeTab !== 'red'"
-              (click)="switchTab('red')"
-            >
-              <span class="flex items-center justify-center">
-                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
-                </svg>
-                Red Flags to Avoid
-              </span>
-            </button>
-          </div>
 
-          <!-- Green Flags Content -->
-          <div *ngIf="activeTab === 'green'" class="tab-content">
-            <div class="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-lg p-6 border border-green-200 dark:border-green-800">
-              <div class="grid md:grid-cols-2 gap-4">
-                <div class="space-y-4">
-                  <div class="flex items-start space-x-3">
-                    <div class="w-6 h-6 bg-green-600 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                      <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                      </svg>
-                    </div>
-                    <div>
-                      <h4 class="font-semibold text-green-900 dark:text-green-100 mb-1">Authentic Voice</h4>
-                      <p class="text-sm text-green-800 dark:text-green-200">Poems that sound like an actual person, not "A Poet" - with natural speech patterns and genuine personality.</p>
-                    </div>
-                  </div>
-                  <div class="flex items-start space-x-3">
-                    <div class="w-6 h-6 bg-green-600 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                      <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                      </svg>
-                    </div>
-                    <div>
-                      <h4 class="font-semibold text-green-900 dark:text-green-100 mb-1">Lived Specificity</h4>
-                      <p class="text-sm text-green-800 dark:text-green-200">Concrete details from real experience - your grandmother's exact kitchen, not generic "elderly wisdom."</p>
-                    </div>
-                  </div>
-                  <div class="flex items-start space-x-3">
-                    <div class="w-6 h-6 bg-green-600 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                      <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                      </svg>
-                    </div>
-                    <div>
-                      <h4 class="font-semibold text-green-900 dark:text-green-100 mb-1">Productive Messiness</h4>
-                      <p class="text-sm text-green-800 dark:text-green-200">Beautiful imperfection where language struggles in interesting ways, creating unexpected meaning.</p>
-                    </div>
-                  </div>
-                  <div class="flex items-start space-x-3">
-                    <div class="w-6 h-6 bg-green-600 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                      <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                      </svg>
-                    </div>
-                    <div>
-                      <h4 class="font-semibold text-green-900 dark:text-green-100 mb-1">Risk-Taking</h4>
-                      <p class="text-sm text-green-800 dark:text-green-200">Willingness to fail interestingly - whether through form, subject, or approach.</p>
-                    </div>
-                  </div>
-                  <div class="flex items-start space-x-3">
-                    <div class="w-6 h-6 bg-green-600 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                      <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                      </svg>
-                    </div>
-                    <div>
-                      <h4 class="font-semibold text-green-900 dark:text-green-100 mb-1">Emotional Complexity</h4>
-                      <p class="text-sm text-green-800 dark:text-green-200">Feelings that resist easy labels - love mixed with resentment, joy tinged with fear.</p>
-                    </div>
-                  </div>
-                </div>
-                <div class="space-y-4">
-                  <div class="flex items-start space-x-3">
-                    <div class="w-6 h-6 bg-green-600 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                      <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                      </svg>
-                    </div>
-                    <div>
-                      <h4 class="font-semibold text-green-900 dark:text-green-100 mb-1">Fresh Imagery</h4>
-                      <p class="text-sm text-green-800 dark:text-green-200">Original metaphors that surprise rather than decorate; connections we haven't seen before.</p>
-                    </div>
-                  </div>
-                  <div class="flex items-start space-x-3">
-                    <div class="w-6 h-6 bg-green-600 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                      <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                      </svg>
-                    </div>
-                    <div>
-                      <h4 class="font-semibold text-green-900 dark:text-green-100 mb-1">Cultural Specificity</h4>
-                      <p class="text-sm text-green-800 dark:text-green-200">Details that reveal your actual world, background, and lived experience.</p>
-                    </div>
-                  </div>
-                  <div class="flex items-start space-x-3">
-                    <div class="w-6 h-6 bg-green-600 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                      <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                      </svg>
-                    </div>
-                    <div>
-                      <h4 class="font-semibold text-green-900 dark:text-green-100 mb-1">Natural Line Breaks</h4>
-                      <p class="text-sm text-green-800 dark:text-green-200">Breaks that serve meaning and breath, not just making text look "poetic."</p>
-                    </div>
-                  </div>
-                  <div class="flex items-start space-x-3">
-                    <div class="w-6 h-6 bg-green-600 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                      <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                      </svg>
-                    </div>
-                    <div>
-                      <h4 class="font-semibold text-green-900 dark:text-green-100 mb-1">Earned Difficulty</h4>
-                      <p class="text-sm text-green-800 dark:text-green-200">Complexity that serves the poem's needs, not showing off.</p>
-                    </div>
-                  </div>
-                  <div class="flex items-start space-x-3">
-                    <div class="w-6 h-6 bg-green-600 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                      <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                      </svg>
-                    </div>
-                    <div>
-                      <h4 class="font-semibold text-green-900 dark:text-green-100 mb-1">Surprising Turns</h4>
-                      <p class="text-sm text-green-800 dark:text-green-200">Moments that surprise even you as the writer; unexpected directions that feel inevitable in hindsight.</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Red Flags Content -->
-          <div *ngIf="activeTab === 'red'" class="tab-content">
-            <div class="bg-gradient-to-br from-red-50 to-rose-50 dark:from-red-900/20 dark:to-rose-900/20 rounded-lg p-6 border border-red-200 dark:border-red-800">
-              <div class="grid md:grid-cols-2 gap-4">
-                <div class="space-y-4">
-                  <div class="flex items-start space-x-3">
-                    <div class="w-6 h-6 bg-red-600 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                      <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                      </svg>
-                    </div>
-                    <div>
-                      <h4 class="font-semibold text-red-900 dark:text-red-100 mb-1">AI-Generated Perfection</h4>
-                      <p class="text-sm text-red-800 dark:text-red-200">Technically flawless but emotionally hollow - smooth, safe, and soulless.</p>
-                    </div>
-                  </div>
-                  <div class="flex items-start space-x-3">
-                    <div class="w-6 h-6 bg-red-600 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                      <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                      </svg>
-                    </div>
-                    <div>
-                      <h4 class="font-semibold text-red-900 dark:text-red-100 mb-1">Manufactured Metaphors</h4>
-                      <p class="text-sm text-red-800 dark:text-red-200">Forced comparisons chosen for cleverness rather than truth or emotional resonance.</p>
-                    </div>
-                  </div>
-                  <div class="flex items-start space-x-3">
-                    <div class="w-6 h-6 bg-red-600 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                      <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                      </svg>
-                    </div>
-                    <div>
-                      <h4 class="font-semibold text-red-900 dark:text-red-100 mb-1">Metaphor Overload</h4>
-                      <p class="text-sm text-red-800 dark:text-red-200">Too many competing images that muddle rather than clarify meaning.</p>
-                    </div>
-                  </div>
-                  <div class="flex items-start space-x-3">
-                    <div class="w-6 h-6 bg-red-600 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                      <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                      </svg>
-                    </div>
-                    <div>
-                      <h4 class="font-semibold text-red-900 dark:text-red-100 mb-1">Direct Plagiarism</h4>
-                      <p class="text-sm text-red-800 dark:text-red-200">Copying others' work - we check, and we recognize lifted lines and concepts.</p>
-                    </div>
-                  </div>
-                  <div class="flex items-start space-x-3">
-                    <div class="w-6 h-6 bg-red-600 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                      <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                      </svg>
-                    </div>
-                    <div>
-                      <h4 class="font-semibold text-red-900 dark:text-red-100 mb-1">Concept Theft</h4>
-                      <p class="text-sm text-red-800 dark:text-red-200">Stealing unique structural ideas or approaches while changing surface words.</p>
-                    </div>
-                  </div>
-                  <div class="flex items-start space-x-3">
-                    <div class="w-6 h-6 bg-red-600 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                      <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                      </svg>
-                    </div>
-                    <div>
-                      <h4 class="font-semibold text-red-900 dark:text-red-100 mb-1">Clichéd Language</h4>
-                      <p class="text-sm text-red-800 dark:text-red-200">Roses are red territory; hearts like glass; dancing in rain; time healing wounds.</p>
-                    </div>
-                  </div>
-                  <div class="flex items-start space-x-3">
-                    <div class="w-6 h-6 bg-red-600 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                      <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                      </svg>
-                    </div>
-                    <div>
-                      <h4 class="font-semibold text-red-900 dark:text-red-100 mb-1">Purple Prose</h4>
-                      <p class="text-sm text-red-800 dark:text-red-200">Overly ornate language prioritizing "sounding poetic" over actual communication.</p>
-                    </div>
-                  </div>
-                </div>
-                <div class="space-y-4">
-                  <div class="flex items-start space-x-3">
-                    <div class="w-6 h-6 bg-red-600 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                      <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                      </svg>
-                    </div>
-                    <div>
-                      <h4 class="font-semibold text-red-900 dark:text-red-100 mb-1">Vague Abstraction</h4>
-                      <p class="text-sm text-red-800 dark:text-red-200">Heavy use of "soul," "beauty," "eternity" without concrete grounding.</p>
-                    </div>
-                  </div>
-                  <div class="flex items-start space-x-3">
-                    <div class="w-6 h-6 bg-red-600 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                      <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                      </svg>
-                    </div>
-                    <div>
-                      <h4 class="font-semibold text-red-900 dark:text-red-100 mb-1">Forced Rhyme</h4>
-                      <p class="text-sm text-red-800 dark:text-red-200">Distorting natural syntax or choosing weaker words just to maintain rhyme scheme.</p>
-                    </div>
-                  </div>
-                  <div class="flex items-start space-x-3">
-                    <div class="w-6 h-6 bg-red-600 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                      <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                      </svg>
-                    </div>
-                    <div>
-                      <h4 class="font-semibold text-red-900 dark:text-red-100 mb-1">Emotional Telling</h4>
-                      <p class="text-sm text-red-800 dark:text-red-200">Declaring feelings ("I was sad") instead of creating experiences that evoke them.</p>
-                    </div>
-                  </div>
-                  <div class="flex items-start space-x-3">
-                    <div class="w-6 h-6 bg-red-600 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                      <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                      </svg>
-                    </div>
-                    <div>
-                      <h4 class="font-semibold text-red-900 dark:text-red-100 mb-1">Heavy-Handed Symbolism</h4>
-                      <p class="text-sm text-red-800 dark:text-red-200">Over-explaining obvious symbols; not trusting reader intelligence.</p>
-                    </div>
-                  </div>
-                  <div class="flex items-start space-x-3">
-                    <div class="w-6 h-6 bg-red-600 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                      <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                      </svg>
-                    </div>
-                    <div>
-                      <h4 class="font-semibold text-red-900 dark:text-red-100 mb-1">Inconsistent Voice</h4>
-                      <p class="text-sm text-red-800 dark:text-red-200">Switching between registers without purpose; losing yourself trying to sound literary.</p>
-                    </div>
-                  </div>
-                  <div class="flex items-start space-x-3">
-                    <div class="w-6 h-6 bg-red-600 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                      <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                      </svg>
-                    </div>
-                    <div>
-                      <h4 class="font-semibold text-red-900 dark:text-red-100 mb-1">Template Poetry</h4>
-                      <p class="text-sm text-red-800 dark:text-red-200">Filling in Mad Libs-style structures; formulaic approaches to "deep" subjects.</p>
-                    </div>
-                  </div>
-                  <div class="flex items-start space-x-3">
-                    <div class="w-6 h-6 bg-red-600 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                      <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                      </svg>
-                    </div>
-                    <div>
-                      <h4 class="font-semibold text-red-900 dark:text-red-100 mb-1">Performative Depth</h4>
-                      <p class="text-sm text-red-800 dark:text-red-200">Generic profundity that sounds meaningful but says nothing specific.</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-        </section>
-        <!-- Contact Information -->
-        <section class="mb-6">
-          <h3 class="text-xl font-semibold text-gray-900 mb-4 flex items-center">
-            <svg class="w-6 h-6 mr-2 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
-            </svg>
-            Questions?
-          </h3>
-          <div class="bg-white-secondary rounded-lg p-4 border border-gray-200">
-            <p class="text-gray-900 mb-2">
-              We're here to help! If you have any questions about submitting your work, please feel free to reach out:
-            </p>
-            <p class="text-gray-900-secondary">
-              <strong>Email:</strong> poemsindia&#64;gmail.com<br>
-              <strong>Response time:</strong> We typically respond to inquiries within 2-3 business days
-            </p>
-          </div>
-        </section>
-      </div>
-      <!-- Footer -->
-      <div class="bg-white-secondary px-6 py-4 border-t border-gray-200">
-        <div class="flex justify-between items-center">
-          <p class="text-sm text-gray-900-tertiary">
-            Last updated: January 2025
-          </p>
-          <button
-            (click)="close.emit()"
-            class="btn-primary"
-            >
-            Got it!
-          </button>
-        </div>
+      <div class="bg-white shadow-sm rounded-lg p-4">
+        <h3 class="text-sm font-medium text-gray-600">Notes</h3>
+        <ul class="mt-3 space-y-2 text-gray-700 list-inside list-disc">
+          <li>Poetry: No line limit. Submit separate files for each poem when possible.</li>
+          <li>Prose: Creative nonfiction preferred. Keep readability in mind.</li>
+          <li>Articles & Cinema Essays: Citations required for factual claims.</li>
+          <li>Opinion: Contemporary issues only.</li>
+        </ul>
       </div>
     </div>
-  </div>
-}
+  </section>
 
-<!-- Inline Mode -->
-@if (isInline) {
-  <div class="w-full">
-    <!-- Content -->
-    <div class="space-y-12">
-      <!-- General Guidelines -->
-      <div class="bg-white border border-gray-200 rounded-3xl p-8 shadow-xl">
-        <h2 class="text-2xl font-semibold text-gray-900 mb-6 text-center">General Guidelines</h2>
-        <div class="space-y-4 text-gray-900-secondary text-lg leading-relaxed">
-          <p>• All submissions must be <strong>original work</strong> by the author</p>
-          <p>• Previously published work will not be accepted</p>
-          <p>• Please ensure your work is properly proofread before submission</p>
-          <p>• We accept simultaneous submissions but please notify us if your work is accepted elsewhere</p>
-          <p>• <strong>Response times:</strong></p>
-          <div class="ml-4 space-y-1">
-            <p>- Poetry & Prose: <strong>3 weeks</strong></p>
-            <p>- Articles & Cinema Essays: <strong>1 week</strong></p>
-            <p>- Opinion pieces: <strong class="text-primary">24-48 hours</strong></p>
-          </div>
-        </div>
-      </div>
-      <!-- Content-Specific Guidelines -->
-      <div class="bg-white border border-gray-200 rounded-3xl p-8 shadow-xl">
-        <h2 class="text-2xl font-semibold text-gray-900 mb-8 text-center">Content-Specific Guidelines</h2>
-        <div class="grid md:grid-cols-2 gap-8">
-          <!-- Poetry -->
-          <div class="bg-white-secondary rounded-2xl p-6 border border-gray-200 text-center">
-            <div class="w-16 h-16 bg-white-accent rounded-2xl flex items-center justify-center mx-auto mb-4">
-              <svg class="w-8 h-8 text-gray-900-inverse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
-              </svg>
-            </div>
-            <h3 class="text-xl font-semibold text-gray-900 mb-4">Poetry</h3>
-            <ul class="text-gray-900-secondary space-y-2 text-left">
-              <li>• Submit up to <strong>3 poems</strong> per submission</li>
-              <li>• Any style or form welcome</li>
-              <li>• No maximum line limit per poem</li>
-            </ul>
-          </div>
-          <!-- Articles -->
-          <div class="bg-white-secondary rounded-2xl p-6 border border-gray-200 text-center">
-            <div class="w-16 h-16 bg-white-accent rounded-2xl flex items-center justify-center mx-auto mb-4">
-              <svg class="w-8 h-8 text-gray-900-inverse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4 0V6a2 2 0 00-2-2H5a2 2 0 00-2 2v3m2 5h10m-5-3h5"></path>
-              </svg>
-            </div>
-            <h3 class="text-xl font-semibold text-gray-900 mb-4">Articles</h3>
-            <ul class="text-gray-900-secondary space-y-2 text-left">
-              <li>• Minimum <strong>1,000 words</strong> (no maximum limit)</li>
-              <li>• Well-researched and fact-checked</li>
-              <li>• Include citations for sources</li>
-            </ul>
-          </div>
-          <!-- Cinema Essays -->
-          <div class="bg-white-secondary rounded-2xl p-6 border border-gray-200 text-center">
-            <div class="w-16 h-16 bg-white-accent rounded-2xl flex items-center justify-center mx-auto mb-4">
-              <svg class="w-8 h-8 text-gray-900-inverse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 4V2a1 1 0 011-1h8a1 1 0 011 1v2h3a2 2 0 012 2v11a3 3 0 01-3 3H5a3 3 0 01-3-3V6a2 2 0 012-2h3z"></path>
-              </svg>
-            </div>
-            <h3 class="text-xl font-semibold text-gray-900 mb-4">Cinema Essays</h3>
-            <ul class="text-gray-900-secondary space-y-2 text-left">
-              <li>• Minimum <strong>1,000 words</strong> (no maximum limit)</li>
-              <li>• Focus on film analysis and critique</li>
-              <li>• Academic or journalistic style</li>
-            </ul>
-          </div>
-          <!-- Prose -->
-          <div class="bg-white-secondary rounded-2xl p-6 border border-gray-200 text-center">
-            <div class="w-16 h-16 bg-white-accent rounded-2xl flex items-center justify-center mx-auto mb-4">
-              <svg class="w-8 h-8 text-gray-900-inverse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-              </svg>
-            </div>
-            <h3 class="text-xl font-semibold text-gray-900 mb-4">Prose</h3>
-            <ul class="text-gray-900-secondary space-y-2 text-left">
-              <li>• No word limit restrictions</li>
-              <li>• Creative non-fiction</li>
-              <li>• Strong narrative voice</li>
-            </ul>
-          </div>
-          <!-- Opinion -->
-          <div class="bg-white-secondary rounded-2xl p-6 border border-gray-200 text-center">
-            <div class="w-16 h-16 bg-white-accent rounded-2xl flex items-center justify-center mx-auto mb-4">
-              <svg class="w-8 h-8 text-gray-900-inverse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
-              </svg>
-            </div>
-            <h3 class="text-xl font-semibold text-gray-900 mb-4">Opinion</h3>
-            <ul class="text-gray-900-secondary space-y-2 text-left">
-              <li>• Minimum <strong>500 words</strong></li>
-              <li>• Personal perspectives and viewpoints</li>
-              <li>• Contemporary issues and topics</li>
-              <li>• <strong class="text-primary">Fast track: 24-48 hours response</strong></li>
-            </ul>
-          </div>
-        </div>
-      </div>
-      <!-- Submission Process -->
-      <div class="bg-white border border-gray-200 rounded-3xl p-8 shadow-xl">
-        <h2 class="text-2xl font-semibold text-gray-900 mb-8 text-center">Submission Process</h2>
-        <div class="space-y-6">
-          <div class="flex items-start space-x-4">
-            <div class="flex-shrink-0 w-12 h-12 bg-white-accent text-gray-900-inverse rounded-2xl flex items-center justify-center font-bold text-lg">1</div>
-            <div class="flex-1 pt-2">
-              <h3 class="font-semibold text-gray-900 mb-1">Complete and submit your work</h3>
-              <p class="text-gray-900-secondary">Fill out the submission form and submit your work</p>
-            </div>
-          </div>
-          <div class="flex items-start space-x-4">
-            <div class="flex-shrink-0 w-12 h-12 bg-white-accent text-gray-900-inverse rounded-2xl flex items-center justify-center font-bold text-lg">2</div>
-            <div class="flex-1 pt-2">
-              <h3 class="font-semibold text-gray-900 mb-1">Track your submission</h3>
-              <p class="text-gray-900-secondary">Monitor progress through <strong>"My Submissions"</strong> in your profile</p>
-            </div>
-          </div>
-          <div class="flex items-start space-x-4">
-            <div class="flex-shrink-0 w-12 h-12 bg-white-accent text-gray-900-inverse rounded-2xl flex items-center justify-center font-bold text-lg">3</div>
-            <div class="flex-1 pt-2">
-              <h3 class="font-semibold text-gray-900 mb-1">Editorial review</h3>
-              <p class="text-gray-900-secondary">Our team will carefully evaluate your submission</p>
-            </div>
-          </div>
-          <div class="flex items-start space-x-4">
-            <div class="flex-shrink-0 w-12 h-12 bg-white-accent text-gray-900-inverse rounded-2xl flex items-center justify-center font-bold text-lg">4</div>
-            <div class="flex-1 pt-2">
-              <h3 class="font-semibold text-gray-900 mb-1">Acceptance notification</h3>
-              <p class="text-gray-900-secondary">You'll receive an email notification upon acceptance</p>
-            </div>
-          </div>
-          <div class="flex items-start space-x-4">
-            <div class="flex-shrink-0 w-12 h-12 bg-white-accent text-gray-900-inverse rounded-2xl flex items-center justify-center font-bold text-lg">5</div>
-            <div class="flex-1 pt-2">
-              <h3 class="font-semibold text-gray-900 mb-1">Revision response</h3>
-              <p class="text-gray-900-secondary">If revisions are requested, please respond within <strong>72 hours</strong></p>
-            </div>
-          </div>
-        </div>
-      </div>
-      <!-- Editorial Guidelines -->
-      <div class="bg-white border border-gray-200 rounded-3xl p-8 shadow-xl">
-        <h2 class="text-2xl font-semibold text-gray-900 mb-8 text-center">Editorial Guidelines</h2>
-        
-        <!-- Tabs for inline mode -->
-        <div class="flex space-x-2 mb-8 bg-gray-100 dark:bg-gray-800 rounded-2xl p-2 max-w-md mx-auto">
-          <button 
-            class="flex-1 py-3 px-4 text-sm font-medium rounded-xl transition-colors duration-200"
-            [class.bg-green-600]="activeTab === 'green'"
-            [class.text-white]="activeTab === 'green'"
-            [class.text-gray-600]="activeTab !== 'green'"
-            [class.hover:text-gray-900]="activeTab !== 'green'"
-            [class.dark:text-gray-300]="activeTab !== 'green'"
-            [class.dark:hover:text-white]="activeTab !== 'green'"
-            (click)="switchTab('green')"
-          >
-            <span class="flex items-center justify-center">
-              <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-              </svg>
-              What We Look For
-            </span>
-          </button>
-          <button 
-            class="flex-1 py-3 px-4 text-sm font-medium rounded-xl transition-colors duration-200"
-            [class.bg-red-600]="activeTab === 'red'"
-            [class.text-white]="activeTab === 'red'"
-            [class.text-gray-600]="activeTab !== 'red'"
-            [class.hover:text-gray-900]="activeTab !== 'red'"
-            [class.dark:text-gray-300]="activeTab !== 'red'"
-            [class.dark:hover:text-white]="activeTab !== 'red'"
-            (click)="switchTab('red')"
-          >
-            <span class="flex items-center justify-center">
-              <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
-              </svg>
-              Red Flags to Avoid
-            </span>
-          </button>
-        </div>
+  <!-- Response Time -->
+  <section class="bg-white shadow-sm rounded-lg p-6">
+    <h2 class="guideline-heading flex items-center gap-2 text-lg font-semibold">
+      <svg class="h-5 w-5 text-pink-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <circle cx="12" cy="12" r="9"></circle>
+        <path d="M12 7v5l3 3"></path>
+      </svg>
+      Response Time
+    </h2>
+    <ul class="guideline-list mt-4 space-y-2 list-inside list-disc text-gray-700">
+      <li><strong>Poetry & Prose:</strong> up to <em>3 weeks</em></li>
+      <li><strong>Articles & Cinema Essays:</strong> around <em>1 week</em></li>
+      <li><strong>Opinion:</strong> <em>24–48 hours</em> (fast track)</li>
+    </ul>
+  </section>
 
-        <!-- Green Flags Content -->
-        <div *ngIf="activeTab === 'green'" class="inline-tab-content">
-          <div class="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-2xl p-8 border border-green-200 dark:border-green-800">
-            <div class="grid md:grid-cols-2 gap-6">
-              <div class="space-y-6">
-                <div class="flex items-start space-x-4">
-                  <div class="w-8 h-8 bg-green-600 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
-                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                    </svg>
-                  </div>
-                  <div>
-                    <h4 class="font-semibold text-green-900 dark:text-green-100 mb-2 text-lg">Authentic Voice</h4>
-                    <p class="text-green-800 dark:text-green-200">Poems that sound like an actual person, not "A Poet" - with natural speech patterns and genuine personality.</p>
-                  </div>
-                </div>
-                <div class="flex items-start space-x-4">
-                  <div class="w-8 h-8 bg-green-600 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
-                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                    </svg>
-                  </div>
-                  <div>
-                    <h4 class="font-semibold text-green-900 dark:text-green-100 mb-2 text-lg">Lived Specificity</h4>
-                    <p class="text-green-800 dark:text-green-200">Concrete details from real experience - your grandmother's exact kitchen, not generic "elderly wisdom."</p>
-                  </div>
-                </div>
-                <div class="flex items-start space-x-4">
-                  <div class="w-8 h-8 bg-green-600 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
-                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                    </svg>
-                  </div>
-                  <div>
-                    <h4 class="font-semibold text-green-900 dark:text-green-100 mb-2 text-lg">Productive Messiness</h4>
-                    <p class="text-green-800 dark:text-green-200">Beautiful imperfection where language struggles in interesting ways, creating unexpected meaning.</p>
-                  </div>
-                </div>
-                <div class="flex items-start space-x-4">
-                  <div class="w-8 h-8 bg-green-600 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
-                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                    </svg>
-                  </div>
-                  <div>
-                    <h4 class="font-semibold text-green-900 dark:text-green-100 mb-2 text-lg">Risk-Taking</h4>
-                    <p class="text-green-800 dark:text-green-200">Willingness to fail interestingly - whether through form, subject, or approach.</p>
-                  </div>
-                </div>
-                <div class="flex items-start space-x-4">
-                  <div class="w-8 h-8 bg-green-600 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
-                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                    </svg>
-                  </div>
-                  <div>
-                    <h4 class="font-semibold text-green-900 dark:text-green-100 mb-2 text-lg">Emotional Complexity</h4>
-                    <p class="text-green-800 dark:text-green-200">Feelings that resist easy labels - love mixed with resentment, joy tinged with fear.</p>
-                  </div>
-                </div>
-              </div>
-              <div class="space-y-6">
-                <div class="flex items-start space-x-4">
-                  <div class="w-8 h-8 bg-green-600 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
-                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                    </svg>
-                  </div>
-                  <div>
-                    <h4 class="font-semibold text-green-900 dark:text-green-100 mb-2 text-lg">Fresh Imagery</h4>
-                    <p class="text-green-800 dark:text-green-200">Original metaphors that surprise rather than decorate; connections we haven't seen before.</p>
-                  </div>
-                </div>
-                <div class="flex items-start space-x-4">
-                  <div class="w-8 h-8 bg-green-600 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
-                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                    </svg>
-                  </div>
-                  <div>
-                    <h4 class="font-semibold text-green-900 dark:text-green-100 mb-2 text-lg">Cultural Specificity</h4>
-                    <p class="text-green-800 dark:text-green-200">Details that reveal your actual world, background, and lived experience.</p>
-                  </div>
-                </div>
-                <div class="flex items-start space-x-4">
-                  <div class="w-8 h-8 bg-green-600 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
-                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                    </svg>
-                  </div>
-                  <div>
-                    <h4 class="font-semibold text-green-900 dark:text-green-100 mb-2 text-lg">Natural Line Breaks</h4>
-                    <p class="text-green-800 dark:text-green-200">Breaks that serve meaning and breath, not just making text look "poetic."</p>
-                  </div>
-                </div>
-                <div class="flex items-start space-x-4">
-                  <div class="w-8 h-8 bg-green-600 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
-                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                    </svg>
-                  </div>
-                  <div>
-                    <h4 class="font-semibold text-green-900 dark:text-green-100 mb-2 text-lg">Earned Difficulty</h4>
-                    <p class="text-green-800 dark:text-green-200">Complexity that serves the poem's needs, not showing off.</p>
-                  </div>
-                </div>
-                <div class="flex items-start space-x-4">
-                  <div class="w-8 h-8 bg-green-600 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
-                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                    </svg>
-                  </div>
-                  <div>
-                    <h4 class="font-semibold text-green-900 dark:text-green-100 mb-2 text-lg">Surprising Turns</h4>
-                    <p class="text-green-800 dark:text-green-200">Moments that surprise even you as the writer; unexpected directions that feel inevitable in hindsight.</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+  <!-- Tracking -->
+  <section>
+    <h2 class="guideline-heading flex items-center gap-2 text-lg font-semibold">
+      <svg class="h-5 w-5 text-blue-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M3 7h18" />
+        <path d="M5 7v10a2 2 0 0 0 2 2h10" />
+      </svg>
+      Tracking Your Submission
+    </h2>
+    <p class="mt-4">You can track the status of your submission under <strong>“My Submissions”</strong> in your profile. All editorial communication happens via <em>email</em>.</p>
+  </section>
 
-        <!-- Red Flags Content -->
-        <div *ngIf="activeTab === 'red'" class="inline-tab-content">
-          <div class="bg-gradient-to-br from-red-50 to-rose-50 dark:from-red-900/20 dark:to-rose-900/20 rounded-2xl p-8 border border-red-200 dark:border-red-800">
-            <div class="grid md:grid-cols-2 gap-6">
-              <div class="space-y-6">
-                <div class="flex items-start space-x-4">
-                  <div class="w-8 h-8 bg-red-600 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
-                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                    </svg>
-                  </div>
-                  <div>
-                    <h4 class="font-semibold text-red-900 dark:text-red-100 mb-2 text-lg">AI-Generated Perfection</h4>
-                    <p class="text-red-800 dark:text-red-200">Technically flawless but emotionally hollow - smooth, safe, and soulless.</p>
-                  </div>
-                </div>
-                <div class="flex items-start space-x-4">
-                  <div class="w-8 h-8 bg-red-600 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
-                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                    </svg>
-                  </div>
-                  <div>
-                    <h4 class="font-semibold text-red-900 dark:text-red-100 mb-2 text-lg">Manufactured Metaphors</h4>
-                    <p class="text-red-800 dark:text-red-200">Forced comparisons chosen for cleverness rather than truth or emotional resonance.</p>
-                  </div>
-                </div>
-                <div class="flex items-start space-x-4">
-                  <div class="w-8 h-8 bg-red-600 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
-                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                    </svg>
-                  </div>
-                  <div>
-                    <h4 class="font-semibold text-red-900 dark:text-red-100 mb-2 text-lg">Direct Plagiarism</h4>
-                    <p class="text-red-800 dark:text-red-200">Copying others' work - we check, and we recognize lifted lines and concepts.</p>
-                  </div>
-                </div>
-                <div class="flex items-start space-x-4">
-                  <div class="w-8 h-8 bg-red-600 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
-                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                    </svg>
-                  </div>
-                  <div>
-                    <h4 class="font-semibold text-red-900 dark:text-red-100 mb-2 text-lg">Clichéd Language</h4>
-                    <p class="text-red-800 dark:text-red-200">Roses are red territory; hearts like glass; dancing in rain; time healing wounds.</p>
-                  </div>
-                </div>
-                <div class="flex items-start space-x-4">
-                  <div class="w-8 h-8 bg-red-600 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
-                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                    </svg>
-                  </div>
-                  <div>
-                    <h4 class="font-semibold text-red-900 dark:text-red-100 mb-2 text-lg">Purple Prose</h4>
-                    <p class="text-red-800 dark:text-red-200">Overly ornate language prioritizing "sounding poetic" over actual communication.</p>
-                  </div>
-                </div>
-                <div class="flex items-start space-x-4">
-                  <div class="w-8 h-8 bg-red-600 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
-                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                    </svg>
-                  </div>
-                  <div>
-                    <h4 class="font-semibold text-red-900 dark:text-red-100 mb-2 text-lg">Vague Abstraction</h4>
-                    <p class="text-red-800 dark:text-red-200">Heavy use of "soul," "beauty," "eternity" without concrete grounding.</p>
-                  </div>
-                </div>
-                <div class="flex items-start space-x-4">
-                  <div class="w-8 h-8 bg-red-600 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
-                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                    </svg>
-                  </div>
-                  <div>
-                    <h4 class="font-semibold text-red-900 dark:text-red-100 mb-2 text-lg">Emotional Telling</h4>
-                    <p class="text-red-800 dark:text-red-200">Declaring feelings ("I was sad") instead of creating experiences that evoke them.</p>
-                  </div>
-                </div>
-              </div>
-              <div class="space-y-6">
-                <div class="flex items-start space-x-4">
-                  <div class="w-8 h-8 bg-red-600 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
-                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                    </svg>
-                  </div>
-                  <div>
-                    <h4 class="font-semibold text-red-900 dark:text-red-100 mb-2 text-lg">Metaphor Overload</h4>
-                    <p class="text-red-800 dark:text-red-200">Too many competing images that muddle rather than clarify meaning.</p>
-                  </div>
-                </div>
-                <div class="flex items-start space-x-4">
-                  <div class="w-8 h-8 bg-red-600 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
-                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                    </svg>
-                  </div>
-                  <div>
-                    <h4 class="font-semibold text-red-900 dark:text-red-100 mb-2 text-lg">Concept Theft</h4>
-                    <p class="text-red-800 dark:text-red-200">Stealing unique structural ideas or approaches while changing surface words.</p>
-                  </div>
-                </div>
-                <div class="flex items-start space-x-4">
-                  <div class="w-8 h-8 bg-red-600 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
-                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                    </svg>
-                  </div>
-                  <div>
-                    <h4 class="font-semibold text-red-900 dark:text-red-100 mb-2 text-lg">Forced Rhyme</h4>
-                    <p class="text-red-800 dark:text-red-200">Distorting natural syntax or choosing weaker words just to maintain rhyme scheme.</p>
-                  </div>
-                </div>
-                <div class="flex items-start space-x-4">
-                  <div class="w-8 h-8 bg-red-600 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
-                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                    </svg>
-                  </div>
-                  <div>
-                    <h4 class="font-semibold text-red-900 dark:text-red-100 mb-2 text-lg">Heavy-Handed Symbolism</h4>
-                    <p class="text-red-800 dark:text-red-200">Over-explaining obvious symbols; not trusting reader intelligence.</p>
-                  </div>
-                </div>
-                <div class="flex items-start space-x-4">
-                  <div class="w-8 h-8 bg-red-600 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
-                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                    </svg>
-                  </div>
-                  <div>
-                    <h4 class="font-semibold text-red-900 dark:text-red-100 mb-2 text-lg">Inconsistent Voice</h4>
-                    <p class="text-red-800 dark:text-red-200">Switching between registers without purpose; losing yourself trying to sound literary.</p>
-                  </div>
-                </div>
-                <div class="flex items-start space-x-4">
-                  <div class="w-8 h-8 bg-red-600 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
-                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                    </svg>
-                  </div>
-                  <div>
-                    <h4 class="font-semibold text-red-900 dark:text-red-100 mb-2 text-lg">Template Poetry</h4>
-                    <p class="text-red-800 dark:text-red-200">Filling in Mad Libs-style structures; formulaic approaches to "deep" subjects.</p>
-                  </div>
-                </div>
-                <div class="flex items-start space-x-4">
-                  <div class="w-8 h-8 bg-red-600 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
-                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                    </svg>
-                  </div>
-                  <div>
-                    <h4 class="font-semibold text-red-900 dark:text-red-100 mb-2 text-lg">Performative Depth</h4>
-                    <p class="text-red-800 dark:text-red-200">Generic profundity that sounds meaningful but says nothing specific.</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+  <!-- Revisions -->
+  <section class="bg-white shadow-sm rounded-lg p-6">
+    <h2 class="guideline-heading flex items-center gap-2 text-lg font-semibold">
+      <svg class="h-5 w-5 text-emerald-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M12 20v-6" />
+        <path d="M20 12a8 8 0 1 0-8 8" />
+      </svg>
+      Revisions
+    </h2>
+    <ul class="guideline-list mt-4 space-y-2 list-inside list-disc text-gray-700">
+      <li>Revisions may be requested at the editor’s discretion.</li>
+      <li>Please respond within <strong>72 hours</strong>.</li>
+      <li>Minor edits may be made for <em>clarity</em> and <em>consistency</em>.</li>
+    </ul>
+  </section>
 
-      </div>
-      <!-- Rights and Legal -->
-      <div class="bg-white border border-gray-200 rounded-3xl p-8 shadow-xl">
-        <h2 class="text-2xl font-semibold text-gray-900 mb-6 text-center">Rights & Legal</h2>
-        <div class="space-y-4 text-gray-900-secondary text-lg leading-relaxed">
-          <p>• By submitting, you confirm that you own the rights to your work</p>
-          <p>• You retain copyright to your work</p>
-          <p>• If accepted, we request first publication rights</p>
-          <p>• You may withdraw your submission at any time before publication</p>
-          <p>• We reserve the right to make minor editorial changes</p>
-        </div>
-      </div>
-      <!-- Contact Information -->
-      <div class="bg-white border border-gray-200 rounded-3xl p-8 shadow-xl text-center">
-        <h2 class="text-2xl font-semibold text-gray-900 mb-6">Questions?</h2>
-        <p class="text-gray-900-secondary text-lg mb-6">
-          If you have any questions about our submission guidelines, please don't hesitate to contact us
-        </p>
-        <div class="bg-white-secondary rounded-2xl p-6 border border-gray-200">
-          <p class="text-gray-900 mb-2">
-            <strong>Email:</strong> poemsindia&#64;gmail.com
-          </p>
-          <p class="text-gray-900-secondary">
-            <strong>Response time:</strong> We typically respond to inquiries within 2-3 business days
-          </p>
-        </div>
-      </div>
+  <!-- Editorial Philosophy -->
+  <section>
+    <h2 class="guideline-heading flex items-center gap-2 text-lg font-semibold">
+      <svg class="h-5 w-5 text-violet-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M12 2l2 5 5 .5-4 3 1 5-4-3-4 3 1-5-4-3L10 7z" />
+      </svg>
+      Editorial Philosophy
+    </h2>
+
+    <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-6">
+      <app-editorial-guidelines title="What We Look For" variant="green" [items]="greenFlags"></app-editorial-guidelines>
+      <app-editorial-guidelines title="Red Flags to Avoid" variant="red" [items]="redFlags"></app-editorial-guidelines>
     </div>
-  </div>
-}
+  </section>
+
+  <!-- Rights -->
+  <section class="bg-white shadow-sm rounded-lg p-6">
+    <h2 class="guideline-heading flex items-center gap-2 text-lg font-semibold">
+      <svg class="h-5 w-5 text-red-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M12 2l3 5 5 2-5 2-3 5-3-5-5-2 5-2 3-5z" />
+      </svg>
+      Rights & Legal
+    </h2>
+
+    <ul class="guideline-list mt-4 space-y-2 list-inside list-disc text-gray-700">
+      <li><strong>You retain copyright</strong> to your work.</li>
+      <li><em>We request first publication rights</em>. We will notify you before publishing.</li>
+      <li>You may <strong>withdraw your submission</strong> before publication.</li>
+    </ul>
+  </section>
+
+  <!-- Contact -->
+  <section class="flex items-start gap-4">
+    <svg class="h-7 w-7 text-sky-600 flex-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M3 8l7 5 7-5" />
+      <path d="M21 8v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8" />
+    </svg>
+    <div>
+      <h2 class="guideline-heading text-lg font-semibold">Questions?</h2>
+      <p class="mt-2">Email us at <strong>poemsindia&#64;gmail.com</strong><br><span class="text-sm text-gray-600">We usually respond within <em>2–3 business days</em>.</span></p>
+    </div>
+  </section>
+
+</div>

@@ -31,7 +31,7 @@
               </h1>
               <!-- Centered author & metadata -->
               <div class="text-center mb-6">
-                <a [routerLink]="content()!.author?.id ? ['/profile', content()!.author.id] : null"
+                <a [routerLink]="content()!.author?.id ? ['/author', content()!.author.id] : null"
                   class="text-base font-medium text-gray-700 hover:text-gray-900 transition-colors duration-200"
                   [class.cursor-pointer]="content()!.author?.id"
                   [class.cursor-default]="!content()!.author?.id">

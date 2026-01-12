@@ -1,0 +1,11 @@
+.guideline-heading {
+  @apply text-xl font-semibold text-gray-900 mb-4;
+}
+
+.guideline-subheading {
+  @apply font-semibold text-gray-800 mt-6 mb-1;
+}
+
+.guideline-list {
+  @apply list-disc pl-6 space-y-2;
+}
