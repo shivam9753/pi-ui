@@ -4,7 +4,6 @@ import { PrettyLabelPipe } from '../../../pipes/pretty-label.pipe';
 import { StatusBadgeComponent } from '../status-badge/status-badge.component';
 import { StringUtils, CommonUtils } from '../../utils';
 import { ButtonComponent } from '../../../ui-components/button/button.component';
-import { CardComponent } from '../../../ui-components/card/card.component';
 
 export interface TableColumn {
   key: string;
@@ -36,7 +35,7 @@ export interface PaginationConfig {
 @Component({
   selector: 'app-data-table',
   standalone: true,
-  imports: [CommonModule, PrettyLabelPipe, StatusBadgeComponent, ButtonComponent, CardComponent],
+  imports: [CommonModule, PrettyLabelPipe, StatusBadgeComponent, ButtonComponent],
   template: `
     <div class="w-full">
 
