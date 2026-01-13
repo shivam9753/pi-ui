@@ -148,7 +148,11 @@
 
         <!-- Trending Authors Section -->
         <div class="mt-12">
-          <app-trending-authors></app-trending-authors>
+          <div class="rounded-lg px-6 py-6 -mx-6 sm:-mx-8 lg:-mx-12" style="background: linear-gradient(180deg, rgba(255,229,226,0.9), rgba(255,247,244,0.6));">
+            <div class="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
+              <app-trending-authors></app-trending-authors>
+            </div>
+          </div>
         </div>
 
         <!-- Random Archive Section -->
@@ -158,34 +162,38 @@
 
         <!-- Popular Tags Section -->
         <div class="mt-12">
-          <div class="text-center mb-8">
-            <h2 class="text-2xl font-bold text-gray-900 mb-2">Popular Topics</h2>
-          </div>
+          <div class="rounded-lg px-6 py-6 -mx-6 sm:-mx-8 lg:-mx-12" style="background: linear-gradient(180deg, rgba(255,229,226,0.9), rgba(255,247,244,0.6));">
+            <div class="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
+              <div class="text-center mb-8">
+                <h2 class="text-2xl font-bold text-gray-900 mb-2">Popular Topics</h2>
+              </div>
 
-          @if (loadingTags) {
-            <div class="flex items-center justify-center py-8">
-              <div class="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
-              <span class="ml-3 text-gray-500">Loading popular topics...</span>
-            </div>
-          }
+              @if (loadingTags) {
+                <div class="flex items-center justify-center py-8">
+                  <div class="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
+                  <span class="ml-3 text-gray-500">Loading popular topics...</span>
+                </div>
+              }
 
-          @if (!loadingTags && trendingTags.length > 0) {
-            <div class="flex flex-wrap justify-center gap-3 max-w-4xl mx-auto">
-              @for (tag of trendingTags.slice(0, 20); track tag) {
-                <button
-                  (click)="onTagClick(tag, $event)"
-                  class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-full hover:bg-gray-50 hover:border-gray-300 hover:shadow-sm transition-all duration-200 cursor-pointer">
-                  {{ tag }}
-                </button>
+              @if (!loadingTags && trendingTags.length > 0) {
+                <div class="flex flex-wrap justify-center gap-3 max-w-4xl mx-auto">
+                  @for (tag of trendingTags.slice(0, 20); track tag) {
+                    <button
+                      (click)="onTagClick(tag, $event)"
+                      class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-full hover:bg-gray-50 hover:border-gray-300 hover:shadow-sm transition-all duration-200 cursor-pointer">
+                      {{ tag }}
+                    </button>
+                  }
+                </div>
+              }
+
+              @if (!loadingTags && trendingTags.length === 0) {
+                <div class="text-center text-gray-500 py-8">
+                  No popular topics available yet
+                </div>
               }
             </div>
-          }
-
-          @if (!loadingTags && trendingTags.length === 0) {
-            <div class="text-center text-gray-500 py-8">
-              No popular topics available yet
-            </div>
-          }
+          </div>
         </div>
       </div>
     </div>
