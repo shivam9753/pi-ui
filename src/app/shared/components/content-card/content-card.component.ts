@@ -36,36 +36,36 @@ export interface ContentCardData {
   imports: [CommonModule, StatusBadgeComponent, BadgeLabelComponent],
   template: `
     <div class="bg-white rounded-none transform transition-all duration-200 overflow-hidden group"
-      [ngClass]="{ 'border border-gray-200 dark:border-gray-700': !noBorder, 'ring-2 ring-primary shadow-primary-light': isFeatured, 'hover:shadow-xl hover:-translate-y-1 cursor-pointer': clickable }"
+      [ngClass]="{ 'border border-gray-200 dark:border-gray-700': !noBorder, 'ring-2 ring-primary shadow-primary-light': isFeatured, 'hover:shadow-xl hover:-translate-y-1 cursor-pointer': clickable, 'card-sm': size === 'sm', 'card-lg': size === 'lg' }"
       [attr.role]="clickable ? 'button' : null" [attr.tabindex]="clickable ? 0 : null"
       (click)="onCardClick()" (keydown.enter)="onCardClick()" (keydown.space)="$event.preventDefault(); onCardClick()">
 
       <!-- Image / Media -->
       @if (content.imageUrl) {
-        <div class="aspect-[5/3] bg-gray-100 overflow-hidden relative">
+        <div class="aspect-[5/3] bg-gray-100 overflow-hidden relative image-wrapper">
           <img [src]="content.imageUrl" [alt]="content.title" loading="lazy" class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" />
         </div>
       }
 
       <!-- Card Body -->
-      <div class="p-6 md:p-6 space-y-3">
+      <div class="p-6 md:p-6 space-y-3 body-wrapper">
         <!-- Type label (always shown, small uppercase red) -->
         <div>
           <app-badge-label [type]="content.submissionType" variant="big-red"></app-badge-label>
         </div>
 
         <!-- Title -->
-        <h3 (click)="onTitleClick()" [class.cursor-pointer]="clickable" class="font-serif font-extrabold text-gray-900 text-2xl md:text-3xl lg:text-4xl leading-tight group-hover:text-primary transition-colors" style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+        <h3 (click)="onTitleClick()" [class.cursor-pointer]="clickable" class="font-serif font-extrabold text-gray-900 text-2xl md:text-3xl lg:text-4xl leading-tight group-hover:text-primary transition-colors title-text" style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
           {{ content.title }}
         </h3>
 
         <!-- Author (uppercase, muted) - only show when showMeta is true -->
-        <div *ngIf="showMeta" class="text-xs uppercase text-gray-500 font-semibold">
+        <div *ngIf="showMeta" class="text-xs uppercase text-gray-500 font-semibold author-text">
           By {{ content.author?.name || content.authorName }}
         </div>
 
         <!-- Excerpt (larger, more leading) -->
-        <p *ngIf="content.description || content.excerpt" class="content-body font-serif prose-custom text-gray-700 text-base md:text-lg leading-relaxed mb-2" style="font-family: 'Crimson Text', Georgia, serif !important; font-style: italic !important; font-weight: 300 !important;">
+        <p *ngIf="content.description || content.excerpt" class="content-body font-serif prose-custom text-gray-700 text-base md:text-lg leading-relaxed mb-2 excerpt-text" style="font-family: 'Crimson Text', Georgia, serif !important; font-style: italic !important; font-weight: 300 !important;">
           {{ sanitizeHtml(content.description || content.excerpt) }}
         </p>
 
@@ -95,11 +95,30 @@ export interface ContentCardData {
       box-shadow: 0 0 0 3px rgba(59,130,246,0.25);
       border-radius: 0;
     }
+
+    /* Size variants */
+    .card-sm {
+      min-width: 200px;
+      width: 200px;
+      border-radius: 0.25rem;
+    }
+    .card-sm .body-wrapper { padding: 0.75rem !important; }
+    .card-sm .title-text { font-size: 1rem !important; line-height: 1.1 !important; }
+    .card-sm .excerpt-text { font-size: 0.85rem !important; }
+    .card-sm .image-wrapper { height: 120px; }
+
+    .card-lg { min-width: 360px; width: 360px; }
+    .card-lg .body-wrapper { padding: 1.5rem !important; }
+    .card-lg .title-text { font-size: 1.5rem !important; }
+
+    /* Ensure default (md) can grow naturally */
+    .card-sm, .card-lg { display: inline-block; vertical-align: top; }
     `
   ]
 })
 export class ContentCardComponent {
   @Input() content!: ContentCardData;
+  @Input() size: 'sm' | 'md' | 'lg' = 'md';
   @Input() showStatus = false;
   @Input() showActions = false;
   // Keep a simple showMeta input for backward compatibility with templates

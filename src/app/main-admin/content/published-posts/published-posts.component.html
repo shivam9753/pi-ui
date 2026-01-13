@@ -78,15 +78,17 @@
             </div>
           </div>
           
-          <button 
-            (click)="bulkReassignUser()" 
+          <app-button
+            (click)="bulkReassignUser()"
+            (keydown.enter)="bulkReassignUser()"
             [disabled]="!bulkSelectedUserId || bulkActionLoading"
-            class="px-4 py-2 bg-primary text-white rounded-md hover:bg-primary-hover disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2">
-            @if (bulkActionLoading) {
+            class="px-4 py-2 flex items-center gap-2"
+            aria-label="Reassign Selected">
+            <ng-container *ngIf="bulkActionLoading">
               <div class="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin"></div>
-            }
+            </ng-container>
             Reassign Selected
-          </button>
+          </app-button>
         </div>
       </div>
     </div>

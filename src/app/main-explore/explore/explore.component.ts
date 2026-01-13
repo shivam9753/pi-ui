@@ -13,12 +13,13 @@ import { TabsComponent, TabItemComponent } from '../../ui-components';
 import { BadgeLabelComponent } from '../../utilities/badge-label/badge-label.component';
 import { ContentCardComponent } from '../../shared/components/content-card/content-card.component';
 import { ExploreStateService } from '../../services/explore-state.service';
+import { RandomArchiveComponent } from '../../shared/components/random-archive/random-archive.component';
 // Removed rxjs imports for debouncing as we're not using real-time search
 
 @Component({
   selector: 'app-explore',
   standalone: true,
-  imports: [CommonModule, FormsModule, PrettyLabelPipe, ButtonComponent, TrendingAuthorsComponent, TabsComponent, TabItemComponent, BadgeLabelComponent, ContentCardComponent],
+  imports: [CommonModule, FormsModule, PrettyLabelPipe, ButtonComponent, TrendingAuthorsComponent, TabsComponent, TabItemComponent, BadgeLabelComponent, ContentCardComponent, RandomArchiveComponent],
   templateUrl: './explore.component.html',
   styleUrl: './explore.component.css'
 })

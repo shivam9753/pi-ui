@@ -1411,4 +1411,20 @@ getTrendingAuthors(options: { limit?: number } = {}): Observable<any> {
   );
 }
 
+// Fetch random published submissions to boost discoverability
+getRandomSubmissions(options: { type?: string; limit?: number } = {}): Observable<any> {
+  let params = new HttpParams();
+  if (options.type) {
+    params = params.set('type', options.type);
+  }
+  if (options.limit !== undefined && options.limit !== null) {
+    params = params.set('limit', options.limit.toString());
+  }
+
+  const headers = this.getPublicHeaders();
+  const url = `${this.API_URL}${API_ENDPOINTS.SUBMISSIONS}/random`;
+  return this.http.get<any>(url, { headers, params }).pipe(
+    this.handleApiCall(url, 'GET')
+  );
+}
 }
