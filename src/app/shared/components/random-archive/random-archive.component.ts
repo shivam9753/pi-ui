@@ -29,8 +29,7 @@ interface RandomPost {
   template: `
     <div class="py-8">
       <div class="text-center mb-6">
-        <h2 class="text-2xl font-bold text-gray-900">Discover from the archive</h2>
-        <p class="text-sm text-gray-500">Hand-picked random posts to boost discoverability</p>
+        <h2 class="text-2xl font-bold text-gray-900">From the archive</h2>
       </div>
 
       @if (loading()) {
@@ -71,7 +70,7 @@ export class RandomArchiveComponent implements OnInit {
     this.loadRandomPosts();
   }
 
-  loadRandomPosts(limit = 4) {
+  loadRandomPosts(limit = 5) {
     this.loading.set(true);
 
     this.backendService.getRandomSubmissions({ limit }).subscribe({

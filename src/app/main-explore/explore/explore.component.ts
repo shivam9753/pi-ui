@@ -34,7 +34,7 @@ export class ExploreComponent implements OnInit, AfterViewInit, OnDestroy {
   loading: boolean = false;
   
   // Load more properties
-  itemsPerPage: number = 11;
+  itemsPerPage: number = 7;
   totalItems: number = 0;
   hasMoreItems: boolean = true;
   isLoadingMore: boolean = false;
@@ -61,20 +61,7 @@ export class ExploreComponent implements OnInit, AfterViewInit, OnDestroy {
   trendingTags: string[] = [];
   popularTags: string[] = [];
   loadingTags: boolean = false;
-  
-  // Writing/Content related announcements (for sidebar)
-  writingAnnouncements = [
-    {
-      title: 'Kommune x PoemsIndia Writing Program',
-      description: 'Submit your poems on the theme of "Incomplete Freedom" by August 25th. Featured submissions will be published in our special edition.',
-      type: 'THEME',
-      colorClass: 'theme-color',
-      link: '/submission',
-      linkText: 'Submit Now'
-    }
-  ];
-
-
+ 
   generatePrompt() {
     // Navigate to prompts page or show prompt modal
     this.router.navigate(['/prompts']);
@@ -100,12 +87,6 @@ export class ExploreComponent implements OnInit, AfterViewInit, OnDestroy {
       this.router.navigate([announcement.link]);
     }
   }
-
-  // Get writing/content related announcements
-  getWritingAnnouncements() {
-    return this.writingAnnouncements;
-  }
-
 
   constructor(
     private backendService: BackendService,
@@ -314,7 +295,8 @@ export class ExploreComponent implements OnInit, AfterViewInit, OnDestroy {
     const params: any = {
       limit: this.itemsPerPage,
       skip: skip,
-      sortBy: this.sortBy === 'latest' ? 'publishedAt' : this.sortBy,
+      // Map 'latest' to createdAt so recency uses creation time (not updatedAt/publishedAt)
+      sortBy: this.sortBy === 'latest' ? 'createdAt' : this.sortBy,
       order: 'desc' as 'desc',
       _t: Date.now() // Cache-busting timestamp
     };
