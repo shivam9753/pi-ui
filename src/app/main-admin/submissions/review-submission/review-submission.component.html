@@ -3,37 +3,39 @@
 
     <!-- Navigation Bar (Back + Prev/Next) -->
     <div class="mb-6 flex items-center justify-between gap-4 pb-4 border-b border-gray-200">
-      <button
+      <app-button
         (click)="goBackToPendingReviews()"
-        class="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
-        </svg>
+        (keydown.enter)="goBackToPendingReviews()"
+        variant="secondary"
+        size="sm"
+        type="button">
         Back to Reviews
-      </button>
+      </app-button>
 
       <div class="flex items-center gap-2">
-        <button
+        <app-button
           (click)="goToPrevious()"
+          (keydown.enter)="goToPrevious()"
           [disabled]="!hasPrevious || isLoadingNavigation"
-          class="p-2 text-gray-600 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
-          </svg>
-        </button>
+          variant="tertiary"
+          size="sm"
+          type="button">
+          Prev
+        </app-button>
 
-        <ng-container *ngIf="getCurrentSubmissionInfo()">
+        @if (getCurrentSubmissionInfo()) {
           <span class="text-xs text-gray-500 px-2 hidden sm:inline">{{ getCurrentSubmissionInfo() }}</span>
-        </ng-container>
+        }
 
-        <button
+        <app-button
           (click)="goToNext()"
+          (keydown.enter)="goToNext()"
           [disabled]="!hasNext || isLoadingNavigation"
-          class="p-2 text-gray-600 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-          </svg>
-        </button>
+          variant="tertiary"
+          size="sm"
+          type="button">
+          Next
+        </app-button>
       </div>
     </div>
 
@@ -43,26 +45,26 @@
         {{ submission?.title }}
       </h1>
 
-      <ng-container *ngIf="submission?.description">
+      @if (submission?.description) {
         <div class="mb-6">
           <p class="text-lg sm:text-xl text-gray-700 leading-relaxed font-light italic border-l-4 border-primary pl-4 sm:pl-6"
              style="font-family: 'Crimson Text', Georgia, serif;">
             {{ submission?.description }}
           </p>
         </div>
-      </ng-container>
+      }
 
       <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-6 border-b border-gray-200">
         <div>
           <div class="text-base sm:text-lg font-medium text-gray-900">
             <span>by</span>
-            <ng-container *ngIf="submission?.userId">
-              <button
+            @if (submission?.userId) {
+              <a
                 (click)="viewUserProfile(submission.userId)"
-                class="ml-1 text-gray-800 hover:text-gray-900 hover:underline cursor-pointer transition-colors duration-200">
+                class="ml-1 text-gray-800 hover:text-gray-900 hover:underline cursor-pointer transition-colors">
                 {{ submission.userId.name }}
-              </button>
-            </ng-container>
+              </a>
+            }
           </div>
           <div class="text-sm text-gray-600 mt-1">
             {{ submission?.createdAt | date:'MMMM d, y' }}
@@ -72,15 +74,15 @@
         <div class="flex flex-wrap items-center gap-2">
           <app-status-badge [status]="submission?.status" size="md"></app-status-badge>
           <app-status-badge [status]="submission?.submissionType" size="sm"></app-status-badge>
-          <ng-container *ngIf="submission?.isFeatured">
+          @if (submission?.isFeatured) {
             <app-status-badge status="featured" size="sm" [showIcon]="true"></app-status-badge>
-          </ng-container>
+          }
         </div>
       </div>
     </header>
 
     <!-- Existing Review -->
-    <ng-container *ngIf="existingReview">
+    @if (existingReview) {
       <div class="mb-8 bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
         <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
           <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
@@ -104,18 +106,18 @@
           </div>
         </div>
       </div>
-    </ng-container>
+    }
 
     <!-- Main Content -->
-    <ng-container *ngIf="submission && submission.contents && submission.contents.length > 0; else noContent">
+    @if (submission && submission.contents && submission.contents.length > 0) {
       <div class="prose-custom mb-12">
-        <ng-container *ngFor="let content of submission.contents; let i = index">
+        @for (content of submission.contents; track content; let i = $index) {
           <article class="content-section mb-12">
-            <ng-container *ngIf="submission.contents.length > 1">
+            @if (submission.contents.length > 1) {
               <h2 class="text-2xl sm:text-3xl font-serif font-bold text-gray-900 mb-6 pb-3 border-b border-gray-200">
                 {{ i + 1 }}. {{ content.title }}
               </h2>
-            </ng-container>
+            }
 
             <div class="flex flex-wrap gap-4 text-sm text-gray-600 mb-6">
               <span class="flex items-center gap-1">
@@ -131,104 +133,386 @@
               [innerHTML]="cleanContent(content.body)">
             </div>
 
-            <ng-container *ngIf="content.footnotes">
+            @if (content.footnotes) {
               <div class="mt-6 p-4 bg-gray-50 rounded-lg border-l-4 border-blue-200">
                 <h4 class="text-sm font-medium text-gray-900 mb-2">Footnotes:</h4>
                 <p class="text-sm text-gray-700 whitespace-pre-wrap">{{ content.footnotes }}</p>
               </div>
-            </ng-container>
+            }
           </article>
-        </ng-container>
+        }
       </div>
-    </ng-container>
-
-    <ng-template #noContent>
+    } @else {
       <div class="mb-12 bg-yellow-50 border border-yellow-300 rounded-lg p-6">
         <div class="flex items-center justify-center mb-2">
           <svg class="w-6 h-6 text-primary mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.998-.833-2.768 0L3.946 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
           </svg>
           <h3 class="text-lg font-medium text-amber-800">No Content Available</h3>
         </div>
         <p class="text-amber-700 text-center">This submission doesn't have any content items to display.</p>
       </div>
-    </ng-template>
+    }
 
     <!-- Review Actions Section -->
-    <ng-container *ngIf="canReviewSubmission()">
+    @if (canReviewSubmission()) {
       <div class="mb-8 pt-8 border-t-2 border-gray-300">
 
         <!-- Start Review (pending_review only) -->
-        <ng-container *ngIf="canStartReview()">
+        @if (canStartReview()) {
           <div class="text-center py-8">
             <p class="text-gray-700 mb-4">This submission is awaiting review.</p>
             <app-button
-              variant="info-soft"
+              variant="primary"
               size="md"
               [disabled]="isSubmitting"
               (click)="startReviewProcess()">
               Start Review
             </app-button>
           </div>
-        </ng-container>
+        }
 
         <!-- Review Action Buttons (in_progress, resubmitted) -->
-        <ng-container *ngIf="canShowActionButtons() && !showReviewForm">
+        @if (canShowActionButtons() && !showReviewForm) {
           <div class="bg-gray-50 rounded-lg p-6 border border-gray-200">
             <h3 class="text-lg font-semibold text-gray-900 mb-4 text-center">Choose Review Action</h3>
 
-            <div class="flex flex-col sm:flex-row gap-3 justify-center max-w-xl mx-auto">
-              <ng-container *ngIf="canApproveSubmissions()">
+            <div class="flex items-center gap-1 justify-center flex-nowrap">
+              @if (canApproveSubmissions()) {
                 <app-button
-                  variant="success-soft"
+                  class="inline-flex"
+                  variant="destructive"
                   size="md"
-                  [fullWidth]="true"
                   [disabled]="isSubmitting"
                   (click)="setReviewAction('approve')">
                   Accept
                 </app-button>
-              </ng-container>
+              }
 
-              <ng-container *ngIf="isActionAllowed('reject')">
+              @if (isActionAllowed('reject')) {
                 <app-button
-                  variant="destructive-soft"
+                  class="inline-flex"
+                  variant="destructive"
                   size="md"
-                  [fullWidth]="true"
                   [disabled]="isSubmitting"
                   (click)="setReviewAction('reject')">
                   Reject
                 </app-button>
-              </ng-container>
+              }
 
-              <ng-container *ngIf="isActionAllowed('revision')">
+              @if (isActionAllowed('revision')) {
                 <app-button
-                  variant="warning-soft"
+                  class="inline-flex"
+                  variant="destructive"
                   size="md"
-                  [fullWidth]="true"
                   [disabled]="isSubmitting"
                   (click)="setReviewAction('revision')">
                   Ask for Revision
                 </app-button>
-              </ng-container>
+              }
             </div>
           </div>
-        </ng-container>
+        }
 
         <!-- Review Form -->
-        <ng-container *ngIf="showReviewForm">
+        @if (showReviewForm) {
           <div class="bg-gray-50 rounded-lg p-6 border border-gray-200">
-            <label for="reviewNotes" class="block text-base font-semibold text-gray-900 mb-3">Review Notes</label>
-            <textarea id="reviewNotes" rows="6" class="w-full p-3 border border-gray-300 rounded-md" placeholder="Enter your review notes here..."></textarea>
+            <label [attr.for]="(reviewAction === 'reject' || reviewAction === 'revision') ? 'reviewNotesRequired' : 'reviewNotesOptional'" class="block text-base font-semibold text-gray-900 mb-3">
+              <span class="flex items-center gap-2">
+                <span class="text-base font-semibold">Review Comments</span>
+                @if (reviewAction === 'reject' || reviewAction === 'revision') {
+                  <span class="text-red-600 text-sm">*Required</span>
+                }
+              </span>
+            </label>
 
-            <div class="mt-4 flex items-center gap-3">
-              <app-button variant="primary" (click)="submitReview()" [disabled]="isSubmitting">Submit Review</app-button>
-              <app-button variant="tertiary" (click)="cancelReview()">Cancel</app-button>
+            @if (reviewAction === 'reject' || reviewAction === 'revision') {
+              <div class="mb-3 relative">
+                <textarea
+                  id="reviewNotesRequired"
+                  [(ngModel)]="reviewNotes"
+                  (click)="onReviewNotesClick()"
+                  (input)="onReviewNotesInput($event)"
+                  (keyup)="onReviewNotesInput($event)"
+                  (blur)="hideRejectionReasons()"
+                  rows="5"
+                  class="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary resize-vertical"
+                  [placeholder]="getPlaceholder()"
+                  [class.border-red-300]="!reviewNotes.trim()">
+                </textarea>
+
+                @if (showRejectionReasons && filteredRejectionReasons.length > 0) {
+                  <div class="absolute z-10 mt-1 w-full bg-white border border-gray-200 rounded-lg shadow-lg max-h-64 overflow-y-auto">
+                    <div class="p-3 border-b border-gray-100">
+                      <span class="text-sm font-medium text-gray-600">
+                        {{ filteredRejectionReasons.length === initialRejectionReasons.length ? 'Common Reasons:' : 'Matching Reasons:' }}
+                      </span>
+                    </div>
+                    @for (reason of filteredRejectionReasons; track reason) {
+                      <app-button
+                        type="button"
+                        (mousedown)="selectCommonReason(reason)"
+                        (keydown.enter)="selectCommonReason(reason)"
+                        variant="secondary"
+                        size="sm">
+                        {{ reason }}
+                      </app-button>
+                    }
+                  </div>
+                }
+              </div>
+            } @else {
+              <textarea
+                id="reviewNotesOptional"
+                [(ngModel)]="reviewNotes"
+                rows="5"
+                class="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary resize-vertical"
+                [placeholder]="getPlaceholder()">
+              </textarea>
+            }
+
+            <div class="mt-4 flex flex-col sm:flex-row gap-3 justify-end">
+              <app-button
+                (click)="cancelReview()"
+                (keydown.enter)="cancelReview()"
+                [disabled]="isSubmitting"
+                variant="secondary"
+                size="md"
+                type="button">
+                Cancel
+              </app-button>
+              <app-button
+                (click)="confirmReview()"
+                (keydown.enter)="confirmReview()"
+                [disabled]="isSubmitting || ((reviewAction === 'reject' || reviewAction === 'revision') && !reviewNotes.trim())"
+                variant="primary"
+                size="md"
+                type="button"
+                [style.background-color]="getActionButtonColor(reviewAction)">
+                @if (!isSubmitting) {
+                  {{ reviewAction === 'approve' ? 'Confirm Approval' :
+                  reviewAction === 'reject' ? 'Confirm Rejection' :
+                  reviewAction === 'revision' ? 'Send Revision Request' :
+                  reviewAction === 'move_to_progress' ? 'Start Review Process' : 'Confirm' }}
+                }
+                @if (isSubmitting) {
+                  Processing...
+                }
+              </app-button>
             </div>
           </div>
-        </ng-container>
-
+        }
       </div>
-    </ng-container>
+    }
+
+    @if (!canReviewSubmission() && submission?.status !== 'pending_review') {
+      <div class="mb-8 pt-6 border-t border-gray-200">
+        <div class="text-center py-8">
+          <div class="inline-flex items-center px-4 py-2 rounded-lg"
+            [ngClass]="{
+              'bg-green-100 text-green-800 border border-green-300': submission?.status === 'accepted',
+              'bg-red-100 text-red-800 border border-red-300': submission?.status === 'rejected'
+            }">
+            <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+              @if (submission?.status === 'accepted') {
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+              }
+              @if (submission?.status === 'rejected') {
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+              }
+            </svg>
+            This submission has been {{ submission?.status }}
+          </div>
+        </div>
+      </div>
+    }
+
+    <!-- Secondary Utilities -->
+    <div class="mt-12 pt-6 border-t border-gray-200">
+      <div class="flex flex-row flex-wrap items-center gap-1">
+
+        <!-- Editorial Guidelines -->
+        <app-button
+          (click)="toggleGuidelines()"
+          (keydown.enter)="toggleGuidelines()"
+          variant="secondary"
+          size="sm"
+          type="button">
+          <div class="flex items-center gap-2">
+            <span class="text-sm font-medium text-gray-700">Editorial Guidelines</span>
+          </div>
+        </app-button>
+
+        <!-- History -->
+        <app-button
+          (click)="toggleHistory()"
+          (keydown.enter)="toggleHistory()"
+          variant="secondary"
+          size="sm"
+          type="button">
+          <div class="flex items-center gap-2">
+            <span class="text-sm font-medium text-gray-700">{{ showHistory ? 'Hide' : 'Show' }} History</span>
+          </div>
+        </app-button>
+
+        <!-- Send Email -->
+        <app-button
+          (click)="openEmailModal()"
+          (keydown.enter)="openEmailModal()"
+          variant="secondary"
+          size="sm"
+          type="button">
+          <div class="flex items-center gap-2">
+            <span class="text-sm font-medium text-gray-700">Send Email</span>
+          </div>
+        </app-button>
+
+        <!-- Analysis (if enabled) -->
+        @if (isAnalysisEnabled) {
+          <app-button
+            (click)="analyzeSubmission()"
+            (keydown.enter)="analyzeSubmission()"
+            [disabled]="isAnalyzing"
+            variant="secondary"
+            size="sm"
+            type="button">
+            <div class="flex items-center gap-2">
+              <span class="text-sm font-medium text-gray-700">{{ isAnalyzing ? 'Analyzing...' : 'Analyze Content' }}</span>
+            </div>
+          </app-button>
+        }
+      </div>
+
+      <!-- Editorial Guidelines Content -->
+      @if (showGuidelines) {
+        <div class="mt-4 p-4 bg-gray-50 border border-gray-200 rounded-lg">
+          <app-editorial-criteria></app-editorial-criteria>
+        </div>
+      }
+
+      <!-- History Content -->
+      @if (showHistory) {
+        <div class="mt-4 p-6 bg-gray-50 border border-gray-200 rounded-lg">
+          <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            Submission History
+          </h3>
+
+          @if (loadingHistory) {
+            <div class="flex justify-center py-4">
+              <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
+            </div>
+          }
+
+          @if (!loadingHistory && submissionHistory.length === 0) {
+            <div class="text-center py-4 text-gray-500">
+              No history available
+            </div>
+          }
+
+          @if (!loadingHistory && submissionHistory.length > 0) {
+            <div class="space-y-3">
+              @for (entry of submissionHistory; track entry) {
+                <div class="bg-white rounded-lg p-4 shadow-sm border border-gray-200">
+                  <div class="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2 mb-2">
+                    <div class="flex items-center gap-2">
+                      <span class="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium"
+                        [ngClass]="getActionBadgeClass(entry.action)">
+                        {{ getActionDisplayName(entry.action) }}
+                      </span>
+                      <span class="text-sm text-gray-600">{{ entry.timestamp | date:'medium' }}</span>
+                    </div>
+                    @if (entry.user) {
+                      <span class="text-sm text-gray-500">
+                        by {{ entry.user.name || entry.user.username }}
+                      </span>
+                    }
+                  </div>
+                  @if (entry.notes) {
+                    <p class="text-sm text-gray-700 mt-2">{{ entry.notes }}</p>
+                  }
+                </div>
+              }
+            </div>
+          }
+        </div>
+      }
+    </div>
 
   </div>
+
+  <!-- Analysis Popup Modal -->
+  @if (showAnalysisPopup) {
+    <div class="fixed inset-0 z-50 flex items-center justify-center p-4">
+      <div class="absolute inset-0 bg-black bg-opacity-50" (click)="closeAnalysisPopup()"></div>
+
+      <div class="relative bg-white rounded-lg shadow-lg p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="text-lg font-semibold text-gray-900">Analysis Results</h3>
+          <div class="flex items-center gap-2">
+            @if (analysisData && analysisData.length > 0) {
+              <span class="px-2 py-1 bg-gray-100 text-gray-600 rounded-full text-xs font-medium">
+                {{ analysisData.length }} piece{{ analysisData.length > 1 ? 's' : '' }}
+              </span>
+            }
+            <app-button (click)="closeAnalysisPopup()" (keydown.enter)="closeAnalysisPopup()" variant="secondary" size="sm" type="button"></app-button>
+          </div>
+        </div>
+
+        @if (analysisData && analysisData.length > 0) {
+          <div class="space-y-4">
+            @for (analysis of analysisData; track analysis.contentIndex) {
+              <div class="border border-gray-200 rounded-lg p-4 bg-gray-50">
+                <div class="flex justify-between items-center mb-3 pb-2 border-b border-gray-300">
+                  <h4 class="text-sm font-semibold text-gray-900">{{ analysis.contentTitle }}</h4>
+                  <span class="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-medium">
+                    {{ analysis.contentType | titlecase }}
+                  </span>
+                </div>
+
+                @if (analysis.error) {
+                  <div class="text-center py-3">
+                    <div class="text-red-500 text-sm">{{ analysis.errorMessage }}</div>
+                  </div>
+                }
+
+                @if (analysis.analysis && !analysis.error) {
+                  <app-analysis-panel
+                    [submission]="submission"
+                    [analysisData]="[analysis]"
+                    [isAnalyzing]="false"
+                    [isAnalysisEnabled]="isAnalysisEnabled">
+                  </app-analysis-panel>
+                }
+              </div>
+            }
+          </div>
+        }
+
+        <div class="mt-6 flex justify-end">
+          <app-button (click)="closeAnalysisPopup()" (keydown.enter)="closeAnalysisPopup()" variant="secondary" size="sm" type="button">Close</app-button>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Email Modal -->
+  <app-send-email-modal
+    [isOpen]="showEmailModal"
+    [submissionTitle]="submission?.title"
+    (close)="closeEmailModal()"
+    (send)="sendEmailToAuthor($event)">
+  </app-send-email-modal>
+
+  <!-- Toast Notification -->
+  <app-toast-notification
+    [message]="toastMessage"
+    [type]="toastType"
+    [isVisible]="showToastFlag"
+    [autoClose]="true"
+    [duration]="5000"
+    (closed)="hideToast()">
+  </app-toast-notification>
 </div>

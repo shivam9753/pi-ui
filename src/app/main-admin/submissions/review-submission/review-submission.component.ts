@@ -19,15 +19,8 @@ import { ButtonComponent } from '../../../ui-components/button/button.component'
 @Component({
   selector: 'app-review-submission',
   imports: [DatePipe, TitleCasePipe, CommonModule, FormsModule, ToastNotificationComponent, StatusBadgeComponent, AnalysisPanelComponent, EditorialCriteriaComponent, SendEmailModalComponent, ButtonComponent],
-  // Using a minimal inline template to avoid parsing the large/malformed external template.
-  // Restore `templateUrl` after fixing `review-submission.component.html`.
-  template: `
-    <div class="p-8">
-      <h2 class="text-xl font-semibold">Review interface temporarily unavailable</h2>
-      <p class="text-sm text-gray-600">The detailed review template is disabled to allow the project to build. Restore the original template after repairing any template syntax errors.</p>
-    </div>
-  `,
-  styleUrls: ['./review-submission.component.css']
+  templateUrl: './review-submission.component.html',
+  styleUrl: './review-submission.component.css'
 })
 export class ReviewSubmissionComponent {
   id: string = "";

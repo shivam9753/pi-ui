@@ -393,6 +393,78 @@
   }
 }
 
+/* Force larger content item titles (override earlier duplicate rules) */
+.magazine-layout .content-section .content-title,
+.magazine-layout .content-title,
+.content-section .content-title,
+.content-title {
+  font-family: 'Crimson Text', Georgia, serif !important;
+  font-weight: 700 !important;
+  color: var(--text-primary) !important;
+  text-align: center !important;
+  text-transform: none !important;
+}
+
+/* Mobile: make heading noticeably larger than body text */
+@media (max-width: 768px) {
+  .magazine-layout .content-section .content-title,
+  .magazine-layout .content-title,
+  .content-section .content-title,
+  .content-title {
+    font-size: 1.5rem !important; /* ~32px */
+    line-height: 1.18 !important;
+    margin-top: 0.75rem !important;
+    margin-bottom: 1rem !important;
+    letter-spacing: 0 !important;
+  }
+}
+
+/* Tablet and Desktop: larger still */
+@media (min-width: 769px) and (max-width: 1023px) {
+  .magazine-layout .content-section .content-title,
+  .magazine-layout .content-title,
+  .content-section .content-title,
+  .content-title {
+    font-size: 2.25rem !important; /* ~36px */
+    line-height: 1.16 !important;
+    margin-top: 1rem !important;
+    margin-bottom: 1rem !important;
+  }
+}
+
+@media (min-width: 1024px) {
+  .magazine-layout .content-section .content-title,
+  .magazine-layout .content-title,
+  .content-section .content-title,
+  .content-title {
+    font-size: 2.5rem !important; /* ~40px */
+    line-height: 1.12 !important;
+    margin-top: 1.25rem !important;
+    margin-bottom: 1rem !important;
+  }
+}
+
+/* Make content item titles stand out from body text */
+.content-title {
+  font-family: 'Crimson Text', Georgia, serif;
+  font-size: 1.75rem; /* larger than base body (20px) */
+  line-height: 1.35;
+  margin-top: 1.5rem;
+  margin-bottom: 1rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+/* Mobile: ensure heading is noticeably larger than body copy */
+@media (max-width: 768px) {
+  .content-title {
+    font-size: 1.5rem; /* ~24px on mobile */
+    line-height: 1.3;
+    margin-top: 1rem;
+    margin-bottom: 0.75rem;
+  }
+}
+
 /* Magazine-specific styles */
 .sticky {
   position: -webkit-sticky;
@@ -967,4 +1039,96 @@ body.focus-mode {
 .prose-custom svg {
   fill: currentColor !important;
   stroke: currentColor !important;
+}
+
+/* Tweak: increase spacing so divider sits further from the cover image and is equidistant with the title */
+.featured-image-wrapper {
+  /* increase space between image and divider, and between divider and following content */
+  padding-bottom: 1.25rem !important; /* space between image and divider */
+  margin-bottom: 1.25rem !important;  /* space between divider and the next block */
+  border-bottom: 1px solid rgba(15, 23, 42, 0.05) !important; /* thin subtle divider for light theme */
+}
+
+:host-context(.dark) .featured-image-wrapper {
+  border-bottom-color: rgba(255,255,255,0.04) !important; /* subtle divider for dark mode */
+}
+
+/* Slightly larger spacing on wide screens so divider feels balanced */
+@media (min-width: 1024px) {
+  .featured-image-wrapper {
+    padding-bottom: 1.5rem !important;
+    margin-bottom: 1.5rem !important;
+  }
+}
+
+/* Slightly reduced spacing on small screens to avoid excessive gap */
+@media (max-width: 768px) {
+  .featured-image-wrapper {
+    padding-bottom: 1rem !important;
+    margin-bottom: 1rem !important;
+  }
+}
+
+/* Ensure the first content title aligns with the divider spacing (match margin-top to wrapper margin-bottom) */
+.featured-image-wrapper + .prose-custom .content-section:first-child .content-title,
+.featured-image-wrapper + .content-section:first-child .content-title {
+  margin-top: 1.25rem !important;
+}
+
+@media (min-width: 1024px) {
+  .featured-image-wrapper + .prose-custom .content-section:first-child .content-title,
+  .featured-image-wrapper + .content-section:first-child .content-title {
+    margin-top: 1.5rem !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .featured-image-wrapper + .prose-custom .content-section:first-child .content-title,
+  .featured-image-wrapper + .content-section:first-child .content-title {
+    margin-top: 1rem !important;
+  }
+}
+
+/* Gentle override to tone down heading sizes (placed late so it wins over earlier large !important rules) */
+.magazine-layout .content-section .content-title,
+.magazine-layout .content-title,
+.content-section .content-title,
+.content-title {
+  /* Slightly smaller baseline to match mobile tuning */
+  font-size: 1.5rem !important; /* base ~24px */
+  line-height: 1.22 !important;
+  margin-top: 0.9rem !important;
+  margin-bottom: 0.9rem !important;
+}
+
+@media (max-width: 768px) {
+  .magazine-layout .content-section .content-title,
+  .magazine-layout .content-title,
+  .content-section .content-title,
+  .content-title {
+    font-size: 1.5rem !important; /* keep mobile at user's preferred 1.5rem */
+    line-height: 1.18 !important;
+    margin-top: 0.6rem !important;
+    margin-bottom: 0.9rem !important;
+  }
+}
+
+@media (min-width: 769px) and (max-width: 1023px) {
+  .magazine-layout .content-section .content-title,
+  .magazine-layout .content-title,
+  .content-section .content-title,
+  .content-title {
+    font-size: 1.6rem !important; /* tablet reduced */
+    line-height: 1.18 !important;
+  }
+}
+
+@media (min-width: 1024px) {
+  .magazine-layout .content-section .content-title,
+  .magazine-layout .content-title,
+  .content-section .content-title,
+  .content-title {
+    font-size: 1.75rem !important; /* desktop reduced */
+    line-height: 1.16 !important;
+  }
 }
