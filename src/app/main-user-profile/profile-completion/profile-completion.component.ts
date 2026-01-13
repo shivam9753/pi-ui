@@ -5,7 +5,7 @@ import { Router } from '@angular/router';
 import { AuthService, GoogleUser } from '../../services/auth.service';
 import { BackendService } from '../../services/backend.service';
 import { ToastNotificationComponent } from '../../shared/components/toast-notification/toast-notification.component';
-import { ButtonComponent } from '../../shared/components';
+import { ButtonComponent } from '../../ui-components/button/button.component';
 import { environment } from '../../../environments/environment';
 
 @Component({

@@ -1,6 +1,6 @@
 // Reusable Components Barrel File
-export { ButtonComponent } from './button/button.component';
-export type { ButtonVariant, ButtonSize } from './button/button.component';
+export { ButtonComponent } from '../../ui-components/button/button.component';
+export type { ButtonVariant, ButtonSize } from '../../ui-components/button/button.component';
 export { ToastNotificationComponent } from './toast-notification/toast-notification.component';
 export { EmptyStateComponent } from './empty-state/empty-state.component';
 export { LoadingStateComponent } from './loading-state/loading-state.component';

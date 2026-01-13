@@ -5,7 +5,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { environment } from '../../../../environments/environment';
 import { compressImageToAVIF } from '../../../shared/utils/image-compression.util';
 import { AdminPageHeaderComponent } from '../../../shared/components/admin-page-header/admin-page-header.component';
-import { ButtonComponent } from '../../../shared/components';
+import { ButtonComponent } from '../../../ui-components/button/button.component';
 import { API_ENDPOINTS } from '../../../shared/constants/api.constants';
 import { UserService } from '../../../services/user.service';
 

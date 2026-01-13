@@ -75,33 +75,34 @@
           @if (authorProfile()?.socialLinks) {
             <div class="mt-6 flex flex-wrap justify-center gap-3">
               @if (authorProfile()?.socialLinks?.website) {
-                <pi-button 
+                <app-button 
                   variant="secondary"
                   size="sm"
                   iconLeft='<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9v-9m0-9v9"/></svg>'
-                  (buttonClick)="openSocialLink(authorProfile()!.socialLinks!.website!)">
+                  (click)="openSocialLink(authorProfile()!.socialLinks!.website!)" (keydown.enter)="openSocialLink(authorProfile()!.socialLinks!.website!)">
                   Website
-                </pi-button>
+                </app-button>
               }
               
               @if (authorProfile()?.socialLinks?.twitter) {
-                <pi-button 
+                <app-button 
                   variant="secondary"
                   size="sm"
                   iconLeft='<svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z"/></svg>'
-                  (buttonClick)="openSocialLink('https://twitter.com/' + authorProfile()!.socialLinks!.twitter!)">
+                  (click)="openSocialLink('https://twitter.com/' + authorProfile()!.socialLinks!.twitter!)" (keydown.enter)="openSocialLink('https://twitter.com/' + authorProfile()!.socialLinks!.twitter!)">
                   Twitter
-                </pi-button>
+                </app-button>
               }
               
               @if (authorProfile()?.socialLinks?.instagram) {
-                <pi-button 
+                <app-button 
                   variant="secondary"
                   size="sm"
                   iconLeft='<svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12.017 0C8.396 0 7.989.013 7.041.048 6.094.082 5.52.204 5.017.388a6.624 6.624 0 00-2.357 1.533A6.52 6.52 0 00.926 4.204C.743 4.708.621 5.281.588 6.227.013 7.175 0 7.584 0 12.017c0 4.432.013 4.841.048 5.788.033.946.155 1.519.34 2.024.18.895.479 1.563.896 2.125a6.55 6.55 0 002.125.896 7.108 7.108 0 002.023.84c.947.035 1.356.048 5.789.048 4.432 0 4.841-.013 5.788-.048.946-.032 1.519-.155 2.023-.84a6.55 6.55 0 002.125-.896 6.55 6.55 0 00.896-2.125c.184-.505.307-1.078.34-2.024.035-.947.048-1.356.048-5.788 0-4.433-.013-4.842-.048-5.789-.033-.946-.156-1.519-.34-2.024a6.55 6.55 0 00-.896-2.125A6.55 6.55 0 0019.229.388C18.724.204 18.151.082 17.205.048 16.258.013 15.849 0 11.417 0h.6zm-.988 1.75h.156c4.235 0 4.73.018 6.4.096.787.036 1.216.166 1.5.276.504.196.864.43 1.238.805.375.375.61.734.805 1.238.11.285.24.713.276 1.5.078 1.671.096 2.165.096 6.4 0 4.235-.018 4.73-.096 6.4-.036.787-.166 1.216-.276 1.5-.196.504-.43.864-.805 1.238a3.32 3.32 0 01-1.238.805c-.285.11-.713.24-1.5.276-1.671.078-2.165.096-6.4.096-4.236 0-4.73-.018-6.401-.096-.787-.036-1.216-.166-1.5-.276a3.32 3.32 0 01-1.238-.805 3.32 3.32 0 01-.805-1.238c-.11-.285-.24-.713-.276-1.5-.078-1.671-.096-2.165-.096-6.4 0-4.235.018-4.73.096-6.401.036-.787.166-1.216.276-1.5.196-.504.43-.864.805-1.238a3.32 3.32 0 011.238-.805c.285-.11.713-.24 1.5-.276 1.462-.067 2.023-.082 4.8-.082l-.06 1.75z"/><path d="M12.017 5.838a6.179 6.179 0 100 12.358 6.179 6.179 0 000-12.358zM12.017 15.75a3.571 3.571 0 110-7.142 3.571 3.571 0 010 7.142zM18.539 5.592a1.44 1.44 0 11-2.88 0 1.44 1.44 0 012.88 0z"/></svg>'
-                  (buttonClick)="openSocialLink('https://instagram.com/' + authorProfile()!.socialLinks!.instagram!)">
+                  (click)="openSocialLink('https://instagram.com/' + authorProfile()!.socialLinks!.instagram!)" (keydown.enter)="openSocialLink('https://instagram.com/' + authorProfile()!.socialLinks!.instagram!)">
                   Instagram
-                </pi-button>
+                </app-button>
+                
               }
             </div>
           }

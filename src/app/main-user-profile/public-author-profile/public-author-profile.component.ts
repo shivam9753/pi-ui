@@ -1,7 +1,8 @@
 import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule, TitleCasePipe } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
-import { ButtonComponent, EmptyStateComponent, LoadingStateComponent } from '../../shared/components';
+import { EmptyStateComponent, LoadingStateComponent } from '../../shared/components';
+import { ButtonComponent } from '../../ui-components/button/button.component';
 import { BackendService } from '../../services/backend.service';
 
 interface FeaturedWork {

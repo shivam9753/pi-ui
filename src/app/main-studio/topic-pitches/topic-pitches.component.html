@@ -19,12 +19,12 @@
             <p class="text-gray-600 mb-6">Pitch creative ideas and write compelling content for the community</p>
             
             <!-- Create Topic Button -->
-            <pi-button
+            <app-button
               variant="primary"
-              iconLeft='<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>'
-              (buttonClick)="showCreateForm = !showCreateForm">
-              Pitch New Topic
-            </pi-button>
+              size="md"
+              (click)="openNewPitchModal()">
+              New Pitch
+            </app-button>
           </div>
 
           <!-- Quick Info -->
@@ -229,11 +229,11 @@
               </svg>
               <h3 class="text-xl font-semibold text-gray-900 mb-2">No topics found</h3>
               <p class="text-gray-600 mb-6">Be the first to pitch a topic for the community!</p>
-              <pi-button
+              <app-button
                 variant="primary"
-                (buttonClick)="showCreateForm = true">
+                (click)="showCreateForm = true">
                 Create First Topic
-              </pi-button>
+              </app-button>
             </div>
           </div>
         }

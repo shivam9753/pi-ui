@@ -47,7 +47,8 @@
                         [border]="'default'"
                         [showButton]="true"
                         [buttonLabel]="'Edit'"
-                        (buttonClick)="loadDraft.emit(draft)"
+                        (click)="loadDraft.emit(draft)"
+                        (keydown.enter)="loadDraft.emit(draft)"
                         [showSecondaryButton]="true"
                         [secondaryLabel]="'Delete'"
                         [secondaryButtonVariant]="'destructive'"
@@ -109,7 +110,8 @@
                   [border]="'default'"
                   [showButton]="true"
                   [buttonLabel]="'Edit'"
-                  (buttonClick)="loadDraft.emit(draft)"
+                  (click)="loadDraft.emit(draft)"
+                  (keydown.enter)="loadDraft.emit(draft)"
                   [showSecondaryButton]="true"
                   [secondaryLabel]="'Delete'"
                   [secondaryButtonVariant]="'destructive'"
@@ -146,9 +148,8 @@
       <button (click)="cancelDelete()" class="btn-secondary">
         Cancel
       </button>
-      <pi-button variant="destructive" size="md" (buttonClick)="executeDelete()">
-        Delete
-      </pi-button>
+      <app-button variant="destructive" size="md" (click)="executeDelete()" (keydown.enter)="executeDelete()">
+      </app-button>
     </div>
   </div>
 </div>

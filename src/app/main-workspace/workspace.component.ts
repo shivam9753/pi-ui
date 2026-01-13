@@ -5,10 +5,10 @@ import { AuthService } from '../services/auth.service';
 
 // Import individual workspace tab components
 import { PendingReviewsComponent } from "./pending-reviews/pending-reviews.component";
-import { ButtonComponent } from '../shared/components';
 import { ReadyToPublishComponent } from './ready-to-publish/ready-to-publish.component';
 import { ShortlistedSubmissionsComponent } from './shortlisted/shortlisted-submissions.component';
 import { TabItemComponent, TabsComponent } from '../ui-components';
+import { ButtonComponent } from '../ui-components/button/button.component';
 
 @Component({
   selector: 'app-workspace',

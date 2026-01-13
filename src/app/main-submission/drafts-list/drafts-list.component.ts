@@ -2,7 +2,7 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
 import { CommonUtils, StringUtils } from '../../shared/utils';
-import { ButtonComponent } from '../../shared/components/button/button.component';
+import { ButtonComponent } from '../../ui-components/button/button.component';
 import { CardComponent } from '../../ui-components/card/card.component';
 import { ThemingService } from '../../services/theming.service';
 import { HtmlSanitizerService } from '../../services/html-sanitizer.service';

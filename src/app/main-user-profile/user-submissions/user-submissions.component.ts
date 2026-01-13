@@ -5,9 +5,9 @@ import { RouterModule, Router } from '@angular/router';
 import { BackendService } from '../../services/backend.service';
 import { PrettyLabelPipe } from '../../pipes/pretty-label.pipe';
 import { SUBMISSION_STATUS, SubmissionStatus } from '../../shared/constants/api.constants';
-import { ButtonComponent } from '../../shared/components';
+import { ButtonComponent } from '../../ui-components/button/button.component';
 
-// Interfaces
+// Interfaces3
 interface Submission {
   _id: string;
   title: string;

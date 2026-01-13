@@ -117,7 +117,7 @@
         <div class="flex items-center">
           @if (message.type === 'success') {
             <svg class="w-5 h-5 mr-3" fill="currentColor" viewBox="0 0 20 20">
-              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+              <path fill-rule="evenodd" clip-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm-1.293-4.293l-3-3 1.414-1.414L9 11.586l4.879-4.879 1.414 1.414-6.586 6.586z"/>
             </svg>
           }
           @if (message.type === 'error') {
@@ -126,11 +126,11 @@
             </svg>
           }
           <span class="flex-1">{{ message.text }}</span>
-          <pi-button variant="ghost" size="sm" (buttonClick)="clearMessage()" class="ml-4">
+          <app-button variant="ghost" size="sm" (click)="clearMessage()" (keydown.enter)="clearMessage()" class="ml-4">
             <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
               <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/>
             </svg>
-          </pi-button>
+          </app-button>
         </div>
       </div>
     </div>
@@ -217,14 +217,14 @@
                         <div class="text-sm text-gray-600 mb-2">New Image:</div>
                         <div class="relative inline-block">
                           <img [src]="previewUrl" alt="Preview" class="w-16 h-16 rounded-full object-cover border-2 border-gray-300">
-                          <pi-button
+                          <app-button
                             variant="destructive"
                             size="sm"
-                            (buttonClick)="removeImage()"
+                            (click)="removeImage()" (keydown.enter)="removeImage()"
                             class="absolute -top-2 -right-2 !rounded-full !w-5 !h-5 !min-h-0 !p-0 !text-xs"
                             ariaLabel="Remove image">
                             ×
-                          </pi-button>
+                          </app-button>
                         </div>
                       </div>
                     }
@@ -244,11 +244,11 @@
           
           <!-- Modal Footer -->
           <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-            <pi-button
+            <app-button
               variant="primary"
               [disabled]="loading || uploadingImage"
               [loading]="loading || uploadingImage"
-              (buttonClick)="saveUserChanges()">
+              (click)="saveUserChanges()" (keydown.enter)="saveUserChanges()">
               @if (loading) {
                 Saving...
               } @else if (uploadingImage) {
@@ -256,13 +256,13 @@
               } @else {
                 Save Changes
               }
-            </pi-button>
-            <pi-button
+            </app-button>
+            <app-button
               variant="secondary"
               [disabled]="loading || uploadingImage"
-              (buttonClick)="closeEditModal()">
+              (click)="closeEditModal()" (keydown.enter)="closeEditModal()">
               Cancel
-            </pi-button>
+            </app-button>
         </div>
       </div>
     </div>

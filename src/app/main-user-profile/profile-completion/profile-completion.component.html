@@ -158,30 +158,30 @@
 
       <!-- Action Buttons -->
       <div class="flex flex-col sm:flex-row gap-4">
-        <pi-button
+        <app-button
           variant="primary"
           [disabled]="isSubmitting || !profileForm.valid"
           [loading]="isSubmitting"
-          (buttonClick)="onSubmit()">
+          (click)="onSubmit()">
           {{ isSubmitting ? (isEditMode || mode === 'edit' ? 'Updating Profile...' : 'Completing Profile...') : (isEditMode || mode === 'edit' ? 'Update Profile' : 'Complete Profile') }}
-        </pi-button>
+        </app-button>
 
         @if (!isEditMode && mode === 'completion' && showSkipButton) {
-          <pi-button
+          <app-button
             variant="secondary"
             [disabled]="isSubmitting"
-            (buttonClick)="skipForNow()">
+            (click)="skipForNow()">
             Skip for Now
-          </pi-button>
+          </app-button>
         }
 
         @if (isEditMode || mode === 'edit') {
-          <pi-button
+          <app-button
             variant="secondary"
             [disabled]="isSubmitting"
-            (buttonClick)="cancel()">
+            (click)="cancel()">
             Cancel
-          </pi-button>
+          </app-button>
         }
       </div>
     </form>

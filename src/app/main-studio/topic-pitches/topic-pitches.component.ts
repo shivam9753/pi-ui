@@ -6,7 +6,7 @@ import { forkJoin } from 'rxjs';
 import { TopicPitch, CreateTopicPitchPayload, TopicPitchFilters, TopicPitchesResponse } from '../../models';
 import { AuthService } from '../../services/auth.service';
 import { BackendService } from '../../services/backend.service';
-import { ButtonComponent } from '../../shared/components';
+import { ButtonComponent } from '../../ui-components/button/button.component';
 
 @Component({
   selector: 'app-topic-pitches',
@@ -289,6 +289,11 @@ export class TopicPitchesComponent implements OnInit {
     this.topicToCliam = topic;
     this.claimDeadline = '';
     this.showClaimModal = true;
+  }
+
+  // Called from template to open the topic creation modal (used by app-button/pi-button click)
+  openNewPitchModal(): void {
+    this.showCreateForm = true;
   }
 
   closeClaimModal(): void {
