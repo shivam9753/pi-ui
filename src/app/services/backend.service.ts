@@ -1153,6 +1153,7 @@ getTopContent(options: {
   period?: 'week' | 'month' | 'all';
   limit?: number;
   type?: string;
+  metric?: 'recent' | 'views';
 } = {}): Observable<{
   topByViews: any[];
   topByEngagement: any[];
@@ -1164,6 +1165,7 @@ getTopContent(options: {
   if (options.period) params = params.set('period', options.period);
   if (options.limit) params = params.set('limit', options.limit.toString());
   if (options.type) params = params.set('type', options.type);
+  if (options.metric) params = params.set('metric', options.metric);
 
   const url = `${this.API_URL}/analytics/top-content`;
   return this.http.get<any>(url, { headers, params }).pipe(
@@ -1172,18 +1174,21 @@ getTopContent(options: {
 }
 
 // Get analytics by content type
-getContentTypeAnalytics(): Observable<{
+getContentTypeAnalytics(options: { period?: 'week' | 'month' | 'all'; type?: string } = {}): Observable<{
   types: Array<{
     type: string;
     count: number;
     totalViews: number;
     avgViews: number;
-    percentage: number;
+    percentage?: number;
   }>;
 }> {
   const headers = this.getAuthHeaders();
+  let params = new HttpParams();
+  if (options.period) params = params.set('period', options.period);
+  if (options.type) params = params.set('type', options.type);
   const url = `${this.API_URL}/analytics/content-types`;
-  return this.http.get<any>(url, { headers }).pipe(
+  return this.http.get<any>(url, { headers, params }).pipe(
     this.handleApiCall(url, 'GET')
   );
 }
