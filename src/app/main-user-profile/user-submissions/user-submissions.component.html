@@ -40,6 +40,33 @@
         </div>
       </div>
 
+      <!-- Empty state when there are no submissions -->
+      @if ((getStatusCount('under-review') + getStatusCount('needs_revision') + getStatusCount('rejected') + getStatusCount('accepted') + getStatusCount('published')) === 0) {
+        <div class="py-16 text-center bg-white rounded-lg border border-border">
+          <div class="max-w-2xl mx-auto px-6">
+            <div class="flex items-center justify-center mb-4">
+              <!-- simple empty box illustration -->
+              <svg class="w-20 h-20 text-themed-secondary" viewBox="0 0 64 64" fill="none" aria-hidden>
+                <rect x="6" y="14" width="52" height="36" rx="4" stroke="currentColor" stroke-width="2" opacity="0.12" />
+                <path d="M20 26h24M20 34h24" stroke="currentColor" stroke-width="2" stroke-linecap="round" opacity="0.14" />
+              </svg>
+            </div>
+            <h2 class="text-xl font-semibold text-themed">You haven't submitted anything yet</h2>
+            <p class="mt-2 text-sm text-themed-secondary">Ready to share your work? Submit your first piece to get feedback and a chance to be featured.</p>
+
+            <div class="mt-6 flex items-center justify-center gap-3">
+              <app-button variant="primary" (click)="router.navigate(['/submit'])" (keydown.enter)="router.navigate(['/submit'])">
+                Submit your content
+              </app-button>
+
+              <app-button variant="secondary" (click)="router.navigate(['/explore'])" (keydown.enter)="router.navigate(['/explore'])">
+                Browse featured poems
+              </app-button>
+            </div>
+          </div>
+        </div>
+      }
+
       <!-- Dashboard stat cards (show only if count > 0) -->
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
         @if (getStatusCount('under-review') > 0) {

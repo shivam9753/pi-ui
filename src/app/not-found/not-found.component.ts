@@ -24,21 +24,26 @@ import { RouterModule } from '@angular/router';
           </p>
         </div>
 
-        <!-- Action Buttons -->
-        <div class="flex flex-col sm:flex-row items-center justify-center gap-4 mb-8">
-          <a
-            routerLink="/explore"
-            class="btn-primary px-8 py-4 text-lg font-medium rounded-lg shadow-md hover:shadow-lg transition-all duration-200 transform hover:-translate-y-0.5"
-          >
-            Browse Poems
-          </a>
+        <!-- Primary action buttons removed (use Quick Links below) -->
 
-          <a
-            routerLink="/"
-            class="btn-secondary px-8 py-4 text-lg font-medium rounded-lg transition-all duration-200"
-          >
-            Go Home
-          </a>
+        <!-- Quick Links (compact card) -->
+        <div class="mb-12">
+          <h2 class="text-lg font-semibold mb-4" style="color: var(--text-tertiary); font-family: 'Source Sans Pro', sans-serif;">
+            Quick Links
+          </h2>
+
+          <div class="mx-auto max-w-lg bg-[rgba(255,255,255,0.02)] p-3 rounded-lg">
+            <nav role="navigation" aria-label="Quick links">
+              <ul role="list" class="flex flex-wrap gap-3 justify-center m-0 p-0 list-none">
+                <li role="listitem" *ngFor="let link of quickLinks">
+                  <a [routerLink]="link.path" [attr.aria-label]="link.aria"
+                     class="px-4 py-2 text-sm md:text-base rounded-full border border-[rgba(255,255,255,0.06)] hover:bg-[rgba(255,255,255,0.06)] transition transform hover:-translate-y-0.5 inline-block">
+                    {{ link.label }}
+                  </a>
+                </li>
+              </ul>
+            </nav>
+          </div>
         </div>
 
         <!-- Decorative Elements -->
@@ -56,7 +61,14 @@ import { RouterModule } from '@angular/router';
 export class NotFoundComponent {
   randomMessage: string;
 
-  private literary404Messages = [
+  // Quick links shown on the 404 page (update paths if your app uses different routes)
+  readonly quickLinks: Array<{ label: string; path: string; aria?: string }> = [
+    { label: 'Submit your content', path: '/submit', aria: 'Navigate to submission editor to submit your content' },
+    { label: 'Manage your profile', path: '/profile', aria: 'Go to your profile settings and manage your profile' },
+    { label: 'Read featured poem', path: '/featured', aria: 'Open the featured poem' }
+  ];
+
+  private readonly literary404Messages = [
     "Error 404: Page Not Found-er! This page has gone completely Shakespeare - it's having an existential crisis asking 'To be or not to be... found.'",
 
     "Dickens! We've Lost Another Page! It was the best of times, it was the worst of times... mostly the worst because your page vanished.",
