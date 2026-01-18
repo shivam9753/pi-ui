@@ -3,7 +3,6 @@ import { ExploreComponent } from './main-explore/explore/explore.component';
 import { AdminGuard } from './guards/admin.guard';
 import { AuthGuard } from './guards/authguard';
 import { ReviewerGuard } from './guards/reviewer.guard';
-import { StudioGuard } from './guards/studio.guard';
 import { SubmissionEditorComponent } from './main-submission/submission-editor.component';
 import { UserLoginComponent } from './user-login/user-login.component';
 import { UserProfileComponent } from './main-user-profile/user-profile.component';
@@ -26,7 +25,6 @@ import { AboutComponent } from './info/about/about.component';
 import { SearchResultsComponent } from './search-results/search-results.component';
 import { FeaturedPoemsComponent } from './main-featured/featured-poems/featured-poems.component';
 import { NotFoundComponent } from './not-found/not-found.component';
-import { MainStudioComponent } from './main-studio/main-studio.component';
 import { ReadingInterfaceComponent } from './main-reading/reading-interface/reading-interface.component';
 import { PublicAuthorProfileComponent } from './main-user-profile/public-author-profile/public-author-profile.component';
 import { SimpleContentReaderComponent } from './main-reading/simple-content-reader/simple-content-reader.component';
@@ -158,12 +156,6 @@ export const routes: Routes = [
     canActivate: [ReviewerGuard],
     title: 'Editorial Workspace'
   },
-  { 
-    path: 'studio', 
-    component: MainStudioComponent, 
-    canActivate: [StudioGuard],
-    title: 'Creative Studio'
-  },
   
   // Legacy routes for backwards compatibility
   { 
@@ -179,11 +171,6 @@ export const routes: Routes = [
   { 
     path: 'users', 
     redirectTo: '/admin#users',
-    pathMatch: 'full'
-  },
-  { 
-    path: 'pitches', 
-    redirectTo: '/studio#pitches',
     pathMatch: 'full'
   },
   { 
@@ -256,7 +243,7 @@ export const routes: Routes = [
         'login', 'explore', 'search', 'submit', 'admin', 'workspace', 'studio', 'profile', 'prompts',
         'faqs', 'contact-us', 'privacy-policy', 'terms-of-use', 'whats-new',
         'complete-profile', 'review', 'publish', 'users', 'poem-parser', 'json-parser',
-        'user-profile', 'pitches', 'about', 'not-found'
+        'user-profile', 'about', 'not-found'
       ];
       
       if (slug && !knownRoutes.includes(slug)) {

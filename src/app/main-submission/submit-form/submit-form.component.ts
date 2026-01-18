@@ -54,7 +54,6 @@ export class SubmitFormComponent implements OnInit, OnDestroy {
   @Input() submissionId?: string;
   @Input() existingData?: EditableSubmission;
   @Input() currentDraft: Draft | null = null;
-  @Input() relatedTopicPitchId: string | null = null;
 
   @Output() toastMessage = new EventEmitter<{ message: string; type: 'success' | 'error' | 'info' | 'warning' }>();
   @Output() formSubmitted = new EventEmitter<void>();
@@ -73,7 +72,6 @@ export class SubmitFormComponent implements OnInit, OnDestroy {
   hasUnsavedChanges = false;
   hasChanges = false;
   currentDraftId: string | null = null;
-  private topicPitchData: { title?: string; description?: string; type?: string } | null = null;
   private subscriptions: Subscription[] = [];
 
   submissionTypes = [
@@ -204,9 +202,7 @@ export class SubmitFormComponent implements OnInit, OnDestroy {
   get pageSubtitle(): string {
     switch (this.mode) {
       case 'create':
-        return this.relatedTopicPitchId
-          ? '✨ Writing based on a community topic pitch - form pre-filled for you!'
-          : 'Send us your work for consideration';
+        return 'Send us your work for consideration';
       case 'edit': return 'Update your submission and resubmit';
       case 'resubmit': return 'Make revisions and resubmit for review';
       case 'view': return 'Review your submission';
@@ -325,31 +321,6 @@ export class SubmitFormComponent implements OnInit, OnDestroy {
     }, 200);
   }
 
-  setTopicPitchData(data: { topicId?: string; title?: string; description?: string; type?: string }): void {
-    if (data.topicId) {
-      this.relatedTopicPitchId = data.topicId;
-    }
-
-    this.topicPitchData = {
-      title: data.title || undefined,
-      description: data.description || undefined,
-      type: data.type || undefined
-    };
-
-    if (data.type) {
-      let submissionType = data.type;
-      if (data.type === 'cinema_essay') {
-        submissionType = 'article';
-      }
-
-      this.onTypeSelected(submissionType);
-    }
-
-    setTimeout(() => {
-      this.showToast('Pre-filled from topic pitch! Feel free to modify as needed.', 'info');
-    }, 100);
-  }
-
   saveAsDraft(): void {
     if (!this.hasContent()) {
       this.showToast('Please add some content before saving as draft', 'error');
@@ -425,28 +396,6 @@ export class SubmitFormComponent implements OnInit, OnDestroy {
     this.selectedType = type;
     this.form.patchValue({ submissionType: type });
 
-    // Apply topic pitch data if available
-    if (this.topicPitchData) {
-      setTimeout(() => {
-        if (this.topicPitchData?.title) {
-          this.form.patchValue({ title: this.topicPitchData.title });
-
-          const contentsArray = this.form.get('contents') as FormArray;
-          if (contentsArray && contentsArray.length > 0) {
-            const firstContent = contentsArray.at(0);
-            firstContent?.patchValue({ title: this.topicPitchData.title });
-          }
-        }
-
-        if (this.topicPitchData?.description) {
-          this.form.patchValue({ description: this.topicPitchData.description });
-        }
-
-        this.topicPitchData = null;
-        this.cdr.detectChanges();
-      }, 0);
-    }
-
     // Auto-scroll to content section
     setTimeout(() => {
       const contentSection = document.querySelector('[data-section="content"]') ||
@@ -455,7 +404,7 @@ export class SubmitFormComponent implements OnInit, OnDestroy {
       if (contentSection) {
         contentSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }
-    }, this.topicPitchData ? 200 : 100);
+    }, 100);
   }
 
   onContentChanged(contents: any[]): void {

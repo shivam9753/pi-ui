@@ -10,7 +10,6 @@ export * from './submission.model';
 export * from './review.model';
 export * from './prompt.model';
 export * from './purge.model';
-export * from './topic-pitch.model';
 
 // Re-export commonly used types for convenience
 export type {
@@ -76,12 +75,4 @@ export type {
   PurgeExecuteResponse
 } from './purge.model';
 
-export type {
-  TopicPitch,
-  CreateTopicPitchPayload,
-  UpdateTopicPitchPayload,
-  ClaimTopicPayload,
-  TopicPitchFilters,
-  TopicPitchesResponse,
-  TopicPitchStats
-} from './topic-pitch.model';
+// Topic pitch model exports removed

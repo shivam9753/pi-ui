@@ -2,8 +2,6 @@
 
 export interface PurgeStats {
   totalSubmissions: number;
-  eligibleForPurge: number;
-  markedForDeletion: number;
   purgeByStatus: {
     rejected: number;
     spam: number;
@@ -30,9 +28,6 @@ export interface PurgeSubmission {
   status: string;
   createdAt: string;
   updatedAt: string;
-  eligibleForPurge: boolean;
-  purgeEligibleSince?: string;
-  markedForDeletion: boolean;
   author: Author;
   contentCount: number;
   totalSize: number; // in bytes
@@ -47,8 +42,6 @@ export interface PurgeFilters {
   ageInMonths?: number;
   minSize?: number; // in bytes
   author?: string;
-  markedForDeletion?: boolean;
-  eligibleOnly?: boolean;
 }
 
 export interface PurgeQueryOptions {

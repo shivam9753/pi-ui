@@ -8,6 +8,16 @@
       <div class="text-center">
         <h1 class="text-2xl text-gray-900">{{ pageTitle }}</h1>
         <p class="text-gray-900-secondary text-sm mt-1">{{ pageSubtitle }}</p>
+      </div>  
+
+      <!-- Quick link to My Submissions (mobile) -->
+      <div class="mt-3 flex justify-center">
+        <a routerLink="/my-submissions" href="/my-submissions" class="inline-flex items-center gap-2 text-sm text-primary hover:underline" aria-label="View my submissions">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 2h6l5 5v11a2 2 0 01-2 2H7a2 2 0 01-2-2V4a2 2 0 012-2z" />
+          </svg>
+          View All Submissions
+        </a>
       </div>
     </div>
 
@@ -29,7 +39,6 @@
         [mode]="mode"
         [submissionId]="submissionId"
         [currentDraft]="currentDraft"
-        [relatedTopicPitchId]="relatedTopicPitchId"
         (toastMessage)="onToastMessage($event)"
         (formSubmitted)="onFormSubmitted()"
         (draftSaved)="onDraftSaved($event)"
@@ -39,8 +48,8 @@
       <!-- Mobile inline actions: duplicate the Save/Submit controls near the tabs for easier access -->
       @if (isCreateMode && !isViewMode) {
       <div class="lg:hidden px-6 py-3 bg-white-tertiary border-b border-gray-200 flex items-center justify-end gap-3">
-        <app-button variant="secondary" size="md" (click)="submitFormRef.saveAsDraft()">Save Draft</app-button>
-        <app-button variant="primary" size="md" (click)="submitFormRef.submitForm()">Submit for Review</app-button>
+        <app-button variant="secondary" size="md" (click)="submitFormRef.saveAsDraft()" (keydown.enter)="submitFormRef.saveAsDraft()">Save Draft</app-button>
+        <app-button variant="primary" size="md" (click)="submitFormRef.submitForm()" (keydown.enter)="submitFormRef.submitForm()">Submit for Review</app-button>
       </div>
       }
     }
@@ -79,6 +88,16 @@
         </p>
       </div>
 
+      <!-- Desktop quick link -->
+      <div class="flex justify-center mb-6">
+        <a routerLink="/my-submissions" href="/my-submissions" class="inline-flex items-center gap-2 px-3 py-2 text-sm font-medium text-primary bg-white-tertiary rounded-xl border border-border hover:bg-white" aria-label="View my submissions">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 2h6l5 5v11a2 2 0 01-2 2H7a2 2 0 01-2-2V4a2 2 0 012-2z" />
+          </svg>
+          View All Submissions
+        </a>
+      </div>
+
       <!-- Navigation Tabs (Create mode only) -->
       @if (isCreateMode) {
         <div class="mb-12">
@@ -96,7 +115,6 @@
           [mode]="mode"
           [submissionId]="submissionId"
           [currentDraft]="currentDraft"
-          [relatedTopicPitchId]="relatedTopicPitchId"
           (toastMessage)="onToastMessage($event)"
           (formSubmitted)="onFormSubmitted()"
           (draftSaved)="onDraftSaved($event)"
