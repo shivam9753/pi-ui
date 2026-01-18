@@ -1,44 +1,25 @@
-<!-- Container wrapper - conditionally show based on showContainer -->
-<div [ngClass]="showContainer ? 'min-h-screen bg-themed flex items-center justify-center p-4' : ''">
-  <div [ngClass]="showContainer ? 'max-w-2xl w-full bg-themed rounded-xl shadow-lg p-8 border border-themed' : 'w-full'">
-    <!-- Header - conditionally show based on showHeader -->
-    @if (showHeader) {
-      <div class="text-center mb-8">
-        <h1 class="text-3xl font-bold text-themed mb-2">
-          {{ customTitle || (isEditMode || mode === 'edit' ? 'Edit Your Profile' : 'Complete Your Profile') }}
-        </h1>
-        <p class="text-themed leading-relaxed">
-          {{ customSubtitle || (isEditMode || mode === 'edit' ? 'Update your author profile information.' : 'Help us create your author profile.') }}
-          @if (!customSubtitle) {
-            This information will be displayed when your content is featured on our platform.
-          }
-        </p>
+<div class="w-full">
+  <!-- Header removed; only show concise Important Information box per design -->
+ 
+  <!-- Information Notice -->
+  <div class="bg-blue-50 border border-blue-100 rounded-lg p-3 mb-6">
+    <div class="flex items-start gap-3">
+      <div class="w-7 h-7 flex items-center justify-center rounded-full bg-blue-100 text-blue-800">
+        <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20"><path d="M9 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"/></svg>
       </div>
-    }
-
-    <!-- Information Notice -->
-    <div class="bg-primary-light border border-amber-200 rounded-lg p-4 mb-8">
-      <div class="flex items-start">
-        <svg class="w-5 h-5 text-primary mt-0.5 mr-3" fill="currentColor" viewBox="0 0 20 20">
-          <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
-        </svg>
-        <div>
-          <h3 class="text-sm font-medium text-amber-800 mb-1">Important Information</h3>
-          <p class="text-sm text-amber-700">
-            Your profile picture and bio will be used when your submitted content is featured.
-            Please use a clear headshot and write a professional bio. Your public profile will only be visible when your content is featured.
-          </p>
-        </div>
+      <div>
+        <div class="font-medium text-blue-800 text-xs">Important Information</div>
+        <div class="text-xs text-blue-700">Your profile picture and bio will be used when your submitted content is featured. Please use a clear headshot and write a professional bio. Your public profile will only be visible when your content is featured.</div>
       </div>
     </div>
+  </div>
 
-    <!-- Form -->
-    <form (ngSubmit)="onSubmit()" #profileForm="ngForm">
+  <!-- Form -->
+  <form (ngSubmit)="onSubmit()" #profileForm="ngForm">
+    <div [ngClass]="showContainer ? 'bg-white border border-border rounded-lg p-6 space-y-6 shadow-sm' : 'space-y-6'">
       <!-- Name Field -->
-      <div class="mb-6">
-        <label for="name" class="block text-sm font-medium text-themed mb-2">
-          Full Name <span class="text-red-500">*</span>
-        </label>
+      <div>
+        <label for="name" class="block text-sm font-medium text-themed mb-2">Full Name <span class="text-red-500">*</span></label>
         <input
           type="text"
           id="name"
@@ -47,16 +28,14 @@
           required
           minlength="2"
           maxlength="100"
-          class="w-full px-4 py-3 border border-themed rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-colors bg-themed text-themed"
+          class="w-full px-4 py-3 border border-border rounded-lg bg-white text-themed placeholder:text-themed-secondary focus:outline-none focus:ring-2 focus:ring-primary transition"
           placeholder="Enter your full name"
-          />
+        />
       </div>
 
       <!-- Bio Field -->
-      <div class="mb-6">
-        <label for="bio" class="block text-sm font-medium text-themed mb-2">
-          Professional Bio @if (mode === 'completion') {<span class="text-red-500">*</span>}
-        </label>
+      <div>
+        <label for="bio" class="block text-sm font-medium text-themed mb-2">Professional Bio @if (mode === 'completion') {<span class="text-red-500">*</span>}</label>
         <textarea
           id="bio"
           name="bio"
@@ -64,92 +43,43 @@
           [required]="mode === 'completion'"
           [minlength]="profileData.bio.trim() ? 20 : 0"
           maxlength="500"
-          rows="4"
-          class="w-full px-4 py-3 border border-themed rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-colors resize-none bg-themed text-themed"
+          rows="5"
+          class="w-full px-4 py-3 border border-border rounded-lg bg-white text-themed resize-none placeholder:text-themed-secondary focus:outline-none focus:ring-2 focus:ring-primary transition"
           placeholder="Write a brief professional bio that describes you as a writer/author..."
         ></textarea>
-        <div class="flex justify-between items-center mt-2">
-          <p class="text-sm text-themed">
-            @if (mode === 'completion') {
-              Minimum 20 characters. Tell readers about your writing background, interests, or expertise.
-            } @else {
-              Optional. If provided, minimum 20 characters. Tell readers about your writing background, interests, or expertise.
-            }
-          </p>
-          <p class="text-sm" [ngClass]="{
-            'text-gray-500': getBioCharacterCount() < 20,
-            'text-green-600': getBioCharacterCount() >= 20 && getBioCharacterCount() <= 450,
-            'text-primary': getBioCharacterCount() > 450 && getBioCharacterCount() <= 500,
-            'text-red-600': getBioCharacterCount() > 500
-          }">
-            {{ getBioCharacterCount() }}/500
-          </p>
-        </div>
       </div>
 
       <!-- Profile Image Upload -->
-      <div class="mb-8">
-        <label class="block text-sm font-medium text-themed mb-2">
-          Profile Picture
-        </label>
-        <p class="text-sm text-themed mb-4">
-          Upload a clear headshot. Recommended size: 400x400px. Max size: 5MB.
-        </p>
+      <div>
+        <label for="profileImage" class="block text-sm font-medium text-themed mb-2">Profile Picture</label>
+        <p class="text-xs text-themed mb-3">Upload a clear headshot. Max size: 1MB.</p>
 
         <div class="flex items-start space-x-4">
-          <!-- Image Preview -->
           <div class="flex-shrink-0">
-            <div class="w-24 h-24 rounded-full overflow-hidden bg-gray-100 border-2 border-gray-200">
+            <div class="w-24 h-24 rounded-full overflow-hidden bg-gray-100 border border-border">
               @if (profileImagePreview || user?.picture) {
-                <img
-                  [src]="profileImagePreview || user?.picture"
-                  alt="Profile preview"
-                  class="w-full h-full object-cover"
-                  />
-              }
-              @if (!profileImagePreview && !user?.picture) {
-                <div
-                  class="w-full h-full flex items-center justify-center text-gray-400"
-                  >
-                  <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"></path>
-                  </svg>
+                <img [src]="profileImagePreview || user?.picture" alt="Profile preview" class="w-full h-full object-cover" />
+              } @else {
+                <div class="w-full h-full flex items-center justify-center text-gray-400">
+                  <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"></path></svg>
                 </div>
               }
             </div>
           </div>
 
-          <!-- Upload Controls -->
           <div class="flex-grow">
-            <input
-              type="file"
-              id="profileImage"
-              accept="image/*"
-              (change)="onImageSelected($event)"
-              class="hidden"
-              />
+            <input type="file" id="profileImage" accept="image/*" (change)="onImageSelected($event)" class="hidden" />
             <div class="flex space-x-3">
-              <label
-                for="profileImage"
-                class="inline-flex items-center px-4 py-2 border border-themed rounded-lg text-sm font-medium text-themed bg-themed hover:bg-themed cursor-pointer transition-colors"
-                >
-                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
-                </svg>
+              <label for="profileImage" class="inline-flex items-center px-4 py-2 rounded-lg border border-border bg-white text-themed cursor-pointer hover:bg-gray-50 transition">
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
                 Choose Image
               </label>
 
               @if (profileImagePreview) {
-                <button
-                  type="button"
-                  (click)="removeImage()"
-                  class="inline-flex items-center px-4 py-2 border border-red-300 rounded-lg text-sm font-medium text-red-700 bg-themed hover:bg-red-50 cursor-pointer transition-colors"
-                  >
-                  <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-                  </svg>
+                <app-button variant="destructive" size="sm" type="button" (click)="removeImage()" (keydown.enter)="removeImage()">
+                  <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                   Remove
-                </button>
+                </app-button>
               }
             </div>
           </div>
@@ -157,35 +87,21 @@
       </div>
 
       <!-- Action Buttons -->
-      <div class="flex flex-col sm:flex-row gap-4">
-        <app-button
-          variant="primary"
-          [disabled]="isSubmitting || !profileForm.valid"
-          [loading]="isSubmitting"
-          (click)="onSubmit()">
-          {{ isSubmitting ? (isEditMode || mode === 'edit' ? 'Updating Profile...' : 'Completing Profile...') : (isEditMode || mode === 'edit' ? 'Update Profile' : 'Complete Profile') }}
-        </app-button>
-
+      <div class="flex justify-end items-center gap-3 pt-2">
         @if (!isEditMode && mode === 'completion' && showSkipButton) {
-          <app-button
-            variant="secondary"
-            [disabled]="isSubmitting"
-            (click)="skipForNow()">
-            Skip for Now
-          </app-button>
+          <app-button variant="secondary" size="sm" [disabled]="isSubmitting" (click)="skipForNow()" (keydown.enter)="skipForNow()">Skip for Now</app-button>
         }
 
         @if (isEditMode || mode === 'edit') {
-          <app-button
-            variant="secondary"
-            [disabled]="isSubmitting"
-            (click)="cancel()">
-            Cancel
-          </app-button>
+          <app-button variant="secondary" size="sm" [disabled]="isSubmitting" (click)="cancel()" (keydown.enter)="cancel()">Cancel</app-button>
         }
+
+        <app-button variant="primary" size="sm" [disabled]="isSubmitting || !profileForm.valid" [loading]="isSubmitting" (click)="onSubmit()" (keydown.enter)="onSubmit()">
+          {{ isSubmitting ? (isEditMode || mode === 'edit' ? 'Updating Profile...' : 'Completing Profile...') : (isEditMode || mode === 'edit' ? 'Update Profile' : 'Complete Profile') }}
+        </app-button>
       </div>
-    </form>
-  </div>
+    </div>
+  </form>
 
   <!-- Toast Notification -->
   <app-toast-notification

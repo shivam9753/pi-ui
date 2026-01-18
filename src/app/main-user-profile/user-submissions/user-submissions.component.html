@@ -27,300 +27,154 @@
 <!-- Main Content -->
 @if (!isLoading() && !error()) {
   <div class="min-h-screen bg-background">
-    
-    <!-- Header -->
-    <div class="bg-surface border-b border-border">
-      <div class="max-w-4xl mx-auto px-4 py-6">
-        <div class="flex items-center gap-4">
-          <button
-            (click)="router.navigate(['/profile'])" (keydown.enter)="router.navigate(['/profile'])"
-            class="w-10 h-10 flex items-center justify-center rounded-xl bg-themed-hover hover:bg-themed-accent-light transition-colors">
-            <svg class="w-5 h-5 text-themed-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
-            </svg>
-          </button>
+
+    <div class="max-w-6xl mx-auto px-4 py-8">
+
+      <!-- Page heading -->
+      <div class="mb-6">
+        <div class="flex items-center justify-between">
           <div>
             <h1 class="text-2xl font-bold text-themed">My Submissions</h1>
             <p class="text-themed-secondary text-sm">Manage and track your creative works</p>
           </div>
         </div>
       </div>
-    </div>
 
-    <!-- Main Content Area -->
-    <div class="max-w-4xl mx-auto px-4 py-8">
-      
-      <!-- Actions Bar -->
-      <div class="flex items-center justify-between mb-6">
-        @if (totalSubmissions() > 0) {
-          <span class="text-sm text-themed-secondary font-medium">
-            {{ getFilteredSubmissions().length }} of {{ totalSubmissions() }} submissions
-          </span>
-        } @else {
-          <div></div>
+      <!-- Dashboard stat cards (show only if count > 0) -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
+        @if (getStatusCount('under-review') > 0) {
+        <div class="p-4 rounded-lg flex items-center justify-between bg-white border border-border">
+          <div class="flex items-center gap-3">
+            <div class="w-12 h-12 rounded-lg bg-white border-2 border-blue-100 text-blue-600 flex items-center justify-center">
+              <!-- Document + Magnifying Glass -->
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 2h6l5 5v11a2 2 0 01-2 2H7a2 2 0 01-2-2V4a2 2 0 012-2z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.5 15.5l3 3M11 14a3 3 0 100-6 3 3 0 000 6z" />
+              </svg>
+            </div>
+            <div>
+              <div class="text-sm font-semibold text-blue-900">In Review</div>
+              <div class="text-2xl font-bold text-blue-900">{{ getStatusCount('under-review') }}</div>
+              <div class="text-xs text-blue-700">Awaiting decision</div>
+            </div>
+          </div>
+          <button (click)="router.navigate(['/submissions'], { queryParams: { statuses: 'pending_review,in_progress,resubmitted' } })" class="p-2 rounded-md bg-white border border-blue-100" (keydown.enter)="router.navigate(['/submissions'], { queryParams: { statuses: 'pending_review,in_progress,resubmitted' } })" aria-label="View In Review Submissions">
+            <svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+          </button>
+        </div>
         }
-        
-        <app-button
-          variant="primary"
-          (click)="goToSubmit()" (keydown.enter)="goToSubmit()"
-          iconLeft='<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>'>
-          New Submission
-        </app-button>
+
+        @if (getStatusCount('needs_revision') > 0) {
+        <div class="p-4 rounded-lg flex items-center justify-between bg-white border border-border">
+          <div class="flex items-center gap-3">
+            <div class="w-12 h-12 rounded-lg bg-white border-2 border-amber-100 text-amber-600 flex items-center justify-center">
+              <!-- Pencil Square (edit) -->
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16.862 3.487a1.75 1.75 0 012.475 2.475L8.75 16.55 5 17l.45-3.75L16.862 3.487z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21H5a2 2 0 01-2-2v-2" />
+              </svg>
+            </div>
+            <div>
+              <div class="text-sm font-semibold text-amber-900">For Revision</div>
+              <div class="text-2xl font-bold text-amber-900">{{ getStatusCount('needs_revision') }}</div>
+              <div class="text-xs text-amber-700">Requires changes</div>
+            </div>
+          </div>
+          <button (click)="router.navigate(['/submissions'], { queryParams: { statuses: 'needs_revision' } })" class="p-2 rounded-md bg-white border border-amber-100" (keydown.enter)="router.navigate(['/submissions'], { queryParams: { statuses: 'needs_revision' } })" aria-label="View For Revision Submissions">
+            <svg class="w-5 h-5 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+          </button>
+        </div>
+        }
+
+        @if (getStatusCount('rejected') > 0) {
+        <div class="p-4 rounded-lg flex items-center justify-between bg-white border border-border">
+          <div class="flex items-center gap-3">
+            <div class="w-12 h-12 rounded-lg bg-white border-2 border-red-100 text-red-600 flex items-center justify-center">
+              <!-- Exclamation in Circle (declined) -->
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <div>
+              <div class="text-sm font-semibold text-red-900">Declined</div>
+              <div class="text-2xl font-bold text-red-900">{{ getStatusCount('rejected') }}</div>
+              <div class="text-xs text-red-700">Not selected</div>
+            </div>
+          </div>
+          <button (click)="router.navigate(['/submissions'], { queryParams: { statuses: 'rejected' } })" class="p-2 rounded-md bg-white border border-red-100" (keydown.enter)="router.navigate(['/submissions'], { queryParams: { statuses: 'rejected' } })" aria-label="View Declined Submissions">
+            <svg class="w-5 h-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+          </button>
+        </div>
+        }
+
+        @if (getStatusCount('accepted') > 0) {
+        <div class="p-4 rounded-lg flex items-center justify-between bg-white border border-border">
+          <div class="flex items-center gap-3">
+            <div class="w-12 h-12 rounded-lg bg-white border-2 border-green-100 text-green-600 flex items-center justify-center">
+              <!-- Document Check (accepted) -->
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 2h6l5 5v11a2 2 0 01-2 2H7a2 2 0 01-2-2V4a2 2 0 012-2z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4" />
+              </svg>
+            </div>
+            <div>
+              <div class="text-sm font-semibold text-green-900">Accepted</div>
+              <div class="text-2xl font-bold text-green-900">{{ getStatusCount('accepted') }}</div>
+              <div class="text-xs text-green-700">Ready to publish</div>
+            </div>
+          </div>
+          <button (click)="router.navigate(['/submissions'], { queryParams: { statuses: 'accepted' } })" class="p-2 rounded-md bg-white border border-green-100" (keydown.enter)="router.navigate(['/submissions'], { queryParams: { statuses: 'accepted' } })" aria-label="View Accepted Submissions">
+            <svg class="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+          </button>
+        </div>
+        }
+
+        @if (getStatusCount('published') > 0) {
+        <div class="p-4 rounded-lg flex items-center justify-between bg-white border border-border">
+          <div class="flex items-center gap-3">
+            <div class="w-12 h-12 rounded-lg bg-white border-2 border-indigo-100 text-indigo-600 flex items-center justify-center">
+              <!-- Badge Check (published) -->
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 2a10 10 0 100 20 10 10 0 000-20z" />
+              </svg>
+            </div>
+            <div>
+              <div class="text-sm font-semibold text-indigo-900">Published</div>
+              <div class="text-2xl font-bold text-indigo-900">{{ getStatusCount('published') }}</div>
+              <div class="text-xs text-indigo-700">Live articles</div>
+            </div>
+          </div>
+          <button (click)="router.navigate(['/submissions'], { queryParams: { statuses: 'published' } })" class="p-2 rounded-md bg-white border border-indigo-100" (keydown.enter)="router.navigate(['/submissions'], { queryParams: { statuses: 'published' } })" aria-label="View Published Submissions">
+            <svg class="w-5 h-5 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+          </button>
+        </div>
+        }
       </div>
 
-      <!-- Status Tabs -->
-      @if (submissions().length > 0) {
-        <div class="mb-6 overflow-x-auto">
-          <nav class="flex gap-6 min-w-max border-b border-border">
-            <!-- All Tab -->
-            <button
-              (click)="setActiveTab('all')"
-              [class]="activeSubmissionTab() === 'all' 
-                ? 'border-b-2 border-themed-accent text-themed-accent px-1 py-3 text-sm font-medium whitespace-nowrap transition-all duration-200'
-                : 'text-themed-secondary hover:text-themed px-1 py-3 text-sm font-medium whitespace-nowrap transition-all duration-200'">
-              All
-              <span class="ml-2 inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium"
-                    [class]="activeSubmissionTab() === 'all' ? 'bg-themed-accent-light text-themed-accent' : 'bg-themed-hover text-themed-secondary'">
-                {{ getStatusCount('all') }}
+      <!-- Submission Summary Banners (moved below cards) -->
+      <div class="mb-6 space-y-3">
+        @for (msg of getSubmissionSummaryMessages(); track msg.date?.getTime()) {
+          <div class="flex items-start gap-3 p-3 rounded-lg border border-border bg-surface">
+            <div class="mt-0.5">
+              <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary">
+                <!-- simple bell icon -->
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6 6 0 10-12 0v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0a3 3 0 11-6 0h6z"/></svg>
               </span>
-            </button>
-
-            <!-- Published Tab -->
-            @if (getStatusCount('published') > 0) {
-              <button
-                (click)="setActiveTab('published')"
-                [class]="activeSubmissionTab() === 'published' 
-                  ? 'border-b-2 border-green-500 text-green-600 px-1 py-3 text-sm font-medium whitespace-nowrap transition-all duration-200'
-                  : 'text-themed-secondary hover:text-themed px-1 py-3 text-sm font-medium whitespace-nowrap transition-all duration-200'">
-                Published
-                <span class="ml-2 inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium"
-                      [class]="activeSubmissionTab() === 'published' ? 'bg-green-50 text-green-700' : 'bg-themed-hover text-themed-secondary'">
-                  {{ getStatusCount('published') }}
-                </span>
-              </button>
-            }
-
-            <!-- Under Review Tab -->
-            @if (getStatusCount('under-review') > 0) {
-              <button
-                (click)="setActiveTab('under-review')"
-                [class]="activeSubmissionTab() === 'under-review' 
-                  ? 'border-b-2 border-blue-500 text-blue-600 px-1 py-3 text-sm font-medium whitespace-nowrap transition-all duration-200'
-                  : 'text-themed-secondary hover:text-themed px-1 py-3 text-sm font-medium whitespace-nowrap transition-all duration-200'">
-                Under Review
-                <span class="ml-2 inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium"
-                      [class]="activeSubmissionTab() === 'under-review' ? 'bg-blue-50 text-blue-700' : 'bg-themed-hover text-themed-secondary'">
-                  {{ getStatusCount('under-review') }}
-                </span>
-              </button>
-            }
-
-            <!-- Needs Revision Tab -->
-            @if (getStatusCount('needs_revision') > 0) {
-              <button
-                (click)="setActiveTab('needs-revision')"
-                [class]="activeSubmissionTab() === 'needs-revision' 
-                  ? 'border-b-2 border-primary text-primary px-1 py-3 text-sm font-medium whitespace-nowrap transition-all duration-200'
-                  : 'text-themed-secondary hover:text-themed px-1 py-3 text-sm font-medium whitespace-nowrap transition-all duration-200'">
-                Needs Revision
-                <span class="ml-2 inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium"
-                      [class]="activeSubmissionTab() === 'needs-revision' ? 'bg-primary-light text-primary-dark' : 'bg-themed-hover text-themed-secondary'">
-                  {{ getStatusCount('needs_revision') }}
-                </span>
-              </button>
-            }
-
-            <!-- Rejected Tab -->
-            @if (getStatusCount('rejected') > 0) {
-              <button
-                (click)="setActiveTab('rejected')"
-                [class]="activeSubmissionTab() === 'rejected' 
-                  ? 'border-b-2 border-red-500 text-red-600 px-1 py-3 text-sm font-medium whitespace-nowrap transition-all duration-200'
-                  : 'text-themed-secondary hover:text-themed px-1 py-3 text-sm font-medium whitespace-nowrap transition-all duration-200'">
-                Rejected
-                <span class="ml-2 inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium"
-                      [class]="activeSubmissionTab() === 'rejected' ? 'bg-red-50 text-red-700' : 'bg-themed-hover text-themed-secondary'">
-                  {{ getStatusCount('rejected') }}
-                </span>
-              </button>
-            }
-          </nav>
-        </div>
-      }
-      
-      <!-- Submissions Grid -->
-      <div class="submissions-grid">
-        @if (getFilteredSubmissions().length === 0) {
-          <div class="text-center py-16">
-            <div class="w-20 h-20 bg-gradient-to-br from-primary-light to-primary-light rounded-full flex items-center justify-center mx-auto mb-6">
-              <svg class="w-10 h-10 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
-              </svg>
             </div>
-            <h3 class="text-xl font-bold text-gray-900 mb-2">Ready to share your voice?</h3>
-            <p class="text-gray-600 text-sm leading-relaxed max-w-sm mx-auto mb-8">Your submissions will appear here once you start writing. Every great writer started with their first piece.</p>
-            <button
-              (click)="goToSubmit()"
-              class="inline-flex items-center gap-2 px-8 py-4 text-sm font-medium text-white bg-gradient-to-r from-primary to-primary-hover rounded-xl hover:from-primary-hover hover:to-primary-hover active:from-primary-dark active:to-primary-dark transition-all duration-200 shadow-sm">
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
-              </svg>
-              Write Your First Piece
-            </button>
-          </div>
-        } @else {
-          <div class="space-y-3">
-            @for (submission of getFilteredSubmissions(); track submission._id) {
-              <div class="bg-surface border border-border rounded-2xl p-5 hover:shadow-md transition-all duration-200">
-                
-                <!-- Header Row -->
-                <div class="flex items-start gap-3 mb-3">
-                  <!-- Icon -->
-                  <div class="w-12 h-12 rounded-2xl bg-themed-hover flex items-center justify-center">
-                    <svg class="w-6 h-6 text-themed-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" [attr.d]="getIconForType(submission.submissionType)"></path>
-                    </svg>
-                  </div>
-                  
-                  <!-- Title & Meta -->
-                  <div class="flex-1 min-w-0">
-                    <h3 class="font-bold text-themed text-xl mb-1">
-                      {{ cleanHtml(submission.title) }}
-                    </h3>
-                    <div class="text-themed-secondary text-sm">
-                      {{ submission.submissionType | prettyLabel }} • {{ submission.submittedAt | date:'MMM d, y' }}
-                    </div>
-                  </div>
-                  
-                  <!-- Status -->
-                  <div class="flex-shrink-0">
-                    @if (submission.status === 'published') {
-                      <div class="inline-flex items-center gap-1 px-2 py-1 bg-green-50 rounded-lg text-xs">
-                        <div class="w-1.5 h-1.5 bg-green-500 rounded-full"></div>
-                        <span class="text-green-700 font-medium">Published</span>
-                      </div>
-                    } @else if (submission.status === 'needs_revision') {
-                      <div class="inline-flex items-center gap-1 px-2 py-1 bg-primary-light rounded-lg text-xs">
-                        <div class="w-1.5 h-1.5 bg-primary rounded-full"></div>
-                        <span class="text-primary-dark font-medium">Needs Revision</span>
-                      </div>
-                    } @else if (submission.status === 'rejected') {
-                      <div class="inline-flex items-center gap-1 px-2 py-1 bg-red-50 rounded-lg text-xs">
-                        <div class="w-1.5 h-1.5 bg-red-500 rounded-full"></div>
-                        <span class="text-red-700 font-medium">Rejected</span>
-                      </div>
-                    } @else if (submission.status === 'accepted') {
-                      <div class="inline-flex items-center gap-1 px-2 py-1 bg-emerald-50 rounded-lg text-xs">
-                        <div class="w-1.5 h-1.5 bg-emerald-500 rounded-full"></div>
-                        <span class="text-emerald-700 font-medium">Accepted</span>
-                      </div>
-                    } @else if (submission.status === 'shortlisted') {
-                      <div class="inline-flex items-center gap-1 px-2 py-1 bg-purple-50 rounded-lg text-xs">
-                        <div class="w-1.5 h-1.5 bg-purple-500 rounded-full"></div>
-                        <span class="text-purple-700 font-medium">Shortlisted</span>
-                      </div>
-                    } @else if (['pending_review', 'in_progress', 'resubmitted'].includes(submission.status)) {
-                      <div class="inline-flex items-center gap-1 px-2 py-1 bg-blue-50 rounded-lg text-xs">
-                        <div class="w-1.5 h-1.5 bg-blue-500 rounded-full"></div>
-                        <span class="text-blue-700 font-medium">Under Review</span>
-                      </div>
-                    } @else {
-                      <div class="inline-flex items-center gap-1 px-2 py-1 bg-gray-50 rounded-lg text-xs">
-                        <div class="w-1.5 h-1.5 bg-gray-500 rounded-full"></div>
-                        <span class="text-gray-700 font-medium">Draft</span>
-                      </div>
-                    }
-                  </div>
-                </div>
-                
-                <!-- Content Preview -->
-                @if (getTruncatedDescription(submission)) {
-                  <div class="bg-themed-hover rounded-lg p-3 mb-4">
-                    <p class="text-themed-secondary text-sm leading-relaxed">
-                      {{ getTruncatedDescription(submission) }}
-                    </p>
-                  </div>
-                }
-                
-                <!-- Comments Indicator for submissions with feedback -->
-                @if ((submission.reviewFeedback || submission.revisionNotes) && submission.status !== 'published') {
-                  <div class="mb-4">
-                    <button 
-                      (click)="toggleComments(submission._id)"
-                      class="inline-flex items-center gap-2 text-xs font-medium text-primary hover:text-primary-dark transition-colors">
-                      <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"/>
-                      </svg>
-                      {{ expandedComments().has(submission._id) ? 'Hide' : 'View' }} Review Comments
-                    </button>
-                    
-                    @if (expandedComments().has(submission._id)) {
-                      <div class="mt-2 bg-primary-light border border-neutral-200 rounded-lg p-3">
-                        <div class="flex items-start gap-2">
-                          <svg class="w-4 h-4 text-primary mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"/>
-                          </svg>
-                          <div class="flex-1">
-                            <div class="text-primary-dark text-xs font-medium mb-1">Review Comments:</div>
-                            <p class="text-primary-dark text-xs leading-relaxed">
-                              {{ submission.revisionNotes || submission.reviewFeedback }}
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-                    }
-                  </div>
-                }
-                
-                <!-- Actions -->
-                <div class="flex items-center justify-end gap-4">
-                  @if (submission.status !== 'published') {
-                    <button 
-                      (click)="editSubmission(submission)"
-                      class="inline-flex items-center gap-1 text-blue-600 hover:text-blue-700 text-sm font-medium">
-                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
-                      </svg>
-                      Edit
-                    </button>
-                  }
-                  
-                  <button 
-                    (click)="viewSubmission(submission)"
-                    class="inline-flex items-center gap-1 text-themed-secondary hover:text-themed text-sm font-medium">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-                    </svg>
-                    View
-                  </button>
-                </div>
-              </div>
-            }
+            <div class="flex-1">
+              <div class="text-sm text-themed">{{ msg.message }}</div>
+              <div class="text-xs text-themed-secondary mt-1">{{ msg.date ? (msg.date | date:'mediumDate') : '' }}</div>
+            </div>
+            <div class="flex items-center gap-2">
+              <button class="text-sm text-primary underline" (click)="router.navigate(['/submissions'], { queryParams: { statuses: mapMessageTypeToStatuses(msg.type) } })">View</button>
+              <button class="text-sm text-themed-secondary" (click)="dismissBanner($event)">Dismiss</button>
+            </div>
           </div>
         }
       </div>
-      
-      <!-- Load More Button -->
-      @if (hasMoreSubmissions() && !submissionsLoading() && submissions().length > 0) {
-        <div class="text-center mt-8">
-          @if (loadingMoreSubmissions()) {
-            <div class="inline-flex items-center px-6 py-3 text-sm font-medium text-gray-500 bg-gray-100 rounded-xl cursor-not-allowed">
-              <div class="w-4 h-4 border-2 border-gray-300 border-t-primary rounded-full animate-spin mr-2"></div>
-              Loading more...
-            </div>
-          } @else {
-            <button
-              (click)="loadMoreSubmissions()"
-              class="inline-flex items-center gap-2 px-6 py-3 text-sm font-medium text-white bg-gradient-to-r from-primary to-primary-hover rounded-xl hover:from-primary-hover hover:to-primary-hover active:from-primary-dark active:to-primary-dark transition-all duration-200 shadow-sm min-h-[44px]">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"/>
-              </svg>
-              Load More
-            </button>
-          }
-        </div>
-      }
+
     </div>
   </div>
 }

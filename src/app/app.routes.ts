@@ -31,6 +31,7 @@ import { ReadingInterfaceComponent } from './main-reading/reading-interface/read
 import { PublicAuthorProfileComponent } from './main-user-profile/public-author-profile/public-author-profile.component';
 import { SimpleContentReaderComponent } from './main-reading/simple-content-reader/simple-content-reader.component';
 import { ManageSubmissionsComponent } from './main-admin/content/published-posts/published-posts.component';
+import { SubmissionsListComponent } from './main-user-profile/submissions-list/submissions-list.component';
 
 export const routes: Routes = [
   // Public routes - Use explore as homepage for now
@@ -236,6 +237,12 @@ export const routes: Routes = [
     path: 'not-found',
     component: NotFoundComponent,
     title: 'Page Not Found - pi'
+  },
+  { 
+    path: 'submissions', 
+    component: SubmissionsListComponent, 
+    canActivate: [AuthGuard],
+    title: 'Submissions - pi' 
   },
 
   // Legacy route handler - redirect /:slug to /post/:slug

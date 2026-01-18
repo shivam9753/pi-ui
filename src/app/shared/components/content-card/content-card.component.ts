@@ -51,7 +51,7 @@ export interface ContentCardData {
       <div class="p-6 md:p-6 space-y-3 body-wrapper">
         <!-- Type label (always shown, small uppercase red) -->
         <div>
-          <app-badge-label [type]="content.submissionType" variant="big-red"></app-badge-label>
+          <app-badge-label [type]="content.submissionType" badgeType="type" variant="big-red"></app-badge-label>
         </div>
 
         <!-- Title -->

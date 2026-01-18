@@ -34,12 +34,17 @@ export class AnalyticsComponent implements OnInit {
   topPosts: TopPost[] = [];
   postTypeStats: PostTypeStats[] = [];
 
+  // Overview
+  totalViews?: number;
+  loadingOverview = false;
+
   loadingTop = false;
   loadingTypes = false;
 
   constructor(private readonly backendService: BackendService) {}
 
   ngOnInit(): void {
+    this.fetchOverview();
     this.fetchTopContent();
     this.fetchContentTypes();
   }
@@ -52,6 +57,23 @@ export class AnalyticsComponent implements OnInit {
   setTypesPeriod(p: 'week' | 'all') {
     this.typesPeriod = p;
     this.fetchContentTypes();
+  }
+
+  private fetchOverview() {
+    this.loadingOverview = true;
+    this.backendService.getAnalyticsOverview().subscribe({
+      next: (res: any) => {
+        const payload = res?.data || res || {};
+        const overview = payload.overview ?? payload.data?.overview ?? payload;
+        this.totalViews = Number(overview.totalViews ?? overview.total_views ?? payload.totalViews ?? 0) || 0;
+        this.loadingOverview = false;
+      },
+      error: (err) => {
+        console.error('Failed to load analytics overview', err);
+        this.totalViews = 0;
+        this.loadingOverview = false;
+      }
+    });
   }
 
   private fetchTopContent() {

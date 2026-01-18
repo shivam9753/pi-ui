@@ -11,9 +11,9 @@
   <!-- Top Tabs: New / Accepted / Published / Drafts / Rejected -->
   <div class="mb-6 published-posts-tabs">
     <app-tabs [(activeTab)]="activeTab" (tabChange)="onTabChange($event)">
+      <app-tab-item tabId="published" label="Published"></app-tab-item>
       <app-tab-item tabId="submitted" label="New"></app-tab-item>
       <app-tab-item tabId="accepted" label="Accepted"></app-tab-item>
-      <app-tab-item tabId="published" label="Published"></app-tab-item>
       <app-tab-item tabId="draft" label="Drafts"></app-tab-item>
       <app-tab-item tabId="rejected" label="Rejected"></app-tab-item>
     </app-tabs>
@@ -131,7 +131,7 @@
         @case ('submissionType') {
           <div class="flex flex-col gap-1">
             <!-- Use a smaller 'soft' variant for the Published tab list to match the submission-type badge style -->
-            <app-badge-label [type]="item.submissionType" variant="soft"></app-badge-label>
+            <app-badge-label [type]="item.submissionType" variant="soft" badgeType="type"></app-badge-label>
              @if (item.isFeatured) {
                <span class="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-yellow-50 text-amber-700 border border-yellow-200">
                  ⭐

@@ -21,6 +21,7 @@
               <div class="mb-4 flex justify-center">
                 <app-badge-label
                   [type]="content()!.submissionType"
+                  badgeType="type"
                   [clickable]="true"
                   variant="big-red"
                   (badgeClick)="navigateToCategory($event)">

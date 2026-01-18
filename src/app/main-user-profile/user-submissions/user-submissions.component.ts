@@ -6,6 +6,10 @@ import { BackendService } from '../../services/backend.service';
 import { PrettyLabelPipe } from '../../pipes/pretty-label.pipe';
 import { SUBMISSION_STATUS, SubmissionStatus } from '../../shared/constants/api.constants';
 import { ButtonComponent } from '../../ui-components/button/button.component';
+import { CardComponent } from '../../ui-components/card';
+import { DropdownMultiComponent } from '../../ui-components/dropdown';
+import { BadgeLabelComponent } from '../../utilities/badge-label/badge-label.component';
+import { DataTableComponent, TableColumn, TableAction } from '../../shared/components/data-table/data-table.component';
 
 // Interfaces3
 interface Submission {
@@ -25,6 +29,8 @@ interface Submission {
   createdAt?: string;
   updatedAt?: string;
   slug?: string;
+  expiresAt?: string;
+  author?: { name?: string; avatar?: string };
   seo?: {
     slug: string;
     metaTitle?: string;
@@ -46,9 +52,8 @@ interface Draft {
 
 @Component({
   selector: 'app-user-submissions',
-  imports: [CommonModule, FormsModule, RouterModule, PrettyLabelPipe, ButtonComponent],
+  imports: [CommonModule, FormsModule, RouterModule, PrettyLabelPipe, ButtonComponent, CardComponent, DropdownMultiComponent, BadgeLabelComponent, DataTableComponent],
   templateUrl: './user-submissions.component.html',
-  styleUrl: './user-submissions.component.css',
   styles: [`
     .line-clamp-2 {
       display: -webkit-box;
@@ -80,7 +85,20 @@ export class UserSubmissionsComponent implements OnInit {
   draftsSort = signal('newest');
   
   // Tab filtering
-  activeSubmissionTab = signal<string>('all');
+  // Multi-select filter for statuses (empty => show all)
+  selectedStatuses = signal<string[]>([]);
+  
+  // Options for the status multi-select dropdown
+  statusOptions = [
+    { label: 'Pending Review', value: 'pending_review' },
+    { label: 'In Review', value: 'in_progress' },
+    { label: 'Resubmitted', value: 'resubmitted' },
+    { label: 'Published', value: 'published' },
+    { label: 'Needs Revision', value: 'needs_revision' },
+    { label: 'Rejected', value: 'rejected' },
+    { label: 'Accepted', value: 'accepted' },
+    { label: 'Draft', value: 'draft' }
+  ];
   
   // Comments expansion state
   expandedComments = signal<Set<string>>(new Set());
@@ -91,6 +109,19 @@ export class UserSubmissionsComponent implements OnInit {
   hasMoreSubmissions = signal(true);
   totalSubmissions = signal(0);
   
+  // Computed counts for quick lookups (keeps template reactive and avoids repeated iteration)
+  statusCounts = computed(() => {
+    const subs = this.submissions();
+    return {
+      'under-review': subs.filter(s => ['pending_review', 'in_progress', 'resubmitted'].includes(s.status)).length,
+      'needs_revision': subs.filter(s => s.status === 'needs_revision').length,
+      'rejected': subs.filter(s => s.status === 'rejected').length,
+      'accepted': subs.filter(s => s.status === 'accepted').length,
+      'published': subs.filter(s => s.status === 'published').length,
+      'all': subs.length
+    } as Record<string, number>;
+  });
+
   // Constants for template
   readonly SUBMISSION_STATUS = SUBMISSION_STATUS;
 
@@ -107,32 +138,32 @@ export class UserSubmissionsComponent implements OnInit {
   /**
    * Load user's submissions with pagination
    */
-  async loadSubmissions() {
+  async loadSubmissions(page: number = 0) {
     try {
       this.submissionsLoading.set(true);
-      this.submissionsPage.set(0);
-      console.log('🔄 Loading user submissions...');
-      
+      this.submissionsPage.set(page);
+      console.log('🔄 Loading user submissions... page:', page);
+
       const options = {
         limit: this.submissionsLimit(),
-        skip: 0
+        skip: page * this.submissionsLimit()
       };
-      
-      console.log('🔄 Making API call with options:', options);
-      
+
       this.backendService.getUserSubmissions(options).subscribe({
         next: (response: any) => {
-          console.log('✅ getUserSubmissions response:', response);
-          console.log('📊 Submissions array:', response.submissions);
-          console.log('📈 Submissions count:', response.submissions?.length || 0);
-          console.log('🔢 Total count:', response.total);
-          
           const submissions = response.submissions || [];
           this.submissions.set(submissions);
           this.totalSubmissions.set(response.total || submissions.length);
           this.hasMoreSubmissions.set(submissions.length >= this.submissionsLimit());
           this.submissionsLoading.set(false);
           this.isLoading.set(false);
+
+          // Debugging: log status counts so we can verify values used by the template
+          try {
+            console.log('📊 Submission status counts:', this.statusCounts());
+          } catch (e) {
+            console.warn('Unable to compute status counts:', e);
+          }
         },
         error: (error: any) => {
           console.error('❌ Error loading submissions:', error);
@@ -241,22 +272,10 @@ export class UserSubmissionsComponent implements OnInit {
   getFilteredSubmissions() {
     let submissions = this.getAllSubmissionsChronological();
     
-    // Apply tab filter
-    const activeTab = this.activeSubmissionTab();
-    if (activeTab !== 'all') {
-      if (activeTab === 'under-review') {
-        submissions = submissions.filter(s => 
-          ['pending_review', 'in_progress', 'resubmitted'].includes(s.status)
-        );
-      } else if (activeTab === 'published') {
-        submissions = submissions.filter(s => s.status === 'published');
-      } else if (activeTab === 'needs-revision') {
-        submissions = submissions.filter(s => s.status === 'needs_revision');
-      } else if (activeTab === 'rejected') {
-        submissions = submissions.filter(s => s.status === 'rejected');
-      } else if (activeTab === 'accepted') {
-        submissions = submissions.filter(s => s.status === 'accepted');
-      }
+    // Apply multi-select status filter (empty => show all)
+    const selected = this.selectedStatuses();
+    if (selected && selected.length > 0) {
+      submissions = submissions.filter(s => selected.includes(s.status));
     }
     
     // Apply search filter
@@ -271,22 +290,23 @@ export class UserSubmissionsComponent implements OnInit {
     
     return submissions;
   }
-
-  // Tab management
-  setActiveTab(tab: string) {
-    this.activeSubmissionTab.set(tab);
+  
+  // Allow template to set selected statuses
+  setSelectedStatuses(statuses: string[]) {
+    this.selectedStatuses.set(statuses || []);
   }
 
   // Get count for each status
   getStatusCount(status: string): number {
-    const submissions = this.submissions();
-    if (status === 'all') return submissions.length;
-    if (status === 'under-review') {
-      return submissions.filter(s => 
-        ['pending_review', 'in_progress', 'resubmitted'].includes(s.status)
-      ).length;
-    }
-    return submissions.filter(s => s.status === status).length;
+    const counts = this.statusCounts();
+    if (status === 'all') return counts['all'] || 0;
+    return counts[status] || 0;
+  }
+
+  getExpiringSoonCount(): number {
+    const now = Date.now();
+    const twoWeeks = 1000 * 60 * 60 * 24 * 14;
+    return this.submissions().filter(s => s.expiresAt && new Date(s.expiresAt).getTime() <= now + twoWeeks).length;
   }
 
   getFilteredDrafts() {
@@ -351,7 +371,21 @@ export class UserSubmissionsComponent implements OnInit {
 
   cleanHtml(html: string): string {
     // Simple HTML tag removal for display
-    return html ? html.replace(/<[^>]*>/g, '') : '';
+    return html ? html.replaceAll(/<[^>]*>/g, '') : '';
+  }
+
+  getAuthorName(submission: Submission): string {
+    // Prefer explicit author name, fall back to empty string
+    if (submission.author && submission.author.name) return submission.author.name;
+    return '';
+  }
+
+  getInitials(submission: Submission): string {
+    const name = this.getAuthorName(submission) || this.cleanHtml(submission.title) || '';
+    const parts = name.trim().split(/\s+/).filter(Boolean);
+    if (parts.length === 0) return name.charAt(0)?.toUpperCase() || '';
+    if (parts.length === 1) return parts[0].charAt(0).toUpperCase();
+    return (parts[0].charAt(0) + parts[1].charAt(0)).toUpperCase();
   }
 
   getTruncatedDescription(submission: Submission): string {
@@ -375,30 +409,134 @@ export class UserSubmissionsComponent implements OnInit {
     return statusMap[status] || status.replace(/_/g, ' ').replace(/\b\w/g, (l: string) => l.toUpperCase());
   }
 
-  getIconForType(type: string): string {
-    const icons: { [key: string]: string } = {
-      'opinion': 'M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z',
-      'poem': 'M4 8h12M4 12h8M4 16h14',
-      'prose': 'M4 7h16M4 11h16M4 15h12M4 19h8',
-      'article': 'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z',
-      'book_review': 'M12 6.253v13C10.832 18.477 9.246 18 7.5 18S4.168 18.477 3 19.253V6.253C4.168 5.477 5.754 5 7.5 5s3.332.477 4.5 1.253zm0 0C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253z',
-      'cinema_essay': 'M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z',
-      'story': 'M12 6.253v13C10.832 18.477 9.246 18 7.5 18S4.168 18.477 3 19.253V6.253C4.168 5.477 5.754 5 7.5 5s3.332.477 4.5 1.253zm0 0C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253z'
-    };
-    return icons[type] || 'M12 2l3.09 6.26L22 9l-5 4.87L18.18 20 12 16.77 5.82 20 L7 13.87 2 9l6.91-.74L12 2z';
+  // Submission summary messages (adapted from user-profile)
+  getSubmissionSummaryMessages() {
+    const submissions = this.submissions();
+    const messages: { message: string; type: string; priority: number; date?: Date; submissionType?: string }[] = [];
+
+    submissions.forEach(submission => {
+      const updateDate = new Date(submission.updatedAt || submission.reviewedAt || submission.submittedAt || Date.now());
+      const submissionTypeFormatted = (submission.submissionType || '').replace('_', ' ').toLowerCase();
+
+      // Published
+      if (submission.status === 'published') {
+        messages.push({ message: `Your ${submissionTypeFormatted} "${this.cleanHtml(submission.title)}" was published`, type: 'published', priority: 1, date: updateDate, submissionType: submissionTypeFormatted });
+      }
+
+      // Accepted
+      if (submission.status === 'accepted') {
+        messages.push({ message: `Your ${submissionTypeFormatted} "${this.cleanHtml(submission.title)}" was accepted`, type: 'accepted', priority: 2, date: updateDate, submissionType: submissionTypeFormatted });
+      }
+
+      // Needs revision
+      if (submission.status === 'needs_revision') {
+        messages.push({ message: `Your ${submissionTypeFormatted} "${this.cleanHtml(submission.title)}" needs revision`, type: 'needs_revision', priority: 3, date: updateDate, submissionType: submissionTypeFormatted });
+      }
+
+      // Shortlisted
+      if (submission.status === 'shortlisted') {
+        messages.push({ message: `Your ${submissionTypeFormatted} "${this.cleanHtml(submission.title)}" was shortlisted`, type: 'shortlisted', priority: 4, date: updateDate, submissionType: submissionTypeFormatted });
+      }
+
+      // Under review
+      if (['pending_review', 'in_progress', 'resubmitted'].includes(submission.status)) {
+        messages.push({ message: `Your ${submissionTypeFormatted} "${this.cleanHtml(submission.title)}" is under review`, type: 'under_review', priority: 5, date: updateDate, submissionType: submissionTypeFormatted });
+      }
+
+      // Rejected
+      if (submission.status === 'rejected') {
+        messages.push({ message: `Your ${submissionTypeFormatted} "${this.cleanHtml(submission.title)}" was rejected`, type: 'rejected', priority: 6, date: updateDate, submissionType: submissionTypeFormatted });
+      }
+    });
+
+    // Sort by most recent first and limit
+    const sorted = messages.sort((a, b) => (b.date?.getTime() || 0) - (a.date?.getTime() || 0)).slice(0, 6);
+    return sorted;
   }
 
-  // Toggle comments expansion for a specific submission
-  toggleComments(submissionId: string) {
-    const currentExpanded = this.expandedComments();
-    const newExpanded = new Set(currentExpanded);
-    
-    if (newExpanded.has(submissionId)) {
-      newExpanded.delete(submissionId);
-    } else {
-      newExpanded.add(submissionId);
+  // Map message type to statuses param for quick navigation
+  mapMessageTypeToStatuses(type: string): string {
+    switch (type) {
+      case 'under_review':
+        return 'pending_review,in_progress,resubmitted';
+      case 'needs_revision':
+        return 'needs_revision';
+      case 'published':
+        return 'published';
+      case 'accepted':
+        return 'accepted';
+      case 'rejected':
+        return 'rejected';
+      default:
+        return '';
     }
-    
-    this.expandedComments.set(newExpanded);
+  }
+
+  // Table config for app-data-table
+  tableColumns: TableColumn[] = [
+    { key: 'submissionType', label: 'Type', sortable: true, type: 'text' },
+    { key: '_id', label: 'File ID', sortable: false, type: 'text' },
+    { key: 'title', label: 'Title', sortable: true, type: 'text' },
+    { key: 'submittedAt', label: 'Date', sortable: true, type: 'date' },
+    { key: 'status', label: 'Status', sortable: true, type: 'badge' }
+  ];
+
+  tableActions: TableAction[] = [
+    { label: 'View', handler: (item: any) => this.viewSubmission(item), color: 'primary', isMainAction: true },
+    { label: 'Edit', handler: (item: any) => this.editSubmission(item), color: 'secondary' }
+  ];
+
+  // Pagination config object for data-table
+  get paginationConfig() {
+    const total = this.totalSubmissions() || 0;
+    const pageSize = this.submissionsLimit();
+    const currentPage = this.submissionsPage() + 1; // data-table expects 1-based
+    const totalPages = Math.max(1, Math.ceil(total / pageSize));
+    return {
+      currentPage,
+      totalPages,
+      pageSize,
+      totalItems: total,
+      hasMore: this.hasMoreSubmissions()
+    };
+  }
+
+  onDataTablePageChange(page: number) {
+    // data-table emits 1-based page
+    const pageIndex = Math.max(0, page - 1);
+    this.loadSubmissions(pageIndex);
+  }
+
+  // Methods referenced by template but previously missing
+  completeSelected(): void {
+    // Placeholder: implement actual completion logic when selection integration is in place
+    console.log('completeSelected called');
+  }
+
+  setSearch(value: string): void {
+    this.submissionsFilter.set(value || '');
+  }
+
+  sortBy(): string {
+    return this.submissionsSort();
+  }
+
+  setSortBy(value: any): void {
+    // Dropdown may emit an array or a single value; normalize to a string
+    let v = '';
+    if (Array.isArray(value)) {
+      v = String(value[0] || '');
+    } else {
+      v = String(value || '');
+    }
+    this.submissionsSort.set(v || 'newest');
+  }
+
+  // Remove banner element when Dismiss is clicked
+  dismissBanner(event: Event) {
+    const target = event?.target as HTMLElement | null;
+    const banner = target?.closest('.rounded-lg') as HTMLElement | null;
+    // Use optional chaining and Element.remove()
+    banner?.remove?.();
   }
 }

@@ -13,49 +13,59 @@ import { ButtonComponent } from '../button/button.component';
 export class CardComponent {
   @Input() title = '';
   @Input() description?: string;
-
-  // image handling
   @Input() imageSrc?: string;
-  @Input() imageAlt = '';
   @Input() imagePosition: 'top' | 'bottom' | 'none' = 'top';
-
-  // size: affects paddings and font-size
   @Input() size: 'sm' | 'md' | 'lg' = 'md';
+  @Input() border: 'default' | 'none' = 'default';
 
-  // border options
-  @Input() border: 'default' | 'none' | 'dashed' = 'default';
+  // Primary action — when empty, no primary button is shown
+  @Input() primaryButtonLabel = '';
+  @Input() primaryButtonVariant: 'primary' | 'secondary' | 'tertiary' | 'quaternary' | 'destructive' = 'primary';
+  @Output() primaryClick = new EventEmitter<void>();
 
-  // badge - use existing BadgeLabelComponent if badgeType provided
-  @Input() badgeText?: string; // fallback
-  @Input() badgeType?: string;
-  @Input() badgeVariant?: 'soft' | 'solid' | 'outline' | 'big-red';
-
-  // preview content (replaces projection)
-  @Input() previewTitle?: string;
-  @Input() previewBody?: string;
-
-  // action buttons
-  @Input() showButton = false;
-  @Input() buttonLabel = 'Buy Now';
-  @Input() buttonVariant: 'primary' | 'secondary' | 'tertiary' | 'quaternary' | 'destructive' = 'primary';
-  @Output() buttonClick = new EventEmitter<void>();
-
-  // secondary button
-  @Input() showSecondaryButton = false;
-  @Input() secondaryLabel = '';
+  // Secondary action — when empty, no secondary button is shown
+  @Input() secondaryButtonLabel = '';
   @Input() secondaryButtonVariant: 'primary' | 'secondary' | 'tertiary' | 'quaternary' | 'destructive' = 'tertiary';
   @Output() secondaryClick = new EventEmitter<void>();
 
-  // tags or type badges
-  @Input() tags: string[] = [];
+  // Badges (primary and secondary) — optional
+  @Input() primaryBadgeText?: string;
+  @Input() primaryBadgeType?: string;
+  @Input() primaryBadgeVariant?: 'soft' | 'solid' | 'outline' | 'big-red';
 
-  // accessibility: compute aria label for button
-  get buttonAriaLabel() {
-    return `${this.buttonLabel} ${this.title || ''}`.trim();
+  @Input() secondaryBadgeText?: string;
+  @Input() secondaryBadgeType?: string;
+  @Input() secondaryBadgeVariant?: 'soft' | 'solid' | 'outline' | 'big-red';
+
+  // Optional small date to show in the subhead. Accepts a string or Date.
+  @Input() date?: string | Date;
+
+  // Formatted date for display: dd-mm-yy (e.g. 17-01-26)
+  get formattedDate(): string | undefined {
+    if (!this.date) return undefined;
+    const d = this.date instanceof Date ? this.date : new Date(String(this.date));
+    if (Number.isNaN(d.getTime())) return String(this.date);
+    const dd = String(d.getDate()).padStart(2, '0');
+    const mm = String(d.getMonth() + 1).padStart(2, '0');
+    const yy = String(d.getFullYear()).slice(-2);
+    return `${dd}-${mm}-${yy}`;
+  }
+
+  // ISO string used for datetime attribute (if date is valid)
+  get dateIso(): string | undefined {
+    if (!this.date) return undefined;
+    const d = this.date instanceof Date ? this.date : new Date(String(this.date));
+    if (Number.isNaN(d.getTime())) return undefined;
+    return d.toISOString();
+  }
+
+  // accessibility: compute aria label for buttons
+  get primaryAriaLabel() {
+    return `${this.primaryButtonLabel} ${this.title || ''}`.trim();
   }
 
   get secondaryAriaLabel() {
-    return `${this.secondaryLabel} ${this.title || ''}`.trim();
+    return `${this.secondaryButtonLabel} ${this.title || ''}`.trim();
   }
 
   get sizeClass() {
@@ -63,14 +73,19 @@ export class CardComponent {
   }
 
   get borderClass() {
-    return this.border === 'default' ? 'card--border' : this.border === 'dashed' ? 'card--dashed' : 'card--noborder';
+    if (this.border === 'default') return 'card--border';
+    return 'card--noborder';
   }
 
-  onButtonClick() {
-    this.buttonClick.emit();
+  onPrimaryClick() {
+    this.primaryClick.emit();
   }
 
   onSecondaryClick() {
     this.secondaryClick.emit();
   }
+
+  // Helpers used by template to decide whether to render buttons
+  get showPrimaryButton() { return !!this.primaryButtonLabel; }
+  get showSecondaryButton() { return !!this.secondaryButtonLabel; }
 }

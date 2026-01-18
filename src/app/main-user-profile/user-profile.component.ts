@@ -3,63 +3,72 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule, ActivatedRoute, Router } from '@angular/router';
 import { BackendService } from '../services/backend.service';
-import { UserProfile, PublishedWork } from '../models';
-import { BadgeLabelComponent } from '../utilities/badge-label/badge-label.component';
+import { UserProfile } from '../models';
 import { PrettyLabelPipe } from '../pipes/pretty-label.pipe';
 import { ProfileCompletionComponent } from './profile-completion/profile-completion.component';
+import { ProfileCompletionInlineComponent } from './profile-completion/profile-completion-inline.component';
+import { UserSubmissionsComponent } from './user-submissions/user-submissions.component';
 import { ButtonComponent } from '../shared/components';
 import { SUBMISSION_STATUS, SubmissionStatus } from '../shared/constants/api.constants';
+import { DraftsListComponent } from '../main-submission/drafts-list/drafts-list.component';
+import { TabsComponent } from '../ui-components/tabs/tabs.component';
+import { TabItemComponent } from '../ui-components/tab-item/tab-item.component';
+import { CardComponent } from '../ui-components/card/card.component';
 
 // Interfaces
 interface Submission {
-  _id: string;
-  title: string;
-  submissionType: string;
-  status: SubmissionStatus;
-  submittedAt: string;
-  reviewedAt?: string;
-  publishedWorkId?: string;
-  excerpt?: string;
-  content: string;
-  tags: string[];
-  reviewFeedback?: string;
-  wordCount?: number;
-  revisionNotes?: string;
-  createdAt?: string;
-  updatedAt?: string;
-  slug?: string;
-  seo?: {
-    slug: string;
-    metaTitle?: string;
-    metaDescription?: string;
-  };
+	_id: string;
+	title: string;
+	submissionType: string;
+	status: SubmissionStatus;
+	submittedAt: string;
+	reviewedAt?: string;
+	publishedWorkId?: string;
+	excerpt?: string;
+	content: string;
+	tags: string[];
+	reviewFeedback?: string;
+	wordCount?: number;
+	revisionNotes?: string;
+	createdAt?: string;
+	updatedAt?: string;
+	slug?: string;
+	seo?: {
+		slug: string;
+		metaTitle?: string;
+		metaDescription?: string;
+	};
 }
 
 interface Draft {
-  id: string;
-  title: string;
-  type: string;
-  content: string;
-  excerpt?: string;
-  tags: string[];
-  wordCount?: number;
-  updatedAt: string;
-  createdAt: string;
+	id: string;
+	title: string;
+	submissionType: string;
+	contents: any[];
+	description: string;
+	lastModified: Date;
+	type: string;
+	content: string;
+	excerpt?: string;
+	tags: string[];
+	wordCount: number;
+	updatedAt: string;
+	createdAt: string;
 }
 
 @Component({
-  selector: 'app-user-profile',
-  imports: [CommonModule, FormsModule, RouterModule, ProfileCompletionComponent, PrettyLabelPipe, ButtonComponent, BadgeLabelComponent],
-  templateUrl: './user-profile.component.html',
-  styleUrl: './user-profile.component.css',
-  styles: [`
-    .line-clamp-2 {
-      display: -webkit-box;
-      -webkit-line-clamp: 2;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
-    }
-  `]
+	selector: 'app-user-profile',
+	imports: [CommonModule, FormsModule, RouterModule, ProfileCompletionComponent, ProfileCompletionInlineComponent, UserSubmissionsComponent, PrettyLabelPipe, ButtonComponent, DraftsListComponent, TabsComponent, TabItemComponent, CardComponent],
+	templateUrl: './user-profile.component.html',
+	styleUrl: './user-profile.component.css',
+	styles: [`
+	  .line-clamp-2 {
+		  display: -webkit-box;
+		  -webkit-line-clamp: 2;
+		  -webkit-box-orient: vertical;
+		  overflow: hidden;
+		}
+	`]
 })
 export class UserProfileComponent implements OnInit {
   // Core data
@@ -70,17 +79,20 @@ export class UserProfileComponent implements OnInit {
   // UI state
   isEditMode = signal(false);
   showProfileEditor = signal(false);
-  activeTab = signal<'published' | 'submissions' | 'drafts' | ''>('');
+  // Primary tabs for the profile page (controls what the main area shows)
+  activeTab = signal<'submissions' | 'drafts' | 'saved' | 'profile'>('profile');
+  // Mock saved items (scaffold only)
+  savedItems = signal<{ id: string; title: string; author: string }[]>([]);
   selectedSubmission = signal<Submission | null>(null);
   openDraftMenu = signal<string>('');
-  
+
   // Loading states
   isLoading = signal(true);
   submissionsLoading = signal(false);
   draftsLoading = signal(false);
   loadingMoreSubmissions = signal(false);
   error = signal<string | null>(null);
-  
+
   // Filters and sorts
   submissionsFilter = signal('');
   submissionsSort = signal('newest');
@@ -105,6 +117,62 @@ export class UserProfileComponent implements OnInit {
   
   // This page is ALWAYS the user's own profile - public profiles use public-author-profile component
   isOwnProfile = computed(() => true);
+
+  // Helper to change primary tab (keeps naming distinct from existing setActiveTab)
+  setPrimaryTab(tab: string) {
+    const allowed: Array<string> = ['submissions', 'drafts', 'saved', 'profile'];
+    if (!allowed.includes(tab)) return;
+    this.activeTab.set(tab as 'submissions' | 'drafts' | 'saved' | 'profile');
+  }
+
+  // Bridge for two-way binding with <app-tabs [(activeTab)]="...">
+  get activeTabBinding(): string {
+    return this.activeTab();
+  }
+
+  set activeTabBinding(value: string) {
+    this.setPrimaryTab(value);
+  }
+
+  // DraftsList handlers (wire DraftsListComponent outputs)
+  onLoadDraft(draft: any) {
+    // Navigate to submission editor with draftId - wiring placeholder
+    if (draft && draft.id) {
+      this.router.navigate(['/submission'], { queryParams: { draftId: draft.id } });
+    }
+  }
+
+  onDeleteDraft(draftId: string) {
+    if (!draftId) return;
+    // Use backendService if deleteDraft exists; otherwise just refresh local drafts
+    const deleteFn: any = (this.backendService as any).deleteDraft;
+    if (typeof deleteFn === 'function') {
+      deleteFn.call(this.backendService, draftId).subscribe?.({
+        next: () => this.loadDrafts(),
+        error: (e: any) => console.error('Error deleting draft', e)
+      });
+    } else {
+      // Otherwise just remove locally for UI-only behavior
+      const remaining = this.drafts().filter(d => d.id !== draftId);
+      this.drafts.set(remaining);
+    }
+  }
+
+  onCloseDrafts() {
+    this.setPrimaryTab('profile');
+  }
+
+  // Saved items UI-only handlers
+  onRemoveSaved(itemId: string) {
+    const remaining = this.savedItems().filter(i => i.id !== itemId);
+    this.savedItems.set(remaining);
+  }
+
+  onReadSaved(itemId: string) {
+    // UI-only navigation placeholder for reading a saved item
+    if (!itemId) return;
+    this.router.navigate(['/read', itemId]);
+  }
 
   // Edit form
   editForm: any = {
@@ -135,9 +203,9 @@ export class UserProfileComponent implements OnInit {
     this.loadOwnProfile();
   }
 
-  /**
-   * Load current user's own profile with all data (submissions, drafts, etc.)
-   */
+   /**
+    * Load current user's own profile with all data (submissions, drafts, etc.)
+    */
   async loadOwnProfile() {
     try {
       this.isLoading.set(true);

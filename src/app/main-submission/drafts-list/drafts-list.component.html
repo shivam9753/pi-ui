@@ -35,26 +35,17 @@
       <div class="p-6">
         <div class="space-y-4">
           @for (draft of drafts; track trackByDraftId($index, draft)) {
-          <div
-            class="group bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-all duration-200 hover:border-neutral-300">
-            <div class="flex items-start justify-between">
-              <!-- Card showing title/description/badge and preview -->
-              <app-card class="flex-1 mr-4"
-                        [title]="draft.title || 'Untitled Draft'"
-                        [description]="getSanitizedExcerpt(draft, 120)"
-                        [badgeType]="draft.submissionType"
-                        [size]="'sm'"
-                        [border]="'default'"
-                        [showButton]="true"
-                        [buttonLabel]="'Edit'"
-                        (click)="loadDraft.emit(draft)"
-                        (keydown.enter)="loadDraft.emit(draft)"
-                        [showSecondaryButton]="true"
-                        [secondaryLabel]="'Delete'"
-                        [secondaryButtonVariant]="'destructive'"
-                        (secondaryClick)="confirmDelete(draft)">
-              </app-card>
-            </div>
+          <div class="flex items-start justify-between">
+            <app-card class="flex-1 mr-4"
+                      [title]="draft.title || 'Untitled Draft'"
+                      [description]="getSanitizedExcerpt(draft, 120)"
+                      [primaryBadgeType]="draft.submissionType"
+                      [size]="'sm'"
+                      [primaryButtonLabel]="'Edit'"
+                      (primaryClick)="loadDraft.emit(draft)"
+                      [secondaryButtonLabel]="'Delete'"
+                      (secondaryClick)="confirmDelete(draft)">
+            </app-card>
           </div>
           }
         </div>
@@ -98,26 +89,17 @@
   @if (drafts.length > 0) {
   <div class="space-y-4">
     @for (draft of drafts; track trackByDraftId($index, draft)) {
-    <div
-      class="group bg-white-secondary border border-gray-200 rounded-lg p-6 hover:shadow-md transition-all duration-200 hover:border-neutral-300">
-      <div class="flex items-start justify-between">
-        <!-- Card showing title/description/badge and preview -->
-        <app-card class="flex-1 mr-4"
-                  [title]="draft.title || 'Untitled Draft'"
-                  [description]="getSanitizedExcerpt(draft, 120)"
-                  [badgeType]="draft.submissionType"
-                  [size]="'sm'"
-                  [border]="'default'"
-                  [showButton]="true"
-                  [buttonLabel]="'Edit'"
-                  (click)="loadDraft.emit(draft)"
-                  (keydown.enter)="loadDraft.emit(draft)"
-                  [showSecondaryButton]="true"
-                  [secondaryLabel]="'Delete'"
-                  [secondaryButtonVariant]="'destructive'"
-                  (secondaryClick)="confirmDelete(draft)">
-        </app-card>
-      </div>
+    <div class="flex items-start justify-between">
+      <app-card class="flex-1 mr-4"
+                [title]="draft.title || 'Untitled Draft'"
+                [description]="getSanitizedExcerpt(draft, 120)"
+                [primaryBadgeType]="draft.submissionType"
+                [size]="'sm'"
+                [primaryButtonLabel]="'Edit'"
+                (primaryClick)="loadDraft.emit(draft)"
+                [secondaryButtonLabel]="'Delete'"
+                (secondaryClick)="confirmDelete(draft)">
+      </app-card>
     </div>
     }
   </div>

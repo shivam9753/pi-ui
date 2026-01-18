@@ -49,6 +49,13 @@ export const SUBMISSION_TYPES: Record<string, SubmissionTypeMapping> = {
     icon: 'M7 4V2a1 1 0 011-1h8a1 1 0 011 1v2h3a1 1 0 011 1v16a1 1 0 01-1 1H4a1 1 0 01-1-1V5a1 1 0 011-1h3zM6 6v14h12V6H6zm6-3v1h4V3h-4z', // Film camera icon for cinema
     color: 'tag-orange',
     description: 'Cinema essay submissions'
+  },
+  book_review: {
+    id: 'book_Review',
+    displayName: 'Book',
+    icon: 'M7 4V2a1 1 0 011-1h8a1 1 0 011 1v2h3a1 1 0 011 1v16a1 1 0 01-1 1H4a1 1 0 01-1-1V5a1 1 0 011-1h3zM6 6v14h12V6H6zm6-3v1h4V3h-4z', // Film camera icon for cinema
+    color: 'tag-orange',
+    description: 'Book Review'
   }
 };
 

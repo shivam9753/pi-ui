@@ -1,5 +1,4 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
-
 import { getSubmissionTypeMapping } from '../../shared/constants/submission-mappings';
 
 @Component({
@@ -43,9 +42,10 @@ import { getSubmissionTypeMapping } from '../../shared/constants/submission-mapp
 })
 export class BadgeLabelComponent {
   @Input() type = '';
+  @Input() badgeType: 'none' | 'status' | 'type' = 'none';
   @Input() clickable = false;
-  // New variant input: 'soft' (default, existing behavior), 'solid' (solid background for overlays), 'outline' (bordered)
   @Input() variant: 'soft' | 'solid' | 'outline' | 'big-red' = 'soft';
+  @Input() size: 'sm' | 'md' = 'md';
   @Output() badgeClick = new EventEmitter<string>();
 
   onClick() {
@@ -55,14 +55,59 @@ export class BadgeLabelComponent {
   }
 
   getDisplayName(): string {
-    const mapping = getSubmissionTypeMapping(this.type);
-    return mapping.displayName;
+    if (this.badgeType === 'none') return '';
+
+    if (this.badgeType === 'type') {
+      const mapping = getSubmissionTypeMapping(this.type);
+      return mapping.displayName;
+    }
+
+    // status
+    return this.formatStatusLabel(this.type);
   }
 
-
   getBadgeClasses(): string {
+    if (this.badgeType === 'none') return '';
+
+    // size helper -- used to make compact badges when size==='sm'
+    const sizeClass = this.size === 'sm'
+      ? 'px-2 py-0.5 text-[10px] rounded-md'
+      : 'px-3 py-1 rounded-full text-xs';
+
+    // If rendering a status badge, map statuses to color classes
+    if (this.badgeType === 'status') {
+      const status = this.type || '';
+      const statusMap: Record<string, string> = {
+        'pending_review': 'bg-amber-100 text-amber-800 border border-amber-200',
+        'in_progress': 'bg-blue-50 text-blue-700 border border-blue-100',
+        'resubmitted': 'bg-purple-50 text-purple-700 border border-purple-100',
+        'accepted': 'bg-emerald-50 text-emerald-700 border border-emerald-100',
+        'published': 'bg-green-50 text-green-700 border border-green-100',
+        'rejected': 'bg-red-50 text-red-700 border border-red-100',
+        'needs_revision': 'bg-yellow-50 text-yellow-700 border border-yellow-100',
+        'draft': 'bg-gray-50 text-gray-700 border border-gray-100'
+      };
+
+      const base = `inline-flex items-center ${sizeClass} font-semibold uppercase tracking-wider transition-colors`;
+      const colorClass = statusMap[status] || statusMap['draft'];
+      return `${base} ${colorClass}${this.clickable ? ' hover:opacity-80 cursor-pointer' : ''}`;
+    }
+
+    // If rendering a type badge, use orange by default (or big-red when variant is 'big-red')
+    if (this.badgeType === 'type') {
+      // Big red variant handled explicitly
+      if (this.variant === 'big-red') {
+        const bigRed = `badge-big-red inline-flex items-center ${this.size === 'sm' ? 'px-2 py-0.5 text-sm' : 'px-2 py-0.5 text-themed-accent text-sm md:text-base'}`;
+        return `${bigRed}${this.clickable ? ' hover:opacity-80 cursor-pointer' : ''}`;
+      }
+ 
+      const base = `inline-flex items-center ${sizeClass} font-semibold uppercase tracking-wider transition-colors`;
+      const orange = 'bg-primary-light text-primary border border-primary/10';
+      return `${base} ${orange}${this.clickable ? ' hover:opacity-80 cursor-pointer' : ''}`;
+    }
+
     const mapping = getSubmissionTypeMapping(this.type);
-    const baseClasses = 'inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider transition-colors';
+    const base = `inline-flex items-center ${sizeClass} font-semibold uppercase tracking-wider transition-colors`;
     const clickableClasses = this.clickable ? ' hover:opacity-80 cursor-pointer' : '';
 
     if (this.variant === 'solid') {
@@ -79,7 +124,7 @@ export class BadgeLabelComponent {
       };
 
       const colorClass = solidMap[mapping.color] || solidMap['tag-gray'];
-      return `${baseClasses} ${colorClass}${clickableClasses}`;
+      return `${base} ${colorClass}${clickableClasses}`;
     }
 
     if (this.variant === 'outline') {
@@ -95,7 +140,7 @@ export class BadgeLabelComponent {
       };
 
       const colorClass = outlineMap[mapping.color] || outlineMap['tag-gray'];
-      return `${baseClasses} ${colorClass}${clickableClasses}`;
+      return `${base} ${colorClass}${clickableClasses}`;
     }
 
     // Large prominent red label variant
@@ -120,6 +165,21 @@ export class BadgeLabelComponent {
       'tag-red': 'bg-red-50 text-red-700 border border-red-100'
     };
     const colorClass = softMap[mapping.color] || softMap['tag-gray'];
-    return `${baseClasses} ${colorClass}${clickableClasses}`;
+    return `${base} ${colorClass}${clickableClasses}`;
+  }
+
+  private formatStatusLabel(status: string): string {
+    const statusMap: Record<string, string> = {
+      'pending_review': 'Pending Review',
+      'in_progress': 'In Review',
+      'resubmitted': 'Resubmitted',
+      'shortlisted': 'Shortlisted',
+      'accepted': 'Ready to Publish',
+      'published': 'Published',
+      'rejected': 'Rejected',
+      'needs_revision': 'Needs Revision',
+      'draft': 'Draft'
+    };
+    return statusMap[status] || (status ? status.replace(/_/g, ' ').replace(/\b\w/g, (l: string) => l.toUpperCase()) : '');
   }
 }

@@ -1,0 +1,74 @@
+<!-- Simple DataTable-only page; accepts ?status=... or ?statuses=a,b,c -->
+@if (isLoading()) {
+  <div class="min-h-screen flex items-center justify-center">
+    <div class="text-center">
+      <div class="w-12 h-12 border-4 border-neutral-200 border-t-primary rounded-full animate-spin mx-auto mb-4"></div>
+      <p class="text-gray-600">Loading submissions...</p>
+    </div>
+  </div>
+}
+
+@if (!isLoading()) {
+  <div class="max-w-6xl mx-auto px-4 py-8">
+    <div class="mb-6">
+      <h1 class="text-2xl font-bold text-themed">Submissions{{ selectedStatuses().length ? ' : ' + (selectedStatuses().length === 1 ? getFormattedStatus(selectedStatuses()[0]) : 'Multiple') : '' }}</h1>
+      <p class="text-sm text-themed-secondary">{{ selectedStatuses().length ? (selectedStatuses().length === 1 ? 'Showing submissions with status "' + getFormattedStatus(selectedStatuses()[0]) + '"' : 'Showing submissions for multiple selected statuses') : 'Showing all your submissions' }}</p>
+    </div>
+
+    <div class="mb-6 flex items-center gap-4">
+      <div class="flex items-center gap-3">
+        <div class="relative">
+          <input type="search" placeholder="Search.." (input)="setSearch($any($event.target).value)" class="px-2 py-1 h-8 border rounded-xl w-40 bg-white text-sm">
+          <button class="absolute right-1 top-1/2 -translate-y-1/2 p-1 text-gray-400" aria-hidden>
+            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M11 19a8 8 0 100-16 8 8 0 000 16z"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-lg border border-gray-200 overflow-hidden">
+      <div class="hidden md:block">
+        <app-data-table
+          [columns]="tableColumns"
+          [data]="getFilteredSubmissions()"
+          [actions]="tableActions"
+          [loading]="submissionsLoading()"
+          [selectable]="false"
+          [selectedItems]="[]"
+          [pagination]="paginationConfig"
+          [itemLabel]="'submissions'"
+          [rowClickable]="true"
+          (onPageChange)="onDataTablePageChange($event)"
+          (onRowClick)="viewSubmission($event)">
+        </app-data-table>
+      </div>
+
+      <!-- Mobile custom list: visible only on small screens -->
+      <div class="block md:hidden bg-white">
+        <div class="divide-y divide-gray-200">
+          @for (item of getFilteredSubmissions(); track item) {
+            <button type="button" class="w-full text-left p-4 flex items-start gap-3 bg-white hover:bg-gray-50 focus:outline-none" (click)="viewSubmission(item)">
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center justify-between gap-3">
+                  <h3 class="text-base font-semibold text-themed truncate">{{ item.title }}</h3>
+                </div>
+
+                <div class="mt-2 flex items-center text-xs text-gray-400 gap-2">
+                  <span>{{ item.createdAt | date:'mediumDate' }}</span>
+                  <span class="inline-block w-px h-3 bg-gray-200"></span>
+                  <app-badge-label [type]="item.submissionType" badgeType="type" size="sm"></app-badge-label>
+                  <span class="inline-block w-px h-3 bg-gray-200"></span>
+                  <app-badge-label [type]="item.status" badgeType="status" size="sm"></app-badge-label>
+                </div>
+
+                @if (item.excerpt) {
+                  <p class="mt-2 text-sm text-gray-500 truncate">{{ item.excerpt }}</p>
+                }
+              </div>
+            </button>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+}

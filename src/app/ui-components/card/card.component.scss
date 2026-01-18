@@ -3,8 +3,7 @@
   --card-bg: #ffffff;
   --card-radius: 8px;
   --card-shadow: 0 6px 18px rgba(14, 21, 47, 0.06);
-  --card-border: rgba(0, 0, 0, 0.06);
-  --card-border-dashed: rgba(0, 0, 0, 0.08);
+  --card-border: rgb(229, 231, 235);
   --text-primary: #0f172a;
   --text-muted: #334155;
   --accent: #4f46e5;
@@ -23,11 +22,7 @@
 }
 
 .card--border {
-  border: 1px solid var(--card-border);
-}
-
-.card--dashed {
-  border: 1px dashed var(--card-border-dashed);
+  border: 1px solid var(--color-gray-200);
 }
 
 .card--noborder {
@@ -69,24 +64,61 @@
 }
 
 .card-title-row {
-  display: flex;
-  align-items: center;
-  gap: 12px;
+  display: block; /* stack title and subhead */
+  margin-bottom: 6px;
+  position: relative; /* allow absolute header-date */
 }
 
+/* Subhead: small badges or secondary plain text beneath the title */
+.card-subhead {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.card-date { display: none; }
+
+/* Header date positioned top-right within the title row */
+.header-date {
+  position: absolute;
+  top: 6px;
+  right: 12px;
+  font-size: 12px;
+  color: var(--text-muted);
+  opacity: 0.95;
+}
+
+/* Make badges small and subtle for subhead */
+.card-subhead app-badge-label button,
+.card-subhead .card-badge {
+  font-size: 12px;
+  padding: 3px 7px;
+  border-radius: 10px;
+  font-weight: 500;
+  opacity: 0.95;
+}
+
+/* Tighter title spacing and clamp lines for long titles */
 .card-title {
-  margin: 0;
-  font-weight: 700;
+  margin: 0 0 4px 0;
+  font-weight: 600;
   color: var(--text-primary);
+  font-size: 18px;
+  padding-right: 84px; /* reserve space for header date */
+}
+
+/* standard property for line-clamp alongside -webkit-line-clamp */
+.card-title {
+  line-clamp: 2;
 }
 
 .card-badge {
   background: var(--badge-bg);
   color: #fff;
-  padding: 6px 10px;
-  border-radius: 16px;
-  font-weight: 700;
-  font-size: 12px;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-weight: 500; /* not fully bold */
+  font-size: 11px;
 }
 
 .card-description {
@@ -134,4 +166,27 @@
 /* responsive tweaks */
 @media (max-width: 480px) {
   .card--lg .card-body { padding: 16px; }
+  /* Smaller title on mobile and clamp lines */
+  .card-title {
+    font-size: 16px; /* reduce from desktop sizes */
+    line-height: 1.1;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  /* Make badges smaller on mobile */
+  .card-title-row app-badge-label button,
+  .card-title-row .card-badge {
+    font-size: 11px;
+    padding: 4px 8px;
+    border-radius: 10px;
+  }
+
+  /* Tighter spacing for actions */
+  .card-actions__buttons { gap: 8px; }
 }
+
+/* also ensure small size cards use smaller title on all viewports */
+.card--sm .card-title { font-size: 14px; padding-right: 64px; }

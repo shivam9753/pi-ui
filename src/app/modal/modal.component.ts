@@ -1,16 +1,22 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { ButtonComponent, ButtonVariant, ButtonSize, ButtonType } from '../ui-components/button/button.component';
 
 
 export interface ModalButton {
   label: string;
   action: () => void;
   class?: string;
+  variant?: ButtonVariant;
+  size?: ButtonSize;
+  disabled?: boolean;
+  loading?: boolean;
+  type?: ButtonType;
 }
 
 @Component({
   selector: 'app-modal',
   standalone: true,
-  imports: [],
+  imports: [ButtonComponent],
   template: `
     @if (isOpen) {
       <div class="fixed inset-0 z-50 flex items-center justify-center">
@@ -38,11 +44,15 @@ export interface ModalButton {
           @if (buttons && buttons.length) {
             <div class="flex justify-end space-x-3">
               @for (button of buttons; track button) {
-                <button
+                <app-button
                   (click)="button.action()"
-                  [class]="button.class || 'px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50'">
+                  [variant]="button.variant || 'secondary'"
+                  [size]="button.size || 'md'"
+                  [disabled]="button.disabled ?? false"
+                  [loading]="button.loading ?? false"
+                  [type]="button.type || 'button'">
                   {{ button.label }}
-                </button>
+                </app-button>
               }
             </div>
           }

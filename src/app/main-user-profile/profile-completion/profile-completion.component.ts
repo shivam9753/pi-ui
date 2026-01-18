@@ -7,11 +7,12 @@ import { BackendService } from '../../services/backend.service';
 import { ToastNotificationComponent } from '../../shared/components/toast-notification/toast-notification.component';
 import { ButtonComponent } from '../../ui-components/button/button.component';
 import { environment } from '../../../environments/environment';
+import { SimpleAlertComponent } from '../../ui-components/simple-alert/simple-alert.component';
 
 @Component({
   selector: 'app-profile-completion',
   standalone: true,
-  imports: [CommonModule, FormsModule, ToastNotificationComponent, ButtonComponent],
+  imports: [CommonModule, FormsModule, ToastNotificationComponent, ButtonComponent, SimpleAlertComponent],
   templateUrl: './profile-completion.component.html',
   styleUrls: ['./profile-completion.component.css']
 })

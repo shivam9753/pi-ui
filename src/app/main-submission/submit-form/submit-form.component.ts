@@ -8,22 +8,23 @@ import { ContentEditorComponent } from '../../submit/content-editor/content-edit
 import { SUBMISSION_STATUS, SubmissionStatus, HTTP_STATUS } from '../../shared/constants/api.constants';
 import { Subscription } from 'rxjs';
 import { ButtonComponent } from '../../ui-components/button/button.component';
+import { ModalService } from '../../services/modal.service';
 
 export type SubmissionMode = 'create' | 'edit' | 'resubmit' | 'view';
 
 export interface EditableSubmission {
-  _id: string;
-  title: string;
-  description: string;
-  submissionType: string;
-  contents: any[];
-  status: SubmissionStatus;
-  revisionNotes?: string;
-  reviewFeedback?: string;
-  submittedAt: string;
-  reviewedAt?: string;
-  publishedAt?: string;
-  wordCount?: number;
+	_id: string;
+	title: string;
+	description: string;
+	submissionType: string;
+	contents: any[];
+	status: SubmissionStatus;
+	revisionNotes?: string;
+	reviewFeedback?: string;
+	submittedAt: string;
+	reviewedAt?: string;
+	publishedAt?: string;
+	wordCount?: number;
 }
 
 export interface Draft {
@@ -126,7 +127,8 @@ export class SubmitFormComponent implements OnInit, OnDestroy {
     private router: Router,
     private authService: AuthService,
     private backendService: BackendService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private modalService: ModalService
   ) {
     this.form = this.fb.group({
       title: [''],
@@ -158,6 +160,29 @@ export class SubmitFormComponent implements OnInit, OnDestroy {
     if (!this.loggedInUser) {
       this.loggedInUser = this.authService.getCurrentUser();
     }
+
+    // Show a preview modal by default so you can see how it looks in this component
+    // setTimeout(() => {
+    //   this.modalService.open({
+    //     title: 'Modal Preview — Submission',
+    //     message: 'This is a preview of the site-wide modal. Close to continue using the form.',
+    //     showCloseButton: true,
+    //     buttons: [
+    //       {
+    //         label: 'Close',
+    //         action: () => { this.modalService.close(); },
+    //         variant: 'secondary',
+    //         size: 'md'
+    //       },
+    //       {
+    //         label: 'Proceed',
+    //         action: () => { this.showToast('Proceed clicked', 'info'); this.modalService.close(); },
+    //         variant: 'primary',
+    //         size: 'md'
+    //       }
+    //     ]
+    //   });
+    // }, 200);
   }
 
   // Mode-based getters
@@ -590,6 +615,40 @@ export class SubmitFormComponent implements OnInit, OnDestroy {
     }
   }
 
+  // Helper: show submission success modal
+  private showSuccessModal(message: string): Promise<void> {
+    return this.modalService.open({
+      title: 'Submission Successful',
+      message,
+      showCloseButton: true,
+      buttons: [
+        {
+          label: 'OK',
+          action: () => { this.modalService.close(); },
+          variant: 'primary',
+          size: 'md'
+        }
+      ]
+    });
+  }
+
+  // Helper: show submission error modal
+  private showErrorModal(message: string): Promise<void> {
+    return this.modalService.open({
+      title: 'Submission Failed',
+      message,
+      showCloseButton: true,
+      buttons: [
+        {
+          label: 'Close',
+          action: () => { this.modalService.close(); },
+          variant: 'secondary',
+          size: 'md'
+        }
+      ]
+    });
+  }
+
   submitForm(): void {
     if (!this.validateForm()) {
       this.showToast('Please complete all required fields', 'error');
@@ -628,8 +687,12 @@ export class SubmitFormComponent implements OnInit, OnDestroy {
     this.backendService.submitNewSubmission(submissionPayload).subscribe({
       next: () => {
         this.hasUnsavedChanges = false;
-        this.showToast('Submission successful! Thank you for sharing your creative work.', 'success');
-        this.formSubmitted.emit();
+        // Stop loading state before showing modal so Submit button stops spinning
+        this.isSubmitting = false;
+        // Show modal and emit after user closes it
+        this.showSuccessModal('Thank you — your submission has been received and will be reviewed.').then(() => {
+          this.formSubmitted.emit();
+        });
       },
       error: (error) => {
         this.isSubmitting = false;
@@ -643,13 +706,13 @@ export class SubmitFormComponent implements OnInit, OnDestroy {
             if (fieldName.startsWith('contents[') && fieldName.includes('].title')) {
               const match = fieldName.match(/contents\[(\d+)\]\.title/);
               if (match) {
-                const index = parseInt(match[1]) + 1;
+                const index = Number.parseInt(match[1]) + 1;
                 fieldName = `Content ${index} title`;
               }
             } else if (fieldName.startsWith('contents[') && fieldName.includes('].body')) {
               const match = fieldName.match(/contents\[(\d+)\]\.body/);
               if (match) {
-                const index = parseInt(match[1]) + 1;
+                const index = Number.parseInt(match[1]) + 1;
                 fieldName = `Content ${index} body`;
               }
             } else if (fieldName === 'title') {
@@ -670,7 +733,8 @@ export class SubmitFormComponent implements OnInit, OnDestroy {
           errorMessage = error.error.message;
         }
 
-        this.showToast(errorMessage, 'error');
+        // Show error modal to the user
+        this.showErrorModal(errorMessage);
       }
     });
   }

@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { Subscription } from 'rxjs';
-import { Draft, SubmissionMode, SubmitFormComponent } from '../../main-submission/submit-form/submit-form.component';
+import { Draft, SubmissionMode, SubmitFormComponent, EditableSubmission } from '../../main-submission/submit-form/submit-form.component';
 import { DraftsListComponent } from '../../main-submission/drafts-list/drafts-list.component';
 import { GuidelinesOverlayComponent } from '../../main-submission/guidelines-overlay/guidelines-overlay.component';
 import { ToastNotificationComponent } from '../../shared/components';
@@ -30,8 +30,10 @@ export class SubmissionEditorComponent implements OnInit, OnDestroy {
   drafts: Draft[] = [];
   currentDraft: Draft | null = null;
   relatedTopicPitchId: string | null = null;
+  // If we load a submission here, pass it to the submit form to avoid double API calls
+  loadedSubmission: EditableSubmission | null = null;
   private topicPitchData: { title?: string; description?: string; type?: string } | null = null;
-  private subscriptions: Subscription[] = [];
+  private readonly subscriptions: Subscription[] = [];
 
   // Toast notification properties
   toastMessage = '';
@@ -39,10 +41,10 @@ export class SubmissionEditorComponent implements OnInit, OnDestroy {
   showToastFlag = false;
 
   constructor(
-    private router: Router,
-    private route: ActivatedRoute,
-    private authService: AuthService,
-    private backendService: BackendService
+    private readonly router: Router,
+    private readonly route: ActivatedRoute,
+    private readonly authService: AuthService,
+    private readonly backendService: BackendService
   ) {}
 
   ngOnInit(): void {
@@ -56,6 +58,25 @@ export class SubmissionEditorComponent implements OnInit, OnDestroy {
       if (params['id']) {
         this.submissionId = params['id'];
         this.mode = 'edit'; // Default to edit, will be refined by query params
+        // Load the submission here so the editor can show revision notes and set proper mode
+        // submissionId must be defined here because params['id'] existed
+        this.backendService.getSubmissionWithContents(this.submissionId as string).subscribe({
+          next: (data: EditableSubmission) => {
+            this.loadedSubmission = data;
+            // Auto-detect mode based on submission status
+            if (data.status === 'needs_revision' || data.status === 'rejected') {
+              this.mode = 'resubmit';
+            } else if (data.status === 'published' || data.status === 'approved' || data.status === 'accepted') {
+              // Viewing published/approved submissions should default to view mode
+              this.mode = 'view';
+            } else {
+              this.mode = 'edit';
+            }
+          },
+          error: () => {
+            // keep default behavior; child component will handle load errors as well
+          }
+        });
       }
     });
 
