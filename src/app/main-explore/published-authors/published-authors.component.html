@@ -1,26 +1,36 @@
 <div class="published-authors container">
-  <h2 class="page-title">Poets & Writers (<span class="total-count">{{ totalCount }}</span>)</h2>
+  <h1 class="text-3xl font-bold text-themed mb-6">Poets & Writers (<span class="total-count">{{ totalCount }}</span>)</h1>
 
   <div *ngIf="loading" class="loading">Loading authors…</div>
 
   <div *ngIf="!loading && authors.length > 0" class="authors-grid">
-    <div *ngFor="let author of authors; trackBy: trackById" class="author-card" tabindex="0" role="button" (click)="viewAuthorProfile(author)" (keydown.enter)="viewAuthorProfile(author)" (keydown.space)="viewAuthorProfile(author)" [attr.aria-label]="'View profile of ' + author.name">
+    <ng-container *ngFor="let author of authors; trackBy: trackById">
+      <button type="button"
+              class="author-card bg-white dark:bg-themed-card border border-gray-200 dark:border-gray-700 rounded-md p-6 flex flex-col items-center justify-center text-center transition-transform hover:-translate-y-1"
+              (click)="viewAuthorProfile(author)"
+              [attr.aria-label]="'View profile of ' + (author.name || 'Author')">
 
-      <!-- Top: centered profile image (or initials fallback) + name -->
-      <div class="card-top centered">
-        <ng-container *ngIf="author.profileImage; else initialsTpl">
-          <img class="author-avatar-img" [src]="author.profileImage" [alt]="author.name || 'Author'" />
+        <!-- Avatar / initials -->
+        <ng-container *ngIf="author.profileImage; else initials">
+          <img [src]="author.profileImage"
+               [alt]="author.name || 'Author'"
+               class="w-16 h-16 rounded-full object-cover ring-1 ring-gray-100 dark:ring-gray-600" />
         </ng-container>
-        <ng-template #initialsTpl>
-          <div class="author-avatar" [attr.title]="author.name">{{ getInitials(author.name) }}</div>
+
+        <ng-template #initials>
+          <div class="w-16 h-16 rounded-full flex items-center justify-center bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 font-semibold">
+            {{ getInitials(author.name) }}
+          </div>
         </ng-template>
 
-        <div class="card-meta">
-          <div class="author-name">{{ toTitleCase(author.name) }}</div>
+        <!-- Name -->
+        <div class="card-meta mt-3">
+          <div class="author-name text-lg font-semibold text-gray-800 dark:text-gray-100">
+            {{ toTitleCase(author.name) }}
+          </div>
         </div>
-      </div>
-
-    </div>
+      </button>
+    </ng-container>
   </div>
 
   <div *ngIf="!loading && authors.length === 0" class="empty">No authors found.</div>

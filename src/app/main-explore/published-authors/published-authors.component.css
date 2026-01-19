@@ -1,11 +1,11 @@
 /* Use global spacing tokens from design system */
 .published-authors { padding: var(--spacing-page-desktop) 1rem; max-width: 1200px; margin-left: auto; margin-right: auto; box-sizing: border-box; }
-.page-title { font-size: 1.375rem; margin-bottom: 0.75rem; color: var(--text-primary); font-weight: 600; }
+.page-title { font-size: 1.375rem; margin-bottom: 0.75rem; color: var(--text-heading, rgba(0,0,0,0.75)); font-weight: 600; }
 .loading, .empty { color: var(--text-muted); }
 
 /* Grid */
 .authors-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; align-items: stretch; }
-.author-card { display:flex; flex-direction:column; justify-content:center; align-items:center; background: var(--bg-card); border: 1px solid var(--border-primary); border-radius: 12px; padding: 1.25rem; cursor: pointer; transition: transform 0.12s ease, box-shadow 0.12s ease; box-shadow: var(--shadow-sm); text-align: center; position: relative; height: 100%; }
+.author-card { display:flex; flex-direction:column; justify-content:center; align-items:center; /* background and border removed so template classes control theme */ border-radius: 12px; padding: 1.25rem; cursor: pointer; transition: transform 0.12s ease, box-shadow 0.12s ease; box-shadow: var(--shadow-sm); text-align: center; position: relative; height: 100%; }
 .author-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-md); }
 
 /* Make cards stretch to same height in row */
@@ -14,10 +14,14 @@
 /* Centered top */
 .card-top.centered { display:flex; flex-direction:column; align-items:center; gap:0.5rem; }
 .author-avatar-img { width:72px; height:72px; border-radius:9999px; object-fit:cover; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
-.author-avatar { width:72px; height:72px; border-radius:9999px; display:inline-flex; align-items:center; justify-content:center; font-weight:700; background: var(--bg-tertiary, #e6e6e6); color: var(--text-primary); }
-.author-avatar span { color: var(--text-primary); }
+.author-avatar { width:72px; height:72px; border-radius:9999px; display:inline-flex; align-items:center; justify-content:center; font-weight:700; /* background removed to let utility classes control it */ }
 .card-meta { display:flex; flex-direction:column; align-items:center; }
-.author-name { font-weight:700; color:var(--text-primary); margin-top:0.25rem; font-size:1.05rem; }
+.author-name { font-weight:700; /* color removed so Tailwind classes can control theme color */ margin-top:0.25rem; font-size:1.05rem; }
+
+/* Ensure theme token is applied explicitly so light/dark propagation works */
+.author-name, .author-avatar, .author-avatar span {
+  color: var(--text-primary) !important;
+}
 
 /* Hide badges area completely (removed earlier) */
 .card-badges { display:none !important; }
@@ -36,3 +40,5 @@
   .author-avatar-img, .author-avatar { width:64px; height:64px; }
   .page-btn { padding: 0.35rem 0.6rem; }
 }
+
+/* removed host-context overrides so utility classes control colors */

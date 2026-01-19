@@ -8,16 +8,31 @@
       </a>
 
       <!-- ================= DESKTOP NAV ================= -->
-      <nav class="hidden lg:flex flex-1 justify-center items-center space-x-6">
+      <nav aria-label="Main navigation" class="hidden lg:flex flex-1 justify-center items-center space-x-6">
         <a routerLink="/explore" routerLinkActive="nav-active" [routerLinkActiveOptions]="{ exact: true }"
           class="nav-item">
           Explore
         </a>
 
-        <a routerLink="/featured-poems" routerLinkActive="nav-active" [routerLinkActiveOptions]="{ exact: true }"
-          class="nav-item">
-          Featured
-        </a>
+        <div class="relative group">
+          <button class="nav-item flex items-center gap-1 whitespace-nowrap">
+            <span>Featured</span>
+            <svg class="inline-block w-3 h-3 ml-1 self-center" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+              <path d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.06 1.06l-4.24 4.24a.75.75 0 01-1.06 0L5.21 8.27a.75.75 0 01.02-1.06z" />
+            </svg>
+          </button>
+
+          <div class="absolute mt-2 w-44 bg-themed-card border border-themed rounded shadow z-50 opacity-0 invisible group-hover:visible group-hover:opacity-100 group-hover:translate-y-0 transform transition-all">
+            <ul class="py-1">
+              <li>
+                <a routerLink="/featured-poems" (click)="$event.preventDefault()" class="block px-3 py-2 text-sm hover:bg-themed-hover">Poems</a>
+              </li>
+              <li>
+                <a routerLink="/published-authors" (click)="$event.preventDefault()" class="block px-3 py-2 text-sm hover:bg-themed-hover">Poets & Writers</a>
+              </li>
+            </ul>
+          </div>
+        </div>
 
         <a routerLink="/submission" routerLinkActive="nav-active" [routerLinkActiveOptions]="{ exact: true }" class="nav-item">
           Submit
@@ -107,14 +122,7 @@
             <div class="px-4 py-3 border-b border-themed">
               <p class="text-lg font-semibold">{{ loggedInUser()!.name }}</p>
 
-              @if (shouldShowRoleChip()) {
-              <div [class]="getRoleChipClasses()">
-                <svg class="w-4 h-4 mr-1.5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" [attr.d]="getRoleIconPath()" />
-                </svg>
-                {{ loggedInUser()!.role | titlecase }}
-              </div>
-              }
+              <!-- role chip removed intentionally -->
             </div>
 
             <a [routerLink]="['/user-profile', userId]" (click)="closeDropdown()"
@@ -187,194 +195,116 @@
 <button type="button" aria-label="Close mobile menu" class="fixed inset-0 bg-black/60 z-40 lg:hidden" (click)="closeMobileMenu()" (keydown.escape)="closeMobileMenu()"></button>
 }
 
-<!-- ================= MOBILE MENU ================= -->
-<div class="fixed top-0 right-0 w-80 h-full bg-themed border-l border-themed z-50
+<!-- ================= MOBILE MENU (UPDATED) ================= -->
+<div class="fixed top-0 right-0 w-80 h-full bg-white border-l border-themed z-50 shadow-lg
          transform transition-transform duration-300 lg:hidden" [ngClass]="{
     'translate-x-0': isMobileMenuOpen(),
     'translate-x-full': !isMobileMenuOpen()
   }">
-  <div class="p-4 border-b border-themed flex justify-between">
-    <span class="font-semibold">Menu</span>
-    <button (click)="closeMobileMenu()" aria-label="Close menu">
-      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-      </svg>
-    </button>
-  </div>
 
-  <div class="p-6 space-y-2">
+  <nav aria-label="Mobile navigation" class="p-4 h-full flex flex-col">
 
-    <!-- User Info -->
+    <!-- Name row with close button aligned to right (no logo on top) -->
     @if (isAuthenticated()) {
-    <div>
-      <p class="text-lg font-semibold">{{ loggedInUser()!.name }}</p>
+    <div class="flex items-center justify-between mb-3" style="align-items:flex-start;">
+      <div class="flex items-center gap-3">
+        <!-- Avatar: use initials avatar (prefer initials to avoid broken external images) -->
+        <div class="w-9 h-9 rounded-full bg-gray-200 dark:bg-gray-600 flex items-center justify-center text-sm font-semibold text-gray-800 dark:text-gray-100">
+          {{ getUserInitials($any(loggedInUser())?.name || '') }}
+        </div>
 
-      @if (shouldShowRoleChip()) {
-      <div [class]="getRoleChipClasses()">
-        <svg class="w-4 h-4 mr-1.5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" [attr.d]="getRoleIconPath()" />
-        </svg>
-        {{ loggedInUser()!.role | titlecase }}
+        <p class="m-0 text-[18px] leading-[1.15] font-semibold text-neutral-900 dark:text-neutral-100">{{ $any(loggedInUser()).name }}</p>
       </div>
-      }
 
+      <button (click)="closeMobileMenu()" aria-label="Close menu" class="text-neutral-500 ml-3" style="background:none;border:0;padding:6px;">
+        <svg class="w-5 h-5" fill="none" stroke="#374151" viewBox="0 0 24 24">
+          <path stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
     </div>
     }
 
-    <!-- Mobile navigation grouped cards -->
-    <div class="space-y-2">
+    <div style="flex:1; overflow:auto;">
+      <ul style="margin:0;padding:0;list-style:none;">
+        <li class="pt-2 pb-2 border-t" style="border-top-color:rgba(0,0,0,0.04);">
+          <a routerLink="/explore" (click)="closeMobileMenu()" class="text-base font-medium text-neutral-900 dark:text-neutral-100 no-underline">Explore</a>
+        </li>
 
-      <!-- Primary links card (compact touch targets) -->
-      <div class="bg-themed-card border border-themed rounded-lg p-2">
-        <ul class="space-y-1">
-          <li>
-            <a routerLink="/explore" (click)="closeMobileMenu()" class="flex items-center gap-2 text-sm py-2">
-              <!-- Globe / Compass -->
-              <svg class="w-4 h-4 text-themed-secondary" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="12" cy="12" r="9"></circle>
-                <path d="M12 3v18M3 12h18"></path>
+        <li class="pt-2 pb-2 border-t" style="border-top-color:rgba(0,0,0,0.04);">
+          <details style="margin:0;">
+            <summary class="flex items-center justify-between cursor-pointer py-2" style="display:flex;align-items:center;justify-content:space-between;width:100%;padding:0;">
+              <span class="text-base font-medium nav-item">Featured</span>
+              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" style="width:16px;height:16px;">
+                <path stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"></path>
               </svg>
-              <span class="text-sm">Explore</span>
-            </a>
-          </li>
-          <li>
-            <a routerLink="/featured-poems" (click)="closeMobileMenu()" class="flex items-center gap-2 text-sm py-2">
-              <!-- Star -->
-              <svg class="w-4 h-4 text-themed-secondary" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M12 17.3L7.2 20l1-5.6L4 11.3l5.7-.5L12 5l2.3 5.8 5.7.5-4.2 3.1 1 5.6z"></path>
-              </svg>
-              <span class="text-sm">Featured</span>
-            </a>
-          </li>
-          <li>
-            <a routerLink="/submission" (click)="closeMobileMenu()" class="flex items-center gap-2 text-sm py-2">
-              <!-- Pencil -->
-              <svg class="w-4 h-4 text-themed-secondary" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M3 21v-3l11-11 3 3L6 21H3z"></path>
-                <path d="M14 7l3 3"></path>
-              </svg>
-              <span class="text-sm">Submit</span>
-            </a>
-          </li>
-        </ul>
-      </div>
+            </summary>
 
-      <!-- Editorial card (compact, smaller spacing) -->
-      @if (hasEditorialItems()) {
-      <div class="bg-themed-card border border-themed rounded-lg p-2">
-        <div class="flex items-center justify-between mb-1">
-          <div class="text-sm font-medium">Editorial</div>
-          <div class="text-xs text-themed-secondary">Manage</div>
-        </div>
-
-        <ul class="space-y-1">
-          @if (canAccessWorkspace() || isAdmin()) {
-          <li>
-            <a routerLink="/admin/submissions" (click)="closeMobileMenu()" class="flex items-center justify-between gap-2 text-sm py-2">
-              <div class="flex items-center gap-2">
-                <!-- Document -->
-                <svg class="w-4 h-4 text-themed-secondary" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                  <path d="M14 2v6h6"></path>
-                </svg>
-                <span class="text-sm">Submissions</span>
-              </div>
-              <svg class="w-3 h-3 text-themed-secondary opacity-60" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"></path></svg>
-            </a>
-          </li>
-          }
-
-          @if (canAccessWorkspace()) {
-          <li>
-            <a routerLink="/workspace" (click)="closeMobileMenu()" class="flex items-center justify-between gap-2 text-sm py-2">
-              <div class="flex items-center gap-2">
-                <!-- Folder -->
-                <svg class="w-4 h-4 text-themed-secondary" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M3 7a2 2 0 0 1 2-2h5l2 2h7a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z"></path>
-                </svg>
-                <span class="text-sm">Workspace</span>
-              </div>
-              <svg class="w-3 h-3 text-themed-secondary opacity-60" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"></path></svg>
-            </a>
-          </li>
-          }
-
-          @if (isAdmin()) {
-          <li>
-            <a routerLink="/admin" (click)="closeMobileMenu()" class="flex items-center justify-between gap-2 text-sm py-2">
-              <div class="flex items-center gap-2">
-                <!-- Shield -->
-                <svg class="w-4 h-4 text-themed-secondary" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M12 2l7 4v6c0 5-3.58 9.74-7 11-3.42-1.26-7-6-7-11V6l7-4z"></path>
-                </svg>
-                <span class="text-sm">Admin</span>
-              </div>
-              <svg class="w-3 h-3 text-themed-secondary opacity-60" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"></path></svg>
-            </a>
-          </li>
-          }
-        </ul>
-      </div>
-      }
-
-      <!-- Account card (compact) -->
-      <div class="bg-themed-card border border-themed rounded-lg p-2">
-        <ul class="space-y-1">
-          @if (isAuthenticated()) {
-          <li>
-            <a [routerLink]="['/user-profile', userId]" (click)="closeMobileMenu()" class="flex items-center gap-2 text-sm py-2">
-              <!-- User -->
-              <svg class="w-4 h-4 text-themed-secondary" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                <circle cx="12" cy="7" r="4"></circle>
-              </svg>
-              <span class="text-sm">My Profile</span>
-            </a>
-          </li>
-          }
-
-          <li>
-            <a routerLink="/my-submissions" (click)="closeMobileMenu()" class="flex items-center gap-2 text-sm py-2">
-              <!-- Document / Submissions icon -->
-              <svg class="w-4 h-4 text-themed-secondary" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                <path d="M14 2v6h6"></path>
-              </svg>
-              <span class="text-sm">My Submissions</span>
-            </a>
-          </li>
-
-          <li>
-            <a routerLink="/whats-new" (click)="closeMobileMenu()" class="flex items-center gap-2 text-sm py-2 text-white">
-              <!-- Sparkles -->
-              <svg class="w-4 h-4 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M5 3l1.5 3L10 8l-3.5 2L5 13l-1.5-3L0 8l3.5-2L5 3z"></path>
-                <path d="M19 8l1 2 2 1-2 1-1 2-1-2-2-1 2-1 1-2z"></path>
-              </svg>
-              <span class="text-sm">What’s New</span>
-            </a>
-          </li>
-
-          <li class="flex items-center justify-between py-2">
-            <div class="flex items-center gap-2">
-              <!-- Sun (Theme) -->
-              <svg class="w-4 h-4 text-themed-secondary" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="12" cy="12" r="3"></circle>
-                <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"></path>
-              </svg>
-              <span class="text-sm">Theme</span>
+            <div class="mt-1 pl-1 flex flex-col gap-2">
+              <a routerLink="/featured-poems" (click)="closeMobileMenu()" class="text-base text-neutral-900 dark:text-neutral-100 no-underline">Poems</a>
+              <a routerLink="/published-authors" (click)="closeMobileMenu()" class="text-base text-neutral-900 dark:text-neutral-100 no-underline">Poets &amp; Writers</a>
             </div>
-            <app-theme-toggle></app-theme-toggle>
-          </li>
+          </details>
+        </li>
 
-          @if (isAuthenticated()) {
-          <li>
-            <button (click)="logout(); closeMobileMenu()" class="w-full text-left text-red-600 py-2 text-sm">Logout</button>
-          </li>
-          }
-        </ul>
+        <li class="pt-2 pb-2 border-t" style="border-top-color:rgba(0,0,0,0.04);">
+          <a (click)="handleSubmitClick(); closeMobileMenu()" class="text-base font-medium text-neutral-900 dark:text-neutral-100 no-underline">Submit</a>
+        </li>
+
+        @if (hasEditorialItems()) {
+        <li class="pt-2 pb-2 border-t" style="border-top-color:rgba(0,0,0,0.04);">
+          <details style="margin:0;">
+            <summary class="flex items-center justify-between cursor-pointer py-2" style="display:flex;align-items:center;justify-content:space-between;width:100%;padding:0;">
+              <span class="text-base font-medium nav-item">Editorial</span>
+              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" style="width:16px;height:16px;">
+                <path stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"></path>
+              </svg>
+            </summary>
+
+            <div class="mt-1 pl-1 flex flex-col gap-2">
+              @if (canAccessWorkspace() || isAdmin()) {
+              <a routerLink="/admin/submissions" (click)="closeMobileMenu()" class="text-base text-neutral-900 dark:text-neutral-100 no-underline">Submissions</a>
+              }
+              @if (canAccessWorkspace()) {
+              <a routerLink="/workspace" (click)="closeMobileMenu()" class="text-base text-neutral-900 dark:text-neutral-100 no-underline">Workspace</a>
+              }
+              @if (isAdmin()) {
+              <a routerLink="/admin" (click)="closeMobileMenu()" class="text-base text-neutral-900 dark:text-neutral-100 no-underline">Admin</a>
+              }
+            </div>
+          </details>
+        </li>
+        }
+
+        <li class="pt-2 pb-2 border-t" style="border-top-color:rgba(0,0,0,0.04);">
+          <a [routerLink]="['/user-profile', userId]" (click)="closeMobileMenu()" class="text-base text-neutral-900 dark:text-neutral-100 no-underline">My Profile</a>
+        </li>
+
+        <li class="pt-2 pb-2 border-t" style="border-top-color:rgba(0,0,0,0.04);">
+          <a routerLink="/my-submissions" (click)="closeMobileMenu()" class="text-base text-neutral-900 dark:text-neutral-100 no-underline">My Submissions</a>
+        </li>
+      </ul>
+    </div>
+
+    <!-- Theme toggle (mobile) -->
+    <div class="border-t border-themed my-2" style="margin-top:8px;padding-top:10px;"></div>
+    <div class="flex items-center justify-between px-0 py-2" style="padding-bottom:6px;padding-top:6px;">
+      <span class="text-sm text-neutral-600 dark:text-neutral-300">Theme</span>
+      <app-theme-toggle></app-theme-toggle>
+    </div>
+
+    <!-- Footer (two-column) -->
+    <div style="margin-top:8px;border-top:1px solid rgba(0,0,0,0.06);padding-top:12px;font-size:13px;">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;color:var(--muted);">
+        <a routerLink="/faqs" (click)="closeMobileMenu()" class="text-neutral-600 dark:text-neutral-400">FAQs</a>
+        <a routerLink="/contact" (click)="closeMobileMenu()" class="text-neutral-600 dark:text-neutral-400">Contact</a>
+        <a routerLink="/about" (click)="closeMobileMenu()" class="text-neutral-600 dark:text-neutral-400">About us</a>
+        <a routerLink="/support" (click)="closeMobileMenu()" class="text-neutral-600 dark:text-neutral-400">Support</a>
+        <a routerLink="/legal" (click)="closeMobileMenu()" class="text-neutral-600 dark:text-neutral-400">Terms &amp; Privacy</a>
+        <a routerLink="/sitemap" (click)="closeMobileMenu()" class="text-neutral-600 dark:text-neutral-400">Sitemap</a>
+        <a routerLink="/careers" (click)="closeMobileMenu()" class="text-neutral-600 dark:text-neutral-400">Careers</a>
+        <a routerLink="/cookie-settings" (click)="closeMobileMenu()" class="text-neutral-600 dark:text-neutral-400">Cookie settings</a>
       </div>
     </div>
 
-  </div>
+  </nav>
 </div>
