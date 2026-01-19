@@ -11,12 +11,12 @@ import { UserService } from '../../services/user.service';
   styleUrls: ['./published-authors.component.css']
 })
 export class PublishedAuthorsComponent implements OnInit {
-  authors: Array<{ _id: string; name: string }> = [];
+  authors: Array<{ _id: string; name: string; profileImage?: string; publishedSubmissions?: number; publishedTypes?: string[] }> = [];
   loading = true;
 
   // pagination
   currentPage = 1;
-  itemsPerPage = 20;
+  itemsPerPage = 12; // show 12 authors per page
   totalCount = 0;
   hasMore = false;
 
@@ -37,9 +37,10 @@ export class PublishedAuthorsComponent implements OnInit {
     };
 
     this.userService.getUsersWithPublished(params).subscribe({
-      next: (res: { users: Array<{ _id: string; name: string }>; pagination?: any }) => {
+      next: (res: { users: Array<{ _id: string; name: string; profileImage?: string; publishedSubmissions?: number; publishedTypes?: string[] }>; pagination?: any; total?: number }) => {
         this.authors = res.users || [];
-        this.totalCount = res.pagination?.total || 0;
+        // Prefer top-level total (added in backend); fall back to pagination.total if absent
+        this.totalCount = typeof res.total === 'number' ? res.total : (res.pagination?.total || 0);
         this.hasMore = res.pagination?.hasNext || false;
         this.loading = false;
       },
@@ -70,5 +71,10 @@ export class PublishedAuthorsComponent implements OnInit {
     if (parts.length === 0) return 'A';
     if (parts.length === 1) return parts[0].charAt(0).toUpperCase();
     return (parts[0].charAt(0) + parts[parts.length - 1].charAt(0)).toUpperCase();
+  }
+
+  toTitleCase(s?: string): string {
+    if (!s) return '';
+    return s.split(' ').map(p => p.charAt(0).toUpperCase() + p.slice(1)).join(' ');
   }
 }
