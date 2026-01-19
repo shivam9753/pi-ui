@@ -235,4 +235,23 @@ export class UserService {
     return this.apiService.get<{ users: UserListItem[]; pagination: any }>('/api/users/featured', queryParams);
   }
 
+  /**
+   * Get users who have at least one published submission (minimal fields)
+   */
+  getUsersWithPublished(params: {
+    limit?: number;
+    skip?: number;
+    sortBy?: string;
+    order?: string;
+  } = {}): Observable<{ users: { _id: string; name: string; profileImage?: string }[]; pagination: any }> {
+    const queryParams: any = {};
+
+    if (params.limit !== undefined) queryParams.limit = params.limit.toString();
+    if (params.skip !== undefined) queryParams.skip = params.skip.toString();
+    if (params.sortBy) queryParams.sortBy = params.sortBy;
+    if (params.order) queryParams.order = params.order;
+
+    return this.apiService.get<{ users: { _id: string; name: string; profileImage?: string }[]; pagination: any }>('/users/published', queryParams);
+  }
+
 }

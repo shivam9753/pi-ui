@@ -231,6 +231,11 @@ export const routes: Routes = [
     canActivate: [AuthGuard],
     title: 'Submissions - pi' 
   },
+  { 
+    path: 'published-authors', 
+    loadComponent: () => import('./main-explore/published-authors/published-authors.component').then(m => m.PublishedAuthorsComponent),
+    title: 'Authors - pi'
+  },
 
   // Legacy route handler - redirect /:slug to /post/:slug
   { 

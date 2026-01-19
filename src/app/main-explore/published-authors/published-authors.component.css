@@ -1,0 +1,25 @@
+/* Use global spacing tokens from design system */
+.published-authors { padding: var(--spacing-page-desktop) 0; max-width: 820px; margin-left: auto; margin-right: auto; }
+.page-title { font-size: 1.375rem; margin-bottom: 0.75rem; color: var(--text-primary); font-weight: 600; }
+.loading, .empty { color: var(--text-muted); }
+
+/* List styles */
+.author-list { list-style: none; padding: 0; margin: 0; display: grid; gap: 0.5rem; }
+.author-item { }
+.author-row { display: flex; align-items: center; gap: 0.75rem; width: 100%; padding: 0.5rem 0; background: transparent; border: none; text-align: left; cursor: pointer; }
+.author-row:hover .author-name { text-decoration: underline; }
+
+/* Avatar — use global avatar styles when available */
+.avatar { width: 40px; height: 40px; display: inline-flex; align-items: center; justify-content: center; border-radius: 9999px; background: var(--bg-tertiary); color: var(--text-primary); font-weight: 600; }
+.author-name { font-size: 1rem; color: var(--text-primary); }
+
+/* Pagination */
+.pagination-controls { margin-top: 1rem; display:flex; gap:0.5rem; align-items:center; }
+.page-btn { padding: 0.35rem 0.6rem; border: 1px solid var(--border-primary); background: transparent; border-radius: 6px; cursor: pointer; }
+.page-btn:disabled { opacity: 0.5; cursor: default; }
+.page-number { padding: 0.25rem 0.5rem; }
+
+/* Responsive tweaks */
+@media (min-width: 1100px) {
+  .published-authors { margin-left: 64px; margin-right: 64px; }
+}
