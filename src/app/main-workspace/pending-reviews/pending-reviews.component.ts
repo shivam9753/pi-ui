@@ -1,4 +1,3 @@
-
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -554,12 +553,31 @@ export class PendingReviewsComponent implements OnInit, OnDestroy {
 
   // Helper methods for table display
   getAuthorName(submission: any): string {
-    return submission.author?.name || 
-    submission.authorName || 
-    submission.username || 
-           submission.author?.username || 
+    return submission.authorName || 
+    submission.author?.name || 
+    submission.author?.username || 
+           submission.username || 
            submission.submitterName || 
            'Unknown Author';
+  }
+
+  // New helper to return author's ATS for table display
+  getAuthorAts(item: any) {
+    // Support both `authorAts` top-level and `author.ats` nested
+    if (item.authorAts !== undefined && item.authorAts !== null) return item.authorAts;
+    if (item.author && typeof item.author.ats === 'number') return item.author.ats;
+    return 50;
+  }
+
+  // Return ngClass object for ATS badge color thresholds
+  getAtsBadgeClass(ats: number) {
+    const value = (typeof ats === 'number') ? ats : 50;
+    return {
+      'bg-green-100 text-green-800 border border-green-300': value >= 75,
+      'bg-yellow-100 text-yellow-800 border border-yellow-300': value >= 50 && value < 75,
+      'bg-orange-100 text-orange-800 border border-orange-300': value >= 40 && value < 50,
+      'bg-red-100 text-red-800 border border-red-300': value < 40
+    };
   }
 
   getTruncatedDescription(submission: any, maxLength: number = 100): string {

@@ -144,6 +144,14 @@ export const PENDING_REVIEWS_TABLE_COLUMNS: TableColumn[] = [
     sortable: true
   },
   {
+    key: 'authorAts',
+    label: 'ATS',
+    type: 'custom',
+    width: '8%',
+    align: 'center',
+    sortable: true
+  },
+  {
     key: 'status',
     label: 'Status',
     type: 'badge',

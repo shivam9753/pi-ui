@@ -40,12 +40,21 @@
             <div class="text-sm font-semibold text-gray-900 mb-1">
               {{ item.title }}
             </div>
-            <div class="text-xs text-gray-600 mb-1">
-              By {{ getAuthorName(item) }}
+            <div class="flex items-center gap-2 text-xs text-gray-600 mb-1">
+              <div>
+                By {{ getAuthorName(item) }}
+              </div>
             </div>
             <div class="text-xs text-gray-500 leading-relaxed line-clamp-2">
               {{ getTruncatedDescription(item, 80) }}
             </div>
+          </div>
+        }
+        @case ('authorAts') {
+          <div class="flex items-center justify-center">
+            <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium" [ngClass]="getAtsBadgeClass(getAuthorAts(item))">
+              {{ getAuthorAts(item) }}
+            </span>
           </div>
         }
         @case ('readingTime') {
