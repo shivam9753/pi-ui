@@ -193,38 +193,15 @@ app.use(express.static(browserDistFolder, {
 }));
 
 /**
- * Legacy URL redirects - Handle /:slug -> /post/:slug server-side
+ * Legacy URL redirects - Disabled
+ * Previously this endpoint redirected unknown single-segment paths to /post/:slug which caused
+ * client routes (eg. /my-submissions) to be rewritten. That behavior is removed to let the
+ * application and Angular router handle these routes. If you need to enable legacy redirects
+ * for specific slugs, implement an explicit whitelist or a check against the CMS data.
  */
-app.get('/:slug', async (req, res, next) => {
-  const slug = req.params.slug;
-
-  // Known application routes that aren't post slugs
-  const knownRoutes = [
-    'login', 'explore', 'submit', 'submission', 'submissions', 'admin', 'profile', 'prompts',
-    'faqs', 'contact-us', 'privacy-policy', 'terms-of-use',
-    'complete-profile', 'review', 'publish', 'users', 'poem-parser', 'json-parser',
-    // Client-only or special routes (prevent legacy redirect)
-    'my-submissions', 'all-posts', 'not-found', 'workspace'
-  ];
-
-  if (slug && !knownRoutes.includes(slug) && !slug.includes('.')) {
-    try {
-      // Only redirect if the slug maps to an existing post (safe check)
-      const meta = await generatePostMetaTags(slug);
-      if (meta) {
-        console.log(`[Legacy Redirect] ${req.originalUrl} -> /post/${slug}`);
-        return res.redirect(301, `/post/${slug}`);
-      }
-      // Not an existing post; continue to next handler
-      return next();
-    } catch (err) {
-      // On error, do not redirect — fall back to next()
-      console.error(`[Legacy Redirect] Error checking slug ${slug}:`, err);
-      return next();
-    }
-  }
-
-  next();
+app.get('/:slug', (req, res, next) => {
+  // No-op: allow further handlers (SSR/catch-all or static serving) to handle the path
+  return next();
 });
 
 /**
