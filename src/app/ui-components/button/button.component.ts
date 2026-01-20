@@ -1,4 +1,4 @@
-import { Component, Input, ChangeDetectionStrategy } from '@angular/core';
+import { Component, Input, ChangeDetectionStrategy, Output, EventEmitter } from '@angular/core';
 import { NgClass } from '@angular/common';
 
 export type ButtonVariant =
@@ -25,6 +25,7 @@ export type ButtonType = 'button' | 'submit' | 'reset';
     (disabled || loading) ? 'btn--disabled' : ''
   ]"
   [disabled]="disabled || loading"
+  (click)="handleClick($event)"
 >
   @if (!loading) {
     <span class="btn__label">
@@ -45,4 +46,17 @@ export class ButtonComponent {
   @Input() disabled = false;
   @Input() loading = false;
   @Input() type: ButtonType = 'button';
+
+  // New output to forward click events from the internal button
+  @Output() buttonClick = new EventEmitter<Event>();
+
+  handleClick(event: Event) {
+    // Prevent emitting when disabled
+    if (this.disabled || this.loading) {
+      event.preventDefault();
+      event.stopPropagation();
+      return;
+    }
+    this.buttonClick.emit(event);
+  }
 }

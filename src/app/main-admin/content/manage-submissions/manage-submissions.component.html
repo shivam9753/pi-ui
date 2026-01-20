@@ -8,11 +8,10 @@
     (onRefresh)="onRefresh()">
   </app-admin-page-header>
 
-  <!-- Top Tabs: New / Accepted / Published / Drafts / Rejected -->
+  <!-- Top Tabs: Published / Accepted / Drafts / Rejected -->
   <div class="mb-6 published-posts-tabs">
     <app-tabs [(activeTab)]="activeTab" (tabChange)="onTabChange($event)">
       <app-tab-item tabId="published" label="Published"></app-tab-item>
-      <app-tab-item tabId="submitted" label="New"></app-tab-item>
       <app-tab-item tabId="accepted" label="Accepted"></app-tab-item>
       <app-tab-item tabId="draft" label="Drafts"></app-tab-item>
       <app-tab-item tabId="rejected" label="Rejected"></app-tab-item>

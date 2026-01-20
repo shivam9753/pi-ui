@@ -31,8 +31,8 @@ import { TabsComponent, TabItemComponent } from '../../../ui-components';
 @Component({
   selector: 'app-manage-submissions',
   imports: [CommonModule, FormsModule, ButtonComponent, PrettyLabelPipe, BadgeLabelComponent, AdminPageHeaderComponent, DataTableComponent, SimpleSubmissionFilterComponent, SearchableUserSelectorComponent, ConsistentSubmissionMobileCardComponent, SubmissionMobileCardComponent, TabsComponent, TabItemComponent],
-  templateUrl: './published-posts.component.html',
-  styleUrl: './published-posts.component.css'
+  templateUrl: './manage-submissions.component.html',
+  styleUrl: './manage-submissions.component.css'
 })
 export class ManageSubmissionsComponent implements OnInit {
   // Table configuration
@@ -56,10 +56,10 @@ export class ManageSubmissionsComponent implements OnInit {
   
   // Filter properties
   currentFilters: SimpleFilterOptions = {};
-  // Tabs: 'published', 'accepted', 'rejected', 'draft', 'submitted'
-  quickFilter: 'published' | 'accepted' | 'rejected' | 'draft' | 'submitted' = 'published';
+  // Tabs: 'published', 'accepted', 'rejected', 'draft'
+  quickFilter: 'published' | 'accepted' | 'rejected' | 'draft' = 'published';
   // Two-way bound tab state for the UI component
-  activeTab: string = 'submitted';
+  activeTab: string = 'published';
 
   // Analytics stats
   stats: AdminPageStat[] = [];
@@ -84,8 +84,7 @@ export class ManageSubmissionsComponent implements OnInit {
     published: 0,
     accepted: 0,
     rejected: 0,
-    draft: 0,
-    submitted: 0
+    draft: 0
   };
 
   // Constants for template usage
@@ -138,7 +137,7 @@ export class ManageSubmissionsComponent implements OnInit {
 
   // Called when the top-level tab changes
   onTabChange(tabId: string) {
-    // tabId expected to be one of: 'published'|'accepted'|'rejected'|'draft'|'submitted'
+    // tabId expected to be one of: 'published'|'accepted'|'rejected'|'draft'
     console.log('🔁 Tab changed to:', tabId);
     this.quickFilter = tabId as any;
     // reset paging and filters when switching
@@ -201,18 +200,6 @@ export class ManageSubmissionsComponent implements OnInit {
         ];
         this.consistentActions = [
           { label: 'View', color: 'secondary', handler: (p:any)=> this.viewSubmission(p) },
-          { label: 'Delete', color: 'danger', handler: (p:any)=> this.deleteSubmission(p._id, p.title) }
-        ];
-        break;
-
-      case 'submitted':
-        // New/submitted: Review (open in review-submission), Delete
-        this.actions = [
-          { label: 'Review', color: 'primary', isMainAction: true, handler: (post:any) => this.reviewSubmission(post) },
-          { label: 'Delete', color: 'danger', handler: (post:any) => this.deleteSubmission(post._id, post.title) }
-        ];
-        this.consistentActions = [
-          { label: 'Review', color: 'primary', handler: (p:any)=> this.reviewSubmission(p) },
           { label: 'Delete', color: 'danger', handler: (p:any)=> this.deleteSubmission(p._id, p.title) }
         ];
         break;
@@ -285,13 +272,9 @@ export class ManageSubmissionsComponent implements OnInit {
       params.status = SUBMISSION_STATUS.REJECTED;
     } else if (this.quickFilter === 'draft') {
       params.status = SUBMISSION_STATUS.DRAFT;
-    } else if (this.quickFilter === 'submitted') {
-      // The backend groups new/submitted and under-review statuses under several DB values
-      // Use the same multi-status query used by the pending-review list: pending_review,in_progress,resubmitted
-      params.status = `${SUBMISSION_STATUS.PENDING_REVIEW},${SUBMISSION_STATUS.IN_PROGRESS},${SUBMISSION_STATUS.RESUBMITTED}`;
     }
 
-    // Debug: ensure params include expected status for submitted tab
+    // Debug: ensure params include expected status for current tab
     console.log('📡 Loading submissions — quickFilter:', this.quickFilter, 'params:', params);
 
     const apiCall = (this.quickFilter === 'published')
@@ -309,22 +292,10 @@ export class ManageSubmissionsComponent implements OnInit {
         this.publishedSubmissions = [...submissions];
         this.filteredSubmissions = [...submissions];
         this.totalCount = data.total || data.pagination?.total || 0;
-
-        // Update per-tab counts so the template can show a small Total chip
-        // Use the returned total if provided, otherwise fall back to the page's array length
-        this.tabCounts[this.quickFilter] = this.totalCount || submissions.length || 0;
-
-        this.totalPages = Math.ceil(this.totalCount / this.itemsPerPage);
-        this.hasMore = data.pagination?.hasMore || false;
-        this.updatePaginationConfig();
-        this.calculateStats();
         this.loading = false;
-        
-        console.log('✅ Updated filteredSubmissions length:', this.filteredSubmissions.length);
       },
-      error: (err: any) => {
-        console.error('❌ API Error:', err);
-        this.showError('Failed to load submissions');
+      error: (err) => {
+        console.error('🚨 Error loading submissions:', err);
         this.loading = false;
       }
     });
@@ -354,9 +325,6 @@ export class ManageSubmissionsComponent implements OnInit {
         return [SUBMISSION_STATUS.DRAFT];
       case 'rejected':
         return [SUBMISSION_STATUS.REJECTED];
-      case 'submitted':
-        // Show the underlying statuses covered by the "New" tab so the status filter can be adjusted
-        return [SUBMISSION_STATUS.PENDING_REVIEW, SUBMISSION_STATUS.IN_PROGRESS, SUBMISSION_STATUS.RESUBMITTED];
       default:
         return [];
     }

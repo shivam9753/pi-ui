@@ -4,7 +4,7 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { AuthService } from '../services/auth.service';
 
 // Import individual admin tab components
-import { ManageSubmissionsComponent } from "./content/published-posts/published-posts.component";
+import { ManageSubmissionsComponent } from "./content/manage-submissions/manage-submissions.component";
 import { FeaturedContentComponent } from "./content/featured-content/featured-content.component";
 import { UserManagementComponent } from './users/user-management/user-management.component';
 import { CreateUsersComponent } from './users/create-users/create-users.component';

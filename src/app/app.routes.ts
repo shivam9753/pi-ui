@@ -28,7 +28,7 @@ import { NotFoundComponent } from './not-found/not-found.component';
 import { ReadingInterfaceComponent } from './main-reading/reading-interface/reading-interface.component';
 import { PublicAuthorProfileComponent } from './main-user-profile/public-author-profile/public-author-profile.component';
 import { SimpleContentReaderComponent } from './main-reading/simple-content-reader/simple-content-reader.component';
-import { ManageSubmissionsComponent } from './main-admin/content/published-posts/published-posts.component';
+import { ManageSubmissionsComponent } from './main-admin/content/manage-submissions/manage-submissions.component';
 import { SubmissionsListComponent } from './main-user-profile/submissions-list/submissions-list.component';
 
 export const routes: Routes = [
