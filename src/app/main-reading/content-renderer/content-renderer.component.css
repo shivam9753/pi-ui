@@ -56,6 +56,30 @@
   line-height: inherit;
 }
 
+/* Fix: ensure paragraphs and breaks render as block-level so stanza breaks appear */
+.rendered-content p {
+  display: block !important;
+  margin: 0 0 1.2rem !important;
+}
+
+/* Ensure consecutive paragraphs keep vertical spacing even if other resets applied */
+.rendered-content p + p {
+  margin-top: 1.2rem !important;
+}
+
+/* Make sure <br> creates visible line-breaks inside paragraphs */
+.rendered-content br {
+  display: block !important;
+  line-height: inherit !important;
+  content: '' !important;
+  margin: 0.6em 0 !important;
+}
+
+/* Also ensure paragraph wrappers that only contain a <br> keep spacing */
+.rendered-content p:has(> br) {
+  min-height: 1em;
+}
+
 /* Make sure images and captions inside rendered-content remain centered where appropriate */
 .rendered-content figure.image-figure,
 .rendered-content figure.image-wrapper-single {
