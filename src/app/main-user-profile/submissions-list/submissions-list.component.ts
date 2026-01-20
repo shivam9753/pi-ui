@@ -4,6 +4,7 @@ import { RouterModule, ActivatedRoute, Router } from '@angular/router';
 import { DataTableComponent, TableColumn, TableAction } from '../../shared/components/data-table/data-table.component';
 import { BadgeLabelComponent } from '../../utilities/badge-label/badge-label.component';
 import { BackendService } from '../../services/backend.service';
+import { ModalService } from '../../services/modal.service';
 
 interface Submission {
   _id: string;
@@ -15,6 +16,7 @@ interface Submission {
   publishedWorkId?: string;
   excerpt?: string;
   content?: string;
+  revisionNotes?: string; // optional field for revision notes
 }
 
 @Component({
@@ -39,7 +41,8 @@ export class SubmissionsListComponent implements OnInit {
   constructor(
     private readonly route: ActivatedRoute,
     private readonly router: Router,
-    private readonly backendService: BackendService
+    private readonly backendService: BackendService,
+    private readonly modalService: ModalService // injected modal service
   ) {}
 
   ngOnInit() {
@@ -56,10 +59,16 @@ export class SubmissionsListComponent implements OnInit {
       this.submissionsLoading.set(true);
       this.submissionsPage.set(page);
 
-      const options = {
+      const options: any = {
         limit: this.submissionsLimit(),
         skip: page * this.submissionsLimit()
       };
+
+      // If route requested specific statuses, pass them to backend as 'status' param
+      const sel = this.selectedStatuses();
+      if (sel && sel.length > 0) {
+        options.status = sel.join(',');
+      }
 
       this.backendService.getUserSubmissions(options).subscribe({
         next: (response: any) => {
@@ -106,19 +115,29 @@ export class SubmissionsListComponent implements OnInit {
 
   // Table config
   tableColumns: TableColumn[] = [
-    { key: 'title', label: 'Title', sortable: true, type: 'text', width: '45%' },
+    { key: 'title', label: 'Title', sortable: true, type: 'text', width: '40%' },
     { key: 'createdAt', label: 'Created', sortable: true, type: 'date', width: '15%' },
     { key: 'submissionType', label: 'Type', sortable: false, type: 'badge', width: '15%' },
-    { key: 'status', label: 'Status', sortable: true, type: 'badge', width: '25%' }
+    { key: 'status', label: 'Status', sortable: true, type: 'badge', width: '20%' },
+    // Notes action column only (icon that opens modal)
+    { key: 'notesAction', label: 'Notes', type: 'custom', width: '8%', mobileHidden: false }
   ];
 
   get tableActions(): TableAction[] {
+    const sel = this.selectedStatuses();
+
+    // If the list is specifically showing only 'needs_revision', show only the Edit action
+    if (sel && sel.length === 1 && sel.includes('needs_revision')) {
+      return [
+        { label: 'Edit', handler: (item: any) => this.editSubmission(item), color: 'secondary', isMainAction: true }
+      ];
+    }
+
     const actions: TableAction[] = [
       { label: 'View', handler: (item: any) => this.viewSubmission(item), color: 'primary', isMainAction: true }
     ];
 
     // If any of the selected statuses allow editing, include Edit action
-    const sel = this.selectedStatuses();
     if (sel.includes('needs_revision')) {
       actions.push({ label: 'Edit', handler: (item: any) => this.editSubmission(item), color: 'secondary' });
     }
@@ -148,11 +167,31 @@ export class SubmissionsListComponent implements OnInit {
   }
 
   editSubmission(submission: Submission) {
-    this.router.navigate(['/edit-submission', submission._id]);
+    // Navigate to edit page without passing the revision note in query params
+    this.router.navigate(['/edit-submission', submission._id], { queryParams: { mode: 'edit' } });
   }
 
   setSearch(value: string) {
     this.submissionsFilter.set(value || '');
+  }
+
+  openRevisionNotes(submission: Submission) {
+    const note = submission.revisionNotes || 'No revision notes available.';
+    // Use modal service to show the notes
+    this.modalService.open({
+      title: 'Revision Notes',
+      message: note,
+      showCloseButton: true,
+      buttons: [
+        {
+          label: 'Close',
+          action: () => {
+            this.modalService.close();
+          },
+          variant: 'secondary'
+        }
+      ]
+    });
   }
 
   // Friendly label for a backend status key

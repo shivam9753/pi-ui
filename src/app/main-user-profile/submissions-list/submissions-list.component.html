@@ -40,6 +40,28 @@
           [rowClickable]="true"
           (onPageChange)="onDataTablePageChange($event)"
           (onRowClick)="viewSubmission($event)">
+
+          <!-- Custom cell template to render revision notes icon -->
+          <ng-template #customCell let-item let-column="column">
+            @if (column.key === 'notesAction') {
+              <div class="flex items-center justify-center">
+                @if (item.revisionNotes) {
+                  <button (click)="$event.stopPropagation(); openRevisionNotes(item)" title="View revision notes" class="p-2 rounded-md hover:bg-gray-100">
+                    <svg class="w-5 h-5 text-amber-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden>
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.129.166 2.27.293 3.423.379.35.026.67.21.865.501L12 21l2.755-4.133a1.14 1.14 0 0 1 .865-.501 48.172 48.172 0 0 0 3.423-.379c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0 0 12 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018Z" />
+                    </svg>
+                  </button>
+                } @else {
+                  <div class="text-sm text-themed-secondary">—</div>
+                }
+              </div>
+            } @else if (column.key === 'revisionNotes') {
+              <div class="text-sm text-gray-700 truncate" title="{{ item.revisionNotes }}">{{ item.revisionNotes || '—' }}</div>
+            } @else {
+              <div class="text-sm text-themed-secondary">—</div>
+            }
+          </ng-template>
+
         </app-data-table>
       </div>
 
@@ -47,26 +69,36 @@
       <div class="block md:hidden bg-white">
         <div class="divide-y divide-gray-200">
           @for (item of getFilteredSubmissions(); track item) {
-            <button type="button" class="w-full text-left p-4 flex items-start gap-3 bg-white hover:bg-gray-50 focus:outline-none" (click)="viewSubmission(item)">
-              <div class="flex-1 min-w-0">
-                <div class="flex items-center justify-between gap-3">
-                  <h3 class="text-base font-semibold text-themed truncate">{{ item.title }}</h3>
-                </div>
+            <!-- On mobile, switch primary row click to Edit when the list shows only 'needs_revision' -->
+            <button type="button" class="w-full text-left p-4 flex items-start gap-3 bg-white hover:bg-gray-50 focus:outline-none" (click)="(selectedStatuses().length === 1 && selectedStatuses()[0] === 'needs_revision') ? editSubmission(item) : viewSubmission(item)">
+               <div class="flex-1 min-w-0">
+                 <div class="flex items-center justify-between gap-3">
+                   <h3 class="text-base font-semibold text-themed truncate">{{ item.title }}</h3>
+                   <div class="ml-2 flex items-center gap-2">
+                     @if (item.revisionNotes) {
+                       <button type="button" (click)="$event.stopPropagation(); openRevisionNotes(item)" class="p-2 rounded-md hover:bg-gray-100" title="View notes">
+                         <svg class="w-5 h-5 text-amber-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden>
+                           <path stroke-linecap="round" stroke-linejoin="round" d="M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.129.166 2.27.293 3.423.379.35.026.67.21.865.501L12 21l2.755-4.133a1.14 1.14 0 0 1 .865-.501 48.172 48.172 0 0 0 3.423-.379c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0 0 12 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018Z" />
+                         </svg>
+                       </button>
+                     }
+                   </div>
+                 </div>
 
-                <div class="mt-2 flex items-center text-xs text-gray-400 gap-2">
-                  <span>{{ item.createdAt | date:'mediumDate' }}</span>
-                  <span class="inline-block w-px h-3 bg-gray-200"></span>
-                  <app-badge-label [type]="item.submissionType" badgeType="type" size="sm"></app-badge-label>
-                  <span class="inline-block w-px h-3 bg-gray-200"></span>
-                  <app-badge-label [type]="item.status" badgeType="status" size="sm"></app-badge-label>
-                </div>
+                 <div class="mt-2 flex items-center text-xs text-gray-400 gap-2">
+                   <span>{{ item.createdAt | date:'mediumDate' }}</span>
+                   <span class="inline-block w-px h-3 bg-gray-200"></span>
+                   <app-badge-label [type]="item.submissionType" badgeType="type" size="sm"></app-badge-label>
+                   <span class="inline-block w-px h-3 bg-gray-200"></span>
+                   <app-badge-label [type]="item.status" badgeType="status" size="sm"></app-badge-label>
+                 </div>
 
-                @if (item.excerpt) {
-                  <p class="mt-2 text-sm text-gray-500 truncate">{{ item.excerpt }}</p>
-                }
-              </div>
-            </button>
-          }
+                 @if (item.excerpt) {
+                   <p class="mt-2 text-sm text-gray-500 truncate">{{ item.excerpt }}</p>
+                 }
+               </div>
+             </button>
+           }
         </div>
       </div>
     </div>

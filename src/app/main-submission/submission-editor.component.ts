@@ -45,7 +45,7 @@ export class SubmissionEditorComponent implements OnInit, OnDestroy {
 
   constructor(
     private router: Router,
-    private route: ActivatedRoute,
+    public route: ActivatedRoute,
     private authService: AuthService,
     private backendService: BackendService
   ) {}
@@ -80,6 +80,9 @@ export class SubmissionEditorComponent implements OnInit, OnDestroy {
         this.mode = 'create';
         this.handleTopicPitchParams(queryParams);
       }
+
+      // If a revision note is passed in the query params, keep it; the template will show it
+      // No further action required here — the submit form can read it from the route if needed
     });
 
     // Load drafts for create mode
