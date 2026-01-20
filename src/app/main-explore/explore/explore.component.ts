@@ -295,8 +295,8 @@ export class ExploreComponent implements OnInit, AfterViewInit, OnDestroy {
     const params: any = {
       limit: this.itemsPerPage,
       skip: skip,
-      // Map 'latest' to createdAt so recency uses creation time (not updatedAt/publishedAt)
-      sortBy: this.sortBy === 'latest' ? 'createdAt' : this.sortBy,
+      // Map 'latest' to publishedAt so recency uses publication time (reviewedAt/publishedAt) rather than creation time
+      sortBy: this.sortBy === 'latest' ? 'publishedAt' : this.sortBy,
       order: 'desc' as 'desc',
       _t: Date.now() // Cache-busting timestamp
     };
@@ -375,6 +375,7 @@ export class ExploreComponent implements OnInit, AfterViewInit, OnDestroy {
       search: query,
       status: 'published',
       limit: 20,
+      sortBy: 'publishedAt',
       _t: Date.now() // Cache-busting timestamp
     }).subscribe({
       next: (data) => {
@@ -422,7 +423,7 @@ export class ExploreComponent implements OnInit, AfterViewInit, OnDestroy {
 
   openSubmission(submission: any) {
     const container: any = this.getScrollContainer();
-    const scrollTop = (container && container.scrollTop) ? container.scrollTop : window.scrollY || window.pageYOffset || 0;
+    const scrollTop = container?.scrollTop ?? window.scrollY ?? window.pageYOffset ?? 0;
     // save current scroll and state
     this.exploreStateService.setState({ scrollY: scrollTop, selectedType: this.selectedType, searchQuery: this.searchQuery });
 
@@ -454,12 +455,13 @@ export class ExploreComponent implements OnInit, AfterViewInit, OnDestroy {
     switch (this.sortBy) {
       case 'popular':
         // Sort by creation date as proxy for popularity (can be enhanced with view counts)
-        return submissions.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+        return submissions.sort((a, b) => new Date(b.createdAt || b.publishedAt || b.reviewedAt).getTime() - new Date(a.createdAt || a.publishedAt || a.reviewedAt).getTime());
       case 'readingTime':
         return submissions.sort((a, b) => (a.readingTime || 5) - (b.readingTime || 5));
       case 'latest':
       default:
-        return submissions.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+        // Prefer publishedAt/reviewedAt for latest ordering, fallback to createdAt
+        return submissions.sort((a, b) => new Date(b.publishedAt || b.reviewedAt || b.createdAt).getTime() - new Date(a.publishedAt || a.reviewedAt || a.createdAt).getTime());
     }
   }
 
