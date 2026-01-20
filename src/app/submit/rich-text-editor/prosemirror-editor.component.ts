@@ -702,6 +702,11 @@ export class ProseMirrorEditorComponent implements ControlValueAccessor, AfterVi
     // Convert multiple consecutive spaces (2 or more) anywhere to &nbsp;
     html = html.replace(/(\s{2,})/g, (match) => '&nbsp;'.repeat(match.length));
 
+    // Normalize empty paragraphs (created by pressing Enter twice) into a visible break while preserving attributes
+    // If a paragraph has alignment attributes (data-align / style) we must preserve them so centering is retained.
+    // Replace any <p ...> that contains nothing or only whitespace, &nbsp;, and/or <br> with <p ...><br></p> (keep attributes intact).
+    html = html.replace(/<p([^>]*)>(?:\s|&nbsp;|(?:<br\s*\/?>)?)*<\/p>/gi, '<p$1><br></p>');
+
     return html;
   }
 

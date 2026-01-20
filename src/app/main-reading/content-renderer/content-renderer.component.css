@@ -35,3 +35,29 @@
 
 /* Ensure pre/code are monospaced and preserved */
 .rendered-content pre, .rendered-content code{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace;white-space:pre-wrap}
+
+/* Alignment utility classes produced by the content sanitizer */
+.rendered-content .align-left  { text-align: left !important; }
+.rendered-content .align-center{ text-align: center !important; }
+.rendered-content .align-right { text-align: right !important; }
+.rendered-content .align-justify{ text-align: justify !important; }
+
+/* Stronger selectors to override other resets and ensure paragraphs align */
+.rendered-content p.align-left  { text-align: left !important; display: block !important; width: 100% !important; }
+.rendered-content p.align-center{ text-align: center !important; display: block !important; width: 100% !important; }
+.rendered-content p.align-right { text-align: right !important; display: block !important; width: 100% !important; }
+.rendered-content p.align-justify{ text-align: justify !important; display: block !important; width: 100% !important; }
+
+/* Ensure an empty paragraph that contains only a <br> produces a visible stanza break */
+.rendered-content p > br {
+  display: block;
+  content: '';
+  margin: 0.6em 0; /* stanza spacing */
+  line-height: inherit;
+}
+
+/* Make sure images and captions inside rendered-content remain centered where appropriate */
+.rendered-content figure.image-figure,
+.rendered-content figure.image-wrapper-single {
+  text-align: center;
+}

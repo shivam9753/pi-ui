@@ -1195,6 +1195,7 @@ body {
 
 .btn-secondary:hover {
   background-color: var(--bg-accent-light);
+  box-shadow: var(--shadow-sm);
   border-color: var(--border-accent);
   color: var(--text-accent-hover);
 }
@@ -2246,68 +2247,20 @@ a:hover {
   background-color: #a78bfa;
 }
 
-/* Global Tag Utility Classes */
-.tag {
-  display: inline-flex;
-  align-items: center;
-  padding-left: 8px; /* px-2 */
-  padding-right: 8px; /* px-2 */
-  padding-top: 4px; /* py-1 */
-  padding-bottom: 4px; /* py-1 */
-  border-radius: var(--radius-md); /* rounded-md */
-  font-size: 12px; /* text-xs */
-  font-weight: 500; /* font-medium */
-  transition: color 150ms ease, background-color 150ms ease; /* transition-colors */
-  cursor: default;
-}
+/* Global override to ensure content-renderer alignment classes apply */
+app-content-renderer .rendered-content p.align-left  { text-align: left !important; }
+app-content-renderer .rendered-content p.align-center{ text-align: center !important; }
+app-content-renderer .rendered-content p.align-right { text-align: right !important; }
+app-content-renderer .rendered-content p.align-justify{ text-align: justify !important; }
 
-.tag-purple {
-  background-color: var(--tag-purple-bg) !important;
-  color: var(--tag-purple-text) !important;
-  border: 1px solid var(--tag-purple-border) !important;
-}
+/* Also target any generic rendered-content elements on page */
+.rendered-content p.align-center { text-align: center !important; }
 
-.tag-green {
-  background-color: var(--tag-green-bg) !important;
-  color: var(--tag-green-text) !important;
-  border: 1px solid var(--tag-green-border) !important;
-}
-
-.tag-blue {
-  background-color: var(--tag-blue-bg) !important;
-  color: var(--tag-blue-text) !important;
-  border: 1px solid var(--tag-blue-border) !important;
-}
-
-.tag-yellow {
-  background-color: var(--tag-yellow-bg) !important;
-  color: var(--tag-yellow-text) !important;
-  border: 1px solid var(--tag-yellow-border) !important;
-}
-
-.tag-red {
-  background-color: var(--tag-red-bg) !important;
-  color: var(--tag-red-text) !important;
-  border: 1px solid var(--tag-red-border) !important;
-}
-
-.tag-gray {
-  background-color: var(--tag-gray-bg) !important;
-  color: var(--tag-gray-text) !important;
-  border: 1px solid var(--tag-gray-border) !important;
-}
-
-.tag-orange {
-  background-color: var(--tag-orange-bg) !important;
-  color: var(--tag-orange-text) !important;
-  border: 1px solid var(--tag-orange-border) !important;
-}
-
-.tag-emerald {
-  background-color: var(--tag-emerald-bg) !important;
-  color: var(--tag-emerald-text) !important;
-  border: 1px solid var(--tag-emerald-border) !important;
-}
+/* Global alignment rules with very high specificity */
+.align-left { text-align: left !important; }
+.align-center { text-align: center !important; }
+.align-right { text-align: right !important; }
+.align-justify { text-align: justify !important; }
 
 /* Content tags (hashtags) */
 .content-tag {
