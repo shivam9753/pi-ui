@@ -237,7 +237,7 @@ export interface PaginationConfig {
         </div>
 
         <!-- Mobile Cards: use shared Card component and the same cell renderer to avoid duplicated rendering logic -->
-        <div class="md:hidden space-y-4 px-4">
+        <div class="md:hidden space-y-4 px-3">
           <!-- Mobile Select All -->
           @if (selectable && data.length > 0) {
             <div class="data-table-select-all compact-inline mx-2 mb-4">
@@ -255,66 +255,48 @@ export interface PaginationConfig {
           }
 
           @for (item of data; track trackByFn ? trackByFn($index, item) : $index) {
-            <!-- Inline mobile card (does not use app-card) -->
-            <div class="bg-white rounded-lg border border-gray-200 shadow-sm p-6 mx-2" [class.bg-themed-accent-light]="isItemSelected(item)" (click)="onRowClickHandler(item, $event)">
+            <!-- Stacked mobile card: vertical flow, left-aligned, reduced padding -->
+            <div class="bg-white rounded-lg border border-gray-200 shadow-sm px-3 py-4 mx-2" [class.bg-themed-accent-light]="isItemSelected(item)" (click)="onRowClickHandler(item, $event)">
 
-              <!-- header: avatar + title + badges -->
-              <ng-container *ngIf="getPrimary() as primary">
-                <div class="flex items-start gap-4">
-                  <div class="flex-shrink-0">
-                    @if (primary.type === 'image' && getNestedValue(item, primary.key)) {
-                      <img [src]="getNestedValue(item, primary.key)" class="w-12 h-12 rounded-full object-cover" alt="avatar" />
-                    } @else {
-                      <div class="w-12 h-12 rounded-full bg-themed-accent flex items-center justify-center text-white font-medium">{{ getInitials(item) }}</div>
-                    }
-                  </div>
+              <!-- Header line: Author + ATS badge (left) and compact status inline (left-aligned flow) -->
+              <div class="flex flex-col gap-1">
+                <div class="flex items-center gap-2">
+                  <div class="text-sm font-small text-gray-500 truncate">{{ getAuthorName(item) }}</div>
+                  <span [ngClass]="getAtsBadgeClass(getNestedValue(item, 'authorAts') || getNestedValue(item, 'author.ats'))" class="inline-block px-2 py-0.5 rounded text-xs font-small">{{ getNestedValue(item, 'authorAts') || getNestedValue(item, 'author.ats') || '-'}}</span>
 
-                  <div class="flex-1">
-                    <div class="flex items-center gap-3">
-                      <div class="text-lg font-semibold text-themed">{{ getPrimaryTitle(item) }}</div>
-                      <ng-container *ngFor="let tag of getPrimaryTags(item)">
-                        <app-status-badge [status]="tag" size="sm" tagType="type"></app-status-badge>
-                      </ng-container>
-                    </div>
-
-                    <div class="text-sm text-themed-secondary mt-1" *ngIf="getAuthorName(item)">By {{ getAuthorName(item) }}</div>
-
-                    <p class="mt-4 text-base text-gray-700 line-clamp-3">{{ getPrimarySubtitle(item) }}</p>
+                  <!-- compact status badge placed inline but visually subtle -->
+                  <div class="ml-2">
+                    <app-status-badge [status]="getNestedValue(item, 'status')" size="sm"></app-status-badge>
                   </div>
                 </div>
-              </ng-container>
 
-              <!-- Secondary metadata rows (re-used renderer) -->
-              <div class="mt-4">
-                <ng-container *ngFor="let column of getSecondaryColumns()">
-                  <div *ngIf="!column.mobileHidden" class="mb-2 flex justify-between items-start border-t border-transparent pt-2">
-                    <div class="text-xs font-semibold text-themed-secondary uppercase">{{ column.label }}</div>
-                    <div class="ml-4 text-sm text-gray-800">
-                      <ng-container *ngTemplateOutlet="cellRenderer; context: { $implicit: item, column: column }"></ng-container>
-                    </div>
-                  </div>
-                </ng-container>
+                <!-- Title — smaller and normal weight for mobile -->
+                <div>
+                  <h2 class="text-lg text-gray-700 mt-1 mb-1 truncate">{{ getPrimaryTitle(item) }}</h2>
+                </div>
+
+                <!-- Excerpt / description -->
+                <div>
+                  <p class="text-sm text-gray-500 mb-2 line-clamp-3">{{ getPrimarySubtitle(item) }}</p>
+                </div>
               </div>
 
-              <!-- Actions footer -->
-              <div class="mt-5 flex items-center gap-3">
+              <!-- Single-line metadata: Date · Type -->
+              <div class="text-xs text-gray-500 mb-3">
+                {{ getNestedValue(item, 'createdAt') | date:'MMM d, y' }}
+                <span class="mx-2">·</span>
+                {{ getNestedValue(item, 'submissionType') | prettyLabel }}
+              </div>
+
+              <!-- Primary action full-width at bottom (tertiary look) -->
+              <div class="pt-1">
                 <ng-container *ngIf="getMainAction(item) as primaryAction">
                   <app-button
                     (click)="primaryAction.handler(item); $event.stopPropagation()"
-                    [variant]="mapActionVariant(primaryAction.color)"
-                    size="md">
+                    [variant]="'primary'"
+                    size="md"
+                    class="w-full justify-center">
                     {{ primaryAction.label }}
-                  </app-button>
-                </ng-container>
-
-                <div class="flex-1"></div>
-
-                <ng-container *ngFor="let action of getSecondaryActions(item)">
-                  <app-button
-                    (click)="action.handler(item); $event.stopPropagation()"
-                    [variant]="mapActionVariant(action.color)"
-                    size="sm">
-                    {{ action.label }}
                   </app-button>
                 </ng-container>
               </div>
@@ -610,6 +592,16 @@ export class DataTableComponent<T = any> implements OnInit {
   // Return the primary column object for template use (avoids optional chaining when key is passed to helpers)
   getPrimary(): TableColumn | null {
     return this.getPrimaryColumn();
+  }
+
+  // Provide ATS badge classes for small ATS value display in mobile cards
+  getAtsBadgeClass(value: any): string {
+    const v = Number(value);
+    if (!v && v !== 0) return 'bg-gray-100 text-gray-800 border border-gray-200';
+    if (v >= 75) return 'bg-green-100 text-green-800 border border-green-300';
+    if (v >= 50) return 'bg-yellow-100 text-yellow-800 border border-yellow-300';
+    if (v >= 40) return 'bg-orange-100 text-orange-800 border border-orange-300';
+    return 'bg-red-100 text-red-800 border border-red-300';
   }
 
 }

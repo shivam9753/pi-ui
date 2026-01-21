@@ -58,7 +58,7 @@
               }
               @if (canAccessWorkspace()) {
               <li>
-                <a routerLink="/workspace" (click)="closeEditorialDropdown()" class="block px-3 py-2 text-sm hover:bg-themed-hover">Workspace</a>
+                <a routerLink="/workspace" (click)="closeEditorialDropdown()" class="block px-3 py-2 text-sm hover:bg-themed-hover">Pending Reviews</a>
               </li>
               }
               @if (isAdmin()) {
@@ -265,7 +265,7 @@
               <a routerLink="/admin/submissions" (click)="closeMobileMenu()" class="text-base text-neutral-900 dark:text-neutral-100 no-underline">Submissions</a>
               }
               @if (canAccessWorkspace()) {
-              <a routerLink="/workspace" (click)="closeMobileMenu()" class="text-base text-neutral-900 dark:text-neutral-100 no-underline">Workspace</a>
+              <a routerLink="/workspace" (click)="closeMobileMenu()" class="text-base text-neutral-900 dark:text-neutral-100 no-underline">Pending Reviews</a>
               }
               @if (isAdmin()) {
               <a routerLink="/admin" (click)="closeMobileMenu()" class="text-base text-neutral-900 dark:text-neutral-100 no-underline">Admin</a>

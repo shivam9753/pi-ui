@@ -4,11 +4,11 @@ import { FormsModule } from '@angular/forms';
 import { Router, NavigationEnd } from '@angular/router';
 import { filter } from 'rxjs/operators';
 import { Subscription } from 'rxjs';
-import { ContentCardData } from '../../shared/components/content-card/content-card.component';
-import { AdminPageHeaderComponent, AdminPageStat } from '../../shared/components/admin-page-header/admin-page-header.component';
-import { BackendService } from '../../services/backend.service';
-import { AuthorService } from '../../services/author.service';
-import { SUBMISSION_STATUS } from '../../shared/constants/api.constants';
+import { ContentCardData } from '../shared/components/content-card/content-card.component';
+import { AdminPageHeaderComponent, AdminPageStat } from '../shared/components/admin-page-header/admin-page-header.component';
+import { BackendService } from '../services/backend.service';
+import { AuthorService } from '../services/author.service';
+import { SUBMISSION_STATUS } from '../shared/constants/api.constants';
 import {
   DataTableComponent,
   TableColumn,
@@ -23,15 +23,15 @@ import {
   ConsistentSubmissionMobileCardComponent,
   SubmissionAction,
   SubmissionMobileCardComponent
-} from '../../shared/components';
+} from '../shared/components';
 
 @Component({
-  selector: 'app-pending-reviews',
+  selector: 'app-main-pending-reviews',
   imports: [CommonModule, FormsModule, AdminPageHeaderComponent, DataTableComponent, AdvancedSubmissionFilterComponent, ConsistentSubmissionMobileCardComponent, SubmissionMobileCardComponent],
-  templateUrl: './pending-reviews.component.html',
-  styleUrl: './pending-reviews.component.css'
+  templateUrl: './main-pending-reviews.component.html',
+  styleUrl: './main-pending-reviews.component.css'
 })
-export class PendingReviewsComponent implements OnInit, OnDestroy {
+export class MainPendingReviewsComponent implements OnInit, OnDestroy {
   // Table configuration
   columns: TableColumn[] = PENDING_REVIEWS_TABLE_COLUMNS;
   actions: TableAction[] = [];

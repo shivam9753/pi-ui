@@ -9,7 +9,6 @@ import { UserProfileComponent } from './main-user-profile/user-profile.component
 import { UserSubmissionsComponent } from './main-user-profile/user-submissions/user-submissions.component';
 import { PromptsComponent } from './prompts/prompts.component';
 import { AdminComponent } from './main-admin/admin.component';
-import { WorkspaceComponent } from './main-workspace/workspace.component';
 import { PublishSubmissionComponent } from './main-admin/submissions/publish-submission/publish-submission.component';
 import { ReviewSubmissionComponent } from './main-admin/submissions/review-submission/review-submission.component';
 import { ProfileCompletionComponent } from './main-user-profile/profile-completion/profile-completion.component';
@@ -30,6 +29,7 @@ import { PublicAuthorProfileComponent } from './main-user-profile/public-author-
 import { SimpleContentReaderComponent } from './main-reading/simple-content-reader/simple-content-reader.component';
 import { ManageSubmissionsComponent } from './main-admin/content/manage-submissions/manage-submissions.component';
 import { SubmissionsListComponent } from './main-user-profile/submissions-list/submissions-list.component';
+import { MainPendingReviewsComponent } from './main-pending-review/main-pending-reviews.component';
 
 export const routes: Routes = [
   // Public routes - Use explore as homepage for now
@@ -152,21 +152,9 @@ export const routes: Routes = [
   },
   { 
     path: 'workspace', 
-    component: WorkspaceComponent, 
+    component: MainPendingReviewsComponent, 
     canActivate: [ReviewerGuard],
     title: 'Editorial Workspace'
-  },
-  
-  // Legacy routes for backwards compatibility
-  { 
-    path: 'review', 
-    redirectTo: '/workspace#review',
-    pathMatch: 'full'
-  },
-  { 
-    path: 'publish', 
-    redirectTo: '/workspace#publish',
-    pathMatch: 'full'
   },
   { 
     path: 'users', 

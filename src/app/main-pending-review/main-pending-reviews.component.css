@@ -61,3 +61,51 @@
     grid-template-columns: repeat(4, 1fr);
   }
 }
+
+/* Mobile spacing fixes for pending reviews component */
+:host {
+  display: block;
+  box-sizing: border-box;
+  padding-left: 1rem; /* default horizontal padding for small screens */
+  padding-right: 1rem;
+}
+
+/* Reduce horizontal padding on very small screens */
+@media (max-width: 420px) {
+  :host {
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+  }
+}
+
+/* Tighten card spacing and remove double horizontal gutters on mobile */
+@media (max-width: 640px) {
+  /* Ensure the outer wrapper and header don't add extra horizontal padding */
+  app-admin-page-header,
+  app-advanced-submission-filter,
+  app-data-table {
+    padding-left: 0;
+    padding-right: 0;
+  }
+
+  /* Make sure grid and cards use full available width */
+  .submissions-grid,
+  app-submission-mobile-card,
+  .submission-card-container {
+    margin-left: 0;
+    margin-right: 0;
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+  }
+
+  /* Slightly reduce gap for mobile to save vertical space */
+  .submissions-grid {
+    gap: 0.75rem;
+  }
+
+  /* Make quick filter buttons flush with edges */
+  .filter-button {
+    margin-left: 0;
+    margin-right: 0;
+  }
+}

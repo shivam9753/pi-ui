@@ -13,66 +13,208 @@ export interface SubmissionAction {
   standalone: true,
   imports: [CommonModule],
   template: `
-    <div class="bg-white border border-gray-200 rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow duration-200">
-      <!-- Selection checkbox (optional) -->
-      @if (selectable) {
-        <div class="flex items-start justify-between mb-3">
-          <div class="flex-1">
-            <input 
-              type="checkbox" 
-              [checked]="selected" 
-              (change)="onSelectionChange($event)"
-              class="h-5 w-5 text-primary focus:ring-primary border-gray-300 rounded">
+    <div class="card-container">
+      <!-- Top row: avatar + title/author on left, status on right -->
+      <div class="top-row">
+        <div class="left-col">
+          <div class="avatar">
+            @if (submission.author && submission.author.avatarUrl) {
+              <img src="{{ submission.author.avatarUrl }}" alt="avatar" />
+            } @else {
+              <span class="avatar-initial">{{ (submission.authorName || submission.submitterName || submission.username || 'S').charAt(0) }}</span>
+            }
+          </div>
+
+          <div class="title-block">
+            <h3 class="title">{{ submission.title }}</h3>
+            <p class="author">{{ getAuthorName() }} <span class="ats">{{ submission.authorAts || submission.author?.ats || '-' }}</span></p>
           </div>
         </div>
+
+        <div class="right-col">
+          <span [ngClass]="getStatusBadgeClass()" class="status-badge">{{ getFormattedStatus() }}</span>
+        </div>
+      </div>
+
+      <!-- Excerpt / description -->
+      @if (getDescription()) {
+        <p class="excerpt">{{ getDescription() }}</p>
       }
-      
-      <!-- Title and Author Section -->
-      <div class="mb-4">
-        <h3 class="text-lg font-bold text-gray-900 mb-2 leading-tight">{{ submission.title }}</h3>
-        <p class="text-sm text-gray-600 mb-2">by {{ getAuthorName() }}</p>
-        @if (getDescription()) {
-          <p class="text-sm text-gray-500 leading-relaxed line-clamp-2">{{ getDescription() }}</p>
-        }
-      </div>
-      
-      <!-- Status and Meta Info -->
-      <div class="flex flex-wrap items-center gap-3 mb-4">
-        <span [ngClass]="getTypeBadgeClass()" class="px-3 py-1 text-xs font-medium rounded-full">
-          {{ getFormattedType() }}
-        </span>
-        <span [ngClass]="getStatusBadgeClass()" class="px-3 py-1 text-xs font-medium rounded-full">
-          {{ getFormattedStatus() }}
-        </span>
-        <span class="text-xs text-gray-500 font-medium">
-          {{ getFormattedDate() }}
-        </span>
-        @if (submission.readingTime) {
-          <span class="text-xs text-gray-500 font-medium">
-            {{ submission.readingTime }}m read
-          </span>
-        }
-      </div>
-      
-      <!-- Action Buttons -->
-      <div class="flex flex-wrap gap-2 mt-4">
-        @for (action of visibleActions; track action.label) {
-          <button
-            (click)="action.handler(submission)"
-            [class]="getActionButtonClass(action.color)"
-            class="flex-1 px-4 py-3 text-sm font-semibold rounded-lg transition-colors duration-200 min-w-0">
-            {{ action.label }}
-          </button>
-        }
+
+      <!-- Divider + bottom row with meta on left and action on right -->
+      <div class="divider"></div>
+
+      <div class="bottom-row">
+        <div class="meta">
+          <div class="meta-item">
+            <div class="meta-label">Submitted</div>
+            <div class="meta-value">{{ getFormattedDate() }}</div>
+          </div>
+          <div class="meta-item">
+            <div class="meta-label">Type</div>
+            <div class="meta-value">{{ getFormattedType() }}</div>
+          </div>
+        </div>
+
+        <div class="actions">
+          <button (click)="visibleActions[0]?.handler(submission)" class="action-btn">Review</button>
+        </div>
       </div>
     </div>
   `,
   styles: [`
-    .line-clamp-2 {
-      display: -webkit-box;
-      -webkit-line-clamp: 2;
-      -webkit-box-orient: vertical;
+    .card-container {
+      background: #fff;
+      border: 1px solid #e5e7eb;
+      border-radius: 12px;
+      padding: 16px;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+      box-sizing: border-box;
+    }
+
+    .top-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+    }
+
+    .left-col {
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+      flex: 1 1 auto;
+      min-width: 0; /* allow truncation */
+    }
+
+    .avatar {
+      width: 48px;
+      height: 48px;
+      border-radius: 9999px;
       overflow: hidden;
+      flex: 0 0 48px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #f97316; /* placeholder color — colors can be ignored */
+      color: #fff;
+      font-weight: 700;
+      font-size: 18px;
+    }
+
+    .avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .avatar-initial {
+      display: inline-block;
+    }
+
+    .title-block {
+      overflow: hidden;
+    }
+
+    .title {
+      margin: 0 0 4px 0;
+      font-size: 16px;
+      font-weight: 700;
+      line-height: 1.1;
+      color: #111827;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      overflow: hidden;
+    }
+
+    .author {
+      margin: 0;
+      font-size: 13px;
+      color: #6b7280;
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .author .ats {
+      background: #f3f4f6;
+      padding: 2px 6px;
+      border-radius: 6px;
+      font-size: 12px;
+      color: #111827;
+    }
+
+    .right-col {
+      flex: 0 0 auto;
+      margin-left: 8px;
+    }
+
+    .status-badge {
+      display: inline-block;
+      padding: 6px 10px;
+      border-radius: 9999px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .excerpt {
+      margin: 12px 0 8px 0;
+      color: #6b7280;
+      font-size: 14px;
+      line-height: 1.4;
+    }
+
+    .divider {
+      height: 1px;
+      background: #f3f4f6;
+      margin: 8px -16px 8px -16px; /* stretch divider to card edges */
+    }
+
+    .bottom-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .meta {
+      display: flex;
+      gap: 16px;
+      align-items: flex-start;
+    }
+
+    .meta-item .meta-label {
+      font-size: 11px;
+      color: #9ca3af;
+    }
+
+    .meta-item .meta-value {
+      font-size: 14px;
+      color: #374151;
+    }
+
+    .actions {
+      flex: 0 0 auto;
+    }
+
+    .action-btn {
+      background: #ff6a00; /* placeholder */
+      color: #fff;
+      padding: 10px 18px;
+      border-radius: 8px;
+      border: none;
+      font-weight: 700;
+      font-size: 14px;
+    }
+
+    /* Responsive tweaks for small screens */
+    @media (max-width: 420px) {
+      .card-container { padding: 12px; }
+      .avatar { width: 40px; height: 40px; flex: 0 0 40px; }
+      .title { font-size: 15px; }
+      .action-btn { padding: 8px 12px; }
+      .divider { margin-left: -12px; margin-right: -12px; }
     }
   `]
 })

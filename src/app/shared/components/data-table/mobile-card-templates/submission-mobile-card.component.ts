@@ -8,47 +8,56 @@ import { SubmissionTagComponent } from '../../submission-tag/submission-tag.comp
   standalone: true,
   imports: [CommonModule, SubmissionTagComponent],
   template: `
-    <div class="mb-3">
-      <h3 class="font-semibold text-themed leading-tight mb-1">{{ submission.title }}</h3>
-      <p class="text-sm text-themed-secondary leading-normal">by {{ getAuthorName(submission) }}</p>
-      @if (submission?.description) {
-        <p class="text-xs text-themed-tertiary mt-1 line-clamp-2 leading-relaxed">{{ submission?.description }}</p>
-      }
-    </div>
-    
-    <!-- Status and Meta Info -->
-    <div class="flex flex-wrap items-center gap-2 mb-3">
-      <app-submission-tag 
-        [value]="submission.submissionType" 
-        tagType="type"
-        [showIcon]="true"
-        size="xs">
-      </app-submission-tag>
-      <app-submission-tag 
-        [value]="submission.status" 
-        tagType="status"
-        [showIcon]="false"
-        size="xs">
-      </app-submission-tag>
-      <span class="text-xs text-themed-tertiary">
-        {{ submission.createdAt | date:'MMM d, y' }}
-      </span>
-    </div>
-    
-    <!-- Action Buttons -->
-    @if (actions.length > 0) {
-      <div class="flex flex-wrap gap-2">
-        @for (action of actions; track action.label) {
-          <button
-            (click)="action.handler(submission)"
-            [class]="getActionButtonClass(action.color)"
-            class="flex-1 px-3 py-2 text-xs font-medium rounded btn-feedback"
-            style="min-height: 36px;">
-            {{ action.label }}
-          </button>
-        }
+    <div class="bg-white border border-gray-200 rounded-lg p-4 shadow-sm mb-3">
+      <!-- Top: Author + ATS on left, Status on right -->
+      <div class="flex items-start justify-between mb-2">
+        <div class="min-w-0">
+          <div class="text-xs text-gray-400">Author</div>
+          <div class="text-sm font-medium text-gray-900 truncate">
+            {{ getAuthorName(submission) }}
+            <span class="ml-2 inline-block text-xs bg-gray-100 text-gray-800 px-2 py-0.5 rounded">
+              {{ submission.authorAts || submission.author?.ats || '-' }}
+            </span>
+          </div>
+        </div>
+
+        <div class="flex-shrink-0 ml-3">
+          <app-submission-tag
+            [value]="submission.status"
+            tagType="status"
+            [showIcon]="false"
+            size="xs">
+          </app-submission-tag>
+        </div>
       </div>
-    }
+
+      <!-- Title -->
+      <h3 class="text-lg font-semibold text-gray-900 mb-2 truncate">{{ submission.title }}</h3>
+
+      <!-- Excerpt -->
+      @if (submission?.description || submission?.excerpt) {
+        <p class="text-sm text-gray-500 mb-3 line-clamp-2">{{ submission.description || submission.excerpt }}</p>
+      }
+
+      <div class="border-t border-gray-100 -mx-4 my-3"></div>
+
+      <!-- Bottom: Date & Type (left) and Action (right) -->
+      <div class="flex items-center justify-between">
+        <div class="text-sm text-gray-600">
+          <div class="text-xs text-gray-400">Submitted</div>
+          <div class="text-sm text-gray-800">{{ submission.createdAt | date:'MMM d, y' }}</div>
+
+          <div class="mt-2 text-xs text-gray-400">Type</div>
+          <div class="text-sm text-gray-800">{{ submission.submissionType }}</div>
+        </div>
+
+        <div class="flex-shrink-0">
+          @if (actions && actions.length > 0) {
+            <button (click)="actions[0].handler(submission)" [class]="getActionButtonClass('primary')" class="px-4 py-2 rounded-md font-semibold">{{ actions[0].label }}</button>
+          }
+        </div>
+      </div>
+    </div>
   `
 })
 export class SubmissionMobileCardComponent {
