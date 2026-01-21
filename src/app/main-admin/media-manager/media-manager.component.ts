@@ -21,6 +21,8 @@ export class MediaManagerComponent implements OnInit {
   isTruncated = false;
   // Stack of previous continuation tokens to allow back navigation
   private readonly tokenStack: Array<string | null> = [];
+  // Selection for bulk operations
+  selectedKeys = new Set<string>();
 
   constructor(private readonly mediaService: MediaService, private readonly toast: ToastService) {
     console.log('MediaManagerComponent: constructor');
@@ -34,7 +36,7 @@ export class MediaManagerComponent implements OnInit {
   load(continuationToken: string | null = null) {
     console.log('MediaManagerComponent: load() - fetching list, prefix=', this.prefix, 'token=', continuationToken);
     this.loading = true;
-    this.mediaService.list(this.prefix, 100, continuationToken).subscribe({
+    this.mediaService.listWithFilter(this.prefix, 100, continuationToken, this.filter).subscribe({
       next: (res: any) => {
         console.log('MediaManagerComponent: list success', res);
         this.objects = res.objects || [];
@@ -72,7 +74,8 @@ export class MediaManagerComponent implements OnInit {
     this.mediaService.delete(obj.key).subscribe({
       next: () => { 
         this.toast.showSuccess(`Deleted ${obj.key}`);
-        this.load(); 
+        this.selectedKeys.delete(obj.key);
+        this.load(null); 
       },
       error: (e: any) => { 
         console.error('MediaManagerComponent: delete error', e); 
@@ -90,6 +93,40 @@ export class MediaManagerComponent implements OnInit {
     if (this.filter === 'all') return this.objects;
     if (this.filter === 'orphan') return this.objects.filter(o => this.isOrphan(o));
     return this.objects.filter(o => !this.isOrphan(o));
+  }
+
+  toggleSelection(key: string) {
+    if (this.selectedKeys.has(key)) this.selectedKeys.delete(key);
+    else this.selectedKeys.add(key);
+  }
+
+  bulkDelete() {
+    const keys = Array.from(this.selectedKeys);
+    if (keys.length === 0) {
+      this.toast.showInfo('No images selected');
+      return;
+    }
+    if (!confirm(`Delete ${keys.length} images? This is irreversible.`)) return;
+    this.mediaService.bulkDelete(keys).subscribe({
+      next: (res: any) => {
+        const results = res.results || [];
+        const failed = results.filter((r: any) => !r.success);
+        if (failed.length === 0) {
+          this.toast.showSuccess(`Deleted ${results.length} images`);
+        } else {
+          this.toast.showWarning(`Deleted ${results.length - failed.length}, ${failed.length} failed`);
+        }
+        // remove deleted keys from selection
+        results.forEach((r: any) => {
+          if (r.success) this.selectedKeys.delete(r.key);
+        });
+        this.load(null);
+      },
+      error: (err: any) => {
+        console.error('Bulk delete error', err);
+        this.toast.showError('Bulk delete failed', err?.message || String(err));
+      }
+    });
   }
 
   // Expose whether there is a previous page available for template binding

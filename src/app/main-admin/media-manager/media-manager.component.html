@@ -16,25 +16,43 @@
   </div>
 
   <div class="grid grid-cols-4 gap-4">
-    <div *ngFor="let obj of filteredObjects()" class="border p-2 rounded">
+    <div *ngFor="let obj of filteredObjects()" class="border p-2 rounded relative">
+      <input type="checkbox" class="absolute top-2 left-2" [checked]="selectedKeys.has(obj.key)" (change)="toggleSelection(obj.key)" />
       <div class="h-40 bg-gray-100 mb-2 flex items-center justify-center">
         <img [src]="obj.url" alt="" class="max-h-36 max-w-full object-contain" />
       </div>
       <div class="text-sm truncate" title="{{obj.key}}">{{obj.key}}</div>
       <div class="text-xs text-gray-500">{{obj.size}} bytes</div>
-      <div class="mt-2 flex items-center justify-between">
+      <div class="mt-2">
         <div>
           <span *ngIf="isOrphan(obj)" class="text-red-600 text-xs">Orphan</span>
           <span *ngIf="!isOrphan(obj)" class="text-green-600 text-xs">In use</span>
         </div>
+        <div *ngIf="obj.usedBy && obj.usedBy.length" class="text-xs mt-1 text-gray-700">
+          <div *ngFor="let u of obj.usedBy">
+            <ng-container [ngSwitch]="u.type">
+              <div *ngSwitchCase="'content'">In content: <a *ngIf="u.info.submissionSlug" [href]="'/post/' + u.info.submissionSlug" target="_blank">View post</a> <span *ngIf="!u.info.submissionSlug">(content id: {{u.info.submissionId}})</span></div>
+              <div *ngSwitchCase="'submission'">Submission: <a *ngIf="u.info.slug" [href]="'/post/' + u.info.slug" target="_blank">View post</a> <span *ngIf="!u.info.slug">(id: {{u.id}})</span></div>
+              <div *ngSwitchCase="'user'">User profile: <a [href]="'/user-profile/' + u.id" target="_blank">{{u.info.username}}</a></div>
+              <div *ngSwitchDefault>{{u.type}}: {{u.info | json}}</div>
+            </ng-container>
+          </div>
+        </div>
+      </div>
+      <div class="mt-2 flex items-center justify-between">
         <button (click)="confirmAndDelete(obj)" class="text-sm text-red-600">Delete</button>
       </div>
     </div>
   </div>
 
   <div class="mt-4 flex items-center justify-between">
-    <button (click)="prevPage()" class="btn-secondary" [disabled]="!hasPrev">Prev</button>
+    <div>
+      <button (click)="bulkDelete()" class="btn-danger">Delete Selected</button>
+    </div>
     <div class="text-sm text-gray-600">Page controls</div>
-    <button (click)="nextPage()" class="btn-secondary" [disabled]="!isTruncated">Next</button>
+    <div class="space-x-2">
+      <button (click)="prevPage()" class="btn-secondary" [disabled]="!hasPrev">Prev</button>
+      <button (click)="nextPage()" class="btn-secondary" [disabled]="!isTruncated">Next</button>
+    </div>
   </div>
 </div>
