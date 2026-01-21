@@ -47,7 +47,7 @@
 
   <div class="mt-4 flex items-center justify-between">
     <div>
-      <button (click)="bulkDelete()" class="btn-danger">Delete Selected</button>
+      <button (click)="bulkDelete()" class="btn-danger" [disabled]="isBulkDeleting">Delete Selected</button>
     </div>
     <div class="text-sm text-gray-600">Page controls</div>
     <div class="space-x-2">

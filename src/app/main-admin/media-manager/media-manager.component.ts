@@ -23,6 +23,7 @@ export class MediaManagerComponent implements OnInit {
   private readonly tokenStack: Array<string | null> = [];
   // Selection for bulk operations
   selectedKeys = new Set<string>();
+  isBulkDeleting = false;
 
   constructor(private readonly mediaService: MediaService, private readonly toast: ToastService) {
     console.log('MediaManagerComponent: constructor');
@@ -102,11 +103,13 @@ export class MediaManagerComponent implements OnInit {
 
   bulkDelete() {
     const keys = Array.from(this.selectedKeys);
+    console.log('MediaManagerComponent.bulkDelete selected keys:', keys);
     if (keys.length === 0) {
       this.toast.showInfo('No images selected');
       return;
     }
     if (!confirm(`Delete ${keys.length} images? This is irreversible.`)) return;
+    this.isBulkDeleting = true;
     this.mediaService.bulkDelete(keys).subscribe({
       next: (res: any) => {
         const results = res.results || [];
@@ -120,11 +123,14 @@ export class MediaManagerComponent implements OnInit {
         results.forEach((r: any) => {
           if (r.success) this.selectedKeys.delete(r.key);
         });
+        this.isBulkDeleting = false;
+        // if some deletions succeeded, reload current page
         this.load(null);
       },
       error: (err: any) => {
         console.error('Bulk delete error', err);
         this.toast.showError('Bulk delete failed', err?.message || String(err));
+        this.isBulkDeleting = false;
       }
     });
   }
