@@ -1,0 +1,26 @@
+<div class="py-4">
+  <div class="flex items-center justify-between mb-4">
+    <div class="flex items-center space-x-2">
+      <input [(ngModel)]="prefix" placeholder="Prefix filter (optional)" class="border rounded px-2 py-1" />
+      <button (click)="load()" class="btn-primary">Refresh</button>
+    </div>
+    <div *ngIf="loading">Loading...</div>
+  </div>
+
+  <div class="grid grid-cols-4 gap-4">
+    <div *ngFor="let obj of objects" class="border p-2 rounded">
+      <div class="h-40 bg-gray-100 mb-2 flex items-center justify-center">
+        <img [src]="obj.url" alt="" class="max-h-36 max-w-full object-contain" />
+      </div>
+      <div class="text-sm truncate" title="{{obj.key}}">{{obj.key}}</div>
+      <div class="text-xs text-gray-500">{{obj.size}} bytes</div>
+      <div class="mt-2 flex items-center justify-between">
+        <div>
+          <span *ngIf="isOrphan(obj)" class="text-red-600 text-xs">Orphan</span>
+          <span *ngIf="!isOrphan(obj)" class="text-green-600 text-xs">In use</span>
+        </div>
+        <button (click)="confirmAndDelete(obj)" class="text-sm text-red-600">Delete</button>
+      </div>
+    </div>
+  </div>
+</div>
