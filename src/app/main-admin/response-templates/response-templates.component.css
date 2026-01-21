@@ -1,0 +1,9 @@
+/* Minimal styles for response templates */
+
+/* Keep design consistent with admin panels */
+.shadow-system-sm {
+  box-shadow: 0 4px 6px -1px rgba(0,0,0,0.06), 0 2px 4px -1px rgba(0,0,0,0.04);
+}
+
+textarea { font-family: inherit; }
+button:focus { outline: 2px solid rgba(245,158,11,0.3); outline-offset: 2px; }

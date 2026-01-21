@@ -1,10 +1,10 @@
 <div class="min-h-screen bg-gray-50">
-  
+
   <!-- Loading State -->
   @if (isLoading()) {
     <app-loading-state message="Loading author profile..."></app-loading-state>
   }
-  
+
   <!-- Error State -->
   @if (error()) {
     <div class="max-w-4xl mx-auto px-4 py-16">
@@ -17,7 +17,7 @@
       </app-empty-state>
     </div>
   }
-  
+
   <!-- Author Profile Content -->
   @if (!isLoading() && !error() && authorProfile()) {
     <div class="max-w-6xl mx-auto px-4 py-8">
@@ -42,7 +42,23 @@
             <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 mb-4">
               {{ authorProfile()?.name }}
             </h1>
-            
+
+            <!-- Admin: Send Email button — ensure visible even if author has no social links -->
+            @if (isAdmin() && authorProfile()) {
+              <div class="mt-3 flex justify-center">
+                <app-button
+                  (click)="openEmailModal()"
+                  (keydown.enter)="openEmailModal()"
+                  variant="secondary"
+                  size="sm"
+                  type="button">
+                  <div class="flex items-center gap-2">
+                    <span class="text-sm font-medium text-gray-700">Send Email</span>
+                  </div>
+                </app-button>
+              </div>
+            }
+
             <div class="flex flex-wrap justify-center gap-4 text-sm text-gray-600 mb-4">
               @if (authorProfile()?.totalFeaturedWorks) {
                 <div class="flex items-center gap-1">
@@ -156,5 +172,15 @@
         }
       </div>
     </div>
+  }
+
+  <!-- Include send-email modal -->
+  @if (authorProfile()) {
+    <app-send-email-modal
+      [isOpen]="showEmailModal()"
+      [submissionTitle]="authorProfile()?.name || ''"
+      (close)="closeEmailModal()"
+      (send)="sendEmailToAuthor($event)">
+    </app-send-email-modal>
   }
 </div>

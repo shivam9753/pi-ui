@@ -12,8 +12,9 @@ import { CreateUsersComponent } from './users/create-users/create-users.componen
 import { PurgeManagementComponent } from './purge/purge-management.component';
 import { AnalyticsComponent } from './analytics/analytics.component';
 import { TabsComponent, TabItemComponent } from '../ui-components';
+import { ResponseTemplatesComponent } from './response-templates/response-templates.component';
 
-type AdminTab = 'submissions' | 'content' | 'users' | 'purge' | 'analytics' | 'media';
+type AdminTab = 'submissions' | 'content' | 'users' | 'purge' | 'analytics' | 'media' | 'templates';
 
 @Component({
   selector: 'app-admin',
@@ -26,6 +27,7 @@ type AdminTab = 'submissions' | 'content' | 'users' | 'purge' | 'analytics' | 'm
     CreateUsersComponent,
     PurgeManagementComponent,
     AnalyticsComponent,
+    ResponseTemplatesComponent,
     TabsComponent,
     TabItemComponent,
     // MediaManagerComponent is lazy-loaded at runtime
@@ -66,8 +68,8 @@ export class AdminComponent implements OnInit, AfterViewInit {
     
     // Handle URL fragments for direct tab navigation
     this.route.fragment.subscribe(fragment => {
-      if (fragment && ['submissions', 'content', 'users', 'purge', 'analytics', 'media'].includes(fragment)) {
-        const tab = fragment as 'submissions' | 'content' | 'users' | 'purge' | 'analytics' | 'media';
+      if (fragment && ['submissions', 'content', 'users', 'purge', 'analytics', 'media', 'templates'].includes(fragment)) {
+        const tab = fragment as 'submissions' | 'content' | 'users' | 'purge' | 'analytics' | 'media' | 'templates';
         // Only set tab if user has permission to access it
         if (this.canAccessTab(tab)) {
           this.activeTab = tab;
@@ -124,7 +126,7 @@ export class AdminComponent implements OnInit, AfterViewInit {
     }, 100);
   }
 
-  setActiveTab(tab: 'submissions' | 'content' | 'users' | 'purge' | 'analytics' | 'media') {
+  setActiveTab(tab: 'submissions' | 'content' | 'users' | 'purge' | 'analytics' | 'media' | 'templates') {
     // Check if user has permission to access this tab
     if (!this.canAccessTab(tab)) {
       return; // Prevent access to unauthorized tabs

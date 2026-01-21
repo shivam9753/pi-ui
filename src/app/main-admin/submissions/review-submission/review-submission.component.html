@@ -166,7 +166,8 @@
               variant="primary"
               size="md"
               [disabled]="isSubmitting"
-              (click)="startReviewProcess()">
+              (click)="startReviewProcess()"
+              (keydown.enter)="startReviewProcess()">
               Start Review
             </app-button>
           </div>
@@ -184,7 +185,8 @@
                   variant="destructive"
                   size="md"
                   [disabled]="isSubmitting"
-                  (click)="setReviewAction('approve')">
+                  (click)="setReviewAction('approve')"
+                  (keydown.enter)="setReviewAction('approve')">
                   Accept
                 </app-button>
               }
@@ -195,7 +197,8 @@
                   variant="destructive"
                   size="md"
                   [disabled]="isSubmitting"
-                  (click)="setReviewAction('reject')">
+                  (click)="setReviewAction('reject')"
+                  (keydown.enter)="setReviewAction('reject')">
                   Reject
                 </app-button>
               }
@@ -206,7 +209,8 @@
                   variant="destructive"
                   size="md"
                   [disabled]="isSubmitting"
-                  (click)="setReviewAction('revision')">
+                  (click)="setReviewAction('revision')"
+                  (keydown.enter)="setReviewAction('revision')">
                   Ask for Revision
                 </app-button>
               }

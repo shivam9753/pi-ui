@@ -1,24 +1,18 @@
 import { Injectable, Inject, PLATFORM_ID } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams, HttpErrorResponse } from '@angular/common/http';
 import { Observable, throwError, timer } from 'rxjs';
-import { tap, catchError, timeout, retry, map, retryWhen, scan, mergeMap } from 'rxjs/operators';
+import { tap, catchError, timeout, map, retryWhen, scan, mergeMap } from 'rxjs/operators';
 import { isPlatformServer, isPlatformBrowser } from '@angular/common';
 import { Router } from '@angular/router';
 import { environment } from '../../environments/environment';
 import {
-  UpdateStatusPayload,
   UserProfile,
-  PublishedWork,
-  UploadResponse,
-  ApiResponse
 } from '../models';
 import { 
   API_ENDPOINTS, 
   SUBMISSION_STATUS, 
   API_CONFIG,
-  HTTP_STATUS,
-  SubmissionStatus,
-  API_UTILS 
+  HTTP_STATUS
 } from '../shared/constants/api.constants';
 
 
@@ -31,11 +25,10 @@ export class BackendService {
   private readonly REQUEST_TIMEOUT = API_CONFIG.REQUEST_TIMEOUT;
 
   constructor(
-    private http: HttpClient,
-    @Inject(PLATFORM_ID) private platformId: Object,
-    private router: Router
+    private readonly http: HttpClient,
+    @Inject(PLATFORM_ID) private readonly platformId: Object,
+    private readonly router: Router
   ) {
-    const platform = isPlatformServer(this.platformId) ? 'Server' : 'Browser';
   }
 
   private handleApiCall<T>(url: string, method: string = 'GET'): (source: Observable<T>) => Observable<T> {
@@ -1123,6 +1116,23 @@ sendReviewEmail(submissionId: string, emailData: {
 }): Observable<any> {
   const headers = this.getAuthHeaders();
   return this.http.post(`${this.API_URL}/reviews/${submissionId}/send-email`, emailData, { headers }).pipe(
+    catchError(this.handleError)
+  );
+}
+
+// Send email to a user by user id using new generic endpoint
+sendEmailToUser(userId: string, emailData: { subject: string; message: string; template?: string }): Observable<any> {
+  const headers = this.getAuthHeaders();
+  return this.http.post(`${this.API_URL}/sendemail/${userId}`, emailData, { headers }).pipe(
+    catchError(this.handleError)
+  );
+}
+
+// Send email to an arbitrary email address using new generic endpoint
+sendEmailToAddress(email: string, emailData: { subject: string; message: string; template?: string }): Observable<any> {
+  const headers = this.getAuthHeaders();
+  const payload = { email, subject: emailData.subject, message: emailData.message, template: emailData.template };
+  return this.http.post(`${this.API_URL}/sendemail`, payload, { headers }).pipe(
     catchError(this.handleError)
   );
 }

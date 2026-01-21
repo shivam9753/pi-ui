@@ -29,6 +29,9 @@
         @if (canAccessTab('media')) {
           <app-tab-item tabId="media" label="Media"></app-tab-item>
         }
+        @if (canAccessTab('templates')) {
+          <app-tab-item tabId="templates" label="Response Templates"></app-tab-item>
+        }
         @if (canAccessTab('purge')) {
           <app-tab-item tabId="purge" label="Purge Data"></app-tab-item>
         }
@@ -96,6 +99,11 @@
               <ng-template #mediaHost></ng-template>
               <!-- Fallback loading indicator while module is importing -->
               <div *ngIf="!mediaComponent" class="py-6 text-center text-gray-600">Loading media manager...</div>
+            </div>
+          }
+          @if (activeTab === 'templates') {
+            <div class="animate-fade-in">
+              <app-response-templates></app-response-templates>
             </div>
           }
           @if (activeTab === 'purge') {

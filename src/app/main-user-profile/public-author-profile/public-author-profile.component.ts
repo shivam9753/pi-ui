@@ -1,9 +1,13 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, OnDestroy, signal } from '@angular/core';
 import { CommonModule, TitleCasePipe } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { EmptyStateComponent, LoadingStateComponent } from '../../shared/components';
 import { ButtonComponent } from '../../ui-components/button/button.component';
 import { BackendService } from '../../services/backend.service';
+import { SendEmailModalComponent, EmailData } from '../../main-admin/submissions/review-submission/send-email-modal.component';
+import { AuthService } from '../../services/auth.service';
+import { ToastService } from '../../services/toast.service';
+import { Subscription } from 'rxjs';
 
 interface FeaturedWork {
   _id: string;
@@ -42,24 +46,41 @@ interface AuthorProfile {
 
 @Component({
   selector: 'app-public-author-profile',
-  imports: [CommonModule, TitleCasePipe, LoadingStateComponent, EmptyStateComponent, ButtonComponent],
+  imports: [CommonModule, TitleCasePipe, LoadingStateComponent, EmptyStateComponent, ButtonComponent, SendEmailModalComponent],
   templateUrl: './public-author-profile.component.html',
   styleUrl: './public-author-profile.component.css'
 })
-export class PublicAuthorProfileComponent implements OnInit {
+export class PublicAuthorProfileComponent implements OnInit, OnDestroy {
+  // Track admin state from AuthService (updates when user observable emits)
+  isAdminSignal = signal(false);
+  private userSub?: Subscription;
   authorProfile = signal<AuthorProfile | null>(null);
   featuredWorks = signal<FeaturedWork[]>([]);
   isLoading = signal(true);
   error = signal<string | null>(null);
   authorId = '';
+  // Email modal state for admin
+  showEmailModal = signal(false);
+  isSendingEmail = signal(false);
 
   constructor(
     private route: ActivatedRoute,
     private router: Router,
     private backendService: BackendService
+    , private authService: AuthService
+    , private toastService: ToastService
   ) {}
 
   ngOnInit() {
+    // initialize admin signal from current user if available
+    const current = this.authService.getCurrentUser();
+    this.isAdminSignal.set(!!(current && (current.role === 'admin' || current.role === 'reviewer')));
+
+    // subscribe to user changes to update admin flag (handles async login)
+    this.userSub = this.authService.user$.subscribe(user => {
+      this.isAdminSignal.set(!!(user && (user.role === 'admin' || user.role === 'reviewer')));
+    });
+
     this.route.params.subscribe(params => {
       this.authorId = params['id'];
       if (this.authorId) {
@@ -70,6 +91,10 @@ export class PublicAuthorProfileComponent implements OnInit {
         this.isLoading.set(false);
       }
     });
+  }
+
+  ngOnDestroy() {
+    if (this.userSub) this.userSub.unsubscribe();
   }
 
   loadAuthorProfile() {
@@ -195,5 +220,48 @@ export class PublicAuthorProfileComponent implements OnInit {
 
   goToExplore() {
     this.router.navigate(['/explore']);
+  }
+
+  openEmailModal() {
+    this.showEmailModal.set(true);
+  }
+
+  closeEmailModal() {
+    this.showEmailModal.set(false);
+  }
+
+  // NOTE: This view should only open the send-email modal. Actual sending is handled elsewhere.
+  sendEmailToAuthor(emailData: EmailData) {
+    if (!this.authorProfile()) {
+      this.toastService.showError('Author information missing.');
+      return;
+    }
+
+    this.isSendingEmail.set(true);
+
+    const payload = {
+      subject: emailData.subject,
+      message: emailData.message,
+      ...(emailData.template && { template: emailData.template })
+    } as any;
+
+    this.backendService.sendEmailToUser(this.authorProfile()!._id, payload).subscribe({
+      next: (resp: any) => {
+        this.isSendingEmail.set(false);
+        this.closeEmailModal();
+        this.toastService.showSuccess(resp?.message || 'Email sent successfully.');
+      },
+      error: (err: any) => {
+        this.isSendingEmail.set(false);
+        const msg = err?.error?.message || err?.message || 'Failed to send email. Please try again.';
+        this.toastService.showError(msg);
+        console.error('sendEmailToAuthor error:', err);
+      }
+    });
+  }
+
+  isAdmin(): boolean {
+    // Prefer reactive signal (updates when auth user loads). Fall back to sync check.
+    return this.isAdminSignal() || this.authService.isReviewer() || this.authService.isAdmin();
   }
 }
