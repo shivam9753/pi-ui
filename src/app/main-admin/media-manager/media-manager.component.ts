@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MediaService } from '../../services/media.service';
+import { ToastService } from '../../services/toast.service';
 
 @Component({
   selector: 'app-media-manager',
@@ -14,38 +15,85 @@ export class MediaManagerComponent implements OnInit {
   objects: any[] = [];
   loading = false;
   prefix = '';
+  filter: 'all' | 'orphan' | 'inuse' = 'all';
+  // Pagination state
+  nextContinuationToken: string | null = null;
+  isTruncated = false;
+  // Stack of previous continuation tokens to allow back navigation
+  private readonly tokenStack: Array<string | null> = [];
 
-  constructor(private readonly mediaService: MediaService) {
+  constructor(private readonly mediaService: MediaService, private readonly toast: ToastService) {
     console.log('MediaManagerComponent: constructor');
   }
 
   ngOnInit() {
     console.log('MediaManagerComponent: ngOnInit');
-    this.load();
+    this.load(null);
   }
 
-  load() {
-    console.log('MediaManagerComponent: load() - fetching list, prefix=', this.prefix);
+  load(continuationToken: string | null = null) {
+    console.log('MediaManagerComponent: load() - fetching list, prefix=', this.prefix, 'token=', continuationToken);
     this.loading = true;
-    this.mediaService.list(this.prefix, 100).subscribe({
+    this.mediaService.list(this.prefix, 100, continuationToken).subscribe({
       next: (res: any) => {
         console.log('MediaManagerComponent: list success', res);
         this.objects = res.objects || [];
+        this.isTruncated = !!res.isTruncated;
+        this.nextContinuationToken = res.nextContinuationToken || null;
         this.loading = false;
       },
       error: (err: any) => { console.error('MediaManagerComponent: list error', err); this.loading = false; }
     });
   }
 
+  // Navigate to next page
+  nextPage() {
+    if (!this.isTruncated || !this.nextContinuationToken) return;
+    // push current page's token (so prev can return) and request next
+    this.tokenStack.push(this.nextContinuationToken);
+    this.load(this.nextContinuationToken);
+  }
+
+  // Navigate to previous page
+  prevPage() {
+    if (this.tokenStack.length === 0) {
+      // go to first page
+      this.load(null);
+      return;
+    }
+    // pop last token (which corresponds to current page start) and load previous
+    this.tokenStack.pop();
+    const prevToken = this.tokenStack.length > 0 ? this.tokenStack.at(-1) as string | null : null;
+    this.load(prevToken);
+  }
+
   confirmAndDelete(obj: any) {
     if (!confirm(`Delete ${obj.key}? This is irreversible.`)) return;
     this.mediaService.delete(obj.key).subscribe({
-      next: () => { this.load(); },
-      error: (e: any) => { console.error('MediaManagerComponent: delete error', e); alert('Failed to delete: ' + (e?.error?.message || e?.message || e)); }
+      next: () => { 
+        this.toast.showSuccess(`Deleted ${obj.key}`);
+        this.load(); 
+      },
+      error: (e: any) => { 
+        console.error('MediaManagerComponent: delete error', e); 
+        this.toast.showError('Delete failed', e?.error?.message || e?.message || String(e));
+      }
     });
   }
 
   isOrphan(obj: any) {
     return !obj.usedBy || obj.usedBy.length === 0;
+  }
+
+  filteredObjects() {
+    if (!this.objects) return [];
+    if (this.filter === 'all') return this.objects;
+    if (this.filter === 'orphan') return this.objects.filter(o => this.isOrphan(o));
+    return this.objects.filter(o => !this.isOrphan(o));
+  }
+
+  // Expose whether there is a previous page available for template binding
+  public get hasPrev(): boolean {
+    return this.tokenStack.length > 0;
   }
 }

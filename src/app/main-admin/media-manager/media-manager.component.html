@@ -4,11 +4,19 @@
       <input [(ngModel)]="prefix" placeholder="Prefix filter (optional)" class="border rounded px-2 py-1" />
       <button (click)="load()" class="btn-primary">Refresh</button>
     </div>
-    <div *ngIf="loading">Loading...</div>
+    <div class="flex items-center space-x-3">
+      <label for="mediaFilter" class="text-sm">Filter:</label>
+      <select id="mediaFilter" [(ngModel)]="filter" class="border rounded px-2 py-1 text-sm">
+        <option value="all">All</option>
+        <option value="orphan">Orphan</option>
+        <option value="inuse">In Use</option>
+      </select>
+      <div *ngIf="loading" class="text-sm text-gray-600">Loading...</div>
+    </div>
   </div>
 
   <div class="grid grid-cols-4 gap-4">
-    <div *ngFor="let obj of objects" class="border p-2 rounded">
+    <div *ngFor="let obj of filteredObjects()" class="border p-2 rounded">
       <div class="h-40 bg-gray-100 mb-2 flex items-center justify-center">
         <img [src]="obj.url" alt="" class="max-h-36 max-w-full object-contain" />
       </div>
@@ -22,5 +30,11 @@
         <button (click)="confirmAndDelete(obj)" class="text-sm text-red-600">Delete</button>
       </div>
     </div>
+  </div>
+
+  <div class="mt-4 flex items-center justify-between">
+    <button (click)="prevPage()" class="btn-secondary" [disabled]="!hasPrev">Prev</button>
+    <div class="text-sm text-gray-600">Page controls</div>
+    <button (click)="nextPage()" class="btn-secondary" [disabled]="!isTruncated">Next</button>
   </div>
 </div>
