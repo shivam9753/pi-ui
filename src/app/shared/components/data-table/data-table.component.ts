@@ -277,7 +277,7 @@ export interface PaginationConfig {
 
                 <!-- Excerpt / description -->
                 <div>
-                  <p class="text-sm text-gray-500 mb-2 line-clamp-3">{{ getPrimarySubtitle(item) }}</p>
+                  <p class="text-sm text-gray-500 mb-2 line-clamp-3">{{ getNestedValue(item, 'description') || getNestedValue(item, 'excerpt') || getPrimarySubtitle(item) }}</p>
                 </div>
               </div>
 
