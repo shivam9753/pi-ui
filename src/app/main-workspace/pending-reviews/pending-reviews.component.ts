@@ -66,111 +66,49 @@ export class PendingReviewsComponent implements OnInit, OnDestroy {
   // Enhanced filtering options
   filters: any = {
     type: '',
-    status: '', // 'pending_review' or 'in_progress' or both
+    status: '',
     search: '',
-    authorType: '', // 'new' or 'returning'
-    wordLength: '', // 'quick', 'medium', 'long'
-    dateFrom: '',
-    dateTo: '',
-    sortBy: 'createdAt',
-    sortOrder: 'desc',
-    urgent: '' // Filter for urgent submissions (resubmitted + old pending)
+    sortBy: 'createdAt-desc',
+    sortOrder: 'desc'
   };
 
   // Filter configuration for FilterBarComponent
   filterConfigs: any[] = [
     {
       key: 'search',
-      label: 'Search',
+      label: '', // no visible label
       type: 'search',
       placeholder: 'Search submissions...'
     },
     {
-      key: 'status',
-      label: 'Status',
-      type: 'select',
-      options: [
-        { value: '', label: 'All Statuses' },
-        { value: SUBMISSION_STATUS.PENDING_REVIEW, label: 'Pending Review' },
-        { value: SUBMISSION_STATUS.SHORTLISTED, label: 'Shortlisted' },
-        { value: SUBMISSION_STATUS.IN_PROGRESS, label: 'In Progress' },
-        { value: SUBMISSION_STATUS.NEEDS_REVISION, label: 'Needs Revision' },
-        { value: SUBMISSION_STATUS.RESUBMITTED, label: 'Resubmitted' }
-      ]
-    },
-    {
       key: 'type',
-      label: 'Type',
+      label: '', // show type control without a label
       type: 'select',
       options: [
         { label: 'All Types', value: '' },
         { label: 'Poem', value: 'poem' },
         { label: 'Prose', value: 'prose' },
         { label: 'Article', value: 'article' },
-        { label: 'Opinion', value: 'opinion' },
-        { label: 'Book Review', value: 'book_review' },
-        { label: 'Cinema Essay', value: 'cinema_essay' }
+        { label: 'Opinion', value: 'opinion' }
       ]
     },
     {
-      key: 'authorType',
-      label: 'Author Type',
+      key: 'sortBy',
+      label: '', // sort control without a label
       type: 'select',
       options: [
-        { label: 'All Authors', value: '' },
-        { label: 'New Authors', value: 'new' },
-        { label: 'Returning Authors', value: 'returning' }
+        { label: 'Newest First', value: 'createdAt-desc' },
+        { label: 'Oldest First', value: 'createdAt-asc' }
       ]
-    },
-    {
-      key: 'wordLength',
-      label: 'Length',
-      type: 'select',
-      options: [
-        { label: 'All Lengths', value: '' },
-        { label: 'Quick Read', value: 'quick' },
-        { label: 'Medium Read', value: 'medium' },
-        { label: 'Long Read', value: 'long' }
-      ]
-    },
-    {
-      key: 'createdAt',
-      label: 'Date Range',
-      type: 'date-range'
     }
   ];
 
-  // Quick filters configuration
+  // Quick filters configuration — keep only Resubmitted chip
   quickFilters: any[] = [
     {
-      key: 'urgent',
-      label: 'Urgent',
-      color: 'red'
-    },
-    {
-      key: 'resubmitted', 
+      key: 'resubmitted',
       label: 'Resubmitted',
       color: 'blue'
-    },
-    {
-      key: 'myReviews',
-      label: 'My Reviews', 
-      color: 'purple'
-    },
-    {
-      key: 'newAuthors',
-      label: 'New Authors',
-      color: 'green'
-    },
-    {
-      key: 'quickRead',
-      label: 'Quick Read',
-      color: 'yellow'
-    },
-    {
-      key: 'topicSubmissions',
-      label: 'Topic Submissions',
-      color: 'orange'
     }
   ];
 
@@ -180,34 +118,11 @@ export class PendingReviewsComponent implements OnInit, OnDestroy {
       { label: 'Poem', value: 'poem' },
       { label: 'Prose', value: 'prose' },
       { label: 'Article', value: 'article' },
-      { label: 'Opinion', value: 'opinion' },
-      { label: 'Book Review', value: 'book_review' },
-      { label: 'Cinema Essay', value: 'cinema_essay' }
-    ],
-    statuses: [
-      { label: 'All Statuses', value: '' },
-      { label: 'Pending Review', value: 'pending_review' },
-      { label: 'Shortlisted', value: 'shortlisted' },
-      { label: 'In Progress', value: 'in_progress' },
-      { label: 'Needs Revision', value: 'needs_revision' },
-      { label: 'Resubmitted', value: 'resubmitted' }
-    ],
-    authorTypes: [
-      { label: 'All Authors', value: '' },
-      { label: 'New Authors', value: 'new' },
-      { label: 'Returning Authors', value: 'returning' }
-    ],
-    wordLengths: [
-      { label: 'All Lengths', value: '' },
-      { label: 'Quick Read', value: 'quick' },
-      { label: 'Medium Read', value: 'medium' },
-      { label: 'Long Read', value: 'long' }
+      { label: 'Opinion', value: 'opinion' }
     ],
     sortOptions: [
       { label: 'Newest First', value: 'createdAt-desc' },
-      { label: 'Oldest First', value: 'createdAt-asc' },
-      { label: 'Title A-Z', value: 'title-asc' },
-      { label: 'Title Z-A', value: 'title-desc' }
+      { label: 'Oldest First', value: 'createdAt-asc' }
     ]
   };
 
@@ -478,6 +393,11 @@ export class PendingReviewsComponent implements OnInit, OnDestroy {
     const isActive = active !== undefined ? active : this.activeQuickFilters.includes(filterType);
     
     switch (filterType) {
+      case 'resubmitted':
+        // Toggle status filter to show only resubmitted when active
+        this.filters['status'] = isActive ? SUBMISSION_STATUS.RESUBMITTED : '';
+        break;
+
       case 'urgent':
         // Urgent filter now includes both resubmitted and old pending submissions
         // This will be handled on the backend by checking for:
@@ -507,9 +427,9 @@ export class PendingReviewsComponent implements OnInit, OnDestroy {
   clearQuickFilters() {
     this.activeQuickFilters = [];
     // Reset all quick filter related filters
+    // Only the resubmitted quick filter is used now
+    this.filters['status'] = '';
     this.filters['urgent'] = '';
-    this.filters['authorType'] = '';
-    this.filters['wordLength'] = '';
     this.loadSubmissions(1);
   }
 
