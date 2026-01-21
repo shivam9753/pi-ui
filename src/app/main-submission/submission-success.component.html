@@ -1,0 +1,40 @@
+<div class="min-h-screen bg-white-secondary flex flex-col items-center justify-start py-12 px-4">
+  <div class="w-full max-w-3xl text-center">
+    <!-- Small gradient strip behind the card (not full-bleed) -->
+    <div class="rounded-lg px-6 py-6 bg-gradient-to-b from-[rgba(255,229,226,0.9)] to-[rgba(255,247,244,0.6)]">
+      <div class="bg-white rounded-lg shadow-system-md p-8">
+        <h1 class="text-2xl md:text-3xl font-bold text-gray-900">Submission received</h1>
+        <p class="text-gray-700 mt-3">Thanks — your submission has been recorded. You can track its status on your <a routerLink="/my-submissions" class="text-primary hover:underline">My Submissions</a> page.</p>
+
+        <div class="mt-6 flex justify-center gap-3">
+          <app-button variant="secondary" size="md" (buttonClick)="goToMySubmissions()">View Submissions</app-button>
+          <app-button variant="primary" size="md" (buttonClick)="goToExplore()">Explore More</app-button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Posts area (regular centered container, no wide gradient) -->
+    <div class="mt-10">
+      <h2 class="text-xl font-semibold text-gray-900 mb-4">Post you might like reading</h2>
+
+      <div *ngIf="loading" class="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div class="bg-white p-4 rounded shadow-system-sm h-40 animate-pulse"></div>
+        <div class="bg-white p-4 rounded shadow-system-sm h-40 animate-pulse"></div>
+        <div class="bg-white p-4 rounded shadow-system-sm h-40 animate-pulse"></div>
+        <div class="bg-white p-4 rounded shadow-system-sm h-40 animate-pulse"></div>
+      </div>
+
+      <div *ngIf="!loading">
+        <!-- Mobile: magazine-style list -->
+        <div class="block md:hidden space-y-4 px-4">
+          <app-content-card *ngFor="let p of posts" [content]="p" [slug]="p.slug || p.seo?.slug" [showMeta]="true" [noBorder]="true"></app-content-card>
+        </div>
+
+        <!-- Desktop: 4-column grid -->
+        <div class="hidden md:grid grid-cols-4 gap-4">
+          <app-content-card *ngFor="let p of posts" [content]="p" [slug]="p.slug || p.seo?.slug" [showMeta]="true" [noBorder]="true"></app-content-card>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

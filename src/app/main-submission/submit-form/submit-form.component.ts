@@ -636,12 +636,16 @@ export class SubmitFormComponent implements OnInit, OnDestroy {
     this.backendService.submitNewSubmission(submissionPayload).subscribe({
       next: () => {
         this.hasUnsavedChanges = false;
-        // Stop loading state before showing modal so Submit button stops spinning
+        // Stop loading state so submit button stops spinning
         this.isSubmitting = false;
-        // Show modal and emit after user closes it
-        this.showSuccessModal('Thank you — your submission has been received and will be reviewed.').then(() => {
-          this.formSubmitted.emit();
-        });
+        // Emit to parent and show a toast; also navigate directly to success page to ensure redirect
+        this.showToast('Thank you — your submission has been received and will be reviewed.', 'success');
+        this.formSubmitted.emit();
+        try {
+          this.router.navigate(['/submission/success']);
+        } catch (e) {
+          // ignore navigation errors
+        }
       },
       error: (error) => {
         this.isSubmitting = false;

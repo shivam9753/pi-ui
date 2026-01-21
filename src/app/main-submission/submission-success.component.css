@@ -1,0 +1,14 @@
+/* Minimal styling for success page */
+
+h1 { font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial; }
+
+.app-content-grid {
+  display: grid;
+  gap: 1rem;
+}
+
+@media(min-width:768px) {
+  .app-content-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}

@@ -10,6 +10,7 @@ import { Subscription } from 'rxjs';
 import { DraftsListComponent } from './drafts-list/drafts-list.component';
 import { TabsComponent, TabItemComponent } from '../ui-components';
 import { ButtonComponent } from '../ui-components/button/button.component';
+import { SubmissionSuccessComponent } from './submission-success.component';
 
 @Component({
   selector: 'app-submission-editor',
@@ -228,6 +229,12 @@ export class SubmissionEditorComponent implements OnInit, OnDestroy {
   }
 
   onFormSubmitted(): void {
+    // Route to a dedicated success page for create mode, otherwise preserve original behavior
+    if (this.mode === 'create') {
+      this.router.navigate(['/submission/success']);
+      return;
+    }
+
     setTimeout(() => {
       this.router.navigate([this.mode === 'create' ? '/explore' : '/user-profile']);
     }, 2000);

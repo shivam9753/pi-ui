@@ -130,6 +130,11 @@ export const routes: Routes = [
     title: 'Submit Work - pi'
   },
   { 
+    path: 'submission/success',
+    loadComponent: () => import('./main-submission/submission-success.component').then(m => m.SubmissionSuccessComponent),
+    title: 'Submission Received - pi'
+  },
+  { 
     path: 'edit-submission/:id', 
     component: SubmissionEditorComponent, 
     canActivate: [AuthGuard],

@@ -28,6 +28,8 @@ export interface ContentCardData {
   viewCount?: number;
   recentViews?: number;
   windowStartTime?: string;
+  // Optional SEO metadata (some API responses include seo.slug)
+  seo?: { slug?: string };
 }
 
 @Component({
