@@ -19,6 +19,8 @@ interface SEOConfig {
   keywords: string[];
   ogImage: string;
   featuredPost: boolean;
+  // Primary submission-level SEO keyword (single value)
+  primaryKeyword?: string;
 }
 
 @Component({
@@ -61,7 +63,8 @@ export class PublishSubmissionComponent implements OnInit {
     metaDescription: '',
     keywords: [],
     ogImage: '',
-    featuredPost: false
+    featuredPost: false,
+    primaryKeyword: ''
   };
 
   keywordsInput = '';
@@ -152,6 +155,8 @@ export class PublishSubmissionComponent implements OnInit {
         this.seoConfig.keywords = this.submission.seo.keywords || [];
         this.seoConfig.ogImage = this.submission.seo.ogImage || '';
         this.seoConfig.featuredPost = this.submission.seo.featuredOnHomepage || false;
+        // Primary keyword at submission level
+        this.seoConfig.primaryKeyword = this.submission.seo.primaryKeyword || this.submission.title || '';
       } else {
         // Generate initial values if no SEO data exists
         this.seoConfig.slug = this.generateSlugFromTitle(this.submission.title);
@@ -159,6 +164,19 @@ export class PublishSubmissionComponent implements OnInit {
         this.seoConfig.metaDescription = this.submission?.description || '';
         this.seoConfig.ogImage = '';
         this.seoConfig.featuredPost = false;
+        this.seoConfig.primaryKeyword = this.submission.title || '';
+      }
+
+      // Ensure each content has a content-level SEO keyword (defaults to content title)
+      if (this.submission.contents && Array.isArray(this.submission.contents)) {
+        this.submission.contents = this.submission.contents.map((content: any) => ({
+          ...content,
+          // Preserve existing content.seo.keyword if present, otherwise default to title
+          seoKeyword: (content.seo && content.seo.keyword) ? content.seo.keyword : (content.title || ''),
+          // Per-content meta title/description for editor inputs (default from content.seo or content itself)
+          metaTitle: (content.seo && content.seo.metaTitle) ? content.seo.metaTitle : (content.title || ''),
+          metaDescription: (content.seo && content.seo.metaDescription) ? content.seo.metaDescription : ((this.extractPlainText(content.body) || '').substring(0, 160).trim())
+        }));
       }
 
       // Populate form fields from submission data
@@ -182,27 +200,21 @@ export class PublishSubmissionComponent implements OnInit {
       
       // Initialize keywords from existing SEO data, then fall back to submission/content tags
       if (this.seoConfig.keywords.length === 0) {
-        if (this.submission.tags && this.submission.tags.length > 0) {
-          // Filter out empty tags
-          const cleanTags = this.submission.tags.filter((tag: string) => tag?.trim().length > 0);
-          this.seoConfig.keywords = [...cleanTags];
-        } else {
-          // Collect tags from content items if no submission-level tags exist
-          const allContentTags = new Set<string>();
-          if (this.submission.contents) {
-            this.submission.contents.forEach((content: any) => {
-              if (content.tags && Array.isArray(content.tags)) {
-                content.tags.forEach((tag: string) => {
-                  const cleanTag = tag?.trim();
-                  if (cleanTag && cleanTag.length > 0) {
-                    allContentTags.add(cleanTag);
-                  }
-                });
-              }
-            });
-          }
-          this.seoConfig.keywords = Array.from(allContentTags);
+        // Collect tags from content items
+        const allContentTags = new Set<string>();
+        if (this.submission.contents) {
+          this.submission.contents.forEach((content: any) => {
+            if (content.tags && Array.isArray(content.tags)) {
+              content.tags.forEach((tag: any) => {
+                const cleanTag = (typeof tag === 'string') ? tag.trim() : (tag?.name || '').trim();
+                if (cleanTag && cleanTag.length > 0) {
+                  allContentTags.add(cleanTag);
+                }
+              });
+            }
+          });
         }
+        this.seoConfig.keywords = Array.from(allContentTags);
       }
       
       this.keywordsInput = this.seoConfig.keywords.join(', ');
@@ -272,27 +284,6 @@ export class PublishSubmissionComponent implements OnInit {
       .slice(0, 10); // Limit to 10 keywords
     
     this.seoConfig.keywords = keywords;
-  }
-
-  // Sync SEO keywords with content tags automatically
-  syncSEOKeywordsWithContentTags() {
-    const allContentTags = new Set<string>();
-    if (this.submission?.contents) {
-      this.submission.contents.forEach((content: any) => {
-        if (content.tags && Array.isArray(content.tags)) {
-          content.tags.forEach((tag: string) => {
-            const cleanTag = tag?.trim();
-            if (cleanTag && cleanTag.length > 0) {
-              allContentTags.add(cleanTag);
-            }
-          });
-        }
-      });
-    }
-    
-    // Update SEO keywords to match content tags
-    this.seoConfig.keywords = Array.from(allContentTags);
-    this.keywordsInput = this.seoConfig.keywords.join(', ');
   }
 
   // Add keyword as chip when Enter or comma is pressed
@@ -1014,8 +1005,7 @@ export class PublishSubmissionComponent implements OnInit {
     const updatePayload: any = {
       title: this.submission.title,
       description: this.submission.description,
-      excerpt: this.submission.excerpt,
-      tags: this.submission.tags || []
+      excerpt: this.submission.excerpt
     };
     this.backendService.updateSubmission(this.submission._id, updatePayload).subscribe({
       next: () => this.showSuccess('Changes saved'),
@@ -1036,27 +1026,53 @@ export class PublishSubmissionComponent implements OnInit {
       // Ensure any selected images are uploaded first so URLs are available
       await this.uploadPendingImagesIfAny();
 
-      // Build a single payload that updates the full submission and marks it published
-      const fullUpdatePayload: any = {
-        title: this.submission.title,
-        description: this.submission.description,
-        excerpt: this.submission.excerpt,
-        tags: this.submission.tags || [],
-        contents: this.submission.contents || [],
-        imageUrl: this.submission.imageUrl || '',
-        seo: {
-          slug: this.seoConfig.slug,
-          metaTitle: this.seoConfig.metaTitle || this.submission.title,
-          metaDescription: this.seoConfig.metaDescription || this.submission.description,
-          keywords: this.seoConfig.keywords,
-          ogImage: this.seoConfig.ogImage || this.submission.imageUrl || ''
-        },
-        // Set status to published in the same request. Backend should handle state transition.
-        status: 'published'
+      // Build perContentTags map from current UI inputs (do not persist yet)
+      const perContentTags: Record<string, string[]> = {};
+      if (this.submission.contents && Array.isArray(this.submission.contents)) {
+        this.submission.contents.forEach((c: any) => {
+          if (c.tags && Array.isArray(c.tags)) {
+            perContentTags[c._id] = c.tags.map((t: string) => (typeof t === 'string' ? t.trim() : '')).filter(Boolean);
+          }
+        });
+      }
+
+      // Build per-content primary SEO keywords
+      const perContentKeywords: Record<string, string> = {};
+      if (this.submission.contents && Array.isArray(this.submission.contents)) {
+        this.submission.contents.forEach((c: any) => {
+          perContentKeywords[c._id] = (c.seoKeyword && c.seoKeyword.trim()) ? c.seoKeyword.trim() : (c.title || '');
+        });
+      }
+
+      // Build per-content meta (title + description) to persist into content.seo
+      const perContentMeta: Record<string, { metaTitle?: string; metaDescription?: string }> = {};
+      if (this.submission.contents && Array.isArray(this.submission.contents)) {
+        this.submission.contents.forEach((c: any) => {
+          const metaTitle = (c.metaTitle && String(c.metaTitle).trim()) ? String(c.metaTitle).trim() : (c.title || '');
+          const metaDescription = (c.metaDescription && String(c.metaDescription).trim()) ? String(c.metaDescription).trim() : (this.extractPlainText(c.body) || '').substring(0, 160).trim();
+          perContentMeta[c._id] = { metaTitle, metaDescription };
+        });
+      }
+
+      // Build SEO data including perContentTags
+      const seoPayload: any = {
+        slug: this.seoConfig.slug,
+        metaTitle: this.seoConfig.metaTitle || this.submission.title,
+        metaDescription: this.seoConfig.metaDescription || this.submission.description,
+        keywords: this.seoConfig.keywords,
+        // Primary submission-level SEO keyword
+        primaryKeyword: (this.seoConfig.primaryKeyword || this.submission.title || '').trim(),
+        ogImage: this.seoConfig.ogImage || this.submission.imageUrl || '',
+        perContentTags
       };
 
-      // Single API call: update the submission with full payload (will also mark as published)
-      await lastValueFrom(this.backendService.updateSubmission(this.submission._id, fullUpdatePayload));
+      // Attach per-content primary keywords for backend to persist alongside tags
+      seoPayload.perContentKeywords = perContentKeywords;
+      // Attach per-content meta fields so backend can persist content.seo.metaTitle/metaDescription
+      seoPayload.perContentMeta = perContentMeta;
+
+      // Call publish endpoint which creates canonical Tag docs and updates Content.tags to Tag._id
+      await lastValueFrom(this.backendService.publishSubmissionWithSEO(this.submission._id, seoPayload));
 
       this.showSuccess('Submission published successfully');
       this.isPublishing = false;
@@ -1352,5 +1368,18 @@ export class PublishSubmissionComponent implements OnInit {
         this.showError('Failed to delete image.');
       }
     });
+  }
+
+  // Helper to safely display tag name when tag may be an object
+  getTagDisplayName(tag: any): string {
+    if (!tag) return '';
+    if (typeof tag === 'string') return tag;
+    if (typeof tag === 'object') {
+      if (tag.name && String(tag.name).trim().length > 0) return String(tag.name).trim();
+      if (tag.tag && String(tag.tag).trim().length > 0) return String(tag.tag).trim();
+      if (tag.slug && String(tag.slug).trim().length > 0) return String(tag.slug).trim().replace(/-/g, ' ');
+      if (tag._id || tag.id) return String(tag._id || tag.id);
+    }
+    return '';
   }
 }

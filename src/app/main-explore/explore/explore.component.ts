@@ -67,14 +67,33 @@ export class ExploreComponent implements OnInit, AfterViewInit, OnDestroy {
     this.router.navigate(['/prompts']);
   }
 
-  onTagClick(tag: string, event?: Event) {
+  onTagClick(tag: any, event?: Event) {
     // Prevent event bubbling
     if (event) {
       event.stopPropagation();
       event.preventDefault();
     }
-    // Navigate to tag page
-    this.router.navigate(['/tag', tag]);
+
+    if (!tag) return;
+
+    let routeValue: string | null = null;
+
+    if (typeof tag === 'string') {
+      // Treat plain strings as slugs where possible: lowercased, spaces -> hyphens
+      routeValue = tag.trim().toLowerCase().replace(/\s+/g, '-');
+    } else if (typeof tag === 'object') {
+      // Prefer slug then id then name
+      routeValue = (tag.slug && String(tag.slug).trim()) ? String(tag.slug).trim()
+        : (tag._id && String(tag._id).trim()) ? String(tag._id).trim()
+        : (tag.name && String(tag.name).trim()) ? String(tag.name).trim().toLowerCase().replace(/\s+/g, '-')
+        : null;
+    }
+
+    if (routeValue) {
+      this.router.navigate(['/tag', routeValue]);
+    } else {
+      console.warn('onTagClick: unable to resolve slug/id for tag, skipping navigation', tag);
+    }
   }
 
   onAuthorClick(author: any) {

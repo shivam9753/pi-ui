@@ -25,7 +25,7 @@ interface FeaturedPoem {
   };
   publishedAt?: string;
   viewCount?: number;
-  tags?: string[];
+  tags?: string[];// tags may be strings or canonical tag objects returned by the backend
   isFeatured?: boolean;
   featuredAt?: string;
 }
@@ -92,21 +92,6 @@ interface FeaturedPoem {
                   </a>
                 </div>
 
-                <!-- Tags -->
-                @if (poem.tags && poem.tags.length > 0) {
-                  <div class="flex flex-wrap gap-2">
-                    @for (tag of poem.tags.slice(0, 8); track tag) {
-                      <span class="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded-full">
-                        #{{ tag }}
-                      </span>
-                    }
-                    @if (poem.tags.length > 8) {
-                      <span class="px-2 py-1 bg-gray-200 text-gray-500 text-xs rounded-full">
-                        +{{ poem.tags.length - 8 }} more
-                      </span>
-                    }
-                  </div>
-                }
               </div>
             }
           </div>
@@ -222,4 +207,16 @@ export class FeaturedPoemsComponent implements OnInit {
     this.router.navigate(['/content', poem._id]);
   }
 
+  // Helper to safely display tag name when backend may return objects
+  getTagDisplayName(tag: any): string {
+    if (!tag) return '';
+    if (typeof tag === 'string') return tag;
+    if (typeof tag === 'object') {
+      if (tag.name && String(tag.name).trim().length > 0) return String(tag.name).trim();
+      if (tag.tag && String(tag.tag).trim().length > 0) return String(tag.tag).trim();
+      if (tag.slug && String(tag.slug).trim().length > 0) return String(tag.slug).trim().replaceAll('-', ' ');
+      if (tag._id || tag.id) return String(tag._id || tag.id);
+    }
+    return '';
+  }
 }

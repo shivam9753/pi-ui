@@ -1,6 +1,6 @@
 import { Component, OnInit, signal, inject, PLATFORM_ID, Inject } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute, RouterLink, Router } from '@angular/router';
 import { Title, Meta } from '@angular/platform-browser';
 import { BackendService } from '../../services/backend.service';
 import { ViewTrackerService } from '../../services/view-tracker.service';
@@ -20,7 +20,7 @@ interface SimpleContent {
   };
   publishedAt: string;
   viewCount: number;
-  tags: string[];
+  tags: any[]; // support tag objects { _id, name, slug } or legacy strings
   slug?: string;
   isFeatured?: boolean;
   featuredAt?: string;
@@ -88,9 +88,9 @@ interface AuthorFeaturedContent {
                     <div class="mt-8 pt-4 border-t border-gray-100">
                       <div class="flex flex-wrap gap-2">
                         @for (tag of content()!.tags; track tag) {
-                          <span class="px-3 py-1 bg-gray-100 text-gray-600 text-sm rounded-full">
-                            #{{ tag }}
-                          </span>
+                          <button (click)="onTagClick(tag, $event)" class="inline-flex items-center px-3 py-1 rounded-full text-sm bg-gray-100 text-gray-600 hover:bg-gray-200">
+                            #{{ getTagDisplayName(tag) }}
+                          </button>
                         }
                       </div>
                     </div>
@@ -166,10 +166,41 @@ export class SimpleContentReaderComponent implements OnInit {
   private titleService = inject(Title);
   private metaService = inject(Meta);
   private viewTracker = inject(ViewTrackerService);
+  private router = inject(Router);
 
   content = signal<SimpleContent | null>(null);
   loading = signal(true);
-  // sanitizedContent removed — ContentRenderer handles cleaning
+
+  // Helper to render tag display name
+  getTagDisplayName(tag: any): string {
+    if (!tag) return '';
+    if (typeof tag === 'string') return tag.replace(/^#+/, '').trim() || '';
+    if (typeof tag === 'object') {
+      if (tag.name && typeof tag.name === 'string' && tag.name.trim().length > 0) return tag.name;
+      if (tag.slug && typeof tag.slug === 'string') return tag.slug.replace(/-/g, ' ');
+      if (tag._id) return String(tag._id);
+    }
+    return '';
+  }
+
+  onTagClick(tag: any, event?: Event) {
+    if (event) { event.stopPropagation(); event.preventDefault(); }
+    if (!tag) return;
+
+    let routeValue: string | null = null;
+    if (typeof tag === 'string') {
+      routeValue = tag.trim().toLowerCase().replace(/\s+/g, '-');
+    } else if (typeof tag === 'object') {
+      routeValue = (tag.slug && String(tag.slug).trim()) ? String(tag.slug).trim()
+        : (tag._id && String(tag._id).trim()) ? String(tag._id).trim()
+        : (tag.name && String(tag.name).trim()) ? String(tag.name).trim().toLowerCase().replace(/\s+/g, '-')
+        : null;
+    }
+
+    if (routeValue) {
+      this.router.navigate(['/tag', routeValue]);
+    }
+  }
 
   constructor(@Inject(PLATFORM_ID) private platformId: Object) {}
 
@@ -197,11 +228,10 @@ export class SimpleContentReaderComponent implements OnInit {
           if (isPlatformBrowser(this.platformId)) {
             this.viewTracker.logContentView(response._id).subscribe({
               next: (viewResponse) => {
-                if (viewResponse.success) {
+                if (viewResponse && viewResponse.success) {
                   const currentContent = this.content();
                   if (currentContent) {
-                    // Increment the view count optimistically
-                    currentContent.viewCount++;
+                    currentContent.viewCount = (currentContent.viewCount || 0) + 1;
                     this.content.set(currentContent);
                   }
                 }
@@ -228,9 +258,9 @@ export class SimpleContentReaderComponent implements OnInit {
     this.titleService.setTitle(content.title + ' - Your Site Name');
 
     // Update meta tags
-    this.metaService.updateTag({ name: 'description', content: content.body.substring(0, 150) + '...' });
+    this.metaService.updateTag({ name: 'description', content: (content.body || '').substring(0, 150) + '...' });
     this.metaService.updateTag({ property: 'og:title', content: content.title });
-    this.metaService.updateTag({ property: 'og:description', content: content.body.substring(0, 150) + '...' });
-    this.metaService.updateTag({ property: 'og:image', content: content.author.profileImage || 'default-image-url' });
+    this.metaService.updateTag({ property: 'og:description', content: (content.body || '').substring(0, 150) + '...' });
+    this.metaService.updateTag({ property: 'og:image', content: content.author?.profileImage || 'default-image-url' });
   }
 }

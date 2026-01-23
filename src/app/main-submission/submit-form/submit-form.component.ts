@@ -491,6 +491,9 @@ export class SubmitFormComponent implements OnInit, OnDestroy {
     if (!cleanedData.description || cleanedData.description.trim() === '') {
       delete cleanedData.description;
     }
+    if (Array.isArray(cleanedData.contents)) {
+      cleanedData.contents = this.sanitizeContents(cleanedData.contents);
+    }
 
     this.backendService.updateSubmission(this.submissionId!, cleanedData).subscribe({
       next: (response: any) => {
@@ -529,6 +532,11 @@ export class SubmitFormComponent implements OnInit, OnDestroy {
     const cleanedData = { ...formData };
     if (!cleanedData.description || cleanedData.description.trim() === '') {
       delete cleanedData.description;
+    }
+
+    // Remove any client-provided tags from contents before sending
+    if (Array.isArray(cleanedData.contents)) {
+      cleanedData.contents = this.sanitizeContents(cleanedData.contents);
     }
 
     if (this.isResubmitMode) {
@@ -622,10 +630,7 @@ export class SubmitFormComponent implements OnInit, OnDestroy {
     this.autoPopulateTitle();
 
     const formValue = this.form.value;
-    const contentsWithType = formValue.contents.map((content: any) => ({
-      ...content,
-      type: this.selectedType
-    }));
+    const contentsWithType = this.sanitizeContents(formValue.contents);
 
     const submissionPayload = {
       ...formValue,
@@ -851,5 +856,15 @@ export class SubmitFormComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.subscriptions.forEach(sub => sub.unsubscribe());
+  }
+
+  private sanitizeContents(contents: any[]): any[] {
+    return contents.map((content: any) => {
+      const { tags, ...rest } = content || {};
+      return {
+        ...rest,
+        type: rest.type || this.selectedType
+      };
+    });
   }
 }
