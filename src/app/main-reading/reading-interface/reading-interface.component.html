@@ -124,18 +124,18 @@
             <div class="mt-12 pt-6 border-t border-gray-200">
               <div class="max-w-3xl mx-auto text-center space-y-8 px-4">
                 <!-- Tags (centered) -->
-                @if (allTags() && allTags().length > 0) {
+                <ng-container *ngIf="allTags() && allTags().length > 0">
                   <div class="flex flex-wrap justify-center items-center gap-2">
                     <span class="text-xs font-medium text-gray-500 uppercase tracking-wide">Tags:</span>
-                    @for (tag of allTags(); track tag) {
+                    <ng-container *ngFor="let tag of allTags()">
                       <button
                         (click)="onTagClick(tag, $event)"
                         class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gray-50 text-gray-700 border border-gray-200 hover:bg-gray-100 hover:text-gray-900 transition-colors duration-200 cursor-pointer">
                         #{{ getTagDisplayName(tag) }}
                       </button>
-                    }
+                    </ng-container>
                   </div>
-                }
+                </ng-container>
 
                 <!-- Author Bio (centered, constrained width) -->
                 @if (content()!.author?.name && content()!.author?.name !== 'Anonymous') {

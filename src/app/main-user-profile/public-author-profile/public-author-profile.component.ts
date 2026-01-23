@@ -98,28 +98,52 @@ export class PublicAuthorProfileComponent implements OnInit, OnDestroy {
   }
 
   loadAuthorProfile() {
-    this.backendService.getUserProfile(this.authorId).subscribe({
+    // First try the public endpoint so unauthenticated visitors can view author profiles
+    this.backendService.getUserById(this.authorId).subscribe({
       next: (response: any) => {
         this.authorProfile.set({
-          _id: response.profile._id,
-          name: response.profile.name || response.profile.username,
-          bio: response.profile.bio,
-          profileImage: response.profile.profileImage,
-          socialLinks: response.profile.socialLinks,
-          joinedDate: response.profile.createdAt,
+          _id: response.user._id,
+          name: response.user.name || response.user.username,
+          bio: response.user.bio,
+          profileImage: response.user.profileImage,
+          socialLinks: response.user.socialLinks || undefined,
+          joinedDate: response.user.createdAt,
           totalFeaturedWorks: 0 // Will be updated when works load
         });
+
+        // If the visitor is authenticated, fetch the richer profile (stats, etc.)
+        const current = this.authService.getCurrentUser();
+        if (current) {
+          this.backendService.getUserProfile(this.authorId).subscribe({
+            next: (d: any) => {
+              // Merge enriched profile fields
+              const existing = this.authorProfile() || {} as any;
+              this.authorProfile.set({
+                ...existing,
+                bio: d.profile.bio || existing.bio,
+                profileImage: d.profile.profileImage || existing.profileImage,
+                socialLinks: d.profile.socialLinks || existing.socialLinks,
+                joinedDate: d.profile.createdAt || existing.joinedDate
+              });
+            },
+            error: (err: any) => {
+              // Ignore enrichment errors for public view
+              console.debug('Enrichment getUserProfile failed:', err);
+            }
+          });
+        }
       },
       error: (error: any) => {
-        // Fallback to basic user info
-        this.backendService.getUserById(this.authorId).subscribe({
+        // If public lookup fails, try authenticated endpoint as a last resort
+        this.backendService.getUserProfile(this.authorId).subscribe({
           next: (response: any) => {
             this.authorProfile.set({
-              _id: response.user._id,
-              name: response.user.name || response.user.username,
-              bio: response.user.bio,
-              profileImage: response.user.profileImage,
-              joinedDate: response.user.createdAt,
+              _id: response.profile._id,
+              name: response.profile.name || response.profile.username,
+              bio: response.profile.bio,
+              profileImage: response.profile.profileImage,
+              socialLinks: response.profile.socialLinks,
+              joinedDate: response.profile.createdAt,
               totalFeaturedWorks: 0
             });
           },

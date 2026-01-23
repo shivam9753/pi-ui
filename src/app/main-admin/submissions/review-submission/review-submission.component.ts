@@ -41,14 +41,14 @@ export class ReviewSubmissionComponent {
   
   // Initial rejection reasons (shown when user taps)
   initialRejectionReasons = [
-    'General: Does not meet quality standards',
-    'General: Poor grammar/spelling',
-    'General: Inappropriate content',
-    'General: Wrong category selected',
-    'General: Plagiarized content',
-    'Poem: Clichéd Language',
-    'Article: Too short - insufficient word count',
-    'Prose: Lacks narrative structure'
+    "The submission doesn't align with our editorial standards and guidelines",
+    "Poor grammar/spelling",
+    "Inappropriate content",
+    "Wrong category selected",
+    "Plagiarized content",
+    "Poem: Clichéd Language",
+    "Article: Too short - insufficient word count",
+    "Prose: Lacks narrative structure"
   ];
 
   // All rejection reasons (for filtering as user types)

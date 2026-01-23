@@ -1036,43 +1036,45 @@ export class PublishSubmissionComponent implements OnInit {
         });
       }
 
-      // Build per-content primary SEO keywords
-      const perContentKeywords: Record<string, string> = {};
-      if (this.submission.contents && Array.isArray(this.submission.contents)) {
-        this.submission.contents.forEach((c: any) => {
-          perContentKeywords[c._id] = (c.seoKeyword && c.seoKeyword.trim()) ? c.seoKeyword.trim() : (c.title || '');
-        });
-      }
-
-      // Build per-content meta (title + description) to persist into content.seo
-      const perContentMeta: Record<string, { metaTitle?: string; metaDescription?: string }> = {};
+      // Build per-content meta (title + description + primaryKeyword) to persist into content.seo
+      const perContentMeta: Record<string, { metaTitle?: string; metaDescription?: string; primaryKeyword?: string }> = {};
       if (this.submission.contents && Array.isArray(this.submission.contents)) {
         this.submission.contents.forEach((c: any) => {
           const metaTitle = (c.metaTitle && String(c.metaTitle).trim()) ? String(c.metaTitle).trim() : (c.title || '');
           const metaDescription = (c.metaDescription && String(c.metaDescription).trim()) ? String(c.metaDescription).trim() : (this.extractPlainText(c.body) || '').substring(0, 160).trim();
-          perContentMeta[c._id] = { metaTitle, metaDescription };
+
+          // Prefer explicit content-level primary keyword (in perContentMeta or seo), then seoKeyword, then generated value
+          const primaryKeyword = (c.seo && c.seo.primaryKeyword) ? String(c.seo.primaryKeyword).trim()
+            : (c.seoKeyword && String(c.seoKeyword).trim()) ? String(c.seoKeyword).trim()
+            : (c.title || '');
+
+          perContentMeta[c._id] = { metaTitle, metaDescription, primaryKeyword };
         });
       }
 
-      // Build SEO data including perContentTags
-      const seoPayload: any = {
-        slug: this.seoConfig.slug,
-        metaTitle: this.seoConfig.metaTitle || this.submission.title,
-        metaDescription: this.seoConfig.metaDescription || this.submission.description,
-        keywords: this.seoConfig.keywords,
-        // Primary submission-level SEO keyword
-        primaryKeyword: (this.seoConfig.primaryKeyword || this.submission.title || '').trim(),
-        ogImage: this.seoConfig.ogImage || this.submission.imageUrl || '',
+      // Build SEO payload using a submissionMeta object for submission-level SEO fields
+      const payload: any = {
+        // Submission fields to persist
+        title: this.submission.title,
+        description: this.submission.description,
+        excerpt: this.submission.excerpt,
+
+        // Submission-level SEO grouped under submissionMeta
+        submissionMeta: {
+          slug: this.seoConfig.slug,
+          metaTitle: this.seoConfig.metaTitle || this.submission.title,
+          metaDescription: this.seoConfig.metaDescription || this.submission.description,
+          primaryKeyword: (this.seoConfig.primaryKeyword || this.submission.title || '').trim(),
+          ogImage: this.seoConfig.ogImage || this.submission.imageUrl || ''
+        },
+
+        // Per-content metadata and tags
+        perContentMeta,
         perContentTags
       };
 
-      // Attach per-content primary keywords for backend to persist alongside tags
-      seoPayload.perContentKeywords = perContentKeywords;
-      // Attach per-content meta fields so backend can persist content.seo.metaTitle/metaDescription
-      seoPayload.perContentMeta = perContentMeta;
-
       // Call publish endpoint which creates canonical Tag docs and updates Content.tags to Tag._id
-      await lastValueFrom(this.backendService.publishSubmissionWithSEO(this.submission._id, seoPayload));
+      await lastValueFrom(this.backendService.publishSubmissionWithSEO(this.submission._id, payload));
 
       this.showSuccess('Submission published successfully');
       this.isPublishing = false;

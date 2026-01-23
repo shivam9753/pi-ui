@@ -89,7 +89,10 @@ export class SsrDataService {
     
     return this.getCachedOrFetch(
       cacheKey,
-      () => this.backendService.getSubmissionBySlug(slug),
+      // Unwrap responses of the form { success, submission } so callers always get the submission object
+      () => this.backendService.getSubmissionBySlug(slug).pipe(
+        map((res: any) => (res && res.submission) ? res.submission : res)
+      ),
       this.DEFAULT_CACHE_TTL
     );
   }

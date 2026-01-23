@@ -32,6 +32,7 @@ interface PublishedContent {
   contents: ContentItem[];
   isLiked: boolean;
   isBookmarked: boolean;
+  seo?: any;
 }
 
 interface ContentItem {
@@ -245,7 +246,7 @@ content = signal<PublishedContent | null>(null);
         description: data.description,
         submissionType: data.submissionType,
         author: normalizedAuthor,
-        publishedAt: new Date(data.publishedAt || data.createdAt),
+        publishedAt: this.parseDateSafe(data.publishedAt || data.createdAt),
         readingTime: data.readingTime || Math.ceil(contentItems.reduce((acc, item) => acc + item.wordCount, 0) / 200),
         viewCount: data.viewCount || 0,
         likeCount: data.likeCount || 0,
@@ -255,7 +256,8 @@ content = signal<PublishedContent | null>(null);
         excerpt: data.excerpt,
         contents: contentItems,
         isLiked: false,
-        isBookmarked: false
+        isBookmarked: false,
+        seo: data.seo || undefined
       };
 
       this.content.set(transformedContent);
@@ -321,7 +323,9 @@ content = signal<PublishedContent | null>(null);
     
     this.backendService.getSubmissionWithContents(contentId).subscribe({
       next: (data: any) => {
-        
+        // Some backend endpoints return { success, submission } — unwrap if present
+        if (data && data.submission) data = data.submission;
+
         // Ensure fallback contents if API returned none
         data.contents = this.ensureContents(data);
 
@@ -412,7 +416,7 @@ content = signal<PublishedContent | null>(null);
           description: data.description,
           submissionType: data.submissionType,
           author: normalizedAuthor,
-          publishedAt: new Date(data.publishedAt || data.createdAt),
+          publishedAt: this.parseDateSafe(data.publishedAt || data.createdAt),
           readingTime: data.readingTime || Math.ceil(contentItems.reduce((acc, item) => acc + item.wordCount, 0) / 200),
           viewCount: data.viewCount || 0,
           likeCount: data.likeCount || 0,
@@ -485,6 +489,8 @@ content = signal<PublishedContent | null>(null);
     
     this.backendService.getSubmissionBySlug(slug).subscribe({
       next: (data: any) => {
+        // Backend may wrap result: { success, submission }
+        if (data && data.submission) data = data.submission;
         // Ensure fallback contents if API returned none
         data.contents = this.ensureContents(data);
 
@@ -500,7 +506,7 @@ content = signal<PublishedContent | null>(null);
             description: normalized.description,
             submissionType: normalized.submissionType,
             author: normalizedAuthor,
-            publishedAt: new Date(normalized.publishedAt || normalized.createdAt),
+            publishedAt: this.parseDateSafe(normalized.publishedAt || normalized.createdAt),
             readingTime: normalized.readingTime || this.calculateReadingTime(normalized.contents || []),
             viewCount: normalized.viewCount || 0,
             likeCount: normalized.likeCount || 0,
@@ -510,7 +516,8 @@ content = signal<PublishedContent | null>(null);
             excerpt: normalized.excerpt,
             contents: normalized.contents || [],
             isLiked: false,
-            isBookmarked: false
+            isBookmarked: false,
+            seo: normalized.seo || undefined
           };
 
           this.content.set(transformed);
@@ -782,10 +789,11 @@ content = signal<PublishedContent | null>(null);
 
   private updatePageMeta(content: PublishedContent) {
     // Update page title
-    this.titleService.setTitle(`${content.title} — Poems by ${content.author?.name || 'Anonymous'} - pi`);
+    const metaTitle = content.seo?.metaTitle || content.title;
+    this.titleService.setTitle(`${metaTitle} — Poems by ${content.author?.name || 'Anonymous'} - pi`);
     
     // Create a proper description
-    const metaDescription = content.description || content.excerpt || `Read "${content.title}" by ${content.author?.name || 'Anonymous'} on Poems in India - a curated collection of poetry and literature.`;
+    const metaDescription = content.seo?.metaDescription || content.description || content.excerpt || `Read "${content.title}" by ${content.author?.name || 'Anonymous'} on Poems in India - a curated collection of poetry and literature.`;
     
     // Update meta description
     this.metaService.updateTag({ 
@@ -794,16 +802,13 @@ content = signal<PublishedContent | null>(null);
     });
     
     // Update meta keywords if available
-    if (content.tags && content.tags.length > 0) {
-      this.metaService.updateTag({ 
-        name: 'keywords', 
-        content: `${content.tags.join(', ')}, poetry, literature, ${content.author?.name || 'Anonymous'}, Poems in India` 
-      });
+    const seoKeywords = Array.isArray(content.seo?.keywords) && content.seo.keywords.length > 0 ? content.seo.keywords.join(', ') : null;
+    if (seoKeywords) {
+      this.metaService.updateTag({ name: 'keywords', content: seoKeywords });
+    } else if (content.tags && content.tags.length > 0) {
+      this.metaService.updateTag({ name: 'keywords', content: `${content.tags.join(', ')}, poetry, literature, ${content.author?.name || 'Anonymous'}, Poems in India` });
     } else {
-      this.metaService.updateTag({ 
-        name: 'keywords', 
-        content: `poetry, literature, ${content.author?.name || 'Anonymous'}, Poems in India, ${content.submissionType}` 
-      });
+      this.metaService.updateTag({ name: 'keywords', content: `poetry, literature, ${content.author?.name || 'Anonymous'}, Poems in India, ${content.submissionType}` });
     }
     
     // Construct canonical URL safely for SSR
@@ -843,11 +848,11 @@ content = signal<PublishedContent | null>(null);
       });
     }
     
-    // Set Open Graph image with fallback
-    const imageUrl = this.getAbsoluteImageUrl(content.imageUrl) || this.getDefaultSocialImage();
+    // Set Open Graph image with fallback (prefer SEO ogImage)
+    const imageUrl = this.getAbsoluteImageUrl(content.seo?.ogImage || content.imageUrl) || this.getDefaultSocialImage();
     this.metaService.updateTag({ property: 'og:image', content: imageUrl });
     this.metaService.updateTag({ property: 'og:image:secure_url', content: imageUrl });
-    this.metaService.updateTag({ property: 'og:image:alt', content: content.imageUrl ? `Cover image for ${content.title}` : 'Poems in India - Poetry & Literature' });
+    this.metaService.updateTag({ property: 'og:image:alt', content: (content.seo?.ogImage || content.imageUrl) ? `Cover image for ${content.title}` : 'Poems in India - Poetry & Literature' });
     this.metaService.updateTag({ property: 'og:image:width', content: '1200' });
     this.metaService.updateTag({ property: 'og:image:height', content: '630' });
     this.metaService.updateTag({ property: 'og:image:type', content: 'image/jpeg' });
@@ -865,14 +870,14 @@ content = signal<PublishedContent | null>(null);
 
     // Twitter Card tags
     this.metaService.updateTag({ name: 'twitter:card', content: 'summary_large_image' });
-    this.metaService.updateTag({ name: 'twitter:title', content: content.title });
+    this.metaService.updateTag({ name: 'twitter:title', content: metaTitle });
     this.metaService.updateTag({ name: 'twitter:description', content: metaDescription });
     this.metaService.updateTag({ name: 'twitter:site', content: '@poemsindia' });
     this.metaService.updateTag({ name: 'twitter:creator', content: `@${content.author?.name || 'Anonymous'}` });
     
     // Set Twitter image (same as og:image)
     this.metaService.updateTag({ name: 'twitter:image', content: imageUrl });
-    this.metaService.updateTag({ name: 'twitter:image:alt', content: content.imageUrl ? `Cover image for ${content.title}` : 'Poems in India - Poetry & Literature' });
+    this.metaService.updateTag({ name: 'twitter:image:alt', content: (content.seo?.ogImage || content.imageUrl) ? `Cover image for ${content.title}` : 'Poems in India - Poetry & Literature' });
     
     // Add structured data for search engines
     this.addStructuredData(content, canonicalUrl);
@@ -897,7 +902,8 @@ content = signal<PublishedContent | null>(null);
       "url": canonicalUrl,
       "datePublished": content.publishedAt.toISOString(),
       "articleSection": content.submissionType,
-      "keywords": content.tags ? content.tags.join(', ') : content.submissionType,
+      // Prefer SEO keywords when present
+      "keywords": Array.isArray(content.seo?.keywords) && content.seo.keywords.length > 0 ? content.seo.keywords.join(', ') : (content.tags ? content.tags.join(', ') : content.submissionType),
       "wordCount": content.contents.reduce((acc, item) => acc + item.wordCount, 0)
     };
 
@@ -1012,12 +1018,16 @@ content = signal<PublishedContent | null>(null);
     
     this.backendService.getSubmissionBySlug(slug).subscribe({
       next: (data: any) => {
+        // Unwrap { success, submission } if backend returns it
+        if (data && data.submission) data = data.submission;
         console.log('[SSR] Got data for meta tags:', data.title);
         
-        // Set basic meta tags immediately during SSR
-        this.titleService.setTitle(`${data.title} — Poems by ${data.authorName || 'Anonymous'} - pi`);
+        // Set basic meta tags immediately during SSR. Prefer SEO and author.name when available.
+        const ssrMetaTitle = data.seo?.metaTitle || data.title;
+        const ssrAuthorName = data.author?.name || data.authorName || 'Anonymous';
+        this.titleService.setTitle(`${ssrMetaTitle} — Poems by ${ssrAuthorName} - pi`);
         
-        const description = data.description || data.excerpt || `Read "${data.title}" by ${data.authorName || 'Anonymous'} on Poems in India - a curated collection of poetry and literature.`;
+        const description = data.seo?.metaDescription || data.description || data.excerpt || `Read "${data.title}" by ${ssrAuthorName} on Poems in India - a curated collection of poetry and literature.`;
         
         // Update meta description
         this.metaService.updateTag({ name: 'description', content: description });
@@ -1030,7 +1040,7 @@ content = signal<PublishedContent | null>(null);
         this.metaService.updateTag({ property: 'og:site_name', content: 'Poems in India' });
         
         // Set OG image
-        const imageUrl = this.getAbsoluteImageUrl(data.imageUrl) || this.getDefaultSocialImage();
+        const imageUrl = this.getAbsoluteImageUrl(data.seo?.ogImage || data.imageUrl) || this.getDefaultSocialImage();
         this.metaService.updateTag({ property: 'og:image', content: imageUrl });
         this.metaService.updateTag({ property: 'og:image:secure_url', content: imageUrl });
         this.metaService.updateTag({ property: 'og:image:width', content: '1200' });
@@ -1199,5 +1209,17 @@ content = signal<PublishedContent | null>(null);
 
     // Ultimate fallback: empty placeholder
     return [{ title: data.title || 'Content', body: data.description || 'Content is not available at this time.', wordCount: this.countWords(data.description || ''), tags: (data.tags || []) }];
+  }
+
+  // Safe date parser: returns a valid Date object. Falls back to 'now' when input is missing/invalid.
+  private parseDateSafe(value: any): Date {
+    if (!value) return new Date();
+    try {
+      const d = new Date(value);
+      if (isNaN(d.getTime())) return new Date();
+      return d;
+    } catch (e) {
+      return new Date();
+    }
   }
 }

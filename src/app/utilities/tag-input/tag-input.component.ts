@@ -20,28 +20,22 @@ import { environment } from '../../../environments/environment';
   template: `
     <div class="tag-input-container">
       <!-- Tags Display -->
-      @if (tags.length > 0) {
-        <div class="flex flex-wrap gap-2 mb-3">
-          @for (tag of tags; track trackByTag(i, tag); let i = $index) {
-            <span
-              class="inline-flex items-center gap-1 px-3 py-1 bg-amber-100 text-amber-800 text-sm font-medium rounded-full"
-              >
-              {{ displayTagName(tag) }}
-              <button
-                type="button"
-                (click)="removeTag(i)"
-                class="flex items-center justify-center w-4 h-4 ml-1 text-primary hover:text-amber-800 hover:bg-amber-100 rounded-full transition-colors"
-                [attr.aria-label]="'Remove tag ' + tag"
-                >
-                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                </svg>
-              </button>
-            </span>
-          }
-        </div>
-      }
-    
+      <div *ngIf="tags.length > 0" class="flex flex-wrap gap-2 mb-3">
+        <span *ngFor="let tag of tags; let i = index; trackBy: trackByTag"
+          class="inline-flex items-center gap-1 px-3 py-1 bg-amber-100 text-amber-800 text-sm font-medium rounded-full">
+          {{ displayTagName(tag) }}
+          <button
+            type="button"
+            (click)="removeTag(i)"
+            class="flex items-center justify-center w-4 h-4 ml-1 text-primary hover:text-amber-800 hover:bg-amber-100 rounded-full transition-colors"
+            [attr.aria-label]="'Remove tag ' + displayTagName(tag)">
+            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+            </svg>
+          </button>
+        </span>
+      </div>
+
       <!-- Input Field -->
       <div class="relative">
         <input
@@ -55,54 +49,33 @@ import { environment } from '../../../environments/environment';
           [placeholder]="placeholder"
           class="w-full px-4 py-3 border border-gray-200 rounded-xl bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-neutral-300 transition-colors duration-200"
           [class.border-red-400]="hasError"
-          />
-    
+        />
+
         <!-- Helper Text -->
-        @if (!hasError) {
-          <p class="text-xs text-gray-500 mt-2">
-            {{ helperText }}
-          </p>
-        }
-    
+        <p *ngIf="!hasError" class="text-xs text-gray-500 mt-2">{{ helperText }}</p>
+
         <!-- Error Text -->
-        @if (hasError) {
-          <p class="text-xs text-red-500 mt-2">
-            {{ errorText }}
-          </p>
-        }
+        <p *ngIf="hasError" class="text-xs text-red-500 mt-2">{{ errorText }}</p>
       </div>
 
       <!-- Suggestions Dropdown -->
-      @if (suggestions.length > 0) {
-        <div class="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-auto">
+      <div *ngIf="suggestions.length > 0" class="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-auto">
+        <div *ngFor="let suggestion of suggestions; let i = index; trackBy: trackBySuggestion">
           <button
-            *ngIf="suggestions.length === 0"
             type="button"
-            class="flex items-center justify-center w-full px-4 py-2 text-sm text-gray-500 bg-gray-100 rounded-t-lg hover:bg-gray-200"
-            disabled
-            >
-            No suggestions found
+            (mousedown)="onSuggestionMouseDown()"
+            (click)="selectSuggestion(suggestion)"
+            class="flex items-center justify-between w-full px-4 py-2 text-sm text-left rounded-lg transition-colors"
+            [ngClass]="{
+              'bg-primary/10 text-primary': isSuggestionSelected(i),
+              'hover:bg-gray-100': !isSuggestionSelected(i)
+            }">
+            {{ displayTagName(suggestion) }}
           </button>
-    
-          @for (suggestion of suggestions; track trackBySuggestion(i, suggestion); let i = $index) {
-            <button
-              type="button"
-              (mousedown)="onSuggestionMouseDown()"
-              (click)="selectSuggestion(suggestion)"
-              class="flex items-center justify-between w-full px-4 py-2 text-sm text-left rounded-lg transition-colors"
-              [ngClass]="{
-                'bg-primary/10 text-primary': isSuggestionSelected(i),
-                'hover:bg-gray-100': !isSuggestionSelected(i)
-              }"
-              >
-              {{ displayTagName(suggestion) }}
-              <!-- Add an icon or indicator for selection if needed -->
-            </button>
-          }
         </div>
-      }
+      </div>
     </div>
-    `,
+  `,
   styles: [`
     .tag-input-container {
       width: 100%;
@@ -297,7 +270,7 @@ export class TagInputComponent implements ControlValueAccessor, OnDestroy {
     const encoded = encodeURIComponent(q);
     // Use backend search endpoint which returns { success, tags: [...] }
     console.debug('[TagInput] fetchTags', q);
-    return this.http.get<any>(`${environment.apiBaseUrl}/api/tags/search?q=${encoded}&limit=10`).pipe(
+    return this.http.get<any>(`${environment.apiBaseUrl}/tags/search?q=${encoded}&limit=10`).pipe(
       switchMap((resp: any) => {
         if (!resp) return of([]);
         // backend returns tags array under resp.tags (each has tag, slug, tagId)
