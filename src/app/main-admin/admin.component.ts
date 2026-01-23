@@ -1,8 +1,10 @@
 import { Component, OnInit, AfterViewInit, ElementRef, ViewChild, ViewContainerRef, ComponentRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
-import { Router, ActivatedRoute } from '@angular/router';
+import { Router, ActivatedRoute, RouterModule } from '@angular/router';
 import { AuthService } from '../services/auth.service';
+import { CardComponent } from '../ui-components/card/card.component';
+import { AdminPageHeaderComponent } from '../shared/components/admin-page-header/admin-page-header.component';
 
 // Import individual admin tab components
 import { ManageSubmissionsComponent } from "./content/manage-submissions/manage-submissions.component";
@@ -21,6 +23,9 @@ type AdminTab = 'submissions' | 'content' | 'users' | 'purge' | 'analytics' | 'm
   standalone: true,
   imports: [
     CommonModule,
+    RouterModule,
+    CardComponent,
+    AdminPageHeaderComponent,
     ManageSubmissionsComponent,
     FeaturedContentComponent,
     UserManagementComponent,
@@ -252,5 +257,18 @@ export class AdminComponent implements OnInit, AfterViewInit {
     } catch (error_) {
       console.warn('Admin: tryCreateMediaInstance failed', error_);
     }
+  }
+
+  // Programmatic navigation helper used by dashboard cards
+  navigateTo(path: string) {
+    if (!path) return;
+    // Navigate to /admin/:path
+    this.router.navigate(['/admin', path]);
+  }
+
+  // Refresh handler used by header
+  refreshAll() {
+    // Minimal refresh: re-check access and reload any lightweight lists later
+    this.checkAdminAccess();
   }
 }

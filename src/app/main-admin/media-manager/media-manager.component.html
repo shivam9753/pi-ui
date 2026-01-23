@@ -1,4 +1,6 @@
-<div class="py-4">
+<div class="w-full max-w-screen-xl mx-auto px-6 sm:px-8 md:px-10 mt-6">
+  <app-admin-page-header [title]="'Media Manager'" [subtitle]="'Browse and manage uploaded media'" [stats]="[]" (onRefresh)="load(null)"></app-admin-page-header>
+
   <div class="flex items-center justify-between mb-4">
     <div class="flex items-center space-x-2">
       <input [(ngModel)]="prefix" placeholder="Prefix filter (optional)" class="border rounded px-2 py-1" />

@@ -107,20 +107,68 @@ async function generatePostMetaTags(slug: string): Promise<{ title: string; html
 
       const postData = await response.json() as any;
 
+      // Normalize common fields with safe fallbacks
       const rawTitle = postData?.title || 'Untitled';
-      const rawAuthor = postData?.authorName || 'Anonymous';
+
+      // author may be a string or an object { name }
+      let rawAuthor: string = 'Anonymous';
+      if (postData?.authorName) rawAuthor = postData.authorName;
+      else if (postData?.author) rawAuthor = (typeof postData.author === 'string') ? postData.author : (postData.author.name || postData.author.username || 'Anonymous');
+
       const rawDescription = postData?.description || postData?.excerpt || '';
-      const rawImage = postData?.ogImage || postData?.imageUrl || '';
+
+      // image may be present in several shapes
+      const rawImage = postData?.ogImage || postData?.imageUrl || (postData?.image && (typeof postData.image === 'string' ? postData.image : (postData.image.url || ''))) || '';
+
+      // published time
+      const publishedTime = postData?.publishedAt || postData?.published_at || postData?.createdAt || postData?.created_at || null;
+
+      // Collect tags: backend may return tags as array of objects [{name,slug,_id}] or strings.
+      const collectTagNames = (arr: any[] = []) => {
+        const names: string[] = [];
+        for (const t of arr) {
+          if (!t) continue;
+          if (typeof t === 'string') {
+            names.push(t);
+          } else if (typeof t === 'object') {
+            // prefer name, then tag, then slug, then id
+            const name = t.name || t.tag || t.label || t.slug || (t._id ? String(t._id) : '') || '';
+            if (name) names.push(name);
+          }
+        }
+        return names.filter(Boolean);
+      };
+
+      let tagValues: string[] = [];
+      if (Array.isArray(postData?.tags) && postData.tags.length > 0) {
+        tagValues = collectTagNames(postData.tags);
+      } else if (Array.isArray(postData?.contents)) {
+        // Aggregate tags from content blocks
+        for (const c of postData.contents) {
+          if (Array.isArray(c.tags) && c.tags.length > 0) {
+            tagValues.push(...collectTagNames(c.tags));
+          }
+        }
+      }
+
+      // Deduplicate and limit tags for meta
+      tagValues = Array.from(new Set(tagValues)).slice(0, 20);
 
       const title = `${rawTitle} — Poems by ${rawAuthor} - pi`;
       const description = rawDescription || `Read "${rawTitle}" by ${rawAuthor} on Poems in India - a curated collection of poetry and literature.`;
       const imageUrl = sanitizeImageUrl(rawImage);
       const canonicalUrl = `${SITE_HOST}/post/${slug}`;
 
+      // Build keywords (include tags if available)
+      let keywords = `poetry, literature, ${rawAuthor}`;
+      if (tagValues && tagValues.length > 0) {
+        keywords = `${tagValues.slice(0, 10).join(', ')}, ${keywords}`;
+      }
+
       // Build sanitized meta tags (text fields escaped)
-      const metaTags = `
+      let metaTags = `
     <meta name="description" content="${escapeHtml(description)}">
-    <meta name="keywords" content="poetry, literature, ${escapeHtml(rawAuthor)} , Poems in India">
+    <meta name="keywords" content="${escapeHtml(keywords)}">
 
     <meta property="og:title" content="${escapeHtml(rawTitle)}">
     <meta property="og:description" content="${escapeHtml(description)}">
@@ -152,10 +200,32 @@ async function generatePostMetaTags(slug: string): Promise<{ title: string; html
     <link rel="canonical" href="${escapeHtml(canonicalUrl)}">
     `;
 
+      // Add article:published_time if available
+      if (publishedTime) {
+        try {
+          const iso = new Date(publishedTime).toISOString();
+          metaTags += `\n    <meta property="article:published_time" content="${escapeHtml(iso)}">`;
+        } catch (e) {
+          // ignore invalid dates
+        }
+      }
+
+      // Add article:section (submissionType) if present
+      if (postData?.submissionType) {
+        metaTags += `\n    <meta property="article:section" content="${escapeHtml(postData.submissionType)}">`;
+      }
+
+      // Inject tags as article:tag and include in keywords meta already handled
+      if (tagValues && tagValues.length > 0) {
+        for (const t of tagValues) {
+          metaTags += `\n    <meta property="article:tag" content="${escapeHtml(t)}">`;
+        }
+      }
+
       const result = { title, html: metaTags };
       // Cache result
       metaCache.set(slug, result);
-      console.log(`[Meta] Cached meta for: ${slug}, Image: ${imageUrl}`);
+      console.log(`[Meta] Cached meta for: ${slug}, Image: ${imageUrl}, Tags: ${tagValues.join(', ')}`);
       return result;
     } catch (error) {
       // Distinguish aborts/timeouts from other errors

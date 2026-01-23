@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { BackendService } from '../../services/backend.service';
+import { AdminPageHeaderComponent } from '../../shared/components/admin-page-header/admin-page-header.component';
 
 interface TopPost {
   _id: string;
@@ -22,11 +23,14 @@ interface PostTypeStats {
 @Component({
   selector: 'app-analytics',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, AdminPageHeaderComponent],
   templateUrl: './analytics.component.html',
   styleUrls: ['./analytics.component.css']
 })
 export class AnalyticsComponent implements OnInit {
+  // Header stats could be added later; for now empty
+  headerStats = [];
+
   // Minimal state for the simplified screen
   topPeriod: 'week' | 'all' = 'week';
   typesPeriod: 'week' | 'all' = 'week';

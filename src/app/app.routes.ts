@@ -30,6 +30,12 @@ import { SimpleContentReaderComponent } from './main-reading/simple-content-read
 import { ManageSubmissionsComponent } from './main-admin/content/manage-submissions/manage-submissions.component';
 import { SubmissionsListComponent } from './main-user-profile/submissions-list/submissions-list.component';
 import { MainPendingReviewsComponent } from './main-pending-review/main-pending-reviews.component';
+import { UserManagementComponent } from './main-admin/users/user-management/user-management.component';
+import { FeaturedContentComponent } from './main-admin/content/featured-content/featured-content.component';
+import { MediaManagerComponent } from './main-admin/media-manager/media-manager.component';
+import { PurgeManagementComponent } from './main-admin/purge/purge-management.component';
+import { AnalyticsComponent } from './main-admin/analytics/analytics.component';
+import { ResponseTemplatesComponent } from './main-admin/response-templates/response-templates.component';
 
 export const routes: Routes = [
   // Public routes - Use explore as homepage for now
@@ -155,6 +161,13 @@ export const routes: Routes = [
     canActivate: [AdminGuard],
     title: 'Admin Dashboard'
   },
+  // Admin child routes (cards target these paths) — point to real feature components
+  { path: 'admin/users', component: UserManagementComponent, canActivate: [AdminGuard], title: 'User Management - Admin' },
+  { path: 'admin/content', component: FeaturedContentComponent, canActivate: [ReviewerGuard], title: 'Content Management - Admin' },
+  { path: 'admin/media', component: MediaManagerComponent, canActivate: [AdminGuard], title: 'Media Manager - Admin' },
+  { path: 'admin/purge', component: PurgeManagementComponent, canActivate: [AdminGuard], title: 'Archive / Purge - Admin' },
+  { path: 'admin/analytics', component: AnalyticsComponent, canActivate: [ReviewerGuard], title: 'Analytics - Admin' },
+  { path: 'admin/templates', component: ResponseTemplatesComponent, canActivate: [AdminGuard], title: 'Response Templates - Admin' },
   { 
     path: 'workspace', 
     component: MainPendingReviewsComponent, 

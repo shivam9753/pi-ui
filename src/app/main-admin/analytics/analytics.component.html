@@ -1,7 +1,7 @@
-<!-- Refreshed Analytics Dashboard - simpler two-column layout -->
+<!-- Refreshed Analytics Dashboard - uses standardized admin header -->
 <div class="analytics-simple max-w-7xl mx-auto p-6">
+  <app-admin-page-header [title]="'Analytics'" [subtitle]="'Traffic and engagement overview'" [stats]="[{ label: 'Total Views', value: totalViews || 0, color: '#4B5563' }]" ></app-admin-page-header>
 
-  <!-- Overview card: Total Views -->
   <div class="mb-6">
     <section class="bg-white text-gray-800 p-4 sm:p-6 rounded-lg border flex items-center justify-between">
       <div>

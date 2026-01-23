@@ -3,11 +3,12 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MediaService } from '../../services/media.service';
 import { ToastService } from '../../services/toast.service';
+import { AdminPageHeaderComponent } from '../../shared/components/admin-page-header/admin-page-header.component';
 
 @Component({
   selector: 'app-media-manager',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, AdminPageHeaderComponent],
   templateUrl: './media-manager.component.html',
   styleUrls: ['./media-manager.component.css']
 })
