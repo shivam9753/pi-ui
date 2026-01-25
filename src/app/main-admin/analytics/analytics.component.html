@@ -27,6 +27,7 @@
         <h2 class="text-lg sm:text-xl font-semibold">Top Posts</h2>
         <div class="flex items-center space-x-2">
           <div class="inline-flex rounded-md overflow-hidden border">
+            <button (click)="setTopPeriod('today')" [class]="topPeriod === 'today' ? 'px-3 py-1 sm:px-3 sm:py-2 bg-yellow-500 text-white text-sm' : 'px-3 py-1 sm:px-3 sm:py-2 text-gray-700 text-sm'">Today</button>
             <button (click)="setTopPeriod('week')" [class]="topPeriod === 'week' ? 'px-3 py-1 sm:px-3 sm:py-2 bg-orange-500 text-white text-sm' : 'px-3 py-1 sm:px-3 sm:py-2 text-gray-700 text-sm'">This Week</button>
             <button (click)="setTopPeriod('all')" [class]="topPeriod === 'all' ? 'px-3 py-1 sm:px-3 sm:py-2 bg-gray-800 text-white text-sm' : 'px-3 py-1 sm:px-3 sm:py-2 text-gray-700 text-sm'">All Time</button>
           </div>
@@ -36,7 +37,7 @@
       <ul class="space-y-2 text-sm sm:text-base">
         <li *ngFor="let post of topPosts" class="flex items-center justify-between py-2 sm:py-3 border-b">
           <span class="truncate max-w-[65%]">{{ post.title }}</span>
-          <span class="text-sm sm:text-base font-semibold">{{ formatNumber(post.viewCount || post.recentViews || 0) }}</span>
+          <span class="text-sm sm:text-base font-semibold">{{ formatNumber(post.periodViews ?? post.viewCount ?? 0) }}</span>
         </li>
         <li *ngIf="!topPosts || topPosts.length === 0" class="text-xs text-gray-500">No posts available for this period.</li>
       </ul>
@@ -47,6 +48,7 @@
       <div class="flex items-center justify-between mb-3">
         <h2 class="text-lg sm:text-xl font-semibold">Views by Type</h2>
         <div class="inline-flex rounded-md overflow-hidden border">
+          <button (click)="setTypesPeriod('today')" [class]="typesPeriod === 'today' ? 'px-3 py-1 sm:px-3 sm:py-2 bg-yellow-500 text-white text-sm' : 'px-3 py-1 sm:px-3 sm:py-2 text-gray-700 text-sm'">Today</button>
           <button (click)="setTypesPeriod('week')" [class]="typesPeriod === 'week' ? 'px-3 py-1 sm:px-3 sm:py-2 bg-orange-500 text-white text-sm' : 'px-3 py-1 sm:px-3 sm:py-2 text-gray-700 text-sm'">This Week</button>
           <button (click)="setTypesPeriod('all')" [class]="typesPeriod === 'all' ? 'px-3 py-1 sm:px-3 sm:py-2 bg-gray-800 text-white text-sm' : 'px-3 py-1 sm:px-3 sm:py-2 text-gray-700 text-sm'">All Time</button>
         </div>

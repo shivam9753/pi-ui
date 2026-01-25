@@ -8,6 +8,7 @@ interface TopPost {
   title: string;
   author: string;
   viewCount: number;
+  periodViews?: number; // views in selected period
   recentViews?: number;
   slug?: string;
 }
@@ -19,6 +20,9 @@ interface PostTypeStats {
   totalViews?: number;
   avgViews?: number;
 }
+
+type UIAnalyticsPeriod = 'today' | 'week' | 'all';
+type BackendAnalyticsPeriod = 'day' | 'week' | 'month' | 'all';
 
 @Component({
   selector: 'app-analytics',
@@ -32,8 +36,9 @@ export class AnalyticsComponent implements OnInit {
   headerStats = [];
 
   // Minimal state for the simplified screen
-  topPeriod: 'week' | 'all' = 'week';
-  typesPeriod: 'week' | 'all' = 'week';
+  // support today/week/all in the admin analytics UI
+  topPeriod: UIAnalyticsPeriod = 'week';
+  typesPeriod: UIAnalyticsPeriod = 'week';
 
   topPosts: TopPost[] = [];
   postTypeStats: PostTypeStats[] = [];
@@ -53,12 +58,12 @@ export class AnalyticsComponent implements OnInit {
     this.fetchContentTypes();
   }
 
-  setTopPeriod(p: 'week' | 'all') {
+  setTopPeriod(p: UIAnalyticsPeriod) {
     this.topPeriod = p;
     this.fetchTopContent();
   }
 
-  setTypesPeriod(p: 'week' | 'all') {
+  setTypesPeriod(p: UIAnalyticsPeriod) {
     this.typesPeriod = p;
     this.fetchContentTypes();
   }
@@ -82,7 +87,9 @@ export class AnalyticsComponent implements OnInit {
 
   private fetchTopContent() {
     this.loadingTop = true;
-    const period = this.topPeriod === 'week' ? 'week' : 'all';
+    // map UI period to backend period keys: 'today' -> 'day'
+    const periodMap: Record<UIAnalyticsPeriod, BackendAnalyticsPeriod> = { today: 'day', week: 'week', all: 'all' };
+    const period: BackendAnalyticsPeriod = periodMap[this.topPeriod] || 'week';
     this.backendService.getTopContent({ period, limit: 10 }).subscribe({
       next: (res: any) => {
         const payload = res?.data || res || {};
@@ -99,7 +106,8 @@ export class AnalyticsComponent implements OnInit {
 
   private fetchContentTypes() {
     this.loadingTypes = true;
-    const period = this.typesPeriod === 'week' ? 'week' : 'all';
+    const periodMap: Record<UIAnalyticsPeriod, BackendAnalyticsPeriod> = { today: 'day', week: 'week', all: 'all' };
+    const period: BackendAnalyticsPeriod = periodMap[this.typesPeriod] || 'week';
     this.backendService.getContentTypeAnalytics({ period }).subscribe({
       next: (res: any) => {
         const payload = res?.data || res || {};

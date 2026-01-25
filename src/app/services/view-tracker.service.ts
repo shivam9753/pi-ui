@@ -7,8 +7,8 @@ import { API_ENDPOINTS } from '../shared/constants/api.constants';
 export interface ViewResponse {
   success: boolean;
   viewCount: number;
-  recentViews: number;
-  windowStartTime: string;
+  recentViews?: number;
+  windowStartTime?: string;
 }
 
 @Injectable({
@@ -23,10 +23,12 @@ export class ViewTrackerService {
   /**
    * Log a view for a content piece - implements rolling window trending logic
    */
-  logContentView(contentId: string): Observable<ViewResponse> {
+  logContentView(contentId: string, force: boolean = false): Observable<ViewResponse> {
+    console.log('[ViewTracker] logContentView called for', contentId);
     const viewKey = `${this.STORAGE_KEY_PREFIX}content_${contentId}`;
 
-    if (this.hasViewedInSession(viewKey)) {
+    if (!force && this.hasViewedInSession(viewKey)) {
+      console.log('[ViewTracker] already viewed in session, skipping:', viewKey);
       return of({ success: false, viewCount: 0, recentViews: 0, windowStartTime: '' });
     }
 
@@ -35,10 +37,14 @@ export class ViewTrackerService {
       windowDays: this.TRENDING_WINDOW_DAYS
     };
 
-    return this.apiService.post(`/api/content/${contentId}/view`, payload, false).pipe(
+    // Use API_ENDPOINTS.CONTENT to avoid duplicating base '/api' from environment.apiBaseUrl
+    const endpoint = `${API_ENDPOINTS.CONTENT}/${contentId}/view`;
+
+    return this.apiService.post(endpoint, payload, false).pipe(
       map((response: any) => ({
         success: true,
         viewCount: response.viewCount || 0,
+        // keep optional backward-compatible mappings but prefer viewCount
         recentViews: response.recentViews || 0,
         windowStartTime: response.windowStartTime || ''
       })),
@@ -50,10 +56,12 @@ export class ViewTrackerService {
   /**
    * Log a view for a post - implements rolling window trending logic
    */
-  logView(postId: string): Observable<ViewResponse> {
+  logView(postId: string, force: boolean = false): Observable<ViewResponse> {
+    console.log('[ViewTracker] logView called for', postId);
     const viewKey = `${this.STORAGE_KEY_PREFIX}${postId}`;
 
-    if (this.hasViewedInSession(viewKey)) {
+    if (!force && this.hasViewedInSession(viewKey)) {
+      console.log('[ViewTracker] already viewed in session, skipping:', viewKey);
       return of({ success: false, viewCount: 0, recentViews: 0, windowStartTime: '' });
     }
 
@@ -77,12 +85,12 @@ export class ViewTrackerService {
   /**
    * Get trending posts (sorted by recent views) with pagination
    */
-  getTrendingPosts(limit: number = 10, skip: number = 0): Observable<{submissions: any[], total: number}> {
+  getTrendingPosts(limit: number = 10, skip: number = 0, windowDays: number = 7): Observable<{submissions: any[], total: number}> {
     const params = {
       sortBy: 'trending',
       limit: limit.toString(),
       skip: skip.toString(),
-      windowDays: this.TRENDING_WINDOW_DAYS.toString()
+      windowDays: (windowDays || this.TRENDING_WINDOW_DAYS).toString()
     };
 
     return this.apiService.get(API_ENDPOINTS.SUBMISSIONS + '/trending', params, false).pipe(
@@ -113,7 +121,7 @@ export class ViewTrackerService {
    */
   private calculateTrendingScore(recentViews: number, totalViews: number): number {
     if (totalViews === 0) return 0;
-    return Math.round((recentViews / totalViews) * 100); // Percentage of recent activity
+    return Math.round((recentViews / totalViews) * 100);
   }
 
   private hasViewedInSession(viewKey: string): boolean {

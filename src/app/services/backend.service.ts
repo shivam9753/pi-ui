@@ -1160,7 +1160,7 @@ getAnalyticsOverview(): Observable<{
 
 // Get top performing content
 getTopContent(options: {
-  period?: 'week' | 'month' | 'all';
+  period?: 'day' | 'week' | 'month' | 'all';
   limit?: number;
   type?: string;
   metric?: 'recent' | 'views';
@@ -1184,7 +1184,7 @@ getTopContent(options: {
 }
 
 // Get analytics by content type
-getContentTypeAnalytics(options: { period?: 'week' | 'month' | 'all'; type?: string } = {}): Observable<{
+getContentTypeAnalytics(options: { period?: 'day' | 'week' | 'month' | 'all'; type?: string } = {}): Observable<{
   types: Array<{
     type: string;
     count: number;

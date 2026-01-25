@@ -98,6 +98,11 @@ export class ApiService {
     const url = `${this.baseUrl}${endpoint}`;
     const headers = this.createHeaders(includeAuth);
 
+    // Debug log to help trace missing network calls
+    try {
+      console.log('[ApiService] POST', url, { data, includeAuth });
+    } catch (e) { /* noop */ }
+
     return this.http.post<T>(url, data, { headers }).pipe(
       catchError(this.handleError.bind(this))
     );

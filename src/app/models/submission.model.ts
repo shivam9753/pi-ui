@@ -44,8 +44,9 @@ export interface Submission {
   viewCount: number;
   
   // Trending tracking
-  recentViews: number;
-  windowStartTime: string;
+  // deprecated: per-item rolling window fields — use server-side DailyView buckets instead
+  recentViews?: number;
+  windowStartTime?: string;
 }
 
 export interface Content {
@@ -194,8 +195,8 @@ export interface PublishedContent extends Content {
   commentCount: number;
   
   // Trending tracking
-  recentViews: number;
-  windowStartTime: string;
+  recentViews?: number;
+  windowStartTime?: string;
 }
 
 export interface PublishedContentResponse {

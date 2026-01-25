@@ -181,6 +181,7 @@ content = signal<PublishedContent | null>(null);
   ngOnInit() {
     // Check for SSR resolved data first
     const ssrData = this.route.snapshot.data['postData'] as PostSSRData;
+    console.log('[ReadingInterface] ngOnInit ssrData present?', !!ssrData, 'platformBrowser?', isPlatformBrowser(this.platformId));
     
     if (ssrData && ssrData.post) {
       console.log('[SSR] Using pre-resolved data');
@@ -188,19 +189,20 @@ content = signal<PublishedContent | null>(null);
     } else {
       // Fallback to regular data fetching for client-side navigation
       this.route.params.subscribe(params => {
+        console.log('[ReadingInterface] route.params fired', params);
         const contentId = params['id'];
         const slug = params['slug'];
-        
-        if (contentId) {
-          this.loadContent(contentId);
-        } else if (slug) {
-          // During SSR, immediately try to set basic meta tags based on slug
-          if (!isPlatformBrowser(this.platformId) && slug) {
-            this.setBasicMetaTagsFromSlug(slug);
-          }
-          this.loadContentBySlug(slug);
-        }
-      });
+         
+         if (contentId) {
+           this.loadContent(contentId);
+         } else if (slug) {
+           // During SSR, immediately try to set basic meta tags based on slug
+           if (!isPlatformBrowser(this.platformId) && slug) {
+             this.setBasicMetaTagsFromSlug(slug);
+           }
+           this.loadContentBySlug(slug);
+         }
+       });
     }
 
     // Track reading progress (only in browser)
@@ -276,38 +278,26 @@ content = signal<PublishedContent | null>(null);
 
       // Only track views in browser
       if (isPlatformBrowser(this.platformId)) {
-        this.viewTracker.logView(data._id).subscribe({
-          next: (viewResponse) => {
-            if (viewResponse.success) {
-              const currentContent = this.content();
-              if (currentContent) {
-                const updatedContent = {
-                  ...currentContent,
-                  viewCount: viewResponse.viewCount
-                };
-                this.content.set(updatedContent);
+        // Ensure we log a view from the client after hydration
+        try {
+          setTimeout(() => {
+            const id = String(transformedContent._id);
+            this.viewTracker.logView(id).subscribe({
+              next: (viewResponse) => {
+                // Update local viewCount if backend returned a fresh value
+                if (viewResponse && typeof viewResponse.viewCount === 'number') {
+                  this.content.update(c => c ? ({ ...c, viewCount: viewResponse.viewCount }) : c);
+                }
+                console.log('Logged view for', id, viewResponse);
+              },
+              error: (err) => {
+                console.warn('Failed to log view for', id, err);
               }
-            }
-          },
-          error: (err) => {
-            console.warn('Failed to log view:', err);
-          }
-        });
-
-        // Enhanced analytics tracking for detailed content analytics
-        this.backendService.trackContentView({
-          contentId: data._id,
-          source: 'reading-interface-ssr',
-          contentType: data.submissionType,
-          sessionId: this.generateSessionId()
-        }).subscribe({
-          next: () => {
-            // Enhanced tracking successful (silent)
-          },
-          error: (error) => {
-            console.warn('Enhanced content tracking failed:', error);
-          }
-        });
+            });
+          }, 500); // small delay to allow hydration
+        } catch (e) {
+          console.warn('Error scheduling view log:', e);
+        }
       }
       
     } catch (error) {
@@ -442,24 +432,30 @@ content = signal<PublishedContent | null>(null);
         }
         
         // Track view for this content
-        this.viewTracker.logView(data._id).subscribe({
-          next: (viewResponse) => {
-            if (viewResponse.success) {
-              // Update the content with latest view counts
-              const currentContent = this.content();
-              if (currentContent) {
-                const updatedContent = {
-                  ...currentContent,
-                  viewCount: viewResponse.viewCount
-                };
-                this.content.set(updatedContent);
-              }
-            }
-          },
-          error: (err) => {
-            console.warn('Failed to log view:', err);
-          }
-        });
+        console.log('[ReadingInterface] scheduling view tracking for', data._id);
+         try {
+           const id = String(data._id);
+           this.viewTracker.logView(id).subscribe({
+             next: (viewResponse) => {
+               if (viewResponse && viewResponse.success) {
+                 // Update the content with latest view counts
+                 const currentContent = this.content();
+                 if (currentContent) {
+                   const updatedContent = {
+                     ...currentContent,
+                     viewCount: viewResponse.viewCount
+                   };
+                   this.content.set(updatedContent);
+                 }
+               }
+             },
+             error: (err) => {
+               console.warn('Failed to log view:', err);
+             }
+           });
+         } catch (e) {
+           console.warn('Error scheduling view tracking in loadContent:', e);
+         }
 
         // Enhanced analytics tracking for detailed content analytics
         this.backendService.trackContentView({
@@ -526,6 +522,26 @@ content = signal<PublishedContent | null>(null);
           // Update meta and tracking
           if (isPlatformBrowser(this.platformId)) {
             this.updatePageMeta(transformed);
+            // Ensure we schedule view tracking for client navigation by slug (Explore -> post/:slug)
+            try {
+              console.log('[ReadingInterface] loadContentBySlug succeeded, scheduling view tracking for', transformed._id);
+              const id = String(transformed._id);
+              this.viewTracker.logView(id).subscribe({
+                next: (viewResponse) => {
+                  if (viewResponse && viewResponse.success) {
+                    const currentContent = this.content();
+                    if (currentContent) {
+                      this.content.set({ ...currentContent, viewCount: viewResponse.viewCount });
+                    }
+                  }
+                },
+                error: (err) => {
+                  console.warn('Failed to log view for slug load:', err);
+                }
+              });
+            } catch (e) {
+              console.warn('Error scheduling view tracking in loadContentBySlug:', e);
+            }
             // track view etc.
           }
         } catch (err) {

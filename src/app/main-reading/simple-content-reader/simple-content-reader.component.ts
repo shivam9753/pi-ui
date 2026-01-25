@@ -161,12 +161,12 @@ interface AuthorFeaturedContent {
   styleUrl: './simple-content-reader.component.css'
 })
 export class SimpleContentReaderComponent implements OnInit {
-  private route = inject(ActivatedRoute);
-  private backendService = inject(BackendService);
-  private titleService = inject(Title);
-  private metaService = inject(Meta);
-  private viewTracker = inject(ViewTrackerService);
-  private router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
+  private readonly backendService = inject(BackendService);
+  private readonly titleService = inject(Title);
+  private readonly metaService = inject(Meta);
+  private readonly viewTracker = inject(ViewTrackerService);
+  private readonly router = inject(Router);
 
   content = signal<SimpleContent | null>(null);
   loading = signal(true);
@@ -202,7 +202,7 @@ export class SimpleContentReaderComponent implements OnInit {
     }
   }
 
-  constructor(@Inject(PLATFORM_ID) private platformId: Object) {}
+  constructor(@Inject(PLATFORM_ID) private readonly platformId: Object) {}
 
   ngOnInit() {
     this.route.params.subscribe(params => {
@@ -226,7 +226,8 @@ export class SimpleContentReaderComponent implements OnInit {
 
           // Track view for this content (only in browser)
           if (isPlatformBrowser(this.platformId)) {
-            this.viewTracker.logContentView(response._id).subscribe({
+            // Force logging to ensure views are recorded even if session dedupe exists (useful during testing or explicit reload)
+            this.viewTracker.logContentView(response._id, true).subscribe({
               next: (viewResponse) => {
                 if (viewResponse && viewResponse.success) {
                   const currentContent = this.content();
@@ -236,8 +237,9 @@ export class SimpleContentReaderComponent implements OnInit {
                   }
                 }
               },
-              error: () => {
-                // Handle view tracking error if needed
+              error: (err) => {
+                // Silent fail for view tracking errors
+                console.warn('[ViewTracker] logContentView error', err);
               }
             });
           }
@@ -254,13 +256,19 @@ export class SimpleContentReaderComponent implements OnInit {
   }
 
   private updatePageMeta(content: SimpleContent) {
-    // Update title
-    this.titleService.setTitle(content.title + ' - Your Site Name');
-
-    // Update meta tags
-    this.metaService.updateTag({ name: 'description', content: (content.body || '').substring(0, 150) + '...' });
-    this.metaService.updateTag({ property: 'og:title', content: content.title });
-    this.metaService.updateTag({ property: 'og:description', content: (content.body || '').substring(0, 150) + '...' });
-    this.metaService.updateTag({ property: 'og:image', content: content.author?.profileImage || 'default-image-url' });
+    try {
+      // Basic meta updates for simple content reader
+      this.titleService.setTitle(`${content.title} — Poems in India`);
+      const description = (content.body || '').substring(0, 150) + (content.body && content.body.length > 150 ? '...' : '');
+      this.metaService.updateTag({ name: 'description', content: description });
+      // Open Graph tags
+      this.metaService.updateTag({ property: 'og:title', content: content.title } as any);
+      this.metaService.updateTag({ property: 'og:description', content: description } as any);
+      this.metaService.updateTag({ property: 'og:image', content: content.author?.profileImage || 'default-image-url' } as any);
+      this.metaService.updateTag({ property: 'og:url', content: typeof window !== 'undefined' ? window.location.href : '' } as any);
+    } catch (e) {
+      // ignore meta update failures
+      console.warn('[SimpleContentReader] updatePageMeta error', e);
+    }
   }
 }

@@ -212,6 +212,7 @@ export class ContentCardComponent {
    * Check if content is trending based on recent views
    */
   isTrending(): boolean {
+    // recentViews may be deprecated; if missing, we cannot compute trending here.
     if (!this.content.recentViews || !this.content.viewCount) return false;
     
     // Consider trending if:
