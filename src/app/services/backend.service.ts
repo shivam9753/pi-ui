@@ -1442,4 +1442,13 @@ getRandomSubmissions(options: { type?: string; limit?: number } = {}): Observabl
     this.handleApiCall(url, 'GET')
   );
 }
+
+// Cleanup DailyView entries older than `days` (admin only)
+cleanupDailyViews(days: number = 7): Observable<{ success: boolean; deletedCount: number; cutoff?: string }> {
+  const headers = this.getAuthHeaders();
+  const url = `${this.API_URL}/analytics/cleanup-dailyviews`;
+  return this.http.post<any>(url, { days }, { headers }).pipe(
+    this.handleApiCall(url, 'POST')
+  );
+}
 }

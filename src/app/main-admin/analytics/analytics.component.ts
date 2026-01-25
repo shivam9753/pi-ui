@@ -50,6 +50,9 @@ export class AnalyticsComponent implements OnInit {
   loadingTop = false;
   loadingTypes = false;
 
+  purging = false;
+  purgeMessage = '';
+
   constructor(private readonly backendService: BackendService) {}
 
   ngOnInit(): void {
@@ -120,6 +123,24 @@ export class AnalyticsComponent implements OnInit {
         this.loadingTypes = false;
       }
     });
+  }
+
+  async purgeOldDailyViews(days: number = 7) {
+    if (this.purging) return;
+    this.purging = true;
+    this.purgeMessage = '';
+    try {
+      const resp: any = await this.backendService.cleanupDailyViews(days).toPromise();
+      if (resp && resp.success) {
+        this.purgeMessage = `Deleted ${resp.deletedCount || 0} DailyView entries older than ${days} days`;
+      } else {
+        this.purgeMessage = 'Purge completed with no deletions';
+      }
+    } catch (err: any) {
+      this.purgeMessage = 'Purge failed: ' + (err?.error?.message || err?.message || String(err));
+    } finally {
+      this.purging = false;
+    }
   }
 
   formatNumber(n: any): string {

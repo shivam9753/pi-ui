@@ -90,13 +90,26 @@
 
     <!-- Mobile Card Template -->
     <ng-template #mobileCard let-user let-actions="actions">
-      <app-user-mobile-card
-        [user]="user"
-        [actions]="consistentUserActions"
-        [showRoleSelector]="true"
-        [isChangingRole]="changingRoles.has(user._id)"
-        (roleChange)="onUserRoleChange($event)">
-      </app-user-mobile-card>
+      <div class="bg-white border border-gray-200 rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow duration-200">
+        <div class="flex items-center">
+          <div class="flex-shrink-0 w-12 h-12 rounded-full bg-gradient-to-br from-primary to-primary-hover flex items-center justify-center">
+            @if (user.profileImage) {
+              <img [src]="user.profileImage" [alt]="user.username || user.name" class="w-12 h-12 rounded-full object-cover" />
+            } @else {
+              <span class="text-white font-medium">{{ (user.name || user.username).charAt(0).toUpperCase() }}</span>
+            }
+          </div>
+
+          <div class="ml-4 flex-1 min-w-0">
+            <div class="text-sm font-medium text-gray-900">{{ user.name || user.username }}</div>
+            <div class="text-sm text-gray-500">{{ user.email }}</div>
+          </div>
+
+          <div class="ml-4 flex-shrink-0">
+            <app-button variant="primary" size="sm" (click)="openEditModal(user)">Edit</app-button>
+          </div>
+        </div>
+      </div>
     </ng-template>
 
     <!-- Empty State Template -->

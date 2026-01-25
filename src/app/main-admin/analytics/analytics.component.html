@@ -2,6 +2,16 @@
 <div class="analytics-simple max-w-7xl mx-auto p-6">
   <app-admin-page-header [title]="'Analytics'" [subtitle]="'Traffic and engagement overview'" [stats]="[{ label: 'Total Views', value: totalViews || 0, color: '#4B5563' }]" ></app-admin-page-header>
 
+  <div class="mb-4 flex items-center gap-3">
+    <button (click)="purgeOldDailyViews()" class="px-3 py-1 bg-red-600 text-white rounded text-sm" [disabled]="purging">
+      <ng-container *ngIf="!purging; else purgingTpl">Purge DailyViews &gt;7 days</ng-container>
+    </button>
+    <ng-template #purgingTpl>
+      <span class="text-sm text-gray-500">Purging...</span>
+    </ng-template>
+    <span *ngIf="purgeMessage" class="text-sm text-gray-600">{{ purgeMessage }}</span>
+  </div>
+
   <div class="mb-6">
     <section class="bg-white text-gray-800 p-4 sm:p-6 rounded-lg border flex items-center justify-between">
       <div>
