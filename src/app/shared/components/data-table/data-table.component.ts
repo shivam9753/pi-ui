@@ -255,64 +255,55 @@ export interface PaginationConfig {
           }
 
           @for (item of data; track trackByFn ? trackByFn($index, item) : $index) {
+            <!-- Stacked mobile card: vertical flow, left-aligned, reduced padding -->
+            <div class="bg-white rounded-lg border border-gray-200 shadow-sm px-3 py-4 mx-2" [class.bg-themed-accent-light]="isItemSelected(item)" (click)="onRowClickHandler(item, $event)">
 
-            <!-- Use consumer-provided mobileCard template if available -->
-            @if (mobileCardTemplate) {
-              <ng-container *ngTemplateOutlet="mobileCardTemplate; context: { $implicit: item, actions: getVisibleActions(item) }"></ng-container>
-            } @else {
+              <!-- Header line: Author + ATS badge (left) and compact status inline (left-aligned flow) -->
+              <div class="flex flex-col gap-1">
+                <div class="flex items-center gap-2">
+                  <div class="text-sm font-small text-gray-500 truncate">{{ getAuthorName(item) }}</div>
+                  <span [ngClass]="getAtsBadgeClass(getNestedValue(item, 'authorAts') || getNestedValue(item, 'author.ats'))" class="inline-block px-2 py-0.5 rounded text-xs font-small">{{ getNestedValue(item, 'authorAts') || getNestedValue(item, 'author.ats') || '-'}}</span>
 
-              <!-- Default Stacked mobile card: vertical flow, left-aligned, reduced padding -->
-              <div class="bg-white rounded-lg border border-gray-200 shadow-sm px-3 py-4 mx-2" [class.bg-themed-accent-light]="isItemSelected(item)" (click)="onRowClickHandler(item, $event)">
-
-                <!-- Header line: Author + ATS badge (left) and compact status inline (left-aligned flow) -->
-                <div class="flex flex-col gap-1">
-                  <div class="flex items-center gap-2">
-                    <div class="text-sm font-small text-gray-500 truncate">{{ getAuthorName(item) }}</div>
-                    <span [ngClass]="getAtsBadgeClass(getNestedValue(item, 'authorAts') || getNestedValue(item, 'author.ats'))" class="inline-block px-2 py-0.5 rounded text-xs font-small">{{ getNestedValue(item, 'authorAts') || getNestedValue(item, 'author.ats') || '-'}}</span>
-
-                    <!-- compact status badge placed inline but visually subtle -->
-                    <div class="ml-2">
-                      <app-status-badge [status]="getNestedValue(item, 'status')" size="sm"></app-status-badge>
-                    </div>
-                  </div>
-
-                  <!-- Title — smaller and normal weight for mobile -->
-                  <div>
-                    <h2 class="text-lg text-gray-700 mt-1 mb-1 truncate">{{ getPrimaryTitle(item) }}</h2>
-                  </div>
-
-                  <!-- Excerpt / description -->
-                  <div>
-                    <p class="text-sm text-gray-500 mb-2 line-clamp-3">{{ getNestedValue(item, 'description') || getNestedValue(item, 'excerpt') || getPrimarySubtitle(item) }}</p>
+                  <!-- compact status badge placed inline but visually subtle -->
+                  <div class="ml-2">
+                    <app-status-badge [status]="getNestedValue(item, 'status')" size="sm"></app-status-badge>
                   </div>
                 </div>
 
-                <!-- Single-line metadata: Date · Type -->
-                <div class="text-xs text-gray-500 mb-3">
-                  {{ getNestedValue(item, 'createdAt') | date:'MMM d, y' }}
-                  <span class="mx-2">·</span>
-                  {{ getNestedValue(item, 'submissionType') | prettyLabel }}
+                <!-- Title — smaller and normal weight for mobile -->
+                <div>
+                  <h2 class="text-lg text-gray-700 mt-1 mb-1 truncate">{{ getPrimaryTitle(item) }}</h2>
                 </div>
 
-                <!-- Primary action full-width at bottom (tertiary look) -->
-                <div class="pt-1">
-                  <ng-container *ngIf="getMainAction(item) as primaryAction">
-                    <app-button
-                      (click)="primaryAction.handler(item); $event.stopPropagation()"
-                      [variant]="'primary'"
-                      size="md"
-                      class="w-full justify-center">
-                      {{ primaryAction.label }}
-                    </app-button>
-                  </ng-container>
+                <!-- Excerpt / description -->
+                <div>
+                  <p class="text-sm text-gray-500 mb-2 line-clamp-3">{{ getNestedValue(item, 'description') || getNestedValue(item, 'excerpt') || getPrimarySubtitle(item) }}</p>
                 </div>
-
               </div>
 
-            }
+              <!-- Single-line metadata: Date · Type -->
+              <div class="text-xs text-gray-500 mb-3">
+                {{ getNestedValue(item, 'createdAt') | date:'MMM d, y' }}
+                <span class="mx-2">·</span>
+                {{ getNestedValue(item, 'submissionType') | prettyLabel }}
+              </div>
+
+              <!-- Primary action full-width at bottom (tertiary look) -->
+              <div class="pt-1">
+                <ng-container *ngIf="getMainAction(item) as primaryAction">
+                  <app-button
+                    (click)="primaryAction.handler(item); $event.stopPropagation()"
+                    [variant]="'primary'"
+                    size="md"
+                    class="w-full justify-center">
+                    {{ primaryAction.label }}
+                  </app-button>
+                </ng-container>
+              </div>
+
+            </div>
           }
         </div>
-
       }
 
       <!-- Empty State -->
