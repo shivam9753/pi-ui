@@ -14,11 +14,19 @@ interface TrendingAuthor {
   };
   totalViews: number;
   featuredCount: number;
-  trendingContent: {
+  // trendingContent may be absent for some authors — mark optional
+  trendingContent?: {
     _id: string;
     title: string;
     viewCount: number;
     featuredAt: string;
+  };
+  // backend returns `topSubmission` in aggregation; include as optional fallback
+  topSubmission?: {
+    _id: string;
+    title: string;
+    viewCount?: number;
+    periodViews?: number;
   };
 }
 
@@ -85,7 +93,7 @@ interface TrendingAuthor {
               <div class="text-center">
                 <p class="text-sm text-gray-600 font-normal leading-tight"
                    style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
-                  {{ authorData.trendingContent.title }}
+                  {{ authorData.trendingContent?.title || authorData.topSubmission?.title || '—' }}
                 </p>
               </div>
             </div>
@@ -132,7 +140,7 @@ interface TrendingAuthor {
                 <div class="text-center">
                   <p class="text-xs text-gray-600 font-normal leading-tight"
                      style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
-                    {{ authorData.trendingContent.title }}
+                    {{ authorData.trendingContent?.title || authorData.topSubmission?.title || '—' }}
                   </p>
                 </div>
               </div>
