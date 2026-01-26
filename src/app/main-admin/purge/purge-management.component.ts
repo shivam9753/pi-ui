@@ -18,6 +18,7 @@ export class PurgeManagementComponent implements OnInit {
   draftSubmissions: Submission[] = [];
   rejectedSubmissions: Submission[] = [];
   selectedRejected: string[] = [];
+  selectedDrafts: string[] = [];
   
   loadingDrafts = false;
   loadingRejected = false;
@@ -92,6 +93,47 @@ export class PurgeManagementComponent implements OnInit {
       this.selectedRejected = this.rejectedSubmissions.map(s => s._id);
     } else {
       this.selectedRejected = [];
+    }
+  }
+
+  // Draft selection helpers
+  toggleDraftSelection(submissionId: string, event: any) {
+    if (event.target.checked) {
+      this.selectedDrafts.push(submissionId);
+    } else {
+      this.selectedDrafts = this.selectedDrafts.filter(id => id !== submissionId);
+    }
+  }
+
+  toggleSelectAllDrafts(event: any) {
+    if (event.target.checked) {
+      this.selectedDrafts = this.draftSubmissions.map(s => s._id);
+    } else {
+      this.selectedDrafts = [];
+    }
+  }
+
+  async deleteSelectedDrafts() {
+    if (this.selectedDrafts.length === 0) return;
+
+    const count = this.selectedDrafts.length;
+    if (!confirm(`Are you sure you want to delete ${count} draft submissions? This action cannot be undone.`)) {
+      return;
+    }
+
+    try {
+      for (const submissionId of this.selectedDrafts) {
+        await this.backendService.deleteSubmission(submissionId).toPromise();
+      }
+
+      this.draftSubmissions = this.draftSubmissions.filter(
+        s => !this.selectedDrafts.includes(s._id)
+      );
+      this.selectedDrafts = [];
+      alert(`Successfully deleted ${count} draft submissions.`);
+    } catch (error) {
+      console.error('Error deleting draft submissions:', error);
+      alert('Failed to delete some draft submissions.');
     }
   }
 
