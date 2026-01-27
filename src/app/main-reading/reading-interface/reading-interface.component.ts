@@ -14,6 +14,7 @@ import { PostSSRData, SsrDataService } from '../../services/ssr-data.service';
 import { UserService } from '../../services/user.service';
 import { ContentRendererComponent } from '../content-renderer/content-renderer.component';
 import { ButtonComponent } from '../../ui-components/button/button.component';
+import { UserBannerComponent } from '../../shared/components/user-banner/user-banner.component';
 
 interface PublishedContent {
   _id: string;
@@ -56,7 +57,7 @@ interface Comment {
 }
 @Component({
   selector: 'app-reading-interface',
-  imports: [CommonModule, FormsModule, RouterLink, BadgeLabelComponent, RelatedContentComponent, ContentRendererComponent, ButtonComponent],
+  imports: [CommonModule, FormsModule, RouterLink, BadgeLabelComponent, RelatedContentComponent, ContentRendererComponent, ButtonComponent, UserBannerComponent],
   templateUrl: './reading-interface.component.html',
   styleUrl: './reading-interface.component.css'
 })
@@ -219,7 +220,7 @@ content = signal<PublishedContent | null>(null);
 
   private handleSSRData(ssrData: PostSSRData) {
     try {
-      const data = ssrData.post;
+      const data: any = ssrData && (ssrData.post || ssrData) ? (ssrData.post || ssrData) : {};
 
       // Ensure contents exist (fallback to excerpt/description/body)
       data.contents = this.ensureContents(data);

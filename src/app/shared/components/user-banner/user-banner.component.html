@@ -1,0 +1,13 @@
+<div class="user-banner w-full flex flex-col sm:flex-row items-center sm:items-center gap-6 justify-center px-4 py-6">
+  <!-- Avatar -->
+  <div class="flex-shrink-0">
+    <div *ngIf="loading" class="w-24 h-24 rounded-full bg-gray-200 animate-pulse"></div>
+    <img *ngIf="!loading && user?.profileImage" [src]="user.profileImage" alt="Author avatar" class="w-24 h-24 rounded-full object-cover border border-gray-200 shadow-sm" />
+  </div>
+
+  <!-- Name + Bio -->
+  <div class="text-center sm:text-left max-w-2xl">
+    <div class="text-lg md:text-xl font-semibold text-gray-800">{{ user?.name || user?.username || 'Anonymous' }}</div>
+    <div class="mt-2 text-sm md:text-base text-gray-600 leading-relaxed">{{ user?.bio || '' }}</div>
+  </div>
+</div>

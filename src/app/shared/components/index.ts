@@ -30,6 +30,7 @@ export type { SimpleFilterOptions } from './simple-submission-filter/simple-subm
 export { SearchableUserSelectorComponent } from './searchable-user-selector/searchable-user-selector.component';
 export type { User } from './searchable-user-selector/searchable-user-selector.component';
 export { TrendingAuthorsComponent } from './trending-authors/trending-authors.component';
+export * from './user-banner/user-banner.component';
 
 // Re-export existing components
 export { ModalComponent } from '../../modal/modal.component';

@@ -138,32 +138,10 @@
                 </ng-container>
 
                 <!-- Author Bio (centered, constrained width) -->
-                @if (content()!.author?.name && content()!.author?.name !== 'Anonymous') {
+                @if (content()!.author?.id) {
                   <div class="mx-auto max-w-2xl">
-                    <div class="flex flex-col items-center sm:flex-row sm:items-start gap-6 px-4">
-                      <!-- Author image (if available) -->
-                      @if (authorDetails()?.profileImage) {
-                        <div class="flex-shrink-0">
-                          <img [src]="authorDetails()?.profileImage" [alt]="'Author profile image'" class="w-24 h-24 rounded-full object-cover border border-gray-200 shadow-sm">
-                        </div>
-                      }
-
-                      <!-- Author name removed per request - only show bio -->
-                      <div class="text-center sm:text-left">
-                        @if (authorDetails()?.bio) {
-                          <p class="text-gray-700 text-base leading-relaxed font-serif">
-                            {{ authorDetails()!.bio }}
-                          </p>
-                        } @else {
-                          <p class="text-gray-500 text-base italic font-serif">
-                            @if (authorDetails()) {
-                              This author hasn't added a bio yet.
-                            } @else {
-                              Author profile details are not available.
-                            }
-                          </p>
-                        }
-                      </div>
+                    <div class="px-4">
+                      <app-user-banner [userId]="content()!.author?.id"></app-user-banner>
                     </div>
                   </div>
                 }
