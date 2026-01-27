@@ -10,7 +10,7 @@ import { UserService } from '../../../services/user.service';
   imports: [CommonModule]
 })
 export class UserBannerComponent implements OnInit, OnChanges {
-  @Input() userId: string | null = null;
+  @Input() userId: string | null | undefined = null;
 
   loading = false;
   error: string | null = null;
