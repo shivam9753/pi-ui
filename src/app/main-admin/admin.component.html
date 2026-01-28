@@ -19,34 +19,31 @@
         <app-admin-page-header [title]="'Admin Dashboard'" [subtitle]="'Quick access to primary admin functions'" [stats]="[]"></app-admin-page-header>
       </div>
 
-      <!-- Primary functions (large cards) -->
+      <!-- Primary functions (small cards, reordered) -->
       <div class="max-w-screen-xl mx-auto px-4 sm:px-6 md:px-10 pt-6">
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+          @if (canAccessTab('analytics')) {
+            <app-card size="sm" title="Analytics" description="View reports" primaryButtonLabel="Open" primaryBadgeText="Beta" (primaryClick)="navigateTo('analytics')" class="block"></app-card>
+          }
+
           @if (canAccessTab('users')) {
-            <app-card title="User Management" description="Create, edit and manage user roles" primaryButtonLabel="Open" (primaryClick)="navigateTo('users')" class="block"></app-card>
+            <app-card size="sm" title="User Management" description="Create, edit and manage user roles" primaryButtonLabel="Open" (primaryClick)="navigateTo('users')" class="block"></app-card>
           }
 
           @if (canAccessTab('content')) {
-            <app-card title="Content Management" description="Manage featured content and posts" primaryButtonLabel="Open" (primaryClick)="navigateTo('content')" class="block"></app-card>
-          }
-
-          @if (canAccessTab('media')) {
-            <app-card title="Media Management" description="Manage uploads and storage" primaryButtonLabel="Open" (primaryClick)="navigateTo('media')" class="block"></app-card>
+            <app-card size="sm" title="Content Management" description="Manage featured content and posts" primaryButtonLabel="Open" (primaryClick)="navigateTo('content')" class="block"></app-card>
           }
 
           @if (canAccessTab('purge')) {
-            <app-card title="Archive / Purge" description="Archive or permanently remove content" primaryButtonLabel="Open" (primaryClick)="navigateTo('purge')" class="block"></app-card>
-          }
-        </div>
-
-        <!-- Secondary functions (smaller cards) -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-          @if (canAccessTab('analytics')) {
-            <app-card title="Analytics" description="View reports" primaryButtonLabel="Open" primaryBadgeText="Beta" (primaryClick)="navigateTo('analytics')" class="block"></app-card>
+            <app-card size="sm" title="Archive / Purge" description="Archive or permanently remove content" primaryButtonLabel="Open" (primaryClick)="navigateTo('purge')" class="block"></app-card>
           }
 
           @if (canAccessTab('templates')) {
-            <app-card title="Response Templates" description="Manage templates" primaryButtonLabel="Open" (primaryClick)="navigateTo('templates')" class="block"></app-card>
+            <app-card size="sm" title="Response Templates" description="Manage templates" primaryButtonLabel="Open" (primaryClick)="navigateTo('templates')" class="block"></app-card>
+          }
+
+          @if (canAccessTab('media')) {
+            <app-card size="sm" title="Media Management" description="Manage uploads and storage" primaryButtonLabel="Open" (primaryClick)="navigateTo('media')" class="block"></app-card>
           }
         </div>
       </div>
