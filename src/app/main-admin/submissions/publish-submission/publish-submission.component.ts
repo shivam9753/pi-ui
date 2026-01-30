@@ -1052,6 +1052,16 @@ export class PublishSubmissionComponent implements OnInit {
         });
       }
 
+      // Build per-content titles map so backend can persist title edits on publish
+      const perContentTitles: Record<string, string> = {};
+      if (this.submission.contents && Array.isArray(this.submission.contents)) {
+        this.submission.contents.forEach((c: any) => {
+          if (c && c._id && typeof c.title === 'string') {
+            perContentTitles[c._id] = String(c.title).trim();
+          }
+        });
+      }
++
       // Build SEO payload using a submissionMeta object for submission-level SEO fields
       const payload: any = {
         // Submission fields to persist
@@ -1062,15 +1072,16 @@ export class PublishSubmissionComponent implements OnInit {
         // Submission-level SEO grouped under submissionMeta
         submissionMeta: {
           slug: this.seoConfig.slug,
-          metaTitle: this.seoConfig.metaTitle || this.submission.title,
-          metaDescription: this.seoConfig.metaDescription || this.submission.description,
-          primaryKeyword: (this.seoConfig.primaryKeyword || this.submission.title || '').trim(),
+          metaTitle: this.seoConfig.metaTitle || this.submission?.title,
+          metaDescription: this.seoConfig.metaDescription || this.submission?.description,
+          primaryKeyword: (this.seoConfig.primaryKeyword || this.submission?.title || '').trim(),
           ogImage: this.seoConfig.ogImage || this.submission.imageUrl || ''
         },
 
         // Per-content metadata and tags
         perContentMeta,
-        perContentTags
+        perContentTags,
+        perContentTitles
       };
 
       // Call publish endpoint which creates canonical Tag docs and updates Content.tags to Tag._id
@@ -1081,307 +1092,4 @@ export class PublishSubmissionComponent implements OnInit {
       // Navigate back to submissions list
       this.router.navigate(['/admin/submissions']);
     } catch (e: any) {
-      console.error('Publish failed:', e);
-      this.showError(e?.message || 'Publish failed.');
-      this.isPublishing = false;
-    }
-  }
-
-  // Toast notification methods
-  showToast(message: string, type: 'success' | 'error' | 'info'): void {
-    this.toastMessage = message;
-    this.toastType = type;
-    this.showToastFlag = true;
-
-    // Auto-hide toast after 5 seconds
-    setTimeout(() => {
-      this.hideToast();
-    }, 5000);
-  }
-
-  hideToast(): void {
-    this.showToastFlag = false;
-  }
-
-  // Show success message
-  showSuccess(message: string) {
-    this.showToast(message, 'success');
-  }
-
-  // Show error message
-  showError(message: string) {
-    this.showToast(message, 'error');
-  }
-
-  // Handle image deletion from editor
-  onImageDelete(imageUrl: string) {
-    if (!imageUrl) return;
-
-    // Extract S3 key from URL
-    // URL format: http://localhost:3000/uploads/temp/articles/filename.jpg
-    // or https://cloudfront.net/uploads/temp/articles/filename.jpg
-    const s3Key = this.extractS3KeyFromUrl(imageUrl);
-
-    if (!s3Key) {
-      console.error('❌ Could not extract S3 key from URL:', imageUrl);
-      return;
-    }
-
-    console.log('🗑️ Deleting image with S3 key:', s3Key);
-
-    // Call backend to delete image from S3
-    this.backendService.deleteImageByS3Key(s3Key).subscribe({
-      next: (response) => {
-        console.log('✅ Image deleted from S3:', response);
-        // Don't show toast as image is already removed from editor
-      },
-      error: (err: any) => {
-        console.error('❌ Failed to delete image from S3:', err);
-        // Silently fail - image is already removed from editor
-      }
-    });
-  }
-
-  // Extract S3 key from image URL
-  private extractS3KeyFromUrl(url: string): string | null {
-    try {
-      // Handle both local and CDN URLs
-      // Local: http://localhost:3000/uploads/temp/articles/filename.jpg
-      // CDN: https://cloudfront.net/uploads/temp/articles/filename.jpg
-
-      const urlObj = new URL(url);
-      const pathname = urlObj.pathname;
-
-      // Remove leading slash and extract the S3 key
-      // S3 key format: uploads/temp/articles/filename.jpg
-      const s3Key = pathname.startsWith('/') ? pathname.substring(1) : pathname;
-
-      return s3Key || null;
-    } catch (error) {
-      console.error('Error parsing image URL:', error);
-      return null;
-    }
-  }
-
-  // Load user profile to check for pending approval data
-  loadUserProfile(userId: string) {
-    console.log('🔧 Loading user profile for:', userId);
-    this.backendService.getUserById(userId).subscribe({
-      next: (response: any) => {
-        console.log('🔧 User profile loaded:', response.user);
-        this.userProfile = response.user;
-        
-        // Check if user has pending profile approval data
-        if (this.userProfile.tempBio || this.userProfile.tempProfileImage) {
-          this.showProfileApproval = true;
-          this.profileApprovalData = {
-            tempBio: this.userProfile.tempBio || '',
-            tempProfileImage: this.userProfile.tempProfileImage || '',
-            approvedBio: this.userProfile.bio || '',
-            approvedImage: !!this.userProfile.profileImage
-          };
-        }
-
-        // Check for profile image reuse opportunity (only for poems)
-        this.checkProfileImageReuse();
-      },
-      error: () => {
-        console.log('❌ Failed to load user profile');
-        // Error handled silently - optional operation
-      }
-    });
-  }
-
-  // Check if user profile image can be reused for poem submissions
-  checkProfileImageReuse() {
-    console.log('🔧 Checking profile image reuse conditions:');
-    console.log('🔧 Submission type:', this.submission?.submissionType);
-    console.log('🔧 Has existing image:', !!this.submission?.imageUrl);
-    console.log('🔧 User profile image:', this.userProfile?.profileImage);
-    console.log('🔧 Available profile image:', this.availableProfileImage);
-    console.log('🔧 Show reuse option:', this.showProfileImageReuse);
-
-    // Only show profile image reuse option for poems without an existing image
-    if (this.submission?.submissionType === 'poem' && 
-        !this.submission?.imageUrl && 
-        this.userProfile?.profileImage) {
-      
-      this.availableProfileImage = this.userProfile.profileImage;
-      this.showProfileImageReuse = true;
-      
-      console.log('✅ Profile image reuse enabled!');
-      this.showToast('Your profile image is available to reuse for this poem. Click "Use Profile Image" to avoid re-uploading.', 'info');
-    } else {
-      console.log('❌ Profile image reuse not enabled - conditions not met');
-    }
-  }
-
-  // Use profile image as submission cover image
-  useProfileImageAsCover() {
-    if (!this.availableProfileImage) {
-      this.showError('No profile image available to use.');
-      return;
-    }
-
-    // Set the profile image as the submission's cover image
-    this.submission.imageUrl = this.availableProfileImage;
-    
-    // Immediately save the change to persist it
-    const updateData = {
-      imageUrl: this.availableProfileImage
-    };
-
-    this.backendService.updateSubmission(this.submission._id, updateData).subscribe({
-      next: (response) => {
-        // Hide the reuse suggestion since we've used it
-        this.showProfileImageReuse = false;
-        this.showSuccess('Profile image has been set as cover image and saved successfully!');
-      },
-      error: (err) => {
-        // Revert the change if saving failed
-        this.submission.imageUrl = '';
-        this.showError('Failed to save profile image as cover. Please try again.');
-      }
-    });
-  }
-
-  // Dismiss profile image reuse suggestion
-  dismissProfileImageReuse() {
-    this.showProfileImageReuse = false;
-  }
-
-  // Approve user's bio and copy to main profile
-  approveBio() {
-    const updatedBio = this.profileApprovalData.tempBio;
-    // TODO: Replace with direct user profile update if needed
-    this.profileApprovalData.approvedBio = updatedBio;
-    this.profileApprovalData.tempBio = '';
-    this.showSuccess('Bio approved locally!');
-    
-    // Check if all approvals are done
-    this.checkProfileApprovalComplete();
-  }
-
-  // Approve user's profile image
-  approveProfileImage() {
-    // TODO: Replace with direct user profile update if needed
-    this.profileApprovalData.approvedImage = true;
-    this.profileApprovalData.tempProfileImage = '';
-    this.showSuccess('Profile image approved locally!');
-    
-    // Check if all approvals are done
-    this.checkProfileApprovalComplete();
-  }
-
-  // Edit the bio before approving
-  editBio() {
-    const newBio = prompt('Edit the bio:', this.profileApprovalData.tempBio);
-    if (newBio !== null) {
-      this.profileApprovalData.tempBio = newBio;
-    }
-  }
-
-  // Check if all profile approvals are complete
-  checkProfileApprovalComplete() {
-    if (!this.profileApprovalData.tempBio && !this.profileApprovalData.tempProfileImage) {
-      this.showProfileApproval = false;
-      this.showSuccess('All profile approvals completed! User profile is now live.');
-    }
-  }
-
-  // Get profile image URL
-  getProfileImageUrl(imagePath: string): string {
-    if (!imagePath) return '';
-    return imagePath.startsWith('http') ? imagePath : `${window.location.origin}${imagePath}`;
-  }
-
-  // Extract all images from submission content
-  getContentImages(): string[] {
-    const images: string[] = [];
-    const tempDiv = document.createElement('div');
-
-    // Gather images from content bodies
-    if (this.submission?.contents && this.submission.contents.length > 0) {
-      this.submission.contents.forEach((content: any) => {
-        if (content.body) {
-          tempDiv.innerHTML = content.body;
-          const imgElements = tempDiv.querySelectorAll('img');
-
-          imgElements.forEach((img: HTMLImageElement) => {
-            const src = img.getAttribute('src');
-            if (src && !images.includes(src)) {
-              images.push(src);
-            }
-          });
-        }
-      });
-    }
-
-    // Also include the current cover image and social (og) image so recently uploaded images are visible
-    try {
-      const cover = this.submission?.imageUrl;
-      const og = this.seoConfig?.ogImage;
-
-      if (cover && typeof cover === 'string' && !images.includes(cover)) {
-        images.unshift(cover); // show cover first
-      }
-      if (og && typeof og === 'string' && !images.includes(og)) {
-        images.unshift(og); // show social image near the front
-      }
-    } catch (e) {
-      // noop
-    }
-
-    // Include any images uploaded via this UI (public URLs returned by backend)
-    if (this.uploadedImages && this.uploadedImages.length > 0) {
-      this.uploadedImages.forEach(u => {
-        if (u && !images.includes(u)) images.unshift(u);
-      });
-    }
-
-    // Debug: log the extracted images (commented out to reduce console noise)
-    // if (images.length > 0) {
-    //   console.log('📸 Content images found (including cover/og):', images);
-    // }
-
-    return images;
-  }
-
-  // Delete an uploaded image (by removing S3 key via backend and removing it from gallery)
-  deleteUploadedImage(imageUrl: string) {
-    if (!imageUrl) return;
-    const s3Key = this.extractS3KeyFromUrl(imageUrl);
-    if (!s3Key) {
-      // If we cannot extract S3 key, just remove it from client-side gallery
-      this.uploadedImages = this.uploadedImages.filter(u => u !== imageUrl);
-      this.transientUploadedImages = this.transientUploadedImages.filter(t => t !== imageUrl);
-      this.showSuccess('Image removed locally');
-      return;
-    }
-
-    this.backendService.deleteImageByS3Key(s3Key).subscribe({
-      next: () => {
-        this.uploadedImages = this.uploadedImages.filter(u => u !== imageUrl);
-        this.transientUploadedImages = this.transientUploadedImages.filter(t => t !== imageUrl);
-        this.showSuccess('Image deleted');
-      },
-      error: (err) => {
-        console.warn('Failed to delete uploaded image:', err);
-        this.showError('Failed to delete image.');
-      }
-    });
-  }
-
-  // Helper to safely display tag name when tag may be an object
-  getTagDisplayName(tag: any): string {
-    if (!tag) return '';
-    if (typeof tag === 'string') return tag;
-    if (typeof tag === 'object') {
-      if (tag.name && String(tag.name).trim().length > 0) return String(tag.name).trim();
-      if (tag.tag && String(tag.tag).trim().length > 0) return String(tag.tag).trim();
-      if (tag.slug && String(tag.slug).trim().length > 0) return String(tag.slug).trim().replace(/-/g, ' ');
-      if (tag._id || tag.id) return String(tag._id || tag.id);
-    }
-    return '';
-  }
-}
+      console.error('Publish
