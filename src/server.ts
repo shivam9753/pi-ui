@@ -298,25 +298,41 @@ app.get('*', (req, res, next) => {
       const slug = postMatch[1];
       console.log(`[SSR] Post detected, generating meta tags for: ${slug}`);
 
-      // Generate meta tags asynchronously with safe fallback
-      generatePostMetaTags(slug)
-        .then(metaData => {
-          // Render the Angular app
-          return commonEngine.render({
-            bootstrap,
-            documentFilePath: indexHtml,
-            url: `${protocol}://${headers.host}${originalUrl}`,
-            publicPath: browserDistFolder,
-            providers: [
-              { provide: APP_BASE_HREF, useValue: baseUrl },
-            ],
-          }).then(html => {
-            // If we have metaData, use cheerio to manipulate head safely
+      // First render the Angular app and inspect the produced head for any meta already set by the component
+      commonEngine
+        .render({
+          bootstrap,
+          documentFilePath: indexHtml,
+          url: `${protocol}://${headers.host}${originalUrl}`,
+          publicPath: browserDistFolder,
+          providers: [
+            { provide: APP_BASE_HREF, useValue: baseUrl },
+          ],
+        })
+        .then(async (renderedHtml) => {
+          try {
+            const $ = cheerio.load(renderedHtml);
+
+            // Detect meta produced by Angular component during SSR
+            const existingTitle = ($('title').first().text() || '').trim();
+            const existingOgTitle = ($('meta[property="og:title"]').attr('content') || $('meta[name="title"]').attr('content') || '').trim();
+            const existingOgImage = ($('meta[property="og:image"]').attr('content') || $('meta[name="twitter:image"]').attr('content') || '').trim();
+
+            const hasMeaningfulTitle = existingTitle && !/untitled/i.test(existingTitle) && existingTitle.toLowerCase() !== 'pi';
+            const hasMeaningfulImage = existingOgImage && !existingOgImage.includes('/assets/loginimage.jpeg');
+
+            if (hasMeaningfulTitle || hasMeaningfulImage) {
+              console.log(`[SSR] Using meta emitted by Angular for ${slug}. Title: ${existingTitle}, Image: ${existingOgImage}`);
+              // Use rendered HTML as-is (it already contains useful meta) and skip remote API call
+              return renderedHtml;
+            }
+
+            // Fallback: attempt to fetch enriched meta (slow path)
+            const metaData = await generatePostMetaTags(slug);
+
             if (metaData) {
               try {
-                const $ = cheerio.load(html);
-
-                // Remove existing meta tags that we will replace
+                // Remove a broader set of possibly stale OG/Twitter/title tags before injecting fresh ones
                 $('meta[property="og:image"]').remove();
                 $('meta[property="og:image:secure_url"]').remove();
                 $('meta[property="og:image:width"]').remove();
@@ -326,28 +342,39 @@ app.get('*', (req, res, next) => {
                 $('meta[property="og:title"]').remove();
                 $('meta[property="og:description"]').remove();
                 $('meta[name="description"]').remove();
+                $('meta[name="title"]').remove();
+                $('meta[name="image"]').remove();
+                $('meta[itemprop="image"]').remove();
+                $('link[rel="image_src"]').remove();
                 $('meta[name="twitter:image"]').remove();
                 $('meta[name="twitter:title"]').remove();
                 $('meta[name="twitter:description"]').remove();
+                $('meta[name="twitter:creator"]').remove();
+                $('meta[name="canonical"]').remove();
+                $('link[rel="canonical"]').remove();
 
-                // Replace title
+                // Replace title (prefer rendered title if component set it, otherwise use metaData)
                 if ($('title').length) {
                   $('title').first().text(metaData.title);
                 } else {
                   $('head').prepend(`<title>${escapeHtml(metaData.title)}</title>`);
                 }
 
-                // Inject our meta tags into head (as HTML string; values already escaped)
-                $('head').append(metaData.html);
+                // Prepend our meta tags so they appear early in <head> (crawlers prefer first-occurring tags)
+                $('head').prepend(metaData.html);
 
-                html = $.html();
+                renderedHtml = $.html();
                 console.log(`[SSR] Injected meta tags for: ${slug}`);
               } catch (err) {
                 console.error('[SSR] Error injecting meta tags via cheerio:', err);
               }
             }
-            return html;
-          });
+
+            return renderedHtml;
+          } catch (err) {
+            console.error('[SSR] Error inspecting rendered HTML for meta tags:', err);
+            return renderedHtml; // fallback to whatever was rendered
+          }
         })
         .then((html) => {
           res.set({
@@ -357,7 +384,7 @@ app.get('*', (req, res, next) => {
           res.send(html);
         })
         .catch((err) => {
-          console.error('[SSR] Error with post meta tags:', err);
+          console.error('[SSR] Error rendering post route:', err);
           // On error, render without meta replacement as a safe fallback
           commonEngine
             .render({
