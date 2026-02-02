@@ -1,4 +1,4 @@
-import { Component, OnInit, AfterViewInit, signal, computed, inject, PLATFORM_ID, Inject, ElementRef, HostBinding } from '@angular/core';
+import { Component, AfterViewInit, signal, computed, inject, PLATFORM_ID, Inject, ElementRef, HostBinding } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
@@ -266,11 +266,10 @@ content = signal<PublishedContent | null>(null);
       this.content.set(transformedContent);
       this.loading.set(false);
       
-      // Only update meta tags on client-side (SSR already handled it)
-      if (isPlatformBrowser(this.platformId)) {
-        this.updatePageMeta(transformedContent);
-      }
-
+      // Always update meta tags so SSR output contains Open Graph and other meta tags
+      // updatePageMeta is safe on the server because it guards browser-only APIs internally
+      this.updatePageMeta(transformedContent);
+      
       // Load author details
       if (transformedContent.author?.id) {
         console.log('Loading author details from handleSSRData. Author:', transformedContent.author);
@@ -831,14 +830,18 @@ content = signal<PublishedContent | null>(null);
     // Construct canonical URL safely for SSR
     let canonicalUrl = '';
     if (isPlatformBrowser(this.platformId)) {
-      canonicalUrl = window.location.href;
+      try {
+        canonicalUrl = window.location.href;
+      } catch (e) {
+        canonicalUrl = '';
+      }
     } else {
       // During SSR, construct URL from route params
       const currentRoute = this.route.snapshot;
       const slug = currentRoute.params['slug'];
       canonicalUrl = `https://poemsindia.in/post/${slug}`;
     }
-    
+
     // Update Open Graph tags for social media
     this.metaService.updateTag({ property: 'og:title', content: content.title });
     this.metaService.updateTag({ property: 'og:description', content: metaDescription });
@@ -857,14 +860,31 @@ content = signal<PublishedContent | null>(null);
     this.metaService.updateTag({ property: 'article:section', content: content.submissionType });
     this.metaService.updateTag({ property: 'article:published_time', content: content.publishedAt.toISOString() });
     
-    // Canonical URL
-    this.metaService.updateTag({ rel: 'canonical', href: canonicalUrl } as any);
+    // Ensure a proper <link rel="canonical"> exists (metaService does not manage link tags)
+    try {
+      if (typeof document !== 'undefined') {
+        let link: HTMLLinkElement | null = document.querySelector('link[rel="canonical"]');
+        if (!link) {
+          link = document.createElement('link');
+          link.setAttribute('rel', 'canonical');
+          document.head.appendChild(link);
+        }
+        link.setAttribute('href', canonicalUrl);
+      } else {
+        // Fallback: attempt to set via metaService (nonstandard, but safe fallback)
+        this.metaService.updateTag({ name: 'canonical', content: canonicalUrl } as any);
+      }
+    } catch (e) {
+      // Non-fatal: continue while logging in development
+      if (isPlatformBrowser(this.platformId) || typeof console !== 'undefined') console.warn('Failed to set canonical link:', e);
+    }
+
     if (content.tags && content.tags.length > 0) {
       content.tags.forEach(tag => {
         this.metaService.addTag({ property: 'article:tag', content: tag });
       });
     }
-    
+
     // Set Open Graph image with fallback (prefer SEO ogImage)
     const imageUrl = this.getAbsoluteImageUrl(content.seo?.ogImage || content.imageUrl) || this.getDefaultSocialImage();
     this.metaService.updateTag({ property: 'og:image', content: imageUrl });
@@ -875,7 +895,7 @@ content = signal<PublishedContent | null>(null);
     this.metaService.updateTag({ property: 'og:image:type', content: 'image/jpeg' });
     
     // Debug logging for development
-    if (!isPlatformBrowser(this.platformId) || window.location.hostname === 'localhost') {
+    if (!isPlatformBrowser(this.platformId) || (typeof window !== 'undefined' && window.location && window.location.hostname === 'localhost')) {
       console.log('🔍 Meta Tags Debug Info:', {
         title: content.title,
         description: metaDescription,
@@ -933,40 +953,45 @@ content = signal<PublishedContent | null>(null);
       "height": 630
     };
 
-    // Remove existing structured data script if it exists
-    const existingScript = document.getElementById('structured-data');
-    if (existingScript) {
-      existingScript.remove();
-    }
+    // Guard direct DOM manipulation in environments without a document
+    try {
+      if (typeof document === 'undefined') return; // Nothing to do on some platforms
 
-    // Add new structured data script
-    const script = document.createElement('script');
-    script.id = 'structured-data';
-    script.type = 'application/ld+json';
-    script.text = JSON.stringify(structuredData);
-    document.head.appendChild(script);
+      // Remove existing structured data script if it exists
+      const existingScript = document.getElementById('structured-data');
+      if (existingScript) {
+        existingScript.remove();
+      }
+
+      // Add new structured data script
+      const script = document.createElement('script');
+      script.id = 'structured-data';
+      script.type = 'application/ld+json';
+      script.text = JSON.stringify(structuredData);
+      document.head.appendChild(script);
+    } catch (e) {
+      // Non-fatal
+      if (typeof console !== 'undefined') console.warn('Failed to inject structured data:', e);
+    }
   }
 
+  // Ensure helpers exist for converting and defaulting social images
   private getAbsoluteImageUrl(imageUrl?: string): string | null {
     if (!imageUrl) return null;
-    
-    // If already absolute URL, return as is
-    if (imageUrl.startsWith('http://') || imageUrl.startsWith('https://')) {
-      return imageUrl;
+    try {
+      if (imageUrl.startsWith('http://') || imageUrl.startsWith('https://')) {
+        return imageUrl;
+      }
+      if (imageUrl.startsWith('/')) {
+        return `https://poemsindia.in${imageUrl}`;
+      }
+      return `https://poemsindia.in/${imageUrl}`;
+    } catch (e) {
+      return null;
     }
-    
-    // If relative URL, make it absolute
-    if (imageUrl.startsWith('/')) {
-      return `https://poemsindia.in${imageUrl}`;
-    }
-    
-    // If no leading slash, assume it's relative to root
-    return `https://poemsindia.in/${imageUrl}`;
   }
 
   private getDefaultSocialImage(): string {
-    // Return a default social sharing image for posts without custom images
-    // Use the existing login image as a temporary fallback
     return 'https://poemsindia.in/assets/loginimage.jpeg';
   }
 
