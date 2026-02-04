@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
@@ -16,6 +16,8 @@ import { UserService } from '../../../services/user.service';
   styleUrl: './create-users.component.css'
 })
 export class CreateUsersComponent {
+  @Output() created = new EventEmitter<any>();
+
   newUser = {
     name: '',
     username: '',
@@ -53,6 +55,9 @@ export class CreateUsersComponent {
         await this.uploadProfileImage(createResponse.user.id);
       }
       
+      // Emit created event so parent can close modal and refresh
+      this.created.emit(createResponse?.user || null);
+
       this.showMessage('User created successfully', 'success');
       this.resetForm();
     } catch (err: any) {

@@ -1,6 +1,6 @@
 // admin-user-management.component.ts
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { UserService } from '../../../services/user.service';
@@ -19,6 +19,7 @@ import {
   ButtonComponent
 } from '../../../shared/components';
 import { SimpleSubmissionFilterComponent, SimpleFilterOptions } from '../../../shared/components/simple-submission-filter/simple-submission-filter.component';
+import { CreateUsersComponent } from '../create-users/create-users.component';
 
 
 interface Message {
@@ -34,12 +35,16 @@ interface Message {
     AdminPageHeaderComponent,
     DataTableComponent,
     SimpleSubmissionFilterComponent,
-    ButtonComponent
+    ButtonComponent,
+    CreateUsersComponent
   ],
   templateUrl: './user-management.component.html',
   styleUrls: ['./user-management.component.css']
 })
 export class UserManagementComponent implements OnInit, OnDestroy {
+  // New: local sub-tab state to control whether we're showing manage or create UI
+  userSubTab: 'manage' | 'create' = 'manage';
+
   // Table configuration
   columns: TableColumn[] = USER_TABLE_COLUMNS;
   actions: TableAction[] = [];
@@ -94,12 +99,24 @@ export class UserManagementComponent implements OnInit, OnDestroy {
 
   constructor(
     private userService: UserService,
-    private router: Router
+    private router: Router,
+    private route: ActivatedRoute
   ) {}
 
   ngOnInit() {
     this.setupTableActions();
     this.loadUsers();
+
+    // Listen for query params from Admin (or header) to open create-user flow directly
+    // Example: /admin?userCreate=1#users or navigation from header
+    this.route.queryParams.subscribe(params => {
+      if (params && params['userCreate']) {
+        // Switch to create sub-tab in this component
+        this.userSubTab = 'create';
+        // Remove the query param from the URL without reloading
+        this.router.navigate([], { queryParams: {}, fragment: 'users', replaceUrl: true });
+      }
+    });
   }
 
   setupTableActions() {
@@ -325,6 +342,30 @@ export class UserManagementComponent implements OnInit, OnDestroy {
     
     // Restore body scrolling when modal is closed
     document.body.style.overflow = '';
+  }
+
+  // New: navigate to admin page and request create-users UI via query param
+  openCreateUser() {
+    // Set local sub-tab so this component shows the create form
+    this.userSubTab = 'create';
+    // Reflect state in URL fragment so bookmarking/back behaves sensibly
+    this.router.navigate([], { fragment: 'users', replaceUrl: true });
+  }
+
+  // Close the create-user modal and restore state
+  closeCreateModal() {
+    this.userSubTab = 'manage';
+    // Restore body scrolling in case modal altered it
+    document.body.style.overflow = '';
+    // Keep URL in sync
+    this.router.navigate([], { fragment: 'users', replaceUrl: true });
+  }
+
+  // Handle created event emitted by CreateUsersComponent
+  onUserCreated(user: any) {
+    this.userSubTab = 'manage';
+    this.loadUsers();
+    this.showMessage('success', 'User created successfully');
   }
 
   async onFileSelected(event: any) {
