@@ -113,7 +113,8 @@ export class UserService {
    * Get user profile with stats
    */
   getUserProfile(userId: string): Observable<UserProfileResponse> {
-    return this.apiService.get<UserProfileResponse>(API_ENDPOINTS.USERS_NESTED.PROFILE_BY_ID(userId));
+    // Public user profiles are exposed under the public API namespace and do not require auth headers
+    return this.apiService.get<UserProfileResponse>(API_ENDPOINTS.PUBLIC_USERS_NESTED.BY_ID(userId), undefined, false);
   }
 
   /**
@@ -203,17 +204,14 @@ export class UserService {
   }
 
   /**
-   * Mark user as featured (admin only)
+   * Get featured users (admin) - keep using /api/users for admin actions
    */
   markUserFeatured(userId: string): Observable<{ message: string; user: User }> {
-    return this.apiService.patch<{ message: string; user: User }>(`/api/users/${userId}/feature`, {});
+    return this.apiService.patch<{ message: string; user: User }>(API_ENDPOINTS.USERS_NESTED.UPDATE(userId) + '/feature', {}, true);
   }
 
-  /**
-   * Remove featured status from user (admin only)
-   */
   unmarkUserFeatured(userId: string): Observable<{ message: string; user: User }> {
-    return this.apiService.patch<{ message: string; user: User }>(`/api/users/${userId}/unfeature`, {});
+    return this.apiService.patch<{ message: string; user: User }>(API_ENDPOINTS.USERS_NESTED.UPDATE(userId) + '/unfeature', {}, true);
   }
 
   /**
@@ -232,7 +230,8 @@ export class UserService {
     if (params.sortBy) queryParams.sortBy = params.sortBy;
     if (params.order) queryParams.order = params.order;
 
-    return this.apiService.get<{ users: UserListItem[]; pagination: any }>('/api/users/featured', queryParams);
+    // Use new public endpoint mounted under /api/public
+    return this.apiService.get<{ users: UserListItem[]; pagination: any }>(API_ENDPOINTS.PUBLIC.FEATURED, queryParams, false);
   }
 
   /**
@@ -251,7 +250,15 @@ export class UserService {
     if (params.sortBy) queryParams.sortBy = params.sortBy;
     if (params.order) queryParams.order = params.order;
 
-    return this.apiService.get<{ users: { _id: string; name: string; profileImage?: string }[]; pagination: any }>('/users/published', queryParams);
+    return this.apiService.get<{ users: { _id: string; name: string; profileImage?: string }[]; pagination: any }>(API_ENDPOINTS.PUBLIC.PUBLISHED, queryParams, false);
+  }
+
+  /**
+   * Get lightweight public user profile used by reader UI
+   */
+  getPublicUserProfile(userId: string): Observable<{ profile: { _id: string; name?: string; profileImage?: string; bio?: string } }> {
+    // Use the public briefprofile endpoint (no auth)
+    return this.apiService.get<{ profile: { _id: string; name?: string; profileImage?: string; bio?: string } }>(`/public/users/${userId}/briefprofile`, undefined, false);
   }
 
 }

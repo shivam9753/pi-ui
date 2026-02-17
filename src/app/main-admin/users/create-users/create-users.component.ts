@@ -20,10 +20,13 @@ export class CreateUsersComponent {
 
   newUser = {
     name: '',
-    username: '',
     email: '',
     bio: '',
-    role: 'user'
+    role: 'user',
+    socialLinks: {
+      instagram: '',
+      facebook: ''
+    }
   };
   
   selectedFile: File | null = null;
@@ -39,7 +42,7 @@ export class CreateUsersComponent {
   ) {}
 
   async createUser() {
-    if (!this.newUser.name || !this.newUser.username || !this.newUser.email) {
+    if (!this.newUser.name || !this.newUser.email) {
       this.showMessage('Please fill all required fields', 'error');
       return;
     }
@@ -48,7 +51,7 @@ export class CreateUsersComponent {
     
     try {
       // Create user using UserService
-      const createResponse = await this.userService.createUser(this.newUser).toPromise();
+      const createResponse = await this.userService.createUser(this.newUser as any).toPromise();
       
       // If there's a profile image, upload it
       if (this.selectedFile && createResponse?.user) {
@@ -90,7 +93,7 @@ export class CreateUsersComponent {
   }
 
   resetForm() {
-    this.newUser = { name: '', username: '', email: '', bio: '', role: 'user' };
+    this.newUser = { name: '', email: '', bio: '', role: 'user', socialLinks: { instagram: '', facebook: '' } };
     this.selectedFile = null;
     this.previewUrl = null;
   }

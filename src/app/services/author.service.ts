@@ -34,7 +34,7 @@ export class AuthorService {
     if (data.userId && typeof data.userId === 'object') {
       return {
         id: data.userId._id || data.userId.id || 'unknown',
-        name: data.userId.name || data.userId.username || 'Anonymous',
+        name: data.userId.name || data.userId.email || 'Anonymous',
         profileImage: data.userId.profileImage
       };
     }
@@ -43,7 +43,7 @@ export class AuthorService {
     if (data.author && typeof data.author === 'object') {
       return {
         id: data.author._id || data.author.id || 'unknown',
-        name: data.author.name || data.author.username || 'Anonymous',
+        name: data.author.name || data.author.email || 'Anonymous',
         profileImage: data.author.profileImage
       };
     }
@@ -69,19 +69,12 @@ export class AuthorService {
     if ((data._id || data.id) && (data.name || data.username)) {
       return {
         id: data._id || data.id,
-        name: data.name || data.username || 'Anonymous',
+        name: data.name || data.email || 'Anonymous',
         profileImage: data.profileImage
       };
     }
 
-    // Pattern 5: Just username field
-    if (data.username) {
-      return {
-        id: data.userId || data._id || 'unknown',
-        name: data.username,
-        profileImage: data.profileImage
-      };
-    }
+    // No username-only fallback; prefer email or anonymous
 
     // Fallback
     return { id: 'unknown', name: 'Anonymous' };
@@ -148,7 +141,7 @@ export class AuthorService {
 
     return {
       id: user._id || user.id || 'unknown',
-      name: user.name || user.username || 'Anonymous',
+      name: user.name || user.email || 'Anonymous',
       profileImage: user.profileImage
     };
   }
@@ -160,7 +153,7 @@ export class AuthorService {
   getDisplayName(author: Author | any): string {
     if (author && typeof author === 'object') {
       if (author.name) return author.name;
-      if (author.username) return author.username;
+      if (author.email) return author.email;
     }
     return 'Anonymous';
   }

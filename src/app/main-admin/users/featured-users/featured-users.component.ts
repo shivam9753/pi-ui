@@ -266,7 +266,7 @@ export class FeaturedUsersComponent implements OnInit {
 
   // Get user display name
   getUserDisplayName(user: any): string {
-    return user.name || user.username || 'Unknown User';
+    return user.name || user.email || 'Unknown User';
   }
 
   // Table management methods

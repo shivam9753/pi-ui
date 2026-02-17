@@ -8,6 +8,7 @@ import { ToastNotificationComponent } from '../../shared/components/toast-notifi
 import { ButtonComponent } from '../../ui-components/button/button.component';
 import { environment } from '../../../environments/environment';
 import { SimpleAlertComponent } from '../../ui-components/simple-alert/simple-alert.component';
+import { API_ENDPOINTS } from '../../shared/constants/api.constants';
 
 @Component({
   selector: 'app-profile-completion',
@@ -231,7 +232,7 @@ export class ProfileCompletionComponent implements OnInit {
     const headers: { [key: string]: string } = jwtToken ? { Authorization: `Bearer ${jwtToken}` } : {};
 
     try {
-      const response = await fetch(`${environment.apiBaseUrl}/images/upload`, {
+      const response = await fetch(`${environment.apiBaseUrl}${API_ENDPOINTS.UPLOADS.IMAGE}`, {
         method: 'POST',
         headers,
         body: formData
@@ -260,7 +261,7 @@ export class ProfileCompletionComponent implements OnInit {
       throw new Error('Authentication required');
     }
 
-    const response = await fetch(`${environment.apiBaseUrl}/users/${this.user.id}`, {
+    const response = await fetch(`${environment.apiBaseUrl}${API_ENDPOINTS.USERS_NESTED.BY_ID(this.user.id)}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
@@ -296,7 +297,7 @@ export class ProfileCompletionComponent implements OnInit {
 
     console.log('Updating profile for user ID:', userId);
 
-    const response = await fetch(`${environment.apiBaseUrl}/users/${userId}`, {
+    const response = await fetch(`${environment.apiBaseUrl}${API_ENDPOINTS.USERS_NESTED.BY_ID(userId)}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',

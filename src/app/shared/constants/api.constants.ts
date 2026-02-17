@@ -1,10 +1,4 @@
-/**
- * Centralized API constants for the PI application
- * This file contains all API endpoints, status values, and configuration constants
- * to ensure consistency across the application.
- */
 
-// API Endpoints
 export const API_ENDPOINTS = {
   // Base endpoints
   SUBMISSIONS: '/submissions',
@@ -22,7 +16,7 @@ export const API_ENDPOINTS = {
     VERIFY_TOKEN: '/auth/verify-token',
     RESET_PASSWORD: '/auth/reset-password',
     CHANGE_PASSWORD: '/auth/change-password',
-    GOOGLE_LOGIN: '/auth/google',
+    GOOGLE_LOGIN: '/auth/google-login',
     PROFILE: '/auth/profile'
   },
   
@@ -35,7 +29,11 @@ export const API_ENDPOINTS = {
     SUBMISSIONS: {
       REASSIGN: (submissionId: string) => `/admin/submissions/${submissionId}/reassign`,
       BULK_REASSIGN: '/admin/submissions/bulk-reassign'
-    }
+    },
+    // Media management endpoints
+    MEDIA_LIST: '/admin/media/list',
+    MEDIA_DELETE: '/admin/media',
+    MEDIA_BULK_DELETE: '/admin/media/bulk-delete'
   },
   
   // Nested endpoints
@@ -80,7 +78,7 @@ export const API_ENDPOINTS = {
   },
   
   USERS_NESTED: {
-    PROFILE: '/users/profile',
+    PROFILE: '/users/me',
     BY_ID: (id: string) => `/users/${id}`,
     PROFILE_BY_ID: (id: string) => `/users/${id}/profile`,
     UPDATE: (id: string) => `/users/${id}`,
@@ -121,7 +119,26 @@ export const API_ENDPOINTS = {
   UPLOADS: {
     IMAGE: '/images/upload',
     PROFILE_IMAGE: '/uploads/profile-image',
-    SUBMISSION_IMAGE: (id: string) => `/submissions/${id}/upload-image`
+    SUBMISSION_IMAGE: (id: string) => `/submissions/${id}/upload-image`,
+    CLEANUP_TEMP: '/uploads/cleanup-temp-images',
+    CONFIRM_IMAGES: '/uploads/confirm-images'
+  },
+
+  IMAGES: {
+    DELETE: '/images/delete'
+  },
+
+  // Add public endpoints for migrated backend public routes
+  PUBLIC: {
+    TRENDING: '/public/trending',
+    FEATURED: '/public/featured',
+    PUBLISHED: '/public/published'
+  },
+
+  // Public user-specific endpoints (moved under /api/public/users/:id)
+  PUBLIC_USERS_NESTED: {
+    BY_ID: (id: string) => `/public/users/${id}`,
+    PUBLISHED_WORKS: (id: string) => `/public/users/${id}/published-works`
   }
 } as const;
 

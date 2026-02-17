@@ -71,7 +71,7 @@ export class PublishSubmissionComponent implements OnInit {
   slugError = '';
   baseUrl = window.location.origin + '/post/';
   
-  // User profile approval properties
+  // User profile (approval workflow removed)
   userProfile: any = null;
   showProfileApproval = false;
   profileApprovalData = {
@@ -132,10 +132,22 @@ export class PublishSubmissionComponent implements OnInit {
         console.log('🔧 Extracted userId:', userId, 'from:', this.submission.userId);
         
         if (userId) {
-          this.loadUserProfile(userId);
-        }
+          // Prefer embedded user object on the submission (populated by backend) to avoid extra API call.
+          const embeddedUser = this.submission.user || (typeof this.submission.userId === 'object' ? this.submission.userId : null);
+          if (embeddedUser) {
+            this.userProfile = embeddedUser;
+
+            // NOTE: profile approval fields were removed from the user model; approval UI is no longer needed.
+
+            // Check for profile image reuse opportunity
+            this.checkProfileImageReuse();
+          } else {
+            // No embedded user present on submission — skipping external fetch to avoid extra network call.
+            // If you need full user details here, enable fetch by calling this.loadUserProfile(userId) instead.
+          }
+         }
         
-        this.loading = false;
+         this.loading = false;
       },
       error: (err) => {
         this.showError('Failed to load submission');
@@ -489,6 +501,7 @@ export class PublishSubmissionComponent implements OnInit {
                     this.submission.imageUrl = url;
                   } else {
                     console.warn('[Publish] Uploaded image URL is not reachable:', url);
+                    if (!this.uploadedImages.includes(url))
                     if (!this.uploadedImages.includes(url)) this.uploadedImages.unshift(url);
                     this.showToast('Image uploaded but public URL not reachable yet. Keeping local preview.', 'info');
                   }
@@ -1163,33 +1176,438 @@ export class PublishSubmissionComponent implements OnInit {
     }
   }
 
-  // Load user profile to check for pending approval data
-  loadUserProfile(userId: string) {
-    console.log('🔧 Loading user profile for:', userId);
-    this.backendService.getUserById(userId).subscribe({
-      next: (response: any) => {
-        console.log('🔧 User profile loaded:', response.user);
-        this.userProfile = response.user;
-        
-        // Check if user has pending profile approval data
-        if (this.userProfile.tempBio || this.userProfile.tempProfileImage) {
-          this.showProfileApproval = true;
-          this.profileApprovalData = {
-            tempBio: this.userProfile.tempBio || '',
-            tempProfileImage: this.userProfile.tempProfileImage || '',
-            approvedBio: this.userProfile.bio || '',
-            approvedImage: !!this.userProfile.profileImage
-          };
-        }
+  // Check if user profile image can be reused for poem submissions
+  checkProfileImageReuse() {
+    console.log('🔧 Checking profile image reuse conditions:');
+    console.log('🔧 Submission type:', this.submission?.submissionType);
+    console.log('🔧 Has existing image:', !!this.submission?.imageUrl);
+    console.log('🔧 User profile image:', this.userProfile?.profileImage);
+    console.log('🔧 Available profile image:', this.availableProfileImage);
+    console.log('🔧 Show reuse option:', this.showProfileImageReuse);
 
-        // Check for profile image reuse opportunity (only for poems)
-        this.checkProfileImageReuse();
+    // Only show profile image reuse option for poems without an existing image
+    if (this.submission?.submissionType === 'poem' && 
+        !this.submission?.imageUrl && 
+        this.userProfile?.profileImage) {
+      
+      this.availableProfileImage = this.userProfile.profileImage;
+      this.showProfileImageReuse = true;
+      
+      console.log('✅ Profile image reuse enabled!');
+      this.showToast('Your profile image is available to reuse for this poem. Click "Use Profile Image" to avoid re-uploading.', 'info');
+    } else {
+      console.log('❌ Profile image reuse not enabled - conditions not met');
+    }
+  }
+
+  // Use profile image as submission cover image
+  useProfileImageAsCover() {
+    if (!this.availableProfileImage) {
+      this.showError('No profile image available to use.');
+      return;
+    }
+
+    // Set the profile image as the submission's cover image
+    this.submission.imageUrl = this.availableProfileImage;
+    
+    // Immediately save the change to persist it
+    const updateData = {
+      imageUrl: this.availableProfileImage
+    };
+
+    this.backendService.updateSubmission(this.submission._id, updateData).subscribe({
+      next: (response) => {
+        // Hide the reuse suggestion since we've used it
+        this.showProfileImageReuse = false;
+        this.showSuccess('Profile image has been set as cover image and saved successfully!');
       },
-      error: () => {
-        console.log('❌ Failed to load user profile');
-        // Error handled silently - optional operation
+      error: (err) => {
+        // Revert the change if saving failed
+        this.submission.imageUrl = '';
+        this.showError('Failed to save profile image as cover. Please try again.');
       }
     });
+  }
+
+  // Dismiss profile image reuse suggestion
+  dismissProfileImageReuse() {
+    this.showProfileImageReuse = false;
+  }
+
+  // Upload any selected local images before publishing. Updates submission and SEO fields with returned public URLs.
+  private async uploadPendingImagesIfAny(): Promise<void> {
+    if (!this.submission) return;
+
+    try {
+      // Upload cover image if selected
+      if (this.selectedCoverImageFile) {
+        console.log('[Publish] uploadPendingImagesIfAny - uploading cover image', this.selectedCoverImageFile);
+        const resp: any = await lastValueFrom(this.backendService.uploadSubmissionImage(this.submission._id, this.selectedCoverImageFile));
+        console.log('[Publish] uploadPendingImagesIfAny - cover upload response:', resp);
+        const imageUrl = resp?.imageUrl || resp?.submission?.imageUrl || resp?.image?.url || '';
+        console.log('[Publish] uploadPendingImagesIfAny - cover returned imageUrl:', imageUrl);
+        this.submission.imageUrl = this.normalizeImageUrl(imageUrl);
+        this.selectedCoverImageFile = null;
+      }
+
+      // Upload social image if selected
+      if (this.selectedSocialImageFile) {
+        console.log('[Publish] uploadPendingImagesIfAny - uploading social image', this.selectedSocialImageFile);
+        const resp: any = await lastValueFrom(this.backendService.uploadSubmissionImage(this.submission._id, this.selectedSocialImageFile));
+        console.log('[Publish] uploadPendingImagesIfAny - social upload response:', resp);
+        const socUrl = resp?.imageUrl || resp?.submission?.seo?.ogImage || resp?.submission?.imageUrl || resp?.image?.url || '';
+        console.log('[Publish] uploadPendingImagesIfAny - social returned imageUrl:', socUrl);
+        this.seoConfig.ogImage = this.normalizeImageUrl(socUrl);
+        this.selectedSocialImageFile = null;
+      }
+    } catch (e: any) {
+      console.error('[Publish] uploadPendingImagesIfAny error:', e);
+      // Re-throw to let caller handle UI state
+      throw e;
+    }
+  }
+
+  // Auto-fill helpers
+  autoFillDescription() {
+    if (!this.submission) return;
+    const first = this.submission.contents && this.submission.contents[0];
+    const text = first ? this.extractPlainText(first.body) : (this.submission.description || '');
+    this.submission.description = text.substring(0, 300).trim();
+    this.showSuccess('Description auto-filled');
+  }
+
+  autoFillMetaDescription() {
+    if (!this.submission) return;
+    const first = this.submission.contents && this.submission.contents[0];
+    const text = first ? this.extractPlainText(first.body) : (this.submission.description || '');
+    this.seoConfig.metaDescription = text.substring(0, 160).trim();
+    this.showSuccess('Meta description auto-filled');
+  }
+
+  autoFillExcerpt() {
+    if (!this.submission) return;
+    this.submission.excerpt = this.getAutoGeneratedExcerpt();
+    this.showSuccess('Excerpt reset to auto');
+  }
+
+  getAutoGeneratedExcerpt(): string {
+    if (!this.submission) return '';
+    if (this.submission.excerpt && this.submission.excerpt.length > 0) return this.submission.excerpt;
+    if (this.submission.description && this.submission.description.length > 0) return this.submission.description.substring(0, 150).trim();
+    const first = this.submission.contents && this.submission.contents[0];
+    const text = first ? this.extractPlainText(first.body) : '';
+    return (text || '').substring(0, 150).trim();
+  }
+
+  // Toggle custom excerpt editing (template invokes this method)
+  isCustomExcerptEnabled = false;
+  enableCustomExcerpt() {
+    this.isCustomExcerptEnabled = true;
+    this.showToast('You can now customize the excerpt.', 'info');
+  }
+
+  // Image action helpers used by template buttons
+  useCoverImageAsSocial() {
+    if (!this.submission || !this.submission.imageUrl) {
+      this.showError('No cover image to use.');
+      return;
+    }
+    if (this.submission.imageUrl.startsWith('blob:') || this.submission.imageUrl.startsWith('data:')) {
+      this.showError('Please upload the cover image before using it as social image.');
+      return;
+    }
+    this.seoConfig.ogImage = this.normalizeImageUrl(this.submission.imageUrl);
+    this.showSuccess('Cover image set as social image.');
+  }
+
+  removeCoverImage() {
+    if (!this.submission) return;
+    const prev = this.submission.imageUrl;
+    this.submission.imageUrl = '';
+    // Attempt to delete on backend silently
+    this.backendService.deleteSubmissionImage(this.submission._id).subscribe({
+      next: () => {
+        this.showSuccess('Cover image removed');
+      },
+      error: (err) => {
+        console.warn('Failed to delete cover image on backend:', err);
+      }
+    });
+    // revoke transient preview if it matches
+    if (this.lastSelectedCoverPreviewUrl) {
+      try { URL.revokeObjectURL(this.lastSelectedCoverPreviewUrl); } catch(e){}
+      this.lastSelectedCoverPreviewUrl = null;
+    }
+  }
+
+  removeSocialImage() {
+    this.seoConfig.ogImage = '';
+    this.showSuccess('Social image removed');
+    if (this.lastSelectedSocialPreviewUrl) {
+      try { URL.revokeObjectURL(this.lastSelectedSocialPreviewUrl); } catch(e){}
+      this.lastSelectedSocialPreviewUrl = null;
+    }
+  }
+
+  useSocialImageAsCover() {
+    if (!this.seoConfig.ogImage) {
+      this.showError('No social image available to set as cover.');
+      return;
+    }
+    if (this.seoConfig.ogImage.startsWith('blob:') || this.seoConfig.ogImage.startsWith('data:')) {
+      this.showError('Please upload the social image before using it as cover.');
+      return;
+    }
+    this.submission.imageUrl = this.normalizeImageUrl(this.seoConfig.ogImage);
+    this.showSuccess('Social image set as cover.');
+  }
+
+  // Template image error handler (fallback image)
+  onImageError(event: Event): void {
+    const img = event.target as HTMLImageElement;
+    img.src = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIj48cmVjdCBmaWxsPSIjZGRkIiB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkeT0iLjNlbSIgZmlsbD0iIzk5OSI+Image Error</dGV4dD48L3N2Zz4=';
+  }
+
+  // Use an image from content/gallery as the cover and persist immediately
+  useContentImageAsCover(imageUrl: string) {
+    if (!imageUrl) {
+      this.showError('No image URL provided.');
+      return;
+    }
+    if (imageUrl.startsWith('blob:') || imageUrl.startsWith('data:')) {
+      this.showError('This is a local preview URL. Please upload this image first before using it as the cover.');
+      return;
+    }
+
+    const normalized = this.normalizeImageUrl(imageUrl);
+    this.submission.imageUrl = normalized;
+
+    // Persist the change immediately
+    const updateData = { imageUrl: normalized };
+    this.backendService.updateSubmission(this.submission._id, updateData).subscribe({
+      next: () => {
+        this.showSuccess('Cover image set and saved.');
+      },
+      error: (err) => {
+        console.error('Failed to save cover image:', err);
+        this.showError('Failed to save cover image.');
+      }
+    });
+  }
+
+  // Use an image from content/gallery as the social (og) image and persist immediately
+  useContentImageAsSocial(imageUrl: string) {
+    if (!imageUrl) {
+      this.showError('No image URL provided.');
+      return;
+    }
+    if (imageUrl.startsWith('blob:') || imageUrl.startsWith('data:')) {
+      this.showError('This is a local preview URL. Please upload this image first before using it as the social image.');
+      return;
+    }
+
+    const normalized = this.normalizeImageUrl(imageUrl);
+    this.seoConfig.ogImage = normalized;
+
+    // Persist SEO change
+    this.backendService.updateSEOConfiguration(this.submission._id, { ogImage: normalized }).subscribe({
+      next: () => {
+        this.showSuccess('Social image set and saved.');
+      },
+      error: (err) => {
+        console.error('Failed to save social image:', err);
+        this.showError('Failed to save social image.');
+      }
+    });
+  }
+
+  goBack() {
+    // Navigate back to admin submissions list
+    try {
+      this.router.navigate(['/admin/submissions']);
+    } catch (e) {
+      window.history.back();
+    }
+  }
+
+  // Validate minimal form requirements for publishing
+  isFormValid(): boolean {
+    if (!this.submission) return false;
+    // require title and slug at minimum
+    if (!this.submission.title || !this.seoConfig.slug) return false;
+    return true;
+  }
+
+  getPublishButtonText(): string {
+    return this.submission && this.submission.status === 'published' ? 'Republish' : 'Publish';
+  }
+
+  getPublishingText(): string {
+    return 'Publishing...';
+  }
+
+  // Save changes locally (patch submission)
+  saveChanges() {
+    if (!this.submission) return;
+    const updatePayload: any = {
+      title: this.submission.title,
+      description: this.submission.description,
+      excerpt: this.submission.excerpt
+    };
+    this.backendService.updateSubmission(this.submission._id, updatePayload).subscribe({
+      next: () => this.showSuccess('Changes saved'),
+      error: (err) => this.showError('Failed to save changes')
+    });
+  }
+
+  // Publish flow: upload pending images then call backend publish endpoint
+  async saveAndPublish() {
+    if (!this.submission) return;
+    if (!this.isFormValid()) {
+      this.showError('Please fill required fields before publishing.');
+      return;
+    }
+
+    this.isPublishing = true;
+    try {
+      // Ensure any selected images are uploaded first so URLs are available
+      await this.uploadPendingImagesIfAny();
+
+      // Build perContentTags map from current UI inputs (do not persist yet)
+      const perContentTags: Record<string, string[]> = {};
+      if (this.submission.contents && Array.isArray(this.submission.contents)) {
+        this.submission.contents.forEach((c: any) => {
+          if (c.tags && Array.isArray(c.tags)) {
+            perContentTags[c._id] = c.tags.map((t: string) => (typeof t === 'string' ? t.trim() : '')).filter(Boolean);
+          }
+        });
+      }
+
+      // Build per-content meta (title + description + primaryKeyword) to persist into content.seo
+      const perContentMeta: Record<string, { metaTitle?: string; metaDescription?: string; primaryKeyword?: string }> = {};
+      if (this.submission.contents && Array.isArray(this.submission.contents)) {
+        this.submission.contents.forEach((c: any) => {
+          const metaTitle = (c.metaTitle && String(c.metaTitle).trim()) ? String(c.metaTitle).trim() : (c.title || '');
+          const metaDescription = (c.metaDescription && String(c.metaDescription).trim()) ? String(c.metaDescription).trim() : (this.extractPlainText(c.body) || '').substring(0, 160).trim();
+
+          // Prefer explicit content-level primary keyword (in perContentMeta or seo), then seoKeyword, then generated value
+          const primaryKeyword = (c.seo && c.seo.primaryKeyword) ? String(c.seo.primaryKeyword).trim()
+            : (c.seoKeyword && String(c.seoKeyword).trim()) ? String(c.seoKeyword).trim()
+            : (c.title || '');
+
+          perContentMeta[c._id] = { metaTitle, metaDescription, primaryKeyword };
+        });
+      }
+
+      // Build SEO payload using a submissionMeta object for submission-level SEO fields
+      const payload: any = {
+        // Submission fields to persist
+        title: this.submission.title,
+        description: this.submission.description,
+        excerpt: this.submission.excerpt,
+
+        // Submission-level SEO grouped under submissionMeta
+        submissionMeta: {
+          slug: this.seoConfig.slug,
+          metaTitle: this.seoConfig.metaTitle || this.submission.title,
+          metaDescription: this.seoConfig.metaDescription || this.submission.description,
+          primaryKeyword: (this.seoConfig.primaryKeyword || this.submission.title || '').trim(),
+          ogImage: this.seoConfig.ogImage || this.submission.imageUrl || ''
+        },
+
+        // Per-content metadata and tags
+        perContentMeta,
+        perContentTags
+      };
+
+      // Call publish endpoint which creates canonical Tag docs and updates Content.tags to Tag._id
+      await lastValueFrom(this.backendService.publishSubmissionWithSEO(this.submission._id, payload));
+
+      this.showSuccess('Submission published successfully');
+      this.isPublishing = false;
+      // Navigate back to submissions list
+      this.router.navigate(['/admin/submissions']);
+    } catch (e: any) {
+      console.error('Publish failed:', e);
+      this.showError(e?.message || 'Publish failed.');
+      this.isPublishing = false;
+    }
+  }
+
+  // Toast notification methods
+  showToast(message: string, type: 'success' | 'error' | 'info'): void {
+    this.toastMessage = message;
+    this.toastType = type;
+    this.showToastFlag = true;
+
+    // Auto-hide toast after 5 seconds
+    setTimeout(() => {
+      this.hideToast();
+    }, 5000);
+  }
+
+  hideToast(): void {
+    this.showToastFlag = false;
+  }
+
+  // Show success message
+  showSuccess(message: string) {
+    this.showToast(message, 'success');
+  }
+
+  // Show error message
+  showError(message: string) {
+    this.showToast(message, 'error');
+  }
+
+  // Handle image deletion from editor
+  onImageDelete(imageUrl: string) {
+    if (!imageUrl) return;
+
+    // Extract S3 key from URL
+    // URL format: http://localhost:3000/uploads/temp/articles/filename.jpg
+    // or https://cloudfront.net/uploads/temp/articles/filename.jpg
+    const s3Key = this.extractS3KeyFromUrl(imageUrl);
+
+    if (!s3Key) {
+      console.error('❌ Could not extract S3 key from URL:', imageUrl);
+      return;
+    }
+
+    console.log('🗑️ Deleting image with S3 key:', s3Key);
+
+    // Call backend to delete image from S3
+    this.backendService.deleteImageByS3Key(s3Key).subscribe({
+      next: (response) => {
+        console.log('✅ Image deleted from S3:', response);
+        // Don't show toast as image is already removed from editor
+      },
+      error: (err: any) => {
+        console.error('❌ Failed to delete image from S3:', err);
+        // Silently fail - image is already removed from editor
+      }
+    });
+  }
+
+  // Extract S3 key from image URL
+  private extractS3KeyFromUrl(url: string): string | null {
+    try {
+      // Handle both local and CDN URLs
+      // Local: http://localhost:3000/uploads/temp/articles/filename.jpg
+      // CDN: https://cloudfront.net/uploads/temp/articles/filename.jpg
+
+      const urlObj = new URL(url);
+      const pathname = urlObj.pathname;
+
+      // Remove leading slash and extract the S3 key
+      // S3 key format: uploads/temp/articles/filename.jpg
+      const s3Key = pathname.startsWith('/') ? pathname.substring(1) : pathname;
+
+      return s3Key || null;
+    } catch (error) {
+      console.error('Error parsing image URL:', error);
+      return null;
+    }
   }
 
   // Check if user profile image can be reused for poem submissions
@@ -1379,9 +1797,4 @@ export class PublishSubmissionComponent implements OnInit {
     if (typeof tag === 'object') {
       if (tag.name && String(tag.name).trim().length > 0) return String(tag.name).trim();
       if (tag.tag && String(tag.tag).trim().length > 0) return String(tag.tag).trim();
-      if (tag.slug && String(tag.slug).trim().length > 0) return String(tag.slug).trim().replace(/-/g, ' ');
-      if (tag._id || tag.id) return String(tag._id || tag.id);
-    }
-    return '';
-  }
-}
+      if (tag.slug && String(tag.slug).trim().length > 0) return String(tag.slug).trim().replace(/-/g

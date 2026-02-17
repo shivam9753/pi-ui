@@ -98,20 +98,21 @@ export class PublicAuthorProfileComponent implements OnInit, OnDestroy {
   }
 
   loadAuthorProfile() {
-    // First try the public endpoint so unauthenticated visitors can view author profiles
-    this.backendService.getUserById(this.authorId).subscribe({
+    // First try the lightweight public endpoint so unauthenticated visitors can view author profiles quickly
+    this.backendService.getBriefUserProfile(this.authorId).subscribe({
       next: (response: any) => {
+        const p = response.profile || {};
         this.authorProfile.set({
-          _id: response.user._id,
-          name: response.user.name || response.user.username,
-          bio: response.user.bio,
-          profileImage: response.user.profileImage,
-          socialLinks: response.user.socialLinks || undefined,
-          joinedDate: response.user.createdAt,
-          totalFeaturedWorks: 0 // Will be updated when works load
+          _id: p._id,
+          name: p.name || undefined,
+          bio: p.bio || undefined,
+          profileImage: p.profileImage || undefined,
+          socialLinks: undefined,
+          joinedDate: undefined,
+          totalFeaturedWorks: 0
         });
 
-        // If the visitor is authenticated, fetch the richer profile (stats, etc.)
+        // If visitor is authenticated, fetch enriched profile data (stats, socialLinks)
         const current = this.authService.getCurrentUser();
         if (current) {
           this.backendService.getUserProfile(this.authorId).subscribe({
@@ -127,29 +128,46 @@ export class PublicAuthorProfileComponent implements OnInit, OnDestroy {
               });
             },
             error: (err: any) => {
-              // Ignore enrichment errors for public view
+              // Ignore enrichment errors
               console.debug('Enrichment getUserProfile failed:', err);
             }
           });
         }
       },
-      error: (error: any) => {
-        // If public lookup fails, try authenticated endpoint as a last resort
-        this.backendService.getUserProfile(this.authorId).subscribe({
+      error: (err: any) => {
+        // If lightweight public fetch fails, fall back to older public endpoint or authenticated call
+        console.debug('Lightweight public fetch failed, falling back to getUserById:', err);
+        this.backendService.getUserById(this.authorId).subscribe({
           next: (response: any) => {
             this.authorProfile.set({
-              _id: response.profile._id,
-              name: response.profile.name || response.profile.username,
-              bio: response.profile.bio,
-              profileImage: response.profile.profileImage,
-              socialLinks: response.profile.socialLinks,
-              joinedDate: response.profile.createdAt,
+              _id: response.user._id,
+              name: response.user.name || response.user.username,
+              bio: response.user.bio,
+              profileImage: response.user.profileImage,
+              socialLinks: response.user.socialLinks || undefined,
+              joinedDate: response.user.createdAt,
               totalFeaturedWorks: 0
             });
+
+            const current = this.authService.getCurrentUser();
+            if (current) {
+              this.backendService.getUserProfile(this.authorId).subscribe({
+                next: (d: any) => {
+                  const existing = this.authorProfile() || {} as any;
+                  this.authorProfile.set({
+                    ...existing,
+                    bio: d.profile.bio || existing.bio,
+                    profileImage: d.profile.profileImage || existing.profileImage,
+                    socialLinks: d.profile.socialLinks || existing.socialLinks,
+                    joinedDate: d.profile.createdAt || existing.joinedDate
+                  });
+                },
+                error: (e: any) => console.debug('Enrichment after fallback failed:', e)
+              });
+            }
           },
-          error: () => {
-            this.error.set('Author not found');
-            this.isLoading.set(false);
+          error: (e: any) => {
+            console.error('Failed to load author profile:', e);
           }
         });
       }
