@@ -736,8 +736,18 @@ export class BackendService {
 
   // Get user profile with enhanced stats
   getUserProfile(id: string): Observable<UserProfile> {
-    const headers = this.getAuthHeaders();
-    return this.http.get<any>(`${this.API_URL}${API_ENDPOINTS.USERS_NESTED.PROFILE_BY_ID(id)}`, { headers });
+    // Public user profile endpoint is under /api/public and does not require auth headers
+    return this.http.get<any>(`${this.API_URL}${API_ENDPOINTS.PUBLIC_USERS_NESTED.BY_ID(id)}`).pipe(
+      catchError(this.handleError)
+    );
+  }
+
+  // Get brief public user profile (lightweight) — used by reader UI (no auth required)
+  getBriefUserProfile(id: string): Observable<{ profile: { _id: string; name?: string; profileImage?: string; bio?: string } }> {
+    // This endpoint returns a minimal profile: { profile: { _id, name, profileImage, bio } }
+    return this.http.get<any>(`${this.API_URL}/public/users/${id}/briefprofile`).pipe(
+      catchError(this.handleError)
+    );
   }
 
 
@@ -1409,22 +1419,22 @@ trackContentView(data: {
 
 // Get trending authors based on featured content views
 getTrendingAuthors(options: { limit?: number } = {}): Observable<any> {
-  let params = new HttpParams();
+    let params = new HttpParams();
 
-  // Add filter options
-  Object.keys(options).forEach(key => {
-    const value = (options as any)[key];
-    if (value !== undefined && value !== null && value !== '') {
-      params = params.set(key, value.toString());
-    }
-  });
+    // Add filter options
+    Object.keys(options).forEach(key => {
+      const value = (options as any)[key];
+      if (value !== undefined && value !== null && value !== '') {
+        params = params.set(key, value.toString());
+      }
+    });
 
-  const headers = this.getPublicHeaders(); // Use public headers since this is for public display
-  const url = `${this.API_URL}/users/trending`;
-  return this.http.get<any>(url, { headers, params }).pipe(
-    this.handleApiCall(url, 'GET')
-  );
-}
+    const headers = this.getPublicHeaders(); // Use public headers since this is for public display
+    const url = `${this.API_URL}${API_ENDPOINTS.PUBLIC.TRENDING}`;
+    return this.http.get<any>(url, { headers, params }).pipe(
+      this.handleApiCall(url, 'GET')
+    );
+  }
 
 // Fetch random published submissions to boost discoverability
 getRandomSubmissions(options: { type?: string; limit?: number } = {}): Observable<any> {

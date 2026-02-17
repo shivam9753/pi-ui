@@ -65,7 +65,7 @@ export class SubmissionMobileCardComponent {
   @Input() actions: TableAction[] = [];
 
   getAuthorName(submission: any): string {
-    return submission.userId?.name || submission.userId?.username || 'Unknown';
+    return submission.userId?.name || submission.userId?.email || submission.userId?.username || 'Unknown';
   }
 
   getStatusClass(status: string): string {

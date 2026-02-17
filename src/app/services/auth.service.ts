@@ -4,6 +4,7 @@ import { BehaviorSubject, Observable } from 'rxjs';
 import { Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../environments/environment';
+import { API_ENDPOINTS } from '../shared/constants/api.constants';
 
 declare var google: any;
 
@@ -234,7 +235,7 @@ export class AuthService {
   }
 
   private authenticateGoogleUser(user: GoogleUser): Observable<any> {
-    return this.http.post(`${environment.apiBaseUrl}/auth/google-login`, {
+    return this.http.post(`${environment.apiBaseUrl}${API_ENDPOINTS.AUTH.GOOGLE_LOGIN}`, {
       email: user.email,
       name: user.name,
       picture: user.picture,

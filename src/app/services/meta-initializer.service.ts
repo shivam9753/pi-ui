@@ -4,6 +4,7 @@ import { DOCUMENT } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import { environment } from '../../environments/environment';
+import { API_ENDPOINTS } from '../shared/constants/api.constants';
 
 @Injectable({
   providedIn: 'root'
@@ -42,7 +43,7 @@ export class MetaInitializerService {
   private async setPostMetaTags(slug: string): Promise<void> {
     try {
       // Fetch post data directly from API
-      const apiUrl = `${environment.apiBaseUrl}/submissions/by-slug/${slug}`;
+      const apiUrl = `${environment.apiBaseUrl}${API_ENDPOINTS.SUBMISSIONS_NESTED.BY_SLUG(slug)}`;
       console.log('[Meta Initializer] Fetching:', apiUrl);
       
       const postData = await firstValueFrom(

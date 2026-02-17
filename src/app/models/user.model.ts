@@ -1,6 +1,6 @@
 export interface User {
   _id: string;
-  username: string;
+  // username removed — backend no longer requires username
   name?: string;
   email: string;
   bio?: string;
@@ -14,6 +14,7 @@ export interface User {
     twitter?: string;
     instagram?: string;
     linkedin?: string;
+    facebook?: string;
   };
   stats: {
     totalPublished: number;
@@ -75,7 +76,7 @@ export interface UserProfile extends User {
 
 export interface UserListItem {
   _id: string;
-  username: string;
+  // username removed
   name?: string;
   email: string;
   bio?: string;
@@ -86,26 +87,43 @@ export interface UserListItem {
   createdAt: string;
   totalSubmissions?: number;
   acceptedSubmissions?: number;
+  // include social links for list items so admin can see/set instagram/facebook
+  socialLinks?: {
+    instagram?: string;
+    facebook?: string;
+    twitter?: string;
+    website?: string;
+    linkedin?: string;
+  };
 }
 
 export interface CreateUserPayload {
-  username: string;
+  // username removed — not required
   name: string;
   email: string;
   password: string;
   role: 'user' | 'writer' | 'reviewer' | 'admin';
   bio?: string;
+  // allow creating with social links (instagram/facebook)
+  socialLinks?: {
+    instagram?: string;
+    facebook?: string;
+    twitter?: string;
+    website?: string;
+    linkedin?: string;
+  };
 }
 
 export interface UpdateUserPayload {
   name?: string;
-  username?: string;
+  // username removed
   bio?: string;
   socialLinks?: {
     website?: string;
     twitter?: string;
     instagram?: string;
     linkedin?: string;
+    facebook?: string;
   };
   preferences?: {
     showEmail?: boolean;

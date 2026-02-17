@@ -803,7 +803,7 @@ export class ManageSubmissionsComponent implements OnInit {
     console.log('📡 Performing API search for:', searchTerm);
     
     const headers = this.getAuthHeaders();
-    const url = `${environment.apiBaseUrl}/users/search?q=${encodeURIComponent(searchTerm)}&limit=50`;
+    const url = `${environment.apiBaseUrl}${API_ENDPOINTS.USERS_NESTED.SEARCH}?q=${encodeURIComponent(searchTerm)}&limit=50`;
     console.log('🌐 API URL:', url);
 
     this.http.get(url, { headers }).subscribe({

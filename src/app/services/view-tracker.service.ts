@@ -93,7 +93,7 @@ export class ViewTrackerService {
       windowDays: (windowDays || this.TRENDING_WINDOW_DAYS).toString()
     };
 
-    return this.apiService.get(API_ENDPOINTS.SUBMISSIONS + '/trending', params, false).pipe(
+    return this.apiService.get(API_ENDPOINTS.PUBLIC.TRENDING, params, false).pipe(
       map((response: any) => ({
         submissions: response.submissions || [],
         total: response.total || 0

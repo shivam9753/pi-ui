@@ -13,18 +13,18 @@ import { TableAction } from '../data-table.component';
         @if (user.profileImage) {
           <img
             [src]="user.profileImage"
-            [alt]="user.username"
+            [alt]="user.name || user.email || ''"
             class="w-12 h-12 rounded-full object-cover" />
         } @else {
           <span class="text-white font-medium">
-            {{ (user.name || user.username).charAt(0).toUpperCase() }}
+            {{ (user.name || user.email || '').charAt(0).toUpperCase() }}
           </span>
         }
       </div>
 
       <!-- User Info -->
       <div class="flex-1 min-w-0">
-        <h3 class="text-sm font-medium text-gray-900 truncate">{{ user.name || user.username }}</h3>
+        <h3 class="text-sm font-medium text-gray-900 truncate">{{ user.name || user.email }}</h3>
         <p class="text-sm text-gray-500 truncate">{{ user.email }}</p>
       </div>
 

@@ -5,6 +5,7 @@ import { HttpClient } from '@angular/common/http';
 import { Subject, of } from 'rxjs';
 import { debounceTime, distinctUntilChanged, switchMap, catchError } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
+import { API_ENDPOINTS } from '../../shared/constants/api.constants';
 
 @Component({
   selector: 'app-tag-input',
@@ -270,7 +271,7 @@ export class TagInputComponent implements ControlValueAccessor, OnDestroy {
     const encoded = encodeURIComponent(q);
     // Use backend search endpoint which returns { success, tags: [...] }
     console.debug('[TagInput] fetchTags', q);
-    return this.http.get<any>(`${environment.apiBaseUrl}/tags/search?q=${encoded}&limit=10`).pipe(
+    return this.http.get<any>(`${environment.apiBaseUrl}${API_ENDPOINTS.TAGS_NESTED.SEARCH}?q=${encoded}&limit=10`).pipe(
       switchMap((resp: any) => {
         if (!resp) return of([]);
         // backend returns tags array under resp.tags (each has tag, slug, tagId)

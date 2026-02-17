@@ -209,7 +209,7 @@ export class AllSubmissionsComponent implements OnInit {
       next: (res: any) => {
         this.users = (res.users || []).map((user: any) => ({
           _id: user._id,
-          name: user.name || user.username || 'Unknown',
+          name: user.name || user.email || 'Unknown',
           email: user.email || 'No email'
         }));
       },
@@ -249,16 +249,16 @@ export class AllSubmissionsComponent implements OnInit {
     
     this.bulkSearchLoading = true;
     const headers = this.getAuthHeaders();
-    const url = `${environment.apiBaseUrl}/users/search?q=${encodeURIComponent(searchTerm)}&limit=50`;
+    const url = `${environment.apiBaseUrl}${API_ENDPOINTS.USERS_NESTED.SEARCH}?q=${encodeURIComponent(searchTerm)}&limit=50`;
     console.log('🌐 Bulk search API URL:', url);
     console.log('🔑 Headers:', headers);
-    
+
     this.http.get(url, { headers }).subscribe({
       next: (res: any) => {
         console.log('✅ Bulk search results:', res);
         this.bulkFilteredUsers = (res.users || []).map((user: any) => ({
           _id: user._id,
-          name: user.name || user.username || 'Unknown',
+          name: user.name || user.email || 'Unknown',
           email: user.email || 'No email'
         }));
         this.bulkSearchLoading = false;
@@ -312,7 +312,7 @@ export class AllSubmissionsComponent implements OnInit {
     
     this.editSearchLoading = true;
     const headers = this.getAuthHeaders();
-    const url = `${environment.apiBaseUrl}/users/search?q=${encodeURIComponent(searchTerm)}&limit=50`;
+    const url = `${environment.apiBaseUrl}${API_ENDPOINTS.USERS_NESTED.SEARCH}?q=${encodeURIComponent(searchTerm)}&limit=50`;
     console.log('🌐 Edit search API URL:', url);
     
     this.http.get(url, { headers }).subscribe({
@@ -320,7 +320,7 @@ export class AllSubmissionsComponent implements OnInit {
         console.log('✅ Edit search results:', res);
         this.editFilteredUsers = (res.users || []).map((user: any) => ({
           _id: user._id,
-          name: user.name || user.username || 'Unknown',
+          name: user.name || user.email || 'Unknown',
           email: user.email || 'No email'
         }));
         this.editSearchLoading = false;
@@ -558,17 +558,13 @@ export class AllSubmissionsComponent implements OnInit {
   // Helper methods to handle different API response structures
   getAuthorName(item: any): string {
     // First try to get actual name fields
-    const name = item.username || 
-                 item.authorName || 
-                 item.author?.username || 
-                 item.author?.name || 
-                 item.submitterName || 
+    const name = item.name ||
+                 item.author?.name ||
                  item.userId?.name ||
-                 item.userId?.username ||
-                 item.submitterEmail ||
-                 item.author?.email ||
-                 item.userId?.email ||
-                 item.email;
+                 item.authorName ||
+                 item.submitterName ||
+                 item.username || // fallback in case some legacy objects still have it
+                 'Unknown';
     
     // If we got an email address, try to extract a more readable name
     if (name && name.includes('@')) {
@@ -587,6 +583,10 @@ export class AllSubmissionsComponent implements OnInit {
 
   getAuthorEmail(item: any): string {
     return 'No email';  // Email not provided in simplified response
+  }
+
+  getUserDisplayName(user: any): string {
+    return user.name || user.email || 'Unknown User';
   }
 
 }

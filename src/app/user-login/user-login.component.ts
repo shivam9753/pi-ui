@@ -1,8 +1,8 @@
-import { Component, OnInit, OnDestroy, AfterViewInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
-import { Subscription } from 'rxjs';
+import { Subscription, lastValueFrom } from 'rxjs';
 import { AuthService, GoogleUser } from '../services/auth.service';
 import { BackendService } from '../services/backend.service';
 
@@ -12,7 +12,7 @@ import { BackendService } from '../services/backend.service';
   templateUrl: './user-login.component.html',
   styleUrl: './user-login.component.css'
 })
-export class UserLoginComponent implements OnInit, OnDestroy, AfterViewInit {
+export class UserLoginComponent implements OnInit, OnDestroy {
   isLoggedIn = false;
   currentUser: GoogleUser | null = null;
   private subscriptions: Subscription[] = [];
@@ -42,7 +42,6 @@ export class UserLoginComponent implements OnInit, OnDestroy, AfterViewInit {
 
     this.signupForm = this.formBuilder.group({
       email: ['', [Validators.required, Validators.email]],
-      username: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(40), Validators.pattern(/^[a-zA-Z0-9_-]+$/)]],
       name: ['', [Validators.required, Validators.maxLength(100)]],
       password: ['', [Validators.required, Validators.minLength(6)]]
     });
@@ -56,28 +55,19 @@ export class UserLoginComponent implements OnInit, OnDestroy, AfterViewInit {
       }
     });
 
-    this.subscriptions.push(
+    // initialize subscriptions array in one assignment to avoid multiple pushes
+    this.subscriptions = [
       this.authService.isLoggedIn$.subscribe(isLoggedIn => {
         this.isLoggedIn = isLoggedIn;
         if (isLoggedIn) {
           this.currentUser = this.authService.getCurrentUser();
-          // Redirect if already logged in - navigateAfterLogin will handle returnUrl
-          // Don't manually redirect here as AuthService handles it
         }
-      })
-    );
-
-    this.subscriptions.push(
+      }),
       this.authService.user$.subscribe(user => {
         this.currentUser = user;
         this.isLoading = false; // Stop loading when user state updates
       })
-    );
-  }
-
-  ngAfterViewInit(): void {
-    // Remove automatic popup trigger to avoid unwanted popups
-    // The popup will only trigger when user clicks the button
+    ];
   }
 
   ngOnDestroy(): void {
@@ -85,22 +75,29 @@ export class UserLoginComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   // This method will trigger the popup window
-  signInWithGoogle(): void {
+  async signInWithGoogle(): Promise<void> {
     this.isLoading = true;
     try {
-      // Use the popup method instead of prompt
-      this.authService.signInWithPopup();
-    } catch (error) {
+      // Use the popup method instead of prompt. The auth service may return a Promise or void.
+      const maybePromise = this.authService.signInWithPopup() as unknown as Promise<any> | void;
+      // If a Promise was returned, await it using optional chaining on `.then`.
+      if ((maybePromise as Promise<any>)?.then) await maybePromise as Promise<any>;
+    } catch (error: any) {
+      console.error('Google sign-in error', error);
+    } finally {
       this.isLoading = false;
     }
   }
 
   // Alternative method if you want to use the prompt/overlay instead
-  signInWithPrompt(): void {
+  async signInWithPrompt(): Promise<void> {
     this.isLoading = true;
     try {
-      this.authService.signIn();
-    } catch (error) {
+      const maybePromise = this.authService.signIn() as unknown as Promise<any> | void;
+      if ((maybePromise as Promise<any>)?.then) await maybePromise as Promise<any>;
+    } catch (error: any) {
+      console.error('Sign-in prompt error', error);
+    } finally {
       this.isLoading = false;
     }
   }
@@ -148,10 +145,10 @@ export class UserLoginComponent implements OnInit, OnDestroy, AfterViewInit {
       this.errorMessage = '';
 
       try {
-        const result = await this.backendService.loginUser(
+        const result = await lastValueFrom(this.backendService.loginUser(
           this.loginForm.value.email,
           this.loginForm.value.password
-        ).toPromise();
+        ));
 
         if (result?.token && result?.user) {
           // Store token and user data
@@ -187,7 +184,7 @@ export class UserLoginComponent implements OnInit, OnDestroy, AfterViewInit {
 
       try {
         console.log('Calling backend registerUser with:', this.signupForm.value);
-        const result = await this.backendService.registerUser(this.signupForm.value).toPromise();
+        const result = await lastValueFrom(this.backendService.registerUser(this.signupForm.value));
         console.log('Registration result:', result);
 
         if (result?.token && result?.user) {
@@ -205,27 +202,7 @@ export class UserLoginComponent implements OnInit, OnDestroy, AfterViewInit {
         }
       } catch (error: any) {
         console.error('Registration error:', error);
-        
-        // Provide specific error messages based on the error type
-        if (error.status === 400) {
-          if (error.error?.message?.includes('email')) {
-            this.errorMessage = 'This email is already registered. Please use a different email or try logging in.';
-          } else if (error.error?.message?.includes('username')) {
-            this.errorMessage = 'This username is already taken. Please choose a different username.';
-          } else if (error.error?.message?.includes('validation')) {
-            this.errorMessage = 'Please check your information and try again.';
-          } else {
-            this.errorMessage = error.error?.message || 'Invalid information provided. Please check your details.';
-          }
-        } else if (error.status === 422) {
-          this.errorMessage = 'Please check that all fields are filled correctly.';
-        } else if (error.status === 500) {
-          this.errorMessage = 'Server error occurred. Please try again in a moment.';
-        } else if (error.status === 0 || !error.status) {
-          this.errorMessage = 'Unable to connect to server. Please check your internet connection.';
-        } else {
-          this.errorMessage = error.error?.message || 'Registration failed. Please try again.';
-        }
+        this.handleRegistrationError(error);
       } finally {
         this.emailLoading = false;
       }
@@ -243,7 +220,7 @@ export class UserLoginComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   private navigateAfterLogin(needsProfileCompletion?: boolean) {
-    const returnUrl = typeof localStorage !== 'undefined' ? localStorage.getItem('returnUrl') : null;
+    const returnUrl = typeof localStorage === 'undefined' ? null : localStorage.getItem('returnUrl');
     
     if (needsProfileCompletion) {
       this.router.navigate(['/complete-profile']);
@@ -262,10 +239,35 @@ export class UserLoginComponent implements OnInit, OnDestroy, AfterViewInit {
     });
   }
 
+  private handleRegistrationError(error: any) {
+    if (!error) {
+      this.errorMessage = 'Registration failed. Please try again.';
+      return;
+    }
+
+    if (error.status === 400) {
+      if (error.error?.message?.includes('email')) {
+        this.errorMessage = 'This email is already registered. Please use a different email or try logging in.';
+      } else if (error.error?.message?.includes('validation')) {
+        this.errorMessage = 'Please check your information and try again.';
+      } else {
+        this.errorMessage = error.error?.message || 'Invalid information provided. Please check your details.';
+      }
+    } else if (error.status === 422) {
+      this.errorMessage = 'Please check that all fields are filled correctly.';
+    } else if (error.status === 500) {
+      this.errorMessage = 'Server error occurred. Please try again in a moment.';
+    } else if (error.status === 0 || !error.status) {
+      this.errorMessage = 'Unable to connect to server. Please check your internet connection.';
+    } else {
+      this.errorMessage = error.error?.message || 'Registration failed. Please try again.';
+    }
+  }
+
   // Helper methods for form validation
   getFieldError(form: FormGroup, fieldName: string): string {
     const field = form.get(fieldName);
-    if (field && field.errors && field.touched) {
+    if (field?.errors && field.touched) {
       if (field.errors['required']) return `${fieldName} is required`;
       if (field.errors['email']) return 'Please enter a valid email';
       if (field.errors['minlength']) return `${fieldName} must be at least ${field.errors['minlength'].requiredLength} characters`;

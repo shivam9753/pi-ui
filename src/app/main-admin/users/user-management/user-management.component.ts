@@ -88,7 +88,11 @@ export class UserManagementComponent implements OnInit, OnDestroy {
     name: '',
     email: '',
     bio: '',
-    role: ''
+    role: '',
+    socialLinks: {
+      instagram: '',
+      facebook: ''
+    }
   };
   selectedFile: File | null = null;
   previewUrl: string | null = null;
@@ -98,9 +102,9 @@ export class UserManagementComponent implements OnInit, OnDestroy {
   private searchTimeout: any;
 
   constructor(
-    private userService: UserService,
-    private router: Router,
-    private route: ActivatedRoute
+    private readonly userService: UserService,
+    private readonly router: Router,
+    private readonly route: ActivatedRoute
   ) {}
 
   ngOnInit() {
@@ -110,7 +114,7 @@ export class UserManagementComponent implements OnInit, OnDestroy {
     // Listen for query params from Admin (or header) to open create-user flow directly
     // Example: /admin?userCreate=1#users or navigation from header
     this.route.queryParams.subscribe(params => {
-      if (params && params['userCreate']) {
+      if (params['userCreate']) {
         // Switch to create sub-tab in this component
         this.userSubTab = 'create';
         // Remove the query param from the URL without reloading
@@ -147,7 +151,7 @@ export class UserManagementComponent implements OnInit, OnDestroy {
     const sortBy = this.currentFilters.sortBy || this.sortBy;
     const order = this.currentFilters.order || 'desc';
     
-    if (searchQuery && searchQuery.trim()) {
+    if (searchQuery?.trim()) {
       // Use search endpoint
       this.userService.searchUsers({
         q: searchQuery.trim(),
@@ -324,7 +328,11 @@ export class UserManagementComponent implements OnInit, OnDestroy {
       name: user.name || '',
       email: user.email || '',
       bio: user.bio || '',
-      role: user.role || ''
+      role: user.role || '',
+      socialLinks: {
+        instagram: user.socialLinks?.instagram || '',
+        facebook: user.socialLinks?.facebook || ''
+      }
     };
     this.selectedFile = null;
     this.previewUrl = null;
@@ -433,7 +441,8 @@ export class UserManagementComponent implements OnInit, OnDestroy {
       const updateResponse = await this.userService.updateUser(this.editingUser._id, {
         name: this.editUserForm.name,
         email: this.editUserForm.email,
-        bio: this.editUserForm.bio
+        bio: this.editUserForm.bio,
+        socialLinks: this.editUserForm.socialLinks
       }).toPromise();
       
       updatedUser = updateResponse?.user || this.editingUser;
@@ -462,7 +471,8 @@ export class UserManagementComponent implements OnInit, OnDestroy {
             email: updatedUser.email,
             bio: updatedUser.bio,
             role: updatedUser.role,
-            profileImage: updatedUser.profileImage
+            profileImage: updatedUser.profileImage,
+            socialLinks: updatedUser.socialLinks || this.users[userIndex].socialLinks
           };
         }
       }

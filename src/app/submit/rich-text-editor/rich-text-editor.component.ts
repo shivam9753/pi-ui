@@ -1,4 +1,3 @@
-
 import { Component, ElementRef, EventEmitter, forwardRef, Input, Output, ViewChild, AfterViewInit, OnDestroy, inject, ViewEncapsulation } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
@@ -958,11 +957,11 @@ export class RichTextEditorComponent implements ControlValueAccessor, AfterViewI
 
       // Extract S3 key from URL
       const urlParts = imageUrl.split('/');
-      const s3Key = urlParts.slice(-2).join('/'); // Get last two parts (folder/filename)
+      const key = urlParts.slice(-2).join('/'); // Get last two parts (folder/filename)
       
-      await this.http.delete(`${environment.apiBaseUrl}/images/delete`, {
+      await this.http.delete(`${environment.apiBaseUrl}${API_ENDPOINTS.IMAGES.DELETE}`, {
         headers,
-        body: { s3Key }
+        body: { key }
       }).toPromise();
       
     } catch (error) {
@@ -1022,10 +1021,10 @@ export class RichTextEditorComponent implements ControlValueAccessor, AfterViewI
         const blob = new Blob([JSON.stringify(cleanupData)], { type: 'application/json' });
         
         try {
-          navigator.sendBeacon(`${environment.apiBaseUrl}/api/uploads/cleanup-temp-images`, blob);
+          navigator.sendBeacon(`${environment.apiBaseUrl}${API_ENDPOINTS.UPLOADS.CLEANUP_TEMP}`, blob);
         } catch (error) {
           // Fallback to regular HTTP request
-          this.http.post(`${environment.apiBaseUrl}/api/uploads/cleanup-temp-images`, cleanupData, { headers })
+          this.http.post(`${environment.apiBaseUrl}${API_ENDPOINTS.UPLOADS.CLEANUP_TEMP}`, cleanupData, { headers })
             .toPromise()
             .catch(() => {
               // Ignore errors during cleanup
@@ -1050,7 +1049,7 @@ export class RichTextEditorComponent implements ControlValueAccessor, AfterViewI
         });
         
         const confirmData = { imageUrls: imageUrls.map(img => img.src) };
-        this.http.post(`${environment.apiBaseUrl}/api/uploads/confirm-images`, confirmData, { headers })
+        this.http.post(`${environment.apiBaseUrl}${API_ENDPOINTS.UPLOADS.CONFIRM_IMAGES}`, confirmData, { headers })
           .toPromise()
           .then(() => {
             // Images are now permanent, clear temporary tracking

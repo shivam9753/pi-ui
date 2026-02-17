@@ -37,19 +37,6 @@
               placeholder="Enter full name"
               required>
           </div>
-
-          <!-- Username -->
-          <div>
-            <label for="username" class="block text-sm font-semibold text-gray-800 mb-3">Username *</label>
-            <input 
-              type="text" 
-              id="username"
-              [(ngModel)]="newUser.username" 
-              name="username"
-              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary bg-gray-50 focus:bg-white transition-colors"
-              placeholder="Enter username"
-              required>
-          </div>
         </div>
       </div>
 
@@ -107,48 +94,28 @@
               placeholder="Enter user bio..."></textarea>
           </div>
 
-          <!-- Profile Image -->
-          <div>
-            <label class="block text-sm font-semibold text-gray-800 mb-3">Profile Image</label>
-            
-            <!-- Image Upload Area -->
-            <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-primary transition-colors">
-              
-              <!-- Image Preview -->
-              @if (previewUrl) {
-                <div class="mb-4">
-                  <div class="relative inline-block">
-                    <img [src]="previewUrl" alt="Preview" class="w-24 h-24 rounded-full object-cover border-4 border-white shadow-lg">
-                    <app-button
-                      variant="destructive"
-                      size="sm"
-                      (click)="removeImage()"
-                      class="absolute -top-2 -right-2 !rounded-full !w-8 !h-8 !min-h-0 !p-0 shadow-md"
-                      ariaLabel="Remove image">
-                      ×
-                    </app-button>
-                  </div>
-                </div>
-              }
-              
-              <!-- File Input -->
-              <div>
-                <input 
-                  type="file" 
-                  id="profileImage"
-                  (change)="onFileSelected($event)"
-                  accept="image/*"
-                  class="hidden">
-                <label 
-                  for="profileImage" 
-                  class="inline-flex items-center px-4 py-2 bg-primary-light text-primary-dark rounded-lg cursor-pointer hover:bg-primary-light transition-colors font-medium">
-                  <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
-                  </svg>
-                  Choose File
-                </label>
-                <p class="mt-2 text-xs text-gray-500">PNG, JPG, GIF up to 5MB (will be converted to AVIF for optimal compression)</p>
-              </div>
+          <!-- Social Links -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label for="instagram" class="block text-sm font-semibold text-gray-800 mb-3">Instagram</label>
+              <input
+                type="text"
+                id="instagram"
+                [(ngModel)]="newUser.socialLinks.instagram"
+                name="social_instagram"
+                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary bg-gray-50 focus:bg-white transition-colors"
+                placeholder="https://instagram.com/username">
+            </div>
+
+            <div>
+              <label for="facebook" class="block text-sm font-semibold text-gray-800 mb-3">Facebook</label>
+              <input
+                type="text"
+                id="facebook"
+                [(ngModel)]="newUser.socialLinks.facebook"
+                name="social_facebook"
+                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary bg-gray-50 focus:bg-white transition-colors"
+                placeholder="https://facebook.com/username">
             </div>
           </div>
         </div>

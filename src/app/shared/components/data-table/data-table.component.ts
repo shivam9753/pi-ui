@@ -407,8 +407,13 @@ export class DataTableComponent<T = any> implements OnInit {
   }
 
   getInitials(item: any): string {
-    const name = item.name || item.username || item.title || '';
+    const name = item.name || item.email || item.title || '';
     return StringUtils.getInitialsWithFallback(name);
+  }
+  
+  getAuthorName(item: any): string {
+    // centralize author name logic: prefer name, then email
+    return item?.name || item?.email || '';
   }
 
   getVisibleActions(item: T): TableAction[] {
@@ -555,10 +560,6 @@ export class DataTableComponent<T = any> implements OnInit {
     return visible.filter(a => a !== main);
   }
 
-  // Extract author name from common nested fields used across the app
-  getAuthorName(item: any): string {
-    return this.getNestedValue(item, 'author.name') || this.getNestedValue(item, 'author') || this.getNestedValue(item, 'user.name') || this.getNestedValue(item, 'createdBy.name') || this.getNestedValue(item, 'by') || '';
-  }
 
   getPrimaryImage(item: any): string | undefined {
     const primary = this.getPrimaryColumn();
