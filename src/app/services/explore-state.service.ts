@@ -41,11 +41,6 @@ export class ExploreStateService {
     // persistence disabled
   }
 
-  restoreFromStorage() {
-    // persistence disabled: do not restore from sessionStorage on reload
-    return;
-  }
-
   clear() {
     this.state$.next({ submissions: [], page: 1, hasMore: true, selectedType: '', searchQuery: '', scrollY: 0 });
     // persistence disabled: no sessionStorage cleanup required

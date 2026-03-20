@@ -1,4 +1,3 @@
-
 export const API_ENDPOINTS = {
   // Base endpoints
   SUBMISSIONS: '/submissions',
@@ -131,6 +130,7 @@ export const API_ENDPOINTS = {
   // Add public endpoints for migrated backend public routes
   PUBLIC: {
     TRENDING: '/public/trending',
+    TRENDING_SUBMISSIONS: '/public/trending-submissions',
     FEATURED: '/public/featured',
     PUBLISHED: '/public/published'
   },

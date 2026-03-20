@@ -87,13 +87,13 @@ export class ViewTrackerService {
    */
   getTrendingPosts(limit: number = 10, skip: number = 0, windowDays: number = 7): Observable<{submissions: any[], total: number}> {
     const params = {
-      sortBy: 'trending',
       limit: limit.toString(),
       skip: skip.toString(),
-      windowDays: (windowDays || this.TRENDING_WINDOW_DAYS).toString()
+      windowDays: (windowDays || this.TRENDING_WINDOW_DAYS).toString(),
+      _t: Date.now().toString()
     };
 
-    return this.apiService.get(API_ENDPOINTS.PUBLIC.TRENDING, params, false).pipe(
+    return this.apiService.get(API_ENDPOINTS.PUBLIC.TRENDING_SUBMISSIONS, params, false).pipe(
       map((response: any) => ({
         submissions: response.submissions || [],
         total: response.total || 0

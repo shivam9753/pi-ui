@@ -51,21 +51,10 @@ export class ExploreComponent implements OnInit, AfterViewInit, OnDestroy {
     { label: 'Books', value: 'book_review' }
   ];
 
-  // Sort options
-  sortOptions = [
-    { label: 'Latest', value: 'latest' },
-    { label: 'Popular', value: 'popular' },
-    { label: 'Reading Time', value: 'readingTime' }
-  ];
-
   trendingTags: string[] = [];
   popularTags: string[] = [];
   loadingTags: boolean = false;
- 
-  generatePrompt() {
-    // Navigate to prompts page or show prompt modal
-    this.router.navigate(['/prompts']);
-  }
+
 
   onTagClick(tag: any, event?: Event) {
     // Prevent event bubbling
@@ -93,17 +82,6 @@ export class ExploreComponent implements OnInit, AfterViewInit, OnDestroy {
       this.router.navigate(['/tag', routeValue]);
     } else {
       console.warn('onTagClick: unable to resolve slug/id for tag, skipping navigation', tag);
-    }
-  }
-
-  onAuthorClick(author: any) {
-    // Navigate to author profile
-    // You can implement navigation to author profile here
-  }
-
-  handleAnnouncementAction(announcement: any) {
-    if (announcement.link) {
-      this.router.navigate([announcement.link]);
     }
   }
 
@@ -177,19 +155,7 @@ export class ExploreComponent implements OnInit, AfterViewInit, OnDestroy {
 
   ngOnInit() {
     this.setupPageMeta();
-    // restore state from session storage if present
-    this.exploreStateService.restoreFromStorage();
-    const cached = this.exploreStateService.getState();
-    if (cached && cached.submissions && cached.submissions.length) {
-      this.submissions = cached.submissions;
-      this.itemsPerPage = cached.page ? this.itemsPerPage : this.itemsPerPage;
-      this.hasMoreItems = cached.hasMore;
-      this.selectedType = cached.selectedType || this.selectedType;
-      this.searchQuery = cached.searchQuery || this.searchQuery;
-      // do not call getPublishedSubmissions - we already have data
-    } else {
       this.getPublishedSubmissions();
-    }
     this.loadPopularTags();
 
     // subscribe to state changes so UI stays in sync
@@ -215,10 +181,7 @@ export class ExploreComponent implements OnInit, AfterViewInit, OnDestroy {
   };
 
   ngAfterViewInit() {
-    // attempt to restore after initial render
     setTimeout(() => this.tryRestore(), 40);
-
-    // also listen for route transition animation/transition end so we restore after animations
     try {
       const rt = document.querySelector('.route-transition');
       if (rt) {
@@ -236,7 +199,6 @@ export class ExploreComponent implements OnInit, AfterViewInit, OnDestroy {
       window.removeEventListener('popstate', this.popStateHandler);
     } catch (e) {}
 
-    // cleanup transition listeners if still present
     try {
       if (this.transitionTarget) {
         this.transitionTarget.removeEventListener('animationend', this.transitionEndHandler);
@@ -246,7 +208,6 @@ export class ExploreComponent implements OnInit, AfterViewInit, OnDestroy {
     } catch (e) {}
   }
 
-  // Force refresh data (useful after deployment)
   forceRefresh() {
     // Clear local cache and reload data
     this.submissions = [];
@@ -300,7 +261,6 @@ export class ExploreComponent implements OnInit, AfterViewInit, OnDestroy {
 
     // persist selected tab to state service
     this.exploreStateService.setState({ selectedType: this.selectedType, submissions: [], page: 1, hasMore: true });
-
     this.loadPublishedSubmissions(type);
   }
 
@@ -467,32 +427,6 @@ export class ExploreComponent implements OnInit, AfterViewInit, OnDestroy {
     return selectedOption ? selectedOption.label : 'works';
   }
 
-
-
-  // Sort submissions based on selected sort option
-  sortSubmissions(submissions: any[]) {
-    switch (this.sortBy) {
-      case 'popular':
-        // Sort by creation date as proxy for popularity (can be enhanced with view counts)
-        return submissions.sort((a, b) => new Date(b.createdAt || b.publishedAt || b.reviewedAt).getTime() - new Date(a.createdAt || a.publishedAt || a.reviewedAt).getTime());
-      case 'readingTime':
-        return submissions.sort((a, b) => (a.readingTime || 5) - (b.readingTime || 5));
-      case 'latest':
-      default:
-        // Prefer publishedAt/reviewedAt for latest ordering, fallback to createdAt
-        return submissions.sort((a, b) => new Date(b.publishedAt || b.reviewedAt || b.createdAt).getTime() - new Date(a.publishedAt || a.reviewedAt || a.createdAt).getTime());
-    }
-  }
-
-  // Handle sort change
-  onSortChange(sortValue: string) {
-    this.sortBy = sortValue;
-    this.submissions = []; // Reset submissions
-    this.hasMoreItems = true;
-    this.loadPublishedSubmissions(this.selectedType);
-  }
-
-
   // Helper method to format numbers (for view counts)
   formatNumber(num: number): string {
     if (num >= 1000000) {
@@ -552,6 +486,5 @@ export class ExploreComponent implements OnInit, AfterViewInit, OnDestroy {
     return truncated + '...';
   }
 
-  // Make Math available in template
   Math = Math;
 }

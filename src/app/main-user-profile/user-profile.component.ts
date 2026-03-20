@@ -440,6 +440,31 @@ export class UserProfileComponent implements OnInit {
     return (baseUrls[platform as keyof typeof baseUrls] || '') + handle;
   }
 
+  // New helpers used in template to avoid unsafe chaining
+  getProfileDisplayName(): string {
+    const profile = this.userProfile();
+    if (!profile) return '';
+    if (profile.name && String(profile.name).trim().length > 0) return String(profile.name).trim();
+    if (profile.email && String(profile.email).trim().length > 0) {
+      const parts = String(profile.email).split('@');
+      return parts[0] || '';
+    }
+    return '';
+  }
+
+  getProfileInitial(): string {
+    const profile = this.userProfile();
+    if (!profile) return '?';
+    const name = profile.name && String(profile.name).trim();
+    if (name && name.length > 0) return name[0].toUpperCase();
+    const email = profile.email && String(profile.email).trim();
+    if (email) {
+      const parts = email.split('@');
+      if (parts[0] && parts[0].length > 0) return parts[0][0].toUpperCase();
+    }
+    return '?';
+  }
+
   // Computed methods for filtering and sorting
   getAllSubmissionsChronological() {
     const submissions = this.submissions();

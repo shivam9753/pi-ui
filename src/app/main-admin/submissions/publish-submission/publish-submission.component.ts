@@ -19,13 +19,12 @@ interface SEOConfig {
   keywords: string[];
   ogImage: string;
   featuredPost: boolean;
-  // Primary submission-level SEO keyword (single value)
   primaryKeyword?: string;
 }
 
 @Component({
   selector: 'app-publish-submission',
-  imports: [CommonModule, FormsModule, ProseMirrorEditorComponent, BadgeLabelComponent, TagInputComponent, ButtonComponent, ButtonComponent],
+  imports: [CommonModule, FormsModule, ProseMirrorEditorComponent, BadgeLabelComponent, TagInputComponent, ButtonComponent],
   templateUrl: './publish-submission.component.html',
   styleUrl: './publish-submission.component.css',
   encapsulation: ViewEncapsulation.None
@@ -34,7 +33,7 @@ export class PublishSubmissionComponent implements OnInit {
   submission: any = null;
   loading = true;
   isPublishing = false;
-  
+
   // Image upload properties
   selectedCoverImageFile: File | null = null;
   selectedSocialImageFile: File | null = null;
@@ -52,7 +51,7 @@ export class PublishSubmissionComponent implements OnInit {
   // Content expansion state
   contentExpanded: boolean[] = [];
   allContentExpanded = false;
-  
+
   // Tab state for content editing/preview
   activeContentTab: 'edit' | 'preview' = 'edit';
 
@@ -69,8 +68,8 @@ export class PublishSubmissionComponent implements OnInit {
 
   keywordsInput = '';
   slugError = '';
-  baseUrl = window.location.origin + '/post/';
-  
+  baseUrl = typeof window !== 'undefined' ? window.location.origin + '/post/' : '/post/';
+
   // User profile (approval workflow removed)
   userProfile: any = null;
   showProfileApproval = false;
@@ -241,7 +240,7 @@ export class PublishSubmissionComponent implements OnInit {
   }
 
   generateSlugFromTitle(title: string): string {
-    return title
+    return (title || '')
       .toLowerCase()
       .replace(/[^a-z0-9\s-]/g, '') // Remove special characters
       .replace(/\s+/g, '-') // Replace spaces with hyphens
@@ -251,7 +250,7 @@ export class PublishSubmissionComponent implements OnInit {
   }
 
   validateSlug() {
-    const slug = this.seoConfig.slug.trim();
+    const slug = (this.seoConfig.slug || '').trim();
     this.slugError = '';
 
     if (!slug) {
@@ -289,13 +288,7 @@ export class PublishSubmissionComponent implements OnInit {
   }
 
   updateKeywords() {
-    const keywords = this.keywordsInput
-      .split(',')
-      .map(k => k.trim())
-      .filter(k => k.length > 0)
-      .slice(0, 10); // Limit to 10 keywords
-    
-    this.seoConfig.keywords = keywords;
+    this.seoConfig.keywords = (this.keywordsInput || '').split(',').map(k => k.trim()).filter(k => k).slice(0, 10);
   }
 
   // Add keyword as chip when Enter or comma is pressed
@@ -303,7 +296,7 @@ export class PublishSubmissionComponent implements OnInit {
     if (event.key === 'Enter' || event.key === ',') {
       event.preventDefault();
       const input = event.target as HTMLInputElement;
-      const keyword = input.value.trim().toLowerCase();
+      const keyword = (input.value || '').trim().toLowerCase();
       
       if (keyword && !this.seoConfig.keywords.includes(keyword) && this.seoConfig.keywords.length < 10) {
         this.seoConfig.keywords.push(keyword);
@@ -331,7 +324,7 @@ export class PublishSubmissionComponent implements OnInit {
   }
 
   updateAllContentExpandedState() {
-    this.allContentExpanded = this.contentExpanded.every(expanded => expanded);
+    this.allContentExpanded = this.contentExpanded.every(Boolean);
   }
 
   // Manually clean content (for user-triggered cleaning)
@@ -452,174 +445,43 @@ export class PublishSubmissionComponent implements OnInit {
 
   // Handle cover image file selection with compression
   async onCoverImageSelect(event: any) {
-    const file = event.target.files[0];
-    console.log('[Publish] onCoverImageSelect triggered, file:', file);
-    if (file) {
-      if (!this.validateImageFile(file, event.target)) {
-        console.log('[Publish] onCoverImageSelect - validation failed');
-        return;
-      }
-
-      try {
-        this.showSuccess('Compressing cover image to WebP format...');
-        console.log('[Publish] Compressing cover image...', { name: file.name, size: file.size });
-        const compressed = await compressImageForUpload(file, {
-          targetSizeKB: 250,
-          maxWidth: UPLOAD_CONFIG.MAX_DIMENSIONS.width,
-          maxHeight: UPLOAD_CONFIG.MAX_DIMENSIONS.height
-        });
-
-        console.log('[Publish] Compression complete', { originalSize: file.size, compressedSize: compressed.file.size, compressionRatio: compressed.compressionRatio });
-        this.selectedCoverImageFile = compressed.file;
-
-        // Create transient preview URL for the selected file so it appears in the gallery
-        if (this.lastSelectedCoverPreviewUrl) {
-          URL.revokeObjectURL(this.lastSelectedCoverPreviewUrl);
-        }
-        this.lastSelectedCoverPreviewUrl = URL.createObjectURL(this.selectedCoverImageFile);
-        this.transientUploadedImages = [this.lastSelectedCoverPreviewUrl, ...this.transientUploadedImages];
-
-        // Dismiss profile image reuse suggestion when user selects a different file
-        this.showProfileImageReuse = false;
-
-        // Immediately upload the compressed cover image to backend so it becomes a public URL
-        if (this.submission && this.selectedCoverImageFile) {
-          this.isUploadingCoverImage = true;
-          console.log('[Publish] Starting cover image upload to backend for submission:', this.submission._id);
-          this.backendService.uploadSubmissionImage(this.submission._id, this.selectedCoverImageFile).subscribe({
-             next: (response: any) => {
-               console.log('[Publish] Cover upload response:', response);
-              const url = this.normalizeImageUrl(response?.imageUrl || response?.submission?.imageUrl || '');
-              console.log('[Publish] Normalized cover image URL:', url);
-              if (url) {
-                // Attempt to verify the returned public URL is actually reachable.
-                this.verifyImageAccessible(url).then(isAccessible => {
-                  console.log('[Publish] verifyImageAccessible (cover) =>', isAccessible, url);
-                  if (isAccessible) {
-                    if (!this.uploadedImages.includes(url)) this.uploadedImages.unshift(url);
-                    // set as current cover preview (do not auto-save as cover, let user choose)
-                    this.submission.imageUrl = url;
-                  } else {
-                    console.warn('[Publish] Uploaded image URL is not reachable:', url);
-                    if (!this.uploadedImages.includes(url))
-                    if (!this.uploadedImages.includes(url)) this.uploadedImages.unshift(url);
-                    this.showToast('Image uploaded but public URL not reachable yet. Keeping local preview.', 'info');
-                  }
-                }).catch(err => {
-                  console.warn('verifyImageAccessible error (cover):', err);
-                });
-              }
-               this.selectedCoverImageFile = null;
-               this.isUploadingCoverImage = false;
-
-               // Remove transient preview if present and revoke URL
-               if (this.lastSelectedCoverPreviewUrl) {
-                 const index = this.transientUploadedImages.indexOf(this.lastSelectedCoverPreviewUrl as string);
-                 if (index !== -1) this.transientUploadedImages.splice(index, 1);
-                 try { URL.revokeObjectURL(this.lastSelectedCoverPreviewUrl as string); } catch (e) {}
-                 this.lastSelectedCoverPreviewUrl = null;
-               }
-             },
-             error: (err) => {
-               console.error('[Publish] Cover upload error:', err);
-               this.handleUploadError(err);
-               this.isUploadingCoverImage = false;
-             }
-           });
-         }
-      } catch (error) {
-        console.error('[Publish] Compression failed for cover image, using original file:', error);
-        this.showError('Failed to compress image. Using original.');
-        this.selectedCoverImageFile = file;
-
-        if (this.lastSelectedCoverPreviewUrl) {
-          URL.revokeObjectURL(this.lastSelectedCoverPreviewUrl);
-        }
-        this.lastSelectedCoverPreviewUrl = URL.createObjectURL(file);
-        this.transientUploadedImages = [this.lastSelectedCoverPreviewUrl, ...this.transientUploadedImages];
-      }
+    const file = event.target.files?.[0];
+    if (!file) return;
+    if (!this.validateImageFile(file, event.target)) return;
+    try {
+      const compressed = await compressImageForUpload(file, { targetSizeKB: 250, maxWidth: UPLOAD_CONFIG.MAX_DIMENSIONS.width, maxHeight: UPLOAD_CONFIG.MAX_DIMENSIONS.height });
+      this.selectedCoverImageFile = compressed.file;
+      if (this.lastSelectedCoverPreviewUrl) { try { URL.revokeObjectURL(this.lastSelectedCoverPreviewUrl); } catch {} }
+      this.lastSelectedCoverPreviewUrl = URL.createObjectURL(this.selectedCoverImageFile as File);
+      this.transientUploadedImages.unshift(this.lastSelectedCoverPreviewUrl);
+      this.showProfileImageReuse = false;
+      // do not auto-upload here in simplified implementation; upload happens in uploadPendingImagesIfAny
+    } catch (e) {
+      console.warn('Compression failed', e);
+      this.selectedCoverImageFile = file;
+      if (this.lastSelectedCoverPreviewUrl) { try { URL.revokeObjectURL(this.lastSelectedCoverPreviewUrl); } catch {} }
+      this.lastSelectedCoverPreviewUrl = URL.createObjectURL(file);
+      this.transientUploadedImages.unshift(this.lastSelectedCoverPreviewUrl);
     }
   }
 
   // Handle social media image file selection with compression  
   async onSocialImageSelect(event: any) {
-    const file = event.target.files[0];
-    console.log('[Publish] onSocialImageSelect triggered, file:', file);
-    if (file) {
-      if (!this.validateImageFile(file, event.target)) {
-        console.log('[Publish] onSocialImageSelect - validation failed');
-        return;
-      }
-
-      try {
-        this.showSuccess('Compressing social image to WebP format...');
-        console.log('[Publish] Compressing social image...', { name: file.name, size: file.size });
-        const compressed = await compressImageForUpload(file, {
-          targetSizeKB: 250,
-          maxWidth: UPLOAD_CONFIG.MAX_DIMENSIONS.width,
-          maxHeight: UPLOAD_CONFIG.MAX_DIMENSIONS.height
-        });
-
-        console.log('[Publish] Social compression complete', { originalSize: file.size, compressedSize: compressed.file.size, compressionRatio: compressed.compressionRatio });
-        this.selectedSocialImageFile = compressed.file;
-
-        // Create transient preview URL for the selected social file
-        if (this.lastSelectedSocialPreviewUrl) {
-          URL.revokeObjectURL(this.lastSelectedSocialPreviewUrl);
-        }
-        this.lastSelectedSocialPreviewUrl = URL.createObjectURL(this.selectedSocialImageFile);
-        this.transientUploadedImages = [this.lastSelectedSocialPreviewUrl, ...this.transientUploadedImages];
-
-        // Immediately upload the compressed social image so it becomes a public URL
-        if (this.submission && this.selectedSocialImageFile) {
-          this.isUploadingSocialImage = true;
-          console.log('[Publish] Starting social image upload to backend for submission:', this.submission._id);
-          this.backendService.uploadSubmissionImage(this.submission._id, this.selectedSocialImageFile).subscribe({
-             next: (response: any) => {
-               console.log('[Publish] Social upload response:', response);
-              const url = this.normalizeImageUrl(response?.imageUrl || response?.submission?.seo?.ogImage || response?.submission?.imageUrl || '');
-              console.log('[Publish] Normalized social image URL:', url);
-              if (url) {
-                this.verifyImageAccessible(url).then(isAccessible => {
-                  console.log('[Publish] verifyImageAccessible (social) =>', isAccessible, url);
-                  if (isAccessible) {
-                    if (!this.uploadedImages.includes(url)) this.uploadedImages.unshift(url);
-                    this.seoConfig.ogImage = url;
-                  } else {
-                    console.warn('[Publish] Uploaded social image URL not reachable:', url);
-                    if (!this.uploadedImages.includes(url)) this.uploadedImages.unshift(url);
-                    this.showToast('Social image uploaded but public URL not reachable yet. Keeping local preview.', 'info');
-                  }
-                }).catch(err => console.warn('verifyImageAccessible error (social):', err));
-              }
-               this.selectedSocialImageFile = null;
-               this.isUploadingSocialImage = false;
-
-               if (this.lastSelectedSocialPreviewUrl) {
-                 const index = this.transientUploadedImages.indexOf(this.lastSelectedSocialPreviewUrl as string);
-                 if (index !== -1) this.transientUploadedImages.splice(index, 1);
-                 try { URL.revokeObjectURL(this.lastSelectedSocialPreviewUrl as string); } catch (e) {}
-                 this.lastSelectedSocialPreviewUrl = null;
-               }
-             },
-             error: (err) => {
-               console.error('[Publish] Social upload error:', err);
-               this.handleUploadError(err);
-               this.isUploadingSocialImage = false;
-             }
-           });
-         }
-      } catch (error) {
-        console.error('[Publish] Compression failed for social image, using original file:', error);
-        this.showError('Failed to compress image. Using original.');
-        this.selectedSocialImageFile = file;
-
-        if (this.lastSelectedSocialPreviewUrl) {
-          URL.revokeObjectURL(this.lastSelectedSocialPreviewUrl);
-        }
-        this.lastSelectedSocialPreviewUrl = URL.createObjectURL(file);
-        this.transientUploadedImages = [this.lastSelectedSocialPreviewUrl, ...this.transientUploadedImages];
-      }
+    const file = event.target.files?.[0];
+    if (!file) return;
+    if (!this.validateImageFile(file, event.target)) return;
+    try {
+      const compressed = await compressImageForUpload(file, { targetSizeKB: 250, maxWidth: UPLOAD_CONFIG.MAX_DIMENSIONS.width, maxHeight: UPLOAD_CONFIG.MAX_DIMENSIONS.height });
+      this.selectedSocialImageFile = compressed.file;
+      if (this.lastSelectedSocialPreviewUrl) { try { URL.revokeObjectURL(this.lastSelectedSocialPreviewUrl); } catch {} }
+      this.lastSelectedSocialPreviewUrl = URL.createObjectURL(this.selectedSocialImageFile as File);
+      this.transientUploadedImages.unshift(this.lastSelectedSocialPreviewUrl);
+    } catch (e) {
+      console.warn('Social compression failed', e);
+      this.selectedSocialImageFile = file;
+      if (this.lastSelectedSocialPreviewUrl) { try { URL.revokeObjectURL(this.lastSelectedSocialPreviewUrl); } catch {} }
+      this.lastSelectedSocialPreviewUrl = URL.createObjectURL(file);
+      this.transientUploadedImages.unshift(this.lastSelectedSocialPreviewUrl);
     }
   }
 
@@ -810,7 +672,7 @@ export class PublishSubmissionComponent implements OnInit {
         console.log('[Publish] uploadPendingImagesIfAny - uploading cover image', this.selectedCoverImageFile);
         const resp: any = await lastValueFrom(this.backendService.uploadSubmissionImage(this.submission._id, this.selectedCoverImageFile));
         console.log('[Publish] uploadPendingImagesIfAny - cover upload response:', resp);
-        const imageUrl = resp?.imageUrl || resp?.submission?.imageUrl || resp?.image?.url || '';
+        const imageUrl = resp?.imageUrl || resp?.submission?.imageUrl || '';
         console.log('[Publish] uploadPendingImagesIfAny - cover returned imageUrl:', imageUrl);
         this.submission.imageUrl = this.normalizeImageUrl(imageUrl);
         this.selectedCoverImageFile = null;
@@ -821,12 +683,12 @@ export class PublishSubmissionComponent implements OnInit {
         console.log('[Publish] uploadPendingImagesIfAny - uploading social image', this.selectedSocialImageFile);
         const resp: any = await lastValueFrom(this.backendService.uploadSubmissionImage(this.submission._id, this.selectedSocialImageFile));
         console.log('[Publish] uploadPendingImagesIfAny - social upload response:', resp);
-        const socUrl = resp?.imageUrl || resp?.submission?.seo?.ogImage || resp?.submission?.imageUrl || resp?.image?.url || '';
+        const socUrl = resp?.imageUrl || resp?.submission?.seo?.ogImage || resp?.submission?.imageUrl || '';
         console.log('[Publish] uploadPendingImagesIfAny - social returned imageUrl:', socUrl);
         this.seoConfig.ogImage = this.normalizeImageUrl(socUrl);
         this.selectedSocialImageFile = null;
       }
-    } catch (e: any) {
+    } catch (e) {
       console.error('[Publish] uploadPendingImagesIfAny error:', e);
       // Re-throw to let caller handle UI state
       throw e;
@@ -836,17 +698,17 @@ export class PublishSubmissionComponent implements OnInit {
   // Auto-fill helpers
   autoFillDescription() {
     if (!this.submission) return;
-    const first = this.submission.contents && this.submission.contents[0];
+    const first = this.submission.contents?.[0];
     const text = first ? this.extractPlainText(first.body) : (this.submission.description || '');
-    this.submission.description = text.substring(0, 300).trim();
+    this.submission.description = (text || '').substring(0, 300).trim();
     this.showSuccess('Description auto-filled');
   }
 
   autoFillMetaDescription() {
     if (!this.submission) return;
-    const first = this.submission.contents && this.submission.contents[0];
+    const first = this.submission.contents?.[0];
     const text = first ? this.extractPlainText(first.body) : (this.submission.description || '');
-    this.seoConfig.metaDescription = text.substring(0, 160).trim();
+    this.seoConfig.metaDescription = (text || '').substring(0, 160).trim();
     this.showSuccess('Meta description auto-filled');
   }
 
@@ -860,21 +722,14 @@ export class PublishSubmissionComponent implements OnInit {
     if (!this.submission) return '';
     if (this.submission.excerpt && this.submission.excerpt.length > 0) return this.submission.excerpt;
     if (this.submission.description && this.submission.description.length > 0) return this.submission.description.substring(0, 150).trim();
-    const first = this.submission.contents && this.submission.contents[0];
+    const first = this.submission.contents?.[0];
     const text = first ? this.extractPlainText(first.body) : '';
     return (text || '').substring(0, 150).trim();
   }
 
-  // Toggle custom excerpt editing (template invokes this method)
-  isCustomExcerptEnabled = false;
-  enableCustomExcerpt() {
-    this.isCustomExcerptEnabled = true;
-    this.showToast('You can now customize the excerpt.', 'info');
-  }
-
   // Image action helpers used by template buttons
   useCoverImageAsSocial() {
-    if (!this.submission || !this.submission.imageUrl) {
+    if (!this.submission?.imageUrl) {
       this.showError('No cover image to use.');
       return;
     }
@@ -936,162 +791,49 @@ export class PublishSubmissionComponent implements OnInit {
 
   // Use an image from content/gallery as the cover and persist immediately
   useContentImageAsCover(imageUrl: string) {
-    if (!imageUrl) {
-      this.showError('No image URL provided.');
-      return;
-    }
-    if (imageUrl.startsWith('blob:') || imageUrl.startsWith('data:')) {
-      this.showError('This is a local preview URL. Please upload this image first before using it as the cover.');
-      return;
-    }
-
+    if (!imageUrl) { this.showError('No image URL provided.'); return; }
+    if (imageUrl.startsWith('blob:') || imageUrl.startsWith('data:')) { this.showError('This is a local preview URL. Please upload this image first before using it as the cover.'); return; }
     const normalized = this.normalizeImageUrl(imageUrl);
     this.submission.imageUrl = normalized;
-
-    // Persist the change immediately
-    const updateData = { imageUrl: normalized };
-    this.backendService.updateSubmission(this.submission._id, updateData).subscribe({
-      next: () => {
-        this.showSuccess('Cover image set and saved.');
-      },
-      error: (err) => {
-        console.error('Failed to save cover image:', err);
-        this.showError('Failed to save cover image.');
-      }
-    });
+    this.backendService.updateSubmission(this.submission._id, { imageUrl: normalized }).subscribe({ next: () => this.showSuccess('Cover image set and saved.'), error: (err) => this.showError('Failed to save cover image.') });
   }
 
   // Use an image from content/gallery as the social (og) image and persist immediately
   useContentImageAsSocial(imageUrl: string) {
-    if (!imageUrl) {
-      this.showError('No image URL provided.');
-      return;
-    }
-    if (imageUrl.startsWith('blob:') || imageUrl.startsWith('data:')) {
-      this.showError('This is a local preview URL. Please upload this image first before using it as the social image.');
-      return;
-    }
-
+    if (!imageUrl) { this.showError('No image URL provided.'); return; }
+    if (imageUrl.startsWith('blob:') || imageUrl.startsWith('data:')) { this.showError('This is a local preview URL. Please upload this image first before using it as the social image.'); return; }
     const normalized = this.normalizeImageUrl(imageUrl);
     this.seoConfig.ogImage = normalized;
-
-    // Persist SEO change
-    this.backendService.updateSEOConfiguration(this.submission._id, { ogImage: normalized }).subscribe({
-      next: () => {
-        this.showSuccess('Social image set and saved.');
-      },
-      error: (err) => {
-        console.error('Failed to save social image:', err);
-        this.showError('Failed to save social image.');
-      }
-    });
+    this.backendService.updateSEOConfiguration(this.submission._id, { ogImage: normalized }).subscribe({ next: () => this.showSuccess('Social image set and saved.'), error: () => this.showError('Failed to save social image.') });
   }
 
-  goBack() {
-    // Navigate back to admin submissions list
-    try {
-      this.router.navigate(['/admin/submissions']);
-    } catch (e) {
-      window.history.back();
-    }
-  }
-
-  // Validate minimal form requirements for publishing
-  isFormValid(): boolean {
-    if (!this.submission) return false;
-    // require title and slug at minimum
-    if (!this.submission.title || !this.seoConfig.slug) return false;
-    return true;
-  }
-
-  getPublishButtonText(): string {
-    return this.submission && this.submission.status === 'published' ? 'Republish' : 'Publish';
-  }
-
-  getPublishingText(): string {
-    return 'Publishing...';
-  }
+  goBack() { try { this.router.navigate(['/admin/submissions']); } catch (e) { window.history.back(); } }
+  isFormValid(): boolean { if (!this.submission) return false; if (!this.submission.title || !this.seoConfig.slug) return false; return true; }
+  getPublishButtonText(): string { return this.submission && this.submission.status === 'published' ? 'Republish' : 'Publish'; }
+  getPublishingText(): string { return 'Publishing...'; }
 
   // Save changes locally (patch submission)
-  saveChanges() {
-    if (!this.submission) return;
-    const updatePayload: any = {
-      title: this.submission.title,
-      description: this.submission.description,
-      excerpt: this.submission.excerpt
-    };
-    this.backendService.updateSubmission(this.submission._id, updatePayload).subscribe({
-      next: () => this.showSuccess('Changes saved'),
-      error: (err) => this.showError('Failed to save changes')
-    });
-  }
+  saveChanges() { if (!this.submission) return; const updatePayload: any = { title: this.submission.title, description: this.submission.description, excerpt: this.submission.excerpt }; this.backendService.updateSubmission(this.submission._id, updatePayload).subscribe({ next: () => this.showSuccess('Changes saved'), error: () => this.showError('Failed to save changes') }); }
 
   // Publish flow: upload pending images then call backend publish endpoint
   async saveAndPublish() {
     if (!this.submission) return;
-    if (!this.isFormValid()) {
-      this.showError('Please fill required fields before publishing.');
-      return;
-    }
-
+    if (!this.isFormValid()) { this.showError('Please fill required fields before publishing.'); return; }
     this.isPublishing = true;
     try {
-      // Ensure any selected images are uploaded first so URLs are available
       await this.uploadPendingImagesIfAny();
-
-      // Build perContentTags map from current UI inputs (do not persist yet)
       const perContentTags: Record<string, string[]> = {};
       if (this.submission.contents && Array.isArray(this.submission.contents)) {
-        this.submission.contents.forEach((c: any) => {
-          if (c.tags && Array.isArray(c.tags)) {
-            perContentTags[c._id] = c.tags.map((t: string) => (typeof t === 'string' ? t.trim() : '')).filter(Boolean);
-          }
-        });
+        this.submission.contents.forEach((c: any) => { if (c.tags && Array.isArray(c.tags)) perContentTags[c._id] = c.tags.map((t: any) => typeof t === 'string' ? t.trim() : '').filter(Boolean); });
       }
-
-      // Build per-content meta (title + description + primaryKeyword) to persist into content.seo
-      const perContentMeta: Record<string, { metaTitle?: string; metaDescription?: string; primaryKeyword?: string }> = {};
+      const perContentMeta: Record<string, any> = {};
       if (this.submission.contents && Array.isArray(this.submission.contents)) {
-        this.submission.contents.forEach((c: any) => {
-          const metaTitle = (c.metaTitle && String(c.metaTitle).trim()) ? String(c.metaTitle).trim() : (c.title || '');
-          const metaDescription = (c.metaDescription && String(c.metaDescription).trim()) ? String(c.metaDescription).trim() : (this.extractPlainText(c.body) || '').substring(0, 160).trim();
-
-          // Prefer explicit content-level primary keyword (in perContentMeta or seo), then seoKeyword, then generated value
-          const primaryKeyword = (c.seo && c.seo.primaryKeyword) ? String(c.seo.primaryKeyword).trim()
-            : (c.seoKeyword && String(c.seoKeyword).trim()) ? String(c.seoKeyword).trim()
-            : (c.title || '');
-
-          perContentMeta[c._id] = { metaTitle, metaDescription, primaryKeyword };
-        });
+        this.submission.contents.forEach((c: any) => { perContentMeta[c._id] = { metaTitle: c.metaTitle || c.title || '', metaDescription: c.metaDescription || (this.extractPlainText(c.body) || '').substring(0,160).trim(), primaryKeyword: (c.seo?.primaryKeyword || c.seoKeyword || c.title || '').trim() }; });
       }
-
-      // Build SEO payload using a submissionMeta object for submission-level SEO fields
-      const payload: any = {
-        // Submission fields to persist
-        title: this.submission.title,
-        description: this.submission.description,
-        excerpt: this.submission.excerpt,
-
-        // Submission-level SEO grouped under submissionMeta
-        submissionMeta: {
-          slug: this.seoConfig.slug,
-          metaTitle: this.seoConfig.metaTitle || this.submission.title,
-          metaDescription: this.seoConfig.metaDescription || this.submission.description,
-          primaryKeyword: (this.seoConfig.primaryKeyword || this.submission.title || '').trim(),
-          ogImage: this.seoConfig.ogImage || this.submission.imageUrl || ''
-        },
-
-        // Per-content metadata and tags
-        perContentMeta,
-        perContentTags
-      };
-
-      // Call publish endpoint which creates canonical Tag docs and updates Content.tags to Tag._id
+      const payload: any = { title: this.submission.title, description: this.submission.description, excerpt: this.submission.excerpt, submissionMeta: { slug: this.seoConfig.slug, metaTitle: this.seoConfig.metaTitle || this.submission.title, metaDescription: this.seoConfig.metaDescription || this.submission.description, primaryKeyword: (this.seoConfig.primaryKeyword || this.submission.title || '').trim(), ogImage: this.seoConfig.ogImage || this.submission.imageUrl || '' }, perContentMeta, perContentTags };
       await lastValueFrom(this.backendService.publishSubmissionWithSEO(this.submission._id, payload));
-
       this.showSuccess('Submission published successfully');
       this.isPublishing = false;
-      // Navigate back to submissions list
       this.router.navigate(['/admin/submissions']);
     } catch (e: any) {
       console.error('Publish failed:', e);
@@ -1101,464 +843,12 @@ export class PublishSubmissionComponent implements OnInit {
   }
 
   // Toast notification methods
-  showToast(message: string, type: 'success' | 'error' | 'info'): void {
-    this.toastMessage = message;
-    this.toastType = type;
-    this.showToastFlag = true;
-
-    // Auto-hide toast after 5 seconds
-    setTimeout(() => {
-      this.hideToast();
-    }, 5000);
-  }
-
-  hideToast(): void {
-    this.showToastFlag = false;
-  }
-
+  showToast(message: string, type: 'success' | 'error' | 'info'): void { this.toastMessage = message; this.toastType = type; this.showToastFlag = true; setTimeout(() => this.hideToast(), 5000); }
+  hideToast(): void { this.showToastFlag = false; }
   // Show success message
-  showSuccess(message: string) {
-    this.showToast(message, 'success');
-  }
-
+  showSuccess(message: string) { this.showToast(message, 'success'); }
   // Show error message
-  showError(message: string) {
-    this.showToast(message, 'error');
-  }
-
-  // Handle image deletion from editor
-  onImageDelete(imageUrl: string) {
-    if (!imageUrl) return;
-
-    // Extract S3 key from URL
-    // URL format: http://localhost:3000/uploads/temp/articles/filename.jpg
-    // or https://cloudfront.net/uploads/temp/articles/filename.jpg
-    const s3Key = this.extractS3KeyFromUrl(imageUrl);
-
-    if (!s3Key) {
-      console.error('❌ Could not extract S3 key from URL:', imageUrl);
-      return;
-    }
-
-    console.log('🗑️ Deleting image with S3 key:', s3Key);
-
-    // Call backend to delete image from S3
-    this.backendService.deleteImageByS3Key(s3Key).subscribe({
-      next: (response) => {
-        console.log('✅ Image deleted from S3:', response);
-        // Don't show toast as image is already removed from editor
-      },
-      error: (err: any) => {
-        console.error('❌ Failed to delete image from S3:', err);
-        // Silently fail - image is already removed from editor
-      }
-    });
-  }
-
-  // Extract S3 key from image URL
-  private extractS3KeyFromUrl(url: string): string | null {
-    try {
-      // Handle both local and CDN URLs
-      // Local: http://localhost:3000/uploads/temp/articles/filename.jpg
-      // CDN: https://cloudfront.net/uploads/temp/articles/filename.jpg
-
-      const urlObj = new URL(url);
-      const pathname = urlObj.pathname;
-
-      // Remove leading slash and extract the S3 key
-      // S3 key format: uploads/temp/articles/filename.jpg
-      const s3Key = pathname.startsWith('/') ? pathname.substring(1) : pathname;
-
-      return s3Key || null;
-    } catch (error) {
-      console.error('Error parsing image URL:', error);
-      return null;
-    }
-  }
-
-  // Check if user profile image can be reused for poem submissions
-  checkProfileImageReuse() {
-    console.log('🔧 Checking profile image reuse conditions:');
-    console.log('🔧 Submission type:', this.submission?.submissionType);
-    console.log('🔧 Has existing image:', !!this.submission?.imageUrl);
-    console.log('🔧 User profile image:', this.userProfile?.profileImage);
-    console.log('🔧 Available profile image:', this.availableProfileImage);
-    console.log('🔧 Show reuse option:', this.showProfileImageReuse);
-
-    // Only show profile image reuse option for poems without an existing image
-    if (this.submission?.submissionType === 'poem' && 
-        !this.submission?.imageUrl && 
-        this.userProfile?.profileImage) {
-      
-      this.availableProfileImage = this.userProfile.profileImage;
-      this.showProfileImageReuse = true;
-      
-      console.log('✅ Profile image reuse enabled!');
-      this.showToast('Your profile image is available to reuse for this poem. Click "Use Profile Image" to avoid re-uploading.', 'info');
-    } else {
-      console.log('❌ Profile image reuse not enabled - conditions not met');
-    }
-  }
-
-  // Use profile image as submission cover image
-  useProfileImageAsCover() {
-    if (!this.availableProfileImage) {
-      this.showError('No profile image available to use.');
-      return;
-    }
-
-    // Set the profile image as the submission's cover image
-    this.submission.imageUrl = this.availableProfileImage;
-    
-    // Immediately save the change to persist it
-    const updateData = {
-      imageUrl: this.availableProfileImage
-    };
-
-    this.backendService.updateSubmission(this.submission._id, updateData).subscribe({
-      next: (response) => {
-        // Hide the reuse suggestion since we've used it
-        this.showProfileImageReuse = false;
-        this.showSuccess('Profile image has been set as cover image and saved successfully!');
-      },
-      error: (err) => {
-        // Revert the change if saving failed
-        this.submission.imageUrl = '';
-        this.showError('Failed to save profile image as cover. Please try again.');
-      }
-    });
-  }
-
-  // Dismiss profile image reuse suggestion
-  dismissProfileImageReuse() {
-    this.showProfileImageReuse = false;
-  }
-
-  // Upload any selected local images before publishing. Updates submission and SEO fields with returned public URLs.
-  private async uploadPendingImagesIfAny(): Promise<void> {
-    if (!this.submission) return;
-
-    try {
-      // Upload cover image if selected
-      if (this.selectedCoverImageFile) {
-        console.log('[Publish] uploadPendingImagesIfAny - uploading cover image', this.selectedCoverImageFile);
-        const resp: any = await lastValueFrom(this.backendService.uploadSubmissionImage(this.submission._id, this.selectedCoverImageFile));
-        console.log('[Publish] uploadPendingImagesIfAny - cover upload response:', resp);
-        const imageUrl = resp?.imageUrl || resp?.submission?.imageUrl || resp?.image?.url || '';
-        console.log('[Publish] uploadPendingImagesIfAny - cover returned imageUrl:', imageUrl);
-        this.submission.imageUrl = this.normalizeImageUrl(imageUrl);
-        this.selectedCoverImageFile = null;
-      }
-
-      // Upload social image if selected
-      if (this.selectedSocialImageFile) {
-        console.log('[Publish] uploadPendingImagesIfAny - uploading social image', this.selectedSocialImageFile);
-        const resp: any = await lastValueFrom(this.backendService.uploadSubmissionImage(this.submission._id, this.selectedSocialImageFile));
-        console.log('[Publish] uploadPendingImagesIfAny - social upload response:', resp);
-        const socUrl = resp?.imageUrl || resp?.submission?.seo?.ogImage || resp?.submission?.imageUrl || resp?.image?.url || '';
-        console.log('[Publish] uploadPendingImagesIfAny - social returned imageUrl:', socUrl);
-        this.seoConfig.ogImage = this.normalizeImageUrl(socUrl);
-        this.selectedSocialImageFile = null;
-      }
-    } catch (e: any) {
-      console.error('[Publish] uploadPendingImagesIfAny error:', e);
-      // Re-throw to let caller handle UI state
-      throw e;
-    }
-  }
-
-  // Auto-fill helpers
-  autoFillDescription() {
-    if (!this.submission) return;
-    const first = this.submission.contents && this.submission.contents[0];
-    const text = first ? this.extractPlainText(first.body) : (this.submission.description || '');
-    this.submission.description = text.substring(0, 300).trim();
-    this.showSuccess('Description auto-filled');
-  }
-
-  autoFillMetaDescription() {
-    if (!this.submission) return;
-    const first = this.submission.contents && this.submission.contents[0];
-    const text = first ? this.extractPlainText(first.body) : (this.submission.description || '');
-    this.seoConfig.metaDescription = text.substring(0, 160).trim();
-    this.showSuccess('Meta description auto-filled');
-  }
-
-  autoFillExcerpt() {
-    if (!this.submission) return;
-    this.submission.excerpt = this.getAutoGeneratedExcerpt();
-    this.showSuccess('Excerpt reset to auto');
-  }
-
-  getAutoGeneratedExcerpt(): string {
-    if (!this.submission) return '';
-    if (this.submission.excerpt && this.submission.excerpt.length > 0) return this.submission.excerpt;
-    if (this.submission.description && this.submission.description.length > 0) return this.submission.description.substring(0, 150).trim();
-    const first = this.submission.contents && this.submission.contents[0];
-    const text = first ? this.extractPlainText(first.body) : '';
-    return (text || '').substring(0, 150).trim();
-  }
-
-  // Toggle custom excerpt editing (template invokes this method)
-  isCustomExcerptEnabled = false;
-  enableCustomExcerpt() {
-    this.isCustomExcerptEnabled = true;
-    this.showToast('You can now customize the excerpt.', 'info');
-  }
-
-  // Image action helpers used by template buttons
-  useCoverImageAsSocial() {
-    if (!this.submission || !this.submission.imageUrl) {
-      this.showError('No cover image to use.');
-      return;
-    }
-    if (this.submission.imageUrl.startsWith('blob:') || this.submission.imageUrl.startsWith('data:')) {
-      this.showError('Please upload the cover image before using it as social image.');
-      return;
-    }
-    this.seoConfig.ogImage = this.normalizeImageUrl(this.submission.imageUrl);
-    this.showSuccess('Cover image set as social image.');
-  }
-
-  removeCoverImage() {
-    if (!this.submission) return;
-    const prev = this.submission.imageUrl;
-    this.submission.imageUrl = '';
-    // Attempt to delete on backend silently
-    this.backendService.deleteSubmissionImage(this.submission._id).subscribe({
-      next: () => {
-        this.showSuccess('Cover image removed');
-      },
-      error: (err) => {
-        console.warn('Failed to delete cover image on backend:', err);
-      }
-    });
-    // revoke transient preview if it matches
-    if (this.lastSelectedCoverPreviewUrl) {
-      try { URL.revokeObjectURL(this.lastSelectedCoverPreviewUrl); } catch(e){}
-      this.lastSelectedCoverPreviewUrl = null;
-    }
-  }
-
-  removeSocialImage() {
-    this.seoConfig.ogImage = '';
-    this.showSuccess('Social image removed');
-    if (this.lastSelectedSocialPreviewUrl) {
-      try { URL.revokeObjectURL(this.lastSelectedSocialPreviewUrl); } catch(e){}
-      this.lastSelectedSocialPreviewUrl = null;
-    }
-  }
-
-  useSocialImageAsCover() {
-    if (!this.seoConfig.ogImage) {
-      this.showError('No social image available to set as cover.');
-      return;
-    }
-    if (this.seoConfig.ogImage.startsWith('blob:') || this.seoConfig.ogImage.startsWith('data:')) {
-      this.showError('Please upload the social image before using it as cover.');
-      return;
-    }
-    this.submission.imageUrl = this.normalizeImageUrl(this.seoConfig.ogImage);
-    this.showSuccess('Social image set as cover.');
-  }
-
-  // Template image error handler (fallback image)
-  onImageError(event: Event): void {
-    const img = event.target as HTMLImageElement;
-    img.src = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIj48cmVjdCBmaWxsPSIjZGRkIiB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkeT0iLjNlbSIgZmlsbD0iIzk5OSI+Image Error</dGV4dD48L3N2Zz4=';
-  }
-
-  // Use an image from content/gallery as the cover and persist immediately
-  useContentImageAsCover(imageUrl: string) {
-    if (!imageUrl) {
-      this.showError('No image URL provided.');
-      return;
-    }
-    if (imageUrl.startsWith('blob:') || imageUrl.startsWith('data:')) {
-      this.showError('This is a local preview URL. Please upload this image first before using it as the cover.');
-      return;
-    }
-
-    const normalized = this.normalizeImageUrl(imageUrl);
-    this.submission.imageUrl = normalized;
-
-    // Persist the change immediately
-    const updateData = { imageUrl: normalized };
-    this.backendService.updateSubmission(this.submission._id, updateData).subscribe({
-      next: () => {
-        this.showSuccess('Cover image set and saved.');
-      },
-      error: (err) => {
-        console.error('Failed to save cover image:', err);
-        this.showError('Failed to save cover image.');
-      }
-    });
-  }
-
-  // Use an image from content/gallery as the social (og) image and persist immediately
-  useContentImageAsSocial(imageUrl: string) {
-    if (!imageUrl) {
-      this.showError('No image URL provided.');
-      return;
-    }
-    if (imageUrl.startsWith('blob:') || imageUrl.startsWith('data:')) {
-      this.showError('This is a local preview URL. Please upload this image first before using it as the social image.');
-      return;
-    }
-
-    const normalized = this.normalizeImageUrl(imageUrl);
-    this.seoConfig.ogImage = normalized;
-
-    // Persist SEO change
-    this.backendService.updateSEOConfiguration(this.submission._id, { ogImage: normalized }).subscribe({
-      next: () => {
-        this.showSuccess('Social image set and saved.');
-      },
-      error: (err) => {
-        console.error('Failed to save social image:', err);
-        this.showError('Failed to save social image.');
-      }
-    });
-  }
-
-  goBack() {
-    // Navigate back to admin submissions list
-    try {
-      this.router.navigate(['/admin/submissions']);
-    } catch (e) {
-      window.history.back();
-    }
-  }
-
-  // Validate minimal form requirements for publishing
-  isFormValid(): boolean {
-    if (!this.submission) return false;
-    // require title and slug at minimum
-    if (!this.submission.title || !this.seoConfig.slug) return false;
-    return true;
-  }
-
-  getPublishButtonText(): string {
-    return this.submission && this.submission.status === 'published' ? 'Republish' : 'Publish';
-  }
-
-  getPublishingText(): string {
-    return 'Publishing...';
-  }
-
-  // Save changes locally (patch submission)
-  saveChanges() {
-    if (!this.submission) return;
-    const updatePayload: any = {
-      title: this.submission.title,
-      description: this.submission.description,
-      excerpt: this.submission.excerpt
-    };
-    this.backendService.updateSubmission(this.submission._id, updatePayload).subscribe({
-      next: () => this.showSuccess('Changes saved'),
-      error: (err) => this.showError('Failed to save changes')
-    });
-  }
-
-  // Publish flow: upload pending images then call backend publish endpoint
-  async saveAndPublish() {
-    if (!this.submission) return;
-    if (!this.isFormValid()) {
-      this.showError('Please fill required fields before publishing.');
-      return;
-    }
-
-    this.isPublishing = true;
-    try {
-      // Ensure any selected images are uploaded first so URLs are available
-      await this.uploadPendingImagesIfAny();
-
-      // Build perContentTags map from current UI inputs (do not persist yet)
-      const perContentTags: Record<string, string[]> = {};
-      if (this.submission.contents && Array.isArray(this.submission.contents)) {
-        this.submission.contents.forEach((c: any) => {
-          if (c.tags && Array.isArray(c.tags)) {
-            perContentTags[c._id] = c.tags.map((t: string) => (typeof t === 'string' ? t.trim() : '')).filter(Boolean);
-          }
-        });
-      }
-
-      // Build per-content meta (title + description + primaryKeyword) to persist into content.seo
-      const perContentMeta: Record<string, { metaTitle?: string; metaDescription?: string; primaryKeyword?: string }> = {};
-      if (this.submission.contents && Array.isArray(this.submission.contents)) {
-        this.submission.contents.forEach((c: any) => {
-          const metaTitle = (c.metaTitle && String(c.metaTitle).trim()) ? String(c.metaTitle).trim() : (c.title || '');
-          const metaDescription = (c.metaDescription && String(c.metaDescription).trim()) ? String(c.metaDescription).trim() : (this.extractPlainText(c.body) || '').substring(0, 160).trim();
-
-          // Prefer explicit content-level primary keyword (in perContentMeta or seo), then seoKeyword, then generated value
-          const primaryKeyword = (c.seo && c.seo.primaryKeyword) ? String(c.seo.primaryKeyword).trim()
-            : (c.seoKeyword && String(c.seoKeyword).trim()) ? String(c.seoKeyword).trim()
-            : (c.title || '');
-
-          perContentMeta[c._id] = { metaTitle, metaDescription, primaryKeyword };
-        });
-      }
-
-      // Build SEO payload using a submissionMeta object for submission-level SEO fields
-      const payload: any = {
-        // Submission fields to persist
-        title: this.submission.title,
-        description: this.submission.description,
-        excerpt: this.submission.excerpt,
-
-        // Submission-level SEO grouped under submissionMeta
-        submissionMeta: {
-          slug: this.seoConfig.slug,
-          metaTitle: this.seoConfig.metaTitle || this.submission.title,
-          metaDescription: this.seoConfig.metaDescription || this.submission.description,
-          primaryKeyword: (this.seoConfig.primaryKeyword || this.submission.title || '').trim(),
-          ogImage: this.seoConfig.ogImage || this.submission.imageUrl || ''
-        },
-
-        // Per-content metadata and tags
-        perContentMeta,
-        perContentTags
-      };
-
-      // Call publish endpoint which creates canonical Tag docs and updates Content.tags to Tag._id
-      await lastValueFrom(this.backendService.publishSubmissionWithSEO(this.submission._id, payload));
-
-      this.showSuccess('Submission published successfully');
-      this.isPublishing = false;
-      // Navigate back to submissions list
-      this.router.navigate(['/admin/submissions']);
-    } catch (e: any) {
-      console.error('Publish failed:', e);
-      this.showError(e?.message || 'Publish failed.');
-      this.isPublishing = false;
-    }
-  }
-
-  // Toast notification methods
-  showToast(message: string, type: 'success' | 'error' | 'info'): void {
-    this.toastMessage = message;
-    this.toastType = type;
-    this.showToastFlag = true;
-
-    // Auto-hide toast after 5 seconds
-    setTimeout(() => {
-      this.hideToast();
-    }, 5000);
-  }
-
-  hideToast(): void {
-    this.showToastFlag = false;
-  }
-
-  // Show success message
-  showSuccess(message: string) {
-    this.showToast(message, 'success');
-  }
-
-  // Show error message
-  showError(message: string) {
-    this.showToast(message, 'error');
-  }
+  showError(message: string) { this.showToast(message, 'error'); }
 
   // Handle image deletion from editor
   onImageDelete(imageUrl: string) {
@@ -1716,52 +1006,21 @@ export class PublishSubmissionComponent implements OnInit {
   // Extract all images from submission content
   getContentImages(): string[] {
     const images: string[] = [];
-    const tempDiv = document.createElement('div');
-
-    // Gather images from content bodies
-    if (this.submission?.contents && this.submission.contents.length > 0) {
-      this.submission.contents.forEach((content: any) => {
-        if (content.body) {
-          tempDiv.innerHTML = content.body;
-          const imgElements = tempDiv.querySelectorAll('img');
-
-          imgElements.forEach((img: HTMLImageElement) => {
-            const src = img.getAttribute('src');
-            if (src && !images.includes(src)) {
-              images.push(src);
-            }
-          });
-        }
-      });
-    }
-
-    // Also include the current cover image and social (og) image so recently uploaded images are visible
     try {
-      const cover = this.submission?.imageUrl;
-      const og = this.seoConfig?.ogImage;
-
-      if (cover && typeof cover === 'string' && !images.includes(cover)) {
-        images.unshift(cover); // show cover first
+      const tempDiv = document.createElement('div');
+      if (this.submission?.contents) {
+        this.submission.contents.forEach((content: any) => {
+          if (content.body) {
+            tempDiv.innerHTML = content.body;
+            tempDiv.querySelectorAll('img').forEach((img: HTMLImageElement) => { const src = img.getAttribute('src'); if (src && !images.includes(src)) images.push(src); });
+          }
+        });
       }
-      if (og && typeof og === 'string' && !images.includes(og)) {
-        images.unshift(og); // show social image near the front
-      }
-    } catch (e) {
-      // noop
-    }
-
-    // Include any images uploaded via this UI (public URLs returned by backend)
-    if (this.uploadedImages && this.uploadedImages.length > 0) {
-      this.uploadedImages.forEach(u => {
-        if (u && !images.includes(u)) images.unshift(u);
-      });
-    }
-
-    // Debug: log the extracted images (commented out to reduce console noise)
-    // if (images.length > 0) {
-    //   console.log('📸 Content images found (including cover/og):', images);
-    // }
-
+      const cover = this.submission?.imageUrl; const og = this.seoConfig?.ogImage;
+      if (cover && !images.includes(cover)) images.unshift(cover);
+      if (og && !images.includes(og)) images.unshift(og);
+      this.uploadedImages.forEach(u => { if (u && !images.includes(u)) images.unshift(u); });
+    } catch (e) { /* noop */ }
     return images;
   }
 
@@ -1769,32 +1028,19 @@ export class PublishSubmissionComponent implements OnInit {
   deleteUploadedImage(imageUrl: string) {
     if (!imageUrl) return;
     const s3Key = this.extractS3KeyFromUrl(imageUrl);
-    if (!s3Key) {
-      // If we cannot extract S3 key, just remove it from client-side gallery
-      this.uploadedImages = this.uploadedImages.filter(u => u !== imageUrl);
-      this.transientUploadedImages = this.transientUploadedImages.filter(t => t !== imageUrl);
-      this.showSuccess('Image removed locally');
-      return;
-    }
-
-    this.backendService.deleteImageByS3Key(s3Key).subscribe({
-      next: () => {
-        this.uploadedImages = this.uploadedImages.filter(u => u !== imageUrl);
-        this.transientUploadedImages = this.transientUploadedImages.filter(t => t !== imageUrl);
-        this.showSuccess('Image deleted');
-      },
-      error: (err) => {
-        console.warn('Failed to delete uploaded image:', err);
-        this.showError('Failed to delete image.');
-      }
-    });
+    if (!s3Key) { this.uploadedImages = this.uploadedImages.filter(u => u !== imageUrl); this.transientUploadedImages = this.transientUploadedImages.filter(t => t !== imageUrl); this.showSuccess('Image removed locally'); return; }
+    this.backendService.deleteImageByS3Key(s3Key).subscribe({ next: () => { this.uploadedImages = this.uploadedImages.filter(u => u !== imageUrl); this.transientUploadedImages = this.transientUploadedImages.filter(t => t !== imageUrl); this.showSuccess('Image deleted'); }, error: (err) => { console.warn('Failed to delete uploaded image:', err); this.showError('Failed to delete image.'); } });
   }
 
-  // Helper to safely display tag name when tag may be an object
+  // Safe tag display
   getTagDisplayName(tag: any): string {
     if (!tag) return '';
     if (typeof tag === 'string') return tag;
     if (typeof tag === 'object') {
       if (tag.name && String(tag.name).trim().length > 0) return String(tag.name).trim();
       if (tag.tag && String(tag.tag).trim().length > 0) return String(tag.tag).trim();
-      if (tag.slug && String(tag.slug).trim().length > 0) return String(tag.slug).trim().replace(/-/g
+      if (tag.slug && String(tag.slug).trim().length > 0) return String(tag.slug).trim().replace(/-/g, ' ');
+    }
+    return '';
+  }
+}
