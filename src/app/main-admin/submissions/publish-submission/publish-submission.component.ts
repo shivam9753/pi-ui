@@ -761,6 +761,9 @@ export class PublishSubmissionComponent implements OnInit {
     }
   }
 
+  enableCustomExcerpt() {
+  }
+
   removeSocialImage() {
     this.seoConfig.ogImage = '';
     this.showSuccess('Social image removed');
