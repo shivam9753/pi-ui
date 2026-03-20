@@ -55,7 +55,7 @@ export interface ContentCardData {
       </div>
 
       <div class="space-y-2">
-        <div class="text-primary text-xs font-medium">
+        <div class="text-themed-accent text-xs font-medium">
           {{ content.submissionType | titlecase }}
         </div>
 
@@ -84,10 +84,6 @@ export interface ContentCardData {
 
         <div class="flex items-center gap-2 text-gray-500 text-sm mt-2">
           <span class="font-medium">{{ content.author?.name || content.authorName || 'Anonymous' }}</span>
-          <span>•</span>
-          <span>{{ content.createdAt | date:'MMM d, y' }}</span>
-          <span>•</span>
-          <span>{{ content.readingTime || '5' }} min read</span>
         </div>
       </div>
     </div>
