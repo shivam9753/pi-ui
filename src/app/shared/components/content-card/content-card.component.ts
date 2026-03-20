@@ -1,7 +1,7 @@
 import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { StatusBadgeComponent } from '../status-badge/status-badge.component';
-import { CommonUtils, StringUtils } from '../../utils';
+import { StringUtils } from '../../utils';
 import { Author } from '../../../models/author.model';
 import { BadgeLabelComponent } from '../../../utilities/badge-label/badge-label.component';
 import { Router } from '@angular/router';
@@ -37,48 +37,58 @@ export interface ContentCardData {
   standalone: true,
   imports: [CommonModule, StatusBadgeComponent, BadgeLabelComponent],
   template: `
-    <div class="bg-white rounded-none transform transition-all duration-200 overflow-hidden group"
-      [ngClass]="{ 'border border-gray-200 dark:border-gray-700': !noBorder, 'ring-2 ring-primary shadow-primary-light': isFeatured, 'hover:shadow-xl hover:-translate-y-1 cursor-pointer': clickable, 'card-sm': size === 'sm', 'card-lg': size === 'lg' }"
-      [attr.role]="clickable ? 'button' : null" [attr.tabindex]="clickable ? 0 : null"
-      (click)="onCardClick()" (keydown.enter)="onCardClick()" (keydown.space)="$event.preventDefault(); onCardClick()">
+    <div class="cursor-pointer group" [ngClass]="{ 'card-sm': size === 'sm', 'card-lg': size === 'lg' }" (click)="onCardClick()">
+      <div class="aspect-[4/3] rounded-2xl overflow-hidden bg-gray-100 mb-4">
+        @if (content.imageUrl) {
+          <img
+            [src]="content.imageUrl"
+            [alt]="content.title"
+            class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"/>
+        }
+        @if (!content.imageUrl) {
+          <div class="w-full h-full bg-gray-100 flex items-center justify-center">
+            <svg class="w-6 h-6 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+            </svg>
+          </div>
+        }
+      </div>
 
-      <!-- Image / Media -->
-      @if (content.imageUrl) {
-        <div class="aspect-[5/3] bg-gray-100 overflow-hidden relative image-wrapper">
-          <img [src]="content.imageUrl" [alt]="content.title" loading="lazy" class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" />
+      <div class="space-y-2">
+        <div class="text-primary text-xs font-medium">
+          {{ content.submissionType | titlecase }}
         </div>
-      }
 
-      <!-- Card Body -->
-      <div class="p-6 md:p-6 space-y-3 body-wrapper">
-        <!-- Type label (always shown, small uppercase red) -->
-        <div>
-          <app-badge-label [type]="content.submissionType" badgeType="type" variant="big-red"></app-badge-label>
-        </div>
-
-        <!-- Title -->
-        <h3 (click)="onTitleClick()" [class.cursor-pointer]="clickable" class="font-serif font-extrabold text-gray-900 text-2xl md:text-3xl lg:text-4xl leading-tight group-hover:text-primary transition-colors title-text" style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+        <h3 class="font-bold text-gray-900 text-base leading-tight mb-1"
+          style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
           {{ content.title }}
         </h3>
 
-        <!-- Author (uppercase, muted) - only show when showMeta is true -->
-        <div *ngIf="showMeta" class="text-xs uppercase text-gray-500 font-semibold author-text">
-          By {{ content.author?.name || content.authorName }}
+        @if (content?.excerpt || content?.description) {
+          <p class="text-gray-600 text-sm leading-relaxed mb-2"
+            style="display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;"
+            [innerHTML]="sanitizeHtml(content?.excerpt || content?.description || '')">
+          </p>
+        }
+
+        @if (content.tags && content.tags.length > 0) {
+          <div class="flex flex-wrap gap-1 mt-2">
+            @for (tagItem of content.tags.slice(0,3); track tagItem) {
+              <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-600">{{ tagItem }}</span>
+            }
+            @if (content.tags.length > 3) {
+              <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-600">+{{ content.tags.length - 3 }}</span>
+            }
+          </div>
+        }
+
+        <div class="flex items-center gap-2 text-gray-500 text-sm mt-2">
+          <span class="font-medium">{{ content.author?.name || content.authorName || 'Anonymous' }}</span>
+          <span>•</span>
+          <span>{{ content.createdAt | date:'MMM d, y' }}</span>
+          <span>•</span>
+          <span>{{ content.readingTime || '5' }} min read</span>
         </div>
-
-        <!-- Excerpt (larger, more leading) -->
-        <p *ngIf="content.description || content.excerpt" class="content-body font-serif prose-custom text-gray-700 text-base md:text-lg leading-relaxed mb-2 excerpt-text" style="font-family: 'Crimson Text', Georgia, serif !important; font-style: italic !important; font-weight: 300 !important;">
-          {{ sanitizeHtml(content.description || content.excerpt) }}
-        </p>
-
-        <!-- Actions: render passed actions or a default Learn More button when requested -->
-        <div *ngIf="showActions" class="mt-4 flex items-center space-x-3">
-          <button *ngFor="let a of actions" (click)="a.handler(content)" [ngClass]="a.class || 'btn-primary'">{{ a.label }}</button>
-          <button *ngIf="actions.length === 0 && (content.link || content.slug)" class="btn-secondary" (click)="navigateByContent(content)">Learn More</button>
-        </div>
-
-        <!-- Removed meta block (date & reading time) per design change -->
-
       </div>
     </div>
   `,
@@ -138,7 +148,7 @@ export class ContentCardComponent {
   // When true, hide the outer border (used by other templates via [noBorder])
   @Input() noBorder = false;
 
-  constructor(private router: Router) {}
+  constructor(private readonly router: Router) {}
 
   get isFeatured(): boolean {
     return this.content.isFeatured || false;
