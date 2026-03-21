@@ -1015,14 +1015,27 @@ export class PublishSubmissionComponent implements OnInit {
         this.submission.contents.forEach((content: any) => {
           if (content.body) {
             tempDiv.innerHTML = content.body;
-            tempDiv.querySelectorAll('img').forEach((img: HTMLImageElement) => { const src = img.getAttribute('src'); if (src && !images.includes(src)) images.push(src); });
+            tempDiv.querySelectorAll('img').forEach((img: HTMLImageElement) => {
+              const src = img.getAttribute('src');
+              if (src && !images.includes(src)) images.push(src);
+            });
           }
         });
       }
-      const cover = this.submission?.imageUrl; const og = this.seoConfig?.ogImage;
+
+      // Add cover/OG and uploaded/transient images but avoid duplicates
+      const cover = this.submission?.imageUrl;
+      const og = this.seoConfig?.ogImage;
       if (cover && !images.includes(cover)) images.unshift(cover);
       if (og && !images.includes(og)) images.unshift(og);
       this.uploadedImages.forEach(u => { if (u && !images.includes(u)) images.unshift(u); });
+
+      // Include user profile images if present but dedupe
+      const profile = (this.userProfile && this.userProfile.profileImage) ? this.userProfile.profileImage : null;
+      const avail = this.availableProfileImage || null;
+      if (profile && !images.includes(profile)) images.push(profile);
+      if (avail && !images.includes(avail)) images.push(avail);
+
     } catch (e) { /* noop */ }
     return images;
   }
