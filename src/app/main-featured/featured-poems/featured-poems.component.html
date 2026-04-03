@@ -3,7 +3,7 @@
   <!-- Page Header -->
   <div class="page-header">
     <h1 class="page-title">Featured Poems</h1>
-    <span class="page-count">{{ featuredPoems().length }} shown</span>
+    <span class="page-count">{{ featuredPoems().length }} </span>
   </div>
 
   <!-- Loading -->
@@ -37,7 +37,7 @@
       </mat-card-header>
 
       <mat-card-content *ngIf="poem.body">
-        <p class="poem-excerpt">{{ poem.body }}</p>
+        <p class="poem-excerpt">{{ stripBody(poem.body) }}</p>
       </mat-card-content>
 
       <mat-card-footer *ngIf="poem.tags && poem.tags.length > 0" class="poem-footer">

@@ -126,6 +126,11 @@ export class FeaturedPoemsComponent implements OnInit {
     this.router.navigate(['/content', poem._id]);
   }
 
+  // Strip HTML tags and entities from poem body for plain-text excerpt display
+  stripBody(body: string | undefined): string {
+    return this.htmlSanitizer.cleanHtml(body);
+  }
+
   // Helper to safely display tag name when backend may return objects
   getTagDisplayName(tag: any): string {
     if (!tag) return '';

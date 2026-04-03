@@ -1,5 +1,7 @@
 import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { MatCardModule } from '@angular/material/card';
+import { MatChipsModule } from '@angular/material/chips';
 import { StatusBadgeComponent } from '../status-badge/status-badge.component';
 import { StringUtils } from '../../utils';
 import { Author } from '../../../models/author.model';
@@ -34,92 +36,190 @@ export interface ContentCardData {
 @Component({
   selector: 'app-content-card',
   standalone: true,
-  imports: [CommonModule, StatusBadgeComponent, BadgeLabelComponent],
+  imports: [CommonModule, MatCardModule, MatChipsModule, StatusBadgeComponent, BadgeLabelComponent],
   template: `
-    <div class="cursor-pointer group" [ngClass]="{ 'card-sm': size === 'sm', 'card-lg': size === 'lg' }" (click)="onCardClick()">
-      <div class="aspect-[4/3] rounded-2xl overflow-hidden bg-gray-100 mb-4">
-        @if (content.imageUrl) {
-          <img
-            [src]="content.imageUrl"
-            [alt]="content.title"
-            class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"/>
-        }
-        @if (!content.imageUrl) {
-          <div class="w-full h-full bg-gray-100 flex items-center justify-center">
-            <svg class="w-6 h-6 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-            </svg>
-          </div>
-        }
-      </div>
+    <mat-card
+      class="content-card cursor-pointer"
+      [ngClass]="{ 'card-sm': size === 'sm', 'card-lg': size === 'lg' }"
+      appearance="outlined"
+      (click)="onCardClick()">
 
-      <div class="space-y-2">
-        <div class="text-themed-accent text-xs font-medium">
-          {{ content.submissionType | titlecase }}
+      <!-- Cover image -->
+      @if (content.imageUrl) {
+        <img mat-card-image [src]="content.imageUrl" [alt]="content.title" class="card-cover-img" />
+      }
+      @if (!content.imageUrl) {
+        <div class="card-cover-placeholder">
+          <svg class="placeholder-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+          </svg>
         </div>
+      }
 
-        <h3 class="font-bold text-gray-900 text-base leading-tight mb-1"
-          style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
-          {{ content.title }}
-        </h3>
+      <mat-card-header>
+        <mat-chip-set class="type-chip-set">
+          <mat-chip class="type-chip" disableRipple>{{ getTypeLabel() }}</mat-chip>
+        </mat-chip-set>
+        <mat-card-title class="card-title">{{ content.title }}</mat-card-title>
+      </mat-card-header>
 
+      <mat-card-content>
         @if (content?.excerpt || content?.description) {
-          <p class="text-gray-600 text-sm leading-relaxed mb-2"
-            style="display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;"
+          <p class="card-excerpt"
             [innerHTML]="sanitizeHtml(content?.excerpt || content?.description || '')">
           </p>
         }
 
         @if (content.tags && content.tags.length > 0) {
-          <div class="flex flex-wrap gap-1 mt-2">
-            @for (tagItem of content.tags.slice(0,3); track tagItem) {
-              <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-600">{{ tagItem }}</span>
+          <mat-chip-set class="tag-chip-set">
+            @for (tagItem of content.tags.slice(0, 3); track tagItem) {
+              <mat-chip disableRipple>{{ tagItem }}</mat-chip>
             }
             @if (content.tags.length > 3) {
-              <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-600">+{{ content.tags.length - 3 }}</span>
+              <mat-chip disableRipple>+{{ content.tags.length - 3 }}</mat-chip>
             }
-          </div>
+          </mat-chip-set>
         }
+      </mat-card-content>
 
-        <div class="flex items-center gap-2 text-gray-500 text-sm mt-2">
-          <span class="font-medium">{{ content.author?.name }}</span>
-        </div>
-      </div>
-    </div>
+      <mat-card-footer class="card-footer">
+        <span class="author-name">{{ content.author?.name }}</span>
+      </mat-card-footer>
+
+    </mat-card>
   `,
   styles: [
     `
-    .line-clamp-2 {
+    :host {
+      display: block;
+    }
+
+    .content-card {
+      overflow: hidden;
+      transition: box-shadow 0.2s ease, transform 0.2s ease;
+      height: 100%;
+    }
+
+    .content-card:hover {
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+      transform: translateY(-2px);
+    }
+
+    /* Cover image fills the top of the card */
+    img[mat-card-image].card-cover-img {
+      width: 100%;
+      aspect-ratio: 4 / 3;
+      object-fit: cover;
+      margin: 0;
+    }
+
+    /* Placeholder when no image */
+    .card-cover-placeholder {
+      width: 100%;
+      aspect-ratio: 4 / 3;
+      background: #f3f4f6;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .placeholder-icon {
+      width: 2.5rem;
+      height: 2.5rem;
+      color: #d1d5db;
+    }
+
+    /* Header tweaks */
+    mat-card-header {
+      padding: 12px 16px 0;
+      flex-direction: column;
+      align-items: flex-start;
+    }
+    .type-chip-set {
+      margin-bottom: 6px;
+    }
+    .type-chip-set .type-chip {
+      --mdc-chip-label-text-size: 0.6rem;
+      --mdc-chip-label-text-weight: 700;
+      --mdc-chip-container-height: 20px;
+      --mdc-chip-container-shape-radius: 999px;
+      --mdc-chip-elevated-container-color: var(--color-primary-light, #FFF3ED);
+      --mdc-chip-label-text-color: var(--color-primary, #FF6100);
+      --mat-chip-selected-trailing-icon-color: var(--color-primary, #FF6100);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      padding: 0 6px;
+    }
+    .card-title {
+      font-size: 1rem !important;
+      font-weight: 700 !important;
+      line-height: 1.35 !important;
       display: -webkit-box;
       -webkit-line-clamp: 2;
       -webkit-box-orient: vertical;
       overflow: hidden;
+      white-space: normal !important;
     }
 
-    /* focus styles for keyboard users */
-    :host [role="button"]:focus {
-      outline: none;
-      box-shadow: 0 0 0 3px rgba(59,130,246,0.25);
-      border-radius: 0;
+    /* Content */
+    mat-card-content {
+      padding: 8px 16px 0;
+    }
+    .card-excerpt {
+      font-size: 0.875rem;
+      color: #4b5563;
+      line-height: 1.6;
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      margin-bottom: 8px;
+    }
+
+    /* Chips */
+    .tag-chip-set {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      margin-top: 4px;
+    }
+    .tag-chip-set mat-chip {
+      font-size: 0.7rem !important;
+      min-height: 22px !important;
+      padding: 0 8px !important;
+    }
+
+    /* Footer */
+    mat-card-footer.card-footer {
+      display: flex;
+      align-items: center;
+      padding: 8px 16px 12px;
+    }
+    .author-name {
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: #6b7280;
     }
 
     /* Size variants */
-    .card-sm {
-      min-width: 200px;
+    :host-context(.card-sm) .content-card,
+    .content-card.card-sm {
       width: 200px;
-      border-radius: 0.25rem;
+      min-width: 200px;
     }
-    .card-sm .body-wrapper { padding: 0.75rem !important; }
-    .card-sm .title-text { font-size: 1rem !important; line-height: 1.1 !important; }
-    .card-sm .excerpt-text { font-size: 0.85rem !important; }
-    .card-sm .image-wrapper { height: 120px; }
+    .content-card.card-sm img[mat-card-image].card-cover-img,
+    .content-card.card-sm .card-cover-placeholder {
+      aspect-ratio: unset;
+      height: 120px;
+    }
+    .content-card.card-sm .card-title { font-size: 0.9rem !important; }
+    .content-card.card-sm .card-excerpt { font-size: 0.8rem !important; }
 
-    .card-lg { min-width: 360px; width: 360px; }
-    .card-lg .body-wrapper { padding: 1.5rem !important; }
-    .card-lg .title-text { font-size: 1.5rem !important; }
-
-    /* Ensure default (md) can grow naturally */
-    .card-sm, .card-lg { display: inline-block; vertical-align: top; }
+    .content-card.card-lg {
+      width: 360px;
+      min-width: 360px;
+    }
+    .content-card.card-lg .card-title { font-size: 1.4rem !important; }
     `
   ]
 })
