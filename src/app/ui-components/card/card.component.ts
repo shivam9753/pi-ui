@@ -1,12 +1,12 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { BadgeLabelComponent } from '../../utilities/badge-label/badge-label.component';
-import { ButtonComponent } from '../button/button.component';
+import { MatButtonModule } from '@angular/material/button';
 
 @Component({
   selector: 'app-card',
   standalone: true,
-  imports: [CommonModule, BadgeLabelComponent, ButtonComponent],
+  imports: [CommonModule, BadgeLabelComponent, MatButtonModule],
   templateUrl: './card.component.html',
   styleUrls: ['./card.component.scss']
 })

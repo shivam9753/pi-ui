@@ -1,0 +1,61 @@
+<div class="featured-poems">
+
+  <!-- Page Header -->
+  <div class="page-header">
+    <h1 class="page-title">Featured Poems</h1>
+    <span class="page-count">{{ featuredPoems().length }} shown</span>
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="loading() && featuredPoems().length === 0" class="loading">Loading featured poems…</div>
+
+  <!-- Empty -->
+  <div *ngIf="!loading() && featuredPoems().length === 0" class="empty">
+    <p>No featured poems yet. Check back soon!</p>
+    <a routerLink="/explore" class="explore-link">Explore All Content</a>
+  </div>
+
+  <!-- Poems Grid -->
+  <div *ngIf="featuredPoems().length > 0" class="poems-grid">
+    <mat-card
+      *ngFor="let poem of featuredPoems()"
+      appearance="outlined"
+      class="poem-card"
+      (click)="readPoem(poem)"
+      (keydown.enter)="readPoem(poem)"
+      tabindex="0">
+
+      <mat-card-header>
+        <mat-card-title class="poem-title">{{ poem.title }}</mat-card-title>
+        <mat-card-subtitle>
+          <a [routerLink]="['/author', poem.author._id]"
+             (click)="$event.stopPropagation()"
+             class="author-link">
+            {{ poem.author.name || poem.author.username }}
+          </a>
+        </mat-card-subtitle>
+      </mat-card-header>
+
+      <mat-card-content *ngIf="poem.body">
+        <p class="poem-excerpt">{{ poem.body }}</p>
+      </mat-card-content>
+
+      <mat-card-footer *ngIf="poem.tags && poem.tags.length > 0" class="poem-footer">
+        <mat-chip-set aria-label="Tags">
+          <mat-chip *ngFor="let tag of poem.tags" class="poem-chip">
+            {{ getTagDisplayName(tag) }}
+          </mat-chip>
+        </mat-chip-set>
+      </mat-card-footer>
+
+    </mat-card>
+  </div>
+
+  <!-- Load More -->
+  <div *ngIf="hasMore()" class="load-more">
+    <button mat-stroked-button class="accent-btn" (click)="loadMorePoems()" [disabled]="loading()">
+      {{ loading() ? 'Loading…' : 'Load More' }}
+    </button>
+  </div>
+
+</div>

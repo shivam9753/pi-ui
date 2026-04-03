@@ -89,21 +89,7 @@
           Optional: Add footnotes to explain cultural references, colloquial words, or regional terms in your content.
         </p>
       </div>
-      <!-- Tags -->
-      <div>
-        <label class="block text-sm font-medium text-gray-900 mb-2">
-          Tags (Optional)
-        </label>
-        <app-tag-input
-          [formControl]="content.get('tags')"
-          placeholder="Add tags and press Enter..."
-          helperText="Press Enter to add a tag, or separate multiple tags with commas. Example: nature, love, friendship"
-          [maxTags]="10"
-          [allowDuplicates]="false"
-          [minTagLength]="2"
-          [maxTagLength]="30"
-        ></app-tag-input>
-      </div>
+      
       <!-- Divider (except for last item) -->
       @if (i < contents.length - 1) {
         <hr class="border-gray-200 my-8">

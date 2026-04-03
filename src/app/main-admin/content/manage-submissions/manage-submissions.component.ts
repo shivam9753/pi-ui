@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { MatButtonModule } from '@angular/material/button';
 import { Router, ActivatedRoute } from '@angular/router';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { BackendService } from '../../../services/backend.service';
@@ -25,12 +26,11 @@ import {
 import { SimpleSubmissionFilterComponent, SimpleFilterOptions } from '../../../shared/components/simple-submission-filter/simple-submission-filter.component';
 import { SUBMISSION_STATUS, API_ENDPOINTS } from '../../../shared/constants/api.constants';
 import { environment } from '../../../../environments/environment';
-import { ButtonComponent } from '../../../ui-components/button/button.component';
 import { TabsComponent, TabItemComponent } from '../../../ui-components';
 
 @Component({
   selector: 'app-manage-submissions',
-  imports: [CommonModule, FormsModule, ButtonComponent, PrettyLabelPipe, BadgeLabelComponent, AdminPageHeaderComponent, DataTableComponent, SimpleSubmissionFilterComponent, SearchableUserSelectorComponent, ConsistentSubmissionMobileCardComponent, SubmissionMobileCardComponent, TabsComponent, TabItemComponent],
+  imports: [CommonModule, FormsModule, PrettyLabelPipe, BadgeLabelComponent, AdminPageHeaderComponent, DataTableComponent, SimpleSubmissionFilterComponent, SearchableUserSelectorComponent, ConsistentSubmissionMobileCardComponent, SubmissionMobileCardComponent, TabsComponent, TabItemComponent, MatButtonModule],
   templateUrl: './manage-submissions.component.html',
   styleUrl: './manage-submissions.component.css'
 })

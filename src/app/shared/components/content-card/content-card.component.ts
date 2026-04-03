@@ -11,7 +11,6 @@ export interface ContentCardData {
   title: string;
   description?: string;
   excerpt?: string;
-  authorName?: string;
   author?: Author;
   submissionType: string;
   status?: string;
@@ -83,7 +82,7 @@ export interface ContentCardData {
         }
 
         <div class="flex items-center gap-2 text-gray-500 text-sm mt-2">
-          <span class="font-medium">{{ content.author?.name || content.authorName || 'Anonymous' }}</span>
+          <span class="font-medium">{{ content.author?.name }}</span>
         </div>
       </div>
     </div>
@@ -206,8 +205,8 @@ export class ContentCardComponent {
   }
 
   getAuthorInitials(): string {
-    const name = this.content.author?.name || this.content.authorName || 'Anonymous';
-    return StringUtils.getInitialsWithFallback(name, '?');
+    const name = this.content?.author?.name || '';
+    return StringUtils.getInitialsWithFallback(name);
   }
 
   isOpinionPiece(): boolean {

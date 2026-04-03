@@ -5,12 +5,11 @@
       <div class="flex items-start gap-4 mb-2">
         <div class="flex-1">
           <h1 class="text-3xl font-serif font-bold text-gray-900 leading-tight">Publishing Interface</h1>
-          <p class="text-gray-600 mt-1">Configure SEO settings and publish your submission.</p>
         </div>
       </div>
       <div class="flex items-center gap-6 text-sm text-gray-600 mt-3">
         <div>
-          <div class="text-sm font-medium text-gray-900">by {{ submission?.username }}</div>
+          <div class="text-sm font-medium text-gray-900">by {{ userProfile.name }}</div>
           <div class="text-xs text-gray-500">{{ submission?.createdAt | date:'MMMM d, y' }}</div>
         </div>
         <div class="text-xs text-gray-500">
@@ -40,535 +39,545 @@
   @if (!loading && submission) {
     <main class="max-w-4xl mx-auto px-6 space-y-8 pb-16">
 
-      <!-- PRIMARY SECTION — CONTENT EDITING (MOST PROMINENT) -->
-      <section class="bg-white rounded-lg p-6 shadow-sm">
-        <h2 class="text-2xl font-semibold text-gray-900 mb-4">Content — Edit</h2>
+      <mat-accordion multi>
+        <mat-expansion-panel [expanded]="true">
+          <mat-expansion-panel-header>
+            <mat-panel-title>Content — Edit</mat-panel-title>
+  
+          </mat-expansion-panel-header>
 
-        <!-- Basic Information (Title + Description + Excerpt logic) -->
-        <div class="space-y-6 mb-6">
-          <div>
-            <label class="block text-sm font-medium text-gray-900 mb-2">Title</label>
-            <input
-              [(ngModel)]="submission.title"
-              class="w-full px-3 py-2 border border-gray-300 rounded-lg text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary"
-              placeholder="Enter submission title">
-          </div>
+          <!-- PRIMARY SECTION — CONTENT EDITING (MOST PROMINENT) -->
+          <section class="bg-white rounded-lg p-6 shadow-sm">
 
-          <div>
-            <div class="flex items-center justify-between mb-2">
-              <label class="block text-sm font-medium text-gray-900">Description</label>
-              <app-button variant="secondary" size="sm" (click)="autoFillDescription()">Auto-fill</app-button>
-            </div>
-            <textarea
-              [(ngModel)]="submission.description"
-              rows="3"
-              class="w-full px-3 py-2 border border-gray-300 rounded-lg text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary resize-vertical"
-              placeholder="Enter submission description">
-            </textarea>
-          </div>
-
-          <!-- Excerpt handling (kept for backward compatibility) -->
-          @if (submission?.excerpt && submission?.excerpt !== submission?.description?.substring(0, 150).trim() + (submission?.description?.length > 150 ? '...' : '')) {
-            <div>
-              <div class="flex items-center justify-between mb-2">
-                <label class="block text-sm font-medium text-gray-900">Excerpt (Preview Text)
-                  <span class="text-xs text-gray-500 font-normal">- Custom excerpt detected</span>
-                </label>
-                <app-button variant="secondary" size="sm" (click)="autoFillExcerpt()">Reset to Auto</app-button>
+            <!-- Basic Information (Title + Description + Excerpt logic) -->
+            <div class="space-y-6 mb-6">
+              <div>
+                <mat-form-field appearance="fill" class="w-full">
+                  <mat-label>Title</mat-label>
+                  <input matInput [(ngModel)]="submission.title" placeholder="Enter submission title" />
+                </mat-form-field>
               </div>
-              <textarea
-                [(ngModel)]="submission.excerpt"
-                rows="2"
-                maxlength="200"
-                class="w-full px-3 py-2 border border-gray-300 rounded-lg text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary resize-vertical"
-                placeholder="Short preview text for content cards (max 200 characters)">
-              </textarea>
-              <div class="flex justify-between text-xs text-gray-500 mt-1">
-                <span>Custom excerpt - will override auto-generated preview</span>
-                <span>{{ (submission?.excerpt || '').length }}/200</span>
-              </div>
-            </div>
-          } @else {
-            <div class="bg-blue-50 border border-blue-100 rounded-lg p-3">
-              <div class="flex items-center justify-between">
-                <div class="flex items-center gap-2">
-                  <svg class="w-4 h-4 text-blue-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                  </svg>
-                  <div class="text-sm text-blue-700">
-                    <strong>Preview text auto-generated:</strong>
-                    "{{ getAutoGeneratedExcerpt() }}"
+
+              <div>
+                <div class="flex items-center justify-between mb-2">
+                  <div class="w-full">
+                    <mat-form-field appearance="fill" class="w-full">
+                      <mat-label>Description</mat-label>
+                      <textarea matInput rows="3" [(ngModel)]="submission.description" placeholder="Enter submission description"></textarea>
+                    </mat-form-field>
+                  </div>
+                  <div class="ml-3 flex-shrink-0">
+                    <button mat-stroked-button class="px-3 py-1 text-sm" (click)="autoFillDescription()">Auto-fill</button>
                   </div>
                 </div>
-                <app-button (click)="enableCustomExcerpt()">Customize preview text manually</app-button>
+              </div>
+
+              <div>
+                <div class="flex items-center justify-between mb-2">
+                  <div class="w-full">
+                    <mat-form-field appearance="fill" class="w-full">
+                      <mat-label>Excerpt (Preview Text)</mat-label>
+                      <textarea matInput rows="2" maxlength="200" [(ngModel)]="submission.excerpt" placeholder="Short preview text for content cards (max 200 characters)"></textarea>
+                      <mat-hint align="start">Custom excerpt - will override auto-generated preview</mat-hint>
+                      <mat-hint align="end">{{ (submission?.excerpt || '').length }}/200</mat-hint>
+                    </mat-form-field>
+                  </div>
+                  <div class="ml-3 flex-shrink-0">
+                    <button mat-stroked-button class="px-3 py-1 text-sm" (click)="autoFillExcerpt()">Reset to Auto</button>
+                  </div>
+                </div>
               </div>
             </div>
-          }
-        </div>
 
-        <!-- Profile Approval (if pending) — kept in content section so editors can act while editing author info -->
-        @if (showProfileApproval) {
-          <div class="bg-white rounded-lg p-4 border border-gray-100 mb-6">
-            <h3 class="text-lg font-semibold text-gray-900 mb-3">User Profile Approval</h3>
-            <div class="bg-primary-light border border-neutral-200 rounded-lg p-4 mb-4">
-              <p class="text-primary-dark mb-2"><strong>{{ userProfile?.username || 'This user' }}</strong> has submitted profile information that requires your approval.</p>
-              <p class="text-sm text-primary-dark">Review and approve the bio and profile picture below to make them live on the user's profile.</p>
-            </div>
-
-            <div class="space-y-4">
-              @if (profileApprovalData.tempBio) {
-                <div class="bg-gray-50 rounded-lg p-4 border border-gray-100">
-                  <div class="flex items-center justify-between mb-3">
-                    <h4 class="text-sm font-medium text-gray-900">Author Bio</h4>
-                    <div class="flex gap-2">
-                      <app-button (click)="editBio()">Edit</app-button>
-                      <app-button variant="secondary" size="sm" (click)="approveBio()">Approve Bio</app-button>
-                    </div>
-                  </div>
-                  <div class="bg-white border border-gray-100 rounded-lg p-3">
-                    <p class="text-gray-900 whitespace-pre-wrap">{{ profileApprovalData.tempBio }}</p>
-                  </div>
-                  <div class="mt-2 text-xs text-gray-500">Current bio: {{ profileApprovalData.approvedBio || 'No bio set' }}</div>
+            <!-- Profile Approval (if pending) — kept in content section so editors can act while editing author info -->
+            @if (showProfileApproval) {
+              <div class="bg-white rounded-lg p-4 border border-gray-100 mb-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-3">User Profile Approval</h3>
+                <div class="bg-primary-light border border-neutral-200 rounded-lg p-4 mb-4">
+                  <p class="text-primary-dark mb-2"><strong>{{ userProfile?.username || 'This user' }}</strong> has submitted profile information that requires your approval.</p>
+                  <p class="text-sm text-primary-dark">Review and approve the bio and profile picture below to make them live on the user's profile.</p>
                 </div>
-              }
 
-              @if (profileApprovalData.tempProfileImage) {
-                <div class="bg-gray-50 rounded-lg p-4 border border-gray-100">
-                  <div class="flex items-center justify-between mb-3">
-                    <h4 class="text-sm font-medium text-gray-900">Profile Picture</h4>
-                    <app-button variant="secondary" size="sm" (click)="approveProfileImage()">Approve Image</app-button>
-                  </div>
-                  <div class="flex items-start gap-6">
-                    <div class="flex-1">
-                      <p class="text-sm font-medium text-gray-900 mb-2">Submitted Image:</p>
-                      <div class="w-28 h-28 rounded-lg overflow-hidden border-2 border-gray-200 bg-gray-50">
-                        <img [src]="getProfileImageUrl(profileApprovalData.tempProfileImage)" [alt]="userProfile?.username + ' profile picture'" class="w-full h-full object-cover">
+                <div class="space-y-4">
+                  @if (profileApprovalData.tempBio) {
+                    <div class="bg-gray-50 rounded-lg p-4 border border-gray-100">
+                      <div class="flex items-center justify-between mb-3">
+                        <h4 class="text-sm font-medium text-gray-900">Author Bio</h4>
+                        <div class="flex gap-2">
+                          <button mat-flat-button type="button" (click)="editBio()">Edit</button>
+                          <button mat-tonal-button type="button" (click)="approveBio()">Approve Bio</button>
+                        </div>
                       </div>
+                      <div class="bg-white border border-gray-100 rounded-lg p-3">
+                        <p class="text-gray-900 whitespace-pre-wrap">{{ profileApprovalData.tempBio }}</p>
+                      </div>
+                      <div class="mt-2 text-xs text-gray-500">Current bio: {{ profileApprovalData.approvedBio || 'No bio set' }}</div>
                     </div>
-                    <div class="flex-1">
-                      <p class="text-sm font-medium text-gray-900 mb-2">Current Image:</p>
-                      @if (profileApprovalData.approvedImage) {
-                        <div class="w-28 h-28 rounded-lg overflow-hidden border-2 border-gray-200 bg-gray-50">
-                          <img [src]="getProfileImageUrl(userProfile?.profileImage)" [alt]="userProfile?.username + ' current profile picture'" class="w-full h-full object-cover">
-                        </div>
-                      } @else {
-                        <div class="w-28 h-28 rounded-lg border-2 border-dashed border-gray-200 bg-gray-50 flex items-center justify-center">
-                          <p class="text-gray-500 text-xs text-center">No image set</p>
-                        </div>
-                      }
-                    </div>
-                  </div>
-                </div>
-              }
-            </div>
-          </div>
-        }
+                  }
 
-        <!-- Content Management (always-visible, expanded sections) -->
-        <div class="bg-white rounded-lg p-4 border border-gray-100">
-          <div class="flex items-center justify-between mb-4">
-            <div>
-              <h3 class="text-lg font-semibold text-gray-900">Content Management</h3>
-              @if (submission.contents && submission.contents.length > 1) {
-                <p class="text-sm text-gray-500">{{ submission.contents.length }} content sections</p>
-              }
-            </div>
-            <div class="flex gap-2">
-              <app-button variant="secondary" size="sm" (click)="activeContentTab = 'edit'">Edit Content</app-button>
-              <app-button variant="secondary" size="sm" (click)="activeContentTab = 'preview'">Preview</app-button>
-            </div>
-          </div>
-
-          <!-- Edit Mode: show all content sections fully (no accordions) -->
-          @if (activeContentTab === 'edit') {
-            @if (submission.contents && submission.contents.length > 0) {
-              <div class="space-y-4">
-                @for (content of submission.contents; track content; let i = $index) {
-                  <div class="bg-gray-50 rounded-lg border border-gray-100 p-4">
-                    <div class="flex items-start justify-between mb-3">
-                      <div>
-                        <h4 class="font-medium text-gray-900">{{ i + 1 }}. {{ content.title || 'Untitled Content' }}</h4>
-                        <p class="text-sm text-gray-500 mt-1">{{ calculateWordCount(content.body) }} words
-                          @if (content.tags && content.tags.length > 0) {
-                            <span> • {{ content.tags.length }} tag(s)</span>
+                  @if (profileApprovalData.tempProfileImage) {
+                    <div class="bg-gray-50 rounded-lg p-4 border border-gray-100">
+                      <div class="flex items-center justify-between mb-3">
+                        <h4 class="text-sm font-medium text-gray-900">Profile Picture</h4>
+                        <button mat-tonal-button type="button" (click)="approveProfileImage()">Approve Image</button>
+                      </div>
+                      <div class="flex items-start gap-6">
+                        <div class="flex-1">
+                          <p class="text-sm font-medium text-gray-900 mb-2">Submitted Image:</p>
+                          <div class="w-28 h-28 rounded-lg overflow-hidden border-2 border-gray-200 bg-gray-50">
+                            <img [src]="getProfileImageUrl(profileApprovalData.tempProfileImage)" [alt]="userProfile?.username + ' profile'" class="w-full h-full object-cover" tabindex="0" role="img">
+                          </div>
+                        </div>
+                        <div class="flex-1">
+                          <p class="text-sm font-medium text-gray-900 mb-2">Current Image:</p>
+                          @if (profileApprovalData.approvedImage) {
+                            <div class="w-28 h-28 rounded-lg overflow-hidden border-2 border-gray-200 bg-gray-50">
+                              <img [src]="getProfileImageUrl(userProfile?.profileImage)" [alt]="userProfile?.username + ' current'" class="w-full h-full object-cover" tabindex="0" role="img">
+                            </div>
+                          } @else {
+                            <div class="w-28 h-28 rounded-lg border-2 border-dashed border-gray-200 bg-gray-50 flex items-center justify-center">
+                              <p class="text-gray-500 text-xs text-center">No image set</p>
+                            </div>
                           }
-                        </p>
-                      </div>
-                      <div class="flex items-center gap-2">
-                        @if (submission.contents.length > 1) {
-                          <app-button size="sm" (click)="deleteContent(i)" ariaLabel="Delete this content section" class="!p-2">Delete</app-button>
-                        }
-                      </div>
-                    </div>
-
-                    <!-- Always-expanded content editor -->
-                    <div class="space-y-4 mt-2">
-                      <div>
-                        <label class="block text-sm font-medium text-gray-900 mb-2">Content Title</label>
-                        <input [(ngModel)]="content.title" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary" placeholder="Enter content title">
-                      </div>
-
-                      <div>
-                        <label class="block text-sm font-medium text-gray-900 mb-2">Content Body</label>
-                        <app-prosemirror-editor
-                          [(ngModel)]="content.body"
-                          [placeholder]="'Enter your content here...'"
-                          [allowImages]="submission.submissionType !== 'poem'"
-                          (imageDelete)="onImageDelete($event)"
-                          class="min-h-64">
-                        </app-prosemirror-editor>
-                        <div class="flex justify-between text-xs text-gray-500 mt-2">
-                          <span>Use formatting tools above for better presentation</span>
-                          <span>{{ calculateWordCount(content.body) }} words</span>
                         </div>
                       </div>
-
-                      <div>
-                        <label class="block text-sm font-medium text-gray-900 mb-2">Footnotes (Optional)</label>
-                        <textarea [(ngModel)]="content.footnotes" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary resize-vertical" placeholder="Optional: Add footnotes to explain cultural references, colloquial words, or regional terms in this content."></textarea>
-                      </div>
-
-                      <div>
-                        <label class="block text-sm font-medium text-gray-900 mb-2">Content Tags</label>
-                        <app-tag-input [(ngModel)]="content.tags" [placeholder]="'Add topics like love poetry, urban life'" [helperText]="'Add relevant topics for this content. These help categorize and make content discoverable.'" [maxTags]="10" [minTagLength]="2" [maxTagLength]="50"></app-tag-input>
-                      </div>
-
-                      <div>
-                        <label class="block text-sm font-medium text-gray-900 mb-2">Content SEO Keyword</label>
-                        <input [(ngModel)]="content.seoKeyword" [placeholder]="content.title || 'Primary keyword for this content'" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary" />
-                        <p class="text-xs text-gray-500 mt-1">Defaults to the content title if left empty. This keyword is stored per-content for SEO metadata.</p>
-                      </div>
-
-                      <!-- Per-content meta title & description (auto-filled but editable) -->
-                      <div>
-                        <label class="block text-sm font-medium text-gray-900 mb-2">Content Meta Title</label>
-                        <input [(ngModel)]="content.metaTitle" [placeholder]="content.title || 'Meta title for this content'" maxlength="70" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary" />
-                        <div class="flex justify-between text-xs text-gray-500 mt-1"><span>Recommended: 50-70 characters</span><span>{{ (content.metaTitle || '').length }}/70</span></div>
-                      </div>
-
-                      <div>
-                        <label class="block text-sm font-medium text-gray-900 mb-2">Content Meta Description</label>
-                        <textarea [(ngModel)]="content.metaDescription" rows="2" maxlength="160" [placeholder]="(content.metaDescription || (content.title || ''))" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary resize-vertical"></textarea>
-                        <div class="flex justify-between text-xs text-gray-500 mt-1"><span>Recommended: 150-160 characters</span><span>{{ (content.metaDescription || '').length }} characters</span></div>
-                      </div>
                     </div>
-                  </div>
-                }
-
-                <div class="text-center mt-4">
-                  <app-button variant="tertiary" (click)="addNewContent()" [disabled]="submission?.submissionType !== 'poem'">Add Content Section</app-button>
-                  @if (submission?.submissionType !== 'poem') {
-                    <p class="text-sm text-gray-500 mt-2">Additional content sections can only be added to poems.</p>
                   }
                 </div>
               </div>
             }
 
-            @if (!submission.contents || submission.contents.length === 0) {
-              <div class="text-center py-12">
-                <svg class="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                </svg>
-                <h3 class="text-lg font-medium text-gray-900 mb-2">No content sections</h3>
-                <p class="text-gray-600 mb-6">This submission doesn't have any content sections yet.</p>
-                <app-button variant="primary" (click)="addNewContent()" [disabled]="submission?.submissionType !== 'poem'" class="px-4 py-2 text-sm font-medium text-white bg-primary rounded-md hover:bg-primary-hover transition-colors disabled:bg-primary disabled:hover:bg-primary">
-                  <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-                  </svg>
-                  Add First Content Section
-                </app-button>
-                @if (submission?.submissionType !== 'poem') {
-                  <p class="text-sm text-gray-500 mt-2">Content sections can only be added to poems.</p>
-                }
-              </div>
-            }
-          }
-
-          <!-- Preview Mode (renders full content preview) -->
-          @if (activeContentTab === 'preview') {
-            <div class="bg-white rounded-lg border border-gray-100 overflow-hidden">
-              <div class="p-6 border-b border-gray-100">
-                <h1 class="text-2xl font-bold text-gray-900 mb-2">{{ submission.title }}</h1>
-                <div class="flex items-center gap-4 text-sm text-gray-600 mb-3">
-                  <span>By {{ submission.username }}</span>
-                  <app-badge-label [type]="submission.submissionType" badgeType="type" variant="big-red"></app-badge-label>
-                  @if (submission.readingTime) { <span>{{ submission.readingTime }} min read</span> }
+            <!-- Content Management (always-visible, expanded sections) -->
+            <div class="bg-white rounded-lg p-4 border border-gray-100">
+              <div class="flex items-center justify-between mb-4">
+                <div>
+                  <h3 class="text-lg font-semibold text-gray-900">Content Management</h3>
+                  @if (submission.contents && submission.contents.length > 1) {
+                    <p class="text-sm text-gray-500">{{ submission.contents.length }} content sections</p>
+                  }
                 </div>
-                @if (submission?.description) { <p class="text-gray-600 italic">{{ submission?.description }}</p> }
+                <div class="flex gap-2">
+                  <button mat-stroked-button class="px-3 py-1 text-sm" (click)="activeContentTab = 'edit'">Edit Content</button>
+                  <button mat-stroked-button class="px-3 py-1 text-sm" (click)="activeContentTab = 'preview'">Preview</button>
+                </div>
               </div>
 
-              <div class="p-6 space-y-8">
-                @for (content of submission.contents; track content; let i = $index) {
-                  <div class="content-section">
-                    @if (content.title) { <h2 class="text-xl font-semibold text-gray-900 mb-3">{{ content.title }}</h2> }
-                    <div class="content-body prose prose-lg max-w-none" [innerHTML]="content.originalBody || content.body"></div>
-                    @if (content.footnotes) {
-                      <div class="mt-4 p-3 bg-gray-50 rounded-lg border-l-4 border-blue-200">
-                        <h4 class="text-sm font-medium text-gray-900 mb-2">Footnotes:</h4>
-                        <p class="text-sm text-gray-700 whitespace-pre-wrap">{{ content.footnotes }}</p>
+              <!-- Edit Mode: show all content sections fully (no accordions) -->
+              @if (activeContentTab === 'edit') {
+                @if (submission.contents && submission.contents.length > 0) {
+                  <div class="space-y-4">
+                    @for (content of submission.contents; track content; let i = $index) {
+                      <div class="bg-gray-50 rounded-lg border border-gray-100 p-4">
+                        <div class="flex items-start justify-between mb-3">
+                          <div>
+                            <h4 class="font-medium text-gray-900">{{ i + 1 }}. {{ content.title || 'Untitled Content' }}</h4>
+                            <p class="text-sm text-gray-500 mt-1">{{ calculateWordCount(content.body) }} words
+                              @if (content.tags && content.tags.length > 0) {
+                                <span> • {{ content.tags.length }} tag(s)</span>
+                              }
+                            </p>
+                          </div>
+                          <div class="flex items-center gap-2">
+                            @if (submission.contents.length > 1) {
+                              <button mat-stroked-button class="!p-2 px-3 py-1 text-sm" aria-label="Delete this content section" (click)="deleteContent(i)">Delete</button>
+                            }
+                          </div>
+                        </div>
+
+                        <!-- Always-expanded content editor -->
+                        <div class="space-y-4 mt-2">
+                          <div>
+                            <mat-form-field appearance="fill" class="w-full">
+                              <mat-label>Content Title</mat-label>
+                              <input matInput [(ngModel)]="content.title" placeholder="Enter content title" />
+                            </mat-form-field>
+                          </div>
+
+                          <div class="block text-sm font-medium text-gray-700 mb-1">Content Body</div>
+                          <app-prosemirror-editor
+                            [(ngModel)]="content.body"
+                            [placeholder]="'Enter your content here...'"
+                            [allowImages]="submission.submissionType !== 'poem'"
+                            (imageDelete)="onImageDelete($event)"
+                            aria-label="Content Body"
+                            class="min-h-64 w-full">
+                          </app-prosemirror-editor>
+
+                          <div>
+                            <mat-form-field appearance="fill" class="w-full">
+                              <mat-label>Footnotes (Optional)</mat-label>
+                              <textarea matInput rows="3" [(ngModel)]="content.footnotes" placeholder="Optional: Add footnotes to explain cultural references, colloquial words, or regional terms in this content."></textarea>
+                            </mat-form-field>
+                          </div>
+
+                          <div>
+                            <mat-form-field appearance="fill" class="w-full">
+                              <mat-label>Content SEO Keyword</mat-label>
+                              <input matInput [(ngModel)]="content.seoKeyword" [placeholder]="content.title || 'Primary keyword for this content'" />
+                            </mat-form-field>
+                          </div>
+
+                          <!-- Per-content meta title & description (auto-filled but editable) -->
+                          <div>
+                            <mat-form-field appearance="fill" class="w-full">
+                              <mat-label>Content Meta Title</mat-label>
+                              <input matInput [(ngModel)]="content.metaTitle" [placeholder]="content.title || 'Meta title for this content'" maxlength="70" />
+                            </mat-form-field>
+                          </div>
+
+                          <div>
+                            <mat-form-field appearance="fill" class="w-full">
+                              <mat-label>Content Meta Description</mat-label>
+                              <textarea matInput [(ngModel)]="content.metaDescription" rows="2" maxlength="160" [placeholder]="(content.metaDescription || (content.title || ''))"></textarea>
+                            </mat-form-field>
+                          </div>
+                        </div>
                       </div>
                     }
-                    @if (content.tags && content.tags.length > 0) {
-                      <div class="flex flex-wrap gap-2 mt-4 pt-4 border-t border-gray-100">
-                        <span class="text-sm text-gray-600 mr-2">Topics:</span>
-                        @for (tag of content.tags; track tag) {
-                          <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-primary-light text-primary-dark border border-neutral-200">{{ getTagDisplayName(tag) }}</span>
+
+                    <div class="text-center mt-4">
+                      <button mat-raised-button class="bg-orange-500 text-white hover:bg-orange-600 px-3 py-1 text-sm" (click)="addNewContent()" [disabled]="submission?.submissionType !== 'poem'">Add Content Section</button>
+                      @if (submission?.submissionType !== 'poem') {
+                        <p class="text-sm text-gray-500 mt-2">Additional content sections can only be added to poems.</p>
+                      }
+                    </div>
+                  </div>
+                }
+
+                @if (!submission.contents || submission.contents.length === 0) {
+                  <div class="text-center py-12">
+                    <svg class="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                    </svg>
+                    <h3 class="text-lg font-medium text-gray-900 mb-2">No content sections</h3>
+                    <p class="text-gray-600 mb-6">This submission doesn't have any content sections yet.</p>
+                    <button mat-raised-button class="bg-orange-500 text-white hover:bg-orange-600 px-4 py-2 text-sm font-medium rounded-md transition-colors disabled:opacity-60" (click)="addNewContent()" [disabled]="submission?.submissionType !== 'poem'">
+                      <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                      </svg>
+                      Add First Content Section
+                    </button>
+                    @if (submission?.submissionType !== 'poem') {
+                      <p class="text-sm text-gray-500 mt-2">Content sections can only be added to poems.</p>
+                    }
+                  </div>
+                }
+              }
+
+              <!-- Preview Mode (renders full content preview) -->
+              @if (activeContentTab === 'preview') {
+                <div class="bg-white rounded-lg border border-gray-100 overflow-hidden">
+                  <div class="p-6 border-b border-gray-100">
+                    <h1 class="text-2xl font-bold text-gray-900 mb-2">{{ submission.title }}</h1>
+                    <div class="flex items-center gap-4 text-sm text-gray-600 mb-3">
+                      <span>By {{ userProfile.name }}</span>
+                      <app-badge-label [type]="submission.submissionType" badgeType="type" variant="big-red"></app-badge-label>
+                      @if (submission.readingTime) { <span>{{ submission.readingTime }} min read</span> }
+                    </div>
+                    @if (submission?.description) { <p class="text-gray-600 italic">{{ submission?.description }}</p> }
+                  </div>
+
+                  <div class="p-6 space-y-8">
+                    @for (content of submission.contents; track content; let i = $index) {
+                      <div class="content-section">
+                        @if (content.title) { <h2 class="text-xl font-semibold text-gray-900 mb-3">{{ content.title }}</h2> }
+                        <div class="content-body prose prose-lg max-w-none" [innerHTML]="content.originalBody || content.body"></div>
+                        @if (content.footnotes) {
+                          <div class="mt-4 p-3 bg-gray-50 rounded-lg border-l-4 border-blue-200">
+                            <h4 class="text-sm font-medium text-gray-900 mb-2">Footnotes:</h4>
+                            <p class="text-sm text-gray-700 whitespace-pre-wrap">{{ content.footnotes }}</p>
+                          </div>
+                        }
+                        @if (content.tags && content.tags.length > 0) {
+                          <div class="flex flex-wrap gap-2 mt-4 pt-4 border-t border-gray-100">
+                            <span class="text-sm text-gray-600 mr-2">Topics:</span>
+                            @for (tag of content.tags; track tag) {
+                              <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-primary-light text-primary-dark border border-neutral-200">{{ getTagDisplayName(tag) }}</span>
+                            }
+                          </div>
                         }
                       </div>
                     }
                   </div>
-                }
-              </div>
-            </div>
-          }
-
-        </div>
-      </section>
-
-      <!-- SECONDARY SECTION — SEO CONFIGURATION -->
-      <section class="bg-white rounded-lg p-6 shadow-sm">
-        <h2 class="text-xl font-semibold text-gray-900 mb-4">SEO — Polish before publishing</h2>
-        <div class="space-y-4">
-
-          <!-- SEO Slug -->
-          <div>
-            <label class="block text-sm font-medium text-gray-900 mb-2">SEO Slug <span class="text-red-600">*</span></label>
-            <div class="flex items-center gap-2 mb-2">
-              <span class="text-gray-600 text-sm flex-shrink-0">{{ baseUrl }}</span>
-              <input [(ngModel)]="seoConfig.slug" (input)="validateSlug()" placeholder="three-poems-by-vinita-agrawal" class="flex-1 min-w-0 px-3 py-2 border border-gray-300 rounded-lg text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary" [class.border-red-300]="slugError">
-            </div>
-            <p class="text-xs text-gray-500">This will be the URL path for your published content. Use lowercase letters, numbers, and hyphens only.</p>
-            @if (slugError) { <div class="text-red-600 text-sm mt-2">{{ slugError }}</div> }
-            @if (!slugError && seoConfig.slug) { <div class="text-green-600 text-sm mt-2">✓ URL will be: {{ baseUrl }}{{ seoConfig.slug }}</div> }
-          </div>
-
-          <!-- Meta Title -->
-          <div>
-            <label class="block text-sm font-medium text-gray-900 mb-2">Meta Title <span class="text-red-600">*</span></label>
-            <input [(ngModel)]="seoConfig.metaTitle" [placeholder]="submission.title" maxlength="70" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary">
-            <div class="flex justify-between text-xs text-gray-500 mt-1"><span>Recommended: 50-70 characters for optimal SEO</span><span>{{ seoConfig.metaTitle.length }}/70</span></div>
-          </div>
-
-          <!-- Meta Description -->
-          <div>
-            <div class="flex items-center justify-between mb-2">
-              <label class="block text-sm font-medium text-gray-900">Meta Description <span class="text-red-600">*</span></label>
-              <app-button variant="secondary" size="sm" (click)="autoFillMetaDescription()">Auto-fill</app-button>
-            </div>
-            <textarea [(ngModel)]="seoConfig.metaDescription" [placeholder]="submission?.description || 'A compelling description of your content...'" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary resize-vertical"></textarea>
-            <div class="flex justify-between text-xs text-gray-500 mt-1"><span>Recommended: 150-160 characters for optimal SEO</span><span>{{ seoConfig.metaDescription.length }} characters</span></div>
-          </div>
-
-          <!-- Keywords -->
-          <div>
-            <div class="flex items-center justify-between mb-2">
-              <label class="block text-sm font-medium text-gray-900">Primary SEO Keyword</label>
-            </div>
-            <input [(ngModel)]="seoConfig.primaryKeyword" placeholder="Primary focus keyword for this submission" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary" />
-            <p class="text-xs text-gray-500 mt-1">Used for metadata and editorial guidance. Defaults to the submission title.</p>
-          </div>
-
-          <!-- SEO Preview (Google + Social) -->
-          <div class="mt-2">
-            <h4 class="text-sm font-medium text-gray-900 mb-2">SEO Preview</h4>
-            <div class="bg-gray-50 p-4 rounded-lg mb-4">
-              <div class="text-blue-600 text-lg hover:underline cursor-pointer">{{ seoConfig.metaTitle || submission.title }}</div>
-              <div class="text-green-600 text-sm">{{ baseUrl }}{{ seoConfig.slug || 'your-seo-slug' }}</div>
-              <div class="text-gray-600 text-sm mt-1">{{ seoConfig.metaDescription || submission?.description || 'Meta description will appear here...' }}</div>
-            </div>
-
-            <div class="bg-gray-50 p-4 rounded-lg">
-              <div class="text-sm text-gray-600 mb-2">Social Media Preview:</div>
-              <div class="bg-white shadow-sm rounded-lg overflow-hidden max-w-sm">
-                @if (seoConfig.ogImage || submission.imageUrl) {
-                  <div class="h-32 bg-gray-100"><img [src]="seoConfig.ogImage || submission.imageUrl" [alt]="submission.title" class="w-full h-full object-cover"></div>
-                }
-                @if (!seoConfig.ogImage && !submission.imageUrl) {
-                  <div class="h-32 bg-gray-100 flex items-center justify-center"><span class="text-gray-500 text-sm">No image set</span></div>
-                }
-                <div class="p-3">
-                  <div class="font-medium text-sm">{{ seoConfig.metaTitle || submission.title }}</div>
-                  <div class="text-gray-600 text-xs mt-1">{{ (seoConfig.metaDescription || submission?.description || 'Description...') | slice:0:100 }}{{ (seoConfig.metaDescription || submission?.description || '').length > 100 ? '...' : '' }}</div>
-                  <div class="text-gray-500 text-xs mt-1">{{ baseUrl }}</div>
                 </div>
-              </div>
-              <p class="text-xs text-gray-500 mt-2"><strong>Image priority:</strong> Social Media Image → Cover Image → No image</p>
-            </div>
-          </div>
-
-        </div>
-      </section>
-
-      <!-- SECONDARY SECTION — MEDIA MANAGEMENT -->
-      <section class="bg-white rounded-lg p-6 shadow-sm">
-        <h2 class="text-xl font-semibold text-gray-900 mb-2">Media — Cover & Social Images</h2>
-        <p class="text-sm text-gray-500 mb-4">Choose images already in the submission or upload a new one. Pick images for the post cover and for social sharing. Suggestions are optional.</p>
-
-        <!-- Unified Image Gallery (Author profile + content images) -->
-        <div class="mb-6">
-          <h3 class="text-sm font-medium text-gray-900 mb-3">Available images</h3>
-          <p class="text-xs text-gray-500 mb-4">Click an image to select it. Then choose whether to use it as the Cover or as the Social image.</p>
-
-          <div class="grid grid-cols-3 sm:grid-cols-4 gap-3">
-            <!-- Author profile image (if present) -->
-            @if (userProfile?.profileImage) {
-              <div class="relative rounded-lg overflow-hidden border border-gray-100 bg-white">
-                <img [src]="userProfile.profileImage" [alt]="'Author profile image'" class="w-full h-28 object-cover cursor-pointer" (error)="onImageError($event)">
-                <div class="p-2">
-                  <div class="text-xs font-medium text-gray-900 mb-1">Author profile</div>
-                  <div class="flex gap-2">
-                    <app-button size="sm" variant="tertiary" (click)="useContentImageAsCover(userProfile.profileImage)">Cover</app-button>
-                    <app-button size="sm" variant="tertiary" (click)="useContentImageAsSocial(userProfile.profileImage)">Social</app-button>
-                  </div>
-                </div>
-              </div>
-            }
-
-            <!-- Available profile reuse (optional suggestion) -->
-            @if (showProfileImageReuse && availableProfileImage) {
-              <div class="relative rounded-lg overflow-hidden border border-gray-100 bg-white">
-                <img [src]="availableProfileImage" alt="Suggested profile image" class="w-full h-28 object-cover cursor-pointer" (error)="onImageError($event)">
-                <div class="p-2">
-                  <div class="text-xs font-medium text-gray-900 mb-1">Suggested</div>
-                  <div class="flex gap-2">
-                    <app-button size="sm" variant="tertiary" (click)="useProfileImageAsCover()">Cover</app-button>
-                    <app-button size="sm" variant="tertiary" (click)="useContentImageAsSocial(availableProfileImage)">Social</app-button>
-                  </div>
-                </div>
-              </div>
-            }
-
-            <!-- Images extracted from content -->
-            @for (imageUrl of getContentImages(); track imageUrl) {
-              <div class="relative rounded-lg overflow-hidden border border-gray-100 bg-white">
-                <img [src]="imageUrl" [alt]="'Content image'" class="w-full h-28 object-cover cursor-pointer" (click)="useContentImageAsCover(imageUrl)" (error)="onImageError($event)">
-                <div class="p-2">
-                  <div class="text-xs text-gray-700 mb-1 truncate">From content</div>
-                  <div class="flex gap-2">
-                    <app-button size="sm" variant="tertiary" (click)="useContentImageAsCover(imageUrl)">Cover</app-button>
-                    <app-button size="sm" variant="tertiary" (click)="useContentImageAsSocial(imageUrl)">Social</app-button>
-                  </div>
-                </div>
-              </div>
-            }
-
-            <!-- Transient previews for newly selected local uploads -->
-            @for (previewUrl of transientUploadedImages; track previewUrl) {
-              <div class="relative rounded-lg overflow-hidden border border-gray-100 bg-white">
-                <img [src]="previewUrl" alt="Uploaded preview" class="w-full h-28 object-cover" (error)="onImageError($event)">
-                <div class="p-2">
-                  <div class="text-xs text-gray-700 mb-1 truncate">Uploaded</div>
-                  <div class="flex gap-2">
-                    <app-button size="sm" variant="tertiary" (click)="useContentImageAsCover(previewUrl)">Cover</app-button>
-                    <app-button size="sm" variant="tertiary" (click)="useContentImageAsSocial(previewUrl)">Social</app-button>
-                  </div>
-                </div>
-              </div>
-            }
-
-            <!-- If no images found, show calm placeholder -->
-            @if (getContentImages().length === 0 && !userProfile?.profileImage && !availableProfileImage) {
-              <div class="col-span-3 sm:col-span-4 p-6 rounded-lg border border-dashed border-gray-200 text-center text-sm text-gray-500">
-                No images detected in this submission. Use the upload control below to add a cover or social image.
-              </div>
-            }
-          </div>
-        </div>
-
-        <!-- Upload area (single control for both cover & social selections) -->
-        <div class="mb-6">
-          <h3 class="text-sm font-medium text-gray-900 mb-2">Upload an image</h3>
-          <p class="text-xs text-gray-500 mb-3">Upload a new image to use as either the Cover or Social image. Max 5MB.</p>
-
-          <div class="flex items-start gap-4">
-            <div class="flex-1">
-              <input type="file" accept="image/*" data-type="cover" (change)="onCoverImageSelect($event)" class="block w-full text-sm text-gray-900 bg-gray-50 border border-gray-200 rounded-lg cursor-pointer focus:outline-none file:mr-4 file:py-2 file:px-4 file:rounded-l-lg file:border-0 file:text-sm file:font-medium file:bg-primary file:text-white hover:file:bg-primary-hover">
-              <p class="text-xs text-gray-500 mt-2">Choose file to upload</p>
-            </div>
-            <div class="w-36">
-              @if (selectedCoverImageFile && !submission.imageUrl) {
-                <app-button variant="primary" (click)="uploadCoverImage()" [disabled]="isUploadingCoverImage" class="w-full">Upload</app-button>
               }
+
             </div>
-          </div>
+          </section>
+        </mat-expansion-panel>
 
-          <!-- Quick actions for the selected (local) file: upload + choose as Cover or Social -->
-          @if (selectedCoverImageFile) {
-            <div class="mt-3 flex items-center gap-4">
-              <div class="text-sm text-gray-700 truncate">{{ selectedCoverImageFile.name }}</div>
-              <div class="flex gap-2 ml-auto">
-                <!-- Upload as cover (existing flow) -->
-                <app-button size="sm" variant="primary" (click)="uploadCoverImage()" [disabled]="isUploadingCoverImage">Upload as Cover</app-button>
+        <mat-expansion-panel>
+          <mat-expansion-panel-header>
+            <mat-panel-title>Search Engine Optimization</mat-panel-title>
+                  </mat-expansion-panel-header>
 
-                <!-- Upload & use as social: calls existing upload then attempts to copy to social. If upload is still in progress the quick-action below (shown after upload) can be used. -->
-                <app-button size="sm" variant="tertiary" (click)="uploadCoverImage(); useCoverImageAsSocial()" [disabled]="isUploadingCoverImage">Upload & Use as Social</app-button>
+          <section class="bg-white rounded-lg p-6 shadow-sm">
+            <div class="space-y-4">
+
+              <!-- SEO Slug -->
+              <div>
+                <mat-form-field appearance="fill" class="w-full">
+                  <mat-label>SEO Slug <span class="text-red-600">*</span></mat-label>
+                  <div class="flex items-center gap-2">
+                    <span class="text-gray-600 text-sm flex-shrink-0">{{ baseUrl }}</span>
+                    <input matInput [(ngModel)]="seoConfig.slug" (input)="validateSlug()" [ngClass]="{ 'border-red-300': slugError }" />
+                  </div>
+                  <mat-hint *ngIf="slugError" class="text-red-600">{{ slugError }}</mat-hint>
+                </mat-form-field>
+                <p class="text-xs text-gray-500">This will be the URL path for your published content. Use lowercase letters, numbers, and hyphens only.</p>
+                @if (!slugError && seoConfig.slug) { <div class="text-green-600 text-sm mt-2">✓ URL will be: {{ baseUrl }}{{ seoConfig.slug }}</div> }
               </div>
-            </div>
-          }
-        </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <!-- Current Cover Preview -->
-          <div>
-            <h4 class="text-sm font-medium text-gray-900 mb-2">Cover image</h4>
-            @if (submission.imageUrl) {
-              <div class="rounded-lg overflow-hidden border border-gray-100">
-                <img [src]="submission.imageUrl" [alt]="submission.title" class="w-full h-40 object-cover">
-                <div class="p-3 flex items-center gap-2">
-                  <app-button variant="destructive" size="sm" (click)="removeCoverImage()">Remove</app-button>
-                  <app-button variant="tertiary" size="sm" (click)="useCoverImageAsSocial()">Use as Social</app-button>
+              <!-- Meta Title -->
+              <div>
+                <mat-form-field appearance="fill" class="w-full">
+                  <mat-label>Meta Title <span class="text-red-600">*</span></mat-label>
+                  <input matInput [(ngModel)]="seoConfig.metaTitle" [placeholder]="submission.title" maxlength="70" />
+                  <mat-hint align="end">{{ seoConfig.metaTitle.length }}/70</mat-hint>
+                </mat-form-field>
+                <div class="flex justify-between text-xs text-gray-500 mt-1"><span>Recommended: 50-70 characters for optimal SEO</span></div>
+              </div>
+
+              <!-- Meta Description -->
+              <div>
+                <div class="flex items-center justify-between mb-2">
+                  <div class="w-full">
+                    <!-- keep visual heading; control is the mat-form-field below -->
+                    <div class="block text-sm font-medium text-gray-900">Meta Description <span class="text-red-600">*</span></div>
+                  </div>
+                  <div class="ml-3 flex-shrink-0">
+                    <button mat-stroked-button class="px-3 py-1 text-sm" (click)="autoFillMetaDescription()">Auto-fill</button>
+                  </div>
+                </div>
+                <mat-form-field appearance="fill" class="w-full">
+                  <textarea matInput [(ngModel)]="seoConfig.metaDescription" rows="3" [placeholder]="submission?.description || 'A compelling description of your content...'"></textarea>
+                  <mat-hint align="end">{{ seoConfig.metaDescription.length }} characters</mat-hint>
+                </mat-form-field>
+                <div class="flex justify-between text-xs text-gray-500 mt-1"><span>Recommended: 150-160 characters for optimal SEO</span></div>
+              </div>
+
+              <!-- Keywords -->
+              <div>
+                <div class="flex items-center justify-between mb-2">
+                  <!-- label text removed because mat-form-field provides the accessible label -->
+                 </div>
+                 <mat-form-field appearance="fill" class="w-full">
+                   <mat-label>Primary SEO Keyword</mat-label>
+                   <input matInput [(ngModel)]="seoConfig.primaryKeyword" placeholder="Primary focus keyword for this submission" />
+                 </mat-form-field>
+                 <p class="text-xs text-gray-500 mt-1">Used for metadata and editorial guidance. Defaults to the submission title.</p>
+               </div>
+
+              <!-- SEO Preview (Google + Social) -->
+              <div class="mt-2">
+                <h4 class="text-sm font-medium text-gray-900 mb-2">SEO Preview</h4>
+                <div class="bg-gray-50 p-4 rounded-lg mb-4">
+                  <div class="text-blue-600 text-lg hover:underline cursor-pointer">{{ seoConfig.metaTitle || submission.title }}</div>
+                  <div class="text-green-600 text-sm">{{ baseUrl }}{{ seoConfig.slug || 'your-seo-slug' }}</div>
+                  <div class="text-gray-600 text-sm mt-1">{{ seoConfig.metaDescription || submission?.description || 'Meta description will appear here...' }}</div>
+                </div>
+
+                <div class="bg-gray-50 p-4 rounded-lg">
+                  <div class="text-sm text-gray-600 mb-2">Social Media Preview:</div>
+                  <div class="bg-white shadow-sm rounded-lg overflow-hidden max-w-sm">
+                    @if (seoConfig.ogImage || submission.imageUrl) {
+                      <div class="h-32 bg-gray-100"><img [src]="seoConfig.ogImage || submission.imageUrl" [alt]="submission.title" class="w-full h-full object-cover"></div>
+                    }
+                    @if (!seoConfig.ogImage && !submission.imageUrl) {
+                      <div class="h-32 bg-gray-100 flex items-center justify-center"><span class="text-gray-500 text-sm">No image set</span></div>
+                    }
+                    <div class="p-3">
+                      <div class="font-medium text-sm">{{ seoConfig.metaTitle || submission.title }}</div>
+                      <div class="text-gray-600 text-xs mt-1">{{ (seoConfig.metaDescription || submission?.description || 'Description...') | slice:0:100 }}{{ (seoConfig.metaDescription || submission?.description || '').length > 100 ? '...' : '' }}</div>
+                      <div class="text-gray-500 text-xs mt-1">{{ baseUrl }}</div>
+                    </div>
+                  </div>
+                  <p class="text-xs text-gray-500 mt-2"><strong>Image priority:</strong> Social Media Image → Cover Image → No image</p>
                 </div>
               </div>
-            } @else {
-              <div class="rounded-lg border border-dashed border-gray-200 p-6 text-center text-sm text-gray-500">No cover image set</div>
-            }
-          </div>
 
-          <!-- Current Social Preview -->
-          <div>
-            <h4 class="text-sm font-medium text-gray-900 mb-2">Social image</h4>
-            @if (seoConfig.ogImage) {
-              <div class="rounded-lg overflow-hidden border border-gray-100">
-                <img [src]="seoConfig.ogImage" [alt]="submission.title + ' social media image'" class="w-full h-40 object-cover">
-                <div class="p-3 flex items-center gap-2">
-                  <app-button variant="destructive" size="sm" (click)="removeSocialImage()">Remove</app-button>
-                  <app-button variant="tertiary" size="sm" (click)="useSocialImageAsCover()">Use as Cover</app-button>
-                </div>
-              </div>
-            } @else {
-              <div class="rounded-lg border border-dashed border-gray-200 p-6 text-center text-sm text-gray-500">No social image set</div>
-            }
-          </div>
-        </div>
-
-        <!-- Quick actions / hints -->
-        <div class="mt-4 text-xs text-gray-500">Image priority: Social Media Image → Cover Image → No image. Use the gallery above to quickly pick images already in the submission.</div>
-      </section>
-
-      <!-- FINAL SECTION — PUBLICATION ACTIONS -->
-      <section class="bg-gray-50 rounded-lg p-6 shadow-sm">
-        <div class="flex items-center justify-between mb-4">
-          <h2 class="text-xl font-semibold text-gray-900">Ready to Publish</h2>
-          <div class="text-sm text-gray-500">Last step: save & publish</div>
-        </div>
-
-        
-        <div class="flex gap-2">
-          <app-button variant="tertiary" size="sm" (click)="goBack()">Back to Admin</app-button>
-            <app-button variant="primary" size="sm" (click)="saveAndPublish()" [disabled]="!isFormValid() || isPublishing">
-              @if (!isPublishing) { {{ getPublishButtonText() }} }
-              @if (isPublishing) { {{ getPublishingText() }} }
-            </app-button>
-            <!-- Removed duplicate 'Save Changes' button — publishing now updates all fields in one call -->
-          
-        </div>
-        @if (showProfileApproval) {
-            <div class="bg-white rounded-md p-3 border border-gray-100">
-              <p class="text-sm text-gray-700">Profile approvals pending — approve bio or profile image above before publishing to include them on the live profile.</p>
             </div>
-          }
-      </section>
+          </section>
+        </mat-expansion-panel>
 
+        <mat-expansion-panel>
+          <mat-expansion-panel-header>
+            <mat-panel-title>Cover & Social Images</mat-panel-title>
+            </mat-expansion-panel-header>
+
+          <!-- SECONDARY SECTION — MEDIA MANAGEMENT -->
+          <section class="bg-white rounded-lg p-6 shadow-sm">
+            
+            <!-- Unified Image Gallery (Author profile + content images) -->
+            <div class="mb-6">
+              <h3 class="text-sm font-medium text-gray-900 mb-3">Available images</h3>
+              <p class="text-xs text-gray-500 mb-4">Click an image to select it. Then choose whether to use it as the Cover or as the Social image.</p>
+
+              <div class="grid grid-cols-3 sm:grid-cols-4 gap-3">
+                <!-- Author profile image (if present) -->
+                @if (userProfile?.profileImage) {
+                  <div class="relative rounded-lg overflow-hidden border border-gray-100 bg-white">
+                    <button type="button" class="w-full h-28 overflow-hidden block" (click)="useContentImageAsCover(userProfile.profileImage)">
+                      <img [src]="userProfile.profileImage" [alt]="'Author profile'" class="w-full h-full object-cover" (error)="onImageError($event)">
+                    </button>
+                    <div class="p-2">
+                      <div class="text-xs font-medium text-gray-900 mb-1">Author profile</div>
+                      <div class="flex gap-2">
+                        <button mat-stroked-button class="px-3 py-1 text-sm" (click)="useContentImageAsCover(userProfile.profileImage)">Cover</button>
+                        <button mat-flat-button class="bg-orange-100 text-orange-800 hover:bg-orange-200 px-3 py-1 text-sm" (click)="useContentImageAsSocial(userProfile.profileImage)">Social</button>
+                      </div>
+                    </div>
+                  </div>
+                }
+
+                <!-- Available profile reuse (optional suggestion) -->
+                @if (showProfileImageReuse && availableProfileImage) {
+                  <div class="relative rounded-lg overflow-hidden border border-gray-100 bg-white">
+                    <button type="button" class="w-full h-28 overflow-hidden block" (click)="useProfileImageAsCover()">
+                      <img [src]="availableProfileImage" alt="Suggested profile" class="w-full h-full object-cover" (error)="onImageError($event)">
+                    </button>
+                    <div class="p-2">
+                      <div class="text-xs font-medium text-gray-900 mb-1">Suggested</div>
+                      <div class="flex gap-2">
+                        <button mat-stroked-button class="px-3 py-1 text-sm" (click)="useProfileImageAsCover()">Cover</button>
+                        <button mat-flat-button class="bg-orange-100 text-orange-800 hover:bg-orange-200 px-3 py-1 text-sm" (click)="useContentImageAsSocial(availableProfileImage)">Social</button>
+                      </div>
+                    </div>
+                  </div>
+                }
+
+                <!-- Images extracted from content -->
+                @for (imageUrl of getContentImages(); track imageUrl) {
+                  <div class="relative rounded-lg overflow-hidden border border-gray-100 bg-white">
+                    <button type="button" class="w-full h-28 overflow-hidden block" (click)="useContentImageAsCover(imageUrl)">
+                      <img [src]="imageUrl" [alt]="'Content'" class="w-full h-full object-cover" (error)="onImageError($event)">
+                    </button>
+                    <div class="p-2">
+                      <div class="text-xs text-gray-700 mb-1 truncate">From content</div>
+                      <div class="flex gap-2">
+                        <button mat-stroked-button class="px-3 py-1 text-sm" (click)="useContentImageAsCover(imageUrl)">Cover</button>
+                        <button mat-flat-button class="bg-orange-100 text-orange-800 hover:bg-orange-200 px-3 py-1 text-sm" (click)="useContentImageAsSocial(imageUrl)">Social</button>
+                      </div>
+                    </div>
+                  </div>
+                }
+
+                <!-- Transient previews for newly selected local uploads -->
+                @for (previewUrl of transientUploadedImages; track previewUrl) {
+                  <div class="relative rounded-lg overflow-hidden border border-gray-100 bg-white">
+                    <img [src]="previewUrl" alt="Uploaded" class="w-full h-28 object-cover" (error)="onImageError($event)">
+                    <div class="p-2">
+                       <div class="text-xs text-gray-700 mb-1 truncate">Uploaded</div>
+                       <div class="flex gap-2">
+                        <button mat-stroked-button class="px-3 py-1 text-sm" (click)="useContentImageAsCover(previewUrl)">Cover</button>
+                        <button mat-flat-button class="bg-orange-100 text-orange-800 hover:bg-orange-200 px-3 py-1 text-sm" (click)="useContentImageAsSocial(previewUrl)">Social</button>
+                       </div>
+                     </div>
+                   </div>
+                 }
+
+                <!-- If no images found, show calm placeholder -->
+                @if (getContentImages().length === 0 && !userProfile?.profileImage && !availableProfileImage) {
+                  <div class="col-span-3 sm:col-span-4 p-6 rounded-lg border border-dashed border-gray-200 text-center text-sm text-gray-500">
+                    No images detected in this submission. Use the upload control below to add a cover or social image.
+                  </div>
+                }
+              </div>
+            </div>
+
+            <!-- Upload area (single control for both cover & social selections) -->
+            <div class="mb-6">
+              <h3 class="text-sm font-medium text-gray-900 mb-2">Upload an image</h3>
+              <p class="text-xs text-gray-500 mb-3">Upload a new image to use as either the Cover or Social image. Max 5MB.</p>
+
+              <div class="flex items-start gap-4">
+                <div class="flex-1">
+                  <input type="file" accept="image/*" data-type="cover" (change)="onCoverImageSelect($event)" class="block w-full text-sm text-gray-900 bg-gray-50 border border-gray-200 rounded-lg cursor-pointer focus:outline-none file:mr-4 file:py-2 file:px-4 file:rounded-l-lg file:border-0 file:text-sm file:font-medium file:bg-primary file:text-white hover:file:bg-primary-hover">
+                  <p class="text-xs text-gray-500 mt-2">Choose file to upload</p>
+                </div>
+                <div class="w-36">
+                  @if (selectedCoverImageFile && !submission.imageUrl) {
+                    <button mat-flat-button class="bg-orange-100 text-orange-800 hover:bg-orange-200 w-full px-3 py-1 text-sm" (click)="uploadCoverImage()" [disabled]="isUploadingCoverImage">Upload</button>
+                  }
+                 </div>
+               </div>
+
+               <!-- Quick actions for the selected (local) file: upload + choose as Cover or Social -->
+               @if (selectedCoverImageFile) {
+                 <div class="mt-3 flex items-center gap-4">
+                   <div class="text-sm text-gray-700 truncate">{{ selectedCoverImageFile.name }}</div>
+                   <div class="flex gap-2 ml-auto">
+                    <button mat-flat-button class="bg-orange-100 text-orange-800 hover:bg-orange-200 px-3 py-1 text-sm" (click)="uploadCoverImage()" [disabled]="isUploadingCoverImage">Upload as Cover</button>
+
+                    <button mat-flat-button class="bg-orange-100 text-orange-800 hover:bg-orange-200 px-3 py-1 text-sm" (click)="uploadCoverImage(); useCoverImageAsSocial()" [disabled]="isUploadingCoverImage">Upload & Use as Social</button>
+                   </div>
+                 </div>
+               }
+             </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <!-- Current Cover Preview -->
+              <div>
+                <h4 class="text-sm font-medium text-gray-900 mb-2">Cover image</h4>
+                @if (submission.imageUrl) {
+                  <div class="rounded-lg overflow-hidden border border-gray-100">
+                    <img [src]="submission.imageUrl" [alt]="submission.title" class="w-full h-40 object-cover">
+                    <div class="p-3 flex items-center gap-2">
+                      <button mat-raised-button color="warn" class="px-3 py-1 text-sm" (click)="removeCoverImage()">Remove</button>
+                      <button mat-flat-button class="bg-orange-100 text-orange-800 hover:bg-orange-200 px-3 py-1 text-sm" (click)="useCoverImageAsSocial()">Use as Social</button>
+                    </div>
+                  </div>
+                } @else {
+                  <div class="rounded-lg border border-dashed border-gray-200 p-6 text-center text-sm text-gray-500">No cover image set</div>
+                }
+              </div>
+
+              <!-- Current Social Preview -->
+              <div>
+                <h4 class="text-sm font-medium text-gray-900 mb-2">Social image</h4>
+                @if (seoConfig.ogImage) {
+                  <div class="rounded-lg overflow-hidden border border-gray-100">
+                    <img [src]="seoConfig.ogImage" [alt]="submission.title + ' social'" class="w-full h-40 object-cover">
+                    <div class="p-3 flex items-center gap-2">
+                      <button mat-raised-button color="warn" class="px-3 py-1 text-sm" (click)="removeSocialImage()">Remove</button>
+                      <button mat-flat-button class="bg-orange-100 text-orange-800 hover:bg-orange-200 px-3 py-1 text-sm" (click)="useSocialImageAsCover()">Use as Cover</button>
+                    </div>
+                  </div>
+                } @else {
+                  <div class="rounded-lg border border-dashed border-gray-200 p-6 text-center text-sm text-gray-500">No social image set</div>
+                }
+              </div>
+            </div>
+
+            <!-- Quick actions / hints -->
+            <div class="mt-4 text-xs text-gray-500">Image priority: Social Media Image → Cover Image → No image. Use the gallery above to quickly pick images already in the submission.</div>
+          </section>
+        </mat-expansion-panel>
+
+        <mat-expansion-panel>
+          <mat-expansion-panel-header>
+            <mat-panel-title>Ready to Publish</mat-panel-title>
+            <mat-panel-description>Save & publish</mat-panel-description>
+          </mat-expansion-panel-header>
+
+          <!-- FINAL SECTION — PUBLICATION ACTIONS -->
+          <section class="bg-gray-50 rounded-lg p-6 shadow-sm">
+            <div class="flex items-center justify-between mb-4">
+              <h2 class="text-xl font-semibold text-gray-900">Ready to Publish</h2>
+              <div class="text-sm text-gray-500">Last step: save & publish</div>
+            </div>
+
+            <div class="flex gap-2">
+              <button mat-stroked-button class="px-3 py-1 text-sm" (click)="goBack()">Back to Admin</button>
+                <button mat-raised-button class="bg-orange-500 text-white hover:bg-orange-600 px-3 py-1 text-sm" (click)="saveAndPublish()" [disabled]="!isFormValid() || isPublishing">
+                  @if (!isPublishing) { {{ getPublishButtonText() }} }
+                  @if (isPublishing) { {{ getPublishingText() }} }
+                </button>
+                
+            </div>
+          </section>
+        </mat-expansion-panel>
+      </mat-accordion>
     </main>
   }
 
@@ -577,7 +586,7 @@
     <div class="max-w-4xl mx-auto px-6">
       <div class="text-center py-12">
         <svg class="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 18.5c-.77.833.192 2.5 1.732 2.5z"/>
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v4m0 4h.01M-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 18.5c-.77.833.192 2.5 1.732 2.5z"/>
         </svg>
         <h3 class="text-lg font-medium text-gray-900 mb-2">Submission not found</h3>
         <p class="text-gray-600">The submission you're trying to publish could not be found.</p>
@@ -598,7 +607,7 @@
           <div class="ml-3 flex-1">
             <p class="text-sm font-medium" [ngClass]="{ 'text-green-800': toastType === 'success', 'text-red-800': toastType === 'error', 'text-blue-800': toastType === 'info' }">{{ toastMessage }}</p>
           </div>
-          <div class="ml-4 flex-shrink-0"><app-button (click)="hideToast()"></app-button></div>
+          <div class="ml-4 flex-shrink-0"><button mat-icon-button (click)="hideToast()"></button></div>
         </div>
       </div>
     </div>

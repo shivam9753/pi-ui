@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { PrettyLabelPipe } from '../../../pipes/pretty-label.pipe';
 import { StatusBadgeComponent } from '../status-badge/status-badge.component';
 import { StringUtils, CommonUtils } from '../../utils';
-import { ButtonComponent } from '../../../ui-components/button/button.component';
+import { MatButtonModule } from '@angular/material/button';
 
 export interface TableColumn {
   key: string;
@@ -35,7 +35,7 @@ export interface PaginationConfig {
 @Component({
   selector: 'app-data-table',
   standalone: true,
-  imports: [CommonModule, PrettyLabelPipe, StatusBadgeComponent, ButtonComponent],
+  imports: [CommonModule, PrettyLabelPipe, StatusBadgeComponent, MatButtonModule],
   template: `
     <div class="w-full">
 
@@ -215,17 +215,20 @@ export interface PaginationConfig {
                     <td class="px-6 py-4">
                       <div class="flex items-center space-x-2">
                         @for (action of getVisibleActions(item); track action.label) {
-                          <app-button
+                          <button
+                            [attr.mat-flat-button]="action.color === 'primary' ? '' : null"
+                            [attr.mat-tonal-button]="(action.color === 'secondary' || action.color === 'success' || action.color === 'warning') ? '' : null"
+                            [attr.mat-stroked-button]="(!action.color || action.color === 'danger') ? '' : null"
+                            [class.mat-warn]="action.color === 'danger'"
+                            type="button"
                             (click)="action.handler(item); $event.stopPropagation()"
-                            [variant]="mapActionVariant(action.color)"
-                            size="sm"
                             [attr.title]="action.label">
                             @if (action.icon) {
                               <span [innerHTML]="action.icon"></span>
                             } @else {
                               {{ action.label }}
                             }
-                          </app-button>
+                          </button>
                         }
                       </div>
                     </td>
@@ -291,13 +294,11 @@ export interface PaginationConfig {
               <!-- Primary action full-width at bottom (tertiary look) -->
               <div class="pt-1">
                 <ng-container *ngIf="getMainAction(item) as primaryAction">
-                  <app-button
+                  <button mat-flat-button type="button"
                     (click)="primaryAction.handler(item); $event.stopPropagation()"
-                    [variant]="'primary'"
-                    size="md"
                     class="w-full justify-center">
                     {{ primaryAction.label }}
-                  </app-button>
+                  </button>
                 </ng-container>
               </div>
 
@@ -494,7 +495,7 @@ export class DataTableComponent<T = any> implements OnInit {
     return widths[Math.floor(Math.random() * widths.length)];
   }
 
-  // Map action color to the app-button variant so buttons follow design system
+  // Map action color to mat-button directive and color
   mapActionVariant(color?: string): 'primary' | 'secondary' | 'tertiary' | 'quaternary' | 'destructive' {
     switch (color) {
       case 'primary': return 'primary';

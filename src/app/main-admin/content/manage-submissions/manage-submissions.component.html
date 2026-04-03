@@ -77,17 +77,16 @@
             </div>
           </div>
           
-          <app-button
+          <button mat-flat-button type="button"
             (click)="bulkReassignUser()"
             (keydown.enter)="bulkReassignUser()"
             [disabled]="!bulkSelectedUserId || bulkActionLoading"
-            class="px-4 py-2 flex items-center gap-2"
             aria-label="Reassign Selected">
             <ng-container *ngIf="bulkActionLoading">
               <div class="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin"></div>
             </ng-container>
             Reassign Selected
-          </app-button>
+          </button>
         </div>
       </div>
     </div>

@@ -1,17 +1,19 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
+import { MatCardModule } from '@angular/material/card';
+import { MatButtonModule } from '@angular/material/button';
 import { UserService } from '../../services/user.service';
 
 @Component({
   selector: 'app-published-authors',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, MatCardModule, MatButtonModule],
   templateUrl: './published-authors.component.html',
   styleUrls: ['./published-authors.component.css']
 })
 export class PublishedAuthorsComponent implements OnInit {
-  authors: Array<{ _id: string; name: string; profileImage?: string; publishedSubmissions?: number; publishedTypes?: string[] }> = [];
+  authors: Array<{ _id: string; name: string; profileImage?: string; bio?: string; publishedSubmissions?: number; publishedTypes?: string[] }> = [];
   loading = true;
 
   // pagination

@@ -43,23 +43,27 @@
 
     <div class="card-actions">
       <div class="card-actions__buttons">
-        <app-button *ngIf="showPrimaryButton"
-          [variant]="primaryButtonVariant"
-          [size]="size === 'sm' ? 'sm' : 'md'"
+        <button *ngIf="showPrimaryButton"
+          [attr.mat-flat-button]="primaryButtonVariant === 'primary' ? '' : null"
+          [attr.mat-tonal-button]="primaryButtonVariant === 'secondary' ? '' : null"
+          [attr.mat-stroked-button]="(primaryButtonVariant !== 'primary' && primaryButtonVariant !== 'secondary') ? '' : null"
+          type="button"
           (click)="onPrimaryClick()"
           (keydown.enter)="onPrimaryClick()"
           [attr.aria-label]="primaryAriaLabel">
           {{ primaryButtonLabel }}
-        </app-button>
+        </button>
 
-        <app-button *ngIf="showSecondaryButton"
-          [variant]="secondaryButtonVariant"
-          [size]="size === 'sm' ? 'sm' : 'md'"
+        <button *ngIf="showSecondaryButton"
+          [attr.mat-flat-button]="secondaryButtonVariant === 'primary' ? '' : null"
+          [attr.mat-tonal-button]="secondaryButtonVariant === 'secondary' ? '' : null"
+          [attr.mat-stroked-button]="(secondaryButtonVariant !== 'primary' && secondaryButtonVariant !== 'secondary') ? '' : null"
+          type="button"
           (click)="onSecondaryClick()"
           (keydown.enter)="onSecondaryClick()"
           [attr.aria-label]="secondaryAriaLabel">
           {{ secondaryButtonLabel }}
-        </app-button>
+        </button>
       </div>
     </div>
   </div>

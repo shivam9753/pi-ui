@@ -7,7 +7,7 @@
     [stats]="stats"
     (onRefresh)="loadUsers()">
     <!-- Add Create User button projected into header -->
-    <app-button variant="primary" (click)="openCreateUser()">Create User</app-button>
+    <button mat-flat-button type="button" (click)="openCreateUser()">Create User</button>
   </app-admin-page-header>
 
   <!-- Filter Component -->
@@ -108,7 +108,7 @@
           </div>
 
           <div class="ml-4 flex-shrink-0">
-            <app-button variant="primary" size="sm" (click)="openEditModal(user)">Edit</app-button>
+            <button mat-flat-button type="button" (click)="openEditModal(user)">Edit</button>
           </div>
         </div>
       </div>
@@ -141,9 +141,9 @@
             </svg>
           }
           <span class="flex-1">{{ message.text }}</span>
-          <app-button variant="quaternary" size="sm" (click)="clearMessage()" (keydown.enter)="clearMessage()" class="ml-4">
+          <button mat-stroked-button type="button" (click)="clearMessage()" (keydown.enter)="clearMessage()" class="ml-4">
             Close
-          </app-button>
+          </button>
         </div>
       </div>
     </div>
@@ -155,7 +155,7 @@
       <div class="bg-white rounded-lg shadow-xl max-w-3xl w-full max-h-screen overflow-y-auto" (click)="$event.stopPropagation()">
         <div class="px-4 py-4 border-b flex items-center justify-between">
           <h3 class="text-lg font-medium text-gray-900">Create User</h3>
-          <app-button variant="quaternary" size="sm" (click)="closeCreateModal()" (keydown.enter)="closeCreateModal()">Close</app-button>
+          <button mat-stroked-button type="button" (click)="closeCreateModal()" (keydown.enter)="closeCreateModal()">Close</button>
         </div>
         <div class="p-4">
           <app-create-users (created)="onUserCreated($event)"></app-create-users>
@@ -245,14 +245,11 @@
                         <div class="text-sm text-gray-600 mb-2">New Image:</div>
                         <div class="relative inline-block">
                           <img [src]="previewUrl" alt="Preview" class="w-16 h-16 rounded-full object-cover border-2 border-gray-300">
-                          <app-button
-                            variant="destructive"
-                            size="sm"
+                          <button mat-stroked-button type="button"
                             (click)="removeImage()" (keydown.enter)="removeImage()"
-                            class="absolute -top-2 -right-2 !rounded-full !w-5 !h-5 !min-h-0 !p-0 !text-xs"
-                            ariaLabel="Remove image">
+                            aria-label="Remove image">
                             ×
-                          </app-button>
+                          </button>
                         </div>
                       </div>
                     }
@@ -298,10 +295,8 @@
           
           <!-- Modal Footer -->
           <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-            <app-button
-              variant="primary"
+            <button mat-flat-button type="button"
               [disabled]="loading || uploadingImage"
-              [loading]="loading || uploadingImage"
               (click)="saveUserChanges()" (keydown.enter)="saveUserChanges()">
               @if (loading) {
                 Saving...
@@ -310,13 +305,12 @@
               } @else {
                 Save Changes
               }
-            </app-button>
-            <app-button
-              variant="secondary"
+            </button>
+            <button mat-tonal-button type="button"
               [disabled]="loading || uploadingImage"
               (click)="closeEditModal()" (keydown.enter)="closeEditModal()">
               Cancel
-            </app-button>
+            </button>
         </div>
       </div>
     </div>

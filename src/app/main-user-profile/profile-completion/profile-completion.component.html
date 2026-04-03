@@ -76,10 +76,10 @@
               </label>
 
               @if (profileImagePreview) {
-                <app-button variant="destructive" size="sm" type="button" (click)="removeImage()" (keydown.enter)="removeImage()">
+                <button mat-flat-button color="warn" type="button" (click)="removeImage()" (keydown.enter)="removeImage()">
                   <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                   Remove
-                </app-button>
+                </button>
               }
             </div>
           </div>
@@ -89,16 +89,16 @@
       <!-- Action Buttons -->
       <div class="flex justify-end items-center gap-3 pt-2">
         @if (!isEditMode && mode === 'completion' && showSkipButton) {
-          <app-button variant="secondary" size="sm" [disabled]="isSubmitting" (click)="skipForNow()" (keydown.enter)="skipForNow()">Skip for Now</app-button>
+          <button mat-tonal-button type="button" [disabled]="isSubmitting" (click)="skipForNow()" (keydown.enter)="skipForNow()">Skip for Now</button>
         }
 
         @if (isEditMode || mode === 'edit') {
-          <app-button variant="secondary" size="sm" [disabled]="isSubmitting" (click)="cancel()" (keydown.enter)="cancel()">Cancel</app-button>
+          <button mat-tonal-button type="button" [disabled]="isSubmitting" (click)="cancel()" (keydown.enter)="cancel()">Cancel</button>
         }
 
-        <app-button variant="primary" size="sm" [disabled]="isSubmitting || !profileForm.valid" [loading]="isSubmitting" (click)="onSubmit()" (keydown.enter)="onSubmit()">
+        <button mat-flat-button type="button" [disabled]="isSubmitting || !profileForm.valid" (click)="onSubmit()" (keydown.enter)="onSubmit()">
           {{ isSubmitting ? (isEditMode || mode === 'edit' ? 'Updating Profile...' : 'Completing Profile...') : (isEditMode || mode === 'edit' ? 'Update Profile' : 'Complete Profile') }}
-        </app-button>
+        </button>
       </div>
     </div>
   </form>

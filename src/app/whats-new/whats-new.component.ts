@@ -5,11 +5,11 @@ import { AuthService } from '../services/auth.service';
 import { Router } from '@angular/router';
 import { WhatsNewItem, WHATS_NEW_DATA } from './whats-new.data';
 import { ContentCardComponent, ContentCardData } from '../shared/components/content-card/content-card.component';
-import { ButtonComponent } from '../ui-components/button/button.component';
+import { MatButtonModule } from '@angular/material/button';
 
 @Component({
   selector: 'app-whats-new',
-  imports: [CommonModule, FormsModule, ContentCardComponent, ButtonComponent],
+  imports: [CommonModule, FormsModule, ContentCardComponent, MatButtonModule],
   templateUrl: './whats-new.component.html',
   styleUrl: './whats-new.component.css'
 })

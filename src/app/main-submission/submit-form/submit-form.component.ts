@@ -7,8 +7,9 @@ import { BackendService } from '../../services/backend.service';
 import { ContentEditorComponent } from '../../submit/content-editor/content-editor.component';
 import { SUBMISSION_STATUS, SubmissionStatus, HTTP_STATUS } from '../../shared/constants/api.constants';
 import { Subscription } from 'rxjs';
-import { ButtonComponent } from '../../ui-components/button/button.component';
+
 import { ModalService } from '../../services/modal.service';
+import { MatButtonModule } from '@angular/material/button';
 
 export type SubmissionMode = 'create' | 'edit' | 'resubmit' | 'view';
 
@@ -46,7 +47,7 @@ export interface Draft {
     FormsModule,
     CommonModule,
     ContentEditorComponent,
-    ButtonComponent
+    MatButtonModule
   ]
 })
 export class SubmitFormComponent implements OnInit, OnDestroy {
@@ -582,8 +583,7 @@ export class SubmitFormComponent implements OnInit, OnDestroy {
         {
           label: 'OK',
           action: () => { this.modalService.close(); },
-          variant: 'primary',
-          size: 'md'
+          variant: 'primary'
         }
       ]
     });
@@ -599,8 +599,7 @@ export class SubmitFormComponent implements OnInit, OnDestroy {
         {
           label: 'Close',
           action: () => { this.modalService.close(); },
-          variant: 'secondary',
-          size: 'md'
+          variant: 'secondary'
         }
       ]
     });

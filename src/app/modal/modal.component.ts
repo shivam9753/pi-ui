@@ -1,22 +1,19 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
-import { ButtonComponent, ButtonVariant, ButtonSize, ButtonType } from '../ui-components/button/button.component';
-
+import { MatButtonModule } from '@angular/material/button';
 
 export interface ModalButton {
   label: string;
   action: () => void;
   class?: string;
-  variant?: ButtonVariant;
-  size?: ButtonSize;
+  variant?: 'primary' | 'secondary' | 'tertiary' | 'destructive';
   disabled?: boolean;
-  loading?: boolean;
-  type?: ButtonType;
+  type?: 'button' | 'submit' | 'reset';
 }
 
 @Component({
   selector: 'app-modal',
   standalone: true,
-  imports: [ButtonComponent],
+  imports: [MatButtonModule],
   template: `
     @if (isOpen) {
       <div class="fixed inset-0 z-50 flex items-center justify-center">
@@ -44,15 +41,16 @@ export interface ModalButton {
           @if (buttons && buttons.length) {
             <div class="flex justify-end space-x-3">
               @for (button of buttons; track button) {
-                <app-button
-                  (click)="button.action()"
-                  [variant]="button.variant || 'secondary'"
-                  [size]="button.size || 'md'"
+                <button
+                  [attr.mat-flat-button]="button.variant === 'primary' || button.variant === 'destructive' ? '' : null"
+                  [attr.mat-tonal-button]="button.variant === 'secondary' || !button.variant ? '' : null"
+                  [attr.mat-stroked-button]="button.variant === 'tertiary' ? '' : null"
+                  [class.mat-warn]="button.variant === 'destructive'"
                   [disabled]="button.disabled ?? false"
-                  [loading]="button.loading ?? false"
-                  [type]="button.type || 'button'">
+                  [type]="button.type || 'button'"
+                  (click)="button.action()">
                   {{ button.label }}
-                </app-button>
+                </button>
               }
             </div>
           }

@@ -3,12 +3,12 @@ import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { ViewTrackerService } from '../services/view-tracker.service';
 import { ContentCardComponent, ContentCardData } from '../shared/components/content-card/content-card.component';
-import { ButtonComponent } from '../shared/components';
+import { MatButtonModule } from '@angular/material/button';
 
 @Component({
   selector: 'app-submission-success',
   standalone: true,
-  imports: [CommonModule, ContentCardComponent, ButtonComponent, RouterModule],
+  imports: [CommonModule, ContentCardComponent, RouterModule, MatButtonModule],
   templateUrl: './submission-success.component.html',
   styleUrls: ['./submission-success.component.css']
 })

@@ -1,4 +1,4 @@
-import { Component, AfterViewInit, signal, computed, inject, PLATFORM_ID, Inject, ElementRef, HostBinding } from '@angular/core';
+import { Component, AfterViewInit, signal, computed, inject, PLATFORM_ID, Inject, ElementRef, HostBinding, OnInit } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
@@ -10,10 +10,10 @@ import { ThemingService } from '../../services/theming.service';
 import { BackendService } from '../../services/backend.service';
 import { HtmlSanitizerService } from '../../services/html-sanitizer.service';
 import { ViewTrackerService } from '../../services/view-tracker.service';
-import { PostSSRData, SsrDataService } from '../../services/ssr-data.service';
+import { PostSSRData } from '../../services/ssr-data.service';
 import { UserService } from '../../services/user.service';
 import { ContentRendererComponent } from '../content-renderer/content-renderer.component';
-import { ButtonComponent } from '../../ui-components/button/button.component';
+
 import { UserBannerComponent } from '../../shared/components/user-banner/user-banner.component';
 
 interface PublishedContent {
@@ -57,18 +57,17 @@ interface Comment {
 }
 @Component({
   selector: 'app-reading-interface',
-  imports: [CommonModule, FormsModule, RouterLink, BadgeLabelComponent, RelatedContentComponent, ContentRendererComponent, ButtonComponent, UserBannerComponent],
+  imports: [CommonModule, FormsModule, RouterLink, BadgeLabelComponent, RelatedContentComponent, ContentRendererComponent,  UserBannerComponent],
   templateUrl: './reading-interface.component.html',
   styleUrl: './reading-interface.component.css'
 })
-export class ReadingInterfaceComponent implements AfterViewInit {
+export class ReadingInterfaceComponent implements OnInit {
 content = signal<PublishedContent | null>(null);
   comments = signal<Comment[]>([]);
   relatedContent = signal<PublishedContent[]>([]);
   authorDetails = signal<User | null>(null);
   
-  // Reading settings
-  fontSize = signal(20); // Match CSS default font-size for consistent typography
+  fontSize = signal(20);
   lineHeight = signal(1.6);
   isReaderMode = signal(false);
   readingProgress = signal(0);
@@ -77,8 +76,6 @@ content = signal<PublishedContent | null>(null);
   // Enhanced reading controls
   layoutMode = signal<'compact' | 'spacious'>('compact');
   lineHeightPreset = signal<'normal' | 'relaxed'>('normal');
-  
-  // Theme toggle disabled - app uses light mode only
   
   // Comments
   newComment = signal('');
@@ -132,7 +129,6 @@ content = signal<PublishedContent | null>(null);
       return null;
     };
 
-    // Add main content tags (top-level submission tags)
     if (current.tags && Array.isArray(current.tags)) {
       current.tags.forEach((t: any) => {
         const obj = normalizeTag(t);
@@ -142,14 +138,12 @@ content = signal<PublishedContent | null>(null);
       });
     }
 
-    // Add individual content item tags
     if (current.contents && Array.isArray(current.contents)) {
       current.contents.forEach((item: any) => {
         if (item.tags && Array.isArray(item.tags)) {
           item.tags.forEach((t: any) => {
             const obj = normalizeTag(t);
             if (!obj) return;
-            // Prefer keyed by slug if available, otherwise name, then id
             const key = obj.slug || obj.name || obj._id;
             if (key) tagMap.set(key, obj);
           });
@@ -161,34 +155,28 @@ content = signal<PublishedContent | null>(null);
   });
 
   themeService = inject(ThemingService);
-  router = inject(Router); // Make router public for template access
-
-  // Expose a small config for the renderer
+  router = inject(Router);
   rendererWidthCh = 60;
 
   constructor(
-    private route: ActivatedRoute,
-    private backendService: BackendService,
-    private titleService: Title,
-    private metaService: Meta,
-    private htmlSanitizer: HtmlSanitizerService,
-    private viewTracker: ViewTrackerService,
-    private ssrDataService: SsrDataService,
-    private userService: UserService,
-    private elementRef: ElementRef,
-    @Inject(PLATFORM_ID) private platformId: Object
+    private readonly route: ActivatedRoute,
+    private readonly backendService: BackendService,
+    private readonly titleService: Title,
+    private readonly metaService: Meta,
+    private readonly htmlSanitizer: HtmlSanitizerService,
+    private readonly viewTracker: ViewTrackerService,
+    private readonly userService: UserService,
+    @Inject(PLATFORM_ID) private readonly platformId: Object
   ) {}
 
   ngOnInit() {
-    // Check for SSR resolved data first
     const ssrData = this.route.snapshot.data['postData'] as PostSSRData;
     console.log('[ReadingInterface] ngOnInit ssrData present?', !!ssrData, 'platformBrowser?', isPlatformBrowser(this.platformId));
     
-    if (ssrData && ssrData.post) {
+    if (ssrData?.post) {
       console.log('[SSR] Using pre-resolved data');
       this.handleSSRData(ssrData);
     } else {
-      // Fallback to regular data fetching for client-side navigation
       this.route.params.subscribe(params => {
         console.log('[ReadingInterface] route.params fired', params);
         const contentId = params['id'];
@@ -197,7 +185,6 @@ content = signal<PublishedContent | null>(null);
          if (contentId) {
            this.loadContent(contentId);
          } else if (slug) {
-           // During SSR, immediately try to set basic meta tags based on slug
            if (!isPlatformBrowser(this.platformId) && slug) {
              this.setBasicMetaTagsFromSlug(slug);
            }
@@ -206,43 +193,20 @@ content = signal<PublishedContent | null>(null);
        });
     }
 
-    // Track reading progress (only in browser)
     if (isPlatformBrowser(this.platformId)) {
       window.addEventListener('scroll', () => this.updateReadingProgress());
     }
   }
 
-  ngAfterViewInit() {
-    // Note: Text alignment and formatting styles are now handled via CSS attribute selectors
-    // in reading-interface.component.css, which works seamlessly with SSR
-    // No client-side restoration needed!
-  }
 
   private handleSSRData(ssrData: PostSSRData) {
     try {
       const data: any = ssrData && (ssrData.post || ssrData) ? (ssrData.post || ssrData) : {};
-
-      // Ensure contents exist (fallback to excerpt/description/body)
       data.contents = this.ensureContents(data);
 
-      // Normalize incoming shape so downstream transform code can assume strings for tags and a contents array
       const normalized = this.normalizeApiSubmission(data);
       let contentItems: ContentItem[] = normalized.contents || [];
-
-      // Transform the API response to match our interface
-      console.log('Raw content data for author normalization (handleSSRData):', {
-        _id: data._id,
-        userId: data.userId,
-        author: data.author,
-        submitterId: data.submitterId,
-        submitterName: data.submitterName,
-        authorId: data.authorId,
-        authorName: data.authorName
-      });
-
-      const normalizedAuthor = AuthorUtils.normalizeAuthor(data);
-      console.log('Normalized author result (handleSSRData):', normalizedAuthor);
-      
+      const normalizedAuthor = AuthorUtils.normalizeAuthor(data);  
       const transformedContent: PublishedContent = {
         _id: data._id,
         title: data.title,
@@ -265,20 +229,14 @@ content = signal<PublishedContent | null>(null);
 
       this.content.set(transformedContent);
       this.loading.set(false);
-      
-      // Always update meta tags so SSR output contains Open Graph and other meta tags
-      // updatePageMeta is safe on the server because it guards browser-only APIs internally
       this.updatePageMeta(transformedContent);
       
-      // Load author details
       if (transformedContent.author?.id) {
         console.log('Loading author details from handleSSRData. Author:', transformedContent.author);
         this.loadAuthorDetails(transformedContent.author.id);
       }
 
-      // Only track views in browser
       if (isPlatformBrowser(this.platformId)) {
-        // Ensure we log a view from the client after hydration
         try {
           setTimeout(() => {
             const id = String(transformedContent._id);

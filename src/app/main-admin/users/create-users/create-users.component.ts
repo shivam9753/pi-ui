@@ -5,13 +5,13 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { environment } from '../../../../environments/environment';
 import { compressImageToAVIF } from '../../../shared/utils/image-compression.util';
 import { AdminPageHeaderComponent } from '../../../shared/components/admin-page-header/admin-page-header.component';
-import { ButtonComponent } from '../../../ui-components/button/button.component';
 import { API_ENDPOINTS } from '../../../shared/constants/api.constants';
 import { UserService } from '../../../services/user.service';
+import { MatButtonModule } from '@angular/material/button';
 
 @Component({
   selector: 'app-create-users',
-  imports: [CommonModule, FormsModule, AdminPageHeaderComponent, ButtonComponent],
+  imports: [CommonModule, FormsModule, AdminPageHeaderComponent, MatButtonModule],
   templateUrl: './create-users.component.html',
   styleUrl: './create-users.component.css'
 })

@@ -3,39 +3,33 @@
 
     <!-- Navigation Bar (Back + Prev/Next) -->
     <div class="mb-6 flex items-center justify-between gap-4 pb-4 border-b border-gray-200">
-      <app-button
+      <button mat-tonal-button
         (click)="goBackToPendingReviews()"
         (keydown.enter)="goBackToPendingReviews()"
-        variant="secondary"
-        size="sm"
         type="button">
         Back to Reviews
-      </app-button>
+      </button>
 
       <div class="flex items-center gap-2">
-        <app-button
+        <button mat-stroked-button
           (click)="goToPrevious()"
           (keydown.enter)="goToPrevious()"
           [disabled]="!hasPrevious || isLoadingNavigation"
-          variant="tertiary"
-          size="sm"
           type="button">
           Prev
-        </app-button>
+        </button>
 
         @if (getCurrentSubmissionInfo()) {
           <span class="text-xs text-gray-500 px-2 hidden sm:inline">{{ getCurrentSubmissionInfo() }}</span>
         }
 
-        <app-button
+        <button mat-stroked-button
           (click)="goToNext()"
           (keydown.enter)="goToNext()"
           [disabled]="!hasNext || isLoadingNavigation"
-          variant="tertiary"
-          size="sm"
           type="button">
           Next
-        </app-button>
+        </button>
       </div>
     </div>
 
@@ -162,14 +156,13 @@
         @if (canStartReview()) {
           <div class="text-center py-8">
             <p class="text-gray-700 mb-4">This submission is awaiting review.</p>
-            <app-button
-              variant="primary"
-              size="md"
+            <button mat-flat-button
               [disabled]="isSubmitting"
               (click)="startReviewProcess()"
-              (keydown.enter)="startReviewProcess()">
+              (keydown.enter)="startReviewProcess()"
+              type="button">
               Start Review
-            </app-button>
+            </button>
           </div>
         }
 
@@ -180,39 +173,39 @@
 
             <div class="flex items-center gap-1 justify-center flex-nowrap">
               @if (canApproveSubmissions()) {
-                <app-button
+                <button mat-flat-button
                   class="inline-flex"
-                  variant="destructive"
-                  size="md"
+                  color="warn"
                   [disabled]="isSubmitting"
                   (click)="setReviewAction('approve')"
-                  (keydown.enter)="setReviewAction('approve')">
+                  (keydown.enter)="setReviewAction('approve')"
+                  type="button">
                   Accept
-                </app-button>
+                </button>
               }
 
               @if (isActionAllowed('reject')) {
-                <app-button
+                <button mat-flat-button
                   class="inline-flex"
-                  variant="destructive"
-                  size="md"
+                  color="warn"
                   [disabled]="isSubmitting"
                   (click)="setReviewAction('reject')"
-                  (keydown.enter)="setReviewAction('reject')">
+                  (keydown.enter)="setReviewAction('reject')"
+                  type="button">
                   Reject
-                </app-button>
+                </button>
               }
 
               @if (isActionAllowed('revision')) {
-                <app-button
+                <button mat-flat-button
                   class="inline-flex"
-                  variant="destructive"
-                  size="md"
+                  color="warn"
                   [disabled]="isSubmitting"
                   (click)="setReviewAction('revision')"
-                  (keydown.enter)="setReviewAction('revision')">
+                  (keydown.enter)="setReviewAction('revision')"
+                  type="button">
                   Ask for Revision
-                </app-button>
+                </button>
               }
             </div>
           </div>
@@ -253,14 +246,12 @@
                       </span>
                     </div>
                     @for (reason of filteredRejectionReasons; track reason) {
-                      <app-button
+                      <button mat-tonal-button
                         type="button"
                         (mousedown)="selectCommonReason(reason)"
-                        (keydown.enter)="selectCommonReason(reason)"
-                        variant="secondary"
-                        size="sm">
+                        (keydown.enter)="selectCommonReason(reason)">
                         {{ reason }}
-                      </app-button>
+                      </button>
                     }
                   </div>
                 }
@@ -276,21 +267,17 @@
             }
 
             <div class="mt-4 flex flex-col sm:flex-row gap-3 justify-end">
-              <app-button
+              <button mat-tonal-button
                 (click)="cancelReview()"
                 (keydown.enter)="cancelReview()"
                 [disabled]="isSubmitting"
-                variant="secondary"
-                size="md"
                 type="button">
                 Cancel
-              </app-button>
-              <app-button
+              </button>
+              <button mat-flat-button
                 (click)="confirmReview()"
                 (keydown.enter)="confirmReview()"
                 [disabled]="isSubmitting || ((reviewAction === 'reject' || reviewAction === 'revision') && !reviewNotes.trim())"
-                variant="primary"
-                size="md"
                 type="button"
                 [style.background-color]="getActionButtonColor(reviewAction)">
                 @if (!isSubmitting) {
@@ -302,7 +289,7 @@
                 @if (isSubmitting) {
                   Processing...
                 }
-              </app-button>
+              </button>
             </div>
           </div>
         }
@@ -336,54 +323,46 @@
       <div class="flex flex-row flex-wrap items-center gap-1">
 
         <!-- Editorial Guidelines -->
-        <app-button
+        <button mat-tonal-button
           (click)="toggleGuidelines()"
           (keydown.enter)="toggleGuidelines()"
-          variant="secondary"
-          size="sm"
           type="button">
           <div class="flex items-center gap-2">
             <span class="text-sm font-medium text-gray-700">Editorial Guidelines</span>
           </div>
-        </app-button>
+        </button>
 
         <!-- History -->
-        <app-button
+        <button mat-tonal-button
           (click)="toggleHistory()"
           (keydown.enter)="toggleHistory()"
-          variant="secondary"
-          size="sm"
           type="button">
           <div class="flex items-center gap-2">
             <span class="text-sm font-medium text-gray-700">{{ showHistory ? 'Hide' : 'Show' }} History</span>
           </div>
-        </app-button>
+        </button>
 
         <!-- Send Email -->
-        <app-button
+        <button mat-tonal-button
           (click)="openEmailModal()"
           (keydown.enter)="openEmailModal()"
-          variant="secondary"
-          size="sm"
           type="button">
           <div class="flex items-center gap-2">
             <span class="text-sm font-medium text-gray-700">Send Email</span>
           </div>
-        </app-button>
+        </button>
 
         <!-- Analysis (if enabled) -->
         @if (isAnalysisEnabled) {
-          <app-button
+          <button mat-tonal-button
             (click)="analyzeSubmission()"
             (keydown.enter)="analyzeSubmission()"
             [disabled]="isAnalyzing"
-            variant="secondary"
-            size="sm"
             type="button">
             <div class="flex items-center gap-2">
               <span class="text-sm font-medium text-gray-700">{{ isAnalyzing ? 'Analyzing...' : 'Analyze Content' }}</span>
             </div>
-          </app-button>
+          </button>
         }
       </div>
 
@@ -461,7 +440,9 @@
                 {{ analysisData.length }} piece{{ analysisData.length > 1 ? 's' : '' }}
               </span>
             }
-            <app-button (click)="closeAnalysisPopup()" (keydown.enter)="closeAnalysisPopup()" variant="secondary" size="sm" type="button"></app-button>
+            <button mat-icon-button (click)="closeAnalysisPopup()" (keydown.enter)="closeAnalysisPopup()" type="button" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
           </div>
         </div>
 
@@ -496,7 +477,7 @@
         }
 
         <div class="mt-6 flex justify-end">
-          <app-button (click)="closeAnalysisPopup()" (keydown.enter)="closeAnalysisPopup()" variant="secondary" size="sm" type="button">Close</app-button>
+          <button mat-tonal-button (click)="closeAnalysisPopup()" (keydown.enter)="closeAnalysisPopup()" type="button">Close</button>
         </div>
       </div>
     </div>

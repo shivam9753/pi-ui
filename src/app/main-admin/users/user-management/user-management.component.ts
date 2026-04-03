@@ -15,9 +15,9 @@ import {
   PaginationConfig,
   USER_TABLE_COLUMNS,
   createUserActions,
-  USER_BADGE_CONFIG,
-  ButtonComponent
+  USER_BADGE_CONFIG
 } from '../../../shared/components';
+import { MatButtonModule } from '@angular/material/button';
 import { SimpleSubmissionFilterComponent, SimpleFilterOptions } from '../../../shared/components/simple-submission-filter/simple-submission-filter.component';
 import { CreateUsersComponent } from '../create-users/create-users.component';
 
@@ -30,12 +30,13 @@ interface Message {
 @Component({
   selector: 'app-user-management',
   imports: [
+    MatButtonModule,
     CommonModule, 
     FormsModule, 
     AdminPageHeaderComponent,
     DataTableComponent,
     SimpleSubmissionFilterComponent,
-    ButtonComponent,
+    
     CreateUsersComponent
   ],
   templateUrl: './user-management.component.html',

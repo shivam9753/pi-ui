@@ -13,7 +13,7 @@
       <h3 class="text-2xl font-bold text-gray-900 mb-4" [ngClass]="{
         'text-xl': layout === 'sidebar'
       }">
-        More {{ getContentTypeLabel(contentType) }}s
+        More Posts
         @if (!loading && relatedPosts.length > 0) {
           <span class="text-gray-500 font-normal text-lg ml-2">({{ relatedPosts.length }})</span>
         }
@@ -48,15 +48,15 @@
           @if (layout === 'bottom') {
             <app-content-card
               [content]="{
-                id: post._id || post.id || '',
+                id: post._id,
                 title: post.title || '',
                 submissionType: post.submissionType || '',
-                createdAt: post.createdAt || post.publishedAt || '',
                 imageUrl: post.imageUrl || '',
                 excerpt: post.excerpt || '',
-                slug: post.slug || (post.seo && post.seo.slug) || ''
+                slug: post.slug,
+                author: post.author
               }"
-              [slug]="post.slug || (post.seo && post.seo.slug) || ''"
+              [slug]="post.slug"
               class="group cursor-pointer"
             ></app-content-card>
           }
@@ -92,10 +92,7 @@
           </svg>
         </div>
         <p class="text-gray-900-secondary text-sm">
-          No related {{ getContentTypeLabel(contentType).toLowerCase() }}s found at the moment.
-        </p>
-        <p class="text-gray-900-tertiary text-xs mt-1">
-          Check back later for more content!
+          No related posts found!
         </p>
       </div>
     }

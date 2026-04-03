@@ -236,6 +236,8 @@ export class BackendService {
     );
   }
 
+
+
   // Public API for published content - no auth required, works in incognito mode
   getPublishedContent(type?: string, options: { limit?: number; skip?: number; sortBy?: string; order?: 'asc' | 'desc' } = {}): Observable<any> {
     let params = new HttpParams();
@@ -1449,6 +1451,18 @@ getRandomSubmissions(options: { type?: string; limit?: number } = {}): Observabl
   const headers = this.getPublicHeaders();
   const url = `${this.API_URL}${API_ENDPOINTS.SUBMISSIONS}/random`;
   return this.http.get<any>(url, { headers, params }).pipe(
+    this.handleApiCall(url, 'GET')
+  );
+}
+
+// Get related submissions by submission type
+getRelatedSubmissions(id: string, limit: number = 10): Observable<any> {
+  let params = new HttpParams()
+    .set('id', id)
+    .set('limit', limit.toString());
+
+  const url = `${this.API_URL}${API_ENDPOINTS.SUBMISSIONS}/related`;
+  return this.http.get<any>(url, { params }).pipe(
     this.handleApiCall(url, 'GET')
   );
 }

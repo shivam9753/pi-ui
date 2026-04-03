@@ -8,18 +8,19 @@ import { BackendService } from '../../services/backend.service';
 import { ViewTrackerService } from '../../services/view-tracker.service';
 import { Router } from '@angular/router';
 import { PrettyLabelPipe } from '../../pipes/pretty-label.pipe';
-import { ButtonComponent, TrendingAuthorsComponent } from '../../shared/components';
+import {  TrendingAuthorsComponent } from '../../shared/components';
 import { TabsComponent, TabItemComponent } from '../../ui-components';
 import { BadgeLabelComponent } from '../../utilities/badge-label/badge-label.component';
 import { ContentCardComponent } from '../../shared/components/content-card/content-card.component';
 import { ExploreStateService } from '../../services/explore-state.service';
+import { MatButtonModule } from '@angular/material/button';
 import { RandomArchiveComponent } from '../../shared/components/random-archive/random-archive.component';
 // Removed rxjs imports for debouncing as we're not using real-time search
 
 @Component({
   selector: 'app-explore',
   standalone: true,
-  imports: [CommonModule, FormsModule, PrettyLabelPipe, ButtonComponent, TrendingAuthorsComponent, TabsComponent, TabItemComponent, BadgeLabelComponent, ContentCardComponent, RandomArchiveComponent],
+  imports: [CommonModule, FormsModule, PrettyLabelPipe, TrendingAuthorsComponent, TabsComponent, TabItemComponent, BadgeLabelComponent, ContentCardComponent, RandomArchiveComponent, MatButtonModule],
   templateUrl: './explore.component.html',
   styleUrl: './explore.component.css'
 })

@@ -11,8 +11,8 @@ import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 })
 export class ContentRendererComponent implements OnChanges {
   @Input() html = '';
-  @Input() resizable = false; // deprecated - keep for compatibility
-  @Input() initialFontSize = 18; // px
+  @Input() resizable = false;
+  @Input() initialFontSize = 18;
   cleanedHtml: SafeHtml | null = null;
   fontSize = this.initialFontSize;
 

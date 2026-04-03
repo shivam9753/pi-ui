@@ -3,14 +3,13 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { AuthService, GoogleUser } from '../services/auth.service';
 import { BackendService } from '../services/backend.service';
-import { SubmitFormComponent, Draft, SubmissionMode, EditableSubmission } from './submit-form/submit-form.component';
+import { SubmitFormComponent, Draft, SubmissionMode } from './submit-form/submit-form.component';
 import { GuidelinesOverlayComponent } from './guidelines-overlay/guidelines-overlay.component';
 import { ToastNotificationComponent } from '../shared/components/toast-notification/toast-notification.component';
 import { Subscription } from 'rxjs';
 import { DraftsListComponent } from './drafts-list/drafts-list.component';
 import { TabsComponent, TabItemComponent } from '../ui-components';
-import { ButtonComponent } from '../ui-components/button/button.component';
-import { SubmissionSuccessComponent } from './submission-success.component';
+import { MatButtonModule } from '@angular/material/button';
 
 @Component({
   selector: 'app-submission-editor',
@@ -24,7 +23,7 @@ import { SubmissionSuccessComponent } from './submission-success.component';
     ToastNotificationComponent,
     TabsComponent,
     TabItemComponent,
-    ButtonComponent
+    MatButtonModule
   ]
 })
 export class SubmissionEditorComponent implements OnInit, OnDestroy {

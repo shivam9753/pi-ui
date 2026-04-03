@@ -5,11 +5,12 @@ import { RouterModule, Router } from '@angular/router';
 import { BackendService } from '../../services/backend.service';
 import { PrettyLabelPipe } from '../../pipes/pretty-label.pipe';
 import { SUBMISSION_STATUS, SubmissionStatus } from '../../shared/constants/api.constants';
-import { ButtonComponent } from '../../ui-components/button/button.component';
+
 import { CardComponent } from '../../ui-components/card';
 import { DropdownMultiComponent } from '../../ui-components/dropdown';
 import { BadgeLabelComponent } from '../../utilities/badge-label/badge-label.component';
 import { DataTableComponent, TableColumn, TableAction } from '../../shared/components/data-table/data-table.component';
+import { MatButtonModule } from '@angular/material/button';
 
 // Interfaces3
 interface Submission {
@@ -52,7 +53,7 @@ interface Draft {
 
 @Component({
   selector: 'app-user-submissions',
-  imports: [CommonModule, FormsModule, RouterModule, PrettyLabelPipe, ButtonComponent, CardComponent, DropdownMultiComponent, BadgeLabelComponent, DataTableComponent],
+  imports: [CommonModule, FormsModule, RouterModule, PrettyLabelPipe, CardComponent, DropdownMultiComponent, BadgeLabelComponent, DataTableComponent, MatButtonModule],
   templateUrl: './user-submissions.component.html',
   styles: [`
     .line-clamp-2 {

@@ -4,23 +4,17 @@ import { Router } from '@angular/router';
 import { BackendService } from '../../services/backend.service';
 import { HtmlSanitizerService } from '../../services/html-sanitizer.service';
 import { ContentCardComponent } from '../../shared/components';
+import { Author } from '../../models';
 
 interface RelatedPost {
   _id: string;
-  id?: string;
   title: string;
   excerpt: string;
-  authorName: string;
-  authorId: string;
-  publishedAt: string;
-  createdAt?: string;
-  readingTime: number;
-  viewCount: number;
-  tags: string[];
+  submissionType: string;
   imageUrl?: string;
   slug?: string;
-  seo?: { slug?: string };
-  submissionType: string;
+  publishedAt: string;
+  author: Author;
 }
 
 @Component({
@@ -32,67 +26,43 @@ interface RelatedPost {
 })
 export class RelatedContentComponent implements OnInit {
   @Input() currentPostId: string = '';
-  @Input() contentType: string = '';
-  @Input() currentTags: string[] = [];
-  @Input() layout: 'sidebar' | 'bottom' = 'bottom';
+  @Input() layout: 'sidebar' | 'bottom' | 'grid' = 'grid';
 
+  //Need to implement this, currently showing random post
   relatedPosts: RelatedPost[] = [];
   loading = false;
   error: string | null = null;
 
   constructor(
-    private backendService: BackendService,
-    private router: Router,
-    private htmlSanitizer: HtmlSanitizerService
-  ) {}
+    private readonly backendService: BackendService,
+    private readonly router: Router,
+    private readonly   htmlSanitizer: HtmlSanitizerService
+  ) { }
 
   ngOnInit() {
-    if (this.contentType) {
       this.loadRelatedContent();
-    }
   }
 
   loadRelatedContent() {
+    if (!this.currentPostId) return;
+
     this.loading = true;
     this.error = null;
 
-    // Get posts of the same type, excluding current post
-    this.backendService.getSubmissions({
-      status: 'published',
-      limit: 10, // Get more posts in case we need to filter out current post
-      skip: 0,
-      sortBy: 'reviewedAt',
-      order: 'desc'
-    }).subscribe({
+    this.backendService.getRelatedSubmissions(this.currentPostId, this.layout === 'sidebar' ? 4 : 3).subscribe({
       next: (data) => {
-        let posts = data.submissions || [];
-        
-        // Filter by content type
-        if (this.contentType) {
-          posts = posts.filter((post: any) => 
-            post.submissionType === this.contentType
-          );
-        }
-        
-        // Exclude current post
-        if (this.currentPostId) {
-          posts = posts.filter((post: any) => post._id !== this.currentPostId);
-        }
-        
+        const posts = data.submissions || [];
+
         // Transform data to match our interface
-        this.relatedPosts = posts.slice(0, this.layout === 'sidebar' ? 4 : 3).map((post: any) => ({
+        this.relatedPosts = posts.map((post: any) => ({
           _id: post._id,
           title: post.title,
           excerpt: post.excerpt || '',
-          authorName: post.author?.username || 'Unknown Author',
-          authorId: post.author?._id || '',
-          publishedAt: post.publishedAt,
-          readingTime: post.readingTime || 1,
-          viewCount: post.viewCount || 0,
-          tags: post.tags || [],
+          submissionType: post.submissionType,
           imageUrl: post.imageUrl,
           slug: post.slug,
-          submissionType: post.submissionType
+          publishedAt: post.publishedAt,
+          author: post.author
         }));
         
         this.loading = false;

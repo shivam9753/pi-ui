@@ -2,11 +2,12 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
 import { CommonUtils, StringUtils } from '../../shared/utils';
-import { ButtonComponent } from '../../ui-components/button/button.component';
+
 import { CardComponent } from '../../ui-components/card/card.component';
 import { ThemingService } from '../../services/theming.service';
 import { HtmlSanitizerService } from '../../services/html-sanitizer.service';
 import { SimpleAlertComponent } from '../../ui-components/simple-alert/simple-alert.component';
+import { MatButtonModule } from '@angular/material/button';
 
 export interface Draft {
   id: string;
@@ -20,7 +21,7 @@ export interface Draft {
 
 @Component({
   selector: 'app-drafts-list',
-  imports: [CommonModule, EmptyStateComponent, ButtonComponent, CardComponent, SimpleAlertComponent],
+  imports: [CommonModule, EmptyStateComponent, CardComponent, SimpleAlertComponent, MatButtonModule],
   templateUrl: './drafts-list.component.html',
   styleUrls: ['./drafts-list.component.css']
 })

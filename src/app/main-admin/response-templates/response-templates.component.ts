@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ButtonComponent } from '../../ui-components/button/button.component';
+import { MatButtonModule } from '@angular/material/button';
 import { AdminPageHeaderComponent } from '../../shared/components/admin-page-header/admin-page-header.component';
 
 interface TemplateItem {
@@ -15,7 +15,7 @@ interface TemplateItem {
 @Component({
   selector: 'app-response-templates',
   standalone: true,
-  imports: [CommonModule, FormsModule, ButtonComponent, AdminPageHeaderComponent],
+  imports: [CommonModule, FormsModule, AdminPageHeaderComponent, MatButtonModule],
   templateUrl: './response-templates.component.html',
   styleUrls: ['./response-templates.component.css']
 })

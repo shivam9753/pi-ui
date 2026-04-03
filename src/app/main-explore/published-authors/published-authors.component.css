@@ -1,44 +1,214 @@
-/* Use global spacing tokens from design system */
-.published-authors { padding: var(--spacing-page-desktop) 1rem; max-width: 1200px; margin-left: auto; margin-right: auto; box-sizing: border-box; }
-.page-title { font-size: 1.375rem; margin-bottom: 0.75rem; color: var(--text-heading, rgba(0,0,0,0.75)); font-weight: 600; }
-.loading, .empty { color: var(--text-muted); }
-
-/* Grid */
-.authors-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; align-items: stretch; }
-.author-card { display:flex; flex-direction:column; justify-content:center; align-items:center; /* background and border removed so template classes control theme */ border-radius: 12px; padding: 1.25rem; cursor: pointer; transition: transform 0.12s ease, box-shadow 0.12s ease; box-shadow: var(--shadow-sm); text-align: center; position: relative; height: 100%; }
-.author-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-md); }
-
-/* Make cards stretch to same height in row */
-.author-card { min-height: 160px; }
-
-/* Centered top */
-.card-top.centered { display:flex; flex-direction:column; align-items:center; gap:0.5rem; }
-.author-avatar-img { width:72px; height:72px; border-radius:9999px; object-fit:cover; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
-.author-avatar { width:72px; height:72px; border-radius:9999px; display:inline-flex; align-items:center; justify-content:center; font-weight:700; /* background removed to let utility classes control it */ }
-.card-meta { display:flex; flex-direction:column; align-items:center; }
-.author-name { font-weight:700; /* color removed so Tailwind classes can control theme color */ margin-top:0.25rem; font-size:1.05rem; }
-
-/* Ensure theme token is applied explicitly so light/dark propagation works */
-.author-name, .author-avatar, .author-avatar span {
-  color: var(--text-primary) !important;
+/* ── Page wrapper ─────────────────────────────────────────── */
+.published-authors {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2.5rem 1.5rem;
 }
 
-/* Hide badges area completely (removed earlier) */
-.card-badges { display:none !important; }
+/* ── Page header ──────────────────────────────────────────── */
+.page-header {
+  display: flex;
+  align-items: baseline;
+  gap: 0.75rem;
+  margin-bottom: 2rem;
+}
+.page-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text-muted, #9ca3af);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin: 0;
+}
+.page-count {
+  font-size: 0.8rem;
+  font-weight: 400;
+  color: var(--text-muted, #9ca3af);
+}
 
-/* Pagination - centered and themed */
-.pagination-controls { margin-top: 1.5rem; display:flex; gap:0.5rem; align-items:center; justify-content:center; }
-.page-btn { padding: 0.45rem 0.9rem; border: 1px solid var(--border-primary); background: var(--bg-button, var(--bg-tertiary)); color: var(--text-primary); border-radius: 8px; cursor: pointer; font-weight: 600; box-shadow: none; transition: background 0.12s ease, transform 0.08s ease; }
-.page-btn:hover:not(:disabled) { background: var(--bg-hover); transform: translateY(-1px); }
-.page-btn:disabled { opacity: 0.5; cursor: default; transform: none; }
-.page-number { padding: 0.25rem 0.6rem; font-weight:600; color: var(--text-muted); min-width: 2.2rem; text-align:center; border-radius:6px; }
+/* ── Grid ─────────────────────────────────────────────────── */
+.authors-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 1.5rem;
+}
 
-/* Make pagination compact on small screens */
+/* ── Card ─────────────────────────────────────────────────── */
+.author-card {
+  display: flex !important;
+  flex-direction: column !important;
+  height: 360px !important;
+  cursor: pointer;
+  border-radius: 12px !important;
+  overflow: hidden;
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+  outline: none;
+  background: var(--bg-card, #ffffff) !important;
+  border-color: var(--border-primary, #e5e7eb) !important;
+}
+.author-card:hover,
+.author-card:focus-visible {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Dark mode card */
+:host-context(.dark) .author-card {
+  background: var(--bg-card, #1e2433) !important;
+  border-color: var(--border-primary, #2d3748) !important;
+}
+:host-context(.dark) .author-card:hover,
+:host-context(.dark) .author-card:focus-visible {
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4) !important;
+}
+
+/* ── Cover image area ─────────────────────────────────────── */
+.card-cover {
+  width: 100%;
+  height: 196px;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+.cover-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.3s ease;
+}
+.author-card:hover .cover-img {
+  transform: scale(1.04);
+}
+.cover-fallback {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f1f5f9;
+}
+:host-context(.dark) .cover-fallback {
+  background: #1a2235;
+}
+.cover-fallback svg {
+  width: 72px;
+  height: 72px;
+  color: #475569;
+}
+:host-context(.dark) .cover-fallback svg {
+  color: #64748b;
+}
+
+/* ── Text body ────────────────────────────────────────────── */
+.card-body {
+  flex: 1;
+  padding: 14px 16px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  overflow: hidden;
+}
+.author-name {
+  font-size: 0.975rem;
+  font-weight: 600;
+  color: var(--text-primary, #111827);
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.author-count {
+  font-size: 0.78rem;
+  font-weight: 400;
+  color: var(--text-muted, #9ca3af);
+  margin: 0;
+  letter-spacing: 0.01em;
+}
+.author-bio {
+  font-size: 0.8rem;
+  color: var(--text-secondary, #6b7280);
+  margin: 6px 0 0;
+  line-height: 1.45;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  min-height: 2.3em;
+}
+
+/* ── Footer action ────────────────────────────────────────── */
+.card-footer {
+  padding: 8px 12px 10px !important;
+  min-height: unset !important;
+}
+.card-footer button {
+  font-size: 0.78rem;
+  letter-spacing: 0.04em;
+  height: 30px;
+  line-height: 30px;
+  padding: 0 14px;
+}
+.accent-btn {
+  color: var(--text-accent, #FF6100) !important;
+  border-color: var(--border-accent, #FF6100) !important;
+}
+.accent-btn:hover {
+  background: var(--bg-accent-light, #FFF3ED) !important;
+}
+
+/* ── States ───────────────────────────────────────────────── */
+.loading, .empty {
+  color: var(--text-muted, #9ca3af);
+  text-align: center;
+  padding: 3rem 0;
+  font-size: 0.95rem;
+}
+
+/* ── Pagination ───────────────────────────────────────────── */
+.pagination-controls {
+  margin-top: 2.5rem;
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  justify-content: center;
+}
+.page-btn {
+  padding: 0.5rem 1.1rem;
+  border: 1px solid var(--border-primary, #e5e7eb);
+  background: var(--bg-card, #ffffff);
+  color: var(--text-primary, #111827);
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: background 0.12s, border-color 0.12s, transform 0.08s;
+}
+.page-btn:hover:not(:disabled) {
+  background: var(--bg-hover, #f9fafb);
+  border-color: var(--border-focus, #6366f1);
+  transform: translateY(-1px);
+}
+.page-btn:disabled {
+  opacity: 0.35;
+  cursor: default;
+  background: var(--bg-tertiary, #e5e7eb);
+  color: var(--text-muted, #9ca3af);
+  border-color: transparent;
+}
+.page-number {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text-muted, #9ca3af);
+  min-width: 5rem;
+  text-align: center;
+}
+
+/* ── Responsive ───────────────────────────────────────────── */
 @media (max-width: 640px) {
-  .published-authors { padding-left: 0.75rem; padding-right: 0.75rem; }
-  .author-card { padding: 1rem; min-height: 140px; }
-  .author-avatar-img, .author-avatar { width:64px; height:64px; }
-  .page-btn { padding: 0.35rem 0.6rem; }
+  .published-authors { padding: 1.5rem 1rem; }
+  .authors-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 1rem; }
+  .author-card { height: 310px !important; }
+  .card-cover { height: 150px; }
 }
 
-/* removed host-context overrides so utility classes control colors */

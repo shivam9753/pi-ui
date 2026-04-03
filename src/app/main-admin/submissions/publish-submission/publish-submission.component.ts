@@ -2,6 +2,14 @@ import { Component, OnInit, ViewEncapsulation } from '@angular/core';
 import { lastValueFrom } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { MatExpansionModule } from '@angular/material/expansion';
+import { MatListModule } from '@angular/material/list';
+import { MatTabsModule } from '@angular/material/tabs';
+import { MatCardModule } from '@angular/material/card';
+import { MatIconModule } from '@angular/material/icon';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatButtonModule } from '@angular/material/button';
+import { MatInputModule } from '@angular/material/input';
 import { ActivatedRoute, Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { ProseMirrorEditorComponent } from '../../../submit/rich-text-editor/prosemirror-editor.component';
@@ -10,7 +18,6 @@ import { TagInputComponent } from '../../../utilities/tag-input/tag-input.compon
 import { BackendService } from '../../../services/backend.service';
 import { SUBMISSION_STATUS, UPLOAD_CONFIG } from '../../../shared/constants/api.constants';
 import { compressImageForUpload } from '../../../shared/utils/image-compression.util';
-import { ButtonComponent } from '../../../ui-components/button/button.component';
 
 interface SEOConfig {
   slug: string;
@@ -24,7 +31,7 @@ interface SEOConfig {
 
 @Component({
   selector: 'app-publish-submission',
-  imports: [CommonModule, FormsModule, ProseMirrorEditorComponent, BadgeLabelComponent, TagInputComponent, ButtonComponent],
+  imports: [CommonModule, FormsModule, ProseMirrorEditorComponent, BadgeLabelComponent, TagInputComponent,  MatExpansionModule, MatListModule, MatTabsModule, MatCardModule, MatIconModule, MatFormFieldModule, MatInputModule, MatButtonModule],
   templateUrl: './publish-submission.component.html',
   styleUrl: './publish-submission.component.css',
   encapsulation: ViewEncapsulation.None
@@ -111,6 +118,7 @@ export class PublishSubmissionComponent implements OnInit {
     this.backendService.getSubmissionWithContents(submissionId).subscribe({
       next: (data) => {
         this.submission = data;
+        console.log('📥 Loaded submission data:', this.submission);
 
         // Store original content for preview (preserve &nbsp; entities)
         // The editor's two-way binding will modify content.body, so we need a separate copy for preview
@@ -145,7 +153,7 @@ export class PublishSubmissionComponent implements OnInit {
             // If you need full user details here, enable fetch by calling this.loadUserProfile(userId) instead.
           }
          }
-        
+        console.log('👤 Loaded user:', this.userProfile);
          this.loading = false;
       },
       error: (err) => {

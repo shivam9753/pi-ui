@@ -8,7 +8,7 @@ import { PrettyLabelPipe } from '../pipes/pretty-label.pipe';
 import { ProfileCompletionComponent } from './profile-completion/profile-completion.component';
 import { ProfileCompletionInlineComponent } from './profile-completion/profile-completion-inline.component';
 import { UserSubmissionsComponent } from './user-submissions/user-submissions.component';
-import { ButtonComponent } from '../shared/components';
+import { MatButtonModule } from '@angular/material/button';
 import { SUBMISSION_STATUS, SubmissionStatus } from '../shared/constants/api.constants';
 import { DraftsListComponent } from '../main-submission/drafts-list/drafts-list.component';
 import { TabsComponent } from '../ui-components/tabs/tabs.component';
@@ -58,7 +58,7 @@ interface Draft {
 
 @Component({
 	selector: 'app-user-profile',
-	imports: [CommonModule, FormsModule, RouterModule, ProfileCompletionComponent, ProfileCompletionInlineComponent, UserSubmissionsComponent, PrettyLabelPipe, ButtonComponent, DraftsListComponent, TabsComponent, TabItemComponent, CardComponent],
+	imports: [CommonModule, FormsModule, RouterModule, ProfileCompletionComponent, ProfileCompletionInlineComponent, UserSubmissionsComponent, PrettyLabelPipe, DraftsListComponent, TabsComponent, TabItemComponent, CardComponent, MatButtonModule],
 	templateUrl: './user-profile.component.html',
 	styleUrl: './user-profile.component.css',
 	styles: [`

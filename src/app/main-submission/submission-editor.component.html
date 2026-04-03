@@ -48,8 +48,8 @@
       <!-- Mobile inline actions: duplicate the Save/Submit controls near the tabs for easier access -->
       @if (isCreateMode && !isViewMode) {
       <div class="lg:hidden px-6 py-3 bg-white-tertiary border-b border-gray-200 flex items-center justify-end gap-3">
-        <app-button variant="secondary" size="md" (click)="submitFormRef.saveAsDraft()" (keydown.enter)="submitFormRef.saveAsDraft()">Save Draft</app-button>
-        <app-button variant="primary" size="md" (click)="submitFormRef.submitForm()" (keydown.enter)="submitFormRef.submitForm()">Submit for Review</app-button>
+        <button mat-tonal-button type="button" (click)="submitFormRef.saveAsDraft()" (keydown.enter)="submitFormRef.saveAsDraft()">Save Draft</button>
+        <button mat-flat-button type="button" (click)="submitFormRef.submitForm()" (keydown.enter)="submitFormRef.submitForm()">Submit for Review</button>
       </div>
       }
     }

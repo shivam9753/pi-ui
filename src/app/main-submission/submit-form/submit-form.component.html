@@ -226,13 +226,13 @@
 
 
             <!-- Submit Button -->
-            <app-button variant="primary" type="submit" [loading]="isSubmitting" [disabled]="!validateForm()">
+            <button mat-flat-button type="submit" [disabled]="!validateForm()">
               {{ isSubmitting ? 'Submitting...' : 'Submit for Review' }}
-            </app-button>
-            <app-button variant="secondary" type="button" [loading]="isSavingDraft" [disabled]="!hasContent()"
+            </button>
+            <button mat-tonal-button type="button" [disabled]="!hasContent()"
               (click)="saveAsDraft()">
               {{ isSavingDraft ? 'Saving...' : 'Save Draft' }}
-            </app-button>
+            </button>
 
             }
 

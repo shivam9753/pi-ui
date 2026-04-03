@@ -4,9 +4,9 @@
     <p class="subtitle">Latest features and improvements to enhance your experience</p>
     
     <div *ngIf="isAdmin" class="admin-controls">
-      <app-button variant="secondary" size="md" (click)="showAddForm = !showAddForm">
+      <button mat-tonal-button type="button" (click)="showAddForm = !showAddForm">
         {{ showAddForm ? 'Cancel' : '+ Add New Item' }}
-      </app-button>
+      </button>
     </div>
   </div>
 
@@ -60,8 +60,8 @@
       </div>
       
       <div class="form-actions">
-        <app-button type="submit" variant="primary" size="md">Add Item</app-button>
-        <app-button type="button" variant="secondary" size="md" (click)="showAddForm = false">Cancel</app-button>
+        <button mat-flat-button type="submit">Add Item</button>
+        <button mat-tonal-button type="button" (click)="showAddForm = false">Cancel</button>
       </div>
     </form>
   </div>

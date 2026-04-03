@@ -2,7 +2,8 @@ import { Component, OnInit, OnDestroy, signal } from '@angular/core';
 import { CommonModule, TitleCasePipe } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { EmptyStateComponent, LoadingStateComponent } from '../../shared/components';
-import { ButtonComponent } from '../../ui-components/button/button.component';
+import { MatButtonModule } from '@angular/material/button';
+
 import { BackendService } from '../../services/backend.service';
 import { SendEmailModalComponent, EmailData } from '../../main-admin/submissions/review-submission/send-email-modal.component';
 import { AuthService } from '../../services/auth.service';
@@ -46,7 +47,7 @@ interface AuthorProfile {
 
 @Component({
   selector: 'app-public-author-profile',
-  imports: [CommonModule, TitleCasePipe, LoadingStateComponent, EmptyStateComponent, ButtonComponent, SendEmailModalComponent],
+  imports: [CommonModule, TitleCasePipe, LoadingStateComponent, EmptyStateComponent, SendEmailModalComponent, MatButtonModule],
   templateUrl: './public-author-profile.component.html',
   styleUrl: './public-author-profile.component.css'
 })

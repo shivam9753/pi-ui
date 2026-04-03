@@ -130,8 +130,9 @@
       <button (click)="cancelDelete()" class="btn-secondary">
         Cancel
       </button>
-      <app-button variant="destructive" size="md" (click)="executeDelete()" (keydown.enter)="executeDelete()">
-      </app-button>
+      <button mat-flat-button color="warn" type="button" (click)="executeDelete()" (keydown.enter)="executeDelete()">
+        Delete
+      </button>
     </div>
   </div>
 </div>
