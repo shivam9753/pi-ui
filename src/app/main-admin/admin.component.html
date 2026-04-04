@@ -14,40 +14,97 @@
   <!-- Main Admin Dashboard -->
   @if (!loading && (isAdmin || isReviewer)) {
     <div class="bg-white pb-10">
-      <!-- Standard admin page header -->
-      <div class="max-w-screen-xl mx-auto px-4 sm:px-6 md:px-10 pt-6">
-        <app-admin-page-header [title]="'Admin Dashboard'" [subtitle]="'Quick access to primary admin functions'" [stats]="[]"></app-admin-page-header>
+
+      <!-- Page header (same pattern as featured-poems) -->
+      <div class="max-w-screen-xl mx-auto px-4 sm:px-6 md:px-10 pt-6 pb-4">
+        <div class="page-header">
+          <h1 class="page-title">Admin Dashboard</h1>
+          <span class="page-count">Quick access to primary admin functions</span>
+        </div>
       </div>
 
-      <!-- Primary functions (large cards) -->
-      <div class="max-w-screen-xl mx-auto px-4 sm:px-6 md:px-10 pt-6">
+      <!-- Primary functions -->
+      <div class="max-w-screen-xl mx-auto px-4 sm:px-6 md:px-10">
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+
           @if (canAccessTab('analytics')) {
-            <app-card title="Analytics" description="View reports" primaryButtonLabel="Open" primaryBadgeText="Beta" (primaryClick)="navigateTo('analytics')" class="block" size="sm"></app-card>
+            <mat-card appearance="outlined" class="admin-nav-card" (click)="navigateTo('analytics')" (keydown.enter)="navigateTo('analytics')" tabindex="0">
+              <mat-card-content>
+                <div class="card-icon-wrap analytics-icon">
+                  <mat-icon>bar_chart</mat-icon>
+                </div>
+                <div class="card-label">Analytics</div>
+                <div class="card-desc">View reports</div>
+                <span class="beta-badge">Beta</span>
+              </mat-card-content>
+            </mat-card>
           }
 
           @if (canAccessTab('users')) {
-            <app-card title="User Management" description="Create, edit and manage user roles" primaryButtonLabel="Open" (primaryClick)="navigateTo('users')" class="block" size="sm"></app-card>
+            <mat-card appearance="outlined" class="admin-nav-card" (click)="navigateTo('users')" (keydown.enter)="navigateTo('users')" tabindex="0">
+              <mat-card-content>
+                <div class="card-icon-wrap users-icon">
+                  <mat-icon>manage_accounts</mat-icon>
+                </div>
+                <div class="card-label">User Management</div>
+                <div class="card-desc">Create, edit and manage user roles</div>
+              </mat-card-content>
+            </mat-card>
           }
 
           @if (canAccessTab('content')) {
-            <app-card title="Content Management" description="Manage featured content and posts" primaryButtonLabel="Open" (primaryClick)="navigateTo('content')" class="block" size="sm"></app-card>
+            <mat-card appearance="outlined" class="admin-nav-card" (click)="navigateTo('content')" (keydown.enter)="navigateTo('content')" tabindex="0">
+              <mat-card-content>
+                <div class="card-icon-wrap content-icon">
+                  <mat-icon>article</mat-icon>
+                </div>
+                <div class="card-label">Content Management</div>
+                <div class="card-desc">Manage featured content and posts</div>
+              </mat-card-content>
+            </mat-card>
           }
 
           @if (canAccessTab('purge')) {
-            <app-card title="Archive / Purge" description="Archive or permanently remove content" primaryButtonLabel="Open" (primaryClick)="navigateTo('purge')" class="block" size="sm"></app-card>
+            <mat-card appearance="outlined" class="admin-nav-card" (click)="navigateTo('purge')" (keydown.enter)="navigateTo('purge')" tabindex="0">
+              <mat-card-content>
+                <div class="card-icon-wrap purge-icon">
+                  <mat-icon>delete_sweep</mat-icon>
+                </div>
+                <div class="card-label">Archive / Purge</div>
+                <div class="card-desc">Archive or permanently remove content</div>
+              </mat-card-content>
+            </mat-card>
           }
+
         </div>
 
-        <!-- Secondary functions (smaller cards) -->
+        <!-- Secondary functions -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+
           @if (canAccessTab('templates')) {
-            <app-card title="Response Templates" description="Manage templates" primaryButtonLabel="Open" (primaryClick)="navigateTo('templates')" class="block" size="sm"></app-card>
+            <mat-card appearance="outlined" class="admin-nav-card" (click)="navigateTo('templates')" (keydown.enter)="navigateTo('templates')" tabindex="0">
+              <mat-card-content>
+                <div class="card-icon-wrap templates-icon">
+                  <mat-icon>description</mat-icon>
+                </div>
+                <div class="card-label">Response Templates</div>
+                <div class="card-desc">Manage email response templates</div>
+              </mat-card-content>
+            </mat-card>
           }
 
           @if (canAccessTab('media')) {
-            <app-card title="Media Management" description="Manage uploads and storage" primaryButtonLabel="Open" (primaryClick)="navigateTo('media')" class="block" size="sm"></app-card>
+            <mat-card appearance="outlined" class="admin-nav-card" (click)="navigateTo('media')" (keydown.enter)="navigateTo('media')" tabindex="0">
+              <mat-card-content>
+                <div class="card-icon-wrap media-icon">
+                  <mat-icon>perm_media</mat-icon>
+                </div>
+                <div class="card-label">Media Management</div>
+                <div class="card-desc">Manage uploads and storage</div>
+              </mat-card-content>
+            </mat-card>
           }
+
         </div>
       </div>
     </div>

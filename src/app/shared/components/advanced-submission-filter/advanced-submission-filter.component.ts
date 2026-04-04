@@ -1,18 +1,17 @@
 import { Component, Output, EventEmitter, Input, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
+import { MatButtonModule } from '@angular/material/button';
 
 export interface AdvancedFilterOptions {
   search?: string;
   status?: string;
   type?: string;
-  authorType?: string;
-  wordLength?: string;
-  dateFrom?: string;
-  dateTo?: string;
   sortBy?: string;
   sortOrder?: string;
-  isTopicSubmission?: boolean;
 }
 
 export interface QuickFilterEvent {
@@ -23,95 +22,45 @@ export interface QuickFilterEvent {
 @Component({
   selector: 'app-advanced-submission-filter',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, MatFormFieldModule, MatInputModule, MatSelectModule, MatButtonModule],
   template: `
-    <!-- Mobile: Compact filters -->
-    <div class="bg-white border border-gray-200 rounded-lg mb-4 lg:hidden">
-      <div class="px-4 py-3">
-        <div class="flex items-center gap-2 mb-3">
-          <button
-            *ngFor="let filter of quickFilters"
-            (click)="toggleQuickFilter(filter)"
-            [class]="getQuickFilterClass(filter)"
-            class="px-3 py-1.5 text-xs font-medium rounded-full border transition-colors">
-            {{ filter.label }}
-          </button>
-          <button
-            *ngIf="hasActiveQuickFilters()"
-            (click)="clearQuickFilters()"
-            class="px-3 py-1.5 text-xs text-gray-500 hover:text-gray-700 underline">
-            Clear All
-          </button>
-        </div>
+    <div class="flex flex-wrap items-center gap-3 mb-4">
+      <!-- Search -->
+      <mat-form-field appearance="outline" class="flex-1 min-w-[180px]" subscriptSizing="dynamic">
+        <input matInput [(ngModel)]="currentFilters.search" (ngModelChange)="onFilterChange()" placeholder="Search submissions...">
+      </mat-form-field>
 
-        <div class="mb-2">
-          <input
-            [(ngModel)]="currentFilters.search"
-            (ngModelChange)="onFilterChange()"
-            type="text"
-            placeholder="Search submissions..."
-            class="block w-full px-3 py-1.5 border border-gray-300 rounded text-sm bg-white placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500">
-        </div>
+      <!-- Type -->
+      <mat-form-field appearance="outline" class="min-w-[140px]" subscriptSizing="dynamic">
+        <mat-select [(ngModel)]="currentFilters.type" (ngModelChange)="onFilterChange()" placeholder="All Types">
+          <mat-option *ngFor="let option of filterOptions.types" [value]="option.value">{{ option.label }}</mat-option>
+        </mat-select>
+      </mat-form-field>
 
-        <div class="flex gap-2">
-          <select [(ngModel)]="currentFilters.type" (ngModelChange)="onFilterChange()"
-                  class="flex-1 text-sm border border-gray-300 rounded px-2 py-1.5 bg-white">
-            <option *ngFor="let option of filterOptions.types" [value]="option.value">{{ option.label }}</option>
-          </select>
+      <!-- Sort -->
+      <mat-form-field appearance="outline" class="min-w-[140px]" subscriptSizing="dynamic">
+        <mat-select [(ngModel)]="currentSort" (ngModelChange)="onSortChange()" placeholder="Newest First">
+          <mat-option *ngFor="let option of filterOptions.sortOptions" [value]="option.value">{{ option.label }}</mat-option>
+        </mat-select>
+      </mat-form-field>
 
-          <select [(ngModel)]="currentSort" (ngModelChange)="onSortChange()"
-                  class="flex-1 text-sm border border-gray-300 rounded px-2 py-1.5 bg-white">
-            <option *ngFor="let option of filterOptions.sortOptions" [value]="option.value">{{ option.label }}</option>
-          </select>
-        </div>
-      </div>
-    </div>
+      <!-- Quick filters -->
+      <button
+        *ngFor="let filter of quickFilters"
+        (click)="toggleQuickFilter(filter)"
+        mat-stroked-button
+        [color]="activeQuickFilters.has(filter.key) ? 'primary' : undefined"
+        class="!text-xs !rounded-full whitespace-nowrap">
+        {{ filter.label }}
+      </button>
 
-    <!-- Desktop: Single row compact layout -->
-    <div class="hidden lg:block mb-4">
-      <div class="flex items-center gap-4">
-        <div class="flex-1 max-w-md relative">
-          <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            <svg class="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-            </svg>
-          </div>
-          <input
-            [(ngModel)]="currentFilters.search"
-            (ngModelChange)="onFilterChange()"
-            type="text"
-            placeholder="Search submissions..."
-            class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md text-sm bg-white placeholder-gray-500">
-        </div>
-
-        <div class="flex items-center gap-2">
-          <select [(ngModel)]="currentFilters.type" (ngModelChange)="onFilterChange()"
-                  class="text-sm border border-gray-300 rounded-md px-3 py-2 bg-white min-w-[140px]">
-            <option *ngFor="let option of filterOptions.types" [value]="option.value">{{ option.label }}</option>
-          </select>
-
-          <div class="flex items-center gap-2">
-            <button
-              *ngFor="let filter of quickFilters"
-              (click)="toggleQuickFilter(filter)"
-              [class]="getQuickFilterClass(filter)"
-              class="px-3 py-2 text-xs font-medium rounded-lg border transition-colors whitespace-nowrap">
-              {{ filter.label }}
-            </button>
-          </div>
-
-          <select [(ngModel)]="currentSort" (ngModelChange)="onSortChange()"
-                  class="text-sm border border-gray-300 rounded-md px-3 py-2 bg-white min-w-[140px]">
-            <option *ngFor="let option of filterOptions.sortOptions" [value]="option.value">{{ option.label }}</option>
-          </select>
-
-          <button *ngIf="hasActiveQuickFilters() || hasActiveFilters()"
-                  (click)="clearAllFilters()"
-                  class="text-sm text-gray-500 hover:text-gray-700 underline">
-            Clear All
-          </button>
-        </div>
-      </div>
+      <!-- Clear All -->
+      <button *ngIf="hasActiveQuickFilters() || hasActiveFilters()"
+              mat-button
+              (click)="clearAllFilters()"
+              class="!text-sm !text-gray-500">
+        Clear All
+      </button>
     </div>
   `
 })

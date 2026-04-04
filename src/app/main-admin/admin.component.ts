@@ -1,11 +1,10 @@
 import { Component, OnInit, AfterViewInit, ElementRef, ViewChild, ViewContainerRef, ComponentRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-
+import { MatCardModule } from '@angular/material/card';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
 import { Router, ActivatedRoute, RouterModule } from '@angular/router';
 import { AuthService } from '../services/auth.service';
-import { CardComponent } from '../ui-components/card/card.component';
-import { AdminPageHeaderComponent } from '../shared/components/admin-page-header/admin-page-header.component';
-
 // Import individual admin tab components
 import { ManageSubmissionsComponent } from "./content/manage-submissions/manage-submissions.component";
 import { FeaturedContentComponent } from "./content/featured-content/featured-content.component";
@@ -24,8 +23,9 @@ type AdminTab = 'submissions' | 'content' | 'users' | 'purge' | 'analytics' | 'm
   imports: [
     CommonModule,
     RouterModule,
-    CardComponent,
-    AdminPageHeaderComponent,
+    MatCardModule,
+    MatButtonModule,
+    MatIconModule,
     ManageSubmissionsComponent,
     FeaturedContentComponent,
     UserManagementComponent,

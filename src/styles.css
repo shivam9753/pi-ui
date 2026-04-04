@@ -1,6 +1,9 @@
 /* Import Google Fonts - Literary and elegant typography */
 @import url('https://fonts.googleapis.com/css2?family=Crimson+Text:ital,wght@0,400;0,600;1,400&family=Source+Sans+Pro:wght@400;500;600;700&display=swap');
 
+/* Material Icons - served locally (no Google Fonts dependency) */
+@import 'material-icons/iconfont/material-icons.css';
+
 @import "tailwindcss";
 
 /* Accessibility fixes for tab navigation */
@@ -1074,6 +1077,130 @@
 .dark .bg-primary-hover { background-color: var(--bg-accent-hover) !important; }
 .dark .border-primary { border-color: var(--border-accent) !important; }
 .dark .border-primary-light { border-color: rgba(255, 97, 0, 0.3) !important; }
+
+/* Angular Material card dark mode overrides */
+.dark mat-card,
+.dark .mat-mdc-card {
+  --mdc-outlined-card-container-color: var(--bg-card);
+  --mdc-elevated-card-container-color: var(--bg-card);
+  background-color: var(--bg-card) !important;
+  color: var(--text-primary) !important;
+}
+
+.dark .mat-mdc-card-content {
+  color: var(--text-primary) !important;
+}
+
+/* Angular Material form-field (outlined) dark mode overrides */
+.dark {
+  /* Outlined text field */
+  --mdc-outlined-text-field-container-color:          transparent;
+  --mdc-outlined-text-field-outline-color:            var(--border-primary);
+  --mdc-outlined-text-field-hover-outline-color:      var(--border-secondary);
+  --mdc-outlined-text-field-input-text-color:         var(--text-primary);
+  --mdc-outlined-text-field-label-text-color:         var(--text-tertiary);
+  --mdc-outlined-text-field-disabled-outline-color:   var(--border-primary);
+
+  /* Filled text field */
+  --mdc-filled-text-field-container-color:            var(--bg-secondary);
+  --mdc-filled-text-field-input-text-color:           var(--text-primary);
+  --mdc-filled-text-field-label-text-color:           var(--text-tertiary);
+
+  /* Select / dropdown */
+  --mat-select-trigger-text-color:                    var(--text-primary);
+  --mat-select-placeholder-text-color:                var(--text-tertiary);
+  --mat-select-arrow-foreground-color:                var(--text-tertiary);
+  --mat-select-panel-background-color:                var(--bg-card);
+
+  /* Options in the dropdown panel */
+  --mat-option-label-text-color:                      var(--text-primary);
+  --mat-option-hover-state-layer-color:               var(--bg-hover);
+  --mat-option-focus-state-layer-color:               var(--bg-hover);
+
+  /* Form-field label / hint */
+  --mat-form-field-label-text-color:                  var(--text-tertiary);
+  --mat-form-field-subscript-text-color:              var(--text-tertiary);
+}
+
+/* Force override on the actual MDC host elements (variables on :root/.dark alone don't pierce MDC encapsulation) */
+.dark .mat-mdc-form-field {
+  --mdc-outlined-text-field-outline-color:            var(--border-primary);
+  --mdc-outlined-text-field-hover-outline-color:      var(--border-secondary);
+  --mdc-outlined-text-field-input-text-color:         var(--text-primary);
+  --mdc-outlined-text-field-label-text-color:         var(--text-tertiary);
+  --mdc-outlined-text-field-caret-color:              var(--text-primary);
+  --mat-select-trigger-text-color:                    var(--text-primary);
+  --mat-select-placeholder-text-color:                var(--text-tertiary);
+  --mat-select-arrow-foreground-color:                var(--text-tertiary);
+}
+
+/* The outline notch SVG paths */
+.dark .mdc-notched-outline__leading,
+.dark .mdc-notched-outline__notch,
+.dark .mdc-notched-outline__trailing {
+  border-color: var(--border-primary) !important;
+}
+
+.dark .mat-mdc-form-field:hover .mdc-notched-outline__leading,
+.dark .mat-mdc-form-field:hover .mdc-notched-outline__notch,
+.dark .mat-mdc-form-field:hover .mdc-notched-outline__trailing {
+  border-color: var(--border-secondary) !important;
+}
+
+/* Input text and placeholder */
+.dark .mat-mdc-input-element,
+.dark .mat-mdc-form-field input {
+  color: var(--text-primary) !important;
+  caret-color: var(--text-primary) !important;
+}
+
+.dark .mat-mdc-input-element::placeholder,
+.dark .mat-mdc-form-field input::placeholder {
+  color: var(--text-tertiary) !important;
+}
+
+/* Select trigger value text */
+.dark .mat-mdc-select-value-text,
+.dark .mat-mdc-select-placeholder {
+  color: var(--text-primary) !important;
+}
+
+.dark .mat-mdc-select-placeholder {
+  color: var(--text-tertiary) !important;
+}
+
+/* Select arrow */
+.dark .mat-mdc-select-arrow svg {
+  fill: var(--text-tertiary) !important;
+}
+
+/* Make the mat-select overlay panel dark */
+.dark .mat-mdc-select-panel,
+.dark .cdk-overlay-pane .mat-mdc-select-panel {
+  background-color: var(--bg-card) !important;
+  border: 1px solid var(--border-primary);
+}
+
+.dark mat-option,
+.dark .mat-mdc-option {
+  color: var(--text-primary) !important;
+}
+
+.dark .mat-mdc-option:hover,
+.dark .mat-mdc-option.mat-mdc-option-active {
+  background-color: var(--bg-hover) !important;
+}
+
+/* Outlined stroked button dark mode */
+.dark .mat-mdc-outlined-button:not([color]) {
+  --mdc-outlined-button-label-text-color:  var(--text-secondary);
+  --mdc-outlined-button-outline-color:     var(--border-primary);
+}
+
+/* "Clear All" text button */
+.dark .mat-mdc-button:not([color]) {
+  --mdc-text-button-label-text-color: var(--text-tertiary);
+}
 
 /* Dark mode button background overrides with reduced opacity */
 .dark .bg-green-50 { background-color: rgba(34, 197, 94, 0.1) !important; }

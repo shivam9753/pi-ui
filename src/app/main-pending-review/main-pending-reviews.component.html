@@ -1,13 +1,10 @@
 <!-- Background with themed styling -->
-<div class="w-full">
-  <!-- Standardized Header -->
-  <app-admin-page-header
-    title="Pending Review"
-    subtitle="Review new submissions and manage review queue."
-    [stats]="headerStats"
-    [loading]="loading"
-    (onRefresh)="onRefresh()">
-  </app-admin-page-header>
+<div class="pending-reviews-wrapper">
+  <!-- Page Header -->
+  <div class="page-header">
+    <h1 class="page-title">Pending Review</h1>
+    <span class="page-count">{{ submissions.length }}</span>
+  </div>
 
   <!-- Advanced Filter Component -->
   <app-advanced-submission-filter 

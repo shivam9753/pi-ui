@@ -4,6 +4,8 @@ import { PrettyLabelPipe } from '../../../pipes/pretty-label.pipe';
 import { StatusBadgeComponent } from '../status-badge/status-badge.component';
 import { StringUtils, CommonUtils } from '../../utils';
 import { MatButtonModule } from '@angular/material/button';
+import { MatCardModule } from '@angular/material/card';
+import { MatChipsModule } from '@angular/material/chips';
 
 export interface TableColumn {
   key: string;
@@ -35,11 +37,9 @@ export interface PaginationConfig {
 @Component({
   selector: 'app-data-table',
   standalone: true,
-  imports: [CommonModule, PrettyLabelPipe, StatusBadgeComponent, MatButtonModule],
+  imports: [CommonModule, PrettyLabelPipe, StatusBadgeComponent, MatButtonModule, MatCardModule, MatChipsModule],
   template: `
     <div class="w-full">
-
-      <!-- Reusable cell renderer used for both desktop cells and mobile metadata -->
       <ng-template #cellRenderer let-item let-column="column">
         <ng-container [ngSwitch]="column.type">
           <ng-container *ngSwitchCase="'image'">
@@ -240,7 +240,7 @@ export interface PaginationConfig {
         </div>
 
         <!-- Mobile Cards: use shared Card component and the same cell renderer to avoid duplicated rendering logic -->
-        <div class="md:hidden space-y-4 px-3">
+        <div class="md:hidden space-y-4">
           <!-- Mobile Select All -->
           @if (selectable && data.length > 0) {
             <div class="data-table-select-all compact-inline mx-2 mb-4">
@@ -258,51 +258,67 @@ export interface PaginationConfig {
           }
 
           @for (item of data; track trackByFn ? trackByFn($index, item) : $index) {
-            <!-- Stacked mobile card: vertical flow, left-aligned, reduced padding -->
-            <div class="bg-white rounded-lg border border-gray-200 shadow-sm px-3 py-4 mx-2" [class.bg-themed-accent-light]="isItemSelected(item)" (click)="onRowClickHandler(item, $event)">
+            <mat-card appearance="outlined" class="cursor-pointer !mb-3"
+              [class.bg-themed-accent-light]="isItemSelected(item)"
+              (click)="onRowClickHandler(item, $event)">
+              <mat-card-content class="!p-4">
 
-              <!-- Header line: Author + ATS badge (left) and compact status inline (left-aligned flow) -->
-              <div class="flex flex-col gap-1">
-                <div class="flex items-center gap-2">
-                  <div class="text-sm font-small text-gray-500 truncate">{{ getAuthorName(item) }}</div>
-                  <span [ngClass]="getAtsBadgeClass(getNestedValue(item, 'authorAts') || getNestedValue(item, 'author.ats'))" class="inline-block px-2 py-0.5 rounded text-xs font-small">{{ getNestedValue(item, 'authorAts') || getNestedValue(item, 'author.ats') || '-'}}</span>
+                <!-- Top row: type + date -->
+                <div class="flex items-center justify-between mb-2">
+                  <span class="text-xs font-medium uppercase tracking-wide text-themed-tertiary">
+                    {{ getNestedValue(item, 'submissionType') | prettyLabel }}
+                  </span>
+                  <span class="text-xs text-themed-tertiary">
+                    {{ getNestedValue(item, 'createdAt') | date:'MMM d, y' }}
+                  </span>
+                </div>
 
-                  <!-- compact status badge placed inline but visually subtle -->
-                  <div class="ml-2">
+                <!-- Title -->
+                <h3 class="text-sm font-semibold text-themed leading-snug mb-1">
+                  {{ getPrimaryTitle(item) }}
+                </h3>
+
+                <!-- Excerpt -->
+                <p class="text-xs text-themed-secondary line-clamp-2 mb-3">
+                  {{ getNestedValue(item, 'description') || getNestedValue(item, 'excerpt') || getNestedValue(item, 'body') || '—' }}
+                </p>
+
+                <!-- Divider -->
+                <div class="border-t border-themed pt-3 flex items-center justify-between">
+                  <!-- Author + Status -->
+                  <div class="flex flex-col gap-1">
+                    <span class="text-xs text-themed-secondary">
+                      <span class="text-themed-tertiary">by</span>
+                      <span class="font-medium text-themed ml-1">{{ getAuthorName(item) }}</span>
+                    </span>
                     <app-status-badge [status]="getNestedValue(item, 'status')" size="sm"></app-status-badge>
+                  </div>
+
+                  <!-- ATS score + action -->
+                  <div class="flex items-center gap-3">
+                    <div class="text-right" *ngIf="getNestedValue(item, 'authorAts') || getNestedValue(item, 'author.ats')">
+                      <div class="text-xs text-themed-tertiary leading-none mb-0.5">ATS</div>
+                      <div class="text-sm font-bold"
+                        [ngClass]="{
+                          'text-green-600': (getNestedValue(item, 'authorAts') || getNestedValue(item, 'author.ats')) >= 75,
+                          'text-yellow-600': (getNestedValue(item, 'authorAts') || getNestedValue(item, 'author.ats')) >= 50 && (getNestedValue(item, 'authorAts') || getNestedValue(item, 'author.ats')) < 75,
+                          'text-orange-600': (getNestedValue(item, 'authorAts') || getNestedValue(item, 'author.ats')) >= 40 && (getNestedValue(item, 'authorAts') || getNestedValue(item, 'author.ats')) < 50,
+                          'text-red-600': (getNestedValue(item, 'authorAts') || getNestedValue(item, 'author.ats')) < 40
+                        }">
+                        {{ getNestedValue(item, 'authorAts') || getNestedValue(item, 'author.ats') }}
+                      </div>
+                    </div>
+                    <ng-container *ngIf="getMainAction(item) as action">
+                      <button mat-stroked-button type="button" class="!text-xs !h-8"
+                        (click)="action.handler(item); $event.stopPropagation()">
+                        {{ action.label }}
+                      </button>
+                    </ng-container>
                   </div>
                 </div>
 
-                <!-- Title — smaller and normal weight for mobile -->
-                <div>
-                  <h2 class="text-lg text-gray-700 mt-1 mb-1 truncate">{{ getPrimaryTitle(item) }}</h2>
-                </div>
-
-                <!-- Excerpt / description -->
-                <div>
-                  <p class="text-sm text-gray-500 mb-2 line-clamp-3">{{ getNestedValue(item, 'description') || getNestedValue(item, 'excerpt') || getPrimarySubtitle(item) }}</p>
-                </div>
-              </div>
-
-              <!-- Single-line metadata: Date · Type -->
-              <div class="text-xs text-gray-500 mb-3">
-                {{ getNestedValue(item, 'createdAt') | date:'MMM d, y' }}
-                <span class="mx-2">·</span>
-                {{ getNestedValue(item, 'submissionType') | prettyLabel }}
-              </div>
-
-              <!-- Primary action full-width at bottom (tertiary look) -->
-              <div class="pt-1">
-                <ng-container *ngIf="getMainAction(item) as primaryAction">
-                  <button mat-flat-button type="button"
-                    (click)="primaryAction.handler(item); $event.stopPropagation()"
-                    class="w-full justify-center">
-                    {{ primaryAction.label }}
-                  </button>
-                </ng-container>
-              </div>
-
-            </div>
+              </mat-card-content>
+            </mat-card>
           }
         </div>
       }
@@ -413,8 +429,7 @@ export class DataTableComponent<T = any> implements OnInit {
   }
   
   getAuthorName(item: any): string {
-    // centralize author name logic: prefer name, then email
-    return item?.name || item?.email || '';
+    return item?.author.name || item?.email || '';
   }
 
   getVisibleActions(item: T): TableAction[] {
