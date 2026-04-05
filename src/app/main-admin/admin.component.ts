@@ -5,14 +5,12 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { Router, ActivatedRoute, RouterModule } from '@angular/router';
 import { AuthService } from '../services/auth.service';
-// Import individual admin tab components
 import { ManageSubmissionsComponent } from "./content/manage-submissions/manage-submissions.component";
 import { FeaturedContentComponent } from "./content/featured-content/featured-content.component";
 import { UserManagementComponent } from './users/user-management/user-management.component';
 import { CreateUsersComponent } from './users/create-users/create-users.component';
 import { PurgeManagementComponent } from './purge/purge-management.component';
 import { AnalyticsComponent } from './analytics/analytics.component';
-import { TabsComponent, TabItemComponent } from '../ui-components';
 import { ResponseTemplatesComponent } from './response-templates/response-templates.component';
 
 type AdminTab = 'submissions' | 'content' | 'users' | 'purge' | 'analytics' | 'media' | 'templates';
@@ -33,8 +31,6 @@ type AdminTab = 'submissions' | 'content' | 'users' | 'purge' | 'analytics' | 'm
     PurgeManagementComponent,
     AnalyticsComponent,
     ResponseTemplatesComponent,
-    TabsComponent,
-    TabItemComponent,
     // MediaManagerComponent is lazy-loaded at runtime
   ],
   templateUrl: './admin.component.html',

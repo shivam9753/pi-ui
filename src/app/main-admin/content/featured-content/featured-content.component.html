@@ -1,47 +1,28 @@
-<div class="w-full max-w-screen-xl mx-auto px-6 sm:px-8 md:px-10 mt-6 space-y-6">
+<div class="content-mgmt-wrapper">
   <!-- Page Header -->
-  <app-admin-page-header
-    title="Content Management"
-    subtitle="Manage all published content with filtering and featured status control"
-    [stats]="pageStats">
-  </app-admin-page-header>
+  <div class="page-header">
+    <h1 class="page-title">Content Management</h1>
+    <span class="page-count">Manage all published content</span>
+  </div>
 
   <!-- Quick Filter Buttons -->
   <div class="flex gap-2 mb-4">
-    <button
+    <button mat-stroked-button
       (click)="setFeaturedFilter(null)"
-      [class.bg-blue-100]="currentFilters.featured === undefined"
-      [class.text-blue-700]="currentFilters.featured === undefined"
-      [class.border-blue-300]="currentFilters.featured === undefined"
-      [class.bg-gray-50]="currentFilters.featured !== undefined"
-      [class.text-gray-600]="currentFilters.featured !== undefined"
-      [class.border-gray-300]="currentFilters.featured !== undefined"
-      class="px-3 py-2 text-sm font-medium border rounded-md hover:bg-blue-50 transition-colors">
+      [color]="currentFilters.featured === undefined ? 'primary' : undefined"
+      class="!text-xs !rounded-full">
       All Content
     </button>
-    <button
+    <button mat-stroked-button
       (click)="setFeaturedFilter(true)"
-      [class.bg-yellow-100]="currentFilters.featured === true"
-      [class.text-yellow-700]="currentFilters.featured === true"
-      [class.border-yellow-300]="currentFilters.featured === true"
-      [class.bg-gray-50]="currentFilters.featured !== true"
-      [class.text-gray-600]="currentFilters.featured !== true"
-      [class.border-gray-300]="currentFilters.featured !== true"
-      class="px-3 py-2 text-sm font-medium border rounded-md hover:bg-yellow-50 transition-colors flex items-center gap-1">
-      <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-      </svg>
-      Featured Only
+      [color]="currentFilters.featured === true ? 'primary' : undefined"
+      class="!text-xs !rounded-full">
+      ★ Featured Only
     </button>
-    <button
+    <button mat-stroked-button
       (click)="setFeaturedFilter(false)"
-      [class.bg-gray-100]="currentFilters.featured === false"
-      [class.text-gray-700]="currentFilters.featured === false"
-      [class.border-gray-400]="currentFilters.featured === false"
-      [class.bg-gray-50]="currentFilters.featured !== false"
-      [class.text-gray-600]="currentFilters.featured !== false"
-      [class.border-gray-300]="currentFilters.featured !== false"
-      class="px-3 py-2 text-sm font-medium border rounded-md hover:bg-gray-100 transition-colors">
+      [color]="currentFilters.featured === false ? 'primary' : undefined"
+      class="!text-xs !rounded-full">
       Not Featured
     </button>
   </div>
@@ -53,7 +34,7 @@
   </app-simple-submission-filter>
 
   <!-- Data Table -->
-  <div class="bg-white shadow rounded-lg overflow-hidden">
+  <div class="border border-themed rounded-lg overflow-hidden">
     <app-data-table
       [columns]="columns"
       [data]="featuredContents"

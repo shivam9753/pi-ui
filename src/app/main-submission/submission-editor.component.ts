@@ -8,8 +8,8 @@ import { GuidelinesOverlayComponent } from './guidelines-overlay/guidelines-over
 import { ToastNotificationComponent } from '../shared/components/toast-notification/toast-notification.component';
 import { Subscription } from 'rxjs';
 import { DraftsListComponent } from './drafts-list/drafts-list.component';
-import { TabsComponent, TabItemComponent } from '../ui-components';
 import { MatButtonModule } from '@angular/material/button';
+import { MatTabsModule } from '@angular/material/tabs';
 
 @Component({
   selector: 'app-submission-editor',
@@ -21,9 +21,8 @@ import { MatButtonModule } from '@angular/material/button';
     DraftsListComponent,
     GuidelinesOverlayComponent,
     ToastNotificationComponent,
-    TabsComponent,
-    TabItemComponent,
-    MatButtonModule
+    MatButtonModule,
+    MatTabsModule
   ]
 })
 export class SubmissionEditorComponent implements OnInit, OnDestroy {
@@ -49,6 +48,17 @@ export class SubmissionEditorComponent implements OnInit, OnDestroy {
     private authService: AuthService,
     private backendService: BackendService
   ) {}
+
+  readonly tabIds: ('submit' | 'drafts' | 'guidelines')[] = ['submit', 'drafts', 'guidelines'];
+
+  get selectedTabIndex(): number {
+    return Math.max(0, this.tabIds.indexOf(this.activeTab));
+  }
+
+  onTabIndexChange(index: number) {
+    const tab = this.tabIds[index];
+    if (tab) this.activeTab = tab;
+  }
 
   ngOnInit(): void {
     // Get user data

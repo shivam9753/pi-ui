@@ -63,3 +63,27 @@
         min-width: 44px;
     }
 }
+
+/* ── Explore Material Tabs ─────────────────────────────── */
+:host ::ng-deep .explore-tabs .mat-mdc-tab-header {
+  border-bottom: 1px solid var(--border-primary);
+}
+
+:host ::ng-deep .explore-tabs .mat-mdc-tab-body-wrapper {
+  display: none; /* content rendered outside mat-tab-group */
+}
+
+:host ::ng-deep .explore-tabs .mdc-tab-indicator__content--underline {
+  border-color: var(--color-primary) !important;
+}
+
+:host ::ng-deep .explore-tabs .mdc-tab--active .mdc-tab__text-label {
+  color: var(--color-primary) !important;
+}
+
+:host ::ng-deep .explore-tabs .mdc-tab__text-label {
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+  font-weight: 500;
+  letter-spacing: 0;
+}

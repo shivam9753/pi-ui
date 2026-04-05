@@ -26,11 +26,11 @@ import {
 import { SimpleSubmissionFilterComponent, SimpleFilterOptions } from '../../../shared/components/simple-submission-filter/simple-submission-filter.component';
 import { SUBMISSION_STATUS, API_ENDPOINTS } from '../../../shared/constants/api.constants';
 import { environment } from '../../../../environments/environment';
-import { TabsComponent, TabItemComponent } from '../../../ui-components';
+import { MatTabsModule } from '@angular/material/tabs';
 
 @Component({
   selector: 'app-manage-submissions',
-  imports: [CommonModule, FormsModule, PrettyLabelPipe, BadgeLabelComponent, AdminPageHeaderComponent, DataTableComponent, SimpleSubmissionFilterComponent, SearchableUserSelectorComponent, ConsistentSubmissionMobileCardComponent, SubmissionMobileCardComponent, TabsComponent, TabItemComponent, MatButtonModule],
+  imports: [CommonModule, FormsModule, PrettyLabelPipe, BadgeLabelComponent, AdminPageHeaderComponent, DataTableComponent, SimpleSubmissionFilterComponent, SearchableUserSelectorComponent, ConsistentSubmissionMobileCardComponent, SubmissionMobileCardComponent, MatButtonModule, MatTabsModule],
   templateUrl: './manage-submissions.component.html',
   styleUrl: './manage-submissions.component.css'
 })
@@ -147,6 +147,20 @@ export class ManageSubmissionsComponent implements OnInit {
     this.clearSelection();
     this.updateActionsForTab();
     this.loadPublishedSubmissions();
+  }
+
+  readonly tabIds = ['published', 'accepted', 'draft', 'rejected'];
+
+  get selectedTabIndex(): number {
+    return Math.max(0, this.tabIds.indexOf(this.activeTab));
+  }
+
+  onTabIndexChange(index: number) {
+    const tabId = this.tabIds[index];
+    if (tabId) {
+      this.activeTab = tabId;
+      this.onTabChange(tabId);
+    }
   }
 
   updateActionsForTab() {

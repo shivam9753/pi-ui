@@ -1,76 +1,85 @@
-<!-- Refreshed Analytics Dashboard - uses standardized admin header -->
-<div class="analytics-simple max-w-7xl mx-auto p-6">
-  <app-admin-page-header [title]="'Analytics'" [subtitle]="'Traffic and engagement overview'" [stats]="[{ label: 'Total Views', value: totalViews || 0, color: '#4B5563' }]" ></app-admin-page-header>
+<!-- Refreshed Analytics Dashboard -->
+<div class="analytics-simple analytics-wrapper">
 
+  <!-- Page Header -->
+  <div class="page-header">
+    <h1 class="page-title">Analytics</h1>
+    <span class="page-count">Traffic &amp; engagement overview</span>
+  </div>
+
+  <!-- Purge action -->
   <div class="mb-4 flex items-center gap-3">
-    <button (click)="purgeOldDailyViews()" class="px-3 py-1 bg-red-600 text-white rounded text-sm" [disabled]="purging">
+    <button mat-stroked-button color="warn" (click)="purgeOldDailyViews()" [disabled]="purging">
       <ng-container *ngIf="!purging; else purgingTpl">Purge DailyViews &gt;7 days</ng-container>
     </button>
     <ng-template #purgingTpl>
-      <span class="text-sm text-gray-500">Purging...</span>
+      <span class="text-sm text-themed-tertiary">Purging...</span>
     </ng-template>
-    <span *ngIf="purgeMessage" class="text-sm text-gray-600">{{ purgeMessage }}</span>
+    <span *ngIf="purgeMessage" class="text-sm text-themed-secondary">{{ purgeMessage }}</span>
   </div>
 
+  <!-- Total Views card -->
   <div class="mb-6">
-    <section class="bg-white text-gray-800 p-4 sm:p-6 rounded-lg border flex items-center justify-between">
-      <div>
-        <h2 class="text-lg sm:text-xl font-semibold">Total Views</h2>
-        <p class="text-sm text-gray-500">All-time total post views</p>
-      </div>
-      <div class="text-2xl sm:text-3xl font-bold text-gray-900">
-        <ng-container *ngIf="!loadingOverview; else loadingTpl">{{ formatNumber(totalViews ?? 0) }}</ng-container>
-        <ng-template #loadingTpl>
-          <div class="flex items-center gap-2 text-sm text-gray-500">
-            <svg class="w-4 h-4 animate-spin text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M12 4v4m0 8v4m8-8h-4M4 12H0"/></svg>
-            Loading
-          </div>
-        </ng-template>
-      </div>
-    </section>
+    <mat-card appearance="outlined">
+      <mat-card-content class="!p-4 sm:!p-6 flex items-center justify-between">
+        <div>
+          <h2 class="text-lg sm:text-xl font-semibold text-themed">Total Views</h2>
+          <p class="text-sm text-themed-secondary">All-time total post views</p>
+        </div>
+        <div class="text-2xl sm:text-3xl font-bold text-themed">
+          <ng-container *ngIf="!loadingOverview; else loadingTpl">{{ formatNumber(totalViews ?? 0) }}</ng-container>
+          <ng-template #loadingTpl>
+            <div class="flex items-center gap-2 text-sm text-themed-tertiary">
+              <svg class="w-4 h-4 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M12 4v4m0 8v4m8-8h-4M4 12H0"/></svg>
+              Loading
+            </div>
+          </ng-template>
+        </div>
+      </mat-card-content>
+    </mat-card>
   </div>
 
   <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
     <!-- Top Posts -->
-    <section class="bg-white text-gray-800 p-4 sm:p-6 rounded-lg border">
-      <div class="flex items-center justify-between mb-3">
-        <h2 class="text-lg sm:text-xl font-semibold">Top Posts</h2>
-        <div class="flex items-center space-x-2">
-          <div class="inline-flex rounded-md overflow-hidden border">
-            <button (click)="setTopPeriod('today')" [class]="topPeriod === 'today' ? 'px-3 py-1 sm:px-3 sm:py-2 bg-yellow-500 text-white text-sm' : 'px-3 py-1 sm:px-3 sm:py-2 text-gray-700 text-sm'">Today</button>
-            <button (click)="setTopPeriod('week')" [class]="topPeriod === 'week' ? 'px-3 py-1 sm:px-3 sm:py-2 bg-orange-500 text-white text-sm' : 'px-3 py-1 sm:px-3 sm:py-2 text-gray-700 text-sm'">This Week</button>
-            <button (click)="setTopPeriod('all')" [class]="topPeriod === 'all' ? 'px-3 py-1 sm:px-3 sm:py-2 bg-gray-800 text-white text-sm' : 'px-3 py-1 sm:px-3 sm:py-2 text-gray-700 text-sm'">All Time</button>
+    <mat-card appearance="outlined">
+      <mat-card-content class="!p-4 sm:!p-6">
+        <div class="flex items-center justify-between mb-3">
+          <h2 class="text-lg sm:text-xl font-semibold text-themed">Top Posts</h2>
+          <div class="inline-flex rounded-md overflow-hidden border border-themed">
+            <button (click)="setTopPeriod('today')" [class]="topPeriod === 'today' ? 'px-3 py-1 sm:px-3 sm:py-2 bg-yellow-500 text-white text-sm' : 'px-3 py-1 sm:px-3 sm:py-2 text-themed-secondary text-sm'">Today</button>
+            <button (click)="setTopPeriod('week')"  [class]="topPeriod === 'week'  ? 'px-3 py-1 sm:px-3 sm:py-2 bg-orange-500 text-white text-sm' : 'px-3 py-1 sm:px-3 sm:py-2 text-themed-secondary text-sm'">This Week</button>
+            <button (click)="setTopPeriod('all')"   [class]="topPeriod === 'all'   ? 'px-3 py-1 sm:px-3 sm:py-2 bg-themed text-white text-sm'    : 'px-3 py-1 sm:px-3 sm:py-2 text-themed-secondary text-sm'">All Time</button>
           </div>
         </div>
-      </div>
-
-      <ul class="space-y-2 text-sm sm:text-base">
-        <li *ngFor="let post of topPosts" class="flex items-center justify-between py-2 sm:py-3 border-b">
-          <span class="truncate max-w-[65%]">{{ post.title }}</span>
-          <span class="text-sm sm:text-base font-semibold">{{ formatNumber(post.periodViews ?? post.viewCount ?? 0) }}</span>
-        </li>
-        <li *ngIf="!topPosts || topPosts.length === 0" class="text-xs text-gray-500">No posts available for this period.</li>
-      </ul>
-    </section>
+        <ul class="space-y-2 text-sm sm:text-base">
+          <li *ngFor="let post of topPosts" class="flex items-center justify-between py-2 sm:py-3 border-b border-themed">
+            <span class="truncate max-w-[65%] text-themed">{{ post.title }}</span>
+            <span class="text-sm sm:text-base font-semibold text-themed">{{ formatNumber(post.periodViews ?? post.viewCount ?? 0) }}</span>
+          </li>
+          <li *ngIf="!topPosts || topPosts.length === 0" class="text-xs text-themed-tertiary">No posts available for this period.</li>
+        </ul>
+      </mat-card-content>
+    </mat-card>
 
     <!-- Views by Type -->
-    <section class="bg-white text-gray-800 p-4 sm:p-6 rounded-lg border">
-      <div class="flex items-center justify-between mb-3">
-        <h2 class="text-lg sm:text-xl font-semibold">Views by Type</h2>
-        <div class="inline-flex rounded-md overflow-hidden border">
-          <button (click)="setTypesPeriod('today')" [class]="typesPeriod === 'today' ? 'px-3 py-1 sm:px-3 sm:py-2 bg-yellow-500 text-white text-sm' : 'px-3 py-1 sm:px-3 sm:py-2 text-gray-700 text-sm'">Today</button>
-          <button (click)="setTypesPeriod('week')" [class]="typesPeriod === 'week' ? 'px-3 py-1 sm:px-3 sm:py-2 bg-orange-500 text-white text-sm' : 'px-3 py-1 sm:px-3 sm:py-2 text-gray-700 text-sm'">This Week</button>
-          <button (click)="setTypesPeriod('all')" [class]="typesPeriod === 'all' ? 'px-3 py-1 sm:px-3 sm:py-2 bg-gray-800 text-white text-sm' : 'px-3 py-1 sm:px-3 sm:py-2 text-gray-700 text-sm'">All Time</button>
+    <mat-card appearance="outlined">
+      <mat-card-content class="!p-4 sm:!p-6">
+        <div class="flex items-center justify-between mb-3">
+          <h2 class="text-lg sm:text-xl font-semibold text-themed">Views by Type</h2>
+          <div class="inline-flex rounded-md overflow-hidden border border-themed">
+            <button (click)="setTypesPeriod('today')" [class]="typesPeriod === 'today' ? 'px-3 py-1 sm:px-3 sm:py-2 bg-yellow-500 text-white text-sm' : 'px-3 py-1 sm:px-3 sm:py-2 text-themed-secondary text-sm'">Today</button>
+            <button (click)="setTypesPeriod('week')"  [class]="typesPeriod === 'week'  ? 'px-3 py-1 sm:px-3 sm:py-2 bg-orange-500 text-white text-sm' : 'px-3 py-1 sm:px-3 sm:py-2 text-themed-secondary text-sm'">This Week</button>
+            <button (click)="setTypesPeriod('all')"   [class]="typesPeriod === 'all'   ? 'px-3 py-1 sm:px-3 sm:py-2 bg-themed text-white text-sm'    : 'px-3 py-1 sm:px-3 sm:py-2 text-themed-secondary text-sm'">All Time</button>
+          </div>
         </div>
-      </div>
-
-      <ul class="space-y-2 text-sm sm:text-base">
-        <li *ngFor="let s of postTypeStats" class="flex items-center justify-between py-2 sm:py-3 border-b">
-          <span>{{ s.type | titlecase }}</span>
-          <span class="font-semibold">{{ formatNumber(s.views ?? s.totalViews ?? s.posts ?? 0) }}</span>
-        </li>
-        <li *ngIf="!postTypeStats || postTypeStats.length === 0" class="text-xs text-gray-500">No type data available for this period.</li>
-      </ul>
-    </section>
+        <ul class="space-y-2 text-sm sm:text-base">
+          <li *ngFor="let s of postTypeStats" class="flex items-center justify-between py-2 sm:py-3 border-b border-themed">
+            <span class="text-themed">{{ s.type | titlecase }}</span>
+            <span class="font-semibold text-themed">{{ formatNumber(s.views ?? s.totalViews ?? s.posts ?? 0) }}</span>
+          </li>
+          <li *ngIf="!postTypeStats || postTypeStats.length === 0" class="text-xs text-themed-tertiary">No type data available for this period.</li>
+        </ul>
+      </mat-card-content>
+    </mat-card>
   </div>
 </div>

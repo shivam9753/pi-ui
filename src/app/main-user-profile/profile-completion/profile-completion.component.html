@@ -1,87 +1,70 @@
 <div class="w-full">
-  <!-- Header removed; only show concise Important Information box per design -->
- 
+
   <!-- Information Notice -->
-  <div class="bg-blue-50 border border-blue-100 rounded-lg p-3 mb-6">
-    <div class="flex items-start gap-3">
-      <div class="w-7 h-7 flex items-center justify-center rounded-full bg-blue-100 text-blue-800">
-        <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20"><path d="M9 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"/></svg>
-      </div>
-      <div>
-        <div class="font-medium text-blue-800 text-xs">Important Information</div>
-        <div class="text-xs text-blue-700">Your profile picture and bio will be used when your submitted content is featured. Please use a clear headshot and write a professional bio. Your public profile will only be visible when your content is featured.</div>
-      </div>
+  <div class="info-notice mb-6">
+    <mat-icon fontIcon="info" class="info-icon"></mat-icon>
+    <div>
+      <div class="font-medium text-blue-800 text-xs">Important Information</div>
+      <div class="text-xs text-blue-700">Your profile picture and bio will be used when your submitted content is featured. Please use a clear headshot and write a professional bio. Your public profile will only be visible when your content is featured.</div>
     </div>
   </div>
 
   <!-- Form -->
   <form (ngSubmit)="onSubmit()" #profileForm="ngForm">
-    <div [ngClass]="showContainer ? 'bg-white border border-border rounded-lg p-6 space-y-6 shadow-sm' : 'space-y-6'">
+    <div [ngClass]="showContainer ? 'bg-white border border-border rounded-lg p-6 space-y-4 shadow-sm' : 'space-y-4'">
+
       <!-- Name Field -->
-      <div>
-        <label for="name" class="block text-sm font-medium text-themed mb-2">Full Name <span class="text-red-500">*</span></label>
-        <input
-          type="text"
-          id="name"
+      <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
+        <mat-label>Full Name</mat-label>
+        <input matInput
           name="name"
           [(ngModel)]="profileData.name"
-          required
-          minlength="2"
-          maxlength="100"
-          class="w-full px-4 py-3 border border-border rounded-lg bg-white text-themed placeholder:text-themed-secondary focus:outline-none focus:ring-2 focus:ring-primary transition"
-          placeholder="Enter your full name"
-        />
-      </div>
+          required minlength="2" maxlength="100" />
+        <mat-icon matSuffix fontIcon="person"></mat-icon>
+      </mat-form-field>
 
       <!-- Bio Field -->
-      <div>
-        <label for="bio" class="block text-sm font-medium text-themed mb-2">Professional Bio @if (mode === 'completion') {<span class="text-red-500">*</span>}</label>
-        <textarea
-          id="bio"
+      <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
+        <mat-label>Professional Bio</mat-label>
+        <textarea matInput
           name="bio"
           [(ngModel)]="profileData.bio"
           [required]="mode === 'completion'"
           [minlength]="profileData.bio.trim() ? 20 : 0"
           maxlength="500"
-          rows="5"
-          class="w-full px-4 py-3 border border-border rounded-lg bg-white text-themed resize-none placeholder:text-themed-secondary focus:outline-none focus:ring-2 focus:ring-primary transition"
-          placeholder="Write a brief professional bio that describes you as a writer/author..."
-        ></textarea>
-      </div>
+          rows="5"></textarea>
+        <mat-hint align="end">{{ profileData.bio.length }}/500</mat-hint>
+      </mat-form-field>
 
       <!-- Profile Image Upload -->
       <div>
-        <label for="profileImage" class="block text-sm font-medium text-themed mb-2">Profile Picture</label>
-        <p class="text-xs text-themed mb-3">Upload a clear headshot. Max size: 1MB.</p>
+        <div class="text-sm font-medium text-themed mb-1">Profile Picture</div>
+        <p class="text-xs text-themed-secondary mb-3">Upload a clear headshot. Max size: 1MB.</p>
 
-        <div class="flex items-start space-x-4">
-          <div class="flex-shrink-0">
-            <div class="w-24 h-24 rounded-full overflow-hidden bg-gray-100 border border-border">
-              @if (profileImagePreview || user?.picture) {
-                <img [src]="profileImagePreview || user?.picture" alt="Profile preview" class="w-full h-full object-cover" />
-              } @else {
-                <div class="w-full h-full flex items-center justify-center text-gray-400">
-                  <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"></path></svg>
-                </div>
-              }
-            </div>
+        <div class="flex items-center gap-4">
+          <!-- Preview -->
+          <div class="w-20 h-20 rounded-full overflow-hidden bg-themed-hover border border-themed flex-shrink-0 flex items-center justify-center">
+            @if (profileImagePreview || user?.picture) {
+              <img [src]="profileImagePreview || user?.picture" alt="Profile preview" class="w-full h-full object-cover" />
+            } @else {
+              <mat-icon fontIcon="account_circle" class="text-themed-tertiary" style="font-size:2rem;width:2rem;height:2rem;"></mat-icon>
+            }
           </div>
 
-          <div class="flex-grow">
+          <!-- Controls -->
+          <div class="flex gap-2 flex-wrap">
             <input type="file" id="profileImage" accept="image/*" (change)="onImageSelected($event)" class="hidden" />
-            <div class="flex space-x-3">
-              <label for="profileImage" class="inline-flex items-center px-4 py-2 rounded-lg border border-border bg-white text-themed cursor-pointer hover:bg-gray-50 transition">
-                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
-                Choose Image
-              </label>
+            <label for="profileImage" mat-stroked-button class="mat-mdc-button mdc-button mdc-button--outlined cursor-pointer inline-flex items-center gap-1 px-4 py-2 text-sm rounded border border-themed text-themed hover:bg-themed-hover transition">
+              <mat-icon fontIcon="upload" class="!text-base !w-4 !h-4"></mat-icon>
+              Choose Image
+            </label>
 
-              @if (profileImagePreview) {
-                <button mat-flat-button color="warn" type="button" (click)="removeImage()" (keydown.enter)="removeImage()">
-                  <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
-                  Remove
-                </button>
-              }
-            </div>
+            @if (profileImagePreview) {
+              <button mat-stroked-button color="warn" type="button" (click)="removeImage()">
+                <mat-icon fontIcon="delete"></mat-icon>
+                Remove
+              </button>
+            }
           </div>
         </div>
       </div>
@@ -89,15 +72,14 @@
       <!-- Action Buttons -->
       <div class="flex justify-end items-center gap-3 pt-2">
         @if (!isEditMode && mode === 'completion' && showSkipButton) {
-          <button mat-tonal-button type="button" [disabled]="isSubmitting" (click)="skipForNow()" (keydown.enter)="skipForNow()">Skip for Now</button>
+          <button mat-stroked-button type="button" [disabled]="isSubmitting" (click)="skipForNow()">Skip for Now</button>
         }
-
         @if (isEditMode || mode === 'edit') {
-          <button mat-tonal-button type="button" [disabled]="isSubmitting" (click)="cancel()" (keydown.enter)="cancel()">Cancel</button>
+          <button mat-stroked-button type="button" [disabled]="isSubmitting" (click)="cancel()">Cancel</button>
         }
-
-        <button mat-flat-button type="button" [disabled]="isSubmitting || !profileForm.valid" (click)="onSubmit()" (keydown.enter)="onSubmit()">
-          {{ isSubmitting ? (isEditMode || mode === 'edit' ? 'Updating Profile...' : 'Completing Profile...') : (isEditMode || mode === 'edit' ? 'Update Profile' : 'Complete Profile') }}
+        <button mat-flat-button color="primary" type="button" [disabled]="isSubmitting || !profileForm.valid" (click)="onSubmit()">
+          <mat-icon *ngIf="isSubmitting" fontIcon="sync" class="animate-spin"></mat-icon>
+          {{ isSubmitting ? (isEditMode || mode === 'edit' ? 'Updating...' : 'Saving...') : (isEditMode || mode === 'edit' ? 'Update Profile' : 'Complete Profile') }}
         </button>
       </div>
     </div>

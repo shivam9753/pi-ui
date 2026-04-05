@@ -1,7 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { BackendService } from '../../services/backend.service';
-import { AdminPageHeaderComponent } from '../../shared/components/admin-page-header/admin-page-header.component';
+import { MatButtonModule } from '@angular/material/button';
+import { MatCardModule } from '@angular/material/card';
 
 interface TopPost {
   _id: string;
@@ -27,7 +28,7 @@ type BackendAnalyticsPeriod = 'day' | 'week' | 'month' | 'all';
 @Component({
   selector: 'app-analytics',
   standalone: true,
-  imports: [CommonModule, AdminPageHeaderComponent],
+  imports: [CommonModule, MatButtonModule, MatCardModule],
   templateUrl: './analytics.component.html',
   styleUrls: ['./analytics.component.css']
 })

@@ -24,11 +24,15 @@
     <!-- Tab controls (mobile) - place directly under header so mobile matches desktop -->
     @if (isCreateMode) {
       <div class="px-6 py-3">
-        <app-tabs [(activeTab)]="activeTab">
-          <app-tab-item tabId="submit" label="Write"></app-tab-item>
-          <app-tab-item tabId="drafts" label="My Drafts"></app-tab-item>
-          <app-tab-item tabId="guidelines" label="Guide"></app-tab-item>
-        </app-tabs>
+        <mat-tab-group
+          [selectedIndex]="selectedTabIndex"
+          (selectedIndexChange)="onTabIndexChange($event)"
+          animationDuration="200ms"
+          mat-stretch-tabs="false">
+          <mat-tab label="Write"></mat-tab>
+          <mat-tab label="My Drafts"></mat-tab>
+          <mat-tab label="Guide"></mat-tab>
+        </mat-tab-group>
       </div>
     }
 
@@ -109,11 +113,15 @@
       <!-- Navigation Tabs (Create mode only) -->
       @if (isCreateMode) {
         <div class="mb-12">
-          <app-tabs [(activeTab)]="activeTab">
-            <app-tab-item tabId="submit" label="Write"></app-tab-item>
-            <app-tab-item tabId="drafts" label="My Drafts"></app-tab-item>
-            <app-tab-item tabId="guidelines" label="Guidelines"></app-tab-item>
-          </app-tabs>
+          <mat-tab-group
+            [selectedIndex]="selectedTabIndex"
+            (selectedIndexChange)="onTabIndexChange($event)"
+            animationDuration="200ms"
+            mat-stretch-tabs="false">
+            <mat-tab label="Write"></mat-tab>
+            <mat-tab label="My Drafts"></mat-tab>
+            <mat-tab label="Guidelines"></mat-tab>
+          </mat-tab-group>
         </div>
       }
 

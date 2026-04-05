@@ -3,6 +3,9 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatIconModule } from '@angular/material/icon';
 import { AuthService, GoogleUser } from '../../services/auth.service';
 import { BackendService } from '../../services/backend.service';
 import { ToastNotificationComponent } from '../../shared/components/toast-notification/toast-notification.component';
@@ -14,7 +17,7 @@ import { API_ENDPOINTS } from '../../shared/constants/api.constants';
 @Component({
   selector: 'app-profile-completion',
   standalone: true,
-  imports: [CommonModule, FormsModule, ToastNotificationComponent, SimpleAlertComponent, MatButtonModule],
+  imports: [CommonModule, FormsModule, ToastNotificationComponent, SimpleAlertComponent, MatButtonModule, MatFormFieldModule, MatInputModule, MatIconModule],
   templateUrl: './profile-completion.component.html',
   styleUrls: ['./profile-completion.component.css']
 })

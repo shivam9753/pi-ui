@@ -9,13 +9,17 @@
   </app-admin-page-header>
 
   <!-- Top Tabs: Published / Accepted / Drafts / Rejected -->
-  <div class="mb-6 published-posts-tabs">
-    <app-tabs [(activeTab)]="activeTab" (tabChange)="onTabChange($event)">
-      <app-tab-item tabId="published" label="Published"></app-tab-item>
-      <app-tab-item tabId="accepted" label="Accepted"></app-tab-item>
-      <app-tab-item tabId="draft" label="Drafts"></app-tab-item>
-      <app-tab-item tabId="rejected" label="Rejected"></app-tab-item>
-    </app-tabs>
+  <div class="mb-6">
+    <mat-tab-group
+      [selectedIndex]="selectedTabIndex"
+      (selectedIndexChange)="onTabIndexChange($event)"
+      animationDuration="200ms"
+      mat-stretch-tabs="false">
+      <mat-tab label="Published"></mat-tab>
+      <mat-tab label="Accepted"></mat-tab>
+      <mat-tab label="Drafts"></mat-tab>
+      <mat-tab label="Rejected"></mat-tab>
+    </mat-tab-group>
   </div>
 
   <!-- Filter Component -->

@@ -7,8 +7,7 @@ import { ProfileCompletionComponent } from './profile-completion.component';
   standalone: true,
   imports: [CommonModule, ProfileCompletionComponent],
   template: `
-    <!-- Inline variant renders a consistent container and delegates form rendering to ProfileCompletionComponent (no inner container) -->
-    <div class="bg-surface border border-border rounded-2xl p-6">
+    <div class="px-1 py-2">
       <app-profile-completion
         [mode]="mode"
         [initialData]="initialData"

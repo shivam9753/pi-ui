@@ -9,10 +9,10 @@ import { ProfileCompletionComponent } from './profile-completion/profile-complet
 import { ProfileCompletionInlineComponent } from './profile-completion/profile-completion-inline.component';
 import { UserSubmissionsComponent } from './user-submissions/user-submissions.component';
 import { MatButtonModule } from '@angular/material/button';
+import { MatCardModule } from '@angular/material/card';
+import { MatTabsModule } from '@angular/material/tabs';
 import { SUBMISSION_STATUS, SubmissionStatus } from '../shared/constants/api.constants';
 import { DraftsListComponent } from '../main-submission/drafts-list/drafts-list.component';
-import { TabsComponent } from '../ui-components/tabs/tabs.component';
-import { TabItemComponent } from '../ui-components/tab-item/tab-item.component';
 import { CardComponent } from '../ui-components/card/card.component';
 
 // Interfaces
@@ -58,7 +58,7 @@ interface Draft {
 
 @Component({
 	selector: 'app-user-profile',
-	imports: [CommonModule, FormsModule, RouterModule, ProfileCompletionComponent, ProfileCompletionInlineComponent, UserSubmissionsComponent, PrettyLabelPipe, DraftsListComponent, TabsComponent, TabItemComponent, CardComponent, MatButtonModule],
+	imports: [CommonModule, FormsModule, RouterModule, ProfileCompletionComponent, ProfileCompletionInlineComponent, UserSubmissionsComponent, PrettyLabelPipe, DraftsListComponent, CardComponent, MatButtonModule, MatCardModule, MatTabsModule],
 	templateUrl: './user-profile.component.html',
 	styleUrl: './user-profile.component.css',
 	styles: [`
@@ -134,6 +134,17 @@ export class UserProfileComponent implements OnInit {
     this.setPrimaryTab(value);
   }
 
+  readonly profileTabIds = ['profile', 'drafts', 'saved'];
+
+  get selectedProfileTabIndex(): number {
+    return Math.max(0, this.profileTabIds.indexOf(this.activeTab()));
+  }
+
+  onProfileTabIndexChange(index: number) {
+    const tab = this.profileTabIds[index];
+    if (tab) this.setPrimaryTab(tab);
+  }
+
   // DraftsList handlers (wire DraftsListComponent outputs)
   onLoadDraft(draft: any) {
     // Navigate to submission editor with draftId - wiring placeholder
@@ -144,7 +155,6 @@ export class UserProfileComponent implements OnInit {
 
   onDeleteDraft(draftId: string) {
     if (!draftId) return;
-    // Use backendService if deleteDraft exists; otherwise just refresh local drafts
     const deleteFn: any = (this.backendService as any).deleteDraft;
     if (typeof deleteFn === 'function') {
       deleteFn.call(this.backendService, draftId).subscribe?.({
@@ -152,7 +162,6 @@ export class UserProfileComponent implements OnInit {
         error: (e: any) => console.error('Error deleting draft', e)
       });
     } else {
-      // Otherwise just remove locally for UI-only behavior
       const remaining = this.drafts().filter(d => d.id !== draftId);
       this.drafts.set(remaining);
     }
@@ -162,19 +171,16 @@ export class UserProfileComponent implements OnInit {
     this.setPrimaryTab('profile');
   }
 
-  // Saved items UI-only handlers
   onRemoveSaved(itemId: string) {
     const remaining = this.savedItems().filter(i => i.id !== itemId);
     this.savedItems.set(remaining);
   }
 
   onReadSaved(itemId: string) {
-    // UI-only navigation placeholder for reading a saved item
     if (!itemId) return;
     this.router.navigate(['/read', itemId]);
   }
 
-  // Edit form
   editForm: any = {
     name: '',
     bio: '',
@@ -198,8 +204,6 @@ export class UserProfileComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    // This component is ALWAYS for the current user's own profile
-    // Public profiles use the public-author-profile component
     this.loadOwnProfile();
   }
 

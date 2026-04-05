@@ -44,7 +44,6 @@ export interface ContentCardData {
       appearance="outlined"
       (click)="onCardClick()">
 
-      <!-- Cover image -->
       @if (content.imageUrl) {
         <img mat-card-image [src]="content.imageUrl" [alt]="content.title" class="card-cover-img" />
       }
@@ -228,7 +227,6 @@ export class ContentCardComponent {
   @Input() size: 'sm' | 'md' | 'lg' = 'md';
   @Input() showStatus = false;
   @Input() showActions = false;
-  // Keep a simple showMeta input for backward compatibility with templates
   @Input() showMeta = false;
   @Input() clickable = true;
   @Input() actions: Array<{
@@ -237,20 +235,14 @@ export class ContentCardComponent {
     class?: string;
   }> = [];
 
-  // Internal navigation: accept optional slug override. Component will navigate when clicked.
   @Input() slug?: string;
 
-  // When true, hide the outer border (used by other templates via [noBorder])
   @Input() noBorder = false;
 
   constructor(private readonly router: Router) {}
 
-  get isFeatured(): boolean {
-    return this.content.isFeatured || false;
-  }
 
   onTitleClick(): void {
-    // Title click navigates same as card click
     this.onCardClick();
   }
 
@@ -263,7 +255,6 @@ export class ContentCardComponent {
       return;
     }
 
-    // Fallback to id-based route if slug not available
     const id = (this.content as any)._id || (this.content as any).id || this.content.id;
     if (id) {
       this.router.navigate(['/read', id]);
@@ -277,24 +268,8 @@ export class ContentCardComponent {
       case 'article': return 'Article';
       case 'opinion': return 'Opinion';
       case 'cinema_essay': return 'Cinema';
+      case 'book_review': return 'Book Review';
       default: return this.content.submissionType;
-    }
-  }
-
-  getTypeClasses(): string {
-    switch (this.content.submissionType) {
-      case 'poem':
-        return 'tag-purple';
-      case 'story':
-        return 'tag-green';
-      case 'article':
-        return 'tag-blue';
-      case 'opinion':
-        return 'tag-yellow';
-      case 'cinema_essay':
-        return 'tag-red';
-      default:
-        return 'tag-gray';
     }
   }
 
@@ -304,60 +279,4 @@ export class ContentCardComponent {
     return StringUtils.stripHtml(html);
   }
 
-  getAuthorInitials(): string {
-    const name = this.content?.author?.name || '';
-    return StringUtils.getInitialsWithFallback(name);
-  }
-
-  isOpinionPiece(): boolean {
-    return this.content.submissionType === 'article' || this.content.submissionType === 'opinion';
-  }
-
-  /**
-   * Check if content is trending based on recent views
-   */
-  isTrending(): boolean {
-    // recentViews may be deprecated; if missing, we cannot compute trending here.
-    if (!this.content.recentViews || !this.content.viewCount) return false;
-    
-    // Consider trending if:
-    // 1. Has at least 10 recent views, AND
-    // 2. Recent views are at least 30% of total views
-    const minRecentViews = 10;
-    const trendingThreshold = 0.3;
-    
-    return this.content.recentViews >= minRecentViews && 
-           (this.content.recentViews / this.content.viewCount) >= trendingThreshold;
-  }
-
-  /**
-   * Format large numbers (1234 -> 1.2k, 1000000 -> 1M)
-   */
-  formatNumber(num: number): string {
-    if (num >= 1000000) {
-      return (num / 1000000).toFixed(1).replace(/\.0$/, '') + 'M';
-    } else if (num >= 1000) {
-      return (num / 1000).toFixed(1).replace(/\.0$/, '') + 'k';
-    }
-    return num.toString();
-  }
-
-  /** Navigate using explicit content.link if present, otherwise fall back to slug/id routes. */
-  navigateByContent(content: ContentCardData): void {
-    if (content.link && content.link !== '#') {
-      this.router.navigate([content.link]);
-      return;
-    }
-
-    const slugToUse = content.slug;
-    if (slugToUse && slugToUse !== '') {
-      this.router.navigate(['/post', slugToUse]);
-      return;
-    }
-
-    const id = (content as any)._id || (content as any).id || content.id;
-    if (id) {
-      this.router.navigate(['/read', id]);
-    }
-  }
 }

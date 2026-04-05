@@ -5,7 +5,7 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { BackendService } from '../../../services/backend.service';
 import { HtmlSanitizerService } from '../../../services/html-sanitizer.service';
 import { PrettyLabelPipe } from '../../../pipes/pretty-label.pipe';
-import { AdminPageHeaderComponent, AdminPageStat } from '../../../shared/components/admin-page-header/admin-page-header.component';
+import { MatButtonModule } from '@angular/material/button';
 import {
   DataTableComponent,
   TableColumn,
@@ -20,7 +20,7 @@ import { SimpleSubmissionFilterComponent, SimpleFilterOptions } from '../../../s
 
 @Component({
   selector: 'app-featured-content',
-  imports: [CommonModule, DatePipe, FormsModule, PrettyLabelPipe, AdminPageHeaderComponent, DataTableComponent, SimpleSubmissionFilterComponent, ConsistentSubmissionMobileCardComponent, SubmissionMobileCardComponent],
+  imports: [CommonModule, DatePipe, FormsModule, PrettyLabelPipe, MatButtonModule, DataTableComponent, SimpleSubmissionFilterComponent, ConsistentSubmissionMobileCardComponent, SubmissionMobileCardComponent],
   templateUrl: './featured-content.component.html',
   styleUrl: './featured-content.component.css'
 })
@@ -79,7 +79,7 @@ export class FeaturedContentComponent implements OnInit {
   hasMore = false;
 
   // Page stats
-  pageStats: AdminPageStat[] = [];
+  pageStats: any[] = [];
 
   // Toast notification properties
   toastMessage = '';

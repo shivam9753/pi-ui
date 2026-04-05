@@ -1,6 +1,3 @@
-<!-- explore.component.html - Refined version with proper focus -->
-<!-- <div class="hidden md:block bg-primary-light p-4 rounded">Visible on Desktop (md and up)</div>
-<div class="block md:hidden bg-blue-50 p-4 rounded">Visible on Mobile only</div> -->
 
 <div class="min-h-screen bg-white">
   <div class="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 py-4 md:py-6">
@@ -13,12 +10,16 @@
         <!-- Navigation Section -->
         <div class="space-y-3">
           <!-- Tab Navigation -->
-          <app-tabs [(activeTab)]="selectedType" (tabChange)="onFilterChange($event)">
+          <mat-tab-group
+            [selectedIndex]="selectedTabIndex"
+            (selectedIndexChange)="onTabIndexChange($event)"
+            animationDuration="200ms"
+            mat-stretch-tabs="false"
+            class="explore-tabs">
             @for (option of filterOptions; track option) {
-              <app-tab-item [tabId]="option.value" [label]="option.label">
-              </app-tab-item>
+              <mat-tab [label]="option.label"></mat-tab>
             }
-          </app-tabs>
+          </mat-tab-group>
         </div>
 
         <!-- Search Results Header -->

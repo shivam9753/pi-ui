@@ -1135,6 +1135,10 @@
 }
 
 /* The outline notch SVG paths */
+.mdc-notched-outline__notch {
+  border-right: none !important;
+}
+
 .dark .mdc-notched-outline__leading,
 .dark .mdc-notched-outline__notch,
 .dark .mdc-notched-outline__trailing {
@@ -1234,9 +1238,18 @@ html, body, app-root, #app, .app-root {
   font-family: 'Source Sans Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important;
 }
 
-/* Force all text to use global sans font unless inside .poem-font (editor) */
-body * {
+/* Force all text to use global sans font unless inside .poem-font (editor) or mat-icon */
+body *:not(mat-icon):not(.material-icons):not(.material-symbols-outlined) {
   font-family: 'Source Sans Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important;
+}
+
+/* Preserve Material Icons font */
+mat-icon,
+.material-icons,
+.material-symbols-outlined {
+  font-family: 'Material Icons', sans-serif !important;
+  font-feature-settings: 'liga';
+  -webkit-font-feature-settings: 'liga';
 }
 
 /* Ensure the poem editor retains its serif typography even with global enforcement */
