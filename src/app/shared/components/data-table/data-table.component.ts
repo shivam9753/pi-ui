@@ -429,7 +429,7 @@ export class DataTableComponent<T = any> implements OnInit {
   }
   
   getAuthorName(item: any): string {
-    return item?.author.name || item?.email || '';
+    return item?.author?.name || item?.name || '';
   }
 
   getVisibleActions(item: T): TableAction[] {
