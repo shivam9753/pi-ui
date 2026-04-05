@@ -841,7 +841,14 @@ export class PublishSubmissionComponent implements OnInit {
       if (this.submission.contents && Array.isArray(this.submission.contents)) {
         this.submission.contents.forEach((c: any) => { perContentMeta[c._id] = { metaTitle: c.metaTitle || c.title || '', metaDescription: c.metaDescription || (this.extractPlainText(c.body) || '').substring(0,160).trim(), primaryKeyword: (c.seo?.primaryKeyword || c.seoKeyword || c.title || '').trim() }; });
       }
-      const payload: any = { title: this.submission.title, description: this.submission.description, excerpt: this.submission.excerpt, submissionMeta: { slug: this.seoConfig.slug, metaTitle: this.seoConfig.metaTitle || this.submission.title, metaDescription: this.seoConfig.metaDescription || this.submission.description, primaryKeyword: (this.seoConfig.primaryKeyword || this.submission.title || '').trim(), ogImage: this.seoConfig.ogImage || this.submission.imageUrl || '' }, perContentMeta, perContentTags };
+      // Include edited content body/title/footnotes so changes made in the editor are persisted
+      const perContentBody: Record<string, any> = {};
+      if (this.submission.contents && Array.isArray(this.submission.contents)) {
+        this.submission.contents.forEach((c: any) => {
+          perContentBody[c._id] = { body: c.body || '', title: c.title || '', footnotes: c.footnotes || '' };
+        });
+      }
+      const payload: any = { title: this.submission.title, description: this.submission.description, excerpt: this.submission.excerpt, submissionMeta: { slug: this.seoConfig.slug, metaTitle: this.seoConfig.metaTitle || this.submission.title, metaDescription: this.seoConfig.metaDescription || this.submission.description, primaryKeyword: (this.seoConfig.primaryKeyword || this.submission.title || '').trim(), ogImage: this.seoConfig.ogImage || this.submission.imageUrl || '' }, perContentMeta, perContentTags, perContentBody };
       await lastValueFrom(this.backendService.publishSubmissionWithSEO(this.submission._id, payload));
       this.showSuccess('Submission published successfully');
       this.isPublishing = false;

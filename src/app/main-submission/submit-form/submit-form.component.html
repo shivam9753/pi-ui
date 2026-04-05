@@ -252,10 +252,10 @@
             </button>
             }
 
-            <button type="submit" [disabled]="isSubmitting || !validateForm()"
+            <button type="button" (click)="submitForReview()" [disabled]="isSubmitting"
               class="flex-1 lg:flex-none flex items-center justify-center px-8 lg:px-12 py-4 text-white font-medium lg:font-semibold rounded-2xl transition-all duration-300 transform hover:scale-105 active:scale-95"
               [style.background-color]="'var(--bg-accent)'"
-              [style.opacity]="(isSubmitting || !validateForm()) ? '0.6' : '1'">
+              [style.opacity]="isSubmitting ? '0.6' : '1'">
               @if (isSubmitting) {
               <div
                 class="inline-block w-5 h-5 border-2 border-current border-t-transparent rounded-full animate-spin mr-3">

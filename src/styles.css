@@ -1185,6 +1185,35 @@
   border: 1px solid var(--border-primary);
 }
 
+/* ── MatDialog (app-modal-panel) dark mode ───────────────────────────────── */
+.app-modal-panel .mat-mdc-dialog-container,
+.app-modal-panel .mdc-dialog__surface {
+  border-radius: 12px !important;
+  overflow: hidden;
+}
+
+.dark .app-modal-panel .mdc-dialog__surface {
+  background-color: var(--bg-card) !important;
+  color: var(--text-primary) !important;
+  border: 1px solid var(--border-primary);
+}
+
+.dark .app-modal-panel [mat-dialog-title],
+.dark .app-modal-panel .mat-mdc-dialog-title {
+  color: var(--text-primary) !important;
+}
+
+.dark .app-modal-panel mat-dialog-content,
+.dark .app-modal-panel .mat-mdc-dialog-content {
+  color: var(--text-secondary) !important;
+}
+
+/* Backdrop tint */
+.dark .cdk-overlay-backdrop.cdk-overlay-dark-backdrop {
+  background: rgba(0, 0, 0, 0.7);
+}
+
+
 .dark mat-option,
 .dark .mat-mdc-option {
   color: var(--text-primary) !important;
@@ -1204,6 +1233,67 @@
 /* "Clear All" text button */
 .dark .mat-mdc-button:not([color]) {
   --mdc-text-button-label-text-color: var(--text-tertiary);
+}
+
+/* ── Angular Material Tabs – Dark Mode ──────────────────────────────────────
+   Without these overrides the tab header keeps its light-mode background and
+   the inactive label text is near-invisible on a dark surface.
+   ─────────────────────────────────────────────────────────────────────────── */
+.dark {
+  /* Tab header background */
+  --mat-tab-header-background-color:              var(--bg-primary);
+
+  /* Inactive tab label text */
+  --mat-tab-header-inactive-label-text-color:     var(--text-secondary);
+  --mat-tab-header-inactive-hover-label-text-color: var(--text-primary);
+  --mat-tab-header-inactive-focus-label-text-color: var(--text-primary);
+
+  /* Active tab label text & indicator */
+  --mat-tab-header-active-label-text-color:       #FF6100;
+  --mat-tab-header-active-hover-label-text-color: #FF6100;
+  --mat-tab-header-active-focus-label-text-color: #FF6100;
+  --mat-tab-header-active-indicator-color:        #FF6100;
+
+  /* Tab header bottom divider line */
+  --mat-tab-header-divider-color:                 var(--border-primary);
+  --mat-tab-header-divider-height:                1px;
+
+  /* Ripple / focus state-layer in dark mode */
+  --mat-tab-header-inactive-ripple-color:         rgba(255, 255, 255, 0.08);
+  --mat-tab-header-active-ripple-color:           rgba(255, 97, 0, 0.12);
+
+  /* Pagination arrows (scroll buttons when many tabs overflow) */
+  --mat-tab-header-pagination-icon-color:         var(--text-secondary);
+}
+
+/* Force the MDC host elements to pick up the dark background/border */
+.dark .mat-mdc-tab-header {
+  background-color: var(--bg-primary) !important;
+  border-bottom: 1px solid var(--border-primary) !important;
+}
+
+.dark .mat-mdc-tab-body-wrapper {
+  background-color: var(--bg-primary);
+}
+
+/* Inactive tab label text */
+.dark .mdc-tab__text-label {
+  color: var(--text-secondary) !important;
+}
+
+/* Active tab label text */
+.dark .mdc-tab--active .mdc-tab__text-label {
+  color: #FF6100 !important;
+}
+
+/* Active underline indicator */
+.dark .mdc-tab-indicator__content--underline {
+  border-color: #FF6100 !important;
+}
+
+/* Hover state for inactive tabs */
+.dark .mdc-tab:not(.mdc-tab--active):hover .mdc-tab__text-label {
+  color: var(--text-primary) !important;
 }
 
 /* Dark mode button background overrides with reduced opacity */

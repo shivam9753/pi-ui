@@ -136,13 +136,13 @@ export class SubmissionEditorComponent implements OnInit, OnDestroy {
 
     this.backendService.getUserDrafts().subscribe({
       next: (response) => {
-        this.drafts = (response.drafts || []).map((draft: any) => ({
-          id: draft.id || draft._id,
+        this.drafts = (response.submissions || response.drafts || []).map((draft: any) => ({
+          id: draft._id || draft.id,
           title: draft.title || 'Untitled Draft',
-          submissionType: draft.type || draft.submissionType,
+          submissionType: draft.submissionType || draft.type || '',
           contents: draft.contents || [],
-          description: draft.excerpt || '',
-          lastModified: new Date(draft.lastEditedAt || draft.updatedAt || draft.createdAt),
+          description: draft.description || draft.excerpt || '',
+          lastModified: new Date(draft.updatedAt || draft.lastEditedAt || draft.createdAt),
           wordCount: draft.wordCount || 0
         }));
       },
@@ -160,15 +160,15 @@ export class SubmissionEditorComponent implements OnInit, OnDestroy {
     } else {
       this.backendService.getUserDrafts().subscribe({
         next: (response) => {
-          const apiDraft = (response.drafts || []).find((d: any) => d.id === draftId || d._id === draftId);
+          const apiDraft = (response.submissions || response.drafts || []).find((d: any) => d._id === draftId || d.id === draftId);
           if (apiDraft) {
             const transformedDraft: Draft = {
-              id: apiDraft._id,
-              title: apiDraft.title,
-              submissionType: apiDraft.submissionType,
+              id: apiDraft._id || apiDraft.id,
+              title: apiDraft.title || 'Untitled Draft',
+              submissionType: apiDraft.submissionType || apiDraft.type || '',
               contents: apiDraft.contents || [],
-              description: apiDraft.description,
-              lastModified: apiDraft.lastEditedAt,
+              description: apiDraft.description || apiDraft.excerpt || '',
+              lastModified: new Date(apiDraft.updatedAt || apiDraft.lastEditedAt || apiDraft.createdAt),
               wordCount: apiDraft.wordCount || 0
             };
             this.currentDraft = transformedDraft;

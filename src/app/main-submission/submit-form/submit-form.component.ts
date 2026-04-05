@@ -246,8 +246,9 @@ export class SubmitFormComponent implements OnInit, OnDestroy {
           errorMessage = 'You do not have permission to access this submission.';
         }
 
-        this.showToast(errorMessage, 'error');
-        this.router.navigate(['/user-profile']);
+        this.modalService.alert('Error', errorMessage).then(() => {
+          this.router.navigate(['/user-profile']);
+        });
       }
     });
   }
@@ -267,6 +268,7 @@ export class SubmitFormComponent implements OnInit, OnDestroy {
     if (submission.contents && submission.contents.length > 0) {
       submission.contents.forEach((content) => {
         const group = this.fb.group({
+          _id: [content._id || content.id || ''],
           title: [content.title || '', Validators.required],
           body: [content.body || '', Validators.required],
           tags: [Array.isArray(content.tags) ? content.tags.join(', ') : (content.tags || '')],
@@ -324,7 +326,7 @@ export class SubmitFormComponent implements OnInit, OnDestroy {
 
   saveAsDraft(): void {
     if (!this.hasContent()) {
-      this.showToast('Please add some content before saving as draft', 'error');
+      this.modalService.alert('Cannot Save Draft', 'Please add some content before saving as draft.');
       return;
     }
 
@@ -350,7 +352,7 @@ export class SubmitFormComponent implements OnInit, OnDestroy {
         this.isSavingDraft = false;
         this.hasUnsavedChanges = false;
         this.currentDraftId = response.draft.id;
-        this.showToast('Draft saved successfully! Your draft will be available for 1 week in My Profile.', 'success');
+        this.modalService.alert('Draft Saved', 'Your draft has been saved successfully. It will be available for 1 week in My Profile.');
         this.draftSaved.emit(response.draft.id);
       },
       error: (error) => {
@@ -369,7 +371,7 @@ export class SubmitFormComponent implements OnInit, OnDestroy {
           errorMessage = error.error.message;
         }
 
-        this.showToast(errorMessage, 'error');
+        this.modalService.alert('Save Failed', errorMessage);
       }
     });
   }
@@ -481,7 +483,7 @@ export class SubmitFormComponent implements OnInit, OnDestroy {
   saveChanges(): void {
     if (this.form.invalid) {
       this.markFormGroupTouched(this.form);
-      this.showToast('Please fill in all required fields.', 'error');
+      this.modalService.alert('Validation Error', 'Please fill in all required fields.');
       return;
     }
 
@@ -498,14 +500,14 @@ export class SubmitFormComponent implements OnInit, OnDestroy {
 
     this.backendService.updateSubmission(this.submissionId!, cleanedData).subscribe({
       next: (response: any) => {
-        this.showToast('Changes saved successfully!', 'success');
+        this.modalService.alert('Saved', 'Your changes have been saved successfully.');
         this.hasChanges = false;
         this.hasUnsavedChanges = false;
         this.isSaving = false;
         this.loadSubmission();
       },
       error: (error: any) => {
-        this.showToast('Error saving changes. Please try again.', 'error');
+        this.modalService.alert('Save Failed', 'Error saving changes. Please try again.');
         this.isSaving = false;
       }
     });
@@ -514,7 +516,7 @@ export class SubmitFormComponent implements OnInit, OnDestroy {
   submitForReview(): void {
     if (this.form.invalid) {
       this.markFormGroupTouched(this.form);
-      this.showToast('Please fill in all required fields before submitting.', 'error');
+      this.showErrorModal('Please fill in all required fields before submitting.');
       return;
     }
 
@@ -522,7 +524,7 @@ export class SubmitFormComponent implements OnInit, OnDestroy {
     if (this.selectedType === 'poem') {
       const contents = this.form.get('contents') as FormArray;
       if (contents.controls.length < 3) {
-        this.showToast('Poetry submissions require at least 3 poems', 'error');
+        this.showErrorModal('Poetry submissions require at least 3 poems.');
         return;
       }
     }
@@ -546,30 +548,33 @@ export class SubmitFormComponent implements OnInit, OnDestroy {
           this.isSubmitting = false;
           this.hasChanges = false;
           this.hasUnsavedChanges = false;
-          this.showToast('Submission resubmitted successfully! Status automatically updated to "resubmitted".', 'success');
-          this.formSubmitted.emit();
+          this.showSuccessModal('Your submission has been resubmitted successfully. Status has been updated to "resubmitted".').then(() => {
+            this.formSubmitted.emit();
+          });
         },
         error: (error: any) => {
-          let errorMessage = 'Error resubmitting. Please try again.';
-          if (error.error?.message) {
-            errorMessage = error.error.message;
-          }
-          this.showToast(errorMessage, 'error');
           this.isSubmitting = false;
+          const errorMessage = error.error?.message || 'Error resubmitting. Please try again.';
+          this.showErrorModal(errorMessage);
         }
       });
     } else if (this.isEditMode) {
       cleanedData.status = SUBMISSION_STATUS.PENDING_REVIEW;
       this.backendService.updateSubmission(this.submissionId!, cleanedData).subscribe({
         next: (response: any) => {
-          this.showToast('Submission updated and sent for review!', 'success');
-          this.formSubmitted.emit();
+          this.isSubmitting = false;
+          this.showSuccessModal('Your submission has been updated and sent for review!').then(() => {
+            this.formSubmitted.emit();
+          });
         },
         error: (error: any) => {
-          this.showToast('Error submitting for review. Please try again.', 'error');
           this.isSubmitting = false;
+          this.showErrorModal('Error submitting for review. Please try again.');
         }
       });
+    } else {
+      this.isSubmitting = false;
+      this.showErrorModal('Unable to submit: unexpected submission mode.');
     }
   }
 
@@ -607,7 +612,7 @@ export class SubmitFormComponent implements OnInit, OnDestroy {
 
   submitForm(): void {
     if (!this.validateForm()) {
-      this.showToast('Please complete all required fields', 'error');
+      this.modalService.alert('Validation Error', 'Please complete all required fields.');
       return;
     }
 
@@ -615,92 +620,95 @@ export class SubmitFormComponent implements OnInit, OnDestroy {
     if (this.selectedType === 'poem') {
       const contents = this.form.get('contents') as FormArray;
       if (contents.controls.length < 3) {
-        this.showToast('Poetry submissions require at least 3 poems', 'error');
+        this.modalService.alert('More Poems Required', 'Poetry submissions require at least 3 poems.');
         return;
       }
     }
 
-    const confirmSubmission = confirm('Are you ready to submit your work for review? Once submitted, it cannot be edited.');
-    if (!confirmSubmission) {
-      return;
-    }
+    this.modalService.confirm(
+      'Submit for Review',
+      'Are you ready to submit your work for review? Once submitted, it cannot be edited.'
+    ).then((confirmed) => {
+      if (!confirmed) return;
 
-    this.isSubmitting = true;
-    this.autoPopulateTitle();
+      this.isSubmitting = true;
+      this.autoPopulateTitle();
 
-    const formValue = this.form.value;
-    const contentsWithType = this.sanitizeContents(formValue.contents);
+      const formValue = this.form.value;
+      const contentsWithType = this.sanitizeContents(formValue.contents);
 
-    const submissionPayload = {
-      ...formValue,
-      contents: contentsWithType,
-      submittedAt: new Date().toISOString()
-    };
+      const submissionPayload = {
+        ...formValue,
+        contents: contentsWithType,
+        submittedAt: new Date().toISOString()
+      };
 
-    this.backendService.submitNewSubmission(submissionPayload).subscribe({
-      next: () => {
-        this.hasUnsavedChanges = false;
-        // Stop loading state so submit button stops spinning
-        this.isSubmitting = false;
-        // Emit to parent and show a toast; also navigate directly to success page to ensure redirect
-        this.showToast('Thank you — your submission has been received and will be reviewed.', 'success');
-        this.formSubmitted.emit();
-        try {
-          this.router.navigate(['/submission/success']);
-        } catch (e) {
-          // ignore navigation errors
-        }
-      },
-      error: (error) => {
-        this.isSubmitting = false;
-
-        let errorMessage = 'There was an error submitting your work. Please try again.';
-
-        if (error.error?.errors && Array.isArray(error.error.errors)) {
-          const validationErrors = error.error.errors;
-          const errorMessages = validationErrors.map((err: any) => {
-            let fieldName = err.path || 'Field';
-            if (fieldName.startsWith('contents[') && fieldName.includes('].title')) {
-              const match = fieldName.match(/contents\[(\d+)\]\.title/);
-              if (match) {
-                const index = Number.parseInt(match[1]) + 1;
-                fieldName = `Content ${index} title`;
-              }
-            } else if (fieldName.startsWith('contents[') && fieldName.includes('].body')) {
-              const match = fieldName.match(/contents\[(\d+)\]\.body/);
-              if (match) {
-                const index = Number.parseInt(match[1]) + 1;
-                fieldName = `Content ${index} body`;
-              }
-            } else if (fieldName === 'title') {
-              fieldName = 'Main title';
+      this.backendService.submitNewSubmission(submissionPayload).subscribe({
+        next: () => {
+          this.hasUnsavedChanges = false;
+          this.isSubmitting = false;
+          this.showSuccessModal('Thank you — your submission has been received and will be reviewed.').then(() => {
+            this.formSubmitted.emit();
+            try {
+              this.router.navigate(['/submission/success']);
+            } catch (e) {
+              // ignore navigation errors
             }
-
-            return `${fieldName}: ${err.msg}`;
           });
+        },
+        error: (error) => {
+          this.isSubmitting = false;
 
-          const maxErrors = 5;
-          const displayErrors = errorMessages.slice(0, maxErrors);
-          errorMessage = displayErrors.join('\n');
+          let errorMessage = 'There was an error submitting your work. Please try again.';
 
-          if (errorMessages.length > maxErrors) {
-            errorMessage += `\n... and ${errorMessages.length - maxErrors} more validation errors`;
+          if (error.error?.errors && Array.isArray(error.error.errors)) {
+            const validationErrors = error.error.errors;
+            const errorMessages = validationErrors.map((err: any) => {
+              let fieldName = err.path || 'Field';
+              if (fieldName.startsWith('contents[') && fieldName.includes('].title')) {
+                const match = fieldName.match(/contents\[(\d+)\]\.title/);
+                if (match) {
+                  const index = Number.parseInt(match[1]) + 1;
+                  fieldName = `Content ${index} title`;
+                }
+              } else if (fieldName.startsWith('contents[') && fieldName.includes('].body')) {
+                const match = fieldName.match(/contents\[(\d+)\]\.body/);
+                if (match) {
+                  const index = Number.parseInt(match[1]) + 1;
+                  fieldName = `Content ${index} body`;
+                }
+              } else if (fieldName === 'title') {
+                fieldName = 'Main title';
+              }
+
+              return `${fieldName}: ${err.msg}`;
+            });
+
+            const maxErrors = 5;
+            const displayErrors = errorMessages.slice(0, maxErrors);
+            errorMessage = displayErrors.join('\n');
+
+            if (errorMessages.length > maxErrors) {
+              errorMessage += `\n... and ${errorMessages.length - maxErrors} more validation errors`;
+            }
+          } else if (error.error?.message) {
+            errorMessage = error.error.message;
           }
-        } else if (error.error?.message) {
-          errorMessage = error.error.message;
-        }
 
-        // Show error modal to the user
-        this.showErrorModal(errorMessage);
-      }
+          this.showErrorModal(errorMessage);
+        }
+      });
     });
   }
 
   cancel(): void {
     if (this.hasChanges || this.hasUnsavedChanges) {
-      if (confirm('You have unsaved changes. Are you sure you want to leave?')) {
-        this.cancelled.emit();
-      }
+      this.modalService.confirm(
+        'Discard Changes',
+        'You have unsaved changes. Are you sure you want to leave?'
+      ).then((confirmed) => {
+        if (confirmed) this.cancelled.emit();
+      });
     } else {
       this.cancelled.emit();
     }
@@ -808,41 +816,54 @@ export class SubmitFormComponent implements OnInit, OnDestroy {
     }
 
     return new Promise<boolean>((resolve) => {
-      if (this.mode === 'create' && confirm('You have unsaved changes. Do you want to save them as a draft before leaving?')) {
-        this.isSavingDraft = true;
-        this.autoPopulateTitle();
+      if (this.mode === 'create') {
+        this.modalService.confirm(
+          'Unsaved Changes',
+          'You have unsaved changes. Do you want to save them as a draft before leaving?'
+        ).then((saveDraft) => {
+          if (saveDraft) {
+            this.isSavingDraft = true;
+            this.autoPopulateTitle();
 
-        const formValue = this.form.value;
-        const contentsWithType = formValue.contents.map((content: any) => ({
-          ...content,
-          type: content.type || this.selectedType
-        }));
+            const formValue = this.form.value;
+            const contentsWithType = formValue.contents.map((content: any) => ({
+              ...content,
+              type: content.type || this.selectedType
+            }));
 
-        const draftPayload = {
-          title: formValue.title,
-          description: formValue.description,
-          submissionType: this.selectedType,
-          contents: contentsWithType,
-          draftId: this.currentDraftId
-        };
+            const draftPayload = {
+              title: formValue.title,
+              description: formValue.description,
+              submissionType: this.selectedType,
+              contents: contentsWithType,
+              draftId: this.currentDraftId
+            };
 
-        const saveSubscription = this.backendService.saveDraft(draftPayload).subscribe({
-          next: () => {
-            this.isSavingDraft = false;
-            this.hasUnsavedChanges = false;
-            resolve(true);
-          },
-          error: () => {
-            this.isSavingDraft = false;
-            resolve(true);
+            const saveSubscription = this.backendService.saveDraft(draftPayload).subscribe({
+              next: () => {
+                this.isSavingDraft = false;
+                this.hasUnsavedChanges = false;
+                resolve(true);
+              },
+              error: () => {
+                this.isSavingDraft = false;
+                resolve(true);
+              }
+            });
+
+            this.subscriptions.push(saveSubscription);
+          } else {
+            this.modalService.confirm(
+              'Leave Without Saving',
+              'Are you sure you want to leave without saving? Your changes will be lost.'
+            ).then((leave) => resolve(leave));
           }
         });
-
-        this.subscriptions.push(saveSubscription);
-      } else if (confirm('Are you sure you want to leave without saving? Your changes will be lost.')) {
-        resolve(true);
       } else {
-        resolve(false);
+        this.modalService.confirm(
+          'Leave Without Saving',
+          'Are you sure you want to leave without saving? Your changes will be lost.'
+        ).then((leave) => resolve(leave));
       }
     });
   }
@@ -862,6 +883,7 @@ export class SubmitFormComponent implements OnInit, OnDestroy {
       const { tags, ...rest } = content || {};
       return {
         ...rest,
+        _id: rest._id || rest.id || undefined,
         type: rest.type || this.selectedType
       };
     });

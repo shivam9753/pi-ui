@@ -1,5 +1,6 @@
-import { Injectable, ApplicationRef, ComponentRef, createComponent, EnvironmentInjector } from '@angular/core';
-import { ModalButton, ModalComponent } from '../modal/modal.component';
+import { Injectable } from '@angular/core';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
+import { ModalButton, ModalComponent, ModalDialogData } from '../modal/modal.component';
 
 export interface ModalConfig {
   title?: string;
@@ -10,46 +11,48 @@ export interface ModalConfig {
   size?: 'sm' | 'md' | 'lg' | 'xl';
 }
 
+const SIZE_MAP: Record<string, string> = {
+  sm: '360px',
+  md: '480px',
+  lg: '640px',
+  xl: '800px'
+};
+
 @Injectable({
   providedIn: 'root'
 })
 export class ModalService {
-  private modalRef: ComponentRef<ModalComponent> | null = null;
+  private dialogRef: MatDialogRef<ModalComponent> | null = null;
 
-  constructor(
-    private appRef: ApplicationRef,
-    private injector: EnvironmentInjector
-  ) {}
+  constructor(private readonly dialog: MatDialog) {}
 
   open(config: ModalConfig): Promise<void> {
     return new Promise((resolve) => {
-      // Create component
-      this.modalRef = createComponent(ModalComponent, {
-        environmentInjector: this.injector
+      const data: ModalDialogData = {
+        title: config.title,
+        message: config.message,
+        showCloseButton: config.showCloseButton ?? true,
+        buttons: config.buttons
+      };
+
+      this.dialogRef = this.dialog.open(ModalComponent, {
+        data,
+        width: SIZE_MAP[config.size ?? 'md'],
+        maxWidth: '95vw',
+        disableClose: !(config.closeOnBackdrop ?? true),
+        panelClass: 'app-modal-panel'
       });
 
-      // Set inputs
-      Object.assign(this.modalRef.instance, config);
-      this.modalRef.instance.isOpen = true;
-
-      // Listen for close event
-      this.modalRef.instance.closed.subscribe(() => {
-        this.close();
+      this.dialogRef.afterClosed().subscribe(() => {
+        this.dialogRef = null;
         resolve();
       });
-
-      // Attach to DOM
-      this.appRef.attachView(this.modalRef.hostView);
-      document.body.appendChild(this.modalRef.location.nativeElement);
     });
   }
 
   close() {
-    if (this.modalRef) {
-      this.appRef.detachView(this.modalRef.hostView);
-      this.modalRef.destroy();
-      this.modalRef = null;
-    }
+    this.dialogRef?.close();
+    this.dialogRef = null;
   }
 
   // Convenience methods
@@ -61,6 +64,7 @@ export class ModalService {
         buttons: [
           {
             label: 'Cancel',
+            variant: 'tertiary',
             action: () => {
               this.close();
               resolve(false);
@@ -68,6 +72,7 @@ export class ModalService {
           },
           {
             label: 'Confirm',
+            variant: 'primary',
             action: () => {
               this.close();
               resolve(true);
@@ -86,6 +91,7 @@ export class ModalService {
         buttons: [
           {
             label: 'OK',
+            variant: 'primary',
             action: () => {
               this.close();
               resolve();

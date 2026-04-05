@@ -55,18 +55,10 @@ export class DraftsListComponent {
     return CommonUtils.truncateText(content, 100);
   }
 
-  /**
-   * Return a sanitized, truncated excerpt for a draft's preview.
-   * Uses HtmlSanitizerService to strip HTML and entities before truncation.
-   */
   getSanitizedExcerpt(draft: Draft, maxLength: number = 150): string {
     const source = (draft.contents && draft.contents.length > 0) ? draft.contents[0].body : (draft.description || '');
-    // First run the cleaner to convert entities and remove easy tags,
-    // then defensively strip any remaining literal tags (handles escaped HTML cases),
-    // finally truncate the plain text.
     const cleanedOnce = this.htmlSanitizer.cleanHtml(source);
     const noTags = cleanedOnce.replace(/<[^>]*>/g, '');
-    // Truncate without re-running cleanHtml (already plain text)
     if (!noTags) return '';
     if (noTags.length <= maxLength) return noTags;
     return noTags.substring(0, maxLength).trim() + '...';

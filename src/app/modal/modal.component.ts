@@ -1,5 +1,8 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Inject } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
+import { MatDialogModule, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MatIconModule } from '@angular/material/icon';
 
 export interface ModalButton {
   label: string;
@@ -10,68 +13,68 @@ export interface ModalButton {
   type?: 'button' | 'submit' | 'reset';
 }
 
+export interface ModalDialogData {
+  title?: string;
+  message?: string;
+  buttons?: ModalButton[];
+  showCloseButton?: boolean;
+}
+
 @Component({
   selector: 'app-modal',
   standalone: true,
-  imports: [MatButtonModule],
+  imports: [CommonModule, MatButtonModule, MatDialogModule, MatIconModule],
   template: `
-    @if (isOpen) {
-      <div class="fixed inset-0 z-50 flex items-center justify-center">
-        <div class="fixed inset-0 bg-black bg-opacity-50"
-        (click)="closeOnBackdrop && close()"></div>
-        <div class="relative bg-white rounded-lg shadow-lg p-6 m-4 max-w-md w-full">
-          @if (showCloseButton) {
-            <div class="absolute top-4 right-4">
-              <button (click)="close()" class="text-gray-400 hover:text-gray-600">
-                <span class="sr-only">Close</span>
-                ×
-              </button>
-            </div>
+    <div class="modal-dialog-container">
+      <!-- Header -->
+      @if (data.title || data.showCloseButton) {
+        <div mat-dialog-title class="flex items-center justify-between gap-4 pb-2">
+          @if (data.title) {
+            <span class="text-base font-semibold text-themed leading-snug">{{ data.title }}</span>
           }
-          @if (title) {
-            <div class="mb-4">
-              <h3 class="text-lg font-medium text-gray-900">{{ title }}</h3>
-            </div>
-          }
-          @if (message) {
-            <div class="mb-6">
-              <p class="text-sm text-gray-500">{{ message }}</p>
-            </div>
-          }
-          @if (buttons && buttons.length) {
-            <div class="flex justify-end space-x-3">
-              @for (button of buttons; track button) {
-                <button
-                  [attr.mat-flat-button]="button.variant === 'primary' || button.variant === 'destructive' ? '' : null"
-                  [attr.mat-tonal-button]="button.variant === 'secondary' || !button.variant ? '' : null"
-                  [attr.mat-stroked-button]="button.variant === 'tertiary' ? '' : null"
-                  [class.mat-warn]="button.variant === 'destructive'"
-                  [disabled]="button.disabled ?? false"
-                  [type]="button.type || 'button'"
-                  (click)="button.action()">
-                  {{ button.label }}
-                </button>
-              }
-            </div>
+          @if (data.showCloseButton !== false) {
+            <button mat-icon-button class="!w-8 !h-8 !min-w-0 -mr-1 shrink-0 text-themed-tertiary" (click)="dialogRef.close()">
+              <mat-icon class="!text-lg">close</mat-icon>
+            </button>
           }
         </div>
-      </div>
-    }
-    `
+      }
+
+      <!-- Body -->
+      @if (data.message) {
+        <mat-dialog-content>
+          <p class="text-sm text-themed-secondary whitespace-pre-line leading-relaxed">{{ data.message }}</p>
+        </mat-dialog-content>
+      }
+
+      <!-- Actions -->
+      @if (data.buttons && data.buttons.length) {
+        <mat-dialog-actions align="end">
+          @for (button of data.buttons; track button.label) {
+            <button
+              [attr.mat-flat-button]="button.variant === 'primary' || button.variant === 'destructive' ? '' : null"
+              [attr.mat-tonal-button]="button.variant === 'secondary' || !button.variant ? '' : null"
+              [attr.mat-stroked-button]="button.variant === 'tertiary' ? '' : null"
+              [class.mat-warn]="button.variant === 'destructive'"
+              [disabled]="button.disabled ?? false"
+              [type]="button.type || 'button'"
+              (click)="button.action()">
+              {{ button.label }}
+            </button>
+          }
+        </mat-dialog-actions>
+      }
+    </div>
+  `,
+  styles: [`
+    .modal-dialog-container { min-width: 320px; }
+    mat-dialog-content { padding-top: 4px !important; padding-bottom: 8px !important; }
+    mat-dialog-actions { padding-top: 8px !important; gap: 8px; }
+  `]
 })
 export class ModalComponent {
-  @Input() title?: string;
-  @Input() message?: string;
-  @Input() buttons?: ModalButton[];
-  @Input() showCloseButton = true;
-  @Input() closeOnBackdrop = true;
-  @Input() size: 'sm' | 'md' | 'lg' | 'xl' = 'md';
-  @Input() isOpen = false;
-
-  @Output() closed = new EventEmitter<void>();
-
-  close() {
-    this.isOpen = false;
-    this.closed.emit();
-  }
+  constructor(
+    public dialogRef: MatDialogRef<ModalComponent>,
+    @Inject(MAT_DIALOG_DATA) public data: ModalDialogData
+  ) {}
 }
