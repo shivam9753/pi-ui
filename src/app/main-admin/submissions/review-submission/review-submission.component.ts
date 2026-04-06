@@ -546,7 +546,7 @@ export class ReviewSubmissionComponent {
     this.loadingHistory = true;
     this.backendService.getSubmissionHistory(submissionId).subscribe({
       next: (data: any) => {
-        this.submissionHistory = data.history || [];
+        this.submissionHistory = data.trail || [];
         this.loadingHistory = false;
       },
       error: () => {

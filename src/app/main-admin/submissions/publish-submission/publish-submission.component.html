@@ -211,6 +211,16 @@
                           </div>
 
                           <div>
+                            <div class="block text-sm font-medium text-gray-700 mb-1">Content Tags</div>
+                            <app-tag-input
+                              [(ngModel)]="content.tags"
+                              placeholder="Add tags and press Enter…"
+                              helperText="Press Enter or comma to add a tag"
+                              [maxTags]="15">
+                            </app-tag-input>
+                          </div>
+
+                          <div>
                             <mat-form-field appearance="fill" class="w-full">
                               <mat-label>Content SEO Keyword</mat-label>
                               <input matInput [(ngModel)]="content.seoKeyword" [placeholder]="content.title || 'Primary keyword for this content'" />

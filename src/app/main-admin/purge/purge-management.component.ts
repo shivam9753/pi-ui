@@ -3,7 +3,7 @@ import { CommonModule, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { BackendService } from '../../services/backend.service';
 import { Submission } from '../../models/submission.model';
-import { Author, AuthorUtils } from '../../models/author.model';
+import { AuthorUtils } from '../../models/author.model';
 import { AdminPageHeaderComponent } from '../../shared/components/admin-page-header/admin-page-header.component';
 
 @Component({
@@ -14,12 +14,10 @@ import { AdminPageHeaderComponent } from '../../shared/components/admin-page-hea
 })
 export class PurgeManagementComponent implements OnInit {
   activeTab: 'drafts' | 'rejected' = 'drafts';
-  
   draftSubmissions: Submission[] = [];
   rejectedSubmissions: Submission[] = [];
   selectedRejected: string[] = [];
   selectedDrafts: string[] = [];
-  
   loadingDrafts = false;
   loadingRejected = false;
   

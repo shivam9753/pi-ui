@@ -14,7 +14,10 @@ export type StatusType =
   | 'rejected'
   | 'needs_revision'
   | 'published'
+  | 'republished'
+  | 'unpublished'
   | 'draft'
+  | 'resubmitted'
   | 'active'
   | 'inactive'
   | 'featured'
@@ -26,12 +29,7 @@ export type StatusType =
   | 'book_review'
   | 'cinema_essay'
   | 'interview'
-  | 'other'
-  | 'resubmitted'
-  | 'shortlisted'
-  | 'approved'
-  | 'submitted'
-  | 'archived';
+  | 'other';
 
 @Component({
   selector: 'app-status-badge',

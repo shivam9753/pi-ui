@@ -16,7 +16,7 @@ import { ProseMirrorEditorComponent } from '../../../submit/rich-text-editor/pro
 import { BadgeLabelComponent } from '../../../utilities/badge-label/badge-label.component';
 import { TagInputComponent } from '../../../utilities/tag-input/tag-input.component';
 import { BackendService } from '../../../services/backend.service';
-import { SUBMISSION_STATUS, UPLOAD_CONFIG } from '../../../shared/constants/api.constants';
+import { UPLOAD_CONFIG } from '../../../shared/constants/api.constants';
 import { compressImageForUpload } from '../../../shared/utils/image-compression.util';
 
 interface SEOConfig {
@@ -835,7 +835,13 @@ export class PublishSubmissionComponent implements OnInit {
       await this.uploadPendingImagesIfAny();
       const perContentTags: Record<string, string[]> = {};
       if (this.submission.contents && Array.isArray(this.submission.contents)) {
-        this.submission.contents.forEach((c: any) => { if (c.tags && Array.isArray(c.tags)) perContentTags[c._id] = c.tags.map((t: any) => typeof t === 'string' ? t.trim() : '').filter(Boolean); });
+        this.submission.contents.forEach((c: any) => {
+          if (c.tags && Array.isArray(c.tags)) {
+            perContentTags[c._id] = c.tags
+              .map((t: any) => typeof t === 'string' ? t.trim() : (t?.name || t?.slug || '').trim())
+              .filter(Boolean);
+          }
+        });
       }
       const perContentMeta: Record<string, any> = {};
       if (this.submission.contents && Array.isArray(this.submission.contents)) {

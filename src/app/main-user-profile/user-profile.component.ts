@@ -733,18 +733,7 @@ export class UserProfileComponent implements OnInit {
         });
       }
 
-      // Priority 4: Shortlisted
-      if (submission.status === 'shortlisted') {
-        messages.push({
-          message: `Your ${submissionTypeFormatted} "${this.cleanHtml(submission.title)}" was shortlisted`,
-          type: 'shortlisted',
-          priority: 4,
-          date: updateDate,
-          submissionType: submissionTypeFormatted
-        });
-      }
-
-      // Priority 5: Under review
+      // Priority 4: Under review
       if (['pending_review', 'in_progress', 'resubmitted'].includes(submission.status)) {
         messages.push({
           message: `Your ${submissionTypeFormatted} "${this.cleanHtml(submission.title)}" is under review`,

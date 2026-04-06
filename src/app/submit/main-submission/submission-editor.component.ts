@@ -66,8 +66,8 @@ export class SubmissionEditorComponent implements OnInit, OnDestroy {
             // Auto-detect mode based on submission status
             if (data.status === 'needs_revision' || data.status === 'rejected') {
               this.mode = 'resubmit';
-            } else if (data.status === 'published' || data.status === 'approved' || data.status === 'accepted') {
-              // Viewing published/approved submissions should default to view mode
+            } else if (data.status === 'published' || data.status === 'accepted') {
+              // Viewing published/accepted submissions should default to view mode
               this.mode = 'view';
             } else {
               this.mode = 'edit';

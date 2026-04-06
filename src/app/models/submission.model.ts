@@ -7,25 +7,13 @@ export interface Submission {
   description?: string;
   contentIds: string[];
   contents?: Content[];
-  submissionType: 'poem' | 'story' | 'article' | 'cinema_essay' | 'opinion';
-  status: 'draft' | 'submitted' | 'in_progress' | 'shortlisted' | 'needs_changes' | 'approved' | 'rejected' | 'published' | 'archived';
+  submissionType: 'poem' | 'prose' | 'story' | 'article' | 'cinema_essay' | 'opinion' | 'book_review';
+  status: 'draft' | 'pending_review' | 'in_progress' | 'needs_revision' | 'accepted' | 'rejected' | 'published' | 'resubmitted';
   imageUrl?: string;
   excerpt?: string;
   readingTime?: number;
   isFeatured: boolean;
-  reviewedAt?: string;
-  reviewedBy?: string;
   publishedAt?: string;
-  
-  // Workflow fields
-  assignedTo?: string;
-  assignedAt?: string;
-  createdAt: string;
-  updatedAt: string;
-  
-  // Review tracking
-  history?: SubmissionHistoryEntry[];
-  revisionNotes?: string;
   
   // SEO and Publishing
   seo?: {
@@ -42,11 +30,9 @@ export interface Submission {
   
   // View tracking
   viewCount: number;
-  
-  // Trending tracking
-  // deprecated: per-item rolling window fields — use server-side DailyView buckets instead
-  recentViews?: number;
-  windowStartTime?: string;
+
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface Content {
@@ -85,12 +71,11 @@ export interface ContentImage {
   uploadedAt: string;
 }
 
-export interface SubmissionHistoryEntry {
-  action: 'submitted' | 'moved_to_in_progress' | 'shortlisted' | 'needs_changes' | 'approved' | 'rejected' | 'published' | 'archived' | 'moved_to_draft';
+export interface AuditEntry {
+  action: 'pending_review' | 'in_progress' | 'needs_revision' | 'accepted' | 'rejected' | 'published' | 'republished' | 'unpublished' | 'resubmitted' | 'draft';
   timestamp: string;
   userId: string;
   username?: string;
-  userRole: 'user' | 'writer' | 'reviewer' | 'admin';
   notes?: string;
 }
 
@@ -173,9 +158,7 @@ export interface UpdateSubmissionPayload {
 
 export interface UpdateStatusPayload {
   status: 'accepted' | 'rejected' | 'needs_revision' | 'published';
-  reviewerId?: string;
   reviewNotes?: string;
-  revisionNotes?: string;
 }
 
 export interface PublishContentPayload {

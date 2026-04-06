@@ -407,9 +407,9 @@
                       </span>
                       <span class="text-sm text-gray-600">{{ entry.timestamp | date:'medium' }}</span>
                     </div>
-                    @if (entry.user) {
+                    @if (entry.userId) {
                       <span class="text-sm text-gray-500">
-                        by {{ entry.user.name || entry.user.username }}
+                        by {{ entry.userId.name || entry.userId.username }}
                       </span>
                     }
                   </div>
