@@ -2,7 +2,7 @@ import { Author } from './author.model';
 
 export interface Submission {
   _id: string;
-  userId: string;
+  userId: string | Author;
   title: string;
   description?: string;
   contentIds: string[];
@@ -11,7 +11,6 @@ export interface Submission {
   status: 'draft' | 'pending_review' | 'in_progress' | 'needs_revision' | 'accepted' | 'rejected' | 'published' | 'resubmitted';
   imageUrl?: string;
   excerpt?: string;
-  readingTime?: number;
   isFeatured: boolean;
   publishedAt?: string;
   
@@ -37,16 +36,13 @@ export interface Submission {
 
 export interface Content {
   _id: string;
-  userId: string;
   submissionId?: string;
   title: string;
   body: string;
   type: string;
   tags: string[];
   footnotes?: string;
-  metadata?: any;
   images?: ContentImage[];
-  hasInlineImages: boolean;
   
   // Content-level publishing fields
   isPublished?: boolean;
@@ -141,7 +137,6 @@ export interface CreateContentPayload {
   type: string;
   tags: string[];
   footnotes?: string;
-  metadata?: any;
 }
 
 export interface UpdateSubmissionPayload {
@@ -174,12 +169,6 @@ export interface PublishContentPayload {
 export interface PublishedContent extends Content {
   author: Author;
   viewCount: number;
-  likeCount: number;
-  commentCount: number;
-  
-  // Trending tracking
-  recentViews?: number;
-  windowStartTime?: string;
 }
 
 export interface PublishedContentResponse {
