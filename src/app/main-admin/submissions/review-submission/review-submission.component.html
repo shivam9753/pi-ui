@@ -323,45 +323,45 @@
       <div class="flex flex-row flex-wrap items-center gap-1">
 
         <!-- Editorial Guidelines -->
-        <button mat-tonal-button
+        <button mat-stroked-button
+          style="color: #FF6100; border-color: #FF6100;"
           (click)="toggleGuidelines()"
           (keydown.enter)="toggleGuidelines()"
           type="button">
-          <div class="flex items-center gap-2">
-            <span class="text-sm font-medium text-gray-700">Editorial Guidelines</span>
-          </div>
+          <mat-icon>menu_book</mat-icon>
+          Editorial Guidelines
         </button>
 
         <!-- History -->
-        <button mat-tonal-button
+        <button mat-stroked-button
+          style="color: #FF6100; border-color: #FF6100;"
           (click)="toggleHistory()"
           (keydown.enter)="toggleHistory()"
           type="button">
-          <div class="flex items-center gap-2">
-            <span class="text-sm font-medium text-gray-700">{{ showHistory ? 'Hide' : 'Show' }} History</span>
-          </div>
+          <mat-icon>history</mat-icon>
+          {{ showHistory ? 'Hide' : 'Show' }} History
         </button>
 
         <!-- Send Email -->
-        <button mat-tonal-button
+        <button mat-stroked-button
+          style="color: #FF6100; border-color: #FF6100;"
           (click)="openEmailModal()"
           (keydown.enter)="openEmailModal()"
           type="button">
-          <div class="flex items-center gap-2">
-            <span class="text-sm font-medium text-gray-700">Send Email</span>
-          </div>
+          <mat-icon>mail</mat-icon>
+          Send Email
         </button>
 
         <!-- Analysis (if enabled) -->
         @if (isAnalysisEnabled) {
-          <button mat-tonal-button
+          <button mat-stroked-button
+            style="color: #FF6100; border-color: #FF6100;"
             (click)="analyzeSubmission()"
             (keydown.enter)="analyzeSubmission()"
             [disabled]="isAnalyzing"
             type="button">
-            <div class="flex items-center gap-2">
-              <span class="text-sm font-medium text-gray-700">{{ isAnalyzing ? 'Analyzing...' : 'Analyze Content' }}</span>
-            </div>
+            <mat-icon>analytics</mat-icon>
+            {{ isAnalyzing ? 'Analyzing...' : 'Analyze Content' }}
           </button>
         }
       </div>

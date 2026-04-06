@@ -15,10 +15,11 @@ import { SendEmailModalComponent, EmailData } from './send-email-modal.component
 import { REVIEW_ACTIONS, ReviewAction, API_ENDPOINTS, SUBMISSION_STATUS } from '../../../shared/constants/api.constants';
 import { ToastService } from '../../../services/toast.service';
 import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
 
 @Component({
   selector: 'app-review-submission',
-  imports: [DatePipe, TitleCasePipe, CommonModule, FormsModule, ToastNotificationComponent, StatusBadgeComponent, AnalysisPanelComponent, EditorialCriteriaComponent, SendEmailModalComponent, MatButtonModule],
+  imports: [DatePipe, TitleCasePipe, CommonModule, FormsModule, ToastNotificationComponent, StatusBadgeComponent, AnalysisPanelComponent, EditorialCriteriaComponent, SendEmailModalComponent, MatButtonModule, MatIconModule],
   templateUrl: './review-submission.component.html',
   styleUrl: './review-submission.component.css'
 })
