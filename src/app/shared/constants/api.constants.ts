@@ -60,6 +60,11 @@ export const API_ENDPOINTS = {
     VIEW: (id: string) => `/submissions/${id}/view`,
     STATS: (id: string) => `/submissions/${id}/stats`
   },
+
+  RESPONSE_TEMPLATES: {
+    BASE: '/response-templates',
+    BY_ID: (id: string) => `/response-templates/${id}`,
+  },
   
   REVIEWS_NESTED: {
     APPROVE: (id: string) => `/reviews/${id}/approve`,

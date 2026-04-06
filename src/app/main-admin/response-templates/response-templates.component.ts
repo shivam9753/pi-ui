@@ -1,116 +1,213 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { MatButtonModule } from '@angular/material/button';
-import { AdminPageHeaderComponent } from '../../shared/components/admin-page-header/admin-page-header.component';
+import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { Subject, takeUntil } from 'rxjs';
 
-interface TemplateItem {
-  id: string;
+import { MatButtonModule } from '@angular/material/button';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
+import { MatIconModule } from '@angular/material/icon';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+
+import { AdminPageHeaderComponent } from '../../shared/components/admin-page-header/admin-page-header.component';
+import { BackendService } from '../../services/backend.service';
+
+export interface ResponseTemplate {
+  _id: string;
   title: string;
-  type: string;
-  template: string;
-  dateAdded: string;
+  action: 'accept' | 'reject' | 'revision' | 'shortlist';
+  submissionType: string;
+  tone: 'warm' | 'neutral' | 'firm';
+  body: string;
+  createdAt: string;
 }
 
 @Component({
   selector: 'app-response-templates',
   standalone: true,
-  imports: [CommonModule, FormsModule, AdminPageHeaderComponent, MatButtonModule],
+  imports: [
+    CommonModule,
+    FormsModule,
+    ReactiveFormsModule,
+    AdminPageHeaderComponent,
+    MatButtonModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatSelectModule,
+    MatIconModule,
+    MatTooltipModule,
+    MatProgressSpinnerModule,
+  ],
   templateUrl: './response-templates.component.html',
   styleUrls: ['./response-templates.component.css']
 })
-export class ResponseTemplatesComponent implements OnInit {
-  templates: TemplateItem[] = [];
-  loading = true;
+export class ResponseTemplatesComponent implements OnInit, OnDestroy {
+  private readonly destroy$ = new Subject<void>();
 
-  // form
-  newTitle = '';
-  newType = 'generic';
-  newTemplate = '';
+  templates: ResponseTemplate[] = [];
+  loading = false;
+  saving = false;
 
-  readonly STORAGE_KEY = 'responseTemplates';
+  // filters
+  filterAction = '';
+  filterType = '';
+  filterTone = '';
 
-  constructor() {}
+  // edit state
+  editingId: string | null = null;
+
+  // toast
+  toast: { message: string; type: 'success' | 'error' } | null = null;
+  private toastTimeout: any;
+
+  // copy feedback
+  copiedId: string | null = null;
+
+  readonly ACTIONS = ['accept', 'reject', 'revision', 'shortlist'];
+  readonly SUBMISSION_TYPES = ['poem', 'article', 'prose', 'opinion', 'cinema_essay', 'book_review', 'all'];
+  readonly TONES = ['warm', 'neutral', 'firm'];
+
+  createForm: FormGroup;
+  editForms: Map<string, FormGroup> = new Map();
+
+  constructor(private readonly fb: FormBuilder, private readonly backend: BackendService) {
+    this.createForm = this.fb.group({
+      title: ['', Validators.required],
+      action: ['reject', Validators.required],
+      submissionType: ['all', Validators.required],
+      tone: ['neutral', Validators.required],
+      body: ['', Validators.required],
+    });
+  }
 
   ngOnInit(): void {
     this.loadTemplates();
   }
 
-  async loadTemplates() {
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+    clearTimeout(this.toastTimeout);
+  }
+
+  loadTemplates(): void {
     this.loading = true;
-    try {
-      // Load built-in templates from assets
-      const res = await fetch('/assets/response-templates.json');
-      if (res.ok) {
-        const assetTemplates = await res.json();
-        this.templates = assetTemplates || [];
-      }
-    } catch (e) {
-      // ignore
-      this.templates = [];
-    }
+    const params: any = {};
+    if (this.filterAction) params.action = this.filterAction;
+    if (this.filterType) params.submissionType = this.filterType;
+    if (this.filterTone) params.tone = this.filterTone;
 
-    // Merge saved templates from localStorage (admins can add)
-    try {
-      const saved = localStorage.getItem(this.STORAGE_KEY);
-      if (saved) {
-        const parsed = JSON.parse(saved) as TemplateItem[];
-        this.templates = [...parsed, ...this.templates];
-      }
-    } catch (e) {
-      // ignore
-    }
-
-    this.loading = false;
+    this.backend.getResponseTemplates(params)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (data: any) => {
+          this.templates = Array.isArray(data) ? data : (data.templates ?? []);
+          this.loading = false;
+        },
+        error: () => {
+          this.showToast('Failed to load templates', 'error');
+          this.loading = false;
+        }
+      });
   }
 
-  saveTemplate() {
-    if (!this.newTitle.trim() || !this.newTemplate.trim()) {
-      alert('Please provide a title and template text');
-      return;
-    }
-
-    const item: TemplateItem = {
-      id: Date.now().toString(),
-      title: this.newTitle.trim(),
-      type: this.newType,
-      template: this.newTemplate.trim(),
-      dateAdded: new Date().toISOString()
-    };
-
-    // Save to localStorage (prepend so new ones appear first)
-    try {
-      const existing = JSON.parse(localStorage.getItem(this.STORAGE_KEY) || '[]') as TemplateItem[];
-      existing.unshift(item);
-      localStorage.setItem(this.STORAGE_KEY, JSON.stringify(existing));
-      // update local list
-      this.templates.unshift(item);
-      // reset form
-      this.newTitle = '';
-      this.newType = 'generic';
-      this.newTemplate = '';
-      alert('Template saved');
-    } catch (e) {
-      alert('Failed to save template');
-    }
+  onFilterChange(): void {
+    this.loadTemplates();
   }
 
-  copyTemplate(template: string) {
-    if (!navigator.clipboard) {
-      // fallback
-      const ta = document.createElement('textarea');
-      ta.value = template;
-      document.body.appendChild(ta);
-      ta.select();
-      try { document.execCommand('copy'); alert('Copied'); } catch { alert('Copy failed'); }
-      document.body.removeChild(ta);
+  clearFilters(): void {
+    this.filterAction = '';
+    this.filterType = '';
+    this.filterTone = '';
+    this.loadTemplates();
+  }
+
+  submitCreate(): void {
+    if (this.createForm.invalid) {
+      this.createForm.markAllAsTouched();
       return;
     }
+    this.saving = true;
+    this.backend.createResponseTemplate(this.createForm.value)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: () => {
+          this.createForm.reset({ action: 'reject', submissionType: 'all', tone: 'neutral', title: '', body: '' });
+          this.saving = false;
+          this.showToast('Template created', 'success');
+          this.loadTemplates();
+        },
+        error: () => {
+          this.saving = false;
+          this.showToast('Failed to create template', 'error');
+        }
+      });
+  }
 
-    navigator.clipboard.writeText(template).then(() => {
-      alert('Template copied to clipboard');
-    }).catch(() => {
-      alert('Failed to copy');
-    });
+  startEdit(t: ResponseTemplate): void {
+    this.editingId = t._id;
+    this.editForms.set(t._id, this.fb.group({
+      title: [t.title, Validators.required],
+      action: [t.action, Validators.required],
+      submissionType: [t.submissionType, Validators.required],
+      tone: [t.tone, Validators.required],
+      body: [t.body, Validators.required],
+    }));
+  }
+
+  cancelEdit(): void {
+    this.editingId = null;
+  }
+
+  submitEdit(id: string): void {
+    const form = this.editForms.get(id);
+    if (!form || form.invalid) { form?.markAllAsTouched(); return; }
+    this.saving = true;
+    this.backend.updateResponseTemplate(id, form.value)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: () => {
+          this.editingId = null;
+          this.saving = false;
+          this.showToast('Template updated', 'success');
+          this.loadTemplates();
+        },
+        error: () => {
+          this.saving = false;
+          this.showToast('Failed to update template', 'error');
+        }
+      });
+  }
+
+  deleteTemplate(id: string): void {
+    if (!confirm('Delete this template?')) return;
+    this.backend.deleteResponseTemplate(id)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: () => {
+          this.templates = this.templates.filter(t => t._id !== id);
+          this.showToast('Template deleted', 'success');
+        },
+        error: () => this.showToast('Failed to delete template', 'error')
+      });
+  }
+
+  copyBody(t: ResponseTemplate): void {
+    navigator.clipboard.writeText(t.body).then(() => {
+      this.copiedId = t._id;
+      setTimeout(() => { if (this.copiedId === t._id) this.copiedId = null; }, 2000);
+    }).catch(() => this.showToast('Copy failed', 'error'));
+  }
+
+  getEditForm(id: string): FormGroup {
+    return this.editForms.get(id)!;
+  }
+
+  private showToast(message: string, type: 'success' | 'error'): void {
+    clearTimeout(this.toastTimeout);
+    this.toast = { message, type };
+    this.toastTimeout = setTimeout(() => (this.toast = null), 3000);
   }
 }

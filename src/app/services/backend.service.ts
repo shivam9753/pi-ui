@@ -706,6 +706,40 @@ export class BackendService {
     );
   }
 
+  // ── Response Templates ─────────────────────────────────────────────────────
+
+  getResponseTemplates(params?: { action?: string; submissionType?: string; tone?: string }): Observable<any> {
+    const headers = this.getAuthHeaders();
+    let httpParams = new HttpParams();
+    if (params?.action) httpParams = httpParams.set('action', params.action);
+    if (params?.submissionType) httpParams = httpParams.set('submissionType', params.submissionType);
+    if (params?.tone) httpParams = httpParams.set('tone', params.tone);
+    return this.http.get(`${this.API_URL}${API_ENDPOINTS.RESPONSE_TEMPLATES.BASE}`, { headers, params: httpParams }).pipe(
+      catchError(this.handleError)
+    );
+  }
+
+  createResponseTemplate(data: { title: string; action: string; submissionType: string; tone: string; body: string }): Observable<any> {
+    const headers = this.getAuthHeaders();
+    return this.http.post(`${this.API_URL}${API_ENDPOINTS.RESPONSE_TEMPLATES.BASE}`, data, { headers }).pipe(
+      catchError(this.handleError)
+    );
+  }
+
+  updateResponseTemplate(id: string, data: Partial<{ title: string; action: string; submissionType: string; tone: string; body: string }>): Observable<any> {
+    const headers = this.getAuthHeaders();
+    return this.http.patch(`${this.API_URL}${API_ENDPOINTS.RESPONSE_TEMPLATES.BY_ID(id)}`, data, { headers }).pipe(
+      catchError(this.handleError)
+    );
+  }
+
+  deleteResponseTemplate(id: string): Observable<any> {
+    const headers = this.getAuthHeaders();
+    return this.http.delete(`${this.API_URL}${API_ENDPOINTS.RESPONSE_TEMPLATES.BY_ID(id)}`, { headers }).pipe(
+      catchError(this.handleError)
+    );
+  }
+
   getUsers(options: { limit?: number; skip?: number; role?: string } = {}): Observable<{
     users: UserProfile[];
     pagination: {

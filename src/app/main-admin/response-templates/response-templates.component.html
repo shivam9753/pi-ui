@@ -1,49 +1,180 @@
-<div class="p-6">
-  <div class="max-w-4xl mx-auto">
-    <app-admin-page-header title="Response Templates" subtitle="Manage commonly used response templates" [stats]="[]" (onRefresh)="loadTemplates()"></app-admin-page-header>
+<div class="page-wrap">
+  <!-- Toast -->
+  <div *ngIf="toast" class="toast" [class.toast--success]="toast.type === 'success'" [class.toast--error]="toast.type === 'error'">
+    <mat-icon>{{ toast.type === 'success' ? 'check_circle' : 'error' }}</mat-icon>
+    {{ toast.message }}
+  </div>
 
-    <div class="mb-6 bg-white rounded p-4 shadow-system-sm">
-      <h3 class="text-lg font-medium mb-2">Create new template</h3>
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
-        <input class="col-span-2 p-2 border rounded" placeholder="Title" [(ngModel)]="newTitle" />
-        <select class="p-2 border rounded" [(ngModel)]="newType">
-          <option value="generic">Generic</option>
-          <option value="accept">Accept</option>
-          <option value="reject">Reject</option>
-          <option value="revision">Request Revision</option>
-        </select>
+  <div class="inner">
+    <app-admin-page-header
+      title="Response Templates"
+      subtitle="Reusable email / response templates for reviewers"
+      [stats]="[]"
+      (onRefresh)="loadTemplates()"
+    ></app-admin-page-header>
+
+    <!-- ── Create Form ───────────────────────────────────────── -->
+    <div class="card mb-6">
+      <div class="card__header">
+        <mat-icon class="card__header-icon">add_circle_outline</mat-icon>
+        <span>New Template</span>
       </div>
-      <textarea class="w-full mt-3 p-3 border rounded" rows="5" placeholder="Template text" [(ngModel)]="newTemplate"></textarea>
-      <div class="mt-3 text-right">
-        <button mat-flat-button type="button" (click)="saveTemplate()">Save Template</button>
-      </div>
+      <form [formGroup]="createForm" (ngSubmit)="submitCreate()" class="form-grid">
+        <mat-form-field appearance="outline" class="span-2">
+          <mat-label>Title</mat-label>
+          <input matInput formControlName="title" placeholder="e.g. Rejection – Poems (warm)" />
+          <mat-error *ngIf="createForm.get('title')?.hasError('required')">Required</mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Action</mat-label>
+          <mat-select formControlName="action">
+            <mat-option *ngFor="let a of ACTIONS" [value]="a">{{ a | titlecase }}</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Submission Type</mat-label>
+          <mat-select formControlName="submissionType">
+            <mat-option *ngFor="let s of SUBMISSION_TYPES" [value]="s">{{ s | titlecase }}</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Tone</mat-label>
+          <mat-select formControlName="tone">
+            <mat-option *ngFor="let t of TONES" [value]="t">{{ t | titlecase }}</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="span-3">
+          <mat-label>Body</mat-label>
+          <textarea matInput formControlName="body" rows="6" placeholder="Write the template body..."></textarea>
+          <mat-error *ngIf="createForm.get('body')?.hasError('required')">Required</mat-error>
+        </mat-form-field>
+
+        <div class="span-3 flex justify-end">
+          <button mat-flat-button color="primary" type="submit" [disabled]="saving">
+            <mat-icon>save</mat-icon>
+            {{ saving ? 'Saving…' : 'Save Template' }}
+          </button>
+        </div>
+      </form>
     </div>
 
-    <div>
-      <h3 class="text-lg font-medium mb-3">Available Templates</h3>
-      <div *ngIf="loading" class="text-gray-500">Loading...</div>
+    <!-- ── Filters ───────────────────────────────────────────── -->
+    <div class="filters">
+      <mat-form-field appearance="outline" class="filter-field">
+        <mat-label>Action</mat-label>
+        <mat-select [(ngModel)]="filterAction" (ngModelChange)="onFilterChange()">
+          <mat-option value="">All actions</mat-option>
+          <mat-option *ngFor="let a of ACTIONS" [value]="a">{{ a | titlecase }}</mat-option>
+        </mat-select>
+      </mat-form-field>
 
-      <div *ngIf="!loading" class="space-y-3">
-        <div *ngFor="let t of templates" class="bg-white rounded p-3 shadow-system-sm flex items-start gap-3">
-          <div class="flex-1">
-            <div class="flex items-center justify-between">
-              <div>
-                <div class="text-sm text-gray-500">{{ t.type }} • {{ t.dateAdded | date:'mediumDate' }}</div>
-                <div class="font-semibold">{{ t.title }}</div>
-              </div>
-              <div>
-                <button title="Copy" (click)="copyTemplate(t.template)" class="p-2 rounded hover:bg-gray-100">
-                  <!-- heroicon: duplicate -->
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-600" viewBox="0 0 20 20" fill="currentColor">
-                    <path d="M4 4a2 2 0 012-2h6a2 2 0 012 2v1h-1V4H6v10h8v1a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" />
-                    <path d="M7 8h6v6H7V8z" />
-                  </svg>
-                </button>
-              </div>
+      <mat-form-field appearance="outline" class="filter-field">
+        <mat-label>Type</mat-label>
+        <mat-select [(ngModel)]="filterType" (ngModelChange)="onFilterChange()">
+          <mat-option value="">All types</mat-option>
+          <mat-option *ngFor="let s of SUBMISSION_TYPES" [value]="s">{{ s | titlecase }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="filter-field">
+        <mat-label>Tone</mat-label>
+        <mat-select [(ngModel)]="filterTone" (ngModelChange)="onFilterChange()">
+          <mat-option value="">All tones</mat-option>
+          <mat-option *ngFor="let t of TONES" [value]="t">{{ t | titlecase }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <button *ngIf="filterAction || filterType || filterTone" mat-stroked-button (click)="clearFilters()" class="clear-btn">
+        <mat-icon>clear</mat-icon> Clear
+      </button>
+    </div>
+
+    <!-- ── Loading ───────────────────────────────────────────── -->
+    <div *ngIf="loading" class="loading-wrap">
+      <mat-spinner diameter="36"></mat-spinner>
+    </div>
+
+    <!-- ── Empty ─────────────────────────────────────────────── -->
+    <div *ngIf="!loading && templates.length === 0" class="empty-state">
+      <mat-icon>description</mat-icon>
+      <p>No templates found. Create one above.</p>
+    </div>
+
+    <!-- ── Template Cards ────────────────────────────────────── -->
+    <div *ngIf="!loading" class="template-list">
+      <div *ngFor="let t of templates" class="template-card" [attr.data-action]="t.action">
+
+        <!-- View mode -->
+        <ng-container *ngIf="editingId !== t._id">
+          <div class="template-card__header">
+            <div class="template-card__badges">
+              <span class="badge badge--action" [attr.data-action]="t.action">{{ t.action | titlecase }}</span>
+              <span class="badge badge--type">{{ t.submissionType | titlecase }}</span>
+              <span class="badge badge--tone">{{ t.tone | titlecase }}</span>
             </div>
-            <div class="mt-2 text-sm text-gray-700 whitespace-pre-wrap">{{ t.template }}</div>
+            <div class="template-card__actions">
+              <button mat-icon-button [matTooltip]="copiedId === t._id ? 'Copied!' : 'Copy body'" (click)="copyBody(t)">
+                <mat-icon>{{ copiedId === t._id ? 'check' : 'content_copy' }}</mat-icon>
+              </button>
+              <button mat-icon-button matTooltip="Edit" (click)="startEdit(t)">
+                <mat-icon>edit</mat-icon>
+              </button>
+              <button mat-icon-button matTooltip="Delete" class="delete-btn" (click)="deleteTemplate(t._id)">
+                <mat-icon>delete_outline</mat-icon>
+              </button>
+            </div>
           </div>
-        </div>
+          <div class="template-card__title">{{ t.title }}</div>
+          <div class="template-card__body">{{ t.body }}</div>
+        </ng-container>
+
+        <!-- Edit mode -->
+        <ng-container *ngIf="editingId === t._id">
+          <form [formGroup]="getEditForm(t._id)" (ngSubmit)="submitEdit(t._id)" class="form-grid">
+            <mat-form-field appearance="outline" class="span-2">
+              <mat-label>Title</mat-label>
+              <input matInput formControlName="title" />
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Action</mat-label>
+              <mat-select formControlName="action">
+                <mat-option *ngFor="let a of ACTIONS" [value]="a">{{ a | titlecase }}</mat-option>
+              </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Submission Type</mat-label>
+              <mat-select formControlName="submissionType">
+                <mat-option *ngFor="let s of SUBMISSION_TYPES" [value]="s">{{ s | titlecase }}</mat-option>
+              </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Tone</mat-label>
+              <mat-select formControlName="tone">
+                <mat-option *ngFor="let tn of TONES" [value]="tn">{{ tn | titlecase }}</mat-option>
+              </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="span-3">
+              <mat-label>Body</mat-label>
+              <textarea matInput formControlName="body" rows="6"></textarea>
+            </mat-form-field>
+
+            <div class="span-3 flex justify-end gap-2">
+              <button mat-stroked-button type="button" (click)="cancelEdit()">Cancel</button>
+              <button mat-flat-button color="primary" type="submit" [disabled]="saving">
+                {{ saving ? 'Saving…' : 'Update' }}
+              </button>
+            </div>
+          </form>
+        </ng-container>
+
       </div>
     </div>
   </div>

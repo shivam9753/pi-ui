@@ -37,14 +37,19 @@ function loaderInterceptor(req: any, next: any) {
 // Auth interceptor for handling token expiration
 let hasShownExpiredDialog = false;
 
+// Auth endpoints that should never trigger session-expired flow
+const AUTH_ENDPOINTS = ['/auth/login', '/auth/google-login', '/auth/register', '/auth/refresh'];
+
 function authInterceptor(req: any, next: any) {
   const platformId = inject(PLATFORM_ID);
   const modalService = inject(ModalService);
   const authService = inject(AuthService);
 
+  let token: string | null = null;
+
   // Add JWT token to request headers if available
   if (isPlatformBrowser(platformId)) {
-    const token = localStorage.getItem('jwt_token');
+    token = localStorage.getItem('jwt_token');
     if (token) {
       req = req.clone({
         setHeaders: {
@@ -56,19 +61,22 @@ function authInterceptor(req: any, next: any) {
 
   return next(req).pipe(
     catchError((error: HttpErrorResponse) => {
-      // Check if error is 401 Unauthorized (token expired or invalid)
-      if (error.status === 401 && !hasShownExpiredDialog) {
+      const isAuthEndpoint = AUTH_ENDPOINTS.some(path => req.url.includes(path));
+
+      if (
+        error.status === 401 &&
+        token &&
+        !isAuthEndpoint &&
+        !hasShownExpiredDialog
+      ) {
         hasShownExpiredDialog = true;
 
-        // Show session expired dialog
+        authService.signOut();
+
         modalService.alert(
           'Session Expired',
           'Your session has expired. Please log in again to continue.'
         ).then(() => {
-          // Clear the session and redirect to login
-          authService.signOut();
-
-          // Reset the flag so it can show again in the future
           hasShownExpiredDialog = false;
         });
       }
