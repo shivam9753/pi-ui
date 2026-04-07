@@ -2,8 +2,13 @@ import { Component, OnInit, signal, inject, PLATFORM_ID, Inject } from '@angular
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { ActivatedRoute, RouterLink, Router } from '@angular/router';
 import { Title, Meta } from '@angular/platform-browser';
+import { MatIconModule } from '@angular/material/icon';
+import { MatButtonModule } from '@angular/material/button';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatDividerModule } from '@angular/material/divider';
 import { BackendService } from '../../services/backend.service';
 import { ViewTrackerService } from '../../services/view-tracker.service';
+import { ThemingService } from '../../services/theming.service';
 import { ContentRendererComponent } from '../content-renderer/content-renderer.component';
 
 interface SimpleContent {
@@ -38,122 +43,96 @@ interface AuthorFeaturedContent {
 
 @Component({
   selector: 'app-simple-content-reader',
-  imports: [CommonModule, RouterLink, ContentRendererComponent],
+  imports: [
+    CommonModule,
+    RouterLink,
+    ContentRendererComponent,
+    MatButtonModule,
+    MatIconModule,
+    MatTooltipModule,
+    MatDividerModule,
+  ],
   template: `
-    <div class="min-h-screen bg-gray-50">
+    <div class="reader-page" [class.dark]="themingService.isDark()">
+
       @if (loading()) {
-        <div class="flex items-center justify-center min-h-screen">
-          <div class="animate-pulse text-gray-600">Loading...</div>
+        <div class="reader-loading">
+          <div class="reader-loading-dot"></div>
         </div>
       } @else if (content()) {
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-6">
-          <!-- Two Column Layout (main content only) -->
-          <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
 
-            <!-- Main Content Column (no surrounding box) -->
-            <div class="lg:col-span-2">
-              <!-- removed bg/rounded/border/shadow to make it unboxed -->
-              <div>
-                <!-- Header -->
-                <div class="p-4 sm:p-6 pb-3 sm:pb-4 border-b border-gray-100">
-                  <!-- Content Type Badge -->
-                  @if (content()!.type) {
-                    <div class="mb-3">
-                      <span class="inline-block px-3 py-1 text-xs font-medium bg-gray-100 text-gray-700 rounded-full uppercase tracking-wide">
-                        {{ content()!.type }}
-                      </span>
-                    </div>
-                  }
+        <div class="reader-shell">
 
-                  <!-- Title -->
-                  <h1 class="text-2xl sm:text-3xl md:text-4xl font-serif font-bold text-gray-900 leading-tight mb-2">
-                    {{ content()!.title }}
-                  </h1>
+          <!-- ── Article header ── -->
+          <header class="reader-header">
+            @if (content()!.type) {
+              <span class="type-badge">{{ content()!.type }}</span>
+            }
+            <h1 class="reader-title">{{ content()!.title }}</h1>
+            <p class="reader-byline">by {{ content()!.author.name || content()!.author.username }}</p>
+          </header>
 
-                  <!-- Author Name -->
-                  <p class="text-lg text-gray-600 mb-3 sm:mb-4">
-                    by {{ content()!.author.name || content()!.author.username }}
-                  </p>
+          <mat-divider class="reader-divider"></mat-divider>
 
-                </div>
+          <!-- ── Content body ── -->
+          <section class="reader-body">
+            <app-content-renderer [html]="content()!.body" [initialFontSize]="18"></app-content-renderer>
+          </section>
 
-                <!-- Content Body -->
-                <div class="p-4 sm:p-6">
-                  <div class="prose prose-lg prose-gray max-w-none font-serif leading-relaxed">
-                    <app-content-renderer [html]="content()!.body" [initialFontSize]="18"></app-content-renderer>
-                  </div>
-
-                  <!-- Tags -->
-                  @if (content()!.tags && content()!.tags.length > 0) {
-                    <div class="mt-8 pt-4 border-t border-gray-100">
-                      <div class="flex flex-wrap gap-2">
-                        @for (tag of content()!.tags; track tag) {
-                          <button (click)="onTagClick(tag, $event)" class="inline-flex items-center px-3 py-1 rounded-full text-sm bg-gray-100 text-gray-600 hover:bg-gray-200">
-                            #{{ getTagDisplayName(tag) }}
-                          </button>
-                        }
-                      </div>
-                    </div>
-                  }
-                </div>
-              </div>
-            </div>
-
-            <!-- Right column removed (author moved below) -->
-
-          </div>
-
-          <!-- Author Section moved below content, simplified and unboxed -->
-          @if (content()) {
-            <div class="mt-8 flex items-start gap-4">
-              <!-- Author avatar -->
-              <div class="flex-shrink-0">
-                @if (content()!.author.profileImage) {
-                  <img
-                    [src]="content()!.author.profileImage"
-                    [alt]="content()!.author.name || content()!.author.username"
-                    class="w-16 h-16 rounded-full object-cover">
-                } @else {
-                  <div class="w-16 h-16 rounded-full bg-primary-light flex items-center justify-center">
-                    <span class="text-lg font-semibold text-primary">
-                      {{ (content()!.author.name || content()!.author.username).charAt(0).toUpperCase() }}
-                    </span>
-                  </div>
-                }
-              </div>
-
-              <!-- Author details (no heading) -->
-              <div class="flex-1 min-w-0">
-                <div class="font-semibold text-gray-900">
-                  {{ content()!.author.name || content()!.author.username }}
-                </div>
-
-                @if (content()!.author.bio) {
-                  <div class="text-sm text-gray-600 mt-1 leading-relaxed">
-                    {{ content()!.author.bio }}
-                  </div>
-                }
-
-                @if (content()!.authorFeaturedContent?.length) {
-                  <div class="mt-3 space-y-2">
-                    @for (work of content()!.authorFeaturedContent; track work._id) {
-                      <a [routerLink]="['/content', work._id]" class="text-sm text-primary hover:underline block">
-                        {{ work.title }}
-                      </a>
-                    }
-                  </div>
-                }
-              </div>
+          <!-- ── Tags ── -->
+          @if (content()!.tags && content()!.tags.length > 0) {
+            <div class="reader-tags">
+              @for (tag of content()!.tags; track tag) {
+                <button class="tag-chip" (click)="onTagClick(tag, $event)">
+                  #{{ getTagDisplayName(tag) }}
+                </button>
+              }
             </div>
           }
 
-        </div>
-      } @else {
-        <div class="flex items-center justify-center min-h-screen">
-          <div class="text-center">
-            <h2 class="text-2xl font-bold text-gray-900 mb-2">Content Not Found</h2>
-            <p class="text-gray-600">The requested content could not be found.</p>
+          <mat-divider class="reader-divider"></mat-divider>
+
+          <!-- ── Author strip ── -->
+          <div class="author-strip">
+            <a [routerLink]="['/author', content()!.author.username]" class="author-avatar-link">
+              @if (content()!.author.profileImage) {
+                <img
+                  [src]="content()!.author.profileImage"
+                  [alt]="content()!.author.name || content()!.author.username"
+                  class="author-avatar" />
+              } @else {
+                <div class="author-avatar author-avatar--fallback">
+                  <span>{{ (content()!.author.name || content()!.author.username).charAt(0).toUpperCase() }}</span>
+                </div>
+              }
+            </a>
+
+            <div class="author-info">
+              <a [routerLink]="['/author', content()!.author.username]" class="author-name-link">
+                {{ content()!.author.name || content()!.author.username }}
+              </a>
+              @if (content()!.author.bio) {
+                <p class="author-bio">{{ content()!.author.bio }}</p>
+              }
+              @if (content()!.authorFeaturedContent?.length) {
+                <div class="author-more-works">
+                  <span class="more-works-label">More by this author</span>
+                  @for (work of content()!.authorFeaturedContent; track work._id) {
+                    <a [routerLink]="['/content', work._id]" class="more-work-link">
+                      {{ work.title }}
+                    </a>
+                  }
+                </div>
+              }
+            </div>
           </div>
+
+        </div>
+
+      } @else {
+        <div class="reader-not-found">
+          <h2 class="not-found-title">Content Not Found</h2>
+          <p class="not-found-sub">The requested content could not be found.</p>
         </div>
       }
     </div>
@@ -167,6 +146,7 @@ export class SimpleContentReaderComponent implements OnInit {
   private readonly metaService = inject(Meta);
   private readonly viewTracker = inject(ViewTrackerService);
   private readonly router = inject(Router);
+  public readonly themingService = inject(ThemingService);
 
   content = signal<SimpleContent | null>(null);
   loading = signal(true);

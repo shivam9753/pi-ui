@@ -161,7 +161,7 @@ export class UserLoginComponent implements OnInit, OnDestroy {
           this.authService.handleAuthSuccess(result.user, result.token);
           
           // Navigate after login
-          this.navigateAfterLogin(result.needsProfileCompletion);
+          this.navigateAfterLogin();
         }
       } catch (error: any) {
         this.errorMessage = error.error?.message || 'Login failed. Please try again.';
@@ -198,7 +198,7 @@ export class UserLoginComponent implements OnInit, OnDestroy {
           this.authService.handleAuthSuccess(result.user, result.token);
           
           // Navigate after signup
-          this.navigateAfterLogin(result.needsProfileCompletion);
+          this.navigateAfterLogin();
         }
       } catch (error: any) {
         console.error('Registration error:', error);
@@ -219,12 +219,9 @@ export class UserLoginComponent implements OnInit, OnDestroy {
     }
   }
 
-  private navigateAfterLogin(needsProfileCompletion?: boolean) {
+  private navigateAfterLogin() {
     const returnUrl = typeof localStorage === 'undefined' ? null : localStorage.getItem('returnUrl');
-    
-    if (needsProfileCompletion) {
-      this.router.navigate(['/complete-profile']);
-    } else if (returnUrl) {
+    if (returnUrl) {
       localStorage.removeItem('returnUrl');
       this.router.navigateByUrl(returnUrl);
     } else {

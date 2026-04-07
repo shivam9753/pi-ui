@@ -1,26 +1,15 @@
-// Standardized author information structure
-// This should be the ONLY author interface used across the application
-
 export interface Author {
-  id: string;          // User's unique identifier  
-  name: string;        // User's full name (first + last name)
-  profileImage?: string; // Optional profile image URL
+  id: string;
+  name: string;
+  profileImage?: string;
 }
 
-// Utility functions for author data transformation
 export class AuthorUtils {
-  
-  /**
-   * Transforms various author data formats to standardized Author interface
-   * Handles all the inconsistent patterns found in the API responses
-   */
   static normalizeAuthor(data: any): Author {
-    // Handle different API response patterns
     if (!data) {
       return { id: 'unknown', name: 'Anonymous' };
     }
 
-    // Pattern 1: data.userId object (populated submission)
     if (data.userId && typeof data.userId === 'object') {
       return {
         id: data.userId._id || data.userId.id || 'unknown',
@@ -28,8 +17,6 @@ export class AuthorUtils {
         profileImage: data.userId.profileImage
       };
     }
-
-    // Pattern 2: data.author object  
     if (data.author && typeof data.author === 'object') {
       return {
         id: data.author._id || data.author.id || 'unknown',
@@ -38,7 +25,6 @@ export class AuthorUtils {
       };
     }
 
-    // Pattern 3: Legacy string fields (submitterName, authorName) - check these first
     if (data.submitterName) {
       return {
         id: data.submitterId || 'unknown',
@@ -55,7 +41,6 @@ export class AuthorUtils {
       };
     }
 
-    // Pattern 4: Direct fields on data object (fallback for user objects)
     if ((data._id || data.id) && (data.name || data.username)) {
       return {
         id: data._id || data.id,
@@ -64,7 +49,6 @@ export class AuthorUtils {
       };
     }
 
-    // Pattern 5: Just username field
     if (data.username) {
       return {
         id: data.userId || data._id || 'unknown',
@@ -93,9 +77,6 @@ export class AuthorUtils {
       .substring(0, 2) || 'A';
   }
 
-  /**
-   * Check if author has a profile image
-   */
   static hasProfileImage(author: Author): boolean {
     return !!(author?.profileImage && author.profileImage.trim().length > 0);
   }

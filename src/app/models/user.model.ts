@@ -6,7 +6,6 @@ export interface User {
   bio?: string;
   profileImage?: string;
   role: 'user' | 'writer' | 'reviewer' | 'admin';
-  needsProfileCompletion?: boolean;
   isFeatured?: boolean;
   featuredAt?: string;
   socialLinks?: {

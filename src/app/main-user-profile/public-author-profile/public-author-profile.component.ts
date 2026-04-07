@@ -3,11 +3,18 @@ import { CommonModule, TitleCasePipe } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { EmptyStateComponent, LoadingStateComponent } from '../../shared/components';
 import { MatButtonModule } from '@angular/material/button';
+import { MatTabsModule } from '@angular/material/tabs';
+import { MatIconModule } from '@angular/material/icon';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatDividerModule } from '@angular/material/divider';
+import { MatCardModule } from '@angular/material/card';
+import { MatListModule } from '@angular/material/list';
 
 import { BackendService } from '../../services/backend.service';
 import { SendEmailModalComponent, EmailData } from '../../main-admin/submissions/review-submission/send-email-modal.component';
 import { AuthService } from '../../services/auth.service';
 import { ToastService } from '../../services/toast.service';
+import { ThemingService } from '../../services/theming.service';
 import { Subscription } from 'rxjs';
 
 interface FeaturedWork {
@@ -37,7 +44,7 @@ interface AuthorProfile {
   bio?: string;
   profileImage?: string;
   socialLinks?: {
-    website?: string;
+    facebook?: string;
     twitter?: string;
     instagram?: string;
   };
@@ -47,7 +54,8 @@ interface AuthorProfile {
 
 @Component({
   selector: 'app-public-author-profile',
-  imports: [CommonModule, TitleCasePipe, LoadingStateComponent, EmptyStateComponent, SendEmailModalComponent, MatButtonModule],
+  imports: [CommonModule, TitleCasePipe, LoadingStateComponent, EmptyStateComponent, SendEmailModalComponent,
+    MatButtonModule, MatTabsModule, MatIconModule, MatTooltipModule, MatDividerModule, MatCardModule, MatListModule],
   templateUrl: './public-author-profile.component.html',
   styleUrl: './public-author-profile.component.css'
 })
@@ -57,6 +65,7 @@ export class PublicAuthorProfileComponent implements OnInit, OnDestroy {
   private userSub?: Subscription;
   authorProfile = signal<AuthorProfile | null>(null);
   featuredWorks = signal<FeaturedWork[]>([]);
+  publishedWorks = signal<FeaturedWork[]>([]);
   isLoading = signal(true);
   error = signal<string | null>(null);
   authorId = '';
@@ -70,6 +79,7 @@ export class PublicAuthorProfileComponent implements OnInit, OnDestroy {
     private backendService: BackendService
     , private authService: AuthService
     , private toastService: ToastService
+    , public themingService: ThemingService
   ) {}
 
   ngOnInit() {
@@ -87,6 +97,7 @@ export class PublicAuthorProfileComponent implements OnInit, OnDestroy {
       if (this.authorId) {
         this.loadAuthorProfile();
         this.loadAuthorWorks();
+        this.loadPublishedWorks();
       } else {
         this.error.set('Author ID is required');
         this.isLoading.set(false);
@@ -108,24 +119,24 @@ export class PublicAuthorProfileComponent implements OnInit, OnDestroy {
           name: p.name || undefined,
           bio: p.bio || undefined,
           profileImage: p.profileImage || undefined,
-          socialLinks: undefined,
-          joinedDate: undefined,
+          socialLinks: p.socialLinks || undefined,
+          joinedDate: p.joinedDate || undefined,
           totalFeaturedWorks: 0
         });
 
-        // If visitor is authenticated, fetch enriched profile data (stats, socialLinks)
+        // If visitor is authenticated, fetch enriched profile data (stats)
         const current = this.authService.getCurrentUser();
         if (current) {
           this.backendService.getUserProfile(this.authorId).subscribe({
             next: (d: any) => {
-              // Merge enriched profile fields
+              // Merge enriched profile fields — brief profile values take precedence for social/joined
               const existing = this.authorProfile() || {} as any;
               this.authorProfile.set({
                 ...existing,
                 bio: d.profile.bio || existing.bio,
                 profileImage: d.profile.profileImage || existing.profileImage,
-                socialLinks: d.profile.socialLinks || existing.socialLinks,
-                joinedDate: d.profile.createdAt || existing.joinedDate
+                socialLinks: existing.socialLinks || d.profile.socialLinks,
+                joinedDate: existing.joinedDate || d.profile.createdAt
               });
             },
             error: (err: any) => {
@@ -172,6 +183,21 @@ export class PublicAuthorProfileComponent implements OnInit, OnDestroy {
           }
         });
       }
+    });
+  }
+
+  loadPublishedWorks() {
+    this.backendService.getContent({
+      published: true,
+      userId: this.authorId,
+      limit: 200,
+      sortBy: 'publishedAt',
+      order: 'desc' as const
+    }).subscribe({
+      next: (response: any) => {
+        this.publishedWorks.set(response.contents || []);
+      },
+      error: () => this.publishedWorks.set([])
     });
   }
 

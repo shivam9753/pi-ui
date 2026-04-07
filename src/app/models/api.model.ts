@@ -105,7 +105,6 @@ export interface LoginResponse {
     email: string;
     role: string;
     profileImage?: string;
-    needsProfileCompletion?: boolean;
   };
   expiresIn?: string;
   error?: string;
