@@ -81,6 +81,9 @@
 .media-icon      { background: rgba( 16, 185, 129, 0.12); }
 .media-icon mat-icon      { color: #10B981; }
 
+.tags-icon       { background: rgba(245, 158,  11, 0.12); }
+.tags-icon mat-icon       { color: #F59E0B; }
+
 /* Card text */
 .card-label {
   font-size: 0.9375rem;

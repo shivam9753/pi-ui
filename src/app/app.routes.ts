@@ -36,6 +36,7 @@ import { MediaManagerComponent } from './main-admin/media-manager/media-manager.
 import { PurgeManagementComponent } from './main-admin/purge/purge-management.component';
 import { AnalyticsComponent } from './main-admin/analytics/analytics.component';
 import { ResponseTemplatesComponent } from './main-admin/response-templates/response-templates.component';
+import { TagManagementComponent } from './main-admin/tag-management/tag-management.component';
 
 export const routes: Routes = [
   // Public routes - Use explore as homepage for now
@@ -168,6 +169,7 @@ export const routes: Routes = [
   { path: 'admin/purge', component: PurgeManagementComponent, canActivate: [AdminGuard], title: 'Archive / Purge - Admin' },
   { path: 'admin/analytics', component: AnalyticsComponent, canActivate: [ReviewerGuard], title: 'Analytics - Admin' },
   { path: 'admin/templates', component: ResponseTemplatesComponent, canActivate: [AdminGuard], title: 'Response Templates - Admin' },
+  { path: 'admin/tags', component: TagManagementComponent, canActivate: [AdminGuard], title: 'Tag Management - Admin' },
   { 
     path: 'workspace', 
     component: MainPendingReviewsComponent, 

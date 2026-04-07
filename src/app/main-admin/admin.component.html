@@ -105,6 +105,18 @@
             </mat-card>
           }
 
+          @if (canAccessTab('tags')) {
+            <mat-card appearance="outlined" class="admin-nav-card" (click)="navigateTo('tags')" (keydown.enter)="navigateTo('tags')" tabindex="0">
+              <mat-card-content>
+                <div class="card-icon-wrap tags-icon">
+                  <mat-icon>local_offer</mat-icon>
+                </div>
+                <div class="card-label">Tag Management</div>
+                <div class="card-desc">Create and manage content tags</div>
+              </mat-card-content>
+            </mat-card>
+          }
+
         </div>
       </div>
     </div>

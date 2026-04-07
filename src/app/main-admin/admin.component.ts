@@ -13,7 +13,7 @@ import { PurgeManagementComponent } from './purge/purge-management.component';
 import { AnalyticsComponent } from './analytics/analytics.component';
 import { ResponseTemplatesComponent } from './response-templates/response-templates.component';
 
-type AdminTab = 'submissions' | 'content' | 'users' | 'purge' | 'analytics' | 'media' | 'templates';
+type AdminTab = 'submissions' | 'content' | 'users' | 'purge' | 'analytics' | 'media' | 'templates' | 'tags';
 
 @Component({
   selector: 'app-admin',
