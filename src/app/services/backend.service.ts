@@ -1085,6 +1085,7 @@ getExploreContent(options: {
   skip?: number;
   type?: string;
   featured?: boolean;
+  userId?: string;
   sortBy?: string;
   order?: 'asc' | 'desc';
 } = {}): Observable<any> {
@@ -1094,6 +1095,7 @@ getExploreContent(options: {
   if (options.skip) params = params.set('skip', options.skip.toString());
   if (options.type) params = params.set('type', options.type);
   if (options.featured) params = params.set('featured', 'true');
+  if (options.userId) params = params.set('userId', options.userId);
   if (options.sortBy) params = params.set('sortBy', options.sortBy);
   if (options.order) params = params.set('order', options.order);
 

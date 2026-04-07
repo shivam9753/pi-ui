@@ -187,15 +187,14 @@ export class PublicAuthorProfileComponent implements OnInit, OnDestroy {
   }
 
   loadPublishedWorks() {
-    this.backendService.getContent({
-      published: true,
+    this.backendService.getExploreContent({
       userId: this.authorId,
       limit: 200,
       sortBy: 'publishedAt',
-      order: 'desc' as const
+      order: 'desc'
     }).subscribe({
       next: (response: any) => {
-        this.publishedWorks.set(response.contents || []);
+        this.publishedWorks.set(response.submissions || []);
       },
       error: () => this.publishedWorks.set([])
     });
