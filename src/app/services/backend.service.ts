@@ -1212,7 +1212,7 @@ getTopContentPieces(options: { period?: 'day' | 'week' | 'month' | 'all'; limit?
   let params = new HttpParams();
   if (options.period) params = params.set('period', options.period);
   if (options.limit) params = params.set('limit', options.limit.toString());
-  const url = `${this.API_URL}/analytics/top-content-pieces`;
+  const url = `${this.API_URL}/analytics/top-featured-content`;
   return this.http.get<any>(url, { headers, params }).pipe(
     this.handleApiCall(url, 'GET')
   );
@@ -1237,7 +1237,7 @@ getTopContent(options: {
   if (options.type) params = params.set('type', options.type);
   if (options.metric) params = params.set('metric', options.metric);
 
-  const url = `${this.API_URL}/analytics/top-content`;
+  const url = `${this.API_URL}/analytics/top-posts`;
   return this.http.get<any>(url, { headers, params }).pipe(
     this.handleApiCall(url, 'GET')
   );
