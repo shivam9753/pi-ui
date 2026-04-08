@@ -6,7 +6,6 @@ import { BackendService } from '../services/backend.service';
 import { UserProfile } from '../models';
 import { PrettyLabelPipe } from '../pipes/pretty-label.pipe';
 import { ProfileCompletionComponent } from './profile-completion/profile-completion.component';
-import { ProfileCompletionInlineComponent } from './profile-completion/profile-completion-inline.component';
 import { UserSubmissionsComponent } from './user-submissions/user-submissions.component';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -58,7 +57,7 @@ interface Draft {
 
 @Component({
 	selector: 'app-user-profile',
-	imports: [CommonModule, FormsModule, RouterModule, ProfileCompletionComponent, ProfileCompletionInlineComponent, UserSubmissionsComponent, PrettyLabelPipe, DraftsListComponent, CardComponent, MatButtonModule, MatCardModule, MatTabsModule],
+	imports: [CommonModule, FormsModule, RouterModule, ProfileCompletionComponent, UserSubmissionsComponent, PrettyLabelPipe, DraftsListComponent, CardComponent, MatButtonModule, MatCardModule, MatTabsModule],
 	templateUrl: './user-profile.component.html',
 	styleUrl: './user-profile.component.css',
 	styles: [`

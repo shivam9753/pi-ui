@@ -36,6 +36,28 @@
         <mat-hint align="end">{{ profileData.bio.length }}/500</mat-hint>
       </mat-form-field>
 
+      <!-- Social Links -->
+      <div>
+        <div class="text-sm font-medium text-themed mb-3">Social Handles <span class="text-themed-tertiary font-normal">(optional)</span></div>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
+            <mat-label>Twitter / X</mat-label>
+            <input matInput name="twitter" [(ngModel)]="profileData.socialLinks.twitter" placeholder="username" />
+            <mat-icon matSuffix fontIcon="alternate_email"></mat-icon>
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
+            <mat-label>Instagram</mat-label>
+            <input matInput name="instagram" [(ngModel)]="profileData.socialLinks.instagram" placeholder="username" />
+            <mat-icon matSuffix fontIcon="photo_camera"></mat-icon>
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
+            <mat-label>Facebook</mat-label>
+            <input matInput name="facebook" [(ngModel)]="profileData.socialLinks.facebook" placeholder="username" />
+            <mat-icon matSuffix fontIcon="facebook"></mat-icon>
+          </mat-form-field>
+        </div>
+      </div>
+
       <!-- Profile Image Upload -->
       <div>
         <div class="text-sm font-medium text-themed mb-1">Profile Picture</div>

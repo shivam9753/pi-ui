@@ -40,7 +40,12 @@ export class ProfileCompletionComponent implements OnInit {
   profileData = {
     name: '',
     bio: '',
-    profileImage: null as File | null
+    profileImage: null as File | null,
+    socialLinks: {
+      twitter: '',
+      instagram: '',
+      facebook: ''
+    }
   };
   profileImagePreview: string | null = null;
   isSubmitting = false;
@@ -93,6 +98,11 @@ export class ProfileCompletionComponent implements OnInit {
     // Use backend-validated data if available, otherwise use Google data
     this.profileData.name = this.user.name || '';
     this.profileData.bio = this.user.bio || '';
+    this.profileData.socialLinks = {
+      twitter: (this.user as any).socialLinks?.twitter || '',
+      instagram: (this.user as any).socialLinks?.instagram || '',
+      facebook: (this.user as any).socialLinks?.facebook || ''
+    };
     
     // Reset profile image to original state
     this.profileData.profileImage = null;
@@ -176,6 +186,11 @@ export class ProfileCompletionComponent implements OnInit {
       const profileUpdateData: any = {
         name: this.profileData.name.trim(),
         bio: this.profileData.bio.trim(),
+        socialLinks: {
+          twitter: this.profileData.socialLinks.twitter.trim(),
+          instagram: this.profileData.socialLinks.instagram.trim(),
+          facebook: this.profileData.socialLinks.facebook.trim()
+        }
       };
 
       // Only include profileImage if it's a valid URL

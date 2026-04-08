@@ -1,42 +1,97 @@
 import { Component, OnInit } from '@angular/core';
-import { CommonModule, DatePipe } from '@angular/common';
+import { CommonModule, DatePipe, TitleCasePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { BackendService } from '../../services/backend.service';
 import { Submission } from '../../models/submission.model';
 import { AuthorUtils } from '../../models/author.model';
 import { AdminPageHeaderComponent } from '../../shared/components/admin-page-header/admin-page-header.component';
+import { ThemingService } from '../../services/theming.service';
+import { MatTabsModule } from '@angular/material/tabs';
+import { MatButtonModule } from '@angular/material/button';
+import {
+  DataTableComponent,
+  TableColumn,
+  TableAction,
+  SUBMISSION_BADGE_CONFIG
+} from '../../shared/components';
 
 @Component({
   selector: 'app-purge-management',
   standalone: true,
-  imports: [CommonModule, FormsModule, DatePipe, AdminPageHeaderComponent],
+  imports: [CommonModule, FormsModule, DatePipe, TitleCasePipe, AdminPageHeaderComponent, MatTabsModule, MatButtonModule, DataTableComponent],
   templateUrl: './purge-management.component.html',
+  styleUrl: './purge-management.component.css',
 })
 export class PurgeManagementComponent implements OnInit {
-  activeTab: 'drafts' | 'rejected' = 'drafts';
+  selectedTabIndex = 0;
+
   draftSubmissions: Submission[] = [];
   rejectedSubmissions: Submission[] = [];
-  selectedRejected: string[] = [];
-  selectedDrafts: string[] = [];
+  selectedDrafts: Submission[] = [];
+  selectedRejected: Submission[] = [];
   loadingDrafts = false;
   loadingRejected = false;
-  
+
+  badgeConfig = SUBMISSION_BADGE_CONFIG;
+
+  draftColumns: TableColumn[] = [
+    { key: 'title', label: 'Title', type: 'custom', width: '35%', sortable: true },
+    { key: 'author', label: 'Author', type: 'custom', width: '20%', sortable: false },
+    { key: 'submissionType', label: 'Type', type: 'badge', width: '15%', sortable: true },
+    { key: 'createdAt', label: 'Created', type: 'date', width: '15%', sortable: true },
+    { key: 'updatedAt', label: 'Updated', type: 'date', width: '15%', sortable: true },
+  ];
+
+  rejectedColumns: TableColumn[] = [
+    { key: 'title', label: 'Title', type: 'custom', width: '30%', sortable: true },
+    { key: 'author', label: 'Author', type: 'custom', width: '20%', sortable: false },
+    { key: 'submissionType', label: 'Type', type: 'badge', width: '15%', sortable: true },
+    { key: 'reviewedAt', label: 'Rejected At', type: 'date', width: '15%', sortable: true },
+    { key: 'reviewedBy', label: 'Reviewed By', type: 'custom', width: '20%', sortable: false },
+  ];
+
+  draftActions: TableAction[] = [
+    {
+      label: 'View',
+      color: 'primary',
+      handler: (s: Submission) => { void this.viewSubmissionDetails(s); }
+    },
+    {
+      label: 'Delete',
+      color: 'danger',
+      handler: (s: Submission) => { void this.deleteDraftSubmission(s._id); }
+    }
+  ];
+
+  rejectedActions: TableAction[] = [
+    {
+      label: 'View',
+      color: 'primary',
+      handler: (s: Submission) => { void this.viewSubmissionDetails(s); }
+    },
+    {
+      label: 'Delete',
+      color: 'danger',
+      handler: (s: Submission) => { void this.deleteRejectedSubmission(s._id); }
+    }
+  ];
+
   // Detail view state
   showDetailModal = false;
   selectedSubmission: Submission | null = null;
   loadingSubmissionDetails = false;
-  
-  constructor(private backendService: BackendService) {}
+
+  constructor(private readonly backendService: BackendService, public themingService: ThemingService) {}
+
+  onTabChange(index: number) {
+    this.selectedTabIndex = index;
+  }
 
   ngOnInit() {
     this.loadDraftSubmissions();
     this.loadRejectedSubmissions();
   }
-  
-  setActiveTab(tab: 'drafts' | 'rejected') {
-    this.activeTab = tab;
-  }
-  
+
   refreshData() {
     this.loadDraftSubmissions();
     this.loadRejectedSubmissions();
@@ -45,7 +100,7 @@ export class PurgeManagementComponent implements OnInit {
   async loadDraftSubmissions() {
     this.loadingDrafts = true;
     try {
-      const response = await this.backendService.getSubmissions({
+      const response: any = await this.backendService.getSubmissions({
         status: 'draft',
         limit: 100,
         sortBy: 'updatedAt',
@@ -63,7 +118,7 @@ export class PurgeManagementComponent implements OnInit {
   async loadRejectedSubmissions() {
     this.loadingRejected = true;
     try {
-      const response = await this.backendService.getSubmissions({
+      const response: any = await this.backendService.getSubmissions({
         status: 'rejected',
         limit: 100,
         sortBy: 'reviewedAt',
@@ -78,55 +133,24 @@ export class PurgeManagementComponent implements OnInit {
     }
   }
 
-  toggleRejectedSelection(submissionId: string, event: any) {
-    if (event.target.checked) {
-      this.selectedRejected.push(submissionId);
-    } else {
-      this.selectedRejected = this.selectedRejected.filter(id => id !== submissionId);
-    }
+  onDraftSelectionChange(selected: Submission[]) {
+    this.selectedDrafts = selected;
   }
 
-  toggleSelectAllRejected(event: any) {
-    if (event.target.checked) {
-      this.selectedRejected = this.rejectedSubmissions.map(s => s._id);
-    } else {
-      this.selectedRejected = [];
-    }
-  }
-
-  // Draft selection helpers
-  toggleDraftSelection(submissionId: string, event: any) {
-    if (event.target.checked) {
-      this.selectedDrafts.push(submissionId);
-    } else {
-      this.selectedDrafts = this.selectedDrafts.filter(id => id !== submissionId);
-    }
-  }
-
-  toggleSelectAllDrafts(event: any) {
-    if (event.target.checked) {
-      this.selectedDrafts = this.draftSubmissions.map(s => s._id);
-    } else {
-      this.selectedDrafts = [];
-    }
+  onRejectedSelectionChange(selected: Submission[]) {
+    this.selectedRejected = selected;
   }
 
   async deleteSelectedDrafts() {
     if (this.selectedDrafts.length === 0) return;
-
     const count = this.selectedDrafts.length;
-    if (!confirm(`Are you sure you want to delete ${count} draft submissions? This action cannot be undone.`)) {
-      return;
-    }
-
+    if (!confirm(`Are you sure you want to delete ${count} draft submissions? This action cannot be undone.`)) return;
     try {
-      for (const submissionId of this.selectedDrafts) {
-        await this.backendService.deleteSubmission(submissionId).toPromise();
+      for (const s of this.selectedDrafts) {
+        await this.backendService.deleteSubmission(s._id).toPromise();
       }
-
-      this.draftSubmissions = this.draftSubmissions.filter(
-        s => !this.selectedDrafts.includes(s._id)
-      );
+      const ids = this.selectedDrafts.map(s => s._id);
+      this.draftSubmissions = this.draftSubmissions.filter(s => !ids.includes(s._id));
       this.selectedDrafts = [];
       alert(`Successfully deleted ${count} draft submissions.`);
     } catch (error) {
@@ -136,36 +160,28 @@ export class PurgeManagementComponent implements OnInit {
   }
 
   async deleteDraftSubmission(submissionId: string) {
-    if (!confirm('Are you sure you want to delete this draft submission? This action cannot be undone.')) {
-      return;
-    }
-    
+    if (!confirm('Are you sure you want to delete this draft submission? This action cannot be undone.')) return;
     try {
       await this.backendService.deleteSubmission(submissionId).toPromise();
       this.draftSubmissions = this.draftSubmissions.filter(s => s._id !== submissionId);
-      alert('Draft submission deleted successfully.');
+      this.selectedDrafts = this.selectedDrafts.filter(s => s._id !== submissionId);
+      if (this.selectedSubmission?._id === submissionId) this.closeDetailModal();
     } catch (error) {
       console.error('Error deleting draft submission:', error);
       alert('Failed to delete draft submission.');
     }
   }
-  
+
   async deleteSelectedRejected() {
     if (this.selectedRejected.length === 0) return;
-    
     const count = this.selectedRejected.length;
-    if (!confirm(`Are you sure you want to delete ${count} rejected submissions? This action cannot be undone.`)) {
-      return;
-    }
-    
+    if (!confirm(`Are you sure you want to delete ${count} rejected submissions? This action cannot be undone.`)) return;
     try {
-      for (const submissionId of this.selectedRejected) {
-        await this.backendService.deleteSubmission(submissionId).toPromise();
+      for (const s of this.selectedRejected) {
+        await this.backendService.deleteSubmission(s._id).toPromise();
       }
-      
-      this.rejectedSubmissions = this.rejectedSubmissions.filter(
-        s => !this.selectedRejected.includes(s._id)
-      );
+      const ids = this.selectedRejected.map(s => s._id);
+      this.rejectedSubmissions = this.rejectedSubmissions.filter(s => !ids.includes(s._id));
       this.selectedRejected = [];
       alert(`Successfully deleted ${count} rejected submissions.`);
     } catch (error) {
@@ -173,20 +189,31 @@ export class PurgeManagementComponent implements OnInit {
       alert('Failed to delete some rejected submissions.');
     }
   }
-  
+
+  async deleteRejectedSubmission(submissionId: string) {
+    if (!confirm('Are you sure you want to delete this rejected submission? This action cannot be undone.')) return;
+    try {
+      await this.backendService.deleteSubmission(submissionId).toPromise();
+      this.rejectedSubmissions = this.rejectedSubmissions.filter(s => s._id !== submissionId);
+      this.selectedRejected = this.selectedRejected.filter(s => s._id !== submissionId);
+      if (this.selectedSubmission?._id === submissionId) this.closeDetailModal();
+    } catch (error) {
+      console.error('Error deleting rejected submission:', error);
+      alert('Failed to delete rejected submission.');
+    }
+  }
+
   getAuthorName(submission: Submission): string {
     return submission.author?.name || 'Unknown';
   }
-  
+
   async viewSubmissionDetails(submission: Submission) {
     this.selectedSubmission = submission;
     this.showDetailModal = true;
-    
-    // Load full submission details with content if not already loaded
     if (!submission.contents || submission.contents.length === 0) {
       this.loadingSubmissionDetails = true;
       try {
-        const response = await this.backendService.getSubmissionWithContents(submission._id).toPromise();
+        const response: any = await this.backendService.getSubmissionWithContents(submission._id).toPromise();
         if (response) {
           this.selectedSubmission = { ...submission, contents: response.contents || [] };
         }
@@ -197,27 +224,11 @@ export class PurgeManagementComponent implements OnInit {
       }
     }
   }
-  
+
   closeDetailModal() {
     this.showDetailModal = false;
     this.selectedSubmission = null;
     this.loadingSubmissionDetails = false;
-  }
-  
-  async deleteRejectedSubmission(submissionId: string) {
-    if (!confirm('Are you sure you want to delete this rejected submission? This action cannot be undone.')) {
-      return;
-    }
-    
-    try {
-      await this.backendService.deleteSubmission(submissionId).toPromise();
-      this.rejectedSubmissions = this.rejectedSubmissions.filter(s => s._id !== submissionId);
-      this.selectedRejected = this.selectedRejected.filter(id => id !== submissionId);
-      alert('Rejected submission deleted successfully.');
-    } catch (error) {
-      console.error('Error deleting rejected submission:', error);
-      alert('Failed to delete rejected submission.');
-    }
   }
 
   trackBySubmissionId(index: number, submission: Submission) {

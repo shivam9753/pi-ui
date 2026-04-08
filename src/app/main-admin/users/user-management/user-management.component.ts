@@ -4,9 +4,7 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { UserService } from '../../../services/user.service';
-import { UserListItem, User } from '../../../models';
-import { compressImageForUpload } from '../../../shared/utils/image-compression.util';
-import { UPLOAD_CONFIG } from '../../../shared/constants/api.constants';
+import { UserListItem } from '../../../models';
 import { AdminPageHeaderComponent, AdminPageStat } from '../../../shared/components/admin-page-header/admin-page-header.component';
 import { 
   DataTableComponent, 
@@ -85,19 +83,6 @@ export class UserManagementComponent implements OnInit, OnDestroy {
   // Edit user modal
   showEditModal = false;
   editingUser: UserListItem | null = null;
-  editUserForm = {
-    name: '',
-    email: '',
-    bio: '',
-    role: '',
-    socialLinks: {
-      instagram: '',
-      facebook: ''
-    }
-  };
-  selectedFile: File | null = null;
-  previewUrl: string | null = null;
-  uploadingImage = false;
   
   // Debouncing
   private searchTimeout: any;
@@ -325,31 +310,13 @@ export class UserManagementComponent implements OnInit, OnDestroy {
   // Edit user methods
   openEditModal(user: UserListItem) {
     this.editingUser = { ...user };
-    this.editUserForm = {
-      name: user.name || '',
-      email: user.email || '',
-      bio: user.bio || '',
-      role: user.role || '',
-      socialLinks: {
-        instagram: user.socialLinks?.instagram || '',
-        facebook: user.socialLinks?.facebook || ''
-      }
-    };
-    this.selectedFile = null;
-    this.previewUrl = null;
     this.showEditModal = true;
-    
-    // Prevent body scrolling when modal is open
     document.body.style.overflow = 'hidden';
   }
 
   closeEditModal() {
     this.showEditModal = false;
     this.editingUser = null;
-    this.selectedFile = null;
-    this.previewUrl = null;
-    
-    // Restore body scrolling when modal is closed
     document.body.style.overflow = '';
   }
 
@@ -370,143 +337,18 @@ export class UserManagementComponent implements OnInit, OnDestroy {
     this.router.navigate([], { fragment: 'users', replaceUrl: true });
   }
 
+  // Handle saved event emitted by CreateUsersComponent in edit mode
+  onUserSaved(user: any) {
+    this.closeEditModal();
+    this.loadUsers();
+    this.showMessage('success', 'User updated successfully');
+  }
+
   // Handle created event emitted by CreateUsersComponent
   onUserCreated(user: any) {
     this.userSubTab = 'manage';
     this.loadUsers();
     this.showMessage('success', 'User created successfully');
-  }
-
-  async onFileSelected(event: any) {
-    const file = event.target.files[0];
-    if (file) {
-      // Validate file type
-      if (!file.type.startsWith('image/')) {
-        this.showMessage('error', 'Please select an image file');
-        return;
-      }
-      
-      // Validate file size (2MB max for original)
-      if (file.size > UPLOAD_CONFIG.MAX_IMAGE_SIZE) {
-        this.showMessage('error', 'Original image size must be less than 2MB');
-        return;
-      }
-      
-      try {
-        // Compress to WebP format with 250KB target
-        this.showMessage('success', 'Compressing image to WebP format...');
-        const compressed = await compressImageForUpload(file, {
-          targetSizeKB: 250,
-          maxWidth: UPLOAD_CONFIG.MAX_DIMENSIONS.width,
-          maxHeight: UPLOAD_CONFIG.MAX_DIMENSIONS.height
-        });
-        
-        this.selectedFile = compressed.file;
-        this.previewUrl = compressed.dataUrl;
-        
-        // Show compression info
-        const originalSize = (file.size / 1024).toFixed(1);
-        const compressedSize = (compressed.file.size / 1024).toFixed(1);
-        this.showMessage(
-          'success',
-          `WebP compressed: ${originalSize}KB → ${compressedSize}KB (${compressed.compressionRatio}% reduction)`
-        );
-      } catch (error) {
-        this.showMessage('error', 'Failed to compress image. Using original.');
-        
-        // Fallback to original file
-        this.selectedFile = file;
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          this.previewUrl = e.target?.result as string;
-        };
-        reader.readAsDataURL(file);
-      }
-    }
-  }
-
-  removeImage() {
-    this.selectedFile = null;
-    this.previewUrl = null;
-  }
-
-  async saveUserChanges() {
-    if (!this.editingUser) return;
-    
-    this.loading = true;
-    
-    try {
-      let updatedUser: any = null;
-      
-      // Update user profile
-      const updateResponse = await this.userService.updateUser(this.editingUser._id, {
-        name: this.editUserForm.name,
-        email: this.editUserForm.email,
-        bio: this.editUserForm.bio,
-        socialLinks: this.editUserForm.socialLinks
-      }).toPromise();
-      
-      updatedUser = updateResponse?.user || this.editingUser;
-      
-      // Update role if changed
-      if (this.editUserForm.role !== this.editingUser.role) {
-        const roleResponse = await this.userService.updateUserRole(this.editingUser._id, this.editUserForm.role as any).toPromise();
-        updatedUser = roleResponse?.user || updatedUser;
-      }
-      
-      // Upload image if selected
-      if (this.selectedFile) {
-        const imageResponse = await this.uploadUserImage(this.editingUser._id);
-        if (imageResponse?.user) {
-          updatedUser = imageResponse.user;
-        }
-      }
-      
-      // Update the local user in the array immediately
-      if (updatedUser) {
-        const userIndex = this.users.findIndex(u => u._id === this.editingUser!._id);
-        if (userIndex !== -1) {
-          this.users[userIndex] = {
-            ...this.users[userIndex],
-            name: updatedUser.name,
-            email: updatedUser.email,
-            bio: updatedUser.bio,
-            role: updatedUser.role,
-            profileImage: updatedUser.profileImage,
-            socialLinks: updatedUser.socialLinks || this.users[userIndex].socialLinks
-          };
-        }
-      }
-      
-      this.showMessage('success', 'User updated successfully');
-      this.closeEditModal();
-      
-      // Optional: Also refresh from server to ensure consistency
-      this.loadUsers();
-    } catch (error: any) {
-      this.showMessage('error', error.error?.message || 'Failed to update user');
-    } finally {
-      this.loading = false;
-    }
-  }
-
-  async uploadUserImage(userId: string) {
-    if (!this.selectedFile) return null;
-    
-    this.uploadingImage = true;
-    
-    try {
-      const formData = new FormData();
-      formData.append('profileImage', this.selectedFile);
-      
-      const response = await this.userService.uploadUserProfileImage(userId, formData).toPromise();
-      return response;
-    } catch (error) {
-      this.showMessage('error', 'Profile updated but image upload failed');
-      throw error;
-    } finally {
-      this.uploadingImage = false;
-    }
   }
 
   updatePaginationConfig() {

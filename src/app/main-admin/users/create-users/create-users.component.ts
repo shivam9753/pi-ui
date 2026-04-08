@@ -1,4 +1,4 @@
-import { Component, Output, EventEmitter } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
@@ -15,8 +15,12 @@ import { MatButtonModule } from '@angular/material/button';
   templateUrl: './create-users.component.html',
   styleUrl: './create-users.component.css'
 })
-export class CreateUsersComponent {
+export class CreateUsersComponent implements OnChanges {
+  @Input() mode: 'create' | 'edit' = 'create';
+  @Input() initialData: any = null;
+
   @Output() created = new EventEmitter<any>();
+  @Output() saved = new EventEmitter<any>();
 
   newUser = {
     name: '',
@@ -24,6 +28,7 @@ export class CreateUsersComponent {
     bio: '',
     role: 'user',
     socialLinks: {
+      twitter: '',
       instagram: '',
       facebook: ''
     }
@@ -41,6 +46,32 @@ export class CreateUsersComponent {
     private userService: UserService
   ) {}
 
+  ngOnChanges(changes: SimpleChanges) {
+    if (changes['initialData'] && this.initialData && this.mode === 'edit') {
+      this.newUser = {
+        name: this.initialData.name || '',
+        email: this.initialData.email || '',
+        bio: this.initialData.bio || '',
+        role: this.initialData.role || 'user',
+        socialLinks: {
+          twitter: this.initialData.socialLinks?.twitter || '',
+          instagram: this.initialData.socialLinks?.instagram || '',
+          facebook: this.initialData.socialLinks?.facebook || ''
+        }
+      };
+      this.selectedFile = null;
+      this.previewUrl = null;
+    }
+  }
+
+  async submit() {
+    if (this.mode === 'edit') {
+      await this.updateUser();
+    } else {
+      await this.createUser();
+    }
+  }
+
   async createUser() {
     if (!this.newUser.name || !this.newUser.email) {
       this.showMessage('Please fill all required fields', 'error');
@@ -50,21 +81,52 @@ export class CreateUsersComponent {
     this.isSubmitting = true;
     
     try {
-      // Create user using UserService
       const createResponse = await this.userService.createUser(this.newUser as any).toPromise();
       
-      // If there's a profile image, upload it
       if (this.selectedFile && createResponse?.user) {
         await this.uploadProfileImage(createResponse.user.id);
       }
       
-      // Emit created event so parent can close modal and refresh
       this.created.emit(createResponse?.user || null);
-
       this.showMessage('User created successfully', 'success');
       this.resetForm();
     } catch (err: any) {
       this.showMessage(err.error?.message || 'Failed to create user', 'error');
+    } finally {
+      this.isSubmitting = false;
+    }
+  }
+
+  async updateUser() {
+    if (!this.initialData?._id) return;
+
+    if (!this.newUser.name || !this.newUser.email) {
+      this.showMessage('Please fill all required fields', 'error');
+      return;
+    }
+
+    this.isSubmitting = true;
+
+    try {
+      const updateResponse = await this.userService.updateUser(this.initialData._id, {
+        name: this.newUser.name,
+        email: this.newUser.email,
+        bio: this.newUser.bio,
+        socialLinks: this.newUser.socialLinks
+      }).toPromise();
+
+      if (this.newUser.role !== this.initialData.role) {
+        await this.userService.updateUserRole(this.initialData._id, this.newUser.role as any).toPromise();
+      }
+
+      if (this.selectedFile) {
+        await this.uploadProfileImage(this.initialData._id);
+      }
+
+      this.saved.emit(updateResponse?.user || null);
+      this.showMessage('User updated successfully', 'success');
+    } catch (err: any) {
+      this.showMessage(err.error?.message || 'Failed to update user', 'error');
     } finally {
       this.isSubmitting = false;
     }
@@ -93,7 +155,7 @@ export class CreateUsersComponent {
   }
 
   resetForm() {
-    this.newUser = { name: '', email: '', bio: '', role: 'user', socialLinks: { instagram: '', facebook: '' } };
+    this.newUser = { name: '', email: '', bio: '', role: 'user', socialLinks: { twitter: '', instagram: '', facebook: '' } };
     this.selectedFile = null;
     this.previewUrl = null;
   }

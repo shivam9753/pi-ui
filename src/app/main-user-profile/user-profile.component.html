@@ -114,12 +114,13 @@
 
           <!-- Profile Tab -->
           <ng-container *ngIf="activeTab() === 'profile'">
-            <app-profile-completion-inline
+            <app-profile-completion
               [mode]="'edit'"
+              [showContainer]="false"
               [initialData]="userProfile()"
               (profileSaved)="onProfileSaved($event)"
               (profileCancelled)="onProfileCancelled()">
-            </app-profile-completion-inline>
+            </app-profile-completion>
           </ng-container>
 
           <!-- Drafts Tab -->

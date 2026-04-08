@@ -1,8 +1,10 @@
 <div class="w-full max-w-4xl mx-auto">
-  <app-admin-page-header
-    title="Create New Users"
-    subtitle="Quick user creation tool for admins!">
-  </app-admin-page-header>
+  @if (mode === 'create') {
+    <app-admin-page-header
+      title="Create New Users"
+      subtitle="Quick user creation tool for admins!">
+    </app-admin-page-header>
+  }
   
   <!-- Message -->
   @if (message) {
@@ -95,28 +97,53 @@
           </div>
 
           <!-- Social Links -->
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div>
+              <label for="twitter" class="block text-sm font-semibold text-gray-800 mb-3">Twitter / X</label>
+              <input type="text" id="twitter" [(ngModel)]="newUser.socialLinks.twitter" name="social_twitter"
+                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary bg-gray-50 focus:bg-white transition-colors"
+                placeholder="username">
+            </div>
             <div>
               <label for="instagram" class="block text-sm font-semibold text-gray-800 mb-3">Instagram</label>
-              <input
-                type="text"
-                id="instagram"
-                [(ngModel)]="newUser.socialLinks.instagram"
-                name="social_instagram"
+              <input type="text" id="instagram" [(ngModel)]="newUser.socialLinks.instagram" name="social_instagram"
                 class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary bg-gray-50 focus:bg-white transition-colors"
-                placeholder="https://instagram.com/username">
+                placeholder="username">
             </div>
-
             <div>
               <label for="facebook" class="block text-sm font-semibold text-gray-800 mb-3">Facebook</label>
-              <input
-                type="text"
-                id="facebook"
-                [(ngModel)]="newUser.socialLinks.facebook"
-                name="social_facebook"
+              <input type="text" id="facebook" [(ngModel)]="newUser.socialLinks.facebook" name="social_facebook"
                 class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary bg-gray-50 focus:bg-white transition-colors"
-                placeholder="https://facebook.com/username">
+                placeholder="username">
             </div>
+          </div>
+
+          <!-- Profile Image -->
+          <div>
+            <label for="admin_profile_image" class="block text-sm font-semibold text-gray-800 mb-3">Profile Image</label>
+
+            @if (previewUrl) {
+              <div class="flex items-center gap-4 mb-3">
+                <img [src]="previewUrl" alt="Preview" class="w-16 h-16 rounded-full object-cover border-2 border-gray-300">
+                <button type="button" (click)="removeImage()"
+                  class="text-sm text-red-600 hover:text-red-800 underline">
+                  Remove
+                </button>
+              </div>
+            } @else if (mode === 'edit' && initialData?.profileImage) {
+              <div class="flex items-center gap-4 mb-3">
+                <img [src]="initialData.profileImage" alt="Current" class="w-16 h-16 rounded-full object-cover border-2 border-gray-300">
+                <span class="text-sm text-gray-500">Current image</span>
+              </div>
+            }
+
+            <input
+              id="admin_profile_image"
+              type="file"
+              (change)="onFileSelected($event)"
+              accept="image/*"
+              class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+            <p class="mt-1 text-xs text-gray-500">PNG, JPG up to 5MB — automatically compressed to AVIF</p>
           </div>
         </div>
       </div>
@@ -124,22 +151,26 @@
       <!-- Action Buttons -->
       <div class="px-8 py-6 bg-gray-50">
         <div class="flex justify-between items-center">
-          <button mat-tonal-button type="button"
-            (click)="resetForm()"
-            (keydown.enter)="resetForm()">
-            Reset Form
-          </button>
+          @if (mode === 'create') {
+            <button mat-tonal-button type="button"
+              (click)="resetForm()"
+              (keydown.enter)="resetForm()">
+              Reset Form
+            </button>
+          } @else {
+            <div></div>
+          }
           
           <button mat-flat-button type="button"
             [disabled]="isSubmitting || uploadingImage"
-            (click)="createUser()"
-            (keydown.enter)="createUser()">
+            (click)="submit()"
+            (keydown.enter)="submit()">
             @if (isSubmitting) {
-              Creating User...
+              {{ mode === 'edit' ? 'Saving...' : 'Creating User...' }}
             } @else if (uploadingImage) {
               Uploading Image...
             } @else {
-              Create User
+              {{ mode === 'edit' ? 'Save Changes' : 'Create User' }}
             }
           </button>
         </div>
@@ -147,8 +178,9 @@
     </form>
   </div>
 
-  <!-- Info -->
-  <div class="mt-8 p-4 bg-blue-50 rounded-lg border border-blue-200">
+  <!-- Info (create mode only) -->
+  @if (mode === 'create') {
+    <div class="mt-8 p-4 bg-blue-50 rounded-lg border border-blue-200">
     <h3 class="text-sm font-semibold text-blue-900 mb-2">How it works:</h3>
     <ul class="text-sm text-blue-800 space-y-1">
       <li>• User will receive an email with login instructions</li>
@@ -160,4 +192,5 @@
       <li>• Role determines access permissions</li>
     </ul>
   </div>
+  }
 </div>
