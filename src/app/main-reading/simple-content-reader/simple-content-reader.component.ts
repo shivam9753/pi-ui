@@ -204,10 +204,9 @@ export class SimpleContentReaderComponent implements OnInit {
           this.content.set(response);
           this.updatePageMeta(response);
 
-          // Track view for this content (only in browser)
+          // Track view for this content (only in browser, session-deduped)
           if (isPlatformBrowser(this.platformId)) {
-            // Force logging to ensure views are recorded even if session dedupe exists (useful during testing or explicit reload)
-            this.viewTracker.logContentView(response._id, true).subscribe({
+            this.viewTracker.logContentView(response._id).subscribe({
               next: (viewResponse) => {
                 if (viewResponse && viewResponse.success) {
                   const currentContent = this.content();

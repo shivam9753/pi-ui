@@ -1206,6 +1206,18 @@ getAnalyticsOverview(): Observable<{
   );
 }
 
+// Get top individual content pieces (Content model, targetType:'content' DailyView)
+getTopContentPieces(options: { period?: 'day' | 'week' | 'month' | 'all'; limit?: number } = {}): Observable<{ period: string; top: any[] }> {
+  const headers = this.getAuthHeaders();
+  let params = new HttpParams();
+  if (options.period) params = params.set('period', options.period);
+  if (options.limit) params = params.set('limit', options.limit.toString());
+  const url = `${this.API_URL}/analytics/top-content-pieces`;
+  return this.http.get<any>(url, { headers, params }).pipe(
+    this.handleApiCall(url, 'GET')
+  );
+}
+
 // Get top performing content
 getTopContent(options: {
   period?: 'day' | 'week' | 'month' | 'all';

@@ -185,10 +185,9 @@ export class UserProfileComponent implements OnInit {
     bio: '',
     profileImage: '',
     socialLinks: {
-      website: '',
       twitter: '',
       instagram: '',
-      linkedin: ''
+      facebook: ''
     },
     preferences: {
       emailNotifications: true,
@@ -402,10 +401,9 @@ export class UserProfileComponent implements OnInit {
         bio: profile.bio || '',
         profileImage: profile.profileImage || '',
         socialLinks: profile.socialLinks || {
-          website: '',
           twitter: '',
           instagram: '',
-          linkedin: ''
+          facebook: ''
         },
         preferences: profile.preferences || {
           emailNotifications: true,
@@ -434,13 +432,12 @@ export class UserProfileComponent implements OnInit {
   }
 
   getSocialUrl(platform: string, handle: string): string {
-    const baseUrls = {
+    const baseUrls: Record<string, string> = {
       twitter: 'https://twitter.com/',
       instagram: 'https://instagram.com/',
-      linkedin: 'https://linkedin.com/in/',
-      website: handle.startsWith('http') ? '' : 'https://'
+      facebook: 'https://facebook.com/'
     };
-    return (baseUrls[platform as keyof typeof baseUrls] || '') + handle;
+    return (baseUrls[platform] || '') + handle;
   }
 
   // New helpers used in template to avoid unsafe chaining
@@ -582,7 +579,7 @@ export class UserProfileComponent implements OnInit {
     if (!profile?.socialLinks) return false;
     
     const links = profile.socialLinks;
-    return !!(links.website || links.twitter || links.linkedin || links.instagram);
+    return !!(links.twitter || links.instagram || links.facebook);
   }
 
   getCurrentUserId(): string | null {

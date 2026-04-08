@@ -82,4 +82,65 @@
       </mat-card-content>
     </mat-card>
   </div>
+
+  <!-- Top Content Pieces (individual content views via DailyView targetType:'content') -->
+  <div class="mt-6">
+    <mat-card appearance="outlined">
+      <mat-card-content class="!p-4 sm:!p-6">
+        <div class="flex items-center justify-between mb-4">
+          <div>
+            <h2 class="text-lg sm:text-xl font-semibold text-themed">Top Content</h2>
+            <p class="text-xs text-themed-tertiary mt-0.5">Individual content piece reads (from reader page)</p>
+          </div>
+          <div class="inline-flex rounded-md overflow-hidden border border-themed">
+            <button (click)="setContentPiecesPeriod('today')" [class]="contentPiecesPeriod === 'today' ? 'px-3 py-1 sm:px-3 sm:py-2 bg-yellow-500 text-white text-sm' : 'px-3 py-1 sm:px-3 sm:py-2 text-themed-secondary text-sm'">Today</button>
+            <button (click)="setContentPiecesPeriod('week')"  [class]="contentPiecesPeriod === 'week'  ? 'px-3 py-1 sm:px-3 sm:py-2 bg-orange-500 text-white text-sm' : 'px-3 py-1 sm:px-3 sm:py-2 text-themed-secondary text-sm'">This Week</button>
+            <button (click)="setContentPiecesPeriod('all')"   [class]="contentPiecesPeriod === 'all'   ? 'px-3 py-1 sm:px-3 sm:py-2 bg-themed text-white text-sm'    : 'px-3 py-1 sm:px-3 sm:py-2 text-themed-secondary text-sm'">All Time</button>
+          </div>
+        </div>
+
+        <ng-container *ngIf="loadingContentPieces; else contentPiecesTable">
+          <div class="flex items-center gap-2 text-sm text-themed-tertiary py-4">
+            <svg class="w-4 h-4 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M12 4v4m0 8v4m8-8h-4M4 12H0"/></svg>
+            Loading...
+          </div>
+        </ng-container>
+
+        <ng-template #contentPiecesTable>
+          <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+              <thead>
+                <tr class="border-b border-themed">
+                  <th class="text-left py-2 pr-3 font-medium text-themed-secondary w-8">#</th>
+                  <th class="text-left py-2 pr-3 font-medium text-themed-secondary">Title</th>
+                  <th class="text-right py-2 font-medium text-themed-secondary">Views</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let item of topContentPieces; let i = index"
+                    class="border-b border-themed hover:bg-themed-hover transition-colors">
+                  <td class="py-2.5 pr-3 text-themed-tertiary">{{ i + 1 }}</td>
+                  <td class="py-2.5 pr-3">
+                    <a [href]="'/content/' + item._id" target="_blank"
+                       class="truncate block text-themed hover:text-primary transition-colors"
+                       [title]="item.title">{{ item.title }}</a>
+                  </td>
+                  <td class="py-2.5 text-right font-semibold text-themed">
+                    {{ formatNumber(item.periodViews ?? item.viewCount ?? 0) }}
+                  </td>
+                </tr>
+                <tr *ngIf="!topContentPieces || topContentPieces.length === 0">
+                  <td colspan="3" class="py-6 text-center text-xs text-themed-tertiary">
+                    No content reads recorded for this period yet.
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </ng-template>
+
+      </mat-card-content>
+    </mat-card>
+  </div>
+
 </div>

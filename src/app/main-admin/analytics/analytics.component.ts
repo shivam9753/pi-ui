@@ -9,9 +9,10 @@ interface TopPost {
   title: string;
   author: string;
   viewCount: number;
-  periodViews?: number; // views in selected period
+  periodViews?: number;
   recentViews?: number;
   slug?: string;
+  type?: string;
 }
 
 interface PostTypeStats {
@@ -40,9 +41,11 @@ export class AnalyticsComponent implements OnInit {
   // support today/week/all in the admin analytics UI
   topPeriod: UIAnalyticsPeriod = 'week';
   typesPeriod: UIAnalyticsPeriod = 'week';
+  contentPiecesPeriod: UIAnalyticsPeriod = 'week';
 
   topPosts: TopPost[] = [];
   postTypeStats: PostTypeStats[] = [];
+  topContentPieces: TopPost[] = [];
 
   // Overview
   totalViews?: number;
@@ -50,6 +53,7 @@ export class AnalyticsComponent implements OnInit {
 
   loadingTop = false;
   loadingTypes = false;
+  loadingContentPieces = false;
 
   purging = false;
   purgeMessage = '';
@@ -60,6 +64,7 @@ export class AnalyticsComponent implements OnInit {
     this.fetchOverview();
     this.fetchTopContent();
     this.fetchContentTypes();
+    this.fetchTopContentPieces();
   }
 
   setTopPeriod(p: UIAnalyticsPeriod) {
@@ -70,6 +75,11 @@ export class AnalyticsComponent implements OnInit {
   setTypesPeriod(p: UIAnalyticsPeriod) {
     this.typesPeriod = p;
     this.fetchContentTypes();
+  }
+
+  setContentPiecesPeriod(p: UIAnalyticsPeriod) {
+    this.contentPiecesPeriod = p;
+    this.fetchTopContentPieces();
   }
 
   private fetchOverview() {
@@ -122,6 +132,24 @@ export class AnalyticsComponent implements OnInit {
         console.error('Failed to load content types', err);
         this.postTypeStats = [];
         this.loadingTypes = false;
+      }
+    });
+  }
+
+  private fetchTopContentPieces() {
+    this.loadingContentPieces = true;
+    const periodMap: Record<UIAnalyticsPeriod, BackendAnalyticsPeriod> = { today: 'day', week: 'week', all: 'all' };
+    const period: BackendAnalyticsPeriod = periodMap[this.contentPiecesPeriod] || 'week';
+    this.backendService.getTopContentPieces({ period, limit: 10 }).subscribe({
+      next: (res: any) => {
+        const payload = res?.data || res || {};
+        this.topContentPieces = Array.isArray(payload.top) ? payload.top : [];
+        this.loadingContentPieces = false;
+      },
+      error: (err) => {
+        console.error('Failed to load top content pieces', err);
+        this.topContentPieces = [];
+        this.loadingContentPieces = false;
       }
     });
   }
