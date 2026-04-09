@@ -117,7 +117,7 @@ export interface ContentCardData {
     .card-cover-placeholder {
       width: 100%;
       aspect-ratio: 4 / 3;
-      background: #f3f4f6;
+      background: var(--bg-tertiary, #f3f4f6);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -125,7 +125,7 @@ export interface ContentCardData {
     .placeholder-icon {
       width: 2.5rem;
       height: 2.5rem;
-      color: #d1d5db;
+      color: var(--text-muted, #d1d5db);
     }
 
     /* Header tweaks */
@@ -153,6 +153,7 @@ export interface ContentCardData {
       font-size: 1rem !important;
       font-weight: 700 !important;
       line-height: 1.35 !important;
+      color: var(--text-primary, #111827) !important;
       display: -webkit-box;
       -webkit-line-clamp: 2;
       -webkit-box-orient: vertical;
@@ -166,7 +167,7 @@ export interface ContentCardData {
     }
     .card-excerpt {
       font-size: 0.875rem;
-      color: #4b5563;
+      color: var(--text-secondary, #4b5563);
       line-height: 1.6;
       display: -webkit-box;
       -webkit-line-clamp: 3;
@@ -197,7 +198,7 @@ export interface ContentCardData {
     .author-name {
       font-size: 0.875rem;
       font-weight: 500;
-      color: #6b7280;
+      color: var(--text-tertiary, #6b7280);
     }
 
     /* Size variants */

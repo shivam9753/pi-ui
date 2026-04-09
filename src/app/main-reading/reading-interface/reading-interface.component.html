@@ -21,7 +21,7 @@
                   (badgeClick)="navigateToCategory($event)">
                 </app-badge-label>
               </div>
-              <h1 class="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-serif font-bold text-gray-900 leading-tight mb-3 sm:mb-6 text-center">
+              <h1 class="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-serif font-bold text-gray-900 leading-tight mb-3 sm:mb-6 text-center px-4 sm:px-8 lg:px-12">
                 {{ content()!.title }}
               </h1>
               <!-- Centered author & metadata -->
@@ -66,7 +66,7 @@
                       <!-- Content Title (if multiple items) -->
                       @if (content()!.contents.length > 1) {
                         <h2
-                          class="content-title">
+                          class="content-title text-center">
                           {{ item.title }}
                         </h2>
                       }
@@ -82,9 +82,8 @@
                       
                       <!-- Footnotes -->
                       @if (item.footnotes) {
-                        <div class="mt-8 pt-6 border-t border-gray-200">
-                          <h4 class="text-xs font-medium text-gray-500 mb-3 uppercase tracking-wide">Footnotes</h4>
-                          <p class="text-sm text-gray-600 leading-relaxed font-serif italic whitespace-pre-wrap">{{ item.footnotes }}</p>
+                        <div class="mt-3 rounded-sm bg-stone-50 py-2" style="max-width: calc(60ch + 50px); margin: 0 auto; padding-left: 1rem; padding-right: 1rem;">
+                          <span class="text-stone-400 leading-normal font-serif italic whitespace-pre-wrap" style="font-size: 13px !important;">{{ item.footnotes }}</span>
                         </div>
                       }
                     </article>
