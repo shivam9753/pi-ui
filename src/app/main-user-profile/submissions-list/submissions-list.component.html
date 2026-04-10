@@ -18,7 +18,7 @@
     <div class="mb-6 flex items-center gap-4">
       <div class="flex items-center gap-3">
         <div class="relative">
-          <input type="search" placeholder="Search.." (input)="setSearch($any($event.target).value)" class="px-2 py-1 h-8 border rounded-xl w-40 bg-white text-sm">
+          <input type="search" placeholder="Search.." (input)="setSearch($any($event.target).value)" class="px-2 py-1 h-8 border rounded-xl w-40 bg-themed text-themed text-sm border-themed">
           <button class="absolute right-1 top-1/2 -translate-y-1/2 p-1 text-gray-400" aria-hidden>
             <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M11 19a8 8 0 100-16 8 8 0 000 16z"/></svg>
           </button>
@@ -26,8 +26,8 @@
       </div>
     </div>
 
-    <div class="bg-white rounded-lg border border-gray-200 overflow-hidden">
-      <div class="hidden md:block">
+    <div class="rounded-lg border border-themed overflow-hidden hidden md:block">
+      <div>
         <app-data-table
           [columns]="tableColumns"
           [data]="getFilteredSubmissions()"
@@ -41,22 +41,21 @@
           (onPageChange)="onDataTablePageChange($event)"
           (onRowClick)="viewSubmission($event)">
 
-          <!-- Custom cell template to render revision notes icon -->
+          <!-- Custom cell template to render notes icon for rejected / needs_revision -->
           <ng-template #customCell let-item let-column="column">
             @if (column.key === 'notesAction') {
               <div class="flex items-center justify-center">
-                @if (item.revisionNotes) {
-                  <button (click)="$event.stopPropagation(); openRevisionNotes(item)" title="View revision notes" class="p-2 rounded-md hover:bg-gray-100">
-                    <svg class="w-5 h-5 text-amber-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden>
+                @if (item.status === 'rejected' || item.status === 'needs_revision') {
+                  <button (click)="$event.stopPropagation(); openRevisionNotes(item)" title="View notes" class="inline-flex items-center gap-1 px-2 py-1 text-xs rounded-md hover:bg-gray-100" style="color: var(--color-primary, #FF6100);">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
                       <path stroke-linecap="round" stroke-linejoin="round" d="M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.129.166 2.27.293 3.423.379.35.026.67.21.865.501L12 21l2.755-4.133a1.14 1.14 0 0 1 .865-.501 48.172 48.172 0 0 0 3.423-.379c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0 0 12 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018Z" />
                     </svg>
+                    Notes
                   </button>
                 } @else {
                   <div class="text-sm text-themed-secondary">—</div>
                 }
               </div>
-            } @else if (column.key === 'revisionNotes') {
-              <div class="text-sm text-gray-700 truncate" title="{{ item.revisionNotes }}">{{ item.revisionNotes || '—' }}</div>
             } @else {
               <div class="text-sm text-themed-secondary">—</div>
             }
@@ -64,42 +63,59 @@
 
         </app-data-table>
       </div>
+    </div>
 
-      <!-- Mobile custom list: visible only on small screens -->
-      <div class="block md:hidden bg-white">
-        <div class="divide-y divide-gray-200">
-          @for (item of getFilteredSubmissions(); track item) {
-            <!-- On mobile, switch primary row click to Edit when the list shows only 'needs_revision' -->
-            <button type="button" class="w-full text-left p-4 flex items-start gap-3 bg-white hover:bg-gray-50 focus:outline-none" (click)="(selectedStatuses().length === 1 && selectedStatuses()[0] === 'needs_revision') ? editSubmission(item) : viewSubmission(item)">
-               <div class="flex-1 min-w-0">
-                 <div class="flex items-center justify-between gap-3">
-                   <h3 class="text-base font-semibold text-themed truncate">{{ item.title }}</h3>
-                   <div class="ml-2 flex items-center gap-2">
-                     @if (item.revisionNotes) {
-                       <button type="button" (click)="$event.stopPropagation(); openRevisionNotes(item)" class="p-2 rounded-md hover:bg-gray-100" title="View notes">
-                         <svg class="w-5 h-5 text-amber-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden>
-                           <path stroke-linecap="round" stroke-linejoin="round" d="M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.129.166 2.27.293 3.423.379.35.026.67.21.865.501L12 21l2.755-4.133a1.14 1.14 0 0 1 .865-.501 48.172 48.172 0 0 0 3.423-.379c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0 0 12 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018Z" />
-                         </svg>
-                       </button>
-                     }
-                   </div>
-                 </div>
+    <!-- Mobile cards: visible only on small screens -->
+    <div class="block md:hidden">
+      <div class="flex flex-col gap-3">
+        @for (item of getFilteredSubmissions(); track item) {
+          <mat-card appearance="outlined" class="submission-card">
+            <mat-card-header>
+              <mat-card-title class="submission-card-title text-themed">{{ item.title }}</mat-card-title>
+            </mat-card-header>
 
-                 <div class="mt-2 flex items-center text-xs text-gray-400 gap-2">
-                   <span>{{ item.createdAt | date:'mediumDate' }}</span>
-                   <span class="inline-block w-px h-3 bg-gray-200"></span>
-                   <app-badge-label [type]="item.submissionType" badgeType="type" size="sm"></app-badge-label>
-                   <span class="inline-block w-px h-3 bg-gray-200"></span>
-                   <app-badge-label [type]="item.status" badgeType="status" size="sm"></app-badge-label>
-                 </div>
+            <mat-card-content class="submission-card-content">
+              <div class="flex items-center flex-wrap gap-2 mt-1">
+                <span class="text-xs text-themed-secondary">{{ item.createdAt | date:'mediumDate' }}</span>
+                <span class="inline-block w-px h-3 opacity-30" style="background-color: var(--border-primary)"></span>
+                <app-badge-label [type]="item.submissionType" badgeType="type" size="sm"></app-badge-label>
+                <span class="inline-block w-px h-3 opacity-30" style="background-color: var(--border-primary)"></span>
+                <app-badge-label [type]="item.status" badgeType="status" size="sm"></app-badge-label>
+              </div>
 
-                 @if (item.excerpt) {
-                   <p class="mt-2 text-sm text-gray-500 truncate">{{ item.excerpt }}</p>
-                 }
-               </div>
-             </button>
-           }
-        </div>
+              @if (item.excerpt) {
+                <p class="mt-2 text-sm text-themed-secondary line-clamp-2">{{ item.excerpt }}</p>
+              }
+            </mat-card-content>
+
+            <mat-card-actions align="end" class="submission-card-actions">
+              @if (item.status === 'rejected' || item.status === 'needs_revision') {
+                <button mat-button (click)="openRevisionNotes(item)" class="action-btn">
+                  <mat-icon class="action-icon">chat_bubble_outline</mat-icon>
+                  Notes
+                </button>
+              }
+
+              @if (selectedStatuses().length === 1 && selectedStatuses()[0] === 'needs_revision') {
+                <button mat-button color="primary" (click)="editSubmission(item)" class="action-btn">
+                  <mat-icon class="action-icon">edit</mat-icon>
+                  Edit
+                </button>
+              } @else {
+                <button mat-button color="primary" (click)="viewSubmission(item)" class="action-btn">
+                  <mat-icon class="action-icon">visibility</mat-icon>
+                  View
+                </button>
+              }
+            </mat-card-actions>
+          </mat-card>
+        }
+
+        @if (getFilteredSubmissions().length === 0) {
+          <div class="py-12 text-center text-themed-secondary text-sm">
+            No submissions found.
+          </div>
+        }
       </div>
     </div>
   </div>

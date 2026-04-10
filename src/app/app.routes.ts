@@ -28,7 +28,7 @@ import { ReadingInterfaceComponent } from './main-reading/reading-interface/read
 import { PublicAuthorProfileComponent } from './main-user-profile/public-author-profile/public-author-profile.component';
 import { SimpleContentReaderComponent } from './main-reading/simple-content-reader/simple-content-reader.component';
 import { ManageSubmissionsComponent } from './main-admin/content/manage-submissions/manage-submissions.component';
-import { SubmissionsListComponent } from './main-user-profile/submissions-list/submissions-list.component';
+// SubmissionsListComponent no longer used — redirects to my-submissions
 import { MainPendingReviewsComponent } from './main-pending-review/main-pending-reviews.component';
 import { UserManagementComponent } from './main-admin/users/user-management/user-management.component';
 import { FeaturedContentComponent } from './main-admin/content/featured-content/featured-content.component';
@@ -235,9 +235,8 @@ export const routes: Routes = [
   },
   { 
     path: 'submissions', 
-    component: SubmissionsListComponent, 
-    canActivate: [AuthGuard],
-    title: 'Submissions - pi' 
+    redirectTo: 'my-submissions',
+    pathMatch: 'full'
   },
   { 
     path: 'published-authors', 

@@ -935,6 +935,17 @@ getUserSubmissions(options: {
   );
 }
 
+// Fetch audit notes for a submission (rejection/revision feedback)
+getAuditNotes(submissionId: string, action: 'rejected' | 'needs_revision'): Observable<any> {
+  const headers = this.getAuthHeaders();
+  const params = new HttpParams()
+    .set('submissionId', submissionId)
+    .set('action', action);
+  return this.http.get<any>(`${this.API_URL}${API_ENDPOINTS.AUDIT.NOTES}`, { headers, params }).pipe(
+    catchError(this.handleError)
+  );
+}
+
 // Draft management methods
 getUserDrafts(): Observable<any> {
   const headers = this.getAuthHeaders();

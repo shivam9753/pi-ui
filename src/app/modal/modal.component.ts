@@ -33,7 +33,7 @@ export interface ModalDialogData {
             <span class="text-base font-semibold text-themed leading-snug">{{ data.title }}</span>
           }
           @if (data.showCloseButton !== false) {
-            <button mat-icon-button class="!w-8 !h-8 !min-w-0 -mr-1 shrink-0 text-themed-tertiary" (click)="dialogRef.close()">
+            <button class="modal-close-btn ml-auto shrink-0" (click)="dialogRef.close()">
               <mat-icon class="!text-lg">close</mat-icon>
             </button>
           }
@@ -51,16 +51,29 @@ export interface ModalDialogData {
       @if (data.buttons && data.buttons.length) {
         <mat-dialog-actions align="end">
           @for (button of data.buttons; track button.label) {
-            <button
-              [attr.mat-flat-button]="button.variant === 'primary' || button.variant === 'destructive' ? '' : null"
-              [attr.mat-tonal-button]="button.variant === 'secondary' || !button.variant ? '' : null"
-              [attr.mat-stroked-button]="button.variant === 'tertiary' ? '' : null"
-              [class.mat-warn]="button.variant === 'destructive'"
-              [disabled]="button.disabled ?? false"
-              [type]="button.type || 'button'"
-              (click)="button.action()">
-              {{ button.label }}
-            </button>
+            @if (button.variant === 'primary' || button.variant === 'destructive') {
+              <button mat-flat-button
+                [class.mat-warn]="button.variant === 'destructive'"
+                [disabled]="button.disabled ?? false"
+                [type]="button.type || 'button'"
+                (click)="button.action()">
+                {{ button.label }}
+              </button>
+            } @else if (button.variant === 'tertiary') {
+              <button mat-stroked-button
+                [disabled]="button.disabled ?? false"
+                [type]="button.type || 'button'"
+                (click)="button.action()">
+                {{ button.label }}
+              </button>
+            } @else {
+              <button mat-button
+                [disabled]="button.disabled ?? false"
+                [type]="button.type || 'button'"
+                (click)="button.action()">
+                {{ button.label }}
+              </button>
+            }
           }
         </mat-dialog-actions>
       }
@@ -70,6 +83,21 @@ export interface ModalDialogData {
     .modal-dialog-container { min-width: 320px; }
     mat-dialog-content { padding-top: 4px !important; padding-bottom: 8px !important; }
     mat-dialog-actions { padding-top: 8px !important; gap: 8px; }
+    .modal-close-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 0;
+      margin: 0;
+      line-height: 1;
+      color: var(--text-tertiary, #6b7280);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .modal-close-btn:hover {
+      color: var(--text-primary, #111827);
+    }
   `]
 })
 export class ModalComponent {

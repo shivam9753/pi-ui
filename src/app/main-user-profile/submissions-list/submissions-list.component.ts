@@ -1,6 +1,9 @@
 import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, ActivatedRoute, Router } from '@angular/router';
+import { MatCardModule } from '@angular/material/card';
+import { MatIconModule } from '@angular/material/icon';
+import { MatButtonModule } from '@angular/material/button';
 import { DataTableComponent, TableColumn, TableAction } from '../../shared/components/data-table/data-table.component';
 import { BadgeLabelComponent } from '../../utilities/badge-label/badge-label.component';
 import { BackendService } from '../../services/backend.service';
@@ -16,14 +19,51 @@ interface Submission {
   publishedWorkId?: string;
   excerpt?: string;
   content?: string;
-  revisionNotes?: string; // optional field for revision notes
 }
 
 @Component({
   selector: 'app-submissions-list',
   templateUrl: './submissions-list.component.html',
-  imports: [CommonModule, RouterModule, DataTableComponent, BadgeLabelComponent],
-  standalone: true
+  imports: [CommonModule, RouterModule, DataTableComponent, BadgeLabelComponent, MatCardModule, MatIconModule, MatButtonModule],
+  standalone: true,
+  styles: [`
+    :host {
+      display: block;
+    }
+
+    .submission-card {
+      --mdc-outlined-card-container-color: var(--bg-card, #fff);
+      --mdc-outlined-card-outline-color: var(--border-primary, #e5e7eb);
+      border-radius: 12px !important;
+      overflow: hidden;
+    }
+
+    .submission-card-title {
+      font-size: 1rem !important;
+      font-weight: 600 !important;
+      line-height: 1.4 !important;
+    }
+
+    .submission-card-content {
+      padding-top: 0 !important;
+    }
+
+    .submission-card-actions {
+      padding: 4px 8px !important;
+    }
+
+    .action-btn {
+      font-size: 0.8rem !important;
+      --mdc-text-button-label-text-color: var(--color-primary, #FF6100);
+    }
+
+    .action-icon {
+      font-size: 16px !important;
+      width: 16px !important;
+      height: 16px !important;
+      margin-right: 4px;
+    }
+  `]
 })
 export class SubmissionsListComponent implements OnInit {
   submissions = signal<Submission[]>([]);
@@ -176,21 +216,45 @@ export class SubmissionsListComponent implements OnInit {
   }
 
   openRevisionNotes(submission: Submission) {
-    const note = submission.revisionNotes || 'No revision notes available.';
-    // Use modal service to show the notes
+    const action: 'rejected' | 'needs_revision' =
+      submission.status === 'rejected' ? 'rejected' : 'needs_revision';
+
     this.modalService.open({
-      title: 'Revision Notes',
-      message: note,
+      title: action === 'rejected' ? 'Rejection Notes' : 'Revision Notes',
+      message: 'Loading notes...',
       showCloseButton: true,
-      buttons: [
-        {
-          label: 'Close',
-          action: () => {
-            this.modalService.close();
-          },
-          variant: 'secondary'
+      closeOnBackdrop: true
+    });
+
+    this.backendService.getAuditNotes(submission._id, action).subscribe({
+      next: (res: any) => {
+        const note = res?.notes;
+        const date = res?.date
+          ? new Date(res.date).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })
+          : '';
+
+        let message = 'No notes found for this submission.';
+        if (note) {
+          message = date ? `${date}\n\n${note}` : note;
         }
-      ]
+
+        this.modalService.close();
+        this.modalService.open({
+          title: action === 'rejected' ? 'Rejection Notes' : 'Revision Notes',
+          message,
+          showCloseButton: true,
+          closeOnBackdrop: true
+        });
+      },
+      error: () => {
+        this.modalService.close();
+        this.modalService.open({
+          title: 'Error',
+          message: 'Failed to load notes. Please try again.',
+          showCloseButton: true,
+          closeOnBackdrop: true
+        });
+      }
     });
   }
 

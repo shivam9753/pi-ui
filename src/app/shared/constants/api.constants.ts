@@ -80,6 +80,10 @@ export const API_ENDPOINTS = {
     MY_REVIEWS: '/reviews/my-reviews',
     STATS: '/reviews/stats'
   },
+
+  AUDIT: {
+    NOTES: '/audit/notes'
+  },
   
   USERS_NESTED: {
     PROFILE: '/users/me',

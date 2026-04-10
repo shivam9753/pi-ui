@@ -26,25 +26,18 @@
 <!-- Main Content -->
 @if (!isLoading() && !error()) {
   <div class="min-h-screen bg-background">
-
     <div class="max-w-6xl mx-auto px-4 py-8">
 
       <!-- Page heading -->
       <div class="mb-6">
-        <div class="flex items-center justify-between">
-          <div>
-            <h1 class="text-2xl font-bold text-themed">My Submissions</h1>
-            <p class="text-themed-secondary text-sm">Manage and track your creative works</p>
-          </div>
-        </div>
+        <h1 class="text-2xl font-bold text-themed">My Submissions</h1>
       </div>
 
-      <!-- Empty state when there are no submissions -->
-      @if ((getStatusCount('under-review') + getStatusCount('needs_revision') + getStatusCount('rejected') + getStatusCount('accepted') + getStatusCount('published')) === 0) {
-        <div class="py-16 text-center bg-white rounded-lg border border-border">
+      <!-- Empty state -->
+      @if (totalSubmissions() === 0 && !submissionsLoading()) {
+        <div class="py-16 text-center rounded-lg border border-themed">
           <div class="max-w-2xl mx-auto px-6">
             <div class="flex items-center justify-center mb-4">
-              <!-- simple empty box illustration -->
               <svg class="w-20 h-20 text-themed-secondary" viewBox="0 0 64 64" fill="none" aria-hidden>
                 <rect x="6" y="14" width="52" height="36" rx="4" stroke="currentColor" stroke-width="2" opacity="0.12" />
                 <path d="M20 26h24M20 34h24" stroke="currentColor" stroke-width="2" stroke-linecap="round" opacity="0.14" />
@@ -52,13 +45,11 @@
             </div>
             <h2 class="text-xl font-semibold text-themed">You haven't submitted anything yet</h2>
             <p class="mt-2 text-sm text-themed-secondary">Ready to share your work? Submit your first piece to get feedback and a chance to be featured.</p>
-
             <div class="mt-6 flex items-center justify-center gap-3">
-              <button mat-flat-button type="button" (click)="router.navigate(['/submit'])" (keydown.enter)="router.navigate(['/submit'])">
+              <button mat-flat-button type="button" (click)="router.navigate(['/submit'])">
                 Submit your content
               </button>
-
-              <button mat-tonal-button type="button" (click)="router.navigate(['/explore'])" (keydown.enter)="router.navigate(['/explore'])">
+              <button mat-tonal-button type="button" (click)="router.navigate(['/explore'])">
                 Browse featured poems
               </button>
             </div>
@@ -66,224 +57,115 @@
         </div>
       }
 
-      <!-- Dashboard stat cards (show only if count > 0) -->
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
-        @if (getStatusCount('under-review') > 0) {
-        <div class="p-4 rounded-lg flex items-center justify-between bg-white border border-border">
-          <div class="flex items-center gap-3">
-            <div class="w-12 h-12 rounded-lg bg-white border-2 border-blue-100 text-blue-600 flex items-center justify-center">
-              <!-- Document + Magnifying Glass -->
-              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 2h6l5 5v11a2 2 0 01-2 2H7a2 2 0 01-2-2V4a2 2 0 012-2z" />
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.5 15.5l3 3M11 14a3 3 0 100-6 3 3 0 000 6z" />
-              </svg>
-            </div>
-            <div>
-              <div class="text-sm font-semibold text-blue-900">In Review</div>
-              <div class="text-2xl font-bold text-blue-900">{{ getStatusCount('under-review') }}</div>
-              <div class="text-xs text-blue-700">Awaiting decision</div>
-            </div>
-          </div>
-          <button (click)="router.navigate(['/submissions'], { queryParams: { statuses: 'pending_review,in_progress,resubmitted' } })" class="p-2 rounded-md bg-white border border-blue-100" (keydown.enter)="router.navigate(['/submissions'], { queryParams: { statuses: 'pending_review,in_progress,resubmitted' } })" aria-label="View In Review Submissions">
-            <svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-          </button>
+      <!-- Filters + submissions -->
+      @if (totalSubmissions() > 0) {
+        <!-- Status filter dropdown -->
+        <div class="mb-5 flex items-center gap-4">
+          <mat-form-field appearance="outline" class="min-w-[200px]">
+            <mat-label>Filter by status</mat-label>
+            <mat-select [(value)]="selectedStatusDropdown" (selectionChange)="onStatusDropdownChange($event)">
+              <mat-option value="all">All ({{ totalSubmissions() }})</mat-option>
+              <mat-option value="under-review">In Review ({{ getStatusCount('under-review') }})</mat-option>
+              <mat-option value="needs_revision">For Revision ({{ getStatusCount('needs_revision') }})</mat-option>
+              <mat-option value="rejected">Declined ({{ getStatusCount('rejected') }})</mat-option>
+              <mat-option value="accepted">Accepted ({{ getStatusCount('accepted') }})</mat-option>
+              <mat-option value="published">Published ({{ getStatusCount('published') }})</mat-option>
+              <mat-option value="draft">Drafts ({{ getStatusCount('draft') }})</mat-option>
+            </mat-select>
+          </mat-form-field>
         </div>
-        }
 
-        @if (getStatusCount('needs_revision') > 0) {
-        <div class="p-4 rounded-lg flex items-center justify-between bg-white border border-border">
-          <div class="flex items-center gap-3">
-            <div class="w-12 h-12 rounded-lg bg-white border-2 border-amber-100 text-amber-600 flex items-center justify-center">
-              <!-- Pencil Square (edit) -->
-              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16.862 3.487a1.75 1.75 0 012.475 2.475L8.75 16.55 5 17l.45-3.75L16.862 3.487z" />
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21H5a2 2 0 01-2-2v-2" />
-              </svg>
-            </div>
-            <div>
-              <div class="text-sm font-semibold text-amber-900">For Revision</div>
-              <div class="text-2xl font-bold text-amber-900">{{ getStatusCount('needs_revision') }}</div>
-              <div class="text-xs text-amber-700">Requires changes</div>
-            </div>
-          </div>
-          <button (click)="router.navigate(['/submissions'], { queryParams: { statuses: 'needs_revision' } })" class="p-2 rounded-md bg-white border border-amber-100" (keydown.enter)="router.navigate(['/submissions'], { queryParams: { statuses: 'needs_revision' } })" aria-label="View For Revision Submissions">
-            <svg class="w-5 h-5 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-          </button>
+        <!-- Desktop: DataTable -->
+        <div class="rounded-lg border border-themed overflow-hidden hidden md:block">
+          <app-data-table
+            [columns]="tableColumns"
+            [data]="getFilteredSubmissions()"
+            [actions]="tableActions"
+            [loading]="submissionsLoading()"
+            [selectable]="false"
+            [selectedItems]="[]"
+            [pagination]="paginationConfig"
+            [itemLabel]="'submissions'"
+            [rowClickable]="true"
+            (onPageChange)="onDataTablePageChange($event)"
+            (onRowClick)="viewSubmission($event)">
+
+            <ng-template #customCell let-item let-column="column">
+              @if (column.key === 'notesAction') {
+                <div class="flex items-center justify-center">
+                  @if (item.status === 'rejected' || item.status === 'needs_revision') {
+                    <button (click)="$event.stopPropagation(); openRevisionNotes(item)" title="View notes" class="inline-flex items-center gap-1 px-2 py-1 text-xs rounded-md hover:opacity-80" style="color: var(--color-primary, #FF6100);">
+                      <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.129.166 2.27.293 3.423.379.35.026.67.21.865.501L12 21l2.755-4.133a1.14 1.14 0 0 1 .865-.501 48.172 48.172 0 0 0 3.423-.379c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0 0 12 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018Z" />
+                      </svg>
+                      Notes
+                    </button>
+                  } @else {
+                    <span class="text-sm text-themed-secondary">—</span>
+                  }
+                </div>
+              } @else {
+                <span class="text-sm text-themed-secondary">—</span>
+              }
+            </ng-template>
+          </app-data-table>
         </div>
-        }
 
-        @if (getStatusCount('rejected') > 0) {
-        <div class="p-4 rounded-lg flex items-center justify-between bg-white border border-border">
-          <div class="flex items-center gap-3">
-            <div class="w-12 h-12 rounded-lg bg-white border-2 border-red-100 text-red-600 flex items-center justify-center">
-              <!-- Exclamation in Circle (declined) -->
-              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01" />
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-            </div>
-            <div>
-              <div class="text-sm font-semibold text-red-900">Declined</div>
-              <div class="text-2xl font-bold text-red-900">{{ getStatusCount('rejected') }}</div>
-              <div class="text-xs text-red-700">Not selected</div>
-            </div>
-          </div>
-          <button (click)="router.navigate(['/submissions'], { queryParams: { statuses: 'rejected' } })" class="p-2 rounded-md bg-white border border-red-100" (keydown.enter)="router.navigate(['/submissions'], { queryParams: { statuses: 'rejected' } })" aria-label="View Declined Submissions">
-            <svg class="w-5 h-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-          </button>
-        </div>
-        }
+        <!-- Mobile: Cards -->
+        <div class="block md:hidden">
+          <div class="flex flex-col gap-3">
+            @for (item of getFilteredSubmissions(); track item._id) {
+              <mat-card appearance="outlined" class="submission-card">
+                <mat-card-header>
+                  <mat-card-title class="submission-card-title text-themed">{{ item.title }}</mat-card-title>
+                </mat-card-header>
 
-        @if (getStatusCount('accepted') > 0) {
-        <div class="p-4 rounded-lg flex items-center justify-between bg-white border border-border">
-          <div class="flex items-center gap-3">
-            <div class="w-12 h-12 rounded-lg bg-white border-2 border-green-100 text-green-600 flex items-center justify-center">
-              <!-- Document Check (accepted) -->
-              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 2h6l5 5v11a2 2 0 01-2 2H7a2 2 0 01-2-2V4a2 2 0 012-2z" />
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4" />
-              </svg>
-            </div>
-            <div>
-              <div class="text-sm font-semibold text-green-900">Accepted</div>
-              <div class="text-2xl font-bold text-green-900">{{ getStatusCount('accepted') }}</div>
-              <div class="text-xs text-green-700">Ready to publish</div>
-            </div>
-          </div>
-          <button (click)="router.navigate(['/submissions'], { queryParams: { statuses: 'accepted' } })" class="p-2 rounded-md bg-white border border-green-100" (keydown.enter)="router.navigate(['/submissions'], { queryParams: { statuses: 'accepted' } })" aria-label="View Accepted Submissions">
-            <svg class="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-          </button>
-        </div>
-        }
+                <mat-card-content class="submission-card-content">
+                  <div class="flex items-center flex-wrap gap-2 mt-1">
+                    <span class="text-xs text-themed-secondary">{{ (item.createdAt || item.submittedAt) | date:'mediumDate' }}</span>
+                    <span class="inline-block w-px h-3 opacity-30" style="background-color: var(--border-primary)"></span>
+                    <app-badge-label [type]="item.submissionType" badgeType="type" size="sm"></app-badge-label>
+                    <span class="inline-block w-px h-3 opacity-30" style="background-color: var(--border-primary)"></span>
+                    <app-badge-label [type]="item.status" badgeType="status" size="sm"></app-badge-label>
+                  </div>
 
-        @if (getStatusCount('published') > 0) {
-        <div class="p-4 rounded-lg flex items-center justify-between bg-white border border-border">
-          <div class="flex items-center gap-3">
-            <div class="w-12 h-12 rounded-lg bg-white border-2 border-indigo-100 text-indigo-600 flex items-center justify-center">
-              <!-- Badge Check (published) -->
-              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4" />
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 2a10 10 0 100 20 10 10 0 000-20z" />
-              </svg>
-            </div>
-            <div>
-              <div class="text-sm font-semibold text-indigo-900">Published</div>
-              <div class="text-2xl font-bold text-indigo-900">{{ getStatusCount('published') }}</div>
-              <div class="text-xs text-indigo-700">Live articles</div>
-            </div>
-          </div>
-          <button (click)="router.navigate(['/submissions'], { queryParams: { statuses: 'published' } })" class="p-2 rounded-md bg-white border border-indigo-100" (keydown.enter)="router.navigate(['/submissions'], { queryParams: { statuses: 'published' } })" aria-label="View Published Submissions">
-            <svg class="w-5 h-5 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-          </button>
-        </div>
-        }
-      </div>
+                  @if (item.excerpt) {
+                    <p class="mt-2 text-sm text-themed-secondary line-clamp-2">{{ item.excerpt }}</p>
+                  }
+                </mat-card-content>
 
-      <!-- Submission Summary Banners (moved below cards) -->
-      <div class="mb-6 space-y-3">
-        @for (msg of getSubmissionSummaryMessages(); track msg.date?.getTime()) {
-          <div class="flex items-start gap-3 p-3 rounded-lg border border-border bg-surface">
-            <div class="mt-0.5">
-              <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary">
-                <!-- simple bell icon -->
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6 6 0 10-12 0v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0a3 3 0 11-6 0h6z"/></svg>
-              </span>
-            </div>
-            <div class="flex-1">
-              <div class="text-sm text-themed">{{ msg.message }}</div>
-              <div class="text-xs text-themed-secondary mt-1">{{ msg.date ? (msg.date | date:'mediumDate') : '' }}</div>
-            </div>
-            <div class="flex items-center gap-2">
-              <button class="text-sm text-primary underline" (click)="router.navigate(['/submissions'], { queryParams: { statuses: mapMessageTypeToStatuses(msg.type) } })">View</button>
-              <button class="text-sm text-themed-secondary" (click)="dismissBanner($event)">Dismiss</button>
-            </div>
-          </div>
-        }
-      </div>
+                <mat-card-actions align="end" class="submission-card-actions">
+                  @if (item.status === 'rejected' || item.status === 'needs_revision') {
+                    <button mat-button (click)="openRevisionNotes(item)" class="action-btn">
+                      <mat-icon class="action-icon">chat_bubble_outline</mat-icon>
+                      Notes
+                    </button>
+                  }
 
-    </div>
-  </div>
-}
+                  @if (item.status === 'needs_revision') {
+                    <button mat-button (click)="editSubmission(item)" class="action-btn">
+                      <mat-icon class="action-icon">edit</mat-icon>
+                      Edit
+                    </button>
+                  }
 
-<!-- Review Comments Modal -->
-@if (selectedSubmission()) {
-  <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-    <div class="bg-white rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-      <div class="p-6">
-        <!-- Modal Header -->
-        <div class="flex items-center justify-between mb-4">
-          <h3 class="text-lg font-semibold text-gray-900">Review Comments</h3>
-          <button
-            (click)="selectedSubmission.set(null)"
-            class="text-gray-400 hover:text-gray-600">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-            </svg>
-          </button>
-        </div>
-        
-        <!-- Submission Title -->
-        <h4 class="font-semibold text-gray-900 mb-4">{{ cleanHtml(selectedSubmission()!.title) }}</h4>
-        
-        <!-- Review Content -->
-        <div class="space-y-4">
-          @if (selectedSubmission()!.status === 'needs_revision' && selectedSubmission()!.revisionNotes) {
-            <div class="p-4 bg-primary-light border border-neutral-200 rounded-lg">
-              <div class="text-primary-dark">
-                <strong class="font-semibold flex items-center">
-                  <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"/>
-                  </svg>
-                  Revision Required:
-                </strong>
-                <p class="mt-2 leading-relaxed">{{ selectedSubmission()!.revisionNotes }}</p>
+                  <button mat-button (click)="viewSubmission(item)" class="action-btn">
+                    <mat-icon class="action-icon">visibility</mat-icon>
+                    View
+                  </button>
+                </mat-card-actions>
+              </mat-card>
+            }
+
+            @if (getFilteredSubmissions().length === 0) {
+              <div class="py-12 text-center text-themed-secondary text-sm">
+                No submissions match the current filter.
               </div>
-            </div>
-          }
-          
-          @if (selectedSubmission()!.reviewFeedback && selectedSubmission()!.status === 'accepted') {
-            <div class="p-4 bg-green-50 border border-green-200 rounded-lg">
-              <div class="text-green-900">
-                <strong class="font-semibold flex items-center">
-                  <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                  </svg>
-                  Accepted:
-                </strong>
-                <p class="mt-2 leading-relaxed">{{ selectedSubmission()!.reviewFeedback }}</p>
-              </div>
-            </div>
-          }
-          
-          @if (selectedSubmission()!.reviewFeedback && selectedSubmission()!.status === 'rejected') {
-            <div class="p-4 bg-red-50 border border-red-200 rounded-lg">
-              <div class="text-red-900">
-                <strong class="font-semibold flex items-center">
-                  <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                  </svg>
-                  Rejected:
-                </strong>
-                <p class="mt-2 leading-relaxed">{{ selectedSubmission()!.reviewFeedback }}</p>
-              </div>
-            </div>
-          }
-          
-          @if (selectedSubmission()!.reviewFeedback && !['accepted', 'rejected', 'needs_revision'].includes(selectedSubmission()!.status)) {
-            <div class="p-4 bg-blue-50 border border-blue-200 rounded-lg">
-              <div class="text-blue-900">
-                <strong class="font-semibold flex items-center">
-                  <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"/>
-                  </svg>
-                  Review Comments:
-                </strong>
-                <p class="mt-2 leading-relaxed">{{ selectedSubmission()!.reviewFeedback }}</p>
-              </div>
-            </div>
-          }
+            }
+          </div>
         </div>
-      </div>
+      }
+
     </div>
   </div>
 }

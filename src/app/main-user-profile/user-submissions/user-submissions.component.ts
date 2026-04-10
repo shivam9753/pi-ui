@@ -2,22 +2,21 @@ import { Component, OnInit, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule, Router } from '@angular/router';
+import { MatCardModule } from '@angular/material/card';
+import { MatIconModule } from '@angular/material/icon';
+import { MatButtonModule } from '@angular/material/button';
+import { MatSelectModule } from '@angular/material/select';
 import { BackendService } from '../../services/backend.service';
-import { PrettyLabelPipe } from '../../pipes/pretty-label.pipe';
-import { SUBMISSION_STATUS, SubmissionStatus } from '../../shared/constants/api.constants';
-
-import { CardComponent } from '../../ui-components/card';
-import { DropdownMultiComponent } from '../../ui-components/dropdown';
+import { ModalService } from '../../services/modal.service';
 import { BadgeLabelComponent } from '../../utilities/badge-label/badge-label.component';
 import { DataTableComponent, TableColumn, TableAction } from '../../shared/components/data-table/data-table.component';
-import { MatButtonModule } from '@angular/material/button';
 
 // Interfaces3
 interface Submission {
   _id: string;
   title: string;
   submissionType: string;
-  status: SubmissionStatus;
+  status: string;
   submittedAt: string;
   reviewedAt?: string;
   publishedWorkId?: string;
@@ -53,14 +52,85 @@ interface Draft {
 
 @Component({
   selector: 'app-user-submissions',
-  imports: [CommonModule, FormsModule, RouterModule, PrettyLabelPipe, CardComponent, DropdownMultiComponent, BadgeLabelComponent, DataTableComponent, MatButtonModule],
+  imports: [CommonModule, FormsModule, RouterModule, BadgeLabelComponent, DataTableComponent, MatButtonModule, MatCardModule, MatIconModule, MatSelectModule],
   templateUrl: './user-submissions.component.html',
   styles: [`
+    :host { display: block; }
     .line-clamp-2 {
       display: -webkit-box;
       -webkit-line-clamp: 2;
       -webkit-box-orient: vertical;
       overflow: hidden;
+    }
+    .filter-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 500;
+      border: 1px solid var(--border-primary, #e5e7eb);
+      background: transparent;
+      color: var(--text-secondary, #6b7280);
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .filter-chip:hover {
+      border-color: var(--color-primary, #FF6100);
+      color: var(--color-primary, #FF6100);
+    }
+    .filter-chip-active {
+      background: var(--color-primary, #FF6100);
+      border-color: var(--color-primary, #FF6100);
+      color: #fff;
+    }
+    .filter-chip-active:hover {
+      background: var(--color-primary, #FF6100);
+      border-color: var(--color-primary, #FF6100);
+      color: #fff;
+      opacity: 0.9;
+    }
+    .filter-chip-count {
+      font-size: 0.7rem;
+      font-weight: 600;
+      min-width: 18px;
+      height: 18px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 9px;
+      background: rgba(0,0,0,0.08);
+    }
+    .filter-chip-active .filter-chip-count {
+      background: rgba(255,255,255,0.25);
+    }
+    .submission-card {
+      --mdc-outlined-card-container-color: var(--bg-card, #fff);
+      --mdc-outlined-card-outline-color: var(--border-primary, #e5e7eb);
+      border-radius: 12px !important;
+      overflow: hidden;
+    }
+    .submission-card-title {
+      font-size: 1rem !important;
+      font-weight: 600 !important;
+      line-height: 1.4 !important;
+    }
+    .submission-card-content {
+      padding-top: 0 !important;
+    }
+    .submission-card-actions {
+      padding: 4px 8px !important;
+    }
+    .action-btn {
+      font-size: 0.8rem !important;
+      --mdc-text-button-label-text-color: var(--color-primary, #FF6100);
+    }
+    .action-icon {
+      font-size: 16px !important;
+      width: 16px !important;
+      height: 16px !important;
+      margin-right: 4px;
     }
   `]
 })
@@ -80,7 +150,6 @@ export class UserSubmissionsComponent implements OnInit {
   error = signal<string | null>(null);
   
   // Filters and sorts
-  submissionsFilter = signal('');
   submissionsSort = signal('newest');
   draftsFilter = signal('');
   draftsSort = signal('newest');
@@ -88,7 +157,8 @@ export class UserSubmissionsComponent implements OnInit {
   // Tab filtering
   // Multi-select filter for statuses (empty => show all)
   selectedStatuses = signal<string[]>([]);
-  
+  selectedStatusDropdown = 'all';
+
   // Options for the status multi-select dropdown
   statusOptions = [
     { label: 'Pending Review', value: 'pending_review' },
@@ -123,12 +193,10 @@ export class UserSubmissionsComponent implements OnInit {
     } as Record<string, number>;
   });
 
-  // Constants for template
-  readonly SUBMISSION_STATUS = SUBMISSION_STATUS;
-
   constructor(
     public router: Router,
-    private backendService: BackendService
+    private readonly backendService: BackendService,
+    private readonly modalService: ModalService
   ) {}
 
   ngOnInit() {
@@ -270,26 +338,114 @@ export class UserSubmissionsComponent implements OnInit {
     );
   }
 
+  onStatusDropdownChange(event: any) {
+    const value = event.value ?? event;
+    this.selectedStatusDropdown = value;
+    if (value === 'all') {
+      this.selectedStatuses.set([]);
+    } else if (value === 'under-review') {
+      this.selectedStatuses.set(['pending_review', 'in_progress', 'resubmitted']);
+    } else {
+      this.selectedStatuses.set([value]);
+    }
+  }
+
   getFilteredSubmissions() {
     let submissions = this.getAllSubmissionsChronological();
-    
-    // Apply multi-select status filter (empty => show all)
     const selected = this.selectedStatuses();
-    if (selected && selected.length > 0) {
+    if (this.selectedStatusDropdown === 'draft') {
+      submissions = submissions.filter(s => s.status === 'draft');
+    } else if (selected && selected.length > 0) {
       submissions = submissions.filter(s => selected.includes(s.status));
     }
     
-    // Apply search filter
-    const filter = this.submissionsFilter().toLowerCase();
-    if (filter) {
-      submissions = submissions.filter(submission => 
-        submission.title.toLowerCase().includes(filter) ||
-        submission.submissionType.toLowerCase().includes(filter) ||
-        submission.status.toLowerCase().includes(filter)
-      );
-    }
-    
     return submissions;
+  }
+
+  // Toggle a status filter chip
+  toggleStatusFilter(status: string) {
+    if (status === 'all') {
+      this.selectedStatuses.set([]);
+      return;
+    }
+
+    // Map display keys to actual backend statuses
+    const statusMap: Record<string, string[]> = {
+      'under-review': ['pending_review', 'in_progress', 'resubmitted'],
+      'needs_revision': ['needs_revision'],
+      'rejected': ['rejected'],
+      'accepted': ['accepted'],
+      'published': ['published']
+    };
+
+    const mapped = statusMap[status] || [status];
+    const current = this.selectedStatuses();
+
+    // If already active, deselect (show all)
+    const isActive = mapped.every(s => current.includes(s));
+    if (isActive) {
+      this.selectedStatuses.set([]);
+    } else {
+      this.selectedStatuses.set(mapped);
+    }
+  }
+
+  // Check if a filter chip is active
+  isFilterActive(status: string): boolean {
+    const statusMap: Record<string, string[]> = {
+      'under-review': ['pending_review', 'in_progress', 'resubmitted'],
+      'needs_revision': ['needs_revision'],
+      'rejected': ['rejected'],
+      'accepted': ['accepted'],
+      'published': ['published']
+    };
+    const mapped = statusMap[status] || [status];
+    const current = this.selectedStatuses();
+    return mapped.every(s => current.includes(s)) && current.length === mapped.length;
+  }
+
+  // Open revision / rejection notes via modal
+  openRevisionNotes(submission: Submission) {
+    const action: 'rejected' | 'needs_revision' =
+      submission.status === 'rejected' ? 'rejected' : 'needs_revision';
+
+    this.modalService.open({
+      title: action === 'rejected' ? 'Rejection Notes' : 'Revision Notes',
+      message: 'Loading notes...',
+      showCloseButton: true,
+      closeOnBackdrop: true
+    });
+
+    this.backendService.getAuditNotes(submission._id, action).subscribe({
+      next: (res: any) => {
+        const note = res?.notes;
+        const date = res?.date
+          ? new Date(res.date).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })
+          : '';
+
+        let message = 'No notes found for this submission.';
+        if (note) {
+          message = date ? `${date}\n\n${note}` : note;
+        }
+
+        this.modalService.close();
+        this.modalService.open({
+          title: action === 'rejected' ? 'Rejection Notes' : 'Revision Notes',
+          message,
+          showCloseButton: true,
+          closeOnBackdrop: true
+        });
+      },
+      error: () => {
+        this.modalService.close();
+        this.modalService.open({
+          title: 'Error',
+          message: 'Failed to load notes. Please try again.',
+          showCloseButton: true,
+          closeOnBackdrop: true
+        });
+      }
+    });
   }
   
   // Allow template to set selected statuses
@@ -470,11 +626,11 @@ export class UserSubmissionsComponent implements OnInit {
 
   // Table config for app-data-table
   tableColumns: TableColumn[] = [
-    { key: 'submissionType', label: 'Type', sortable: true, type: 'text' },
-    { key: '_id', label: 'File ID', sortable: false, type: 'text' },
-    { key: 'title', label: 'Title', sortable: true, type: 'text' },
-    { key: 'submittedAt', label: 'Date', sortable: true, type: 'date' },
-    { key: 'status', label: 'Status', sortable: true, type: 'badge' }
+    { key: 'title', label: 'Title', sortable: true, type: 'text', width: '40%' },
+    { key: 'createdAt', label: 'Created', sortable: true, type: 'date', width: '15%' },
+    { key: 'submissionType', label: 'Type', sortable: false, type: 'badge', width: '15%' },
+    { key: 'status', label: 'Status', sortable: true, type: 'badge', width: '20%' },
+    { key: 'notesAction', label: 'Notes', type: 'custom', width: '8%', mobileHidden: false }
   ];
 
   tableActions: TableAction[] = [
@@ -508,26 +664,7 @@ export class UserSubmissionsComponent implements OnInit {
     // Placeholder: implement actual completion logic when selection integration is in place
     console.log('completeSelected called');
   }
-
-  setSearch(value: string): void {
-    this.submissionsFilter.set(value || '');
-  }
-
-  sortBy(): string {
-    return this.submissionsSort();
-  }
-
-  setSortBy(value: any): void {
-    // Dropdown may emit an array or a single value; normalize to a string
-    let v = '';
-    if (Array.isArray(value)) {
-      v = String(value[0] || '');
-    } else {
-      v = String(value || '');
-    }
-    this.submissionsSort.set(v || 'newest');
-  }
-
+  
   // Remove banner element when Dismiss is clicked
   dismissBanner(event: Event) {
     const target = event?.target as HTMLElement | null;

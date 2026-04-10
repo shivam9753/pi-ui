@@ -1,4 +1,3 @@
-
 import { Component, EventEmitter, Input, Output, ViewEncapsulation, OnChanges, SimpleChanges } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ProseMirrorEditorComponent } from '../rich-text-editor/prosemirror-editor.component';
@@ -17,6 +16,7 @@ export class ContentEditorComponent implements OnChanges {
   @Input() contents: any[] = [];
   @Input() formArray!: FormArray;
   @Input() readonly: boolean = false;
+  @Input() isDraft: boolean = false;
   
   @Output() contentsChanged = new EventEmitter<any[]>();
   @Output() prevStep = new EventEmitter<void>();
