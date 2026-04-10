@@ -40,7 +40,7 @@ export interface ContentCardData {
   template: `
     <mat-card
       class="content-card cursor-pointer"
-      [ngClass]="{ 'card-sm': size === 'sm', 'card-lg': size === 'lg' }"
+      [ngClass]="{ 'card-sm': size === 'sm', 'card-lg': size === 'lg', 'card-borderless': noBorder }"
       appearance="outlined"
       (click)="onCardClick()">
 
@@ -69,21 +69,18 @@ export interface ContentCardData {
             [innerHTML]="sanitizeHtml(content?.excerpt || content?.description || '')">
           </p>
         }
-
-        @if (content.tags && content.tags.length > 0) {
-          <mat-chip-set class="tag-chip-set">
-            @for (tagItem of content.tags.slice(0, 3); track tagItem) {
-              <mat-chip disableRipple>{{ tagItem }}</mat-chip>
-            }
-            @if (content.tags.length > 3) {
-              <mat-chip disableRipple>+{{ content.tags.length - 3 }}</mat-chip>
-            }
-          </mat-chip-set>
-        }
       </mat-card-content>
 
       <mat-card-footer class="card-footer">
-        <span class="author-name">{{ content.author?.name }}</span>
+        <div class="card-meta">
+          @if (showMeta && content.author?.name) {
+            <span class="author-name">{{ content.author?.name }}</span>
+          }
+          @if (showMeta && getDisplayDate()) {
+            <span class="meta-separator"></span>
+            <span class="meta-secondary">{{ getDisplayDate() }}</span>
+          }
+        </div>
       </mat-card-footer>
 
     </mat-card>
@@ -96,19 +93,30 @@ export interface ContentCardData {
 
     .content-card {
       overflow: hidden;
-      transition: box-shadow 0.2s ease, transform 0.2s ease;
+      transition: box-shadow 0.2s ease, transform 0.2s ease, border-color 0.2s ease;
       height: 100%;
+      display: flex;
+      flex-direction: column;
+      background: var(--bg-card, #ffffff);
+      border-color: var(--border-primary, #e5e7eb);
+      border-radius: 16px;
+      box-shadow: none;
     }
 
     .content-card:hover {
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+      box-shadow: 0 10px 24px rgba(0, 0, 0, 0.1);
       transform: translateY(-2px);
+      border-color: var(--border-secondary, #d1d5db);
+    }
+
+    .content-card.card-borderless {
+      border-color: transparent;
     }
 
     /* Cover image fills the top of the card */
     img[mat-card-image].card-cover-img {
       width: 100%;
-      aspect-ratio: 4 / 3;
+      aspect-ratio: 16 / 11;
       object-fit: cover;
       margin: 0;
     }
@@ -116,7 +124,7 @@ export interface ContentCardData {
     /* Placeholder when no image */
     .card-cover-placeholder {
       width: 100%;
-      aspect-ratio: 4 / 3;
+      aspect-ratio: 16 / 11;
       background: var(--bg-tertiary, #f3f4f6);
       display: flex;
       align-items: center;
@@ -130,12 +138,12 @@ export interface ContentCardData {
 
     /* Header tweaks */
     mat-card-header {
-      padding: 12px 16px 0;
+      padding: 14px 16px 0;
       flex-direction: column;
       align-items: flex-start;
     }
     .type-chip-set {
-      margin-bottom: 6px;
+      margin-bottom: 8px;
     }
     .type-chip-set .type-chip {
       --mdc-chip-label-text-size: 0.6rem;
@@ -150,9 +158,9 @@ export interface ContentCardData {
       padding: 0 6px;
     }
     .card-title {
-      font-size: 1rem !important;
+      font-size: 1.05rem !important;
       font-weight: 700 !important;
-      line-height: 1.35 !important;
+      line-height: 1.3 !important;
       color: var(--text-primary, #111827) !important;
       display: -webkit-box;
       -webkit-line-clamp: 2;
@@ -163,42 +171,50 @@ export interface ContentCardData {
 
     /* Content */
     mat-card-content {
-      padding: 8px 16px 0;
+      padding: 10px 16px 0;
+      flex: 1 1 auto;
     }
     .card-excerpt {
-      font-size: 0.875rem;
+      font-size: 0.9rem;
       color: var(--text-secondary, #4b5563);
-      line-height: 1.6;
+      line-height: 1.55;
       display: -webkit-box;
-      -webkit-line-clamp: 3;
+      -webkit-line-clamp: 2;
       -webkit-box-orient: vertical;
       overflow: hidden;
-      margin-bottom: 8px;
-    }
-
-    /* Chips */
-    .tag-chip-set {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 4px;
-      margin-top: 4px;
-    }
-    .tag-chip-set mat-chip {
-      font-size: 0.7rem !important;
-      min-height: 22px !important;
-      padding: 0 8px !important;
+      margin: 0;
     }
 
     /* Footer */
     mat-card-footer.card-footer {
       display: flex;
       align-items: center;
-      padding: 8px 16px 12px;
+      padding: 12px 16px 16px;
+      margin-top: auto;
+    }
+    .card-meta {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      min-height: 1.2rem;
     }
     .author-name {
-      font-size: 0.875rem;
+      font-size: 0.82rem;
       font-weight: 500;
-      color: var(--text-tertiary, #6b7280);
+      color: var(--text-secondary, #6b7280);
+      line-height: 1.4;
+    }
+    .meta-secondary {
+      font-size: 0.78rem;
+      color: var(--text-tertiary, #9ca3af);
+      line-height: 1.4;
+    }
+    .meta-separator {
+      width: 4px;
+      height: 4px;
+      border-radius: 999px;
+      background: var(--border-secondary, #d1d5db);
     }
 
     /* Size variants */
@@ -220,6 +236,33 @@ export interface ContentCardData {
       min-width: 360px;
     }
     .content-card.card-lg .card-title { font-size: 1.4rem !important; }
+
+    @media (max-width: 768px) {
+      img[mat-card-image].card-cover-img,
+      .card-cover-placeholder {
+        aspect-ratio: 16 / 10;
+      }
+
+      mat-card-header {
+        padding: 12px 14px 0;
+      }
+
+      mat-card-content {
+        padding: 8px 14px 0;
+      }
+
+      mat-card-footer.card-footer {
+        padding: 10px 14px 14px;
+      }
+
+      .card-title {
+        font-size: 0.98rem !important;
+      }
+
+      .card-excerpt {
+        font-size: 0.84rem;
+      }
+    }
     `
   ]
 })
@@ -278,6 +321,19 @@ export class ContentCardComponent {
   sanitizeHtml(html: string | undefined): string {
     if (!html) return '';
     return StringUtils.stripHtml(html);
+  }
+
+  getDisplayDate(): string {
+    const raw = this.content.publishedAt || this.content.createdAt;
+    if (!raw) return '';
+
+    const date = new Date(raw);
+    if (Number.isNaN(date.getTime())) return '';
+
+    return date.toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric'
+    });
   }
 
 }

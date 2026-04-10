@@ -118,7 +118,6 @@
 
   /* Make sure grid and cards use full available width */
   .submissions-grid,
-  app-submission-mobile-card,
   .submission-card-container {
     margin-left: 0;
     margin-right: 0;

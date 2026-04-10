@@ -74,6 +74,7 @@ export class UserProfileComponent implements OnInit {
   userProfile = signal<UserProfile | null>(null);
   submissions = signal<Submission[]>([]);
   drafts = signal<Draft[]>([]);
+  draftsLoaded = signal(false);
   
   // UI state
   isEditMode = signal(false);
@@ -141,7 +142,12 @@ export class UserProfileComponent implements OnInit {
 
   onProfileTabIndexChange(index: number) {
     const tab = this.profileTabIds[index];
-    if (tab) this.setPrimaryTab(tab);
+    if (!tab) return;
+    this.setPrimaryTab(tab);
+
+    if (tab === 'drafts') {
+      this.ensureDraftsLoaded();
+    }
   }
 
   // DraftsList handlers (wire DraftsListComponent outputs)
@@ -225,7 +231,6 @@ export class UserProfileComponent implements OnInit {
           
           // Load all data for own profile
           this.loadSubmissions();
-          this.loadDrafts();
           
           this.isLoading.set(false);
         },
@@ -369,6 +374,11 @@ export class UserProfileComponent implements OnInit {
   /**
    * Load user's drafts
    */
+  private ensureDraftsLoaded() {
+    if (this.draftsLoaded()) return;
+    this.loadDrafts();
+  }
+
   async loadDrafts() {
     
     try {
@@ -376,18 +386,36 @@ export class UserProfileComponent implements OnInit {
       
       this.backendService.getUserDrafts().subscribe({
         next: (response: any) => {
-          this.drafts.set(response.drafts || []);
+          const drafts = (response.submissions || response.drafts || []).map((draft: any) => ({
+            id: draft._id || draft.id,
+            title: draft.title || 'Untitled Draft',
+            submissionType: draft.submissionType || draft.type || '',
+            contents: draft.contents || [],
+            description: draft.description || draft.excerpt || '',
+            lastModified: new Date(draft.updatedAt || draft.lastEditedAt || draft.createdAt),
+            type: draft.type || draft.submissionType || '',
+            content: draft.content || '',
+            excerpt: draft.excerpt || '',
+            tags: draft.tags || [],
+            wordCount: draft.wordCount || 0,
+            updatedAt: draft.updatedAt || draft.lastEditedAt || draft.createdAt || '',
+            createdAt: draft.createdAt || ''
+          }));
+          this.drafts.set(drafts);
+          this.draftsLoaded.set(true);
           this.draftsLoading.set(false);
         },
         error: (error: any) => {
           console.error('Error loading drafts:', error);
           this.drafts.set([]);
+          this.draftsLoaded.set(false);
           this.draftsLoading.set(false);
         }
       });
     } catch (error) {
       console.error('Exception in loadDrafts:', error);
       this.drafts.set([]);
+      this.draftsLoaded.set(false);
       this.draftsLoading.set(false);
     }
   }
@@ -610,6 +638,14 @@ export class UserProfileComponent implements OnInit {
     if (submission.status === 'published' && submission.publishedWorkId) {
       // Published submissions go to reading interface
       this.router.navigate(['/read', submission.publishedWorkId]);
+    } else if (submission.status === 'draft') {
+      this.router.navigate(['/edit-submission', submission._id], {
+        queryParams: { mode: 'edit' }
+      });
+    } else if (submission.status === 'needs_revision') {
+      this.router.navigate(['/edit-submission', submission._id], {
+        queryParams: { mode: 'resubmit' }
+      });
     } else {
       // All other submissions go to edit-submission in view mode
       this.router.navigate(['/edit-submission', submission._id], { 

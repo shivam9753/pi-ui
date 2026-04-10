@@ -1,0 +1,134 @@
+.draft-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 16px;
+  border-radius: 14px;
+  border: 1px solid var(--border-primary);
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+}
+
+.draft-banner__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 999px;
+  background: var(--bg-accent-light);
+  color: var(--bg-accent);
+  flex-shrink: 0;
+}
+
+.draft-banner__title {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+.draft-banner__message {
+  margin: 4px 0 0;
+  font-size: 0.875rem;
+  line-height: 1.45;
+  color: var(--text-secondary);
+}
+
+.draft-card {
+  --mdc-outlined-card-container-color: var(--bg-card);
+  --mdc-outlined-card-outline-color: var(--border-primary);
+  border-radius: 14px !important;
+  background: var(--bg-card);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.draft-card:hover {
+  border-color: var(--border-secondary);
+  box-shadow: var(--shadow-sm, 0 2px 10px rgba(0, 0, 0, 0.06));
+}
+
+.draft-card__content {
+  padding: 16px !important;
+}
+
+.draft-card__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.draft-card__title {
+  margin: 0;
+  color: var(--text-primary);
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+.draft-card__meta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+  color: var(--text-tertiary);
+  font-size: 0.8125rem;
+}
+
+.draft-card__badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: var(--bg-accent-light);
+  color: var(--bg-accent);
+  font-weight: 600;
+  font-size: 0.75rem;
+  letter-spacing: 0.02em;
+}
+
+.draft-card__dot {
+  width: 4px;
+  height: 4px;
+  border-radius: 999px;
+  background: var(--border-secondary);
+}
+
+.draft-card__excerpt {
+  margin: 12px 0 0;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  line-height: 1.55;
+}
+
+.draft-card__actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.draft-card__actions .mdc-button {
+  min-width: auto;
+}
+
+.draft-card__delete {
+  --mdc-text-button-label-text-color: var(--text-secondary);
+}
+
+.draft-card__delete:hover {
+  --mdc-text-button-label-text-color: var(--bg-error);
+}
+
+@media (max-width: 640px) {
+  .draft-card__header {
+    flex-direction: column;
+  }
+
+  .draft-card__actions {
+    width: 100%;
+    justify-content: flex-start;
+  }
+}

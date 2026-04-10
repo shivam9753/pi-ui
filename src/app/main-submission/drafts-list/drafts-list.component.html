@@ -33,20 +33,37 @@
       <!-- Drafts List -->
       @if (drafts.length > 0) {
       <div class="p-6">
-        <div class="space-y-4">
+        <div class="space-y-3">
           @for (draft of drafts; track trackByDraftId($index, draft)) {
-          <div class="flex items-start justify-between">
-            <app-card class="flex-1 mr-4"
-                      [title]="draft.title || 'Untitled Draft'"
-                      [description]="getSanitizedExcerpt(draft, 120)"
-                      [primaryBadgeType]="draft.submissionType"
-                      [size]="'sm'"
-                      [primaryButtonLabel]="'Edit'"
-                      (primaryClick)="loadDraft.emit(draft)"
-                      [secondaryButtonLabel]="'Delete'"
-                      (secondaryClick)="confirmDelete(draft)">
-            </app-card>
-          </div>
+          <mat-card appearance="outlined" class="draft-card">
+            <mat-card-content class="draft-card__content">
+              <div class="draft-card__header">
+                <div class="min-w-0 flex-1">
+                  <h3 class="draft-card__title">{{ draft.title || 'Untitled Draft' }}</h3>
+                  <div class="draft-card__meta">
+                    <span class="draft-card__badge">{{ getTypeDisplayName(draft.submissionType) }}</span>
+                    <span class="draft-card__dot"></span>
+                    <span>Saved {{ formatDate(draft.lastModified) }}</span>
+                    @if (draft.wordCount) {
+                      <span class="draft-card__dot"></span>
+                      <span>{{ draft.wordCount }} words</span>
+                    }
+                  </div>
+                </div>
+                <div class="draft-card__actions">
+                  <button mat-stroked-button type="button" (click)="loadDraft.emit(draft)" (keydown.enter)="loadDraft.emit(draft)">
+                    Edit
+                  </button>
+                  <button mat-button type="button" (click)="confirmDelete(draft)" (keydown.enter)="confirmDelete(draft)" class="draft-card__delete">
+                    Delete
+                  </button>
+                </div>
+              </div>
+              @if (getSanitizedExcerpt(draft, 140)) {
+              <p class="draft-card__excerpt">{{ getSanitizedExcerpt(draft, 140) }}</p>
+              }
+            </mat-card-content>
+          </mat-card>
           }
         </div>
       </div>
@@ -70,14 +87,17 @@
 <!-- Inline Mode -->
 @if (isInline) {
 <div class="w-full">
-  <!-- Auto-deletion Banner -->
-  <!-- @if (drafts.length > 0) {
-  <app-alert-banner tone="warning" title="Auto-deletion"
-    description="These drafts will be automatically deleted after 7 days of inactivity."></app-alert-banner>
-  } -->
-    <div class="mt-4 mb-4">
-      <app-simple-alert title="Auto-deletion in 7 days" message="Inactive drafts will be removed automatically." type="warning" [forceDark]="themingService.isDark()"></app-simple-alert>
+  <div class="draft-banner mt-4 mb-4">
+    <div class="draft-banner__icon" aria-hidden="true">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"></path>
+      </svg>
     </div>
+    <div>
+      <p class="draft-banner__title">Auto-deletion in 7 days</p>
+      <p class="draft-banner__message">Inactive drafts will be removed automatically.</p>
+    </div>
+  </div>
   <!-- Empty State -->
   @if (drafts.length === 0) {
   <app-empty-state title="No drafts yet"
@@ -87,20 +107,37 @@
   }
   <!-- Drafts List -->
   @if (drafts.length > 0) {
-  <div class="space-y-4">
+  <div class="space-y-3">
     @for (draft of drafts; track trackByDraftId($index, draft)) {
-    <div class="flex items-start justify-between">
-      <app-card class="flex-1 mr-4"
-                [title]="draft.title || 'Untitled Draft'"
-                [description]="getSanitizedExcerpt(draft, 120)"
-                [primaryBadgeType]="draft.submissionType"
-                [size]="'sm'"
-                [primaryButtonLabel]="'Edit'"
-                (primaryClick)="loadDraft.emit(draft)"
-                [secondaryButtonLabel]="'Delete'"
-                (secondaryClick)="confirmDelete(draft)">
-      </app-card>
-    </div>
+    <mat-card appearance="outlined" class="draft-card">
+      <mat-card-content class="draft-card__content">
+        <div class="draft-card__header">
+          <div class="min-w-0 flex-1">
+            <h3 class="draft-card__title">{{ draft.title || 'Untitled Draft' }}</h3>
+            <div class="draft-card__meta">
+              <span class="draft-card__badge">{{ getTypeDisplayName(draft.submissionType) }}</span>
+              <span class="draft-card__dot"></span>
+              <span>Saved {{ formatDate(draft.lastModified) }}</span>
+              @if (draft.wordCount) {
+                <span class="draft-card__dot"></span>
+                <span>{{ draft.wordCount }} words</span>
+              }
+            </div>
+          </div>
+          <div class="draft-card__actions">
+            <button mat-stroked-button type="button" (click)="loadDraft.emit(draft)" (keydown.enter)="loadDraft.emit(draft)">
+              Edit
+            </button>
+            <button mat-button type="button" (click)="confirmDelete(draft)" (keydown.enter)="confirmDelete(draft)" class="draft-card__delete">
+              Delete
+            </button>
+          </div>
+        </div>
+        @if (getSanitizedExcerpt(draft, 140)) {
+        <p class="draft-card__excerpt">{{ getSanitizedExcerpt(draft, 140) }}</p>
+        }
+      </mat-card-content>
+    </mat-card>
     }
   </div>
   }

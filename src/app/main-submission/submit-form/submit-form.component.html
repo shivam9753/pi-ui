@@ -168,7 +168,7 @@
               class="w-full px-0 py-0 lg:py-4 border-0 bg-white text-gray-900 focus:outline-none focus:ring-0 text-lg lg:text-2xl font-medium lg:font-bold"
               [style.color]="'var(--text-primary)'" placeholder="Give your work a title..."
               [class.border-red-300]="form.get('title')?.invalid && form.get('title')?.touched"
-              [readonly]="isViewMode && submission?.status !== 'draft'">
+              [readonly]="isFormReadonly">
             @if (form.get('title')?.invalid && form.get('title')?.touched) {
             <div class="text-red-500 text-xs lg:text-sm mt-1 lg:mt-2">
               Title is required (3-100 characters)
@@ -178,8 +178,8 @@
           }
           <!-- Content Editor -->
           <app-content-editor [selectedType]="selectedType" [contents]="getContentControls()"
-            [formArray]="getContentsFormArray()" [readonly]="isViewMode || submission?.status !== 'draft'"
-            [isDraft]="submission?.status === 'draft'"
+            [formArray]="getContentsFormArray()" [readonly]="isFormReadonly"
+            [isDraft]="isDraftSubmission"
             (contentsChanged)="onContentChanged($event)"></app-content-editor>
         </div>
       </div>
@@ -196,7 +196,7 @@
             class="w-full px-0 py-0 border-0 bg-white text-gray-900 focus:outline-none focus:ring-0 resize-none leading-relaxed lg:text-lg lg:rows-4"
             [style.color]="'var(--text-primary)'"
             [placeholder]="isCreateMode ? 'What inspired this piece? Share the story behind your creation...' : 'What inspired this revision? Share any context about the changes...'"
-            [readonly]="isViewMode"></textarea>
+            [readonly]="isFormReadonly"></textarea>
         </div>
 
         <!-- Stats & Actions -->
@@ -218,7 +218,7 @@
           </div>
 
           <!-- Submit Actions -->
-          @if (!isViewMode) {
+          @if (!isFormReadonly) {
           <div
             [class]="isCreateMode ? 'space-y-4 mt-4 lg:mt-0 lg:flex lg:space-y-0 lg:space-x-4' : 'flex flex-col sm:flex-row justify-center gap-4 lg:gap-6 mt-4 lg:mt-8'">
 

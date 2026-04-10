@@ -201,6 +201,10 @@ export class SubmissionsListComponent implements OnInit {
   viewSubmission(submission: Submission) {
     if (submission.status === 'published' && submission.publishedWorkId) {
       this.router.navigate(['/read', submission.publishedWorkId]);
+    } else if (submission.status === 'draft') {
+      this.router.navigate(['/edit-submission', submission._id], { queryParams: { mode: 'edit' } });
+    } else if (submission.status === 'needs_revision') {
+      this.router.navigate(['/edit-submission', submission._id], { queryParams: { mode: 'resubmit' } });
     } else {
       this.router.navigate(['/edit-submission', submission._id], { queryParams: { mode: 'view' } });
     }

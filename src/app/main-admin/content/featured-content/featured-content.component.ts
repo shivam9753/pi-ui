@@ -11,16 +11,13 @@ import {
   TableColumn,
   TableAction,
   PaginationConfig,
-  SUBMISSION_BADGE_CONFIG,
-  ConsistentSubmissionMobileCardComponent,
-  SubmissionAction,
-  SubmissionMobileCardComponent
+  SUBMISSION_BADGE_CONFIG
 } from '../../../shared/components';
 import { SimpleSubmissionFilterComponent, SimpleFilterOptions } from '../../../shared/components/simple-submission-filter/simple-submission-filter.component';
 
 @Component({
   selector: 'app-featured-content',
-  imports: [CommonModule, DatePipe, FormsModule, PrettyLabelPipe, MatButtonModule, DataTableComponent, SimpleSubmissionFilterComponent, ConsistentSubmissionMobileCardComponent, SubmissionMobileCardComponent],
+  imports: [CommonModule, DatePipe, FormsModule, PrettyLabelPipe, MatButtonModule, DataTableComponent, SimpleSubmissionFilterComponent],
   templateUrl: './featured-content.component.html',
   styleUrl: './featured-content.component.css'
 })
@@ -57,7 +54,6 @@ export class FeaturedContentComponent implements OnInit {
     }
   ];
   actions: TableAction[] = [];
-  consistentActions: SubmissionAction[] = [];
   badgeConfig = SUBMISSION_BADGE_CONFIG;
   paginationConfig: PaginationConfig = {
     currentPage: 1,
@@ -136,26 +132,6 @@ export class FeaturedContentComponent implements OnInit {
       }
     ];
     
-    // Setup consistent actions for mobile cards
-    this.consistentActions = [
-      {
-        label: 'Feature',
-        color: 'warning',
-        condition: (content) => !content.isFeatured,
-        handler: (content) => this.featureContent(content._id, content.title)
-      },
-      {
-        label: 'Unfeature',
-        color: 'secondary',
-        condition: (content) => content.isFeatured,
-        handler: (content) => this.unfeatureContent(content._id, content.title)
-      },
-      {
-        label: 'View',
-        color: 'primary',
-        handler: (content) => this.viewContent(content)
-      }
-    ];
   }
 
   loadFeaturedContent() {

@@ -190,22 +190,6 @@ tbody td:first-child {
   transition: color 0.15s;
 }
 
-.action-btn--view {
-  color: var(--color-primary);
-}
-
-.action-btn--view:hover {
-  color: var(--color-primary-hover);
-}
-
-.action-btn--delete {
-  color: #EF4444;
-}
-
-.action-btn--delete:hover {
-  color: #B91C1C;
-}
-
 /* ── Bulk action bar ── */
 .bulk-bar {
   display: flex;

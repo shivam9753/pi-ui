@@ -18,10 +18,7 @@ import {
   createPublishedPostActions,
   SUBMISSION_BADGE_CONFIG,
   SearchableUserSelectorComponent,
-  User,
-  ConsistentSubmissionMobileCardComponent,
-  SubmissionAction,
-  SubmissionMobileCardComponent
+  User
 } from '../../../shared/components';
 import { SimpleSubmissionFilterComponent, SimpleFilterOptions } from '../../../shared/components/simple-submission-filter/simple-submission-filter.component';
 import { SUBMISSION_STATUS, API_ENDPOINTS } from '../../../shared/constants/api.constants';
@@ -30,7 +27,7 @@ import { MatTabsModule } from '@angular/material/tabs';
 
 @Component({
   selector: 'app-manage-submissions',
-  imports: [CommonModule, FormsModule, PrettyLabelPipe, BadgeLabelComponent, AdminPageHeaderComponent, DataTableComponent, SimpleSubmissionFilterComponent, SearchableUserSelectorComponent, ConsistentSubmissionMobileCardComponent, SubmissionMobileCardComponent, MatButtonModule, MatTabsModule],
+  imports: [CommonModule, FormsModule, PrettyLabelPipe, BadgeLabelComponent, AdminPageHeaderComponent, DataTableComponent, SimpleSubmissionFilterComponent, SearchableUserSelectorComponent,  MatButtonModule, MatTabsModule],
   templateUrl: './manage-submissions.component.html',
   styleUrl: './manage-submissions.component.css'
 })
@@ -40,7 +37,6 @@ export class ManageSubmissionsComponent implements OnInit {
   private baseColumns: TableColumn[] = PUBLISHED_POSTS_TABLE_COLUMNS;
   columns: TableColumn[] = [...this.baseColumns];
   actions: TableAction[] = [];
-  consistentActions: SubmissionAction[] = [];
   badgeConfig = SUBMISSION_BADGE_CONFIG;
   paginationConfig: PaginationConfig = {
     currentPage: 1,
@@ -174,10 +170,7 @@ export class ManageSubmissionsComponent implements OnInit {
           { label: 'Edit', color: 'primary', isMainAction: true, handler: (post:any) => this.editPublishedPost(post._id) },
           { label: 'Unpublish', color: 'danger', handler: (post:any) => this.unpublishSubmission(post._id, post.title) }
         ];
-        this.consistentActions = [
-          { label: 'Edit', color: 'primary', handler: (p:any)=> this.editPublishedPost(p._id) },
-          { label: 'Unpublish', color: 'danger', handler: (p:any)=> this.unpublishSubmission(p._id, p.title) }
-        ];
+
         break;
 
       case 'accepted':
@@ -188,10 +181,6 @@ export class ManageSubmissionsComponent implements OnInit {
           { label: 'Publish', color: 'primary', isMainAction: true, handler: (post:any) => this.configureAndPublish(post._id) },
           { label: 'Back to Review', color: 'secondary', handler: (post:any) => this.backToReview(post._id, post.title) }
         ];
-        this.consistentActions = [
-          { label: 'Publish', color: 'primary', handler: (p:any)=> this.configureAndPublish(p._id) },
-          { label: 'Back to Review', color: 'secondary', handler: (p:any)=> this.backToReview(p._id, p.title) }
-        ];
         break;
 
       case 'draft':
@@ -199,10 +188,6 @@ export class ManageSubmissionsComponent implements OnInit {
         this.actions = [
           { label: 'Edit', color: 'primary', isMainAction: true, handler: (post:any) => this.editPublishedPost(post._id) },
           { label: 'Delete', color: 'danger', handler: (post:any) => this.deleteSubmission(post._id, post.title) }
-        ];
-        this.consistentActions = [
-          { label: 'Edit', color: 'primary', handler: (p:any)=> this.editPublishedPost(p._id) },
-          { label: 'Delete', color: 'danger', handler: (p:any)=> this.deleteSubmission(p._id, p.title) }
         ];
         break;
 
@@ -212,15 +197,10 @@ export class ManageSubmissionsComponent implements OnInit {
           { label: 'View', color: 'secondary', isMainAction: true, handler: (post:any) => this.viewSubmission(post) },
           { label: 'Delete', color: 'danger', handler: (post:any) => this.deleteSubmission(post._id, post.title) }
         ];
-        this.consistentActions = [
-          { label: 'View', color: 'secondary', handler: (p:any)=> this.viewSubmission(p) },
-          { label: 'Delete', color: 'danger', handler: (p:any)=> this.deleteSubmission(p._id, p.title) }
-        ];
         break;
 
       default:
         this.actions = [];
-        this.consistentActions = [];
     }
   }
 
@@ -233,25 +213,7 @@ export class ManageSubmissionsComponent implements OnInit {
       (post) => this.featureContent(post._id, post.title),
       (post) => this.unfeatureContent(post._id, post.title)
     );
-    
-    // Setup consistent actions for mobile cards
-    this.consistentActions = [
-      {
-        label: 'Edit',
-        color: 'primary',
-        handler: (post) => this.editPublishedPost(post._id)
-      },
-      {
-        label: 'Feature',
-        color: 'warning',
-        handler: (post) => this.featureContent(post._id, post.title)
-      },
-      {
-        label: 'View',
-        color: 'secondary',
-        handler: (post) => this.viewContent(post)
-      }
-    ];
+   
   }
 
   loadPublishedSubmissions() {

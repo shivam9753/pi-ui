@@ -1,13 +1,10 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
-import { CommonUtils, StringUtils } from '../../shared/utils';
-
-import { CardComponent } from '../../ui-components/card/card.component';
-import { ThemingService } from '../../services/theming.service';
+import { CommonUtils } from '../../shared/utils';
 import { HtmlSanitizerService } from '../../services/html-sanitizer.service';
-import { SimpleAlertComponent } from '../../ui-components/simple-alert/simple-alert.component';
 import { MatButtonModule } from '@angular/material/button';
+import { MatCardModule } from '@angular/material/card';
 
 export interface Draft {
   id: string;
@@ -21,12 +18,12 @@ export interface Draft {
 
 @Component({
   selector: 'app-drafts-list',
-  imports: [CommonModule, EmptyStateComponent, CardComponent, SimpleAlertComponent, MatButtonModule],
+  imports: [CommonModule, EmptyStateComponent, MatButtonModule, MatCardModule],
   templateUrl: './drafts-list.component.html',
   styleUrls: ['./drafts-list.component.css']
 })
 export class DraftsListComponent {
-  constructor(private htmlSanitizer: HtmlSanitizerService, public themingService: ThemingService) {}
+  constructor(private htmlSanitizer: HtmlSanitizerService) {}
   @Input() drafts: Draft[] = [];
   @Input() isInline: boolean = false;
   @Output() loadDraft = new EventEmitter<Draft>();
@@ -45,7 +42,9 @@ export class DraftsListComponent {
       'poem': 'Poem',
       'article': 'Article',
       'cinema_essay': 'Cinema Essay',
-      'prose': 'Prose'
+      'prose': 'Prose',
+      'opinion': 'Opinion',
+      'book_review': 'Book Review'
     };
     return typeMap[type] || type;
   }

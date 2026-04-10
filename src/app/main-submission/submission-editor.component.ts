@@ -33,6 +33,7 @@ export class SubmissionEditorComponent implements OnInit, OnDestroy {
 
   drafts: Draft[] = [];
   currentDraft: Draft | null = null;
+  private draftsLoaded = false;
   relatedTopicPitchId: string | null = null;
   private topicPitchData: { title?: string; description?: string; type?: string } | null = null;
   private subscriptions: Subscription[] = [];
@@ -57,7 +58,13 @@ export class SubmissionEditorComponent implements OnInit, OnDestroy {
 
   onTabIndexChange(index: number) {
     const tab = this.tabIds[index];
-    if (tab) this.activeTab = tab;
+    if (!tab) return;
+
+    this.activeTab = tab;
+
+    if (tab === 'drafts') {
+      this.ensureDraftsLoaded();
+    }
   }
 
   ngOnInit(): void {
@@ -94,11 +101,6 @@ export class SubmissionEditorComponent implements OnInit, OnDestroy {
       // If a revision note is passed in the query params, keep it; the template will show it
       // No further action required here — the submit form can read it from the route if needed
     });
-
-    // Load drafts for create mode
-    if (this.mode === 'create') {
-      this.loadDrafts();
-    }
   }
 
   // Mode-based getters
@@ -131,11 +133,17 @@ export class SubmissionEditorComponent implements OnInit, OnDestroy {
   get isViewMode(): boolean { return this.mode === 'view'; }
 
   // Draft Management
+  private ensureDraftsLoaded(): void {
+    if (this.mode !== 'create' || this.draftsLoaded) return;
+    this.loadDrafts();
+  }
+
   loadDrafts(): void {
     if (this.mode !== 'create') return;
 
     this.backendService.getUserDrafts().subscribe({
       next: (response) => {
+        this.draftsLoaded = true;
         this.drafts = (response.submissions || response.drafts || []).map((draft: any) => ({
           id: draft._id || draft.id,
           title: draft.title || 'Untitled Draft',
@@ -147,6 +155,7 @@ export class SubmissionEditorComponent implements OnInit, OnDestroy {
         }));
       },
       error: () => {
+        this.draftsLoaded = false;
         this.drafts = [];
       }
     });

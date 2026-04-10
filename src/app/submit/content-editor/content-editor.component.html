@@ -34,9 +34,10 @@
         <input
           type="text"
           [formControl]="content.get('title')"
+          [readonly]="shouldDisableMetadataFields()"
           class="w-full px-4 py-3 border border-gray-200 rounded-xl bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors duration-200"
           [class.border-red-400]="content.get('title')?.invalid && content.get('title')?.touched"
-          [class.bg-gray-50]="readonly"
+          [class.bg-gray-50]="shouldDisableMetadataFields()"
           [placeholder]="'Enter ' + getSingleContentTypeDisplayName().toLowerCase() + ' title...'"
           />
         @if (content.get('title')?.invalid && content.get('title')?.touched) {
@@ -56,7 +57,7 @@
         </label>
         <app-prosemirror-editor
           [formControl]="content.get('body')"
-          [placeholder]="getContentPlaceholder()"
+          [placeholder]="'Write here...'"
           [allowImages]="selectedType !== 'poem'"
           (imageUpload)="onImageUpload($event, i)"
           (imageDelete)="onImageDelete($event)"
@@ -78,9 +79,10 @@
         </label>
         <textarea
           [formControl]="content.get('footnotes')"
+          [readonly]="shouldDisableMetadataFields()"
           rows="3"
           class="w-full px-4 py-3 border border-gray-200 rounded-xl bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors duration-200 resize-none"
-          [class.bg-gray-50]="readonly"
+          [class.bg-gray-50]="shouldDisableMetadataFields()"
           placeholder="Optional: Add footnotes to explain cultural references, colloquial words, or regional terms in your content."
         ></textarea>
         <p class="text-xs text-gray-900-secondary mt-2">

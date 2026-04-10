@@ -19,15 +19,12 @@ import {
   SUBMISSION_BADGE_CONFIG,
   AdvancedSubmissionFilterComponent,
   AdvancedFilterOptions,
-  QuickFilterEvent,
-  ConsistentSubmissionMobileCardComponent,
-  SubmissionAction,
-  SubmissionMobileCardComponent
+  QuickFilterEvent
 } from '../shared/components';
 
 @Component({
   selector: 'app-main-pending-reviews',
-  imports: [CommonModule, FormsModule, AdminPageHeaderComponent, DataTableComponent, AdvancedSubmissionFilterComponent, ConsistentSubmissionMobileCardComponent, SubmissionMobileCardComponent],
+  imports: [CommonModule, FormsModule, AdminPageHeaderComponent, DataTableComponent, AdvancedSubmissionFilterComponent],
   templateUrl: './main-pending-reviews.component.html',
   styleUrl: './main-pending-reviews.component.css'
 })
@@ -35,7 +32,6 @@ export class MainPendingReviewsComponent implements OnInit, OnDestroy {
   // Table configuration
   columns: TableColumn[] = PENDING_REVIEWS_TABLE_COLUMNS;
   actions: TableAction[] = [];
-  consistentActions: SubmissionAction[] = [];
   badgeConfig = SUBMISSION_BADGE_CONFIG;
   paginationConfig: PaginationConfig = {
     currentPage: 1,
@@ -162,15 +158,6 @@ export class MainPendingReviewsComponent implements OnInit, OnDestroy {
     this.actions = createPendingReviewActions(
       (submission) => this.reviewSubmission(submission)
     );
-    
-    // Setup consistent actions for mobile cards
-    this.consistentActions = [
-      {
-        label: 'Review',
-        color: 'primary',
-        handler: (submission) => this.reviewSubmission(submission)
-      }
-    ];
   }
 
   reviewSubmission(submission: any) {

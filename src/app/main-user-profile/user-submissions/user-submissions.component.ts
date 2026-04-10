@@ -514,6 +514,14 @@ export class UserSubmissionsComponent implements OnInit {
     if (submission.status === 'published' && submission.publishedWorkId) {
       // Published submissions go to reading interface
       this.router.navigate(['/read', submission.publishedWorkId]);
+    } else if (submission.status === 'draft') {
+      this.router.navigate(['/edit-submission', submission._id], {
+        queryParams: { mode: 'edit' }
+      });
+    } else if (submission.status === 'needs_revision') {
+      this.router.navigate(['/edit-submission', submission._id], {
+        queryParams: { mode: 'resubmit' }
+      });
     } else {
       // All other submissions go to edit-submission in view mode
       this.router.navigate(['/edit-submission', submission._id], { 

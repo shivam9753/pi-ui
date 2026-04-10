@@ -189,6 +189,15 @@ export class SubmitFormComponent implements OnInit, OnDestroy {
   get isEditMode(): boolean { return this.mode === 'edit'; }
   get isResubmitMode(): boolean { return this.mode === 'resubmit'; }
   get isViewMode(): boolean { return this.mode === 'view'; }
+  get isDraftSubmission(): boolean {
+    return !!this.submission && this.submission.status === 'draft';
+  }
+  get isEditableSubmissionStatus(): boolean {
+    return !!this.submission && ['draft', 'needs_revision'].includes(this.submission.status);
+  }
+  get isFormReadonly(): boolean {
+    return this.isViewMode && !this.isEditableSubmissionStatus;
+  }
 
   get pageTitle(): string {
     switch (this.mode) {
@@ -229,8 +238,10 @@ export class SubmitFormComponent implements OnInit, OnDestroy {
         this.submission = data;
 
         // Auto-detect mode based on submission status
-        if (this.mode === 'edit' && (data.status === 'needs_revision' || data.status === 'rejected')) {
+        if ((this.mode === 'edit' || this.mode === 'view') && (data.status === 'needs_revision' || data.status === 'rejected')) {
           this.mode = 'resubmit';
+        } else if (this.mode === 'view' && data.status === 'draft') {
+          this.mode = 'edit';
         }
 
         this.populateForm(data);

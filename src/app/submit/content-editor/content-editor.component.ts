@@ -29,7 +29,17 @@ export class ContentEditorComponent implements OnChanges {
   constructor(private fb: FormBuilder) {}
 
   ngOnChanges(changes: SimpleChanges): void {
-    // No longer disabling/enabling formArray based on readonly
+    if (changes['readonly'] && this.formArray) {
+      this.updateReadonlyState();
+    }
+  }
+
+  private updateReadonlyState(): void {
+    if (this.readonly) {
+      this.formArray.disable();
+    } else {
+      this.formArray.enable();
+    }
   }
 
   // Note: updateContentField removed - now using reactive forms directly with [formControl]
@@ -114,34 +124,8 @@ export class ContentEditorComponent implements OnChanges {
     return this.getSingleContentTypeDisplayName();
   }
 
-  getContentPlaceholder(): string {
-    const placeholders: { [key: string]: string } = {
-      'poem': `Write your poem here...
-
-Remember:
-• Each line should express your thoughts
-• Feel free to experiment with form and structure
-• Let your creativity flow`,
-      'article': `Write your article here...
-
-Structure your article with:
-• Clear introduction
-• Well-organized body paragraphs
-• Strong conclusion`,
-      'cinema_essay': `Write your cinema essay here...
-
-Consider including:
-• Film analysis and critique
-• Cinematographic elements
-• Cultural context and impact`,
-      'prose': `Write your prose here...
-
-This could be:
-• A short story
-• Creative non-fiction
-• Narrative piece`
-    };
-    return placeholders[this.selectedType] || 'Write your content here...';
+  shouldDisableMetadataFields(): boolean {
+    return this.readonly;
   }
 
   goBack(): void {
