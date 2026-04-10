@@ -87,3 +87,13 @@
   font-weight: 500;
   letter-spacing: 0;
 }
+
+.trending-authors-shell {
+  background: linear-gradient(180deg, rgba(255, 97, 0, 0.06), rgba(255, 97, 0, 0.025));
+  border: 1px solid rgba(255, 97, 0, 0.08);
+}
+
+:host-context(.dark) .trending-authors-shell {
+  background: var(--bg-card);
+  border-color: var(--border-primary);
+}

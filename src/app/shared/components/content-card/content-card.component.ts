@@ -100,17 +100,18 @@ export interface ContentCardData {
       background: var(--bg-card, #ffffff);
       border-color: var(--border-primary, #e5e7eb);
       border-radius: 16px;
-      box-shadow: none;
+      box-shadow: 0 8px 22px rgba(15, 23, 42, 0.04);
     }
 
     .content-card:hover {
-      box-shadow: 0 10px 24px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 14px 28px rgba(15, 23, 42, 0.08);
       transform: translateY(-2px);
       border-color: var(--border-secondary, #d1d5db);
     }
 
     .content-card.card-borderless {
-      border-color: transparent;
+      border-color: rgba(255, 97, 0, 0.08);
+      background: linear-gradient(180deg, #ffffff 0%, #fffaf7 100%);
     }
 
     /* Cover image fills the top of the card */
@@ -153,6 +154,10 @@ export interface ContentCardData {
       --mdc-chip-elevated-container-color: var(--color-primary-light, #FFF3ED);
       --mdc-chip-label-text-color: var(--color-primary, #FF6100);
       --mat-chip-selected-trailing-icon-color: var(--color-primary, #FF6100);
+      background: var(--bg-accent-light, #FFF3ED) !important;
+      color: var(--bg-accent, #FF6100) !important;
+      border: 1px solid rgba(255, 97, 0, 0.12);
+      box-shadow: none !important;
       text-transform: uppercase;
       letter-spacing: 0.08em;
       padding: 0 6px;
@@ -214,7 +219,7 @@ export interface ContentCardData {
       width: 4px;
       height: 4px;
       border-radius: 999px;
-      background: var(--border-secondary, #d1d5db);
+      background: rgba(255, 97, 0, 0.28);
     }
 
     /* Size variants */
@@ -236,6 +241,29 @@ export interface ContentCardData {
       min-width: 360px;
     }
     .content-card.card-lg .card-title { font-size: 1.4rem !important; }
+
+    :host-context(.dark) .content-card {
+      box-shadow: none;
+    }
+
+    :host-context(.dark) .content-card:hover {
+      box-shadow: 0 10px 24px rgba(0, 0, 0, 0.12);
+    }
+
+    :host-context(.dark) .content-card.card-borderless {
+      border-color: transparent;
+      background: var(--bg-card, #1e1e1e);
+    }
+
+    :host-context(.dark) .type-chip-set .type-chip {
+      background: rgba(255, 255, 255, 0.04) !important;
+      color: var(--bg-accent, #FF6100) !important;
+      border-color: rgba(255, 255, 255, 0.08);
+    }
+
+    :host-context(.dark) .meta-separator {
+      background: var(--border-secondary, #3a3a3a);
+    }
 
     @media (max-width: 768px) {
       img[mat-card-image].card-cover-img,

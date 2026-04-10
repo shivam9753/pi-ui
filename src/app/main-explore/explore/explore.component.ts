@@ -35,7 +35,7 @@ export class ExploreComponent implements OnInit, AfterViewInit, OnDestroy {
   loading: boolean = false;
   
   // Load more properties
-  itemsPerPage: number = 7;
+  itemsPerPage: number = 8;
   totalItems: number = 0;
   hasMoreItems: boolean = true;
   isLoadingMore: boolean = false;
