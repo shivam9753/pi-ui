@@ -29,17 +29,7 @@ export class ContentEditorComponent implements OnChanges {
   constructor(private fb: FormBuilder) {}
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes['readonly'] && this.formArray) {
-      this.updateReadonlyState();
-    }
-  }
-
-  private updateReadonlyState(): void {
-    if (this.readonly) {
-      this.formArray.disable();
-    } else {
-      this.formArray.enable();
-    }
+    // No longer disabling/enabling formArray based on readonly
   }
 
   // Note: updateContentField removed - now using reactive forms directly with [formControl]
