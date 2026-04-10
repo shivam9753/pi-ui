@@ -38,8 +38,7 @@
 
     <!-- Tab Content -->
     @if (activeTab === 'submit') {
-      <!-- Expose child form instance so mobile actions can call its methods -->
-      <app-submit-form #submitFormRef
+      <app-submit-form
         [mode]="mode"
         [submissionId]="submissionId"
         [currentDraft]="currentDraft"
@@ -48,14 +47,6 @@
         (draftSaved)="onDraftSaved($event)"
         (cancelled)="onFormCancelled()"
       ></app-submit-form>
-
-      <!-- Mobile inline actions: duplicate the Save/Submit controls near the tabs for easier access -->
-      @if (isCreateMode && !isViewMode) {
-      <div class="lg:hidden px-6 py-3 bg-white-tertiary border-b border-gray-200 flex items-center justify-end gap-3">
-        <button mat-tonal-button type="button" (click)="submitFormRef.saveAsDraft()" (keydown.enter)="submitFormRef.saveAsDraft()">Save Draft</button>
-        <button mat-flat-button type="button" (click)="submitFormRef.submitForm()" (keydown.enter)="submitFormRef.submitForm()">Submit for Review</button>
-      </div>
-      }
     }
 
     @if (isCreateMode && activeTab === 'drafts') {

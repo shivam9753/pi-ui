@@ -220,20 +220,24 @@
           <!-- Submit Actions -->
           @if (!isFormReadonly) {
           <div
-            [class]="isCreateMode ? 'space-y-4 mt-4 lg:mt-0 lg:flex lg:space-y-0 lg:space-x-4' : 'flex flex-col sm:flex-row justify-center gap-4 lg:gap-6 mt-4 lg:mt-8'">
+            [class]="isCreateMode ? 'mt-4 lg:mt-0 flex flex-col gap-3 sm:flex-row sm:justify-end sm:gap-4' : 'mt-4 lg:mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center sm:gap-4 lg:gap-6'">
 
             <!-- Create Mode Actions -->
             @if (isCreateMode) {
-            <!-- Save Draft Button -->
-
-
-            <!-- Submit Button -->
-            <button mat-flat-button type="submit" [disabled]="!validateForm()">
-              {{ isSubmitting ? 'Submitting...' : 'Submit for Review' }}
-            </button>
-            <button mat-tonal-button type="button" [disabled]="!hasContent()"
+            <button
+              mat-tonal-button
+              type="button"
+              class="w-full sm:w-auto"
+              [disabled]="!hasContent()"
               (click)="saveAsDraft()">
               {{ isSavingDraft ? 'Saving...' : 'Save Draft' }}
+            </button>
+            <button
+              mat-flat-button
+              type="submit"
+              class="w-full sm:w-auto"
+              [disabled]="!validateForm()">
+              {{ isSubmitting ? 'Submitting...' : 'Submit for Review' }}
             </button>
 
             }
@@ -242,7 +246,7 @@
             @if (!isCreateMode) {
             @if (isEditMode) {
             <button type="button" (click)="saveChanges()" [disabled]="isSaving"
-              class="px-6 lg:px-8 py-4 font-medium lg:font-semibold rounded-2xl transition-all duration-200 border-2"
+              class="w-full sm:w-auto px-6 lg:px-8 py-4 font-medium lg:font-semibold rounded-2xl transition-all duration-200 border-2"
               [style.border-color]="'var(--border-primary)'" [style.color]="'var(--text-primary)'"
               [style.background-color]="'transparent'">
               @if (isSaving) {
@@ -255,7 +259,7 @@
             }
 
             <button type="button" (click)="submitForReview()" [disabled]="isSubmitting"
-              class="flex-1 lg:flex-none flex items-center justify-center px-8 lg:px-12 py-4 text-white font-medium lg:font-semibold rounded-2xl transition-all duration-300 transform hover:scale-105 active:scale-95"
+              class="w-full sm:w-auto flex items-center justify-center px-8 lg:px-12 py-4 text-white font-medium lg:font-semibold rounded-2xl transition-all duration-300 transform hover:scale-105 active:scale-95"
               [style.background-color]="'var(--bg-accent)'"
               [style.opacity]="isSubmitting ? '0.6' : '1'">
               @if (isSubmitting) {
