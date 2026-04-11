@@ -121,6 +121,68 @@ export class FeaturedPoemsComponent implements OnInit {
     }
   }
 
+  getSpotlightPoem(): FeaturedPoem | null {
+    return this.getUniqueFeaturedPoems()[0] || null;
+  }
+
+  getSecondaryPoems(): FeaturedPoem[] {
+    return this.getUniqueFeaturedPoems().slice(1);
+  }
+
+  getUniqueFeaturedPoems(): FeaturedPoem[] {
+    const seen = new Set<string>();
+    return this.featuredPoems().filter(poem => {
+      const key = this.getPoemIdentity(poem);
+      if (!key || seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+  }
+
+  private getPoemIdentity(poem: FeaturedPoem): string {
+    const submissionSlug = poem?.submission?.slug?.trim();
+    if (submissionSlug) {
+      return `slug:${submissionSlug.toLowerCase()}`;
+    }
+
+    const submissionId = poem?.submission?._id?.trim();
+    if (submissionId) {
+      return `submission:${submissionId}`;
+    }
+
+    const title = (poem?.title || '').trim().toLowerCase();
+    const authorId = (poem?.author?._id || poem?.author?.id || '').trim();
+    if (title || authorId) {
+      return `fallback:${title}:${authorId}`;
+    }
+
+    return poem?._id || '';
+  }
+
+  getAuthorInitials(name?: string): string {
+    const source = (name || '').trim();
+    if (!source) return 'P';
+
+    return source
+      .split(/\s+/)
+      .slice(0, 2)
+      .map(part => part.charAt(0).toUpperCase())
+      .join('');
+  }
+
+  formatDateLabel(date?: string): string {
+    if (!date) return '';
+
+    const parsed = new Date(date);
+    if (Number.isNaN(parsed.getTime())) return '';
+
+    return parsed.toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric'
+    });
+  }
+
   readPoem(poem: FeaturedPoem) {
     // Use the content _id to navigate to the content reader
     this.router.navigate(['/content', poem._id]);
@@ -129,6 +191,12 @@ export class FeaturedPoemsComponent implements OnInit {
   // Strip HTML tags and entities from poem body for plain-text excerpt display
   stripBody(body: string | undefined): string {
     return this.htmlSanitizer.cleanHtml(body);
+  }
+
+  getExcerpt(body: string | undefined, maxLength = 220): string {
+    const cleaned = this.stripBody(body).replace(/\s+/g, ' ').trim();
+    if (cleaned.length <= maxLength) return cleaned;
+    return `${cleaned.slice(0, maxLength).trimEnd()}…`;
   }
 
   // Helper to safely display tag name when backend may return objects

@@ -1,61 +1,125 @@
 <div class="featured-poems">
+  <header class="page-hero">
+    <div class="hero-copy">
+      <span class="eyebrow">Featured poems</span>
+      <h1 class="page-title">Featured Poems</h1>
+      <p class="page-description">
+        A selection of poems we’re highlighting right now.
+      </p>
+    </div>
+  </header>
 
-  <!-- Page Header -->
-  <div class="page-header">
-    <h1 class="page-title">Featured Poems</h1>
-    <span class="page-count">{{ featuredPoems().length }} </span>
+  <div *ngIf="loading() && featuredPoems().length === 0" class="state-panel loading">
+    Loading featured poems…
   </div>
 
-  <!-- Loading -->
-  <div *ngIf="loading() && featuredPoems().length === 0" class="loading">Loading featured poems…</div>
-
-  <!-- Empty -->
-  <div *ngIf="!loading() && featuredPoems().length === 0" class="empty">
+  <div *ngIf="!loading() && featuredPoems().length === 0" class="state-panel empty">
     <p>No featured poems yet. Check back soon!</p>
-    <a routerLink="/explore" class="explore-link">Explore All Content</a>
+    <a routerLink="/explore" class="explore-link">Explore all content</a>
   </div>
 
-  <!-- Poems Grid -->
-  <div *ngIf="featuredPoems().length > 0" class="poems-grid">
+  <section *ngIf="featuredPoems().length > 0" class="featured-layout">
     <mat-card
-      *ngFor="let poem of featuredPoems()"
+      *ngIf="getSpotlightPoem() as spotlight"
       appearance="outlined"
-      class="poem-card"
-      (click)="readPoem(poem)"
-      (keydown.enter)="readPoem(poem)"
+      class="spotlight-card"
+      (click)="readPoem(spotlight)"
+      (keydown.enter)="readPoem(spotlight)"
       tabindex="0">
+      <div class="spotlight-card__frame">
+        <div class="spotlight-card__content">
+          <div class="card-topline">
+            <span class="card-kicker">Spotlight</span>
+          </div>
 
-      <mat-card-header>
-        <mat-card-title class="poem-title">{{ poem.title }}</mat-card-title>
-        <mat-card-subtitle>
-          <a [routerLink]="['/author', poem.author._id]"
-             (click)="$event.stopPropagation()"
-             class="author-link">
-            {{ poem.author.name || poem.author.username }}
-          </a>
-        </mat-card-subtitle>
-      </mat-card-header>
+          <h2 class="spotlight-title">{{ spotlight.title }}</h2>
 
-      <mat-card-content *ngIf="poem.body">
-        <p class="poem-excerpt">{{ stripBody(poem.body) }}</p>
-      </mat-card-content>
+          <div class="spotlight-author">
+            <span class="author-avatar author-avatar--spotlight">
+              <ng-container *ngIf="spotlight.author.profileImage; else spotlightInitials">
+                <img [src]="spotlight.author.profileImage" [alt]="spotlight.author.name || spotlight.author.username" />
+              </ng-container>
+              <ng-template #spotlightInitials>
+                {{ getAuthorInitials(spotlight.author.name || spotlight.author.username) }}
+              </ng-template>
+            </span>
+            <a [routerLink]="['/author', spotlight.author._id]"
+               (click)="$event.stopPropagation()"
+               class="author-link">
+              {{ spotlight.author.name || spotlight.author.username }}
+            </a>
+            <span class="dot-separator"></span>
+            <span class="spotlight-views">{{ spotlight.viewCount || 0 }} views</span>
+          </div>
 
-      <mat-card-footer *ngIf="poem.tags && poem.tags.length > 0" class="poem-footer">
-        <mat-chip-set aria-label="Tags">
-          <mat-chip *ngFor="let tag of poem.tags" class="poem-chip">
-            {{ getTagDisplayName(tag) }}
-          </mat-chip>
-        </mat-chip-set>
-      </mat-card-footer>
+          <p *ngIf="spotlight.body" class="spotlight-excerpt">
+            {{ getExcerpt(spotlight.body, 280) }}
+          </p>
 
+          <div *ngIf="spotlight.tags && spotlight.tags.length > 0" class="tag-row">
+            <span *ngFor="let tag of spotlight.tags | slice:0:3" class="tag-pill">
+              {{ getTagDisplayName(tag) }}
+            </span>
+          </div>
+        </div>
+
+      
+      </div>
     </mat-card>
-  </div>
 
-  <!-- Load More -->
-  <div *ngIf="hasMore()" class="load-more">
-    <button mat-stroked-button class="accent-btn" (click)="loadMorePoems()" [disabled]="loading()">
-      {{ loading() ? 'Loading…' : 'Load More' }}
-    </button>
-  </div>
+    <div class="poems-grid" *ngIf="getSecondaryPoems().length > 0">
+      <mat-card
+        *ngFor="let poem of getSecondaryPoems(); let i = index"
+        appearance="outlined"
+        class="poem-card"
+        (click)="readPoem(poem)"
+        (keydown.enter)="readPoem(poem)"
+        tabindex="0">
+        <div class="poem-card__rank">{{ i + 2 }}</div>
 
+        <div class="poem-card__content">
+          <div class="poem-card__meta">
+            <span class="author-avatar author-avatar--small">
+              <ng-container *ngIf="poem.author.profileImage; else poemInitials">
+                <img [src]="poem.author.profileImage" [alt]="poem.author.name || poem.author.username" />
+              </ng-container>
+              <ng-template #poemInitials>
+                {{ getAuthorInitials(poem.author.name || poem.author.username) }}
+              </ng-template>
+            </span>
+            <span class="poem-card__author">
+              <a [routerLink]="['/author', poem.author._id]"
+                 (click)="$event.stopPropagation()"
+                 class="author-link">
+                {{ poem.author.name || poem.author.username }}
+              </a>
+            </span>
+            <span class="dot-separator"></span>
+            <span>{{ poem.viewCount || 0 }} views</span>
+          </div>
+
+          <h4 class="poem-card__title">{{ poem.title }}</h4>
+
+          <p *ngIf="poem.body" class="poem-card__excerpt">
+            {{ getExcerpt(poem.body, 170) }}
+          </p>
+
+          <div class="poem-card__footer">
+            <span class="poem-card__date">{{ formatDateLabel(poem.featuredAt || poem.publishedAt) }}</span>
+            <mat-chip-set *ngIf="poem.tags && poem.tags.length > 0" class="chip-row">
+              <mat-chip *ngFor="let tag of poem.tags | slice:0:2" class="poem-chip">
+                {{ getTagDisplayName(tag) }}
+              </mat-chip>
+            </mat-chip-set>
+          </div>
+        </div>
+      </mat-card>
+    </div>
+
+    <div *ngIf="hasMore()" class="load-more">
+      <button mat-stroked-button class="accent-btn" (click)="loadMorePoems()" [disabled]="loading()">
+        {{ loading() ? 'Loading…' : 'Load more featured poems' }}
+      </button>
+    </div>
+  </section>
 </div>
