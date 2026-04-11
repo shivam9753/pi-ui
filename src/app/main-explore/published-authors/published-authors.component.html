@@ -1,8 +1,11 @@
 <div class="published-authors">
-
   <div class="page-header">
-    <h1 class="page-title">Poets & Writers</h1>
-    <span class="page-count">{{ totalCount }} </span>
+    <div>
+      <p class="page-kicker">Published authors</p>
+      <h1 class="page-title">Poets & Writers</h1>
+      <p class="page-description">Authors with published work currently available on PoemsIndia.</p>
+    </div>
+    <span class="page-count">{{ totalCount }} authors</span>
   </div>
 
   <div *ngIf="loading" class="loading">Loading authors…</div>
@@ -12,30 +15,35 @@
 
       <mat-card appearance="outlined" class="author-card" (click)="viewAuthorProfile(author)" (keydown.enter)="viewAuthorProfile(author)" tabindex="0">
 
-        <!-- Image fills top half -->
         <div class="card-cover">
-          <img *ngIf="author.profileImage; else fallbackIcon"
+          <img *ngIf="hasProfileImage(author); else fallbackIcon"
                [src]="author.profileImage"
                [alt]="author.name || 'Author'"
+               (error)="onProfileImageError(author._id)"
                class="cover-img" />
           <ng-template #fallbackIcon>
             <div class="cover-fallback">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" fill="currentColor">
-                <path d="M234-276q51-39 114-61.5T480-360q69 0 132 22.5T726-276q35-41 54.5-93T800-480q0-133-93.5-226.5T480-800q-133 0-226.5 93.5T160-480q0 59 19.5 111t54.5 93Zm146.5-204.5Q340-521 340-580t40.5-99.5Q421-720 480-720t99.5 40.5Q620-639 620-580t-40.5 99.5Q539-440 480-440t-99.5-40.5ZM480-80q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Zm100-95.5q47-15.5 86-44.5-39-29-86-44.5T480-280q-53 0-100 15.5T294-220q39 29 86 44.5T480-160q53 0 100-15.5ZM523-537q17-17 17-43t-17-43q-17-17-43-17t-43 17q-17 17-17 43t17 43q17 17 43 17t43-17Zm-43-43Zm0 360Z"/>
-              </svg>
+              <span>{{ getInitials(author.name) }}</span>
             </div>
           </ng-template>
         </div>
 
         <!-- Text content -->
         <div class="card-body">
-          <p class="author-name">{{ toTitleCase(author.name) }}</p>
-          <p class="author-count">{{ author.publishedSubmissions ?? 0 }} {{ author.publishedSubmissions === 1 ? 'Feature' : 'Features' }}</p>
-          <p class="author-bio">{{ author.bio || '&nbsp;' }}</p>
+          <div class="card-body__topline">
+            <p class="author-name">{{ toTitleCase(author.name) }}</p>
+            <span class="author-count">{{ author.publishedSubmissions ?? 0 }} {{ getFeatureLabel(author.publishedSubmissions) }}</span>
+          </div>
+          <p class="author-bio">{{ author.bio || 'No bio available.' }}</p>
+          <div *ngIf="getPublishedTypes(author).length" class="author-types">
+            <span *ngFor="let type of getPublishedTypes(author).slice(0, 3)" class="author-type-pill">
+              {{ toTitleCase(type) }}
+            </span>
+          </div>
         </div>
 
         <mat-card-actions class="card-footer">
-          <button mat-stroked-button class="accent-btn">View Profile</button>
+          <button mat-stroked-button class="accent-btn">View profile</button>
         </mat-card-actions>
 
       </mat-card>

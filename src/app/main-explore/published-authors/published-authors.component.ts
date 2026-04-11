@@ -10,11 +10,12 @@ import { UserService } from '../../services/user.service';
   standalone: true,
   imports: [CommonModule, MatCardModule, MatButtonModule],
   templateUrl: './published-authors.component.html',
-  styleUrls: ['./published-authors.component.css']
+  styleUrl: './published-authors.component.css'
 })
 export class PublishedAuthorsComponent implements OnInit {
   authors: Array<{ _id: string; name: string; profileImage?: string; bio?: string; publishedSubmissions?: number; publishedTypes?: string[] }> = [];
   loading = true;
+  brokenImages = new Set<string>();
 
   // pagination
   currentPage = 1;
@@ -73,6 +74,23 @@ export class PublishedAuthorsComponent implements OnInit {
     if (parts.length === 0) return 'A';
     if (parts.length === 1) return parts[0].charAt(0).toUpperCase();
     return (parts[0].charAt(0) + parts[parts.length - 1].charAt(0)).toUpperCase();
+  }
+
+  hasProfileImage(author: { _id: string; profileImage?: string }): boolean {
+    return !!author.profileImage && !this.brokenImages.has(author._id);
+  }
+
+  onProfileImageError(authorId: string): void {
+    this.brokenImages.add(authorId);
+  }
+
+  getFeatureLabel(count?: number): string {
+    const value = count ?? 0;
+    return value === 1 ? 'Featured work' : 'Featured works';
+  }
+
+  getPublishedTypes(author: { publishedTypes?: string[] }): string[] {
+    return author.publishedTypes || [];
   }
 
   toTitleCase(s?: string): string {

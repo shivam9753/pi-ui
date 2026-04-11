@@ -9,14 +9,12 @@ import {
   TableColumn,
   TableAction,
   PaginationConfig,
-  USER_BADGE_CONFIG,
-  ConsistentUserMobileCardComponent,
-  UserAction
+  USER_BADGE_CONFIG
 } from '../../../shared/components';
 
 @Component({
   selector: 'app-featured-users',
-  imports: [CommonModule, DatePipe, FormsModule, AdminPageHeaderComponent, DataTableComponent, ConsistentUserMobileCardComponent],
+  imports: [CommonModule, DatePipe, FormsModule, AdminPageHeaderComponent, DataTableComponent],
   templateUrl: './featured-users.component.html',
   styleUrl: './featured-users.component.css'
 })
@@ -54,7 +52,6 @@ export class FeaturedUsersComponent implements OnInit {
     }
   ];
   actions: TableAction[] = [];
-  consistentActions: UserAction[] = [];
   badgeConfig = USER_BADGE_CONFIG;
   paginationConfig: PaginationConfig = {
     currentPage: 1,
@@ -117,14 +114,6 @@ export class FeaturedUsersComponent implements OnInit {
       }
     ];
 
-    // Setup consistent actions for mobile cards
-    this.consistentActions = [
-      {
-        label: 'View Profile',
-        color: 'primary',
-        handler: (user) => this.viewUserProfile(user)
-      }
-    ];
   }
 
   loadFeaturedUsers() {
@@ -267,6 +256,30 @@ export class FeaturedUsersComponent implements OnInit {
   // Get user display name
   getUserDisplayName(user: any): string {
     return user.name || user.email || 'Unknown User';
+  }
+
+  getUserInitials(user: any): string {
+    const name = (this.getUserDisplayName(user) || '').trim();
+    if (!name) return 'U';
+
+    return name
+      .split(/\s+/)
+      .slice(0, 2)
+      .map((part: string) => part.charAt(0).toUpperCase())
+      .join('');
+  }
+
+  getFeaturedSinceLabel(date: string): string {
+    if (!date) return '';
+
+    const parsed = new Date(date);
+    if (Number.isNaN(parsed.getTime())) return '';
+
+    return parsed.toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric'
+    });
   }
 
   // Table management methods
