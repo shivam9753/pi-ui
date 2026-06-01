@@ -37,6 +37,7 @@ import { PurgeManagementComponent } from './main-admin/purge/purge-management.co
 import { AnalyticsComponent } from './main-admin/analytics/analytics.component';
 import { ResponseTemplatesComponent } from './main-admin/response-templates/response-templates.component';
 import { TagManagementComponent } from './main-admin/tag-management/tag-management.component';
+import { AdminSubmitComponent } from './main-submission/admin-submit/admin-submit.component';
 
 export const routes: Routes = [
   // Public routes - Use explore as homepage for now
@@ -134,6 +135,11 @@ export const routes: Routes = [
     path: 'submission', 
     component: SubmissionEditorComponent,
     title: 'Submit Work - pi'
+  },
+  { 
+    path: 'admin-submit', 
+    component: AdminSubmitComponent,
+    canActivate: [AdminGuard],
   },
   { 
     path: 'submission/success',

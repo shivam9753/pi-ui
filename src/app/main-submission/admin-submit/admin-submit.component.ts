@@ -1,0 +1,282 @@
+import { CommonModule } from '@angular/common';
+import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Router, ActivatedRoute } from '@angular/router';
+import { Subscription } from 'rxjs';
+import { MatButtonModule } from '@angular/material/button';
+import { MatTabsModule } from '@angular/material/tabs';
+import { Draft, DraftsListComponent } from '../drafts-list/drafts-list.component';
+import { GuidelinesOverlayComponent } from '../guidelines-overlay/guidelines-overlay.component';
+import { ToastNotificationComponent } from '../../shared/components';
+import { AuthService, GoogleUser } from '../../services/auth.service';
+import { BackendService } from '../../services/backend.service';
+import { SubmissionMode, SubmitFormComponent } from '../submit-form/submit-form.component';
+
+@Component({
+  selector: 'app-admin-submit',
+  templateUrl: './admin-submit.component.html',
+  styleUrls: ['./admin-submit.component.css'],
+  imports: [
+    CommonModule,
+    SubmitFormComponent,
+    DraftsListComponent,
+    GuidelinesOverlayComponent,
+    ToastNotificationComponent,
+    MatButtonModule,
+    MatTabsModule
+  ]
+})
+export class AdminSubmitComponent implements OnInit, OnDestroy {
+  mode: SubmissionMode = 'create';
+  submissionId?: string;
+  activeTab: 'submit' | 'drafts' | 'guidelines' = 'submit';
+  loggedInUser: GoogleUser | null = null;
+
+  drafts: Draft[] = [];
+  currentDraft: Draft | null = null;
+  private draftsLoaded = false;
+  relatedTopicPitchId: string | null = null;
+  private topicPitchData: { title?: string; description?: string; type?: string } | null = null;
+  private subscriptions: Subscription[] = [];
+
+  // Toast notification properties
+  toastMessage = '';
+  toastType: 'success' | 'error' | 'info' | 'warning' = 'info';
+  showToastFlag = false;
+
+  constructor(
+    private router: Router,
+    public route: ActivatedRoute,
+    private authService: AuthService,
+    private backendService: BackendService
+  ) {}
+
+  readonly tabIds: ('submit' | 'drafts' | 'guidelines')[] = ['submit', 'drafts', 'guidelines'];
+
+  get selectedTabIndex(): number {
+    return Math.max(0, this.tabIds.indexOf(this.activeTab));
+  }
+
+  onTabIndexChange(index: number) {
+    const tab = this.tabIds[index];
+    if (!tab) return;
+
+    this.activeTab = tab;
+
+    if (tab === 'drafts') {
+      this.ensureDraftsLoaded();
+    }
+  }
+
+  ngOnInit(): void {
+    // Get user data
+    this.authService.user$.subscribe(user => {
+      this.loggedInUser = user;
+    });
+
+    // Determine mode from route params and query params
+    this.route.params.subscribe(params => {
+      if (params['id']) {
+        this.submissionId = params['id'];
+        this.mode = 'edit'; // Default to edit, will be refined by query params
+      }
+    });
+
+    this.route.queryParams.subscribe(queryParams => {
+      const action = queryParams['action'];
+      const mode = queryParams['mode'];
+
+      if (action === 'resubmit' || mode === 'resubmit') {
+        this.mode = 'resubmit';
+      } else if (action === 'view' || mode === 'view') {
+        this.mode = 'view';
+      } else if (queryParams['draft']) {
+        this.mode = 'create';
+        this.loadSpecificDraft(queryParams['draft']);
+      } else if (queryParams['topicId']) {
+        // Handle topic pitch parameters
+        this.mode = 'create';
+        this.handleTopicPitchParams(queryParams);
+      }
+
+      // If a revision note is passed in the query params, keep it; the template will show it
+      // No further action required here — the submit form can read it from the route if needed
+    });
+  }
+
+  // Mode-based getters
+  get isCreateMode(): boolean { return this.mode === 'create'; }
+
+  get pageTitle(): string {
+    switch (this.mode) {
+      case 'create': return 'Submit Your Work';
+      case 'edit': return 'Edit Your Submission';
+      case 'resubmit': return 'Resubmit Your Work';
+      case 'view': return 'View Submission';
+      default: return 'Submission Editor';
+    }
+  }
+
+  get pageSubtitle(): string {
+    switch (this.mode) {
+      case 'create':
+        return this.relatedTopicPitchId
+          ? '✨ Writing based on a community topic pitch - form pre-filled for you!'
+          : 'Send us your work for consideration';
+      case 'edit': return 'Update your submission and resubmit';
+      case 'resubmit': return 'Make revisions and resubmit for review';
+      case 'view': return 'Review your submission';
+      default: return '';
+    }
+  }
+
+  // expose view mode check for templates
+  get isViewMode(): boolean { return this.mode === 'view'; }
+
+  // Draft Management
+  private ensureDraftsLoaded(): void {
+    if (this.mode !== 'create' || this.draftsLoaded) return;
+    this.loadDrafts();
+  }
+
+  loadDrafts(): void {
+    if (this.mode !== 'create') return;
+
+    this.backendService.getUserDrafts().subscribe({
+      next: (response) => {
+        this.draftsLoaded = true;
+        this.drafts = (response.submissions || response.drafts || []).map((draft: any) => ({
+          id: draft._id || draft.id,
+          title: draft.title || 'Untitled Draft',
+          submissionType: draft.submissionType || draft.type || '',
+          contents: draft.contents || [],
+          description: draft.description || draft.excerpt || '',
+          lastModified: new Date(draft.updatedAt || draft.lastEditedAt || draft.createdAt),
+          wordCount: draft.wordCount || 0
+        }));
+      },
+      error: () => {
+        this.draftsLoaded = false;
+        this.drafts = [];
+      }
+    });
+  }
+
+  loadSpecificDraft(draftId: string): void {
+    const draft = this.drafts.find(d => d.id === draftId);
+    if (draft) {
+      this.currentDraft = draft;
+      this.activeTab = 'submit';
+    } else {
+      this.backendService.getUserDrafts().subscribe({
+        next: (response) => {
+          const apiDraft = (response.submissions || response.drafts || []).find((d: any) => d._id === draftId || d.id === draftId);
+          if (apiDraft) {
+            const transformedDraft: Draft = {
+              id: apiDraft._id || apiDraft.id,
+              title: apiDraft.title || 'Untitled Draft',
+              submissionType: apiDraft.submissionType || apiDraft.type || '',
+              contents: apiDraft.contents || [],
+              description: apiDraft.description || apiDraft.excerpt || '',
+              lastModified: new Date(apiDraft.updatedAt || apiDraft.lastEditedAt || apiDraft.createdAt),
+              wordCount: apiDraft.wordCount || 0
+            };
+            this.currentDraft = transformedDraft;
+            this.activeTab = 'submit';
+          }
+        },
+        error: () => {
+          this.showToast('Draft not found', 'error');
+        }
+      });
+    }
+  }
+
+  handleTopicPitchParams(queryParams: any): void {
+    const { topicId, title, type, description } = queryParams;
+
+    if (topicId) {
+      this.relatedTopicPitchId = topicId;
+    }
+
+    this.topicPitchData = {
+      title: title || undefined,
+      description: description || undefined,
+      type: type || undefined
+    };
+
+    // Show notification
+    setTimeout(() => {
+      this.showToast('Pre-filled from topic pitch! Feel free to modify as needed.', 'info');
+    }, 100);
+  }
+
+  loadDraftAndSwitchToSubmit(draft: Draft): void {
+    this.currentDraft = draft;
+    this.activeTab = 'submit';
+    this.showToast('Draft loaded successfully!', 'success');
+  }
+
+  deleteDraft(draftId: string): void {
+    this.backendService.deleteDraft(draftId).subscribe({
+      next: () => {
+        this.showToast('Draft deleted successfully', 'success');
+        this.loadDrafts();
+      },
+      error: (error) => {
+        let errorMessage = 'Failed to delete draft. Please try again.';
+
+        if (error.status === 0) {
+          errorMessage = 'Network error. Please check your connection and try again.';
+        } else if (error.status === 401) {
+          errorMessage = 'Please log in again to delete your draft.';
+        } else if (error.status === 404) {
+          errorMessage = 'Draft not found. It may have already been deleted.';
+        } else if (error.status >= 500) {
+          errorMessage = 'Server error. Please try again in a few minutes.';
+        } else if (error.error?.message) {
+          errorMessage = error.error.message;
+        }
+
+        this.showToast(errorMessage, 'error');
+      }
+    });
+  }
+
+  onDraftSaved(draftId: string): void {
+    this.loadDrafts();
+  }
+
+  onFormSubmitted(): void {
+    // Route to a dedicated success page for create mode, otherwise preserve original behavior
+    if (this.mode === 'create') {
+      this.router.navigate(['/submission/success']);
+      return;
+    }
+
+    setTimeout(() => {
+      this.router.navigate([this.mode === 'create' ? '/explore' : '/user-profile']);
+    }, 2000);
+  }
+
+  onFormCancelled(): void {
+    this.router.navigate(['/user-profile']);
+  }
+
+  onToastMessage(event: { message: string; type: 'success' | 'error' | 'info' | 'warning' }): void {
+    this.showToast(event.message, event.type);
+  }
+
+  showToast(message: string, type: 'success' | 'error' | 'info' | 'warning' = 'info'): void {
+    this.toastMessage = message;
+    this.toastType = type;
+    this.showToastFlag = true;
+  }
+
+  hideToast(): void {
+    this.showToastFlag = false;
+  }
+
+  ngOnDestroy(): void {
+    this.subscriptions.forEach(sub => sub.unsubscribe());
+  }
+}

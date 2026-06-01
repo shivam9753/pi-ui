@@ -1,0 +1,166 @@
+<!-- Submission Editor - Tab Container -->
+<div class="min-h-screen bg-white-secondary transition-all duration-500">
+
+  <!-- Mobile Experience -->
+  <div class="lg:hidden">
+    <!-- Clean Header -->
+    <div class="bg-white border border-gray-200 px-6 py-6">
+      <div class="text-center">
+        <h1 class="text-2xl text-gray-900">{{ pageTitle }}</h1>
+        <p class="text-gray-900-secondary text-sm mt-1">{{ pageSubtitle }}</p>
+      </div>  
+
+      <!-- Quick link to My Submissions (mobile) -->
+      <div class="mt-3 flex justify-center">
+        <a routerLink="/my-submissions" href="/my-submissions" class="inline-flex items-center gap-2 text-sm text-primary hover:underline" aria-label="View All Submissions">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 2h6l5 5v11a2 2 0 01-2 2H7a2 2 0 01-2-2V4a2 2 0 012-2z" />
+          </svg>
+          View All Submissions
+        </a>
+      </div>
+    </div>
+
+    <!-- Tab controls (mobile) - place directly under header so mobile matches desktop -->
+    @if (isCreateMode) {
+      <div class="px-6 py-3">
+        <mat-tab-group
+          [selectedIndex]="selectedTabIndex"
+          (selectedIndexChange)="onTabIndexChange($event)"
+          animationDuration="200ms"
+          mat-stretch-tabs="false">
+          <mat-tab label="Write"></mat-tab>
+          <mat-tab label="My Drafts"></mat-tab>
+          <mat-tab label="Guide"></mat-tab>
+        </mat-tab-group>
+      </div>
+    }
+
+    <!-- Tab Content -->
+    @if (activeTab === 'submit') {
+      <app-submit-form
+        [mode]="mode"
+        [submissionId]="submissionId"
+        [currentDraft]="currentDraft"
+        (toastMessage)="onToastMessage($event)"
+        (formSubmitted)="onFormSubmitted()"
+        (draftSaved)="onDraftSaved($event)"
+        (cancelled)="onFormCancelled()"
+      ></app-submit-form>
+    }
+
+    @if (isCreateMode && activeTab === 'drafts') {
+      <div class="px-6 py-6 pb-32">
+        <app-drafts-list
+          [drafts]="drafts"
+          [isInline]="true"
+          (loadDraft)="loadDraftAndSwitchToSubmit($event)"
+          (deleteDraft)="deleteDraft($event)"
+          (createNew)="activeTab = 'submit'"
+        ></app-drafts-list>
+      </div>
+    }
+
+    @if (isCreateMode && activeTab === 'guidelines') {
+      <div class="px-6 py-6 pb-32">
+        <app-guidelines-overlay
+          [isInline]="true"
+        ></app-guidelines-overlay>
+      </div>
+    }
+  </div>
+
+  <!-- Desktop Experience -->
+  <div class="hidden lg:block">
+    <div class="max-w-4xl mx-auto px-8 py-16">
+      <!-- Elegant Header -->
+      <div class="text-center mb-16">
+        <h1 class="text-2xl md:text-3xl font-bold text-gray-900 mb-2">
+          {{ pageTitle }}
+        </h1>
+        <p class="text-gray-900-secondary">
+          {{ pageSubtitle }}
+        </p>
+      </div>
+
+      <!-- Desktop quick link -->
+      <div class="flex justify-center mb-6">
+        <a routerLink="/my-submissions" href="/my-submissions" class="inline-flex items-center gap-2 px-3 py-2 text-sm font-medium text-primary bg-white-tertiary rounded-xl border border-border hover:bg-white" aria-label="View All Submissions">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 2h6l5 5v11a2 2 0 01-2 2H7a2 2 0 01-2-2V4a2 2 0 012-2z" />
+          </svg>
+          View All Submissions
+        </a>
+      </div>
+
+      <!-- Revision note banner (display if query param revNote is present) -->
+      <ng-container *ngIf="route.snapshot.queryParams['revNote']">
+        <div class="max-w-4xl mx-auto mb-6 px-6 py-4 rounded-lg bg-amber-50 border border-amber-100 text-amber-900">
+          <strong>Revision note:</strong>
+          <div class="mt-2">{{ route.snapshot.queryParams['revNote'] }}</div>
+        </div>
+      </ng-container>
+
+      <!-- Navigation Tabs (Create mode only) -->
+      @if (isCreateMode) {
+        <div class="mb-12">
+          <mat-tab-group
+            [selectedIndex]="selectedTabIndex"
+            (selectedIndexChange)="onTabIndexChange($event)"
+            animationDuration="200ms"
+            mat-stretch-tabs="false">
+            <mat-tab label="Write"></mat-tab>
+            <mat-tab label="My Drafts"></mat-tab>
+            <mat-tab label="Guidelines"></mat-tab>
+          </mat-tab-group>
+        </div>
+      }
+
+      <!-- Tab Content -->
+      @if (activeTab === 'submit') {
+        <app-submit-form
+          [mode]="mode"
+          [submissionId]="submissionId"
+          [currentDraft]="currentDraft"
+          (toastMessage)="onToastMessage($event)"
+          (formSubmitted)="onFormSubmitted()"
+          (draftSaved)="onDraftSaved($event)"
+          (cancelled)="onFormCancelled()"
+        ></app-submit-form>
+      }
+
+      @if (isCreateMode && activeTab === 'drafts') {
+        <div class="px-6 py-8 lg:px-8">
+          <app-drafts-list
+            [drafts]="drafts"
+            [isInline]="true"
+            (loadDraft)="loadDraftAndSwitchToSubmit($event)"
+            (deleteDraft)="deleteDraft($event)"
+            (createNew)="activeTab = 'submit'"
+          ></app-drafts-list>
+        </div>
+      }
+
+      @if (isCreateMode && activeTab === 'guidelines') {
+        <div class="px-6 py-8 lg:px-8">
+          <div class="max-w-4xl mx-auto">
+            <app-guidelines-overlay
+              [isInline]="true"
+            ></app-guidelines-overlay>
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+
+  <!-- Toast Notifications -->
+  <app-toast-notification
+    [message]="toastMessage"
+    [type]="toastType"
+    [isVisible]="showToastFlag"
+    [autoClose]="true"
+    [duration]="5000"
+    (closed)="hideToast()">
+  </app-toast-notification>
+
+</div>
