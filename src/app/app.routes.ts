@@ -132,8 +132,7 @@ export const routes: Routes = [
   },
   { 
     path: 'submission', 
-    component: SubmissionEditorComponent, 
-    canActivate: [AuthGuard],
+    component: SubmissionEditorComponent,
     title: 'Submit Work - pi'
   },
   { 

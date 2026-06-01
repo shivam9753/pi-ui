@@ -10,18 +10,9 @@
         <p class="text-gray-900-secondary text-sm mt-1">{{ pageSubtitle }}</p>
       </div>  
 
-      <!-- Quick link to My Submissions (mobile) -->
-      <div class="mt-3 flex justify-center">
-        <a routerLink="/my-submissions" href="/my-submissions" class="inline-flex items-center gap-2 text-sm text-primary hover:underline" aria-label="View All Submissions">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 2h6l5 5v11a2 2 0 01-2 2H7a2 2 0 01-2-2V4a2 2 0 012-2z" />
-          </svg>
-          View All Submissions
-        </a>
-      </div>
     </div>
 
-    <!-- Tab controls (mobile) - place directly under header so mobile matches desktop -->
+    <!-- Tab controls (mobile) -->
     @if (isCreateMode) {
       <div class="px-6 py-3">
         <mat-tab-group
@@ -29,35 +20,31 @@
           (selectedIndexChange)="onTabIndexChange($event)"
           animationDuration="200ms"
           mat-stretch-tabs="false">
-          <mat-tab label="Write"></mat-tab>
-          <mat-tab label="My Drafts"></mat-tab>
-          <mat-tab label="Guide"></mat-tab>
+          <mat-tab label="Submit"></mat-tab>
+          <mat-tab label="Guidelines"></mat-tab>
         </mat-tab-group>
       </div>
     }
 
     <!-- Tab Content -->
     @if (activeTab === 'submit') {
-      <app-submit-form
-        [mode]="mode"
-        [submissionId]="submissionId"
-        [currentDraft]="currentDraft"
-        (toastMessage)="onToastMessage($event)"
-        (formSubmitted)="onFormSubmitted()"
-        (draftSaved)="onDraftSaved($event)"
-        (cancelled)="onFormCancelled()"
-      ></app-submit-form>
-    }
-
-    @if (isCreateMode && activeTab === 'drafts') {
       <div class="px-6 py-6 pb-32">
-        <app-drafts-list
-          [drafts]="drafts"
-          [isInline]="true"
-          (loadDraft)="loadDraftAndSwitchToSubmit($event)"
-          (deleteDraft)="deleteDraft($event)"
-          (createNew)="activeTab = 'submit'"
-        ></app-drafts-list>
+        <div class="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
+          <h2 class="text-xl font-bold text-gray-900 mb-4">How to Submit</h2>
+          <p class="text-gray-700 leading-relaxed mb-4">
+            We are currently accepting submissions in the following formats: 
+            <span class="font-semibold text-gray-900">Poems, Prose, Articles, Essay, Cinema Essay, and Book Review</span>.
+          </p>
+          <p class="text-gray-700 leading-relaxed mb-4">
+            To submit your work, please email your submission as a <strong class="text-gray-900">Word document</strong>, along with your <strong class="text-gray-900">bio and a picture</strong> to:
+          </p>
+          <div class="mb-6 p-3 bg-gray-50 rounded-lg border border-gray-100 text-center">
+            <a href="mailto:poemsindia&#64;gmail.com" class="text-lg font-semibold text-primary hover:underline">poemsindia&#64;gmail.com</a>
+          </div>
+          <div class="pt-4 border-t border-gray-100 text-sm text-gray-500">
+            Make sure to read the detailed guidelines in the other tab before sending.
+          </div>
+        </div>
       </div>
     }
 
@@ -93,7 +80,7 @@
         </a>
       </div>
 
-      <!-- Revision note banner (display if query param revNote is present) -->
+      <!-- Revision note banner -->
       <ng-container *ngIf="route.snapshot.queryParams['revNote']">
         <div class="max-w-4xl mx-auto mb-6 px-6 py-4 rounded-lg bg-amber-50 border border-amber-100 text-amber-900">
           <strong>Revision note:</strong>
@@ -109,8 +96,7 @@
             (selectedIndexChange)="onTabIndexChange($event)"
             animationDuration="200ms"
             mat-stretch-tabs="false">
-            <mat-tab label="Write"></mat-tab>
-            <mat-tab label="My Drafts"></mat-tab>
+            <mat-tab label="Submit"></mat-tab>
             <mat-tab label="Guidelines"></mat-tab>
           </mat-tab-group>
         </div>
@@ -118,26 +104,32 @@
 
       <!-- Tab Content -->
       @if (activeTab === 'submit') {
-        <app-submit-form
-          [mode]="mode"
-          [submissionId]="submissionId"
-          [currentDraft]="currentDraft"
-          (toastMessage)="onToastMessage($event)"
-          (formSubmitted)="onFormSubmitted()"
-          (draftSaved)="onDraftSaved($event)"
-          (cancelled)="onFormCancelled()"
-        ></app-submit-form>
-      }
+        <div class="bg-white border border-border rounded-2xl p-8 shadow-sm max-w-2xl mx-auto">
+          <h2 class="text-2xl font-bold text-gray-900 mb-4">How to Submit</h2>
+          <p class="text-gray-700 text-lg leading-relaxed mb-4">
+            We are currently accepting submissions in the following formats:
+          </p>
+          <div class="flex flex-wrap gap-2 mb-6">
+            <span class="px-3 py-1 bg-gray-100 text-gray-800 rounded-full text-sm font-medium">Poems</span>
+            <span class="px-3 py-1 bg-gray-100 text-gray-800 rounded-full text-sm font-medium">Prose</span>
+            <span class="px-3 py-1 bg-gray-100 text-gray-800 rounded-full text-sm font-medium">Articles</span>
+            <span class="px-3 py-1 bg-gray-100 text-gray-800 rounded-full text-sm font-medium">Essay</span>
+            <span class="px-3 py-1 bg-gray-100 text-gray-800 rounded-full text-sm font-medium">Cinema Essay</span>
+            <span class="px-3 py-1 bg-gray-100 text-gray-800 rounded-full text-sm font-medium">Book Review</span>
+          </div>
+          <p class="text-gray-700 text-lg leading-relaxed mb-3">
+            To submit your work, please email your submission as a <strong class="text-gray-900 font-semibold">Word document</strong>, along with your <strong class="text-gray-900 font-semibold">bio and a picture</strong> to:
+          </p>
+          
+          <div class="mb-6 p-4 bg-gray-50 rounded-xl border border-gray-100 inline-block">
+            <a href="mailto:poemsindia@gmail.com" class="text-xl font-bold text-primary hover:underline tracking-wide">
+              poemsindia&#64;gmail.com
+            </a>
+          </div>
 
-      @if (isCreateMode && activeTab === 'drafts') {
-        <div class="px-6 py-8 lg:px-8">
-          <app-drafts-list
-            [drafts]="drafts"
-            [isInline]="true"
-            (loadDraft)="loadDraftAndSwitchToSubmit($event)"
-            (deleteDraft)="deleteDraft($event)"
-            (createNew)="activeTab = 'submit'"
-          ></app-drafts-list>
+          <div class="pt-6 border-t border-gray-100 text-sm text-gray-500">
+            Please make sure to review our detailed formatting and editorial standards in the <strong class="font-medium text-primary">Guidelines</strong> tab before sending your email.
+          </div>
         </div>
       }
 
